@@ -144,6 +144,7 @@ import {
     x_monnam,
 } from './do_name.js';
 import { game } from './gstate.js';
+import { youHear as plineYouHear } from './pline.js';
 import { setmangry } from './mon.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
 import {
@@ -644,9 +645,10 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
     if (mtmp === state.youmonst) {
         if (trap.once && trap.tseen && !random.rn2(15)) {
             // Soundeffect() has no captured tty output. You_hear() is a void
-            // message helper outside this module's source scope.
+            // message helper; keep its message boundary before deltrap().
             note_unported('sounds.c Soundeffect');
-            note_unported('pline.c You_hear');
+            const heard = plineYouHear('a loud click!', state);
+            if (heard !== null) await message(heard, state, env);
             deltrap(trap, state);
             newsym(state.u.ux, state.u.uy);
             return Trap_Is_Gone;
@@ -822,20 +824,18 @@ export async function thitm(tlev, mon, obj, d_override, nocorpse, env) {
 // Hero arm: the dart shoots, thitu() rolls to hit, poisoned() applies on hit,
 // or the dart lands on the floor on miss.
 //
-// Two hero branches stop:
+// The hero misfire branch returns Trap_Is_Gone:
 //   misfire (trap->once && trap->tseen && !rn2(15), C 1262-1267): needs
-//     pline.c You_hear(), which js/monmove.js owns and which heroTrapEnv()
-//     does not bind. The rn2(15) draw happens regardless, and only when it
-//     returns 0 does the arm need the message; the port refuses there rather
-//     than at entry.
-//   steed (u.usteed, C 1276): calls steedintrap(), which is not ported.
+//     pline.c You_hear(); the rn2(15) draw happens regardless, and only when
+//     it returns 0 does the arm print the soft-click message before deleting
+//     the trap.
+// The steed branch (u.usteed, C 1276) calls steedintrap(), which is not ported.
 //     preflight_dotrap() refuses when u.usteed is set, so this is unreachable.
 //
 // The monster arm is fully ported, misfire included.
 async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
-    const unsupported = requireTrapOperation(env, 'unsupported');
     const message = requireTrapOperation(env, 'message');
     const redraw = requireTrapOperation(env, 'redraw');
     const objectEnv = objectGenerationEnv({ state, random });
@@ -847,9 +847,13 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
         // C 1262-1267: misfire check. The rn2(15) draw fires only when both
         // conditions are true; its roll is part of the recorded PRNG log.
         if (trap.once && trap.tseen && !random.rn2(15)) {
-            // You_hear("a soft click.") is unavailable in the hero env.
             // Soundeffect() is a tty-sound hook and writes nothing.
-            unsupported('a dart trap that wears out');
+            note_unported('sounds.c Soundeffect');
+            const heard = plineYouHear('a soft click.', state);
+            if (heard !== null) await message(heard, state, env);
+            deltrap(trap, state);
+            newsym(state.u.ux, state.u.uy);
+            return Trap_Is_Gone;
         }
         trap.once = true;
         seetrap(trap, env);
@@ -1594,21 +1598,11 @@ function See_invisible(state) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-// C ref: youprop.h:399 Unaware and pline.c You_hear() (435-451). This local
-// composition keeps the trap effect independent from monmove.js, which imports
-// trap_effects.js for the monster movement dispatcher.
+// C ref: youprop.h:399 Unaware. launch_obj() also composes You_see() here so
+// trap_effects.js does not depend on monmove.js, which imports this module.
 function heroUnaware(state) {
     return Math.trunc(state.multi ?? 0) < 0
         && (unconscious(state) || state.u?.uhs === FAINTED);
-}
-
-function magicTrapHear(line, state) {
-    if ((heroIsDeaf(state) && !heroUnaware(state))
-        || !state.flags?.acoustics)
-        return null;
-    if (state.u?.uinwater) return `You barely hear ${line}`;
-    if (heroUnaware(state)) return `You dream that you hear ${line}`;
-    return `You hear ${line}`;
 }
 
 async function domagictrap(env) {
@@ -1633,7 +1627,7 @@ async function domagictrap(env) {
             // Soundeffect(se_low_hum, 100) is a tty-sound hook that writes
             // nothing. You_hear() still applies its Deaf and acoustics gates.
             {
-                const heard = magicTrapHear('a low hum.', state);
+                const heard = plineYouHear('a low hum.', state);
                 if (heard !== null) await message(heard, state);
             }
             const invisProp = state.u.uprops[INVIS];
@@ -1676,10 +1670,14 @@ async function domagictrap(env) {
             );
             break;
         case 14:
-            await message(
-                `You hear ${Hallucination(state) ? 'the moon howling at you.' : 'distant howling.'}`,
-                state,
-            );
+            {
+                const heard = plineYouHear(
+                    Hallucination(state)
+                        ? 'the moon howling at you.' : 'distant howling.',
+                    state,
+                );
+                if (heard !== null) await message(heard, state);
+            }
             break;
         case 15:
             if (on_level(state.u.uz, state.qstart_level))
@@ -2188,7 +2186,7 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
         if (heroIsBlind(target)) return `You sense ${line}`;
         return `You see ${line}`;
     });
-    const youHear = env.youHear ?? magicTrapHear;
+    const youHear = env.youHear ?? plineYouHear;
 
     // Object lifecycle hooks receive the normalized operation environment,
     // whereas the vision owners take the state directly.  Keep that adapter

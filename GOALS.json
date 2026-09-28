@@ -102065,7 +102065,7 @@
     {
       "id": "port-pline-you-hear-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port source-conditioned hearing messages and their active callers",
       "cFile": "pline.c",
       "sessions": [
@@ -102073,8 +102073,12 @@
       ],
       "selectionReason": "The v9 sleeping-potion effect now matches all C RNG values, but its final fountain sound uses a short unconditional JavaScript prefix. The complete current investigation at investigations/synthetic/v9/sleeping-potion-falls-asleep.json traces the source owner to pline.c:You_hear and the Unaware dream prefix; dig.c and read.c are reserved by other workers.",
       "detail": "Port all pline.c:You_hear gates and prefixes from source and wire active existing JavaScript sound callers through that function. Preserve the tty --More-- boundary arising from full message length and record independent hearing state variations; avoid a session-specific pause.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+      "openStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -102103,12 +102107,129 @@
           "evaluationPath": "challenges/evaluations/20260928032810-v9.json",
           "evaluationCommit": "b3559b21b4087eb86dad1a798fe621067c921f47"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "You_hear",
+            "implementation": "js/pline.js",
+            "symbol": "youHear",
+            "sourceReview": "Read all of pline.c:You_hear() (436-454). Preserved the early return when (Deaf && !Unaware) || !flags.acoustics, followed by the Underwater, Unaware, and ordinary prefixes in C order. `heroDeaf` maps HDeaf/EDeaf and roleplay deafness; `heroUnaware` maps gm.multi < 0 && (unconscious() || is_fainted()). The helper returns null or the source-composed line so the production caller writes it through its normal pline callback and preserves the existing input boundary. Moved the implementation from monmove.js to pline.js and retained the monmove.js export for existing callers. Removed the duplicate magicTrapHear composition and routed trap-effects callers through the canonical helper. Source-backed callers added or corrected: trap.c:domagictrap fates 11 and 14, trap.c:launch_obj fallback, trap.c:trapeffect_arrow_trap hero wear-out, and trap.c:trapeffect_dart_trap hero misfire. Arrow/dart keep rn2(15), You_hear output, deltrap, newsym, and Trap_Is_Gone in source order; their independent C entry recordings are not yet available and remain explicit runtime gaps. Other existing JS callers retain their monmove.js import surface.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_scare_monster",
+                "source": "read.c:seffect_scare_monster() calls You_hear() for a scare scroll or when no non-pet monster is counted; the independent scare-scroll recording reaches this call."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "hear",
+                "source": "sounds.c:dosounds() and its sound-category helpers call You_hear/You_hear1; the selected sleeping-potion case reaches the ambient fountain message through this helper."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "domagictrap",
+                "source": "trap.c:domagictrap() emits You_hear() for low-hum and howling fates; the local duplicate composer is removed and the canonical helper now handles Deaf, acoustics, Underwater, and Unaware."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "launch_obj",
+                "source": "trap.c:launch_obj() uses You_hear() when its target cannot be seen; its fallback now uses the canonical helper."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_arrow_trap",
+                "source": "trap.c:trapeffect_arrow_trap() hero wear-out branch calls You_hear(\"a loud click!\") before deltrap(), newsym(), and Trap_Is_Gone."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_dart_trap",
+                "source": "trap.c:trapeffect_dart_trap() hero misfire branch calls You_hear(\"a soft click.\") before deltrap(), newsym(), and Trap_Is_Gone."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pline.test.mjs",
+              "scripts/hero-magic-trap.test.mjs",
+              "scripts/hero-dart-trap.test.mjs",
+              "scripts/sounds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pline.c/you-hear-scare-scroll-independent-a38.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sleeping-potion-falls-asleep",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "potion.c:peffect_sleeping -> timeout.c:fall_asleep -> allmain.c:moveloop_core -> sounds.c:dosounds -> pline.c:You_hear"
+              }
+            ],
+            "checkedAt": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
+          }
+        ],
+        "entryPointReview": "The selected active entry is the v9 sleeping-potion turn, whose ambient fountain output executes sounds.c:dosounds -> pline.c:You_hear and matches through zero-based step 32. An independent Wizard scare-scroll recipe also reaches read.c:seffect_scare_monster -> You_hear and strictly matches all 38 steps. Existing call sites that import youHear from monmove.js retain that public import path, now re-exporting the canonical pline.js implementation. The A38 scope also corrects trap.c callers: domagictrap fates 11/14 and launch_obj use the shared Deaf/acoustics/Underwater/Unaware behavior; direct tests cover the low-hum/howling prefix and caller order. However, those trap caller paths do not yet have matching independent C recordings. The hero arrow-trap wear-out and dart-trap misfire branches are source-wired and directly tested for rn2(15), message-before-removal, and Trap_Is_Gone, but have no matching C recordings in this packet. These trap entry paths remain uncovered runtime evidence and must not be counted as recorded completion. The task's source function itself is exercised by both the selected synthetic range and the independent scare-scroll recording.",
+        "entryPoints": [
+          {
+            "name": "Ambient sounds after the sleeping-potion turn",
+            "functions": [
+              "You_hear"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sleeping-potion-falls-asleep",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "potion.c:peffect_sleeping -> timeout.c:fall_asleep -> allmain.c:moveloop_core -> sounds.c:dosounds -> pline.c:You_hear"
+              }
+            ]
+          },
+          {
+            "name": "Read a scare-monster scroll that emits sound feedback",
+            "functions": [
+              "You_hear"
+            ],
+            "recordings": [
+              "recordings/pline.c/you-hear-scare-scroll-independent-a38.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Trap sound callers: magic-trap fates, launch object, arrow wear-out, and dart misfire",
+            "functions": [
+              "You_hear"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "You_hear source function and ambient/read callers match, but active trap.c caller entry points (domagictrap sound fates, launch_obj fallback, arrow wear-out, and dart misfire) still lack independent strictly matching C recordings; resume when source-reaching trap recipes can verify those paths."
     },
     {
       "id": "port-read-charging-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port charging-scroll effect and its complete recharge source family",
       "cFile": "read.c",
       "sessions": [
@@ -102116,8 +102237,12 @@
       ],
       "selectionReason": "v9 charging-scroll-recharges-wand is the first actionable queue candidate; investigations/synthetic/v9/charging-scroll-recharges-wand.json traces the missing prompt to read.c:seffect_charging and the shared recharge family. Continue related read.c work with worker C after identify.",
       "detail": "Port seffect_charging, recharge, charge_ok, stripspe and p_glow helpers from read.c; preserve wand, ring and tool branches, source RNG order, caller wiring, and independent entry-point evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "e330a0af6f55f190675eb787de6ddcda494b4b3d",
+      "openStanding": {
+        "sha": "533d144713ebda5784bfbde54c648abde78b7883",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -102125,8 +102250,8 @@
           "name": "seffect_charging",
           "line": 1788,
           "endLine": 1829,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -102146,12 +102271,340 @@
           "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
           "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "533d144713ebda5784bfbde54c648abde78b7883",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "charging-scroll-recharges-wand",
+          "session": "synthetic/v9/charging-scroll-recharges-wand",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+          "recordingPath": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+          "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+          "recipe": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.recipe.session.json",
+          "recipeSha256": "ddcd719f6eb75e23a4f2c85bc3f363b26ec52ab0e0b89baf940da5ee87eaaf67",
+          "replayInputSha256": "e34266a7d4063160bb871c81b86e20ea3adab12291e729522431af074c658405",
+          "evaluationPath": "challenges/evaluations/20260928061245-v9.json",
+          "evaluationCommit": "533d144713ebda5784bfbde54c648abde78b7883",
+          "evaluationArtifact": "challenges/evaluations/20260928061245-v9.json",
+          "evaluationUtc": "2026-09-28T06:13:28.451Z",
+          "remainingScreens": 4,
+          "recordedSteps": 36,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2853,
+              "total": 2864
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2853,
+              "cEntry": "rn2(19)=7",
+              "cCaller": "exercise(attrib.c:509)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "o"
+              },
+              "stepIndex": 32
+            },
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "o"
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/charging-scroll-recharges-wand.json",
+            "result": {
+              "session": "synthetic/v9/charging-scroll-recharges-wand",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "charging-scroll-recharges-wand",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 4,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "charging-scroll-recharges-wand",
+                "session": "synthetic/v9/charging-scroll-recharges-wand",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+                "recordingPath": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+                "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+                "recipe": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.recipe.session.json",
+                "recipeSha256": "ddcd719f6eb75e23a4f2c85bc3f363b26ec52ab0e0b89baf940da5ee87eaaf67",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 4,
+                "recordedSteps": 36,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2853,
+                    "total": 2864
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2853,
+                    "cEntry": "rn2(19)=7",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "o"
+                    },
+                    "stepIndex": 32
+                  },
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "o"
+                    },
+                    "cCursor": [
+                      74,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "Reading a charging scroll reaches read.c:seffect_charging, but js/read.js:seffects records the effect as unported. C identifies and consumes the scroll before a chargeable-object prompt, then read.c:recharge changes the selected wand. Port the complete source family, including recharge branches and other active callers; the selected wand case alone does not cover rings, tools, or explosion paths.",
+              "source": {
+                "file": "read.c",
+                "branch": "seffect_charging handles confused hero energy separately, otherwise identifies and consumes the scroll before getobj(charge, charge_ok). A chosen item goes to recharge with -1, 0, or +1 from curse/bless. The selected case chooses a wand; recharge handles cancellation, explosion chance from prior recharge count, charge ceiling, source-ordered RNG, object glow messages, and cap_spe. The same function has ring and tool branches with different state effects.",
+                "functions": [
+                  "stripspe",
+                  "p_glow1",
+                  "p_glow2",
+                  "p_glow3",
+                  "recharge",
+                  "seffect_charging"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_CHARGING arm calls seffect_charging; js/read.js:seffects currently records note_unported(read.c seffect_charging).",
+                  "read.c:seffect_charging calls recharge after getobj; other C callers include artifacts.c recharge invocation and zap.c destruction effects, represented by explicit read.c recharge gaps in js/artifacts.js and js/zap_destroy_items.js."
+                ],
+                "dependencies": [
+                  "read.c:charge_ok and learnscroll already have JavaScript implementations in js/read.js; getobj, useup, object discovery, and prompt ordering must match C.",
+                  "read.c:recharge owns stripspe and p_glow helpers. Its wand_explode, Ring_off/gone, burn, shop, HP, and cap_spe effects require source-matched callees or explicit discarded-result gaps under AGENTS.md.",
+                  "The selected wand path is only one object class; independent recordings must cover active ring/tool and cursed/blessed paths before source completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json leaves 4 of 36 screens unmatched; the first screen and cursor differ at segment 0 step 32 when C prompts for a chargeable object. The later C exercise RNG call reflects action-history divergence and does not identify the source owner.",
+                "Fresh scan at b6e28d15 reports note_unported(read.c seffect_charging). The C recipe challenges/cases/v9/charging-scroll-recharges-wand.recipe.session.json reads a charging scroll and chooses a wand; there is no matching JavaScript source effect yet.",
+                "Upstream nethack-c/upstream/src/read.c:seffect_charging at 1788-1828 invokes read.c:recharge at 729-1009. Its immediate source helpers stripspe and p_glow1/2/3 are at 652-684, while js/read.js:charge_ok and learnscroll are already ported."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_charging",
+            "implementation": "js/read.js",
+            "symbol": "seffect_charging",
+            "sourceReview": "Compared all of read.c:1788-1827, preserving confusion/BUC ordering, scroll identification and consumption before getobj, and the pointer-to-pointer consumed result used by seffects.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects SCR_CHARGING dispatch"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread -> seffects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/charging-overloaded-wishing-wand-c31-independent.session.json",
+              "recordings/read.c/charging-worn-adornment-ring-c31-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "charging-scroll-recharges-wand",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 35,
+                "source": "read.c:doread -> seffects -> seffect_charging -> recharge"
+              }
+            ],
+            "checkedAt": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73"
+          }
+        ],
+        "entryPointReview": "Whole source functions completed in read.c are cap_spe, charge_ok, recharge, seffect_charging, and wand_explode. stripspe, p_glow2, and p_glow3 are implemented but listed incomplete because this delivery lacks matching C runtime evidence. The ordinary scroll dispatcher reaches seffect_charging via doread/seffects; v9 charging-scroll-recharges-wand and the independent wand/ring recordings cover the ordinary wand and charged-ring paths. The independent overloaded-wishing-wand record reaches recharge -> wand_explode; it does not prove the cursed engraving backfire call. zap.c:maybe_destroy_item calls recharge only for the hero's eligible charged-ring branch; the independent self-lightning replay reaches that path and strictly matches. artifact.c:invoke_charge_obj now calls recharge, but its independent PYEC recipe stops earlier in artifact.c:set_artifact_intrinsic, so artifact invocation has no matching evidence. engrave.c:doengrave_sfx_item's cursed wand gate was reached in the matching normal-engraving recording at recordings/engrave.c/cursed-wand-engraving-normal-c31-independent.session.json, but rn2(WAND_BACKFIRE_CHANCE) was nonzero; four bounded source-reaching attempts drew 33, 2, 76, and 11, and the separate recipes/engrave.c/cursed-wand-backfire-blocked-c31.session.json names the still-uncovered wand_explode engraving entry. The exported do_wear.c:Ring_off wrapper is exercised only for RIN_ADORNMENT in the worn-ring recording; Ring_off_or_gone's levitation and other unsupported effect branches remain gaps. cap_spe is also a caller of read.c:seffect_enchant_weapon and now replaces the duplicate clamp there; A28's independent blessed-enchant recording was rechecked after that change. read.c:seffect_enchant_armor is still an unported JS branch and is not claimed here. The GOALS source range for C31 names seffect_charging only; supporting read.c helpers and other production callers remain in the immutable worker delivery packet and are not claimed complete by this goal record.",
+        "entryPoints": [
+          {
+            "name": "read charging scroll: ordinary wand and charged adornment ring",
+            "functions": [
+              "seffect_charging"
+            ],
+            "recordings": [
+              "recordings/read.c/charging-overloaded-wishing-wand-c31-independent.session.json",
+              "recordings/read.c/charging-worn-adornment-ring-c31-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "charging-scroll-recharges-wand",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 35,
+                "source": "read.c:doread -> seffects -> seffect_charging -> recharge -> p_glow1"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The selected charging-scroll entry and independent wand, worn-ring, self-lightning, and normal engraving C recordings match, but the task also implemented read.c recharge helpers outside this goal range. stripspe, p_glow2, and p_glow3 still lack matching runtime evidence; artifact.c:invoke_charge_obj is blocked by artifact.c:set_artifact_intrinsic display state; cursed-wand engraving backfire needs its source rn2(100)==0 branch; and non-adornment Ring_off effects lack recorded entry evidence. Resume with source-reaching independent C recordings and separate helper source-completion records before closing the whole charging family."
     },
     {
       "id": "port-potion-hallucination-water-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port hallucination and water potion effects through the quaff dispatcher",
       "cFile": "potion.c",
       "sessions": [
@@ -102160,8 +102613,12 @@
       ],
       "selectionReason": "The two unresolved v9 potion cases share adjacent peffects quaff dispatch and potion state helpers; investigations/synthetic/v9/hallucination-potion-starts-hallucination.json and blessed-water-potion-awe.json trace distinct branches in one coherent potion.c family. Assign both to worker B.",
       "detail": "Port whole potion.c peffect_hallucination and peffect_water bodies in definition order, retain source branch and RNG order, wire POT_HALLUCINATION and POT_WATER dispatch, and record independent BUC/state variants.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "a35002f1ba3f1fdd6d15f700b397bcddb6c8ec55",
+      "openStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -102169,15 +102626,15 @@
           "name": "peffect_hallucination",
           "line": 696,
           "endLine": 716,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "peffect_water",
           "line": 717,
           "endLine": 770,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -102208,6 +102665,555 @@
           "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
           "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
           "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+        }
+      },
+      "activeStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-water-potion-awe",
+          "session": "synthetic/v9/blessed-water-potion-awe",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+          "recordingPath": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+          "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+          "recipe": "challenges/cases/v9/blessed-water-potion-awe.recipe.session.json",
+          "recipeSha256": "04d95ba5a4bb1fbd516cd4eee6f37b9780846edc6f39226dc51aa8e23d40c7a7",
+          "replayInputSha256": "b51be257d639f7c28dc199b5184d50e5de46f914cc14e3c64ec510cd8bb906dd",
+          "evaluationPath": "challenges/evaluations/20260928053730-v9.json",
+          "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+          "evaluationArtifact": "challenges/evaluations/20260928053730-v9.json",
+          "evaluationUtc": "2026-09-28T05:38:09.534Z",
+          "remainingScreens": 1,
+          "recordedSteps": 29,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2695,
+              "total": 2705
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_water",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/blessed-water-potion-awe.json",
+            "result": {
+              "session": "synthetic/v9/blessed-water-potion-awe",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "blessed-water-potion-awe",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "blessed-water-potion-awe",
+                "session": "synthetic/v9/blessed-water-potion-awe",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+                "recordingPath": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+                "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+                "recipe": "challenges/cases/v9/blessed-water-potion-awe.recipe.session.json",
+                "recipeSha256": "04d95ba5a4bb1fbd516cd4eee6f37b9780846edc6f39226dc51aa8e23d40c7a7",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 29,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 2695,
+                    "total": 2705
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_water",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The blessed water quaff reaches potion.c:peffect_water, but js/potion.js throws UnsupportedQuaffError. C’s non-chaotic, non-undead blessed arm says the hero feels full of awe, clears sickness, and exercises wisdom and constitution. Port the whole water effect, including neutral hunger, chaotic/undead, cursed, lycanthropy, and polymorph branches with source-ordered messages, RNG, and state changes.",
+              "source": {
+                "file": "potion.c",
+                "branch": "potion.c:peffect_water (717-767) first distinguishes neutral from blessed/cursed water. Neutral draws rnd(10) for hunger and calls newuhs. Blessed or cursed increments potion_unkn, then branches on mon_hates_blessings or chaotic alignment. Blessed ordinary hero says full of awe, clears sickness, and exercises attributes; opposite-alignment and lycanthropy arms can burn, heal, polymorph, or cure. Preserve d(2,6), Maybe_Half_Phys, and killer formatting where reached.",
+                "functions": [
+                  "peffect_water"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_WATER dispatch calls peffect_water; js/potion.js currently throws UnsupportedQuaffError in that arm.",
+                  "potion.c:dodrink -> dopotion -> peffects reaches the effect for an ordinary water quaff; sink and other potion creation paths can call dopotion."
+                ],
+                "dependencies": [
+                  "Existing or newly completed mon_hates_blessings, make_sick, newuhs, healup, losehp, exercise, and lycanthropy helpers must be invoked in C order. If C consumes a missing helper return, port that callee in the same task.",
+                  "Delete the UnsupportedQuaffError site when the whole effect is wired; do not special-case the blessed v9 recipe."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 reports 28/29 screens; the first stop at step 28 is “unsupported hero command: an unported branch of this command: quaffing requires peffect_water()”.",
+                "Upstream nethack-c/upstream/src/potion.c lines 717-767 defines the whole effect; js/potion.js POT_WATER dispatch at lines 1431-1432 throws an unported refusal.",
+                "The selected v9 case reaches the ordinary blessed branch, but source review also identifies neutral, cursed, chaotic/undead, and lycanthropy state paths that require general implementation."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "hallucination-potion-starts-hallucination",
+          "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+          "recordingPath": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+          "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+          "recipe": "challenges/cases/v9/hallucination-potion-starts-hallucination.recipe.session.json",
+          "recipeSha256": "56f28ae232931e066dcfa62ec7a9878c3cabd37535cad41b7abb4f03fb9bec39",
+          "replayInputSha256": "b51be257d639f7c28dc199b5184d50e5de46f914cc14e3c64ec510cd8bb906dd",
+          "evaluationPath": "challenges/evaluations/20260928053730-v9.json",
+          "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+          "evaluationArtifact": "challenges/evaluations/20260928053730-v9.json",
+          "evaluationUtc": "2026-09-28T05:38:09.534Z",
+          "remainingScreens": 1,
+          "recordedSteps": 38,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 38
+            },
+            "rng": {
+              "matched": 2599,
+              "total": 2609
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 38
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_hallucination",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/hallucination-potion-starts-hallucination.json",
+            "result": {
+              "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "hallucination-potion-starts-hallucination",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 38,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "hallucination-potion-starts-hallucination",
+                "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+                "recordingPath": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+                "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+                "recipe": "challenges/cases/v9/hallucination-potion-starts-hallucination.recipe.session.json",
+                "recipeSha256": "56f28ae232931e066dcfa62ec7a9878c3cabd37535cad41b7abb4f03fb9bec39",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 38,
+                "previousScreensMatched": 37,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 38
+                  },
+                  "rng": {
+                    "matched": 2599,
+                    "total": 2609
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 38
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+                  "step": 37
+                },
+                "step": 37,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_hallucination",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing a hallucination potion reaches potion.c:peffect_hallucination, but JavaScript refuses the effect. C checks resistance and existing hallucination, draws a blessing-dependent timeout, updates the Hallucination state, and conditionally draws for a magic enlightenment sequence. Port the entire effect, including its short-circuit RNG order and the existing make_hallucinated/enlightenment callers.",
+              "source": {
+                "file": "potion.c",
+                "branch": "potion.c:peffect_hallucination (696-713) returns after Halluc_resistance while incrementing potion_nothing; an already hallucinating hero also increments potion_nothing but continues. It draws rn1(200,600-300*bcsign), increments HHallucination, and calls make_hallucinated. The optional message/window branch evaluates `(blessed && !rn2(3)) || (!cursed && !rn2(6))` left-to-right, then calls enlightenment(MAGICENLIGHTENMENT,ENL_GAMEINPROGRESS) and exercises wisdom.",
+                "functions": [
+                  "peffect_hallucination"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_HALLUCINATION dispatch invokes peffect_hallucination; js/potion.js currently throws UnsupportedQuaffError in that arm.",
+                  "potion.c:dodrink -> dopotion -> peffects reaches ordinary quaff, and fountain.c:drinksink can generate non-water potion effects."
+                ],
+                "dependencies": [
+                  "potion.c:make_hallucinated and insight.c:enlightenment are already present in JS; preserve their message/window operations and required environment.",
+                  "Keep separate potion_nothing and HHallucination state, and preserve conditional short-circuit draws for blessed, uncursed, and cursed potions."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 reports 37/38 screens and first stops at step 37: “unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()”.",
+                "Upstream nethack-c/upstream/src/potion.c lines 696-713 defines the complete effect; js/potion.js POT_HALLUCINATION branch throws the current refusal.",
+                "The selected v9 case reaches the initial effect, while the source also includes resistance, repeated hallucination, and optional enlightenment paths requiring general implementation."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_hallucination",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_hallucination",
+            "sourceReview": "Read the complete potion.c:peffect_hallucination (696-713). The Halluc_resistance early return increments gp.potion_nothing without a timeout draw; active hallucination increments the same counter but still applies the source rn1(200, 600 - 300*bcsign(otmp)) duration. Preserved the make_hallucinated call, C left-to-right evaluation and short-circuit order for the blessed rn2(3) and uncursed rn2(6) predicates, then the message window, enlightenment, normalization message, and WIS exercise branch. The gp counters are shared with potion.c:peffects and are initialized safely for direct spell/caller state. No source RNG or message branch is represented by a placeholder.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects POT_HALLUCINATION case (1340-1342)"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion calls peffects (618-641)"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinksink",
+                "source": "fountain.c:drinksink case 4 calls dopotion (626-650)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/hallucination-uncursed-independent-b38.session.json",
+              "recordings/potion.c/hallucination-drinksink-independent-b38.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "hallucination-potion-starts-hallucination",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd quaff -> potion.c:dodrink/dopotion -> potion.c:peffects POT_HALLUCINATION -> potion.c:peffect_hallucination"
+              }
+            ],
+            "checkedAt": "533d144713ebda5784bfbde54c648abde78b7883"
+          },
+          {
+            "name": "peffect_water",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_water",
+            "sourceReview": "Read the complete potion.c:peffect_water (717-767). Preserved the neutral branch message, rnd(10) hunger update, newuhs call, and early return; gp.potion_unkn increment precedes blessing/demon/alignment selection. Kept the source ordering for exercise, healing, Maybe_Half_Phys damage, and branch messages. The C void callees make_sick, were.c:you_unwere, were.c:set_ulycn, and were.c:you_were are explicitly skipped with source-named note_unported calls; no note result is used as data. C end.c:fuzzer_savelife is another active caller, but that production route has no matching runtime evidence: see the empty fuzzer entry point and blocked recipe below.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects POT_WATER case (1343-1345)"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion calls peffects (618-641)"
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "fuzzer_savelife",
+                "source": "end.c:fuzzer_savelife creates blessed POT_WATER and calls peffects (964-968)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-neutral-independent-b38.session.json",
+              "recordings/potion.c/water-cursed-independent-b38.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-water-potion-awe",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "cmd quaff -> potion.c:dodrink/dopotion -> potion.c:peffects POT_WATER -> potion.c:peffect_water"
+              }
+            ],
+            "checkedAt": "533d144713ebda5784bfbde54c648abde78b7883"
+          }
+        ],
+        "entryPointReview": "The active potion.c entry to both selected effects is peffects: ordinary quaffing reaches dopotion -> peffects, and fountain.c:drinksink case 4 calls dopotion after generating a random non-water potion (the independent sink recording selected POT_HALLUCINATION). spell.c also calls peffects for potion-like spell pseudo-objects, but those source spell cases do not dispatch POT_HALLUCINATION or POT_WATER. Water has one additional active source caller in end.c:fuzzer_savelife: after non-panic death while debug_fuzzer is enabled, a successful outer rn2 gate and a lycanthropy/rn2(3) gate create blessed POT_WATER and call peffects. This is not compile-excluded. The final independent attempt reached #debugfuzzer and accepted `yes`, but its werewolf corpse was not fully consumed: C printed `You stop eating the werewolf corpse.` and showed Satiated at step 48, so eat.c:done_eating/cpostfx did not establish lycanthropy. It then ran 120 random fuzzer inputs; 12 deaths called fuzzer_savelife(end.c:959), but all 12 outer rn2(10) outcomes were nonzero (2,7,6,7,4,6,5,7,4,1,9,7), so the temporary water creation and peffects call never occurred. The exact setup miss and RNG trace are cache-only at .cache/B38-attempts/fuzzer-newt-coordinate-corpse-final-recording.session.json; its source-planned input is retained as recipes/potion.c/fuzzer-water-remedy-blocked-b38.session.json and neither is matching evidence. The JavaScript caller js/end.js:fuzzer_savelife currently records note_unported(`potion.c peffects`) on that branch, so the production caller also needs a separately scoped source port before a strict route can be claimed.",
+        "entryPoints": [
+          {
+            "name": "Sink-generated random hallucination potion",
+            "functions": [
+              "peffect_hallucination"
+            ],
+            "recordings": [
+              "recordings/potion.c/hallucination-drinksink-independent-b38.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Inventory quaff of neutral water",
+            "functions": [
+              "peffect_water"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-neutral-independent-b38.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Inventory quaff of cursed water",
+            "functions": [
+              "peffect_water"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-cursed-independent-b38.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Inventory quaff of blessed water in the ordinary alignment awe branch",
+            "functions": [
+              "peffect_water"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-water-potion-awe",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "potion.c:peffects -> peffect_water"
+              }
+            ]
+          },
+          {
+            "name": "Debug-fuzzer lycanthropy remedy creates blessed water and calls peffects",
+            "functions": [
+              "peffect_water"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "533d144713ebda5784bfbde54c648abde78b7883",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Selected hallucination and blessed-water quaffs plus independent sink, neutral-water, and cursed-water recordings match. Active end.c:fuzzer_savelife -> peffects(POT_WATER) remains unported in js/end.js and has no matching C runtime recording; a blocked recipe failed to establish lycanthropy before the fuzzer RNG gate. Resume after that caller is wired and a source-reaching strict recording verifies it. The peffect_water were.c mutators and make_sick remain source-named void gaps for their state branches."
+    },
+    {
+      "id": "port-apply-whistle-family-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port ordinary and magic whistle application with tame-pet relocation",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v8/magic-whistle-recalls-tame-dog"
+      ],
+      "selectionReason": "The current admitted v8 magic-whistle case stops in apply.c:doapply at the missing MAGIC_WHISTLE arm, as traced in investigations/synthetic/v8/magic-whistle-recalls-tame-dog.json. Its source call reaches apply.c:use_magic_whistle then magic_whistled; the adjacent TIN_WHISTLE and EUCALYPTUS_LEAF arms share use_whistle/use_magic_whistle and belong in the same coherent source family. B reserves potion.c and C reserves read.c/recharge, so this apply.c scope is independent.",
+      "detail": "Port complete apply.c:use_whistle, use_magic_whistle, and magic_whistled in source order, with doapply arms for MAGIC_WHISTLE, TIN_WHISTLE, and EUCALYPTUS_LEAF. Preserve cursed and ordinary paths, pet movement and trap/luck/discovery effects, RNG order, messages, and caller state. Trace consumed helper returns to source, and record independent C variations without copying the selected case.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_whistle",
+          "line": 476,
+          "endLine": 494,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_magic_whistle",
+          "line": 495,
+          "endLine": 517,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "magic_whistled",
+          "line": 518,
+          "endLine": 691,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 476,
+        "to": 691
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/magic-whistle-recalls-tame-dog": {
+          "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "magic-whistle-recalls-tame-dog",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+          "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+          "evaluationPath": "challenges/evaluations/20260928053730-v8.json",
+          "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
+        }
+      }
+    },
+    {
+      "id": "port-potion-restore-ability-synthetic-v9-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port restore-ability potion and spell effects from source",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/restore-ability-potion-recovers-stats"
+      ],
+      "selectionReason": "The current admitted v9 restore-ability case stops at potion.c:peffect_restore_ability in the quaff dispatcher, as traced in investigations/synthetic/v9/restore-ability-potion-recovers-stats.json. Its potion.c function and required pure apply.c:unfixable_trouble_count return-value helper are unreserved; A39 owns earlier apply.c whistle/doapply lines and C31 owns read.c/recharge, so the helper must be edited only in its distinct end-of-file source region.",
+      "detail": "Port the complete potion.c:peffect_restore_ability function, POT_RESTORE_ABILITY and SPE_RESTORE_ABILITY dispatch, and source-required pure apply.c:unfixable_trouble_count. Preserve cursed early return, blessed wording and trouble status conditions, random attribute loop, base/max/abuse changes, and potion-only lost-level restoration through exper.c:pluslvl. Add source-pinned pure helper tests and independent C recordings for potion and spell entry points without copying the selected v9 case.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_restore_ability",
+          "line": 646,
+          "endLine": 695,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 646,
+        "to": 695
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/restore-ability-potion-recovers-stats": {
+          "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "restore-ability-potion-recovers-stats",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+          "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+          "evaluationPath": "challenges/evaluations/20260928061245-v9.json",
+          "evaluationCommit": "533d144713ebda5784bfbde54c648abde78b7883"
         }
       }
     }

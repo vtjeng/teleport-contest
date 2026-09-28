@@ -57,7 +57,6 @@ import {
     DB_LAVA,
     DB_MOAT,
     DB_UNDER,
-    DEAF,
     DISPLACED,
     engulfing_u,
     DOOR,
@@ -69,7 +68,6 @@ import {
     D_NODOOR,
     D_TRAPPED,
     D_WARNED,
-    FAINTED,
     FIRE_TRAP,
     G_GENOD,
     HALF_SPDAM,
@@ -208,7 +206,13 @@ import { mongone } from './makemon_create.js';
 import { healmon, mnearto, newcham_distress } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import { ranged_attk_available } from './mhitu.js';
-import { verbalize } from './pline.js';
+import {
+    heroDeaf,
+    heroUnaware,
+    youHear,
+    verbalize,
+} from './pline.js';
+export { youHear } from './pline.js';
 import {
     angry_guards,
     curr_mon_load,
@@ -1886,32 +1890,6 @@ function fleesLight(monster, normalized) {
             || (state.uarm?.lamplit && artifact_light(state.uarm)))
         && monster.mcansee
         && couldSee(monster.mx, monster.my);
-}
-
-// C ref: youprop.h:399 Unaware. js/trap.js unconscious() holds the pending-
-// message half; eat.c is_fainted() is `u.uhs == FAINTED`. A hero counting a
-// negative gm.multi down is immobilized but not necessarily insensible, which
-// is why the message test cannot be dropped: pray.c dopray() leaves "You finish
-// your prayer." there, and its three turns are heard and seen normally.
-function heroUnaware(state) {
-    return Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || state.u?.uhs === FAINTED);
-}
-
-function heroDeaf(state) {
-    return propertyActive(state, DEAF)
-        || Boolean(state.u?.uroleplay?.deaf);
-}
-
-// C ref: pline.c You_hear() (435-451).  Returns the composed line, or null
-// where C returns without printing.  Callers that already test Deaf still get
-// the acoustics gate, which C applies here and nowhere else.
-export function youHear(line, state) {
-    if ((heroDeaf(state) && !heroUnaware(state)) || !state.flags?.acoustics)
-        return null;
-    if (state.u?.uinwater) return `You barely hear ${line}`;
-    if (heroUnaware(state)) return `You dream that you hear ${line}`;
-    return `You hear ${line}`;
 }
 
 // C ref: pline.c You_see() (453-470).  C's own comment says a caller should
