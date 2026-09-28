@@ -106186,7 +106186,7 @@
     {
       "id": "port-potion-see-invisible-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Complete see-invisible and fruit-juice potion effect from source",
       "cFile": "potion.c",
       "sessions": [
@@ -106378,7 +106378,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "502dd4bc9e1bdc245fc0d223217696088126a592",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The ordinary POT_SEE_INVISIBLE and POT_FRUIT_JUICE quaff paths match, including an independent blessed potion recording, but fountain.c:drinksink case 4 can create POT_SEE_INVISIBLE and still lacks matching runtime evidence. Resume when an independent sink-created subtype recording or admitted synthetic range is available; blocked recipe recipes/potion.c/see-invisible-sink-subtype-unmatched-b42.session.json preserves the attempt."
     }
   ]
 }
