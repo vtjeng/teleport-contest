@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T15:03:09.107Z",
+  "capturedAt": "2026-09-28T16:35:35.147Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -7608,12 +7608,126 @@
         "type": "accepted",
         "at": "2026-09-28T15:02:44.652Z",
         "task": "B43"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B43-808dfd8d",
+        "type": "published",
+        "at": "2026-09-28T15:05:53.516Z",
+        "task": "B43",
+        "commit": "808dfd8d7306981324520204c9bd912fd61b4453"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C36-flip-coin-20260928",
+        "type": "assign",
+        "at": "2026-09-28T15:09:22.404Z",
+        "task": "C36",
+        "worker": "C",
+        "goal": "port-apply-flip-coin-synthetic-v10-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B44-sacrifice-your-race-20260928",
+        "type": "assign",
+        "at": "2026-09-28T15:21:57.915Z",
+        "task": "B44",
+        "worker": "B",
+        "goal": "port-pray-sacrifice-your-race-synthetic-v10-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-edf1e7803a7e16368b78566f3d08ff9a02a86c56",
+        "type": "ready",
+        "at": "2026-09-28T15:55:00.665Z",
+        "task": "C36",
+        "delivery": "edf1e7803a7e16368b78566f3d08ff9a02a86c56"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C36-edf1e780",
+        "type": "received",
+        "at": "2026-09-28T15:56:23.212Z",
+        "task": "C36",
+        "delivery": "edf1e7803a7e16368b78566f3d08ff9a02a86c56"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C36-aef46497",
+        "type": "integrating",
+        "at": "2026-09-28T15:58:13.576Z",
+        "task": "C36",
+        "integration": "aef4649706699044364b3fcf0884ba94f5622cd3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C36-aef46497",
+        "type": "validated",
+        "at": "2026-09-28T16:05:26.031Z",
+        "task": "C36",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C36-aef46497",
+        "type": "accepted",
+        "at": "2026-09-28T16:14:44.909Z",
+        "task": "C36"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C36-84c0ff63",
+        "type": "published",
+        "at": "2026-09-28T16:17:31.212Z",
+        "task": "C36",
+        "commit": "84c0ff63e4343fbf4be0abbe85b9fb46635815c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-813efe9608c4cc4b028cba6b7c85b2e251a085a2",
+        "type": "ready",
+        "at": "2026-09-28T16:18:31.992Z",
+        "task": "B44",
+        "delivery": "813efe9608c4cc4b028cba6b7c85b2e251a085a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B44-813efe96",
+        "type": "received",
+        "at": "2026-09-28T16:19:18.266Z",
+        "task": "B44",
+        "delivery": "813efe9608c4cc4b028cba6b7c85b2e251a085a2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B44-22052f52",
+        "type": "integrating",
+        "at": "2026-09-28T16:20:54.524Z",
+        "task": "B44",
+        "integration": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B44-22052f52",
+        "type": "validated",
+        "at": "2026-09-28T16:28:24.154Z",
+        "task": "B44",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B44-22052f52",
+        "type": "accepted",
+        "at": "2026-09-28T16:35:28.329Z",
+        "task": "B44"
       }
     ]
   },
   "development": {
-    "executionCommit": "58639035d0e7ada6a49be353c938613f4266f393",
-    "measuredAt": "2026-09-28T14:55:47.850Z",
+    "executionCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2",
+    "measuredAt": "2026-09-28T16:27:40.510Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

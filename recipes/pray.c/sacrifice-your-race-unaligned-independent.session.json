@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84421037,
+      "datetime": "20340612091735",
+      "nethackrc": "OPTIONS=name:RaceOffering,role:Wizard,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " \u0017unaligned altar\n\u0017human corpse\n #offer\ny "
+    }
+  ],
+  "comment": "Independent unaligned-altar human-corpse offering for pray.c:sacrifice_your_race. Chosen seed, time, debug Wizard, male human, and input before recording; the unaligned branch applies its source-defined -2 luck change before dlord/makemon creation."
+}

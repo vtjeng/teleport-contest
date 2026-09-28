@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93628153,
+      "datetime": "20391204152651",
+      "nethackrc": "OPTIONS=name:HiddenCoin,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": " \u0017100 gold pieces\n#wizintrinsic\n30h30i\n  a*$ "
+    }
+  ],
+  "comment": "Distinct attempt to reach apply.c:flip_coin's Hallucination branch while blinded, suppressing map updates that may otherwise differ before the target. The Wizard grants timed Hallucination and Blindness; two spaces dismiss both intrinsic messages before it flips the wished coin through production doapply()."
+}

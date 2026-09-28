@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93628143,
+      "datetime": "20390622120738",
+      "nethackrc": "OPTIONS=name:SlipperyCoin,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": " \u0017100 gold pieces\n#wizintrinsic\n30l\n a*$ "
+    }
+  ],
+  "comment": "Independent apply.c:flip_coin slippery-finger drop branch. The Wizard starts with an independently chosen seed/date/race and grants temporary GLIB with #wizintrinsic before flipping from a wished stack; the space after the intrinsic command dismisses its feedback pager so the next input reaches apply. This should reach splitobj() then the ordinary floor dropx() path."
+}

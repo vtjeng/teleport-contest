@@ -16,9 +16,9 @@
 // use_trap()/set_trap(); and HORN_OF_PLENTY delegates to mkobj.c. Ordinary
 // food and armor return their source unknown-use result. The unicorn-horn arm
 // calls apply.c use_unicorn_horn(); its unported void effect helpers remain
-// explicit note_unported gaps. Other named arms,
-// plus the wand, spellbook, and coin shortcuts above the switch, still stop at
-// a refusal naming the C function they need.
+// explicit note_unported gaps. Other named arms and the wand shortcut still
+// stop at a refusal naming the C function they need; spellbooks and coins
+// call their source helpers.
 // use_stethoscope() covers the whole source function. Calls to the void
 // insight.c mstatusline() remain named gaps in mounted/swallowed arms, and the
 // upward engrave.c cant_reach_floor() call remains a named gap; the downward
@@ -3474,7 +3474,7 @@ export async function doapply(state = game, env = {}) {
     if (obj.oclass === SPBOOK_CLASS)
         return await flip_through_book(obj, state);
     if (obj.oclass === COIN_CLASS)
-        throw new UnsupportedApplyError('flip_coin()');
+        return await flip_coin(obj, state, env);
 
     switch (obj.otyp) {
     case BLINDFOLD:
@@ -3659,6 +3659,75 @@ export async function doapply(state = game, env = {}) {
     // C's tail, `if (obj && obj->oartifact) res |= arti_speak(obj)`, has no
     // reachable input: the retouch_object() stop above refuses every artifact
     // before the switch, and no arm here can turn a non-artifact into one.
+}
+
+// C ref: apply.c flip_coin() (4526-4556). splitobj()'s returned coin is used
+// for stacked drops. The ordinary floor drop is wired to do.c:dropx(); its
+// underwater and visible-Hallucination side-effect paths remain named gaps.
+export async function flip_coin(obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? {};
+    const drawRn2 = random.rn2 ?? rn2;
+    let coin = obj;
+    let loseCoin = false;
+
+    await message(`You flip ${an(singular(obj, xnameFresh, state), state)}.`, state);
+    if (state.u?.uinwater) {
+        await message('It tumbles away.', state);
+        loseCoin = true;
+    } else {
+        const glib = state.u?.uprops?.[GLIB]?.intrinsic;
+        const fumbling = state.u?.uprops?.[FUMBLING];
+        if (glib || fumbling?.intrinsic || fumbling?.extrinsic
+            || (acurr(state, A_DEX) < 10
+                && !drawRn2(acurr(state, A_DEX)))) {
+            await message(
+                `It slips between your ${fingers_or_gloves(false, state)}.`,
+                state,
+            );
+            loseCoin = true;
+        }
+    }
+
+    if (loseCoin) {
+        if (coin.quan > 1)
+            coin = splitobj(coin, 1, { ...env, state });
+        if (state.u?.uinwater) {
+            // C discards dropx()'s result. Its underwater drop/floor effects
+            // are still unported, so retain that source-named gap.
+            note_unported('do.c dropx underwater');
+        } else if (heroHallucinating(state)) {
+            // dropx()'s hallucinated floor display is refused by its current
+            // source-admission boundary; the caller discards this void call.
+            note_unported('do.c dropx hallucinated display');
+        } else {
+            await dropx(coin, {
+                ...env,
+                state,
+                hooks: {
+                    ...(env.hooks ?? {}),
+                    encumberMessage: env.hooks?.encumberMessage
+                        ?? ((targetState) => encumber_msg(targetState, {
+                            message: env.planning ? async () => {} : ttyPline,
+                        })),
+                    extractExternalObject:
+                        env.hooks?.extractExternalObject ?? remove_object,
+                    newsym: env.hooks?.newsym
+                        ?? (env.planning ? () => {} : (x, y) => newsym(x, y)),
+                },
+            });
+        }
+        return ECMD_TIME;
+    }
+
+    if (heroHallucinating(state)) {
+        await message(drawRn2(100)
+            ? 'Wow, a double header!'
+            : 'The coin miraculously lands on its edge!', state);
+    } else {
+        await message(`It comes up ${drawRn2(2) ? 'heads' : 'tails'}.`, state);
+    }
+    return ECMD_TIME;
 }
 
 // C ref: apply.c flip_through_book() (4473-4526), selected by doapply() for

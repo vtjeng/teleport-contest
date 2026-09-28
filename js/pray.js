@@ -5,8 +5,9 @@
 //        in_trouble() (198-284), worst_cursed_item() (288-346),
 //        angrygods() (704-784), gods_upset() (1436-1443),
 //        consume_offering() (1446-1474), bestow_artifact() (1780-1834),
-//        sacrifice_value() (1838-1850), dosacrifice() (1854-1896),
-//        eval_offering() (1898-1957), offer_corpse() (1959-2122),
+//        sacrifice_your_race() (1698-1778), sacrifice_value() (1838-1850),
+//        dosacrifice() (1854-1896), eval_offering() (1898-1957),
+//        offer_corpse() (1959-2122),
 //        blocked_boulder() (2677-2719), can_pray() (2124-2173),
 //        dopray() (2199-2273), prayer_done() (2276-2343),
 //        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
@@ -27,6 +28,7 @@ import {
     A_STR,
     A_WIS,
     ALTAR,
+    AM_CHAOTIC,
     AM_SANCTUM,
     AM_SHRINE,
     AM_MASK,
@@ -52,6 +54,8 @@ import {
     IS_ALTAR,
     LARGEST_INT,
     MAXULEV,
+    MM_NOMSG,
+    NON_PM,
     NOTELL,
     IS_OBSTRUCTED,
     LL_CONDUCT,
@@ -66,10 +70,12 @@ import {
     PASSES_WALLS,
     PLNMSG_OBJ_GLOWS,
     PROTECTION,
+    ROOM,
     SCORR,
     SDOOR,
     SICK,
     SLIMED,
+    STRAT_APPEARMSG,
     STONED,
     STRANGLED,
     STOMACH,
@@ -115,7 +121,7 @@ import {
 } from './attrib.js';
 import { paranoid_query, y_n } from './cmd.js';
 import { eaten_stat, floorfood } from './eat.js';
-import { xlev_to_rank } from './display.js';
+import { newsym, xlev_to_rank } from './display.js';
 import { dropy, heal_legs } from './do.js';
 import { stuck_ring, unchanger } from './do_wear.js';
 import { In_hell } from './dungeon.js';
@@ -207,10 +213,12 @@ import { ttyPline } from './tty_message.js';
 import { set_voice } from './sounds.js';
 import { canseemon, couldsee } from './vision.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
-import { Monnam } from './do_name.js';
+import { Monnam, a_monnam } from './do_name.js';
 import { killed, mon_offmap } from './mon.js';
 import { monflee } from './monmove.js';
 import { set_malign } from './makemon.js';
+import { makemon_runtime } from './makemon_create.js';
+import { dlord } from './minion.js';
 import { cmap_to_type } from './mkroom.js';
 import { resist } from './zap.js';
 import { known_spell, spelleffects } from './spell.js';
@@ -307,9 +315,8 @@ export function altarmask_at(x, y, state = game) {
 
 // C ref: pray.c dosacrifice() (1854-1896). The floorfood() selector is shared
 // with eat.c and returns the selected object before the offering helper arms.
-// Those helper bodies remain explicit source gaps because they discard their
-// results here; preserving the dispatch and ECMD result keeps this function's
-// caller contract source-shaped without inventing their messages or effects.
+// Unsupported offer_corpse branches remain explicit gaps at their own source
+// sites; this dispatch preserves the caller contract and ECMD result.
 export async function dosacrifice(state = game) {
     const u = state.u;
     const altaralign = a_align(u.ux, u.uy, state);
@@ -528,6 +535,105 @@ async function eval_offering(otmp, altaralign, state) {
     return value;
 }
 
+// C ref: pray.c:1698-1780 sacrifice_your_race(). The altar-offense helpers
+// below are void calls in C; until those source units are ported, record and
+// skip them at their original call sites.
+async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
+    const { u } = state;
+    if (is_demon(state.youmonst?.data)) {
+        await ttyPline('You find the idea very satisfying.', state);
+        await exercise(A_WIS, true, state);
+    } else if (u.ualign.type !== A_CHAOTIC) {
+        await ttyPline("You'll regret this infamous offense!", state);
+        await exercise(A_WIS, false, state);
+    }
+
+    if (highaltar
+        && (altaralign !== A_CHAOTIC || u.ualign.type !== A_CHAOTIC)) {
+        note_unported('pray.c desecrate_altar');
+        return;
+    } else if (altaralign !== A_CHAOTIC && altaralign !== A_NONE) {
+        await ttyPline(
+            `The altar is stained with ${state.urace.adj} blood.`, state,
+        );
+        state.level.at(u.ux, u.uy).altarmask = AM_CHAOTIC;
+        newsym(u.ux, u.uy, state);
+        note_unported('priest.c angry_priest');
+    } else {
+        let demonlessMessage;
+        if (altaralign === A_CHAOTIC && u.ualign.type !== A_CHAOTIC) {
+            await ttyPline(
+                `The blood floods the altar, which vanishes in ${an(hcolor('black', state))} cloud!`,
+                state,
+            );
+            const altar = state.level.at(u.ux, u.uy);
+            altar.typ = ROOM;
+            altar.altarmask = 0;
+            newsym(u.ux, u.uy, state);
+            note_unported('priest.c angry_priest');
+            demonlessMessage = 'cloud dissipates';
+        } else {
+            await ttyPline('The blood covers the altar!', state);
+            change_luck(altaralign === A_NONE ? -2 : 2, state);
+            demonlessMessage = 'blood coagulates';
+        }
+
+        const pm = dlord(altaralign, state);
+        const demon = pm !== NON_PM
+            ? await makemon_runtime(
+                state.mons[pm],
+                u.ux,
+                u.uy,
+                MM_NOMSG,
+                { state },
+            )
+            : null;
+        if (demon) {
+            let demonName = a_monnam(demon, { state });
+            if (demonName.toLowerCase() === 'it') {
+                demonName = 'something dreadful';
+            } else {
+                demon.mstrategy &= ~STRAT_APPEARMSG;
+            }
+            await ttyPline(`You have summoned ${demonName}!`, state);
+            if (Math.sign(u.ualign.type)
+                === Math.sign(demon.data.maligntyp)) {
+                demon.mpeaceful = true;
+            }
+            await ttyPline(
+                'You are terrified, and unable to move.', state,
+            );
+            nomul(-3, state);
+            state.multi_reason = 'being terrified of a demon';
+            state.nomovemsg = null;
+        } else {
+            await ttyPline(`The ${demonlessMessage}.`, state);
+        }
+    }
+
+    if (u.ualign.type !== A_CHAOTIC) {
+        adjalign(-5, state);
+        u.ugangr += 3;
+        await adjattrib(A_WIS, -1, 1, state);
+        if (!In_hell(u.uz, state)) note_unported('pray.c angrygods');
+        change_luck(-5, state);
+    } else {
+        adjalign(5, state);
+    }
+
+    const useupEnv = {
+        state,
+        hooks: {
+            extractExternalObject: remove_object,
+            stopObjectTimers: (obj, hookEnv) => {
+                obj_stop_timers(obj, hookEnv.state, hookEnv);
+            },
+        },
+    };
+    if (carried(otmp)) useup(otmp, useupEnv);
+    else await useupf(otmp, 1, useupEnv);
+}
+
 // C ref: pray.c:1959-2122 offer_corpse(). Unported helpers at these sites are
 // void in C, so their results are discarded exactly where the source does.
 async function offer_corpse(otmp, highaltar, altaralign, state) {
@@ -549,7 +655,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
 
     const ptr = state.mons[otmp.corpsenm];
     if (your_race(ptr, state)) {
-        note_unported('pray.c sacrifice_your_race');
+        await sacrifice_your_race(otmp, highaltar, altaralign, state);
         return;
     }
     if (otmp.oextra?.omonst) {
