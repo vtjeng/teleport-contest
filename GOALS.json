@@ -102229,7 +102229,7 @@
     {
       "id": "port-read-charging-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port charging-scroll effect and its complete recharge source family",
       "cFile": "read.c",
       "sessions": [
@@ -102237,8 +102237,12 @@
       ],
       "selectionReason": "v9 charging-scroll-recharges-wand is the first actionable queue candidate; investigations/synthetic/v9/charging-scroll-recharges-wand.json traces the missing prompt to read.c:seffect_charging and the shared recharge family. Continue related read.c work with worker C after identify.",
       "detail": "Port seffect_charging, recharge, charge_ok, stripspe and p_glow helpers from read.c; preserve wand, ring and tool branches, source RNG order, caller wiring, and independent entry-point evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "e330a0af6f55f190675eb787de6ddcda494b4b3d",
+      "openStanding": {
+        "sha": "533d144713ebda5784bfbde54c648abde78b7883",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -102267,7 +102271,261 @@
           "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
           "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "533d144713ebda5784bfbde54c648abde78b7883",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "charging-scroll-recharges-wand",
+          "session": "synthetic/v9/charging-scroll-recharges-wand",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+          "recordingPath": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+          "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+          "recipe": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.recipe.session.json",
+          "recipeSha256": "ddcd719f6eb75e23a4f2c85bc3f363b26ec52ab0e0b89baf940da5ee87eaaf67",
+          "replayInputSha256": "e34266a7d4063160bb871c81b86e20ea3adab12291e729522431af074c658405",
+          "evaluationPath": "challenges/evaluations/20260928061245-v9.json",
+          "evaluationCommit": "533d144713ebda5784bfbde54c648abde78b7883",
+          "evaluationArtifact": "challenges/evaluations/20260928061245-v9.json",
+          "evaluationUtc": "2026-09-28T06:13:28.451Z",
+          "remainingScreens": 4,
+          "recordedSteps": 36,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2853,
+              "total": 2864
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2853,
+              "cEntry": "rn2(19)=7",
+              "cCaller": "exercise(attrib.c:509)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "o"
+              },
+              "stepIndex": 32
+            },
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "o"
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/charging-scroll-recharges-wand.json",
+            "result": {
+              "session": "synthetic/v9/charging-scroll-recharges-wand",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "charging-scroll-recharges-wand",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 4,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "charging-scroll-recharges-wand",
+                "session": "synthetic/v9/charging-scroll-recharges-wand",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+                "recordingPath": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+                "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+                "recipe": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.recipe.session.json",
+                "recipeSha256": "ddcd719f6eb75e23a4f2c85bc3f363b26ec52ab0e0b89baf940da5ee87eaaf67",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 4,
+                "recordedSteps": 36,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2853,
+                    "total": 2864
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2853,
+                    "cEntry": "rn2(19)=7",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "o"
+                    },
+                    "stepIndex": 32
+                  },
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "o"
+                    },
+                    "cCursor": [
+                      74,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "Reading a charging scroll reaches read.c:seffect_charging, but js/read.js:seffects records the effect as unported. C identifies and consumes the scroll before a chargeable-object prompt, then read.c:recharge changes the selected wand. Port the complete source family, including recharge branches and other active callers; the selected wand case alone does not cover rings, tools, or explosion paths.",
+              "source": {
+                "file": "read.c",
+                "branch": "seffect_charging handles confused hero energy separately, otherwise identifies and consumes the scroll before getobj(charge, charge_ok). A chosen item goes to recharge with -1, 0, or +1 from curse/bless. The selected case chooses a wand; recharge handles cancellation, explosion chance from prior recharge count, charge ceiling, source-ordered RNG, object glow messages, and cap_spe. The same function has ring and tool branches with different state effects.",
+                "functions": [
+                  "stripspe",
+                  "p_glow1",
+                  "p_glow2",
+                  "p_glow3",
+                  "recharge",
+                  "seffect_charging"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_CHARGING arm calls seffect_charging; js/read.js:seffects currently records note_unported(read.c seffect_charging).",
+                  "read.c:seffect_charging calls recharge after getobj; other C callers include artifacts.c recharge invocation and zap.c destruction effects, represented by explicit read.c recharge gaps in js/artifacts.js and js/zap_destroy_items.js."
+                ],
+                "dependencies": [
+                  "read.c:charge_ok and learnscroll already have JavaScript implementations in js/read.js; getobj, useup, object discovery, and prompt ordering must match C.",
+                  "read.c:recharge owns stripspe and p_glow helpers. Its wand_explode, Ring_off/gone, burn, shop, HP, and cap_spe effects require source-matched callees or explicit discarded-result gaps under AGENTS.md.",
+                  "The selected wand path is only one object class; independent recordings must cover active ring/tool and cursed/blessed paths before source completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json leaves 4 of 36 screens unmatched; the first screen and cursor differ at segment 0 step 32 when C prompts for a chargeable object. The later C exercise RNG call reflects action-history divergence and does not identify the source owner.",
+                "Fresh scan at b6e28d15 reports note_unported(read.c seffect_charging). The C recipe challenges/cases/v9/charging-scroll-recharges-wand.recipe.session.json reads a charging scroll and chooses a wand; there is no matching JavaScript source effect yet.",
+                "Upstream nethack-c/upstream/src/read.c:seffect_charging at 1788-1828 invokes read.c:recharge at 729-1009. Its immediate source helpers stripspe and p_glow1/2/3 are at 652-684, while js/read.js:charge_ok and learnscroll are already ported."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-potion-hallucination-water-synthetic-v9-20260928",
