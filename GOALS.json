@@ -101159,7 +101159,7 @@
     {
       "id": "port-potion-gain-energy-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete gain-energy potion effect and quaff dispatch",
       "cFile": "potion.c",
       "sessions": [
@@ -101167,8 +101167,12 @@
       ],
       "selectionReason": "The v9 gain-energy potion case is an independently assignable source-traced mismatch at the POT_GAIN_ENERGY dispatch; read.c identify and dig.c occupations are reserved by other workers. Investigation: investigations/synthetic/v9/gain-energy-potion-restores-energy.json.",
       "detail": "Translate potion.c:peffect_gain_energy and its peffects dispatch in C order across blessed, ordinary, and cursed rolls, max/current/peak energy state, status refresh, and wisdom exercise. Cover active quaff entry paths with independent C recordings.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "b714f3f2db9ac1582d13a65f6e77228d7502f67c",
+      "openStanding": {
+        "sha": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -101197,7 +101201,157 @@
           "evaluationPath": "challenges/evaluations/20260928023415-v9.json",
           "evaluationCommit": "18c2156b8bca0c7f7d09dee7e054416b96da162b"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "gain-energy-potion-restores-energy",
+          "session": "synthetic/v9/gain-energy-potion-restores-energy",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/gain-energy-potion-restores-energy.session.json",
+          "recordingPath": "challenges/cases/v9/gain-energy-potion-restores-energy.session.json",
+          "recordingSha256": "b8b34f66e98b05d3691ad60ce73d294e9a678a96ad77bec6cb07df505c3fd8e8",
+          "recipe": "challenges/cases/v9/gain-energy-potion-restores-energy.recipe.session.json",
+          "recipeSha256": "a292fbd1f127da6f5e3e07bded60a833633bd9296eb7d4a349f5b7944776beaa",
+          "replayInputSha256": "2074481b7fa0eb0c05fea72549426dc9af8f1fa778e2af6f1f956af2b1dddf76",
+          "evaluationPath": "challenges/evaluations/20260928023415-v9.json",
+          "evaluationCommit": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+          "evaluationArtifact": "challenges/evaluations/20260928023415-v9.json",
+          "evaluationUtc": "2026-09-28T02:34:53.782Z",
+          "remainingScreens": 1,
+          "recordedSteps": 36,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2996,
+              "total": 3005
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_energy()",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_gain_energy",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_energy()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/gain-energy-potion-restores-energy.json",
+            "result": {
+              "session": "synthetic/v9/gain-energy-potion-restores-energy",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "gain-energy-potion-restores-energy",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "b8b34f66e98b05d3691ad60ce73d294e9a678a96ad77bec6cb07df505c3fd8e8",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "gain-energy-potion-restores-energy",
+                "session": "synthetic/v9/gain-energy-potion-restores-energy",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/gain-energy-potion-restores-energy.session.json",
+                "recordingPath": "challenges/cases/v9/gain-energy-potion-restores-energy.session.json",
+                "recordingSha256": "b8b34f66e98b05d3691ad60ce73d294e9a678a96ad77bec6cb07df505c3fd8e8",
+                "recipe": "challenges/cases/v9/gain-energy-potion-restores-energy.recipe.session.json",
+                "recipeSha256": "a292fbd1f127da6f5e3e07bded60a833633bd9296eb7d4a349f5b7944776beaa",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 36,
+                "previousScreensMatched": 35,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2996,
+                    "total": 3005
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_energy()",
+                  "step": 35
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_gain_energy",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_energy()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The gain-energy potion quaff reaches potion.c:peffect_gain_energy, but the JavaScript dispatch throws an unported refusal. C reports magical energy or cursed lackluster feeling, draws one d() roll based on blessing, changes both maximum and current energy with floor/cap handling, updates uenpeak, the status line, and wisdom exercise. Port the entire effect and its active potion dispatch generally.",
+              "source": {
+                "file": "potion.c",
+                "branch": "potion.c:peffect_gain_energy (1224-1256) chooses the message from cursed state, draws d(3,6) blessed, d(2,6) uncursed, or d(1,6) cursed, negates cursed result, then updates u.uenmax, u.uenpeak, and u.uen in that order with zero floors and current-energy cap, marks disp.botl, then exercises wisdom positively.",
+                "functions": [
+                  "peffect_gain_energy"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_GAIN_ENERGY dispatch calls peffect_gain_energy; js/potion.js currently throws UnsupportedQuaffError in this arm.",
+                  "potion.c:dodrink -> dopotion -> peffects reaches the ordinary quaff; fountain.c:drinksink can generate a non-water potion and call dopotion."
+                ],
+                "dependencies": [
+                  "Use the game’s existing maximum, peak, and current energy state; the C code treats them as separate values and updates them together here.",
+                  "Preserve one source d() roll and message order for blessed, uncursed, and cursed states; delete the refusal when wired."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 reports 35/36 screens and first stops at step 35: “unsupported hero command: an unported branch of this command: quaffing requires peffect_gain_energy()”.",
+                "Upstream nethack-c/upstream/src/potion.c lines 1224-1256 defines the effect; js/potion.js POT_GAIN_ENERGY case at line 1490 refuses instead of applying it.",
+                "The selected v9 case observes restoration, while source branches also cover cursed energy loss and blessed larger gain; independent variants must cover those branches."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
