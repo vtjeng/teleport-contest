@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T06:44:31.792Z",
+  "capturedAt": "2026-09-28T07:38:53.223Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6911,12 +6911,77 @@
         "type": "accepted",
         "at": "2026-09-28T06:43:44.572Z",
         "task": "C31"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C31-published-38d7fb83",
+        "type": "published",
+        "at": "2026-09-28T06:46:41.325Z",
+        "task": "C31",
+        "commit": "38d7fb835ffa91e68df9436aba448848ac871b0a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C32-assign-557a74e5",
+        "type": "assign",
+        "at": "2026-09-28T06:51:26.940Z",
+        "task": "C32",
+        "worker": "C",
+        "goal": "port-read-forget-amnesia-synthetic-v9-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6c80f2ac29213e2560ab2a107de297a42c3b39be",
+        "type": "ready",
+        "at": "2026-09-28T07:10:39.784Z",
+        "task": "B39",
+        "delivery": "6c80f2ac29213e2560ab2a107de297a42c3b39be"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B39-6c80f2ac",
+        "type": "received",
+        "at": "2026-09-28T07:11:40.537Z",
+        "task": "B39",
+        "delivery": "6c80f2ac29213e2560ab2a107de297a42c3b39be"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B39-b442bd49",
+        "type": "integrating",
+        "at": "2026-09-28T07:13:41.799Z",
+        "task": "B39",
+        "integration": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8aa7c225e66a8ad5a2bf5afd62e00006eabd36c1",
+        "type": "ready",
+        "at": "2026-09-28T07:31:36.058Z",
+        "task": "C32",
+        "delivery": "8aa7c225e66a8ad5a2bf5afd62e00006eabd36c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B39-b442bd49",
+        "type": "validated",
+        "at": "2026-09-28T07:35:55.325Z",
+        "task": "B39",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B39-b442bd49",
+        "type": "accepted",
+        "at": "2026-09-28T07:36:12.711Z",
+        "task": "B39"
       }
     ]
   },
   "development": {
-    "executionCommit": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
-    "measuredAt": "2026-09-28T06:36:38.112Z",
+    "executionCommit": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6",
+    "measuredAt": "2026-09-28T07:30:30.074Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

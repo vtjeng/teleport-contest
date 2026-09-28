@@ -103177,7 +103177,7 @@
     {
       "id": "port-potion-restore-ability-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port restore-ability potion and spell effects from source",
       "cFile": "potion.c",
       "sessions": [
@@ -103198,8 +103198,8 @@
           "name": "peffect_restore_ability",
           "line": 646,
           "endLine": 695,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -103370,7 +103370,110 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_restore_ability",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_restore_ability",
+            "sourceReview": "Compared all of potion.c:peffect_restore_ability() (646-695). The JavaScript preserves the initial gp.potion_unkn increment, cursed message and immediate no-RNG return, then the uncursed/blesed wording selected with apply.c:unfixable_trouble_count(FALSE), one rn2(A_MAX) start draw, the wrapping ABASE-to-AMAX scan, AEXE=max(AEXE,0), disp.botl update, and the unblessed first-match break. The potion-only branch calls pluslvl(FALSE) only when ulevel < ulevelmax, repeating only while blessed; the SPE pseudo-object never takes that branch. peffects() supplies the normalized source message/random environment for both object types. The potion-only lost-level branch is implemented but not runtime verified: wizcmds.c:wiz_level_change() assigns u.ulevelmax=u.ulevel after lowering, so the attempted #levelchange setup cannot preserve the required ulevel < ulevelmax state.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects() dispatches POT_RESTORE_ABILITY and SPE_RESTORE_ABILITY to peffect_restore_ability() (1333-1337)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() calls peffects() for an inventory quaff (618-641); dodrink() is the production quaff command caller."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() sets the skilled blessing state then calls peffects() for SPE_RESTORE_ABILITY (1538-1545)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "dowizcast",
+                "source": "spell.c:dowizcast() selects a spell and calls spelleffects(); the independent #wizcast recording reaches the SPE_RESTORE_ABILITY row."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/restore-ability-cursed-b39.session.json",
+              "recordings/potion.c/restore-ability-blessed-attribute-loop-b39.session.json",
+              "recordings/potion.c/restore-ability-wizcast-b39.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "restore-ability-potion-recovers-stats",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "quaff -> potion.c:dodrink/dopotion -> potion.c:peffects(POT_RESTORE_ABILITY) -> peffect_restore_ability"
+              }
+            ],
+            "checkedAt": "58d48a2e661c2cb0cf9b219d71a3b947db9bbb63"
+          }
+        ],
+        "entryPointReview": "The active inventory POT_RESTORE_ABILITY route is dodrink() -> dopotion() -> peffects(); strict C recordings cover cursed and blessed quaffs, and admitted synthetic/v9/restore-ability-potion-recovers-stats covers the uncursed quaff from step 0 through its complete 40-step replay. The active spell route is spell.c:spelleffects(SPE_RESTORE_ABILITY) -> peffects(); an independent #wizcast C recording selects that spell and strictly matches. The pure helper apply.c:unfixable_trouble_count() is supplemental evidence below. The POT-only lost-level recovery arm is source-implemented but remains unverified: it requires u.ulevel < u.ulevelmax, while the attempted debug #levelchange sequence resets u.ulevelmax to the current level after lowering. No recording is claimed for that stateful arm.",
+        "entryPoints": [
+          {
+            "name": "Inventory quaff of POT_RESTORE_ABILITY (cursed, blessed and uncursed paths)",
+            "functions": [
+              "peffect_restore_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/restore-ability-cursed-b39.session.json",
+              "recordings/potion.c/restore-ability-blessed-attribute-loop-b39.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "restore-ability-potion-recovers-stats",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "quaff -> potion.c:dodrink/dopotion -> peffects(POT_RESTORE_ABILITY) -> peffect_restore_ability"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #wizcast of SPE_RESTORE_ABILITY",
+            "functions": [
+              "peffect_restore_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/restore-ability-wizcast-b39.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "POT_RESTORE_ABILITY lost-level recovery when ulevel is below ulevelmax",
+            "functions": [
+              "peffect_restore_ability"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "POT_RESTORE_ABILITY lost-level pluslvl(FALSE) branch still lacks matching runtime evidence: #levelchange lowers ulevel but resets ulevelmax, so it cannot establish ulevel < ulevelmax. The quaff BUC and spell entry points strictly match; resume after an independent C setup reaches naturally lost levels or a source-proven state route. apply.c:unfixable_trouble_count is pure and source-pinned in the immutable B39 packet but is supplemental to this goal range."
     },
     {
       "id": "port-read-forget-amnesia-synthetic-v9-20260928",
