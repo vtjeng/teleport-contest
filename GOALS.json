@@ -107352,7 +107352,7 @@
     {
       "id": "port-pray-sacrifice-your-race-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port own-race corpse sacrifice from source",
       "cFile": "pray.c",
       "sessions": [
@@ -107360,8 +107360,12 @@
       ],
       "selectionReason": "Current v10 case offer-human-corpse-own-race stops at step 39 when pray.c:offer_corpse skips sacrifice_your_race; C calls dlord after altar branching. Investigation investigations/synthetic/v10/offer-human-corpse-own-race.json corrects the saved queue stale minion.c owner; B44 owns whole sacrifice_your_race and offer_corpse wiring, with no C36 apply overlap.",
       "detail": "Port pray.c:sacrifice_your_race in source order through altar transformation, dlord and return-valued makemon summon, alignment/luck consequences, corpse consumption. Review makemon.c:makemon runtime admission for the returned demon path and expand source-based scope if required. Existing void desecrate_altar and angry_priest gaps may remain named where their results are discarded. Preserve every admitted match.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "84c0ff63e4343fbf4be0abbe85b9fb46635815c9",
+      "openStanding": {
+        "sha": "aef4649706699044364b3fcf0884ba94f5622cd3",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -107390,7 +107394,258 @@
           "evaluationPath": "challenges/evaluations/20260928145605-v10.json",
           "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "aef4649706699044364b3fcf0884ba94f5622cd3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "offer-human-corpse-own-race",
+          "session": "synthetic/v10/offer-human-corpse-own-race",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+          "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+          "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+          "replayInputSha256": "a6c13b98941115caa8501ba34f63daa5375dff55b84b167bf3de9e391feaec5b",
+          "evaluationPath": "challenges/evaluations/20260928160625-v10.json",
+          "evaluationCommit": "aef4649706699044364b3fcf0884ba94f5622cd3",
+          "evaluationArtifact": "challenges/evaluations/20260928160625-v10.json",
+          "evaluationUtc": "2026-09-28T16:06:29.383Z",
+          "remainingScreens": 2,
+          "recordedSteps": 41,
+          "previousScreensMatched": 39,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2316,
+              "total": 2471
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 39,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 3,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "r",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2316,
+              "cEntry": "rn2(2)=1",
+              "cCaller": "dlord(minion.c:410)",
+              "jsEntry": "rn2(12)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": "y"
+              },
+              "stepIndex": 39
+            },
+            "cursor": {
+              "index": 39,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": "y"
+              },
+              "cCursor": [
+                64,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 39,
+          "kind": "rng",
+          "sourceFile": "minion.c",
+          "function": "dlord",
+          "message": null,
+          "cFile": "minion.c",
+          "luaFile": null,
+          "line": 410,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/offer-human-corpse-own-race.json",
+            "result": {
+              "session": "synthetic/v10/offer-human-corpse-own-race",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "offer-human-corpse-own-race",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+              "evaluationPath": "challenges/evaluations/20260928130935-v10.json",
+              "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592",
+              "remainingScreens": 2,
+              "recordedSteps": 41,
+              "status": "complete",
+              "commit": "502dd4bc9e1bdc245fc0d223217696088126a592",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "session": "synthetic/v10/offer-human-corpse-own-race",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+                "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+                "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+                "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+                "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+                "replayInputSha256": "24e068511f16e4cd8dca714851523783d922f6c3d4a8fa7a51fcca5dd4c86dde",
+                "evaluationPath": "challenges/evaluations/20260928130935-v10.json",
+                "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592",
+                "evaluationArtifact": "challenges/evaluations/20260928130935-v10.json",
+                "evaluationUtc": "2026-09-28T13:09:38.613Z",
+                "remainingScreens": 2,
+                "recordedSteps": 41,
+                "previousScreensMatched": 39,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 39,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2316,
+                    "total": 2471
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 39,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 3,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "r",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2316,
+                    "cEntry": "rn2(2)=1",
+                    "cCaller": "dlord(minion.c:410)",
+                    "jsEntry": "rn2(12)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": "y"
+                    },
+                    "stepIndex": 39
+                  },
+                  "cursor": {
+                    "index": 39,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      64,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      5,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 39,
+                "kind": "rng",
+                "sourceFile": "minion.c",
+                "function": "dlord",
+                "message": null,
+                "cFile": "minion.c",
+                "luaFile": null,
+                "line": 410
+              },
+              "summary": "The wished human corpse now reaches pray.c:sacrifice_your_race. JavaScript stops that source call with note_unported after the own-race check, while C proceeds through its altar branch and calls minion.c:dlord; the first remaining mismatch is step 39. The source task is the whole sacrifice_your_race function and its offer_corpse caller, including altar transformation, demon summoning, alignment and luck consequences, and corpse consumption. minion.c:dlord is already ported; its first rn1 draw is missing only because the prayer call is skipped.",
+              "source": {
+                "file": "pray.c",
+                "branch": "offer_corpse calls sacrifice_your_race when your_race(ptr) is true. For a nonchaotic human offering a human corpse, sacrifice_your_race first reports the offense and Wisdom exercise, then chooses the high/lawful-neutral/chaotic-unaligned altar branch; the latter calls dlord(altaralign), may create a demon, applies fear, alignment, anger and luck changes, then consumes the offered corpse. Preserve all other species/alignment/altar branches of the whole function.",
+                "functions": [
+                  "sacrifice_your_race"
+                ],
+                "callers": [
+                  "pray.c:offer_corpse at 1994 calls sacrifice_your_race after your_race; js/pray.js:offer_corpse at 551-553 currently calls note_unported and returns. #offer reaches offer_corpse through the existing altar path."
+                ],
+                "dependencies": [
+                  "minion.c:dlord returns a monster type and is already ported in js/minion.js; preserve its rn1/ndemon behavior when called from the altar branch.",
+                  "makemon.c:makemon return controls whether demon-summoning feedback and paralysis happen; use the existing runtime port and port any missing return-valued callee it needs.",
+                  "Void source calls to desecrate_altar and angry_priest may remain recorded gaps only where the C discards their results; do not invent their effects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260928130935-v10.json at 502dd4bc9e1bdc245fc0d223217696088126a592 matches 39/41 screens and first differs at segment 0 step 39. C next calls rn2(2) from dlord(minion.c:410) while JS next has rn2(12). The immutable recording SHA-256 is 33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296.",
+                "Upstream nethack-c/upstream/src/pray.c:1698-1784 defines sacrifice_your_race and pray.c:1994 calls it for own-race corpses. The chaotic/unaligned altar branch invokes dlord at 1744 and consumes the corpse at the end.",
+                "js/pray.js:551-553 returns after note_unported(pray.c sacrifice_your_race); js/minion.js:282-300 implements dlord, so the missing first source action is the prayer branch rather than the selector itself.",
+                "Earlier investigation at commit 395a168f identified a wished-corpse holding refusal at step 30, now resolved by A41. Its shared eat-same-race case passes; preserve that gain while repairing the altar path."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
