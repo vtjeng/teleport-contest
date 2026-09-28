@@ -102272,7 +102272,7 @@
     {
       "id": "port-potion-hallucination-water-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port hallucination and water potion effects through the quaff dispatcher",
       "cFile": "potion.c",
       "sessions": [
@@ -102294,15 +102294,15 @@
           "name": "peffect_hallucination",
           "line": 696,
           "endLine": 716,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "peffect_water",
           "line": 717,
           "endLine": 770,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -102627,7 +102627,163 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_hallucination",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_hallucination",
+            "sourceReview": "Read the complete potion.c:peffect_hallucination (696-713). The Halluc_resistance early return increments gp.potion_nothing without a timeout draw; active hallucination increments the same counter but still applies the source rn1(200, 600 - 300*bcsign(otmp)) duration. Preserved the make_hallucinated call, C left-to-right evaluation and short-circuit order for the blessed rn2(3) and uncursed rn2(6) predicates, then the message window, enlightenment, normalization message, and WIS exercise branch. The gp counters are shared with potion.c:peffects and are initialized safely for direct spell/caller state. No source RNG or message branch is represented by a placeholder.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects POT_HALLUCINATION case (1340-1342)"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion calls peffects (618-641)"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinksink",
+                "source": "fountain.c:drinksink case 4 calls dopotion (626-650)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/hallucination-uncursed-independent-b38.session.json",
+              "recordings/potion.c/hallucination-drinksink-independent-b38.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "hallucination-potion-starts-hallucination",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "cmd quaff -> potion.c:dodrink/dopotion -> potion.c:peffects POT_HALLUCINATION -> potion.c:peffect_hallucination"
+              }
+            ],
+            "checkedAt": "533d144713ebda5784bfbde54c648abde78b7883"
+          },
+          {
+            "name": "peffect_water",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_water",
+            "sourceReview": "Read the complete potion.c:peffect_water (717-767). Preserved the neutral branch message, rnd(10) hunger update, newuhs call, and early return; gp.potion_unkn increment precedes blessing/demon/alignment selection. Kept the source ordering for exercise, healing, Maybe_Half_Phys damage, and branch messages. The C void callees make_sick, were.c:you_unwere, were.c:set_ulycn, and were.c:you_were are explicitly skipped with source-named note_unported calls; no note result is used as data. C end.c:fuzzer_savelife is another active caller, but that production route has no matching runtime evidence: see the empty fuzzer entry point and blocked recipe below.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects POT_WATER case (1343-1345)"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion calls peffects (618-641)"
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "fuzzer_savelife",
+                "source": "end.c:fuzzer_savelife creates blessed POT_WATER and calls peffects (964-968)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-neutral-independent-b38.session.json",
+              "recordings/potion.c/water-cursed-independent-b38.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-water-potion-awe",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "cmd quaff -> potion.c:dodrink/dopotion -> potion.c:peffects POT_WATER -> potion.c:peffect_water"
+              }
+            ],
+            "checkedAt": "533d144713ebda5784bfbde54c648abde78b7883"
+          }
+        ],
+        "entryPointReview": "The active potion.c entry to both selected effects is peffects: ordinary quaffing reaches dopotion -> peffects, and fountain.c:drinksink case 4 calls dopotion after generating a random non-water potion (the independent sink recording selected POT_HALLUCINATION). spell.c also calls peffects for potion-like spell pseudo-objects, but those source spell cases do not dispatch POT_HALLUCINATION or POT_WATER. Water has one additional active source caller in end.c:fuzzer_savelife: after non-panic death while debug_fuzzer is enabled, a successful outer rn2 gate and a lycanthropy/rn2(3) gate create blessed POT_WATER and call peffects. This is not compile-excluded. The final independent attempt reached #debugfuzzer and accepted `yes`, but its werewolf corpse was not fully consumed: C printed `You stop eating the werewolf corpse.` and showed Satiated at step 48, so eat.c:done_eating/cpostfx did not establish lycanthropy. It then ran 120 random fuzzer inputs; 12 deaths called fuzzer_savelife(end.c:959), but all 12 outer rn2(10) outcomes were nonzero (2,7,6,7,4,6,5,7,4,1,9,7), so the temporary water creation and peffects call never occurred. The exact setup miss and RNG trace are cache-only at .cache/B38-attempts/fuzzer-newt-coordinate-corpse-final-recording.session.json; its source-planned input is retained as recipes/potion.c/fuzzer-water-remedy-blocked-b38.session.json and neither is matching evidence. The JavaScript caller js/end.js:fuzzer_savelife currently records note_unported(`potion.c peffects`) on that branch, so the production caller also needs a separately scoped source port before a strict route can be claimed.",
+        "entryPoints": [
+          {
+            "name": "Sink-generated random hallucination potion",
+            "functions": [
+              "peffect_hallucination"
+            ],
+            "recordings": [
+              "recordings/potion.c/hallucination-drinksink-independent-b38.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Inventory quaff of neutral water",
+            "functions": [
+              "peffect_water"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-neutral-independent-b38.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Inventory quaff of cursed water",
+            "functions": [
+              "peffect_water"
+            ],
+            "recordings": [
+              "recordings/potion.c/water-cursed-independent-b38.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Inventory quaff of blessed water in the ordinary alignment awe branch",
+            "functions": [
+              "peffect_water"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-water-potion-awe",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "potion.c:peffects -> peffect_water"
+              }
+            ]
+          },
+          {
+            "name": "Debug-fuzzer lycanthropy remedy creates blessed water and calls peffects",
+            "functions": [
+              "peffect_water"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "533d144713ebda5784bfbde54c648abde78b7883",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Selected hallucination and blessed-water quaffs plus independent sink, neutral-water, and cursed-water recordings match. Active end.c:fuzzer_savelife -> peffects(POT_WATER) remains unported in js/end.js and has no matching C runtime recording; a blocked recipe failed to establish lycanthropy before the fuzzer RNG gate. Resume after that caller is wired and a source-reaching strict recording verifies it. The peffect_water were.c mutators and make_sick remain source-named void gaps for their state branches."
     },
     {
       "id": "port-apply-whistle-family-synthetic-v8-20260928",
