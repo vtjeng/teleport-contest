@@ -12,13 +12,13 @@
 // js/write.js; containers delegate to pickup.c use_container() in js/pickup.js;
 // BAG_OF_TRICKS delegates to makemon.c bagotricks() in js/makemon.js; musical
 // instruments delegate to music.c; the MAGIC_WHISTLE/TIN_WHISTLE/EUCALYPTUS_LEAF
-// arms call their apply.c whistle helpers; LAND_MINE/BEARTRAP use apply.c
+// arms call their apply.c whistle helpers; WAND_CLASS enters do_break_wand();
+// LAND_MINE/BEARTRAP use apply.c
 // use_trap()/set_trap(); and HORN_OF_PLENTY delegates to mkobj.c. Ordinary
 // food and armor return their source unknown-use result. The unicorn-horn arm
 // calls apply.c use_unicorn_horn(); its unported void effect helpers remain
-// explicit note_unported gaps. Other named arms and the wand shortcut still
-// stop at a refusal naming the C function they need; spellbooks and coins
-// call their source helpers.
+// explicit note_unported gaps. Other named arms still stop at a refusal
+// naming the C function they need; spellbooks and coins call their helpers.
 // use_stethoscope() covers the whole source function. Calls to the void
 // insight.c mstatusline() remain named gaps in mounted/swallowed arms, and the
 // upward engrave.c cant_reach_floor() call remains a named gap; the downward
@@ -39,6 +39,7 @@ import {
     CQ_CANNED,
     CORR,
     CONFUSION,
+    COST_DSTROY,
     COST_SPLAT,
     DEAF,
     ECMD_CANCEL,
@@ -50,6 +51,7 @@ import {
     FEMALE,
     FACE,
     FOOT,
+    HEAD,
     FUMBLING,
     FORCETRAP,
     GLIB,
@@ -60,6 +62,19 @@ import {
     GETOBJ_NOFLAGS,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
+    DIGCHECK_FAILED,
+    DIGCHECK_FAIL_BOULDER,
+    EXPL_FIERY,
+    EXPL_FROSTY,
+    EXPL_MAGICAL,
+    HOLE,
+    ICE,
+    IS_WALL,
+    MELT_ICE_AWAY,
+    N_DIRS,
+    NO_MM_FLAGS,
+    PARANOID_BREAKWAND,
+    PIT,
     plur,
     HALLUC,
     HALLUC_RES,
@@ -110,6 +125,7 @@ import {
     LEFT_SIDE,
     PASSES_WALLS,
     RIGHT_SIDE,
+    ROOM,
     SHOPBASE,
     SICK,
     SLIMED,
@@ -150,6 +166,8 @@ import {
     Upolyd,
     uhim,
     u_at,
+    xdir,
+    ydir,
 } from './const.js';
 import {
     cmdq_add_ec,
@@ -157,13 +175,15 @@ import {
     confdir,
     extcmdRow,
     getdir,
+    paranoid_query,
     set_occupation,
     y_n,
 } from './cmd.js';
 import { cvt_sdoor_to_door, use_crystal_ball } from './detect.js';
-import { ceiling, surface } from './dungeon.js';
+import { Can_dig_down, ceiling, surface } from './dungeon.js';
 import { see_monster_closeup } from './dog.js';
 import {
+    bot,
     cmap_to_glyph,
     feel_newsym,
     flush_screen,
@@ -194,6 +214,7 @@ import { mstatusline, ustatusline } from './insight.js';
 import { gulp_blnd_check } from './mhitu.js';
 import {
     delobj,
+    freeinv,
     carrying,
     consume_obj_charge,
     getobj,
@@ -213,6 +234,7 @@ import {
 } from './invent.js';
 import { pick_lock } from './lock.js';
 import { bagotricks } from './makemon.js';
+import { makemon_runtime } from './makemon_create.js';
 import { seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto } from './mon.js';
 import {
     can_blow,
@@ -251,7 +273,7 @@ import { paralyze_monst } from './mhitm.js';
 import { do_play_instrument } from './music.js';
 import { mon_reflects } from './muse.js';
 import { get_mtraits } from './corpstat.js';
-import { discover_object, observe_object } from './o_init.js';
+import { discover_object, objdescr_is, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import {
     costly_alteration,
@@ -296,6 +318,7 @@ import {
     safe_qbuf,
     thesimpleoname,
     yname,
+    ysimple_name,
     xnameFresh,
 } from './objnam.js';
 import {
@@ -343,6 +366,27 @@ import {
     TOWEL,
     TOUCHSTONE,
     WAND_CLASS,
+    WAN_CANCELLATION,
+    WAN_COLD,
+    WAN_CREATE_MONSTER,
+    WAN_DEATH,
+    WAN_DIGGING,
+    WAN_ENLIGHTENMENT,
+    WAN_FIRE,
+    WAN_LIGHT,
+    WAN_LIGHTNING,
+    WAN_LOCKING,
+    WAN_MAGIC_MISSILE,
+    WAN_NOTHING,
+    WAN_OPENING,
+    WAN_POLYMORPH,
+    WAN_PROBING,
+    WAN_SECRET_DOOR_DETECTION,
+    WAN_STASIS,
+    WAN_STRIKING,
+    WAN_TELEPORTATION,
+    WAN_UNDEAD_TURNING,
+    WAN_WISHING,
     WEAPON_CLASS,
     LARGE_BOX,
     CHEST,
@@ -408,9 +452,13 @@ import {
 import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
-import { obj_has_timer, obj_stop_timers } from './timeout.js';
 import {
-    activate_statue_trap, deltrap, is_lava, is_pool, is_pool_or_lava,
+    obj_has_timer,
+    obj_stop_timers,
+    spot_stop_timers,
+} from './timeout.js';
+import {
+    activate_statue_trap, deltrap, fill_pit, is_lava, is_pool, is_pool_or_lava,
     Levitation, maketrap, reset_utrap, t_at, trapname,
 } from './trap.js';
 import { dotrap, feeltrap, mintrap } from './trap_effects.js';
@@ -427,7 +475,12 @@ import {
 import { bimanual, is_pole, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
 import { encumber_msg, pickup_object, use_container } from './pickup.js';
-import { use_pick_axe } from './dig.js';
+import {
+    dig_check,
+    fillholetyp,
+    use_pick_axe,
+    watch_dig,
+} from './dig.js';
 import { genders } from './roles.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import {
@@ -450,9 +503,11 @@ import {
     Blindf_off,
     fingers_or_gloves,
     inaccessible_equipment,
+    setwornEnv,
 } from './do_wear.js';
 import {
     dropx,
+    boulder_hits_pool,
     legs_in_no_shape,
     revive_corpse,
     set_wounded_legs,
@@ -474,7 +529,17 @@ import {
     force_attack,
 } from './uhitm.js';
 import { transient_light_cleanup } from './light.js';
-import { bhit, zapyourself } from './zap.js';
+import {
+    bhit,
+    bhitm,
+    bhitpile,
+    release_hold,
+    zapsetup,
+    zappable,
+    zapwrapup,
+    zapyourself,
+} from './zap.js';
+import { explode } from './explode.js';
 import { heroUnaware, verbalize } from './pline.js';
 import { note_unported } from './unported.js';
 import { dbon, setmnotwielded, uwep_skill_type } from './weapon.js';
@@ -3451,6 +3516,294 @@ export async function magic_whistled(obj, state = game, env = {}) {
     if (text) await message(`${text}.`, state);
 }
 
+// C ref: apply.c discard_broken_wand() (3880-3890).  `current_wand` is the
+// JavaScript home of gc.current_wand, also used by zap.c destroy_items().
+function discard_broken_wand(state = game, rawEnv = {}) {
+    const obj = state.current_wand;
+    state.current_wand = null;
+    if (obj) delobj(obj, { ...rawEnv, state });
+    nomul(0, state);
+}
+
+// C ref: apply.c broken_wand_explode() (3892-3900).  The explosion's void
+// return is discarded by C; its effects and knowledge update precede discard.
+async function broken_wand_explode(obj, damage, expltype, state = game,
+    rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+    await explode(
+        state.u.ux,
+        state.u.uy,
+        -obj.otyp,
+        damage,
+        WAND_CLASS,
+        expltype,
+        state,
+        { ...env, random },
+    );
+    discover_object(obj.otyp, true, true, true, state, { ...env, random });
+    discard_broken_wand(state, env);
+}
+
+// C ref: apply.c maybe_dunk_boulders() (3902-3910).  do.c
+// boulder_hits_pool() returns a Boolean, but both C callers discard it.
+export async function maybe_dunk_boulders(
+    x, y, state = game, rawEnv = {},
+) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { rn2 };
+    let boulder;
+    while (is_pool_or_lava(x, y, state)
+        && (boulder = sobj_at(BOULDER, x, y, state))) {
+        obj_extract_self(boulder, { ...env });
+        await boulder_hits_pool(
+            boulder,
+            x,
+            y,
+            false,
+            { ...env, random },
+        );
+    }
+}
+
+// C ref: apply.c do_break_wand() (3913-4147).  This is the shared WAND_CLASS
+// arm of doapply(); it removes the wand before using zappable(), restores the
+// consumed charge, then runs the type-specific explosion and callbacks in C's
+// eight-neighbor-plus-hero order.
+export async function do_break_wand(obj, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
+    const message = env.message ?? ttyPline;
+    const fragile = objdescr_is(obj, 'balsa', state)
+        || objdescr_is(obj, 'glass', state);
+
+    if (nohands(state.youmonst.data)) {
+        await message(`You can't break ${yname(obj, state)} without hands!`,
+            state, env);
+        return ECMD_OK;
+    }
+    if (!freehand(state, env)) {
+        const hands = makeplural(body_part(HAND, state.youmonst));
+        await message(`Your ${hands} are occupied!`, state, env);
+        return ECMD_OK;
+    }
+    if (acurr(state, A_STR) < (fragile ? 5 : 10)) {
+        await message(`You don't have the strength to break ${yname(obj, state)}!`,
+            state, env);
+        return ECMD_OK;
+    }
+
+    const confirmation = safe_qbuf(
+        'Are you really sure you want to break ',
+        '?',
+        obj,
+        yname,
+        ysimple_name,
+        'the wand',
+        state,
+    );
+    const paranoid = Boolean((state.flags?.paranoia_bits ?? 0)
+        & PARANOID_BREAKWAND);
+    if (!await paranoid_query(paranoid, confirmation, state))
+        return ECMD_OK;
+
+    await message(
+        `Raising ${yname(obj, state)} high above your `
+            + `${body_part(HEAD, state.youmonst)}, `
+            + `you ${fragile ? 'snap' : 'break'} it in two!`,
+        state,
+        env,
+    );
+
+    if (obj.unpaid) {
+        check_unpaid(obj, state);
+        costly_alteration(obj, COST_DSTROY, env);
+    }
+
+    state.current_wand = obj;
+    freeinv(obj, env);
+    setnotworn(obj, setwornEnv(state));
+
+    if (!await zappable(obj, state)) {
+        await message(nothing_happens, state, env);
+        discard_broken_wand(state, env);
+        return ECMD_TIME;
+    }
+    // C's successful zappable() consumes one charge; breaking the wand puts
+    // it back before deriving damage. A wrested last charge may leave zero.
+    obj.spe++;
+    if (!obj.spe) obj.spe = random.rnd(3);
+
+    obj.ox = state.u.ux;
+    obj.oy = state.u.uy;
+    let damage = obj.spe * 4;
+    let affectsObjects = false;
+    let shopDamage = false;
+
+    switch (obj.otyp) {
+    case WAN_OPENING:
+        if (state.u.ustuck) {
+            await release_hold(state);
+            if (obj.dknown)
+                discover_object(WAN_OPENING, true, true, true, state, env);
+            discard_broken_wand(state, env);
+            return ECMD_TIME;
+        }
+        // C falls through to the no-special-effect group when not stuck.
+        // falls through
+    case WAN_WISHING:
+    case WAN_NOTHING:
+    case WAN_LOCKING:
+    case WAN_PROBING:
+    case WAN_ENLIGHTENMENT:
+    case WAN_SECRET_DOOR_DETECTION:
+    case WAN_STASIS:
+        await message('But nothing else happens...', state, env);
+        discard_broken_wand(state, env);
+        return ECMD_TIME;
+    case WAN_DEATH:
+    case WAN_LIGHTNING:
+        await broken_wand_explode(obj, damage * 4, EXPL_MAGICAL, state, env);
+        return ECMD_TIME;
+    case WAN_FIRE:
+        await broken_wand_explode(obj, damage * 2, EXPL_FIERY, state, env);
+        return ECMD_TIME;
+    case WAN_COLD:
+        await broken_wand_explode(obj, damage * 2, EXPL_FROSTY, state, env);
+        return ECMD_TIME;
+    case WAN_MAGIC_MISSILE:
+        await broken_wand_explode(obj, damage, EXPL_MAGICAL, state, env);
+        return ECMD_TIME;
+    case WAN_STRIKING:
+        // Soundeffect() is a no-op with the recorder's tty backend.
+        await message('A wall of force smashes down around you!', state, env);
+        damage = random.d(1 + obj.spe, 6);
+        // C falls through to the object-affecting group.
+        // falls through
+    case WAN_CANCELLATION:
+    case WAN_POLYMORPH:
+    case WAN_TELEPORTATION:
+    case WAN_UNDEAD_TURNING:
+        affectsObjects = true;
+        break;
+    default:
+        break;
+    }
+
+    await explode(
+        obj.ox,
+        obj.oy,
+        -obj.otyp,
+        random.rnd(damage),
+        WAND_CLASS,
+        EXPL_MAGICAL,
+        state,
+        { ...env, random },
+    );
+    zapsetup(state);
+
+    for (let i = 0; i <= N_DIRS; i++) {
+        const x = obj.ox + xdir[i];
+        const y = obj.oy + ydir[i];
+        state.gb.bhitpos = { x, y };
+        if (!isok(x, y)) continue;
+
+        if (obj.otyp === WAN_DIGGING) {
+            const level = state.level.at(x, y);
+            const digResult = dig_check(null, x, y, state);
+            if (digResult < DIGCHECK_FAILED
+                || digResult === DIGCHECK_FAIL_BOULDER) {
+                if (IS_WALL(level.typ) || IS_DOOR(level.typ)) {
+                    await watch_dig(null, x, y, true, env);
+                    if (in_rooms(x, y, SHOPBASE, state).length)
+                        shopDamage = true;
+                }
+                if (level.typ === ICE)
+                    spot_stop_timers(x, y, MELT_ICE_AWAY, state);
+
+                const terrain = fillholetyp(x, y, false, state, random);
+                if (terrain !== ROOM) {
+                    level.typ = terrain;
+                    level.flags = 0;
+                    // dig.c liquid_flow() is a void, source-ordered gap.
+                    note_unported('dig.c liquid_flow');
+                } else {
+                    const makePit = random.rn2(obj.spe) < 3
+                        || (!Can_dig_down(state.u.uz, state)
+                            && !level.candig);
+                    // apply.c discards digactualhole()'s return, but the
+                    // non-hero BY_OBJECT aftermath is outside that port.
+                    // Preserve the argument's rn2 before leaving the gap.
+                    const trapType = makePit ? PIT : HOLE;
+                    note_unported(
+                        `dig.c digactualhole non-hero trap type ${trapType}`,
+                    );
+                }
+            }
+            fill_pit(x, y, state);
+            await maybe_dunk_boulders(x, y, state, { ...env, random });
+            recalc_block_point(x, y, state);
+            continue;
+        }
+
+        if (obj.otyp === WAN_CREATE_MONSTER) {
+            // C discards makemon()'s pointer; its random creation effects are
+            // still required at the hero square rather than the offset cell.
+            await makemon_runtime(null, state.u.ux, state.u.uy, NO_MM_FLAGS,
+                { ...env, random });
+            continue;
+        }
+
+        if (x !== state.u.ux || y !== state.u.uy) {
+            const monster = m_at(x, y, state);
+            if (monster) {
+                if (obj.otyp === WAN_LIGHT || obj.otyp === WAN_STRIKING
+                    || obj.otyp === WAN_POLYMORPH) {
+                    await bhitm(monster, obj, state, random, env);
+                } else {
+                    note_unported('zap.c bhitm');
+                }
+            }
+            if (affectsObjects && state.level.objects[x]?.[y]) {
+                if (obj.otyp === WAN_STRIKING || obj.otyp === WAN_POLYMORPH) {
+                    await bhitpile(obj, x, y, state, random, env);
+                } else {
+                    note_unported('zap.c bhito');
+                }
+                if (state.disp?.botl) await bot();
+            }
+        } else {
+            if (affectsObjects && state.level.objects[x]?.[y]) {
+                if (obj.otyp === WAN_STRIKING || obj.otyp === WAN_POLYMORPH) {
+                    await bhitpile(obj, x, y, state, random, env);
+                } else {
+                    note_unported('zap.c bhito');
+                }
+                if (state.disp?.botl) await bot();
+            }
+            const dealt = await zapyourself(obj, false, state);
+            if (dealt) {
+                const killer = `killed ${uhim(state)}self by breaking a wand`;
+                await losehp(
+                    halfPhysicalDamage(dealt, state),
+                    killer,
+                    NO_KILLER_PREFIX,
+                    state,
+                    env,
+                );
+            }
+            if (state.disp?.botl) await bot();
+        }
+    }
+
+    await zapwrapup(state, env);
+    if (shopDamage) note_unported('shk.c pay_for_damage');
+    if (obj.otyp === WAN_LIGHT)
+        note_unported('read.c litroom');
+    discard_broken_wand(state, env);
+    return ECMD_TIME;
+}
+
 export async function doapply(state = game, env = {}) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(
@@ -3470,7 +3823,7 @@ export async function doapply(state = game, env = {}) {
         throw new UnsupportedApplyError('retouch_object() for an artifact');
 
     if (obj.oclass === WAND_CLASS)
-        throw new UnsupportedApplyError('do_break_wand()');
+        return await do_break_wand(obj, state, env);
     if (obj.oclass === SPBOOK_CLASS)
         return await flip_through_book(obj, state);
     if (obj.oclass === COIN_CLASS)
