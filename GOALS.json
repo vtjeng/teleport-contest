@@ -101073,7 +101073,7 @@
     {
       "id": "port-dig-occupation-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the complete dig occupation across lateral and downward source branches",
       "cFile": "dig.c",
       "sessions": [
@@ -101352,7 +101352,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The active Earth-level lateral dig branch in dig.c:dig is not covered by a matching C/JS recording: six debug-level setups reached Earth, but Wizard teleport.c:collect_coords and its pager interrupted before dig() or the consumed makemon() result. Resume with an independent source-reaching Earth recipe (prefer preparing the pickaxe before levelport), then verify the makemon return and mkcavearea arm. Other source-named void gaps in dig/dighole, including dig.c:liquid_flow and shop/trapped-door effects, also require source implementation and entry-point evidence before closure. The selected v9 hidden-door case and the independent ordinary down-pit recording already match."
     },
     {
       "id": "port-read-identify-synthetic-v9-20260927",
