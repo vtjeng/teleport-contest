@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C37 read.c:seffect_enchant_armor entry through a Valkyrie-wished scroll applied to the starting shield. Seed and calendar were selected independently of synthetic/v8 inputs.",
+  "segments": [
+    {
+      "seed": 9385107,
+      "datetime": "20430915093000",
+      "nethackrc": "OPTIONS=name:Vola,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " \u0017uncursed scroll of enchant armor\nrf"
+    }
+  ]
+}
