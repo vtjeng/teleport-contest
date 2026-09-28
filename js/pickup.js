@@ -3738,7 +3738,8 @@ async function tipcontainer(box, state) {
             }
         } else if (highdrop) {
             otmp.how_lost = LOST_DROPPED;
-            note_unported('do.c hitfloor');
+            const { hitfloor } = await import('./dothrow.js');
+            await hitfloor(otmp, true, state);
         } else {
             if (altarizing) {
                 await doaltarobj(otmp, state);

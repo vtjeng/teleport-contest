@@ -228,7 +228,7 @@ import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { cancel_monst, resist, Fire_resistance, Cold_resistance } from './zap.js';
 import { healmon, migrate_mon, set_ustuck, wake_nearto } from './mon.js';
 import { monflee } from './monmove.js';
-import { throwit } from './dothrow.js';
+import { hitfloor, throwit } from './dothrow.js';
 import { P_MAX_SKILL, spell_skilltype } from './startup_skills.js';
 import { spelleffects } from './spell.js';
 import { seffects } from './read.js';
@@ -3032,7 +3032,7 @@ export async function retouch_object(objp, loseit, state = game) {
     if (loseit && obj) {
         if (Levitation(state)) {
             freeinv(obj, { state });
-            note_unported('dothrow.c hitfloor');
+            await hitfloor(obj, true, state);
         } else {
             /* dropx gives a message if a dropped item lands on an altar;
                we provide one for other terrain */

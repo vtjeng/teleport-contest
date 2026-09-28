@@ -27516,7 +27516,15 @@
         "sha": "ee9597acda2480513d59c51e1ba2dd2e9f2eb019",
         "screens": 6902,
         "rng": 508247
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "trapeffect_anti_magic",
+          "reason": "The earlier source evidence explicitly covered only the monster arm and left the hero arm behind preflight_dotrap. The independently recorded v11 anti-magic trap reaches the omitted hero arm, which must be ported with drain_en and runtime evidence before the whole C function can count complete.",
+          "followupGoal": "port-trap-antimagic-hero-synthetic-v11-20260928",
+          "at": "4a4ee7c470cb255f5c4837409366c3649875d151"
+        }
+      ]
     },
     {
       "id": "port-dokick-kick-nondoor-wall",
@@ -108440,16 +108448,20 @@
     {
       "id": "port-read-remove-curse-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete remove-curse effect and runtime blessorcurse behavior",
       "cFile": "read.c",
       "sessions": [
         "synthetic/v10/confused-remove-curse-blessorcurse"
       ],
-      "selectionReason": "Current v10 confused remove-curse case is source-traced and has two unmatched screens; read.c:seffect_remove_curse and mkobj.c:blessorcurse are unreserved.",
+      "selectionReason": "Integrate assigned C38 source port from the v10 confused remove curse mismatch; source evidence is partial and active caller blockers remain",
       "detail": "At step 80 uncursed confused SCR_REMOVE_CURSE enters missing inventory traversal; C then calls mkobj.c:blessorcurse with rn2(2), while JavaScript diverges. Port whole effect, runtime BUC helper and source callers without case-specific logic.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "be69548a77c6899056b335ffae17d07aa1994ea7",
+      "openStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -108458,7 +108470,7 @@
           "line": 1489,
           "endLine": 1607,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -108478,21 +108490,149 @@
           "evaluationPath": "challenges/evaluations/20260928181249-v10.json",
           "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_remove_curse",
+            "implementation": "js/read.js",
+            "symbol": "seffect_remove_curse",
+            "sourceReview": "Read and ported the complete read.c:seffect_remove_curse definition (1489-1605), preserving the opening You_feel branch, cursed-scroll early return, saved-next inventory traversal, coin/self-scroll exclusions, wornmask and auxiliary weapon/quiver predicates, blessed/confused/cursed branches, shop-water price adjustments, learned-scroll update, steed saddle feedback, final update_inventory, and unchanged consumed pointer. The confused path calls mkobj.c:blessorcurse in its two-draw order; ordinary changes call mkobj.c:uncurse. The two void teardown calls remain named gaps at their C call sites: read.c:unpunish and dig.c:buried_ball_to_freedom. The SCR_REMOVE_CURSE and SPE_REMOVE_CURSE cases are wired through read.c:seffects; the learned spell path reaches that dispatcher through spell.c:spelleffects. No session identity or seed behavior is special-cased.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread reads a scroll and calls seffects; the remove-curse helper leaves the scroll pointer unchanged so the caller consumes it afterward."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects dispatches SCR_REMOVE_CURSE and SPE_REMOVE_CURSE to seffect_remove_curse without consuming the object."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects routes SPE_REMOVE_CURSE through read.c:seffects for a learned spell cast."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "special_throne_effect",
+                "source": "sit.c:special_throne_effect case 10 creates a blessed fake SPE_REMOVE_CURSE object, temporarily sets HConfusion, and calls seffects."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "domagictrap",
+                "source": "trap.c:domagictrap case 20 creates an unblessed fake SPE_REMOVE_CURSE object, clears HConfusion, and calls seffects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-remove-curse.test.mjs",
+              "scripts/hero-magic-trap.test.mjs",
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/remove-curse-loadstone-c38-independent.session.json",
+              "recordings/read.c/remove-curse-confused-cloak-c38-independent.session.json",
+              "recordings/read.c/remove-curse-priest-learned-cast-c38-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "confused-remove-curse-blessorcurse",
+                "segment": 0,
+                "fromStep": 81,
+                "throughStep": 81,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_remove_curse -> mkobj.c:blessorcurse"
+              }
+            ],
+            "checkedAt": "be69548a77c6899056b335ffae17d07aa1994ea7"
+          }
+        ],
+        "entryPointReview": "Verified runtime entries are scroll reading through read.c:doread -> read.c:seffects and a learned #cast through spell.c:docast -> spell.c:spelleffects -> read.c:seffects. The independent C recordings cover an ordinary loadstone uncurse, a confused cloak BUC change, and a learned spell cast; the admitted v10 confused case reaches the effect at segment 0 step 81. Two additional active caller arms were implemented but lack matching C evidence and are intentionally incomplete: Vlad’s Tower sit.c:special_throne_effect case 10 and hero magic-trap trap.c:domagictrap case 20. The direct Tower-name recipe stayed at teleport.c:level_tele’s prompt because dungeon.c:lev_by_name rejects that cross-branch destination. The repeated magic-trap C-only probe reached eight hero outcomes (fates 14, 16, 3, 19, 8) but never fate 20; after fate 19, later observed trap draws were monster-side rn2(21). Their blocked recipes are retained under recipes/read.c and are not regression recordings. The JS domagictrap helper still has unsupported fate <10 monster creation and fate 19 tame-monster branches, so a preceding different fate can prevent strict parity before case 20.",
+        "entryPoints": [
+          {
+            "name": "read SCR_REMOVE_CURSE",
+            "functions": [
+              "seffect_remove_curse"
+            ],
+            "recordings": [
+              "recordings/read.c/remove-curse-loadstone-c38-independent.session.json",
+              "recordings/read.c/remove-curse-confused-cloak-c38-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "confused-remove-curse-blessorcurse",
+                "segment": 0,
+                "fromStep": 81,
+                "throughStep": 81,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_remove_curse"
+              }
+            ]
+          },
+          {
+            "name": "learned #cast SPE_REMOVE_CURSE",
+            "functions": [
+              "seffect_remove_curse"
+            ],
+            "recordings": [
+              "recordings/read.c/remove-curse-priest-learned-cast-c38-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Vlad Tower throne case 10",
+            "functions": [
+              "seffect_remove_curse"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "hero magic-trap fate 20",
+            "functions": [
+              "seffect_remove_curse"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "C38 verified seffect_remove_curse through scroll and learned spell recordings, but sit.c:special_throne_effect case 10 lacks a Tower throne witness (teleport.c:level_tele/dungeon.c:lev_by_name blocks setup), and trap.c:domagictrap case 20 lacks a matching magic-trap witness after bounded non-20 fate probes. Both blocked recipes are preserved."
     },
     {
       "id": "port-dothrow-hitfloor-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port dothrow.c hitfloor and unreachable-floor drop caller",
       "cFile": "dothrow.c",
       "sessions": [
         "synthetic/v10/bullwhip-snags-floor-object-while-floating"
       ],
-      "selectionReason": "Current v10 floating bullwhip case stops at the source-traced dothrow.c:hitfloor gap with six unmatched screens; its source and callers are unreserved.",
+      "selectionReason": "Integrate assigned A43 whole hitfloor source port from the v10 floating bullwhip/drop mismatch; active caller evidence may remain partial",
       "detail": "At step 22 do.c:drop frees a touchstone above unreachable floor and calls hitfloor; JavaScript refuses before that branch. Port whole hitfloor source order and wire active callers, including the Boolean hero_breaks and ship_object dependencies; use independent source-reaching recordings.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "cd226c09b543fb36f74fc22a784c79fe1946e059",
+      "openStanding": {
+        "sha": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -108521,21 +108661,190 @@
           "evaluationPath": "challenges/evaluations/20260928181249-v10.json",
           "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bullwhip-snags-floor-object-while-floating",
+          "session": "synthetic/v10/bullwhip-snags-floor-object-while-floating",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.session.json",
+          "recordingPath": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.session.json",
+          "recordingSha256": "c71b4f263a4927575c62d688896ad98dd979c7a1d8a006fb0973dbbb03b4de43",
+          "recipe": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.recipe.session.json",
+          "recipeSha256": "e3a273915b18413de2b27851d413b088c8283d20c7bba55e18c13a35ba50e675",
+          "replayInputSha256": "cb820b26c99c32f3d0c0e8d2c2fbec444cf304a31534afdefb08f22bc9605543",
+          "evaluationPath": "challenges/evaluations/20260928205149-v10.json",
+          "evaluationCommit": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186",
+          "evaluationArtifact": "challenges/evaluations/20260928205149-v10.json",
+          "evaluationUtc": "2026-09-28T20:51:53.397Z",
+          "remainingScreens": 6,
+          "recordedSteps": 28,
+          "previousScreensMatched": 22,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 22,
+              "total": 28
+            },
+            "rng": {
+              "matched": 2743,
+              "total": 2769
+            },
+            "cursors": {
+              "matched": 22,
+              "total": 28
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: hitfloor() from an unreachable floor",
+            "step": 22
+          },
+          "step": 22,
+          "kind": "stop",
+          "sourceFile": "dothrow.c",
+          "function": "hitfloor",
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: hitfloor() from an unreachable floor",
+          "cFile": "dothrow.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/bullwhip-snags-floor-object-while-floating.json",
+            "result": {
+              "session": "synthetic/v10/bullwhip-snags-floor-object-while-floating",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "bullwhip-snags-floor-object-while-floating",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "c71b4f263a4927575c62d688896ad98dd979c7a1d8a006fb0973dbbb03b4de43",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 6,
+              "recordedSteps": 28,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "bullwhip-snags-floor-object-while-floating",
+                "session": "synthetic/v10/bullwhip-snags-floor-object-while-floating",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.session.json",
+                "recordingPath": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.session.json",
+                "recordingSha256": "c71b4f263a4927575c62d688896ad98dd979c7a1d8a006fb0973dbbb03b4de43",
+                "recipe": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.recipe.session.json",
+                "recipeSha256": "e3a273915b18413de2b27851d413b088c8283d20c7bba55e18c13a35ba50e675",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 6,
+                "recordedSteps": 28,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 22,
+                    "total": 28
+                  },
+                  "rng": {
+                    "matched": 2743,
+                    "total": 2769
+                  },
+                  "cursors": {
+                    "matched": 22,
+                    "total": 28
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: hitfloor() from an unreachable floor",
+                  "step": 22
+                },
+                "step": 22,
+                "kind": "stop",
+                "sourceFile": "dothrow.c",
+                "function": "hitfloor",
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: hitfloor() from an unreachable floor",
+                "cFile": "dothrow.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The independent floating bullwhip case stops while dropping the touchstone that will become its floor target. With levitation active, do.c:drop enters its unreachable-floor branch and must free the object and call dothrow.c:hitfloor before the later bullwhip action. JavaScript explicitly refuses that branch. hitfloor handles soft surfaces, altar messaging, breakage, trap/stair shipping, and final floor placement in source order; the touchstone on stairs reaches the ordinary ground route. The later wrap/slip behavior remains to be checked after this drop blocker is removed.",
+              "source": {
+                "file": "dothrow.c",
+                "branch": "When a hero who cannot reach the floor drops an ordinary touchstone on the stairs while levitating, do.c:drop checks finesse_ahriman, prints the verbose drop message, frees the inventory object, and calls hitfloor(obj, TRUE). On ordinary non-soft, non-altar terrain, hitfloor prints the hit-surface message, tests hero_breaks and ship_object in that order, then places a surviving object with dropz. Other surface, trap, altar, breakage and shipping branches are part of the whole function.",
+                "functions": [
+                  "hitfloor"
+                ],
+                "callers": [
+                  "do.c:drop lines 758-773 calls dothrow.c:hitfloor when !can_reach_floor(TRUE); js/do.js:drop currently throws before the object removal and hitfloor call.",
+                  "dothrow.c:throwit, invent.c:hold_another_object, and other C callers also reach hitfloor; audit the production JavaScript callers when wiring the complete function."
+                ],
+                "dependencies": [
+                  "artifact.c:finesse_ahriman returns the levitation artifact special case consumed by do.c:drop; the JavaScript helper exists.",
+                  "dothrow.c:hero_breaks returns a Boolean; dokick.c:ship_object returns a Boolean; preserve their source order and current caller environments.",
+                  "do.c:dropz is the final floor placement path and may reach flooreffects, shop, and redraw operations; the caller must pass the operations needed by the actual state without a case-specific whitelist.",
+                  "Altar surfaces call do.c:doaltarobj, and a levitation artifact can call trap.c:float_down after hitfloor; preserve these source-ordered branches or record only discarded void gaps."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json records 22/28 screens matching and a stop at zero-based step 22: unsupported drop: hitfloor() from an unreachable floor. The immutable C recording challenges/cases/v10/bullwhip-snags-floor-object-while-floating.session.json has SHA-256 c71b4f263a4927575c62d688896ad98dd979c7a1d8a006fb0973dbbb03b4de43.",
+                "The independent recipe activates wizard levitation, drops the Archeologist touchstone, then uses the bullwhip down toward the landed object; the JavaScript failure is during the drop setup, before apply.c:use_whip chooses its floor-object branch.",
+                "Upstream nethack-c/upstream/src/do.c:758-773 defines the unreachable-floor drop order and hitfloor call. nethack-c/upstream/src/dothrow.c:606-644 defines the full hitfloor function with soft, altar, trap message, hero_breaks, ship_object, and dropz paths. js/do.js:1432-1438 explicitly refuses before this call."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "759b985c4bdf4978863b5d44a45a63bd0db7e61d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "A43 matches do.c:drop -> dothrow.c:hitfloor in the selected v10 case and independent levitating-drop recording, but active callers dothrow.c:toss_up/throwit, invent.c:hold_another_object, artifact.c:untouchable, mkobj.c:hornoplenty, ball.c:litter/drag_down, and pickup.c:use_container/tipcontainer lack matching runtime witnesses. The upward-boulder toss recipe stops earlier at zap.c:makewish on missing rn2(100). Supporting do.c:dropz still names void impact/swallow gaps; preserve the blocked recipe and resume after those caller witnesses or source blockers are repaired."
     },
     {
       "id": "div-apply-doapply-artifact-retouch-v10-20260928",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Wire doapply artifact retouch preflight and consumed return",
       "cFile": "apply.c",
       "sessions": [],
-      "selectionReason": "After B45 resolved the wand case, v10 Grimtooth remains source-traced at doapply artifact preflight; the same worker can repair the shared apply caller without overlapping A43 or C38.",
+      "selectionReason": "Integrate assigned B46 source-traced v10 doapply artifact retouch divergence fix",
       "detail": "C doapply calls retouch_object(&obj,FALSE) for every selected object before class dispatch and consumes both its Boolean and possibly updated pointer. JavaScript refuses artifacts before that call. Reuse the existing source-ported artifact helper across all artifact objects, preserving blast RNG and source order.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "7295e6d59c4f7f1f7250087be75297b9ce058e2f",
+      "openStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doapply",
       "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
       "step": 15,
@@ -108551,6 +108860,293 @@
           "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
           "evaluationPath": "challenges/evaluations/20260928193155-v10.json",
           "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
+        }
+      },
+      "activeStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-neutral-grimtooth-touches-artifact",
+          "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+          "recordingPath": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+          "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
+          "recipe": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.recipe.session.json",
+          "recipeSha256": "e0d47ae954ca33dca1a1f9af37a651d6c6105a2d6e41f1038b594d9f68db7c90",
+          "replayInputSha256": "b25a7deaa35a64de3fd90c71bc386d396450afa7288d8925e6d3e8ff2e0f716a",
+          "evaluationPath": "challenges/evaluations/20260928203412-v10.json",
+          "evaluationCommit": "be69548a77c6899056b335ffae17d07aa1994ea7",
+          "evaluationArtifact": "challenges/evaluations/20260928203412-v10.json",
+          "evaluationUtc": "2026-09-28T20:34:16.444Z",
+          "remainingScreens": 1,
+          "recordedSteps": 16,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 16
+            },
+            "rng": {
+              "matched": 2624,
+              "total": 2625
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 16
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires retouch_object() for an artifact",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": "artifact.c",
+          "function": "retouch_object",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires retouch_object() for an artifact",
+          "cFile": "artifact.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/apply-neutral-grimtooth-touches-artifact.json",
+            "result": {
+              "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "apply-neutral-grimtooth-touches-artifact",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 1,
+              "recordedSteps": 16,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "apply-neutral-grimtooth-touches-artifact",
+                "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+                "recordingPath": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+                "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
+                "recipe": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.recipe.session.json",
+                "recipeSha256": "e0d47ae954ca33dca1a1f9af37a651d6c6105a2d6e41f1038b594d9f68db7c90",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 1,
+                "recordedSteps": 16,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 16
+                  },
+                  "rng": {
+                    "matched": 2624,
+                    "total": 2625
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 16
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires retouch_object() for an artifact",
+                  "step": 15
+                },
+                "step": 15,
+                "kind": "stop",
+                "sourceFile": "artifact.c",
+                "function": "retouch_object",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires retouch_object() for an artifact",
+                "cFile": "artifact.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "After object selection, js/apply.js refuses Grimtooth before apply.c:doapply’s unconditional retouch_object(&obj,FALSE) preflight. The artifact helpers already exist; the source defect is the missing production call and consumed Boolean/object-pointer flow before all doapply class dispatch. The neutral Wizard case then reaches touch_artifact’s alignment blast RNG. Repair this shared preflight for every selected artifact without claiming the other partial doapply arms are complete.",
+              "source": {
+                "file": "apply.c",
+                "branch": "After getobj returns a selected artifact, doapply calls retouch_object(&obj,FALSE) before testing WAND_CLASS, SPBOOK_CLASS, COIN_CLASS or the type switch. If touch_artifact rejects it, doapply returns ECMD_TIME; otherwise it continues with the possibly updated object. For a neutral Wizard using chaotic Grimtooth, artifact.c:touch_artifact checks bad alignment and may blast the hero before doapply resumes.",
+                "functions": [
+                  "doapply"
+                ],
+                "callers": [
+                  "cmd.c command a dispatches apply.c:doapply; js/apply.js:doapply stops on obj.oartifact rather than calling the existing js/artifacts.js:retouch_object."
+                ],
+                "dependencies": [
+                  "artifact.c:retouch_object and touch_artifact already have JavaScript implementations; verify the consumed Boolean, possible object replacement, alignment blast, damage and RNG order against source.",
+                  "doapply remains a partially ported whole function; this divergence fix changes its common artifact preflight before existing class/type dispatch, leaving unrelated named source gaps intact."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928193155-v10.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de still stops at step 15 before artifact retouch; recording SHA-256 9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3.",
+                "Upstream apply.c:4224-4235 calls retouch_object(&obj,FALSE) for every chosen object before class dispatch and consumes its Boolean return. artifact.c:2508-2591 and 908-976 define the existing callee and touch behavior.",
+                "js/apply.js refuses artifacts before this source call; js/artifacts.js already exports retouch_object and touch_artifact. The independent recipe wishes Grimtooth then applies it as a neutral Wizard."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-trap-antimagic-hero-synthetic-v11-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port hero anti-magic trap effect and source energy drain",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v11/hero-antimagic-trap-drains-energy"
+      ],
+      "selectionReason": "Select synthetic/v11/hero-antimagic-trap-drains-energy from challenges/evaluations/20260928205149-v11.json at 1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186; immutable recording challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json SHA-256 c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd, manifest SHA-256 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347. The source trace in investigations/synthetic/v11/hero-antimagic-trap-drains-energy.json identifies the missing hero trapeffect_anti_magic arm and trap.c:drain_en, independent of reserved A43 dothrow.c work.",
+      "detail": "Port trap.c:trapeffect_anti_magic hero and monster arms as one complete function, plus required trap.c:drain_en; admit the hero trap through preflight_dotrap and wire active callers in source order. Source definitions trap.c:2323-2452 and 5202-5243.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_anti_magic",
+          "line": 2323,
+          "endLine": 2452,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2323,
+        "to": 2452
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-antimagic-trap-drains-energy": {
+          "session": "synthetic/v11/hero-antimagic-trap-drains-energy",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-antimagic-trap-drains-energy",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json",
+          "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
+          "evaluationPath": "challenges/evaluations/20260928205149-v11.json",
+          "evaluationCommit": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186"
+        }
+      }
+    },
+    {
+      "id": "port-zap-zapnodir-synthetic-v11-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port directionless wand effects and enlightenment helper from zap.c",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v11/wand-wishing-makes-wish",
+        "synthetic/v11/wand-light-room",
+        "synthetic/v11/wand-stasis-freezes-level",
+        "synthetic/v11/wand-enlightenment-reports-status"
+      ],
+      "selectionReason": "Select synthetic/v11/wand-wishing-makes-wish at challenges/evaluations/20260928211543-v11.json (759b985c4bdf4978863b5d44a45a63bd0db7e61d), immutable recording SHA-256 fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474, manifest SHA-256 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347. Group the three related v11 light, stasis, and enlightenment cases because all first stop in zap.c:zapnodir; their investigation records preserve separate C branch, state, and action history.",
+      "detail": "Implement zap.c:do_enlightenment_effect and whole zapnodir switch in C definition order, including light, detection, stasis, creation, wishing, enlightenment, and shared wand discovery. Wire charged NODIR callers and preserve all existing create-monster and secret-door matches. The wishing branch may expose a separately traced zap.c:makewish finalization defect; source-trace and record it rather than special-casing the case.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_enlightenment_effect",
+          "line": 2525,
+          "endLine": 2538,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "zapnodir",
+          "line": 2539,
+          "endLine": 2604,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2525,
+        "to": 2604
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/wand-wishing-makes-wish": {
+          "session": "synthetic/v11/wand-wishing-makes-wish",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-wishing-makes-wish",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+          "recordingSha256": "fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/wand-light-room": {
+          "session": "synthetic/v11/wand-light-room",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-light-room",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-light-room.session.json",
+          "recordingSha256": "94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/wand-stasis-freezes-level": {
+          "session": "synthetic/v11/wand-stasis-freezes-level",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-stasis-freezes-level",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+          "recordingSha256": "99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/wand-enlightenment-reports-status": {
+          "session": "synthetic/v11/wand-enlightenment-reports-status",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-enlightenment-reports-status",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-enlightenment-reports-status.session.json",
+          "recordingSha256": "0825f81f6eed93f36a6b1d76dd2dde00fddd8b48fe2cfc5f14ac08b8dc919419",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
       }
     }

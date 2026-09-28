@@ -71,6 +71,7 @@ import {
     dothrow,
     endmultishot,
     find_launcher,
+    hitfloor,
     impact_disturbs_zombies,
     mhurtle,
     multishot_class_bonus,
@@ -677,6 +678,31 @@ function draws() {
     return getRngLog().map((entry) => entry.slice(0, entry.indexOf('=')));
 }
 
+test('hitfloor keeps its message, break, ship, and impact-drop order',
+    async () => {
+        const source = DOTHROW_C.slice(
+            DOTHROW_C.indexOf('\nhitfloor('),
+            DOTHROW_C.indexOf('\n/*\n * Walk a path',
+                DOTHROW_C.indexOf('\nhitfloor(')),
+        );
+        const messageAt = source.indexOf('pline(');
+        const breakAt = source.indexOf('hero_breaks(');
+        const shipAt = source.indexOf('ship_object(');
+        const dropAt = source.indexOf('dropz(obj, TRUE)');
+        assert.ok(messageAt >= 0 && messageAt < breakAt);
+        assert.ok(breakAt < shipAt && shipAt < dropAt);
+
+        const state = arena();
+        const dagger = item(state, DAGGER);
+        state._ttyToplines = '';
+
+        await hitfloor(dagger, true, state);
+
+        assert.match(state._ttyToplines, /hits the floor\./u);
+        assert.equal(dagger.where, OBJ_FLOOR);
+        assert.equal(state.level.objects[1][4], dagger);
+    });
+
 // How many draws a volley spends before its first missile lands. dothrow.c
 // calls rnd() once at :233 and once more at :231 when the crossbow reload
 // penalty applies; mkobj.c next_ident() then draws rnd(2) for the split that
@@ -772,7 +798,8 @@ test('throwit() draws rn2(7) only for a cursed or greased missile',
         }
         // With no direction to slip away from -- u.dx and u.dy both zero --
         // the second conjunct stops the draw. u.dz is what throwit() reads
-        // next; the down path retains its separate hitfloor() gap.
+        // next; its downward branch reaches hitfloor() without a second
+        // verbose landing message.
         const down = arena();
         down.u.dx = 0;
         down.u.dy = 0;
@@ -780,7 +807,9 @@ test('throwit() draws rn2(7) only for a cursed or greased missile',
         await throwit(item(down, DAGGER, { cursed: 1 }), 0, false, null, down);
         assert.equal(down.iflags.returning_missile, null);
         assert.equal(down.gt.thrownobj, null);
-        assert.deepEqual(draws(), []);
+        // hitfloor() now reaches hero_breaks() and its breaktest() even for
+        // this ordinary iron dagger; the source asks obj_resists() once.
+        assert.deepEqual(draws(), ['rn2(100)']);
     });
 
 test('throwit runs the complete upward toss path before retiring the throw',
@@ -793,6 +822,10 @@ test('throwit runs the complete upward toss path before retiring the throw',
         state.u.dy = 0;
         state.u.dz = -1;
         state._ttyToplines = '';
+        state.iflags.cbreak = true;
+        // The new hitfloor tail can emit several source-ordered messages;
+        // dismiss their pagers so this unit test reaches throwit_return().
+        for (let i = 0; i < 8; i += 1) state.nhDisplay.pushKey(32);
         const thrown = item(state, DAGGER);
         const hp = state.u.uhp;
 
@@ -801,7 +834,7 @@ test('throwit runs the complete upward toss path before retiring the throw',
         assert.ok(draws().includes('rn2(5)'));
         assert.ok(draws().includes('rnd(4)'));
         assert.ok(state.u.uhp < hp);
-        assert.match(state._ttyToplines, /falls back on top of your head/u);
+        assert.equal(state._ttyToplines, 'A dagger hits the floor.');
         assert.equal(state.gt.thrownobj, null);
     });
 
@@ -1229,17 +1262,32 @@ test('throwit() drops a heavy missile from a tired hand', async () => {
         const dagger = item(state, DAGGER, { owt: weight });
         state._ttyToplines = '';
         if (row.drops) {
-            // The block sets u.dz to 1. The source hitfloor call is a named
-            // discarded gap, while throwit() still retires its transit state.
+            state.iflags.cbreak = true;
+            const displayed = [];
+            const readKey = state.nhDisplay.readKey.bind(state.nhDisplay);
+            state.nhDisplay.readKey = (...args) => {
+                displayed.push(state._pending_message ?? '');
+                return readKey(...args);
+            };
+            for (let i = 0; i < 8; i += 1)
+                state.nhDisplay.pushKey(' '.charCodeAt(0));
+            // The block sets u.dz to 1 and reaches hitfloor() after its
+            // stamina message. Iron survives breaktest and is placed at the
+            // hero's feet before throwit() retires its transit state.
             await throwit(dagger, 0, false, null, state);
             assert.equal(state.u.dz, 1, row.name);
-            assert.match(state._ttyToplines, /so little stamina/u, row.name);
+            assert.ok(displayed.some((line) => /so little stamina/u.test(line)),
+                row.name);
+            assert.equal(state._ttyToplines,
+                'Your movements are slowed slightly because of your load.',
+                row.name);
             assert.equal(state.gt.thrownobj, null, row.name);
+            assert.equal(dagger.where, OBJ_FLOOR, row.name);
             // :1557 exercises Constitution downward, and attrib.c
             // exerciseAttribute() spends `-rn2(2)` on a decrease where an
             // increase would ask rn2(19) and compare it against the
             // attribute.
-            assert.deepEqual(draws(), ['rn2(2)'], row.name);
+            assert.deepEqual(draws(), ['rn2(2)', 'rn2(100)'], row.name);
         } else {
             await throwit(dagger, 0, false, null, state);
             assert.deepEqual(pileAt(state, state.gb.bhitpos.x, 4), [dagger],
@@ -1265,14 +1313,24 @@ test('throwit() keeps its foreign naming state for the stamina message',
         foreign.obj_descr[daggerType.oc_name_idx].oc_name = 'Excalibur';
         carry(foreign, item(foreign, DAGGER, { owt: 270 }));
         foreign._ttyToplines = '';
+        foreign.iflags.cbreak = true;
+        const displayed = [];
+        const readKey = foreign.nhDisplay.readKey.bind(foreign.nhDisplay);
+        foreign.nhDisplay.readKey = (...args) => {
+            displayed.push(foreign._pending_message ?? '');
+            return readKey(...args);
+        };
+        for (let i = 0; i < 8; i += 1)
+            foreign.nhDisplay.pushKey(' '.charCodeAt(0));
 
         await throwit(
             item(foreign, DAGGER, { owt: 30 }), 0, false, null, foreign,
         );
-        assert.equal(
-            foreign._ttyToplines,
+        assert.ok(displayed.includes(
             'You have so little stamina, the Excalibur drops from your grasp.',
-        );
+        ));
+        assert.equal(foreign._ttyToplines,
+            'Your movements are slowed slightly because of your load.');
     });
 
 test('throwit() reads the stamina test differently in each direction',
@@ -1287,9 +1345,14 @@ test('throwit() reads the stamina test differently in each direction',
         upward.u.dy = 0;
         upward.u.dz = -1;
         upward._ttyToplines = '';
-        await throwit(item(upward, DAGGER, { owt: 30 }), 0, false, null,
-            upward);
-        assert.match(upward._ttyToplines, /so little stamina/u);
+        upward.iflags.cbreak = true;
+        for (let i = 0; i < 8; i += 1)
+            upward.nhDisplay.pushKey(' '.charCodeAt(0));
+        await throwit(
+            item(upward, DAGGER, { owt: 30 }), 0, false, null, upward,
+        );
+        assert.equal(upward._ttyToplines,
+            'Your movements are slowed slightly because of your load.');
         assert.equal(upward.u.dz, 1);
         // Aimed straight down, `u.dz < 1` is false and no term holds, so the
         // same tired hero keeps hold of the same weight.
@@ -1300,6 +1363,9 @@ test('throwit() reads the stamina test differently in each direction',
         downward.u.dy = 0;
         downward.u.dz = 1;
         downward._ttyToplines = '';
+        downward.iflags.cbreak = true;
+        for (let i = 0; i < 8; i += 1)
+            downward.nhDisplay.pushKey(' '.charCodeAt(0));
         await throwit(downwardDagger, 0, false, null, downward);
         assert.doesNotMatch(downward._ttyToplines, /so little stamina/u);
         // C's global `gb` is always allocated; the downward arm reaches the
@@ -1479,11 +1545,11 @@ test('throw_obj() opens the multishot block only for a stack it can volley',
                 carry(impaired, held);
                 impaired.uquiver = held;
                 aimDown(impaired);
-                // The closed block sizes the volley at one. Its vertical
-                // helper is a named discarded gap, so the split missile still
-                // completes and the parent stack remains in inventory.
+                // The closed block sizes the volley at one. The downward
+                // split missile now completes hitfloor(), including its
+                // source breaktest draw, while the parent stays in inventory.
                 await throw_obj(held, 0, impaired);
-                assert.deepEqual(draws(), ['rnd(2)'],
+                assert.deepEqual(draws(), ['rnd(2)', 'rn2(100)'],
                     `${property}/${half} still volleyed`);
                 assert.equal(held.quan, 4);
             }

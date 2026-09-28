@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary scroll entry for C38. A debug Wizard wishes a cursed loadstone (eligible even when unworn) and an uncursed remove-curse scroll, then reads the scroll. The C recording must reach read.c:seffects -> seffect_remove_curse and mkobj.c:uncurse on the loadstone.",
+  "segments": [
+    {
+      "seed": 38190271,
+      "datetime": "20450928101530",
+      "nethackrc": "OPTIONS=name:C38Loadstone,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017cursed loadstone\n \u0017uncursed scroll of remove curse\n rk   \u001b"
+    }
+  ]
+}

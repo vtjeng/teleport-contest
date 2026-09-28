@@ -1548,15 +1548,6 @@ export function unknow_object(obj, state = game) {
     return obj;
 }
 
-function assertStartupBucObject(obj, operation) {
-    if (obj.where !== OBJ_FREE
-        || obj.lamplit
-        || obj.otyp === BAG_OF_HOLDING
-        || (obj.otyp === FIGURINE && obj.timed)) {
-        throw new UnsupportedObjectOperationError(operation, obj);
-    }
-}
-
 // C ref: mkobj.c bless() (1745-1765).  Keep the common free-object startup
 // path synchronous, while also preserving the carried-object side effects
 // used by gameplay callers: carried luck, bag weight, figurine timers, and
@@ -1705,18 +1696,16 @@ export function bcsign(obj) {
     return Number(Boolean(obj.blessed)) - Number(Boolean(obj.cursed));
 }
 
-// C ref: mkobj.c blessorcurse(). The first draw decides whether BUC changes;
-// the second draw only occurs when the first succeeds. This exported subset is
-// restricted to free startup objects; gameplay BUC changes need full effects.
+// C ref: mkobj.c blessorcurse() (1841-1856). The first draw decides whether
+// BUC changes; the second draw only occurs on that arm. Initialization callers
+// receive the same synchronous result for free objects, while carried gameplay
+// callers can await curse()/bless() when their source side effects emit text.
 export function blessorcurse(obj, chance, env = {}) {
-    const random = objectEnv(env).random;
     if (obj.blessed || obj.cursed) return obj;
-    assertStartupBucObject(obj, 'blessorcurse outside object initialization');
-    if (!random.rn2(chance)) {
-        if (!random.rn2(2)) curse(obj, env);
-        else bless(obj);
-    }
-    return obj;
+    const normalized = objectEnv(env);
+    if (normalized.random.rn2(chance)) return obj;
+    if (!normalized.random.rn2(2)) return curse(obj, normalized);
+    return bless(obj, normalized);
 }
 
 // C ref: mkobj.c set_bknown() (1862-1873). Records that the hero has learned
@@ -3364,8 +3353,8 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
             // assumes this is taking place at hero's location
             if (!can_reach_floor(true, state)) {
                 // C: hitfloor(obj, TRUE) -- does altar check, message, drop.
-                // hitfloor() is in do.c and not yet ported.
-                note_unported('do.c hitfloor');
+                const { hitfloor } = await import('./dothrow.js');
+                await hitfloor(obj, true, state, env);
             } else {
                 if (IS_ALTAR(state.level.at(u.ux, u.uy).typ)) {
                     // C: doaltarobj(obj) -- does its own drop message.

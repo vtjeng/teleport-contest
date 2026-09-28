@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T19:41:16.575Z",
+  "capturedAt": "2026-09-28T21:21:04.040Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -7903,12 +7903,173 @@
         "type": "accepted",
         "at": "2026-09-28T19:38:43.327Z",
         "task": "B45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B45-89f08acb-20260928",
+        "type": "published",
+        "at": "2026-09-28T19:43:33.570Z",
+        "task": "B45",
+        "commit": "89f08acb3f7588dbb2d6572078328d11c0da4372"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B46-artifact-retouch-20260928",
+        "type": "assign",
+        "at": "2026-09-28T19:48:07.920Z",
+        "task": "B46",
+        "worker": "B",
+        "goal": "div-apply-doapply-artifact-retouch-v10-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ec9a26939145e9eb6e6454e2ef0538c24aaf7057",
+        "type": "ready",
+        "at": "2026-09-28T20:23:48.654Z",
+        "task": "C38",
+        "delivery": "ec9a26939145e9eb6e6454e2ef0538c24aaf7057"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C38-received-20260928",
+        "type": "received",
+        "at": "2026-09-28T20:25:14.128Z",
+        "task": "C38",
+        "delivery": "ec9a26939145e9eb6e6454e2ef0538c24aaf7057"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C38-integrating-20260928",
+        "type": "integrating",
+        "at": "2026-09-28T20:25:57.561Z",
+        "task": "C38",
+        "integration": "be69548a77c6899056b335ffae17d07aa1994ea7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-593610b3bd17bc8a1ff7d2ab47d010a81d0e8ba9",
+        "type": "ready",
+        "at": "2026-09-28T20:33:26.218Z",
+        "task": "B46",
+        "delivery": "593610b3bd17bc8a1ff7d2ab47d010a81d0e8ba9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8344796bc8add0bfa417a508e576f596b888f07f",
+        "type": "ready",
+        "at": "2026-09-28T20:36:03.028Z",
+        "task": "A43",
+        "delivery": "8344796bc8add0bfa417a508e576f596b888f07f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C38-validated-20260928",
+        "type": "validated",
+        "at": "2026-09-28T20:40:01.346Z",
+        "task": "C38",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C38-accepted-20260928",
+        "type": "accepted",
+        "at": "2026-09-28T20:40:17.930Z",
+        "task": "C38"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C38-published-20260928",
+        "type": "published",
+        "at": "2026-09-28T20:41:59.831Z",
+        "task": "C38",
+        "commit": "7295e6d59c4f7f1f7250087be75297b9ce058e2f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B46-received-20260928",
+        "type": "received",
+        "at": "2026-09-28T20:43:45.258Z",
+        "task": "B46",
+        "delivery": "593610b3bd17bc8a1ff7d2ab47d010a81d0e8ba9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B46-integrating-20260928",
+        "type": "integrating",
+        "at": "2026-09-28T20:44:32.762Z",
+        "task": "B46",
+        "integration": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B46-validated-20260928",
+        "type": "validated",
+        "at": "2026-09-28T20:55:41.752Z",
+        "task": "B46",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B46-accepted-20260928",
+        "type": "accepted",
+        "at": "2026-09-28T20:55:59.037Z",
+        "task": "B46"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B46-published-20260928",
+        "type": "published",
+        "at": "2026-09-28T20:58:48.339Z",
+        "task": "B46",
+        "commit": "4a4ee7c470cb255f5c4837409366c3649875d151"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A43-received-20260928",
+        "type": "received",
+        "at": "2026-09-28T21:05:01.416Z",
+        "task": "A43",
+        "delivery": "8344796bc8add0bfa417a508e576f596b888f07f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C39-20260928",
+        "type": "assign",
+        "at": "2026-09-28T21:05:53.498Z",
+        "task": "C39",
+        "worker": "C",
+        "goal": "port-trap-antimagic-hero-synthetic-v11-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A43-integrating-20260928",
+        "type": "integrating",
+        "at": "2026-09-28T21:07:22.204Z",
+        "task": "A43",
+        "integration": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A43-validated-20260928",
+        "type": "validated",
+        "at": "2026-09-28T21:20:15.554Z",
+        "task": "A43",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A43-accepted-20260928",
+        "type": "accepted",
+        "at": "2026-09-28T21:20:35.920Z",
+        "task": "A43"
       }
     ]
   },
   "development": {
-    "executionCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
-    "measuredAt": "2026-09-28T19:31:00.478Z",
+    "executionCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d",
+    "measuredAt": "2026-09-28T21:15:17.817Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -978,7 +978,7 @@ test('real rne uses the supplied hero level and keeps nested log order', () => {
     assert.equal(log.filter((entry) => entry.startsWith('rn2(3)=')).length, 8);
 });
 
-test('blessorcurse short-circuits its second draw unless BUC changes', () => {
+test('blessorcurse preserves draw order on free and carried objects', async () => {
     const unchanged = newObject();
     const first = scriptedRandom([
         { name: 'rn2', args: [10], result: 4 }, // nonzero: retain neutral BUC
@@ -998,13 +998,14 @@ test('blessorcurse short-circuits its second draw unless BUC changes', () => {
     second.done();
 
     const carried = newObject({ where: OBJ_INVENT });
-    const noDraws = scriptedRandom([]);
-    assert.throws(
-        () => blessorcurse(carried, 10, noDraws),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'blessorcurse outside object initialization',
-    );
-    noDraws.done();
+    const carriedDraws = scriptedRandom([
+        { name: 'rn2', args: [2], result: 0 },
+        { name: 'rn2', args: [2], result: 1 },
+    ]);
+    await blessorcurse(carried, 2, carriedDraws);
+    assert.equal(carried.blessed, true);
+    assert.equal(carried.cursed, false);
+    carriedDraws.done();
 });
 
 test('mksobj follows startup weapon initialization and PRNG order', () => {
