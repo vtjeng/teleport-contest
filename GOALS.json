@@ -104153,7 +104153,7 @@
     {
       "id": "port-read-create-monster-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port create-monster scroll and spell effects with runtime monster creation",
       "cFile": "read.c",
       "sessions": [
@@ -104161,8 +104161,12 @@
       ],
       "selectionReason": "The v8 create-monster recording first diverges at read.c:seffect_create_monster rn2(73) in investigations/synthetic/v8/read-create-monster-scroll-no-prior-monsters.json. Port the whole effect and SCR/SPE seffects dispatch, including its consumed makemon.c:create_critters Boolean and runtime makemon continuation. C32 released read.c:seffects on acceptance.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "8ac207f7909ff6dc849b4bc141c90703ab041c87",
+      "openStanding": {
+        "sha": "1555af1bb95b60ce1cfbb302fbeb60527efb6489",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -104170,8 +104174,8 @@
           "name": "seffect_create_monster",
           "line": 1608,
           "endLine": 1626,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -104191,21 +104195,363 @@
           "evaluationPath": "challenges/evaluations/20260928075052-v8.json",
           "evaluationCommit": "61db2f29db823f3a5d87886797e12fa604d89a2e"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1555af1bb95b60ce1cfbb302fbeb60527efb6489",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-create-monster-scroll-no-prior-monsters",
+          "session": "synthetic/v8/read-create-monster-scroll-no-prior-monsters",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+          "recordingPath": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+          "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+          "recipe": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.recipe.session.json",
+          "recipeSha256": "2ebfe64f4817de715a428c8dac99f16e7ddec0aebd7665e16b218cc1d8d4bca5",
+          "replayInputSha256": "00a964ee07478ab93c3bb1009162b85ad34ab3c99a1fc76187bdbbbe1cdd8fce",
+          "evaluationPath": "challenges/evaluations/20260928081512-v8.json",
+          "evaluationCommit": "711422bb31ddb697934196d4a58eb7fb00db8ce5",
+          "evaluationArtifact": "challenges/evaluations/20260928081512-v8.json",
+          "evaluationUtc": "2026-09-28T08:15:44.697Z",
+          "remainingScreens": 1,
+          "recordedSteps": 31,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2413,
+              "total": 2414
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 30,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "i"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2413,
+              "cEntry": "rn2(73)=44",
+              "cCaller": "seffect_create_monster(read.c:1616)",
+              "jsEntry": "rn2(12)=11",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "i"
+              },
+              "stepIndex": 30
+            },
+            "cursor": {
+              "index": 30,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "i"
+              },
+              "cCursor": [
+                46,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                4,
+                1
+              ]
+            }
+          },
+          "step": 30,
+          "kind": "rng",
+          "sourceFile": "read.c",
+          "function": "seffect_create_monster",
+          "message": null,
+          "cFile": "read.c",
+          "luaFile": null,
+          "line": 1616,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/read-create-monster-scroll-no-prior-monsters.json",
+            "result": {
+              "session": "synthetic/v8/read-create-monster-scroll-no-prior-monsters",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "read-create-monster-scroll-no-prior-monsters",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+              "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "read-create-monster-scroll-no-prior-monsters",
+                "session": "synthetic/v8/read-create-monster-scroll-no-prior-monsters",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+                "recordingPath": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+                "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+                "recipe": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.recipe.session.json",
+                "recipeSha256": "2ebfe64f4817de715a428c8dac99f16e7ddec0aebd7665e16b218cc1d8d4bca5",
+                "replayInputSha256": "27f18d189b460e5d07fcbe8d4669298ca261f8e066dfb04e4481c65916a5d755",
+                "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v8.json",
+                "evaluationUtc": "2026-09-27T19:11:43.974Z",
+                "remainingScreens": 1,
+                "recordedSteps": 31,
+                "previousScreensMatched": 30,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2413,
+                    "total": 2414
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 30,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "i"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2413,
+                    "cEntry": "rn2(73)=44",
+                    "cCaller": "seffect_create_monster(read.c:1616)",
+                    "jsEntry": "rn2(12)=11",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "i"
+                    },
+                    "stepIndex": 30
+                  },
+                  "cursor": {
+                    "index": 30,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "i"
+                    },
+                    "cCursor": [
+                      46,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      5,
+                      4,
+                      1
+                    ]
+                  }
+                },
+                "step": 30,
+                "kind": "rng",
+                "sourceFile": "read.c",
+                "function": "seffect_create_monster",
+                "message": null,
+                "cFile": "read.c",
+                "luaFile": null,
+                "line": 1616
+              },
+              "summary": "The create-monster scroll reaches read.c:seffect_create_monster, but js/read.js records an unported gap. C makes its extra-monster rn2(73) draw before calling create_critters; the missing draw is the first RNG difference at step 30, and the final inventory screen also differs. Port the whole effect and use the existing create_critters Boolean result to set scroll knowledge.",
+              "source": {
+                "file": "read.c",
+                "branch": "read.c:seffect_create_monster (1606-1623) computes count in C evaluation order: one base creature, twelve extra for confusion or curse, and for an unblessed ordinary state rn2(73) followed by optional rnd(4). It passes acid blob species only when confused, calls makemon.c:create_critters, and sets known only when that consumed Boolean is true.",
+                "functions": [
+                  "seffect_create_monster"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_CREATE_MONSTER and SPE_CREATE_MONSTER dispatch to seffect_create_monster; js/read.js:seffects currently notes the gap for both.",
+                  "read.c:doread and spell.c:spelleffects reach the scroll and spell dispatch paths."
+                ],
+                "dependencies": [
+                  "makemon.c:create_critters is already ported in js/makemon.js and returns a Boolean; use its return value and preserve the wizard-mode prompt behavior.",
+                  "Keep the rn2(73)/rnd(4) order and gk.known update exactly as C."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v8.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 30/31 screens and 2413/2414 RNG calls; first C RNG at mismatch is rn2(73)=44 from seffect_create_monster(read.c:1616).",
+                "Upstream nethack-c/upstream/src/read.c defines seffect_create_monster with all branches described above; js/read.js dispatch records note_unported for the same source function.",
+                "The selected v8 case's setup and first mismatch are independent C recording evidence; port the full function and both production dispatch arms rather than keying behavior to this case."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_create_monster",
+            "implementation": "js/read.js",
+            "symbol": "seffect_create_monster",
+            "sourceReview": "Compared all of read.c:seffect_create_monster() (1608-1626). The JavaScript snapshots blessed/cursed/confused in C order; computes one base creature plus twelve for confusion or curse; performs rn2(73) only for an unblessed, unconfused, uncursed scroll and rnd(4) only when that draw is zero; supplies PM_ACID_BLOB only while confused; and sets gk.known only when the consumed create_critters() Boolean is true. The selected function body and the SCR/SPE dispatcher arms match C. The runtime chain still has the explicitly blocked Wizard named-species path described below; this packet does not claim the wider makemon.c:makemon source unit complete.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() dispatches SCR_CREATE_MONSTER and SPE_CREATE_MONSTER to seffect_create_monster(&sobj) (2229-2232)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() calls seffects() for an inventory scroll (635)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() routes SPE_CREATE_MONSTER through seffects() at skilled or expert skill (1529 and following dispatch)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/create-monster-scroll-independent-b40.session.json",
+              "recordings/spell.c/create-monster-spell-independent-b40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-create-monster-scroll-no-prior-monsters",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "doread -> read.c:seffects(SCR_CREATE_MONSTER) -> seffect_create_monster -> create_critters"
+              }
+            ],
+            "checkedAt": "f14b5e39fd3f2cc35f960409bb3168a4ea415129"
+          }
+        ],
+        "entryPointReview": "The selected read.c effect has two active production entries: inventory SCR_CREATE_MONSTER through doread/seffects, and skilled-or-expert SPE_CREATE_MONSTER through spell.c:spelleffects/seffects. They are covered by separate strict C recordings; the selected admitted v8 scroll case strictly matches all 31 boundaries, steps 0-30. The shared makemon.c:create_critters() helper is implemented in js/makemon.js and its visibility Boolean is consumed by both the scroll effect and zap.c:zapnodir() WAN_CREATE_MONSTER arm; an independent wand recording covers that production caller. The helper’s ordinary null-species call now admits the C-defined explicit hero/enexto coordinate shape without a species or seed allowlist, and recursive MM_NOGRP members use their C flag shape. A separate high-difficulty dynamic test selects a C G_SGROUP species and verifies its recursive makemon call. The source goal remains parked: the Wizard create_critters() branch can accept a named species through read.c:create_particular()/create_particular_creation(), but its return-valued creation route still reaches makemon.c:makemon’s existing assertSupportedSpecies guard for valid species not in its partial set. C has no such species allowlist. The blocked recipe records the planned named-species route; no completion is claimed for that path or for whole makemon.c:makemon.",
+        "entryPoints": [
+          {
+            "name": "Inventory scroll of create monster",
+            "functions": [
+              "seffect_create_monster"
+            ],
+            "recordings": [
+              "recordings/read.c/create-monster-scroll-independent-b40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-create-monster-scroll-no-prior-monsters",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c:doread -> seffects(SCR_CREATE_MONSTER) -> seffect_create_monster"
+              }
+            ]
+          },
+          {
+            "name": "Skilled or expert spell of create monster",
+            "functions": [
+              "seffect_create_monster"
+            ],
+            "recordings": [
+              "recordings/spell.c/create-monster-spell-independent-b40.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f14b5e39fd3f2cc35f960409bb3168a4ea415129",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The scroll and skilled-spell effects have complete source and strict replay evidence, but the Wizard named-species create_critters path still consumes makemon.c:makemon through its partial assertSupportedSpecies guard. The blocked troll recipe is committed; complete the named-species and other consumed makemon call shapes before closing this goal."
     },
     {
       "id": "port-mon-xkilled-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port mon.c xkilled and its explosion kill caller across source-defined monster death outcomes",
       "cFile": "mon.c",
       "sessions": [
         "synthetic/v10/blessed-fire-scroll-centered-explosion"
       ],
-      "selectionReason": "The highest-count unreserved v10 mismatch is synthetic/v10/blessed-fire-scroll-centered-explosion (manifest challenges/manifests/v10.json SHA-256 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recording challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json SHA-256 9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc; evaluation challenges/evaluations/20260928083103-v10.json). The complete investigation at investigations/synthetic/v10/blessed-fire-scroll-centered-explosion.json traces the blessed scroll through read.c:seffect_fire and explode.c:explode to mon.c:xkilled; its JavaScript caller currently throws on an injected unsupported operation. Worker B owns read.c create-monster paths, while this task owns mon.c kill processing and the explosion caller contract.",
+      "selectionReason": "Current v10 fire-scroll case has 73 remaining screens and a source-traced first refusal in explode.c -> mon.c:xkilled; selected among complete investigations for the independent A40 worker scope.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "f95e06f7482860e8e94b38aa61430ed0ce4cc642",
+      "openStanding": {
+        "sha": "f14b5e39fd3f2cc35f960409bb3168a4ea415129",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -104234,7 +104580,171 @@
           "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
           "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f14b5e39fd3f2cc35f960409bb3168a4ea415129",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "blessed-fire-scroll-centered-explosion",
+          "session": "synthetic/v10/blessed-fire-scroll-centered-explosion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+          "recordingPath": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+          "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+          "recipe": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.recipe.session.json",
+          "recipeSha256": "31654d1effdfaf1db9591c9149112914e8a1bf7d911df70cdb012f16472e5a2b",
+          "replayInputSha256": "963b92430aee902d75afeb7f913188cee6c8bbabf53e657d716706d56f0db106",
+          "evaluationPath": "challenges/evaluations/20260928100009-v10.json",
+          "evaluationCommit": "f14b5e39fd3f2cc35f960409bb3168a4ea415129",
+          "evaluationArtifact": "challenges/evaluations/20260928100009-v10.json",
+          "evaluationUtc": "2026-09-28T10:00:13.169Z",
+          "remainingScreens": 73,
+          "recordedSteps": 73,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "the monster kill path requires unsupported",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 73
+            },
+            "rng": {
+              "matched": 0,
+              "total": 4015
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 73
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: the monster kill path requires unsupported",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: the monster kill path requires unsupported",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/blessed-fire-scroll-centered-explosion.json",
+            "result": {
+              "session": "synthetic/v10/blessed-fire-scroll-centered-explosion",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "blessed-fire-scroll-centered-explosion",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 73,
+              "recordedSteps": 73,
+              "status": "complete",
+              "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "blessed-fire-scroll-centered-explosion",
+                "session": "synthetic/v10/blessed-fire-scroll-centered-explosion",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+                "recordingPath": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+                "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+                "recipe": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.recipe.session.json",
+                "recipeSha256": "31654d1effdfaf1db9591c9149112914e8a1bf7d911df70cdb012f16472e5a2b",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 73,
+                "recordedSteps": 73,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "the monster kill path requires unsupported",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 73
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 4015
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 73
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: the monster kill path requires unsupported",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: the monster kill path requires unsupported",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The blessed fire-scroll path reaches explode.c:explode and kills its adjacent hostile newt. C then calls mon.c:xkilled when the monster is dead and the hero is not moving. The JavaScript xkilled() currently eagerly requires an injected env.unsupported callback before executing any kill behavior; read.js calls explode() without a raw environment, so the callback is absent and replay stops with “the monster kill path requires unsupported”. It also eagerly requires env.message, another non-C callback absent from this caller. The actionable source owner is the whole mon.c:xkilled function, with its existing explosion caller and consumed-result dependencies audited as part of the source port.",
+              "source": {
+                "file": "mon.c",
+                "branch": "When a monster in the explosion radius reaches DEADMONSTER after explode.c:explode applies item and blast damage, and svc.context.mon_moving is false, C calls xkilled(mtmp, XKILL_GIVEMSG | xkflg); for AD_FIRE, xkflg adds XKILL_NOCORPSE when completelyburns(mtmp->data). In this case read.c:seffect_fire is a blessed, non-confused scroll centered on the hero, the adjacent hostile newt is killed by the blast, and normal hero-caused kill processing begins.",
+                "functions": [
+                  "xkilled"
+                ],
+                "callers": [
+                  "read.c:seffect_fire -> explode.c:explode(SCR_FIRE) -> xkilled; the selected blessed scroll reaches the hero-centered blast and kills the adjacent newt. The JavaScript production path is already wired as read.js:seffect_fire -> explode.js:explode -> mon.js:xkilled.",
+                  "mon.c:killed is a wrapper that calls xkilled; additional active C call sites pass kill flags from uhitm.c, zap.c, trap.c, pray.c, dbridge.c, mhitm.c, mthrowu.c, music.c, muse.c, spell.c, and wizcmds.c. Their existing JavaScript xkilled callers need a caller-contract audit when removing the injected-operation requirement."
+                ],
+                "dependencies": [
+                  "mon.c:mondead and monstone are void lifecycle calls; xkilled consumes their monster-state changes and DEADMONSTER/lifesaving result before continuing.",
+                  "The normal corpse and loot path consumes mkobj.c:corpse_chance as a Boolean and make_corpse as an object pointer; it also consumes do.c:flooreffects as a placement Boolean. Preserve their conditions and RNG order, including rn2(6) treasure selection before corpse_chance.",
+                  "exper.c:experience returns the amount passed to more_experienced; preserve newexplevel and source-ordered alignment and luck effects after corpse/drop handling.",
+                  "The quest-leader cleanup consumes dungeon.c:iter_mons callback traversal for anger_quest_guardians; preserve cached-next iteration order and the C condition that excludes monster movement."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The exact queue entry from /tmp/v10-baseline-work-queue.json records 73 unmatched screens, 73 recorded steps, and the replay stop “the monster kill path requires unsupported”; the saved evaluation is challenges/evaluations/20260928083103-v10.json at d739756c29e8e3afb6e2bf95c325f019693b4160. Its runner error has no step index, while the C28 crosswalk places the first exception at zero-based step 72.",
+                "C28 immutable v10 evidence records an independent, byte-identical replay of challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json (SHA-256 9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc): blessed non-confused fire scroll, getpos centered at the hero, explosion at step 71, and “the newt caught in the flame and killed” at step 72. C28 crosswalk identifies the resulting first JavaScript exception as explode.c:explode -> mon.c:xkilled.",
+                "Upstream read.c:seffect_fire (1890-1915) selects the blessed getpos-centered explosion and calls explode(); explode.c:explode (553-581) applies fire damage, checks DEADMONSTER, and calls xkilled at 560-561 when !svc.context.mon_moving.",
+                "At the examined main, js/read.js:seffect_fire calls explode without an environment; js/explode.js:explode adds state to an otherwise empty raw environment and forwards it to xkilled at 600-604. js/mon.js:xkilled immediately calls requiredKillOperation(env, \"unsupported\") at 5608-5610, which throws the observed error before C-equivalent kill processing; it then also requires env.message.",
+                "The whole C owner is mon.c:xkilled (3477-3740). The corresponding js/mon.js function still contains source-named unsupported branches for thrown objects handed to engulfer, unsaved monsters, mail daemon, engulfed expulsion, murder penalty, unicorn guilt, quest nemesis/guardian/priest, and peaceful monsters; the function header documents these partial branches. A valid task is a whole-function mon.c source port, not a blessed-scroll-specific workaround."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8115539ecb3dbe59a8accf08d9a80235d523b63f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The ordinary fire-scroll explosion kill path and independent gas-spore death explosion now strictly match C, but mon.c:xkilled is not whole: swallowed death still skips hack.c:spoteffects(TRUE), and the buried-boulder corpse branch consumes make_corpse() returned object that the current JS path refuses. Keep the committed blocked recipe and complete these source branches before closure."
     },
     {
       "id": "port-uhitm-force-do-attack-synthetic-v10-20260928",

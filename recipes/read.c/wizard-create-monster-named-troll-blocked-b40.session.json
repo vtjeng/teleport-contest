@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 64092804,
+      "datetime": "20300928121830",
+      "nethackrc": "OPTIONS=name:B40Named,role=Wizard,race=human,gender=male,align=neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017scroll of create monster\nro troll\n",
+      "recorderIsDst": true
+    }
+  ],
+  "comment": "Blocked source probe for read.c:seffect_create_monster's optional Wizard prompt. Enter troll at read.c:create_particular(); C reaches create_particular_creation() and makemon.c:makemon with an ordinary valid species. The current JS makemon species-support guard refuses this source call because the broader makemon.c:makemon and named creation family are not complete. This is a planned blocker, not a matching recording."
+}

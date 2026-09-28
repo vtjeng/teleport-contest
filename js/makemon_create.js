@@ -71,6 +71,7 @@ import {
     MON_DETACH,
     N_DIRS,
     NO_MINVENT,
+    NO_MM_FLAGS,
     A_LAWFUL,
     EMIN,
     ONAME,
@@ -1349,6 +1350,18 @@ function assertSupportedSpecies(species, env = {}) {
     }
 }
 
+// C makemon() accepts a null species at any explicit runtime coordinate and
+// lets rndmonst() choose the record. create_critters() uses NO_MM_FLAGS for
+// this shape; its in-water variant can pass an enexto() square away from the
+// hero. The call contract is derived only from C arguments and game state.
+function isRuntimeExplicitRandomCall(ptr, x, y, mmflags, state) {
+    return !state.in_mklev
+        && !ptr
+        && !(x === 0 && y === 0)
+        && isok(x, y)
+        && mmflags === NO_MM_FLAGS;
+}
+
 function preflightCreation(ptr, x, y, mmflags, normalized) {
     const { state } = normalized;
     const randomCoordinates = x === 0 && y === 0;
@@ -1370,8 +1383,15 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && randomCoordinates
         && !ptr
         && mmflags === 0;
-    const runtimeGroupCall = mainDungeonLevel
-        && !state.in_mklev
+    // makemon.c:create_critters() calls makemon(NULL, u.ux, u.uy,
+    // NO_MM_FLAGS); its in-water path supplies another valid explicit square.
+    // C relocates the hero-square request with enexto_core() before selection.
+    const runtimeExplicitRandomCall = isRuntimeExplicitRandomCall(
+        ptr, x, y, mmflags, state,
+    );
+    // makemon.c:m_initgrp()/m_initsgrp()/m_initlgrp() recurse with MM_NOGRP.
+    // The C call shape is valid on every runtime dungeon branch.
+    const runtimeGroupCall = !state.in_mklev
         && !randomCoordinates
         && Boolean(ptr)
         && mmflags === MM_NOGRP;
@@ -1393,7 +1413,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && Boolean(ptr)
         && !randomCoordinates
         && mmflags === MM_NOMSG;
-    if (tutorialLevel && !explicitInventorylessHeroCall
+    if (tutorialLevel && !runtimeExplicitRandomCall && !runtimeGroupCall
+        && !explicitInventorylessHeroCall
         && !explicitCoordinateRuntimeCall
         && (!state.in_mklev
             || randomCoordinates
@@ -1523,7 +1544,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && (mmflags === MM_NOMSG || mmflags === NO_MM_FLAGS);
     const runtimeCall = startingPetCall || confusedLightCall || djinniBottleCall
         || fountainCreatureCall
-        || runtimeRandomCall || runtimeGroupCall || createParticularCall
+        || runtimeRandomCall || runtimeExplicitRandomCall || runtimeGroupCall
+        || createParticularCall
         || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
         || figurineAnimationCall || explicitInventorylessHeroCall
         || explicitCoordinateRuntimeCall
@@ -1585,6 +1607,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     // terrain the template chose.  Guards are placed at wall positions that
     // invault() converts to doors immediately after creation.
     if (!state.in_mklev && !startingPetCall && !deadbookCall
+        && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !explicitInventorylessHeroCall && !randomCoordinates
         && !explicitCoordinateRuntimeCall && !vaultGuardCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
@@ -1593,7 +1616,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         );
     }
     if (!ptr && !(mmflags & MM_NOGRP) && !state.in_mklev
-        && !runtimeRandomCall && !createParticularCall) {
+        && !runtimeRandomCall && !runtimeExplicitRandomCall
+        && !createParticularCall) {
         throw new UnsupportedMonsterCreationError('random monster groups');
     }
     if (!Array.isArray(state.mons) || !Array.isArray(state.mvitals))
@@ -1638,6 +1662,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !specialRoomCall
             && !cloneuCall
             && !deadbookCall
+            && !runtimeGroupCall
             && !explicitInventorylessHeroCall
             && !explicitCoordinateRuntimeCall
             && !nastyCall
@@ -3031,11 +3056,12 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
 // call shapes needed by fill_ordinary_room(), the Ghost, Cloud, Garden, and
 // Storeroom themed fills, dog.c:makedog(), plus the level-generation random
 // coordinate shape needed by temporary Statuary monsters. Outside mklev(), it
-// also admits the runtime random-generation call on every dungeon branch:
-// makemon(NULL, 0, 0, NO_MM_FLAGS), that call's explicit-coordinate,
-// MM_NOGRP recursive group members, and read.c create_particular_creation()'s
-// named species on the hero's own square under MM_NOEXCLAM. read.c
-// seffect_light() supplies the explicit cancelled-light pet shape.
+// also admits runtime random-generation calls on every dungeon branch:
+// makemon(NULL, 0, 0, NO_MM_FLAGS), create_critters()'s null species at an
+// explicit coordinate, and their MM_NOGRP recursive group members. Other
+// source callers include read.c create_particular_creation()'s named species
+// on the hero's own square under MM_NOEXCLAM, and seffect_light()'s explicit
+// cancelled-light pet shape.
 //
 // After supported-call validation, source no-creation outcomes return null:
 // generation is disabled, the square is occupied, selection has no candidate,
@@ -3044,6 +3070,9 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
 export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const normalized = creationEnv(env);
     const { random, state } = normalized;
+    const runtimeExplicitRandomCall = isRuntimeExplicitRandomCall(
+        ptr, x, y, mmflags, state,
+    );
     preflightCreation(ptr, x, y, mmflags, normalized);
 
     if (state.iflags?.debug_mongen
@@ -3090,7 +3119,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         do {
             ptr = rndmonst(normalized);
             if (!ptr) return null;
-            if (!normalized._rndmonMklev)
+            if (!normalized._rndmonMklev && !runtimeExplicitRandomCall)
                 assertSupportedSpecies(ptr, normalized);
         } while (++attempts <= 50
             && !goodpos(
