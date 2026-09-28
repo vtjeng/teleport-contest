@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:doapply variation: a chaotic human Wizard wishes for chaotic Grimtooth and applies it. Its initial negative alignment record makes artifact.c:touch_artifact perform the rn2(4) bad-alignment refusal check; this seed rolls nonzero, accepts the artifact, and continues to the ordinary dagger fallback.",
+  "segments": [
+    {
+      "seed": 20384761,
+      "datetime": "20411112123000",
+      "nethackrc": "OPTIONS=name:OrbRetouch,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017Grimtooth\na*o"
+    }
+  ]
+}
