@@ -9,7 +9,9 @@ import {
     A_CHA,
     A_CON,
     A_DEX,
+    A_INT,
     A_STR,
+    A_WIS,
     BASICENLIGHTENMENT,
     DRAIN_RES,
     DETECT_MONSTERS,
@@ -65,6 +67,7 @@ import {
     UnsupportedRingOnError,
     UnsupportedWearError,
     _doWearInternals,
+    adj_abon,
     canwearobj,
     dowear,
     equip_ok,
@@ -1696,6 +1699,31 @@ test('Gloves_on handles leather and all three gauntlet branches', async () => {
     game.u.uprops[FUMBLING].intrinsic = 0;
     game.u.uprops[FUMBLING].extrinsic = 0;
     game.uarmg = null;
+});
+
+test('adj_abon updates both brilliance attributes and redraws at zero delta',
+    async () => {
+    // do_wear.c:3319-3331: the helper requires pointer identity with the
+    // equipped slot, discovers only nonzero changes, and always marks the
+    // status line dirty for matching gloves or helm.
+    await setup(segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`), WAIT);
+    const helm = armor(HELM_OF_BRILLIANCE, { spe: 2 });
+    game.objects[HELM_OF_BRILLIANCE].oc_name_known = 1;
+    game.uarmh = helm;
+    const intBefore = acurr(game, A_INT);
+    const wisBefore = acurr(game, A_WIS);
+    adj_abon(helm, 2, game);
+    assert.equal(acurr(game, A_INT), intBefore + 2);
+    assert.equal(acurr(game, A_WIS), wisBefore + 2);
+    assert.equal(game.disp.botl, true);
+
+    game.disp.botl = false;
+    adj_abon(helm, 0, game);
+    assert.equal(acurr(game, A_INT), intBefore + 2);
+    assert.equal(acurr(game, A_WIS), wisBefore + 2);
+    assert.equal(game.disp.botl, true,
+        'the matching helm slot redraws even when delta is zero');
+    game.uarmh = null;
 });
 
 test('Helmet_on reveals a wished helmet\'s enchantment on either arm',

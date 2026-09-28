@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent C37 Helm of Brilliance path. The input dismisses the welcome pager, removes the starting shield, equips a wished Helm of Brilliance, then reads a blessed armor-enchantment scroll. C reaches read.c:seffect_enchant_armor, but strict JS replay first diverges before the scroll on the equip turn at monmove.c:distfleeck (C makes two rn2(5) draws; JS has no matching behavior). This does not provide a matching runtime witness for do_wear.c:adj_abon; no recording is included.",
+  "segments": [
+    {
+      "seed": 9385141,
+      "datetime": "20430918093500",
+      "nethackrc": "OPTIONS=name:Vola,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " T\u0017helmet of brilliance\nWe\u0017blessed scroll of enchant armor\nrf"
+    }
+  ]
+}
