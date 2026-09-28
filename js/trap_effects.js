@@ -3203,8 +3203,8 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
     }
 
     fill_pit(x, y, state);
-    // C discards maybe_dunk_boulders(); the helper remains unported.
-    note_unported('apply.c maybe_dunk_boulders');
+    const { maybe_dunk_boulders } = await import('./apply.js');
+    await maybe_dunk_boulders(x, y, state, { ...env, random });
     recalc_block_point(x, y, state);
     spot_checks(x, y, oldTyp, state, env);
 }

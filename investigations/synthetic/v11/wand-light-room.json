@@ -1,0 +1,87 @@
+{
+  "session": "synthetic/v11/wand-light-room",
+  "corpus": "synthetic",
+  "batch": "v11",
+  "caseId": "wand-light-room",
+  "manifestPath": "challenges/manifests/v11.json",
+  "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+  "recordingSha256": "94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a",
+  "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+  "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+  "remainingScreens": 1,
+  "recordedSteps": 19,
+  "status": "complete",
+  "commit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v11",
+    "caseId": "wand-light-room",
+    "session": "synthetic/v11/wand-light-room",
+    "manifestPath": "challenges/manifests/v11.json",
+    "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+    "recording": "challenges/cases/v11/wand-light-room.session.json",
+    "recordingPath": "challenges/cases/v11/wand-light-room.session.json",
+    "recordingSha256": "94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a",
+    "recipe": "challenges/cases/v11/wand-light-room.recipe.session.json",
+    "recipeSha256": "26c0e5275851edcf9a92492656d0da8da03c8fe5a7bdc3cfdd627ed3232ef202",
+    "replayInputSha256": "2e33ace5cff6a02a8c669dbcb3ad29e8998091f6f849401f4980d1c4eae6dd6b",
+    "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+    "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+    "evaluationArtifact": "challenges/evaluations/20260928193155-v11.json",
+    "evaluationUtc": "2026-09-28T19:32:13.573Z",
+    "remainingScreens": 1,
+    "recordedSteps": 19,
+    "previousScreensMatched": 18,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 18,
+        "total": 19
+      },
+      "rng": {
+        "matched": 2266,
+        "total": 2273
+      },
+      "cursors": {
+        "matched": 18,
+        "total": 19
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+      "step": 18
+    },
+    "step": 18,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "zapnodir",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Zapping a wand of light reaches zap.c:zapnodir WAN_LIGHT, but JavaScript supports only create-monster and secret-door-detection directionless wands and refuses before litroom and lightdamage. The C recording then differs in source-ordered light effects and later RNG. Port the whole zapnodir family and wire existing source helpers; this is distinct from breaking a wand of light in apply.c.",
+  "source": {
+    "file": "zap.c",
+    "branch": "zap.c:zapnodir WAN_LIGHT sets known from dknown and Blind, calls read.c:litroom(TRUE,obj), then zap.c:lightdamage(obj,TRUE,5), and follows the common discovery tail.",
+    "functions": [
+      "zapnodir"
+    ],
+    "callers": [
+      "zap.c:dozap sends a charged NODIR wand through zap.c:weffects to zap.c:zapnodir; js/zap.js:zapnodir currently supports only WAN_CREATE_MONSTER and WAN_SECRET_DOOR_DETECTION."
+    ],
+    "dependencies": [
+      "read.c:litroom and zap.c:lightdamage already have JavaScript implementations; preserve their await order and the discarded lightdamage result.",
+      "zap.c:zapnodir common known/discovery tail uses more_experienced and learnwand, already present in JavaScript."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 18/19 screens and stops at zero-based step 18: unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand. Immutable C recording SHA-256 94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a.",
+    "Upstream nethack-c/upstream/src/zap.c:2524-2600 defines do_enlightenment_effect and the complete zapnodir switch; js/zap.js:5181-5206 refuses the selected directionless wand before its source effect.",
+    "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases."
+  ]
+}

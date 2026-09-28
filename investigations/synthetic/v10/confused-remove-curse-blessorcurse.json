@@ -113,7 +113,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "Reading an uncursed remove-curse scroll while confused reaches the inventory traversal of read.c:seffect_remove_curse. JavaScript has only its cursed-scroll arm and skips this traversal, so the C message and blessorcurse RNG diverge near the end. The whole effect must traverse a saved next pointer, select eligible worn or special items, change BUC state when confused, clear bknown, and handle saddle/punishment/final inventory updates. The existing mkobj.c:blessorcurse port rejects gameplay objects and its bless helper has a startup-only guard, so the runtime BUC source family is a required dependency.",
+  "summary": "The former confused remove-curse refusal is resolved: the saved v10 evaluation at be69548a matches all 82 screens and cursors and all 2926 RNG calls. read.c:seffect_remove_curse now traverses eligible inventory and mkobj.c:blessorcurse runs on gameplay objects. The wider source goal remains parked because sit.c:special_throne_effect case 10 and trap.c:domagictrap case 20 lack matching runtime caller evidence; their blocked recipes name the earlier setup and fate conditions.",
   "source": {
     "file": "read.c",
     "branch": "For a noncursed SCR_REMOVE_CURSE read under Confusion, seffect_remove_curse prints the confused You_feel message, traverses inventory while saving obj->nobj before any change, ignores coins and a singleton source scroll, computes wornmask with auxiliary-slot exceptions, and calls blessorcurse(obj,2) for each eligible object before clearing bknown. The same function covers blessed scope, ordinary uncursing, water shop price, steed saddle, punishment, buried ball, and update_inventory.",
@@ -132,6 +132,8 @@
   "evidence": [
     "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 80/82 screens, then diverges at step 80; C next records rn2(2)=1 in blessorcurse(mkobj.c:1846) while JavaScript next calls rn2(5). Recording SHA-256 is 9cb45869824984538232543de4eaefe08fc54fa66f0c7367d0a24d1b7208eb03.",
     "Upstream nethack-c/upstream/src/read.c:1489-1605 defines the whole effect, including the confused inventory loop at 1513-1563 and call to blessorcurse(obj,2) at 1557; mkobj.c:1841-1854 defines the two-stage BUC RNG.",
-    "js/read.js:1518-1526 labels only the cursed-scroll arm ported, and js/read.js:2774-2780 skips the noncursed effect. js/obj.js:1692-1704 asserts startup-only BUC objects, and js/obj.js:1563-1568 applies the same restriction to bless."
+    "js/read.js:1518-1526 labels only the cursed-scroll arm ported, and js/read.js:2774-2780 skips the noncursed effect. js/obj.js:1692-1704 asserts startup-only BUC objects, and js/obj.js:1563-1568 applies the same restriction to bless.",
+    "Current result: challenges/evaluations/20260928203412-v10.json at be69548a77c6899056b335ffae17d07aa1994ea7 matches the case completely: 82/82 screens and cursors, 2926/2926 RNG. Independent ordinary, confused, and learned spell recordings under recordings/read.c/ match exactly.",
+    "GOALS.json records source evidence for read.c:seffect_remove_curse while the goal stays parked: the Vlad Tower throne setup is blocked at teleport.c:level_tele/dungeon.c:lev_by_name, and bounded magic-trap C probes did not draw trap.c:domagictrap fate 20."
   ]
 }

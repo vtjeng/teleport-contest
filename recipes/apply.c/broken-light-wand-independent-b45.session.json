@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 230919335,
+      "datetime": "20331014094500",
+      "nethackrc": "OPTIONS=name:Beryl,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time\n",
+      "moves": "#wizgenesis\nhostile gremlin\n#wizwish\nwand of light\ni\u001baoy        "
+    }
+  ],
+  "comment": "Independent C witness for apply.c:doapply -> do_break_wand(WAN_LIGHT), including the explosive no-special-case tail, monster impact, and litroom callback. Seed, date, character, and inputs are selected independently from the v10 case."
+}

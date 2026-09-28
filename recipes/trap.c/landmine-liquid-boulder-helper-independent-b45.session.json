@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71103372,
+      "datetime": "20311107091543",
+      "nethackrc": "OPTIONS=name:B45MineProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizwish\nboulder\ndo#wizwish\nboulder\ndo#wizwish\nland mine\nl#wizwish\npool\nh"
+    }
+  ],
+  "comment": "Blocked independent branch recipe for trap.c:blow_up_landmine -> apply.c:maybe_dunk_boulders. The bounded C attempt only wished a boulder and a pool; it did not create or trigger a mine, so it never reached blow_up_landmine. The ordinary landmine recording exercises the pit/ROOM path only. On the source liquid path, C calls void dig.c:liquid_flow before maybe_dunk_boulders; JavaScript skips that callee's side effects, so this recipe is not passing runtime evidence. Its C setup trace is cache-only at .cache/B45-attempts/landmine-liquid-boulder-helper-independent-b45.session.json."
+}

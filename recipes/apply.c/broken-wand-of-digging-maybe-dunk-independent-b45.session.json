@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71103374,
+      "datetime": "20311107091545",
+      "nethackrc": "OPTIONS=name:B45DigProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017wand of digging\nafy        "
+    }
+  ],
+  "comment": "Blocked independent B45 recipe for apply.c:do_break_wand(WAN_DIGGING). The C setup reached the wand-break loop and its first pit messages; JavaScript skips the source-required void dig.c:digactualhole call after recording the branch's trap type, so the strict trace diverges before the loop reaches maybe_dunk_boulders. The C-only setup trace is preserved at .cache/B45-attempts/broken-wand-digactualhole-gap.session.json; this recipe does not claim passing runtime evidence."
+}

@@ -454,6 +454,14 @@ canvas {
 .history-controls [aria-pressed="true"] { background: var(--progress-area); color: var(--ink-primary); border-color: var(--ink-secondary); }
 .history-view-controls { display: flex; align-items: center; gap: 16px; margin-left: auto; }
 #progressWindow { font: inherit; font-size: 11px; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; }
+.batch-picker { position: relative; width: max-content; max-width: 100%; margin: 8px 0 12px; font-size: 12px; }
+.batch-picker summary { cursor: pointer; color: var(--ink-secondary); background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; }
+.batch-picker[open] summary { border-color: var(--progress-fill); }
+.batch-picker-options { position: absolute; z-index: 6; top: 100%; left: 0; min-width: 220px; max-height: min(55vh, 360px); overflow-y: auto; padding: 6px; background: var(--surface-card); border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); }
+.batch-picker-options label { display: flex; align-items: center; gap: 8px; padding: 5px 6px; cursor: pointer; white-space: nowrap; }
+.batch-picker-options label:hover { background: var(--progress-area); }
+.batch-picker-options input { margin: 0; }
+.batch-picker-options small { margin-left: auto; color: var(--ink-muted); }
 .history-line { width: 22px; border-top: 2px solid var(--progress-fill); }
 .history-line.total { border-top: 1px dashed var(--chart-total); }
 .history-addition { width: 6px; height: 6px; margin: 0 2px; background: var(--ink-muted); transform: rotate(45deg); }
@@ -857,6 +865,10 @@ canvas {
       </div>
     </div>
     <div class="legend" id="progressLegend"></div>
+    <details class="batch-picker" id="historyBatchPicker">
+      <summary id="historyBatchSummary">Batches</summary>
+      <div class="batch-picker-options" id="historyBatchOptions" role="group" aria-label="Visible challenge batches"></div>
+    </details>
     <div class="score-inspection">
       <div class="readout-heading"><time id="progressReadoutDate"></time><button type="button" class="chart-reset" id="progressClearPin" disabled>Unpin</button></div>
       <div id="progressReadout" aria-live="polite"></div>
@@ -866,7 +878,7 @@ canvas {
     <div class="history-navigator">
       <canvas id="progressMinimap" tabindex="0" aria-label="Full history for the development set and synthetic local holdout. Drag the window or its edges. Arrow keys move the window; plus and minus zoom; Home and End jump to the oldest and newest dates."></canvas>
     </div>
-    <p class="history-help">Tap a chart to pin scores. Drag to pan; Ctrl/⌘ + scroll to zoom.</p>
+    <p class="history-help">Tap a chart to pin scores. Drag to pan; Ctrl/⌘ + scroll to zoom. Each synthetic axis starts near that batch's lowest recorded match.</p>
   </div>
 </section>
 
@@ -1204,14 +1216,33 @@ document.getElementById('stats').innerHTML = [
   const canvasIds = DATA.scoreHistory.map((entry, index) => index === 0 ? 'developmentChart'
     : index === 1 ? 'challengeChart' : 'challengeChart' + index);
   document.getElementById('challengeHistoryPlots').innerHTML = DATA.scoreHistory.slice(1)
-    .map((entry, index) => '<div class="history-plot"><h3>' + escScoreText(entry.title)
+    .map((entry, index) => '<div class="history-plot" id="challengePlot' + (index + 1) + '"><h3>' + escScoreText(entry.title)
       + '</h3><canvas id="' + canvasIds[index + 1]
       + '" class="score-history-canvas" tabindex="0"></canvas></div>').join('');
   const series = DATA.scoreHistory.map((entry, index) => ({ ...entry,
     canvas: document.getElementById(canvasIds[index]),
+    plot: index ? document.getElementById('challengePlot' + index) : null,
     points: entry.points.map(point => ({ ...point, time: Date.parse(point.utc) }))
       .filter(point => Number.isFinite(point.time)).sort((a, b) => a.time - b.time),
   }));
+  const batchOptions = document.getElementById('historyBatchOptions');
+  const batchSummary = document.getElementById('historyBatchSummary');
+  const batchStates = new Map((challengeData.batches || []).map(batch => [batch.batch, batch]));
+  const queueSessions = new Set((QUEUE?.sessions || []).map(row => row.session));
+  const batchId = entry => entry.id.startsWith('syntheticHoldout-')
+    ? entry.id.slice('syntheticHoldout-'.length) : entry.id;
+  const isResolved = entry => {
+    const id = batchId(entry), cases = challengeCases.filter(item => item.batch === id);
+    return batchStates.get(id)?.status === 'measured' && cases.length > 0
+      && cases.every(item => challengeCaseMatches(item)
+        && !queueSessions.has('synthetic/' + id + '/' + item.id));
+  };
+  const selectedBatches = new Set(series.slice(1).filter(entry => !isResolved(entry)).map(entry => entry.id));
+  batchOptions.innerHTML = series.slice(1).map(entry => '<label><input type="checkbox" data-series="'
+    + escScoreText(entry.id) + '"' + (selectedBatches.has(entry.id) ? ' checked' : '') + '><span>'
+    + escScoreText(batchId(entry)) + '</span><small>' + (isResolved(entry) ? 'Resolved' : 'Unresolved')
+    + '</small></label>').join('');
+  const visibleSeries = () => series.filter((entry, index) => index === 0 || selectedBatches.has(entry.id));
   const minimap = document.getElementById('progressMinimap');
   const rangeLabel = document.getElementById('progressRange');
   const windowSelect = document.getElementById('progressWindow');
@@ -1220,7 +1251,7 @@ document.getElementById('stats').innerHTML = [
   const clearPin = document.getElementById('progressClearPin');
   const modes = ['screens', 'percent'].map(id => document.getElementById('progressMode-' + id));
   const DAY = 86400000, HOUR = DAY / 24, MIN_SPAN = 20 * 60000;
-  const MINI_ROW = 44, MINI_H = MINI_ROW * series.length + 20;
+  const MINI_ROW = 44;
   const pad = { left: 52, right: 16, top: 10, bottom: 24 };
   const times = [...new Set(series.flatMap(entry => entry.points.map(point => point.time)))].sort((a, b) => a - b);
   const first = times[0] ?? Date.parse(DATA.summary.generatedAt);
@@ -1295,11 +1326,11 @@ document.getElementById('stats').innerHTML = [
   }
   // Stop at the last measurement; failures and scorer changes break the line.
   // Clipping includes a predecessor so a sparse series carries into the window.
-  function drawSteps(ctx, entry, x, y, kind, ink) {
+  function drawSteps(ctx, entry, x, y, kind, ink, baseline = 0) {
     const total = kind === 'total', area = kind === 'area';
     let previous = null;
     const closeArea = () => {
-      if (area && previous) { ctx.lineTo(x(previous.time), y(0)); ctx.closePath(); }
+      if (area && previous) { ctx.lineTo(x(previous.time), y(baseline)); ctx.closePath(); }
     };
     ctx.beginPath();
     for (const point of entry.points) {
@@ -1310,7 +1341,7 @@ document.getElementById('stats').innerHTML = [
         ctx.lineTo(x(point.time), y(valueOf(previous, total)));
         ctx.lineTo(x(point.time), y(value));
       } else if (area) {
-        ctx.moveTo(x(point.time), y(0)); ctx.lineTo(x(point.time), y(value));
+        ctx.moveTo(x(point.time), y(baseline)); ctx.lineTo(x(point.time), y(value));
       } else ctx.moveTo(x(point.time), y(value));
       previous = point;
     }
@@ -1331,15 +1362,28 @@ document.getElementById('stats').innerHTML = [
     }
     ctx.fill();
   }
+  function yMinimum(entry) {
+    if (entry === series[0]) return 0;
+    const values = entry.points.filter(measured).map(point => valueOf(point))
+      .filter(Number.isFinite);
+    if (!values.length) return 0;
+    const maximum = yMax(entry), smallest = Math.min(...values);
+    const margin = smallest === maximum
+      ? mode === 'percent' ? 5 : Math.max(5, maximum * 0.05)
+      : Math.max(1, (maximum - smallest) * 0.08);
+    return Math.max(0, Math.min(maximum - 1, Math.floor(smallest - margin)));
+  }
   function drawChart(entry) {
     const height = entry.canvas.getBoundingClientRect().width < 500 ? 128 : 150;
     const { ctx, width } = prepare(entry.canvas, height), ink = palette();
-    const maximum = yMax(entry);
+    const maximum = yMax(entry), minimum = yMinimum(entry);
     const x = time => scaleX(time, width, view);
-    const y = value => pad.top + (1 - value / maximum) * (height - pad.top - pad.bottom);
+    const y = value => pad.top + (1 - (value - minimum) / (maximum - minimum)) * (height - pad.top - pad.bottom);
     ctx.font = '10px "JetBrains Mono", monospace';
-    // Three stable ticks keep the scale readable even on a phone.
-    for (const value of [0, maximum / 2, maximum]) {
+    // Skip the middle tick when rounding it would duplicate an end label.
+    const ticks = maximum - minimum < 2 ? [minimum, maximum]
+      : [minimum, (minimum + maximum) / 2, maximum];
+    for (const value of ticks) {
       const py = Math.round(y(value)) + 0.5;
       ctx.strokeStyle = ink.grid; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(pad.left, py); ctx.lineTo(width - pad.right, py); ctx.stroke();
@@ -1362,7 +1406,7 @@ document.getElementById('stats').innerHTML = [
       ctx.beginPath(); ctx.moveTo(px, pad.top); ctx.lineTo(px, height - pad.bottom); ctx.stroke();
     }
     ctx.save(); ctx.beginPath(); ctx.rect(pad.left - 4, pad.top - 5, width - pad.left - pad.right + 8, height - pad.top - pad.bottom + 10); ctx.clip();
-    drawSteps(ctx, entry, x, y, 'area', ink);
+    drawSteps(ctx, entry, x, y, 'area', ink, minimum);
     drawSteps(ctx, entry, x, y, 'total', ink);
     drawSteps(ctx, entry, x, y, 'matched', ink);
     drawAdditions(ctx, entry, x, height - pad.bottom, 4, ink);
@@ -1389,13 +1433,16 @@ document.getElementById('stats').innerHTML = [
       ctx.fillStyle = ink.muted; ctx.textAlign = 'center';
       ctx.fillText(entry.error ? 'Measurements unavailable' : 'No measurements yet', (pad.left + width - pad.right) / 2, height / 2);
     }
-    entry.canvas.setAttribute('aria-label', entry.title + ', ' + mode + ', ' + dateTime(view.t0) + ' to ' + dateTime(view.t1)
+    entry.canvas.setAttribute('aria-label', entry.title + ', ' + mode + ' from '
+      + (mode === 'percent' ? minimum + '%' : fmtN(minimum)) + ' to '
+      + (mode === 'percent' ? maximum + '%' : fmtN(maximum)) + ', ' + dateTime(view.t0) + ' to ' + dateTime(view.t1)
       + '. Left and right arrows inspect measurements; plus and minus zoom.');
   }
-  function drawMinimap() {
-    const { ctx, width } = prepare(minimap, MINI_H), ink = palette();
+  function drawMinimap(shown) {
+    const height = MINI_ROW * shown.length + 20;
+    const { ctx, width } = prepare(minimap, height), ink = palette();
     const x = time => scaleX(time, width, domain);
-    series.forEach((entry, index) => {
+    shown.forEach((entry, index) => {
       const top = index * MINI_ROW, maximum = yMax(entry);
       const y = value => top + 38 - value / maximum * 22;
       ctx.fillStyle = ink.muted; ctx.textAlign = 'left'; ctx.font = '10px "JetBrains Mono", monospace';
@@ -1406,7 +1453,7 @@ document.getElementById('stats').innerHTML = [
       drawSteps(ctx, entry, x, y, 'total', ink); drawSteps(ctx, entry, x, y, 'matched', ink);
       drawAdditions(ctx, entry, x, top + 39, 3, ink);
     });
-    const left = x(view.t0), right = x(view.t1), bottom = MINI_ROW * series.length;
+    const left = x(view.t0), right = x(view.t1), bottom = MINI_ROW * shown.length;
     ctx.fillStyle = ink.area; ctx.fillRect(left, 0, right - left, bottom);
     ctx.strokeStyle = ink.muted; ctx.lineWidth = 1;
     ctx.strokeRect(Math.round(left) + 0.5, 0.5, Math.round(right - left), bottom - 1);
@@ -1415,15 +1462,15 @@ document.getElementById('stats').innerHTML = [
       ctx.beginPath(); ctx.roundRect(px - 4, bottom / 2 - 15, 8, 30, 3); ctx.fill(); ctx.stroke();
     }
     ctx.fillStyle = ink.muted; ctx.font = '10px "JetBrains Mono", monospace';
-    ctx.textAlign = 'left'; ctx.fillText(day(domain.t0), pad.left, MINI_H - 3);
-    ctx.textAlign = 'right'; ctx.fillText(day(domain.t1), width - pad.right, MINI_H - 3);
+    ctx.textAlign = 'left'; ctx.fillText(day(domain.t0), pad.left, height - 3);
+    ctx.textAlign = 'right'; ctx.fillText(day(domain.t1), width - pad.right, height - 3);
   }
-  function showReadout() {
+  function showReadout(shown) {
     const time = cursor ?? view.t1;
     readoutDate.textContent = dateTime(time);
     readoutDate.setAttribute('datetime', new Date(time).toISOString());
     clearPin.disabled = !pinned;
-    readout.innerHTML = series.map(entry => {
+    readout.innerHTML = shown.map(entry => {
       const point = pointAt(entry, time);
       const score = point && measured(point)
         ? '<span class="score-matched">' + fmtN(point.screens) + '</span><span class="score-slash">/</span>'
@@ -1435,6 +1482,10 @@ document.getElementById('stats').innerHTML = [
     }).join('');
   }
   function render() {
+    const shown = visibleSeries();
+    for (const entry of series.slice(1)) entry.plot.hidden = !selectedBatches.has(entry.id);
+    const selected = shown.length - 1, available = series.length - 1;
+    batchSummary.textContent = 'Batches · ' + selected + ' of ' + available + ' shown';
     const shortRange = view.t1 - view.t0 < 3 * DAY;
     rangeLabel.textContent = day(view.t0) + (shortRange ? ' ' + clock(view.t0) : '') + ' – '
       + day(view.t1) + (shortRange ? ' ' + clock(view.t1) : '');
@@ -1442,7 +1493,7 @@ document.getElementById('stats').innerHTML = [
     const preset = [1, 7, 30].find(days => view.t1 === domain.t1 && Math.abs(view.t1 - view.t0 - days * DAY) < 1);
     windowSelect.value = fullRange ? 'all' : preset ? String(preset) : 'custom';
     modes.forEach((button, index) => button.setAttribute('aria-pressed', String(mode === (index ? 'percent' : 'screens'))));
-    series.forEach(drawChart); drawMinimap(); showReadout();
+    shown.forEach(drawChart); drawMinimap(shown); showReadout(shown);
   }
   function zoom(factor, anchor = (view.t0 + view.t1) / 2) {
     const fraction = (anchor - view.t0) / (view.t1 - view.t0);
@@ -1548,6 +1599,12 @@ document.getElementById('stats').innerHTML = [
     setView(start, domain.t1); render();
   });
   clearPin.addEventListener('click', () => { cursor = null; pinned = false; render(); });
+  batchOptions.addEventListener('change', event => {
+    const id = event.target.dataset?.series;
+    if (!id || !series.some(entry => entry.id === id)) return;
+    if (event.target.checked) selectedBatches.add(id); else selectedBatches.delete(id);
+    render();
+  });
   modes.forEach((button, index) => button.addEventListener('click', () => { mode = index ? 'percent' : 'screens'; render(); }));
   window.addEventListener('resize', render);
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);

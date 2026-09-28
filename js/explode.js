@@ -120,6 +120,7 @@ import {
 import { burn_away_slime } from './timeout.js';
 import { rehumanize, ugolemeffects } from './polyself.js';
 import {
+    cmap_to_glyph,
     map_glyphinfo,
     map_invisible,
     newsym,
@@ -514,7 +515,7 @@ export async function explode(
                     for (let j = 0; j < 3; j++) {
                         if (!(masks[i][j] & (EXPL_MON | EXPL_HERO))) continue;
                         show_glyph_cell(x + i - 1, y + j - 1,
-                            map_glyphinfo(shield, state));
+                            map_glyphinfo(cmap_to_glyph(shield, state), state));
                     }
                 }
                 await curs_on_u(state);

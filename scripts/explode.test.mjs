@@ -31,7 +31,10 @@ import {
     AD_PEST,
 } from '../js/monsters.js';
 import {
+    ANTIMAGIC,
+    EXPL_MAGICAL,
     EXPL_FIERY,
+    HI_ZAP,
     COLD_RES,
     FIRE_RES,
     OBJ_INVENT,
@@ -46,9 +49,62 @@ import {
     PM_GAS_SPORE,
     PM_NEWT,
 } from '../js/monsters.js';
-import { LEATHER_ARMOR, ROCK, SCROLL_CLASS } from '../js/objects.js';
+import { LEATHER_ARMOR, ROCK, SCROLL_CLASS, WAND_CLASS } from '../js/objects.js';
 import { zap_over_floor } from '../js/zap.js';
 import { getRngLog } from '../js/rng.js';
+import { decodeScreen } from '../frozen/screen-decode.mjs';
+
+test('magical shield frames map C cmap indices through cmap_to_glyph', async () => {
+    await runSegment({
+        seed: 30303030,
+        datetime: '20310102030405',
+        nethackrc: [
+            'OPTIONS=name:ShieldFrame,role:Wizard,race:human,gender:female,align:chaotic',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup',
+            '',
+        ].join('\n'),
+        moves: ' ',
+    });
+    game.u.uprops[ANTIMAGIC] ??= {};
+    game.u.uprops[ANTIMAGIC].intrinsic = 1;
+    game.flags.sparkle = true;
+
+    const frames = [];
+    const previousHook = game._animationFrameHook;
+    game._animationFrameHook = () => {
+        previousHook?.();
+        frames.push(game.nhDisplay.serialize());
+    };
+    try {
+        await explode(
+            game.u.ux, game.u.uy, 0, 0, WAND_CLASS, EXPL_MAGICAL, game,
+            {
+                message: async () => {},
+                random: {
+                    d: (count) => count,
+                    rn1: (_range, base) => base,
+                    rn2: () => 0,
+                    rnl: () => 0,
+                    rnd: (count) => count,
+                    rne: () => 1,
+                },
+            },
+        );
+    } finally {
+        game._animationFrameHook = previousHook;
+    }
+
+    // explode.c:explode() converts every shield_static cmap index with
+    // cmap_to_glyph() before show_glyph(); decl.c's 21 entries are three
+    // repetitions of this seven-cell sequence, all colored HI_ZAP.
+    const shieldSequence = ['0', '#', '@', '#', '0', '#', '*'];
+    const heroRow = game.u.uy + 1;
+    const heroColumn = game.u.ux - 1;
+    const cells = frames.map((frame) =>
+        decodeScreen(frame)[heroRow][heroColumn]);
+    assert.deepEqual(cells, Array.from({ length: 3 }, () => shieldSequence)
+        .flat().map((ch) => ({ ch, color: HI_ZAP, attr: 0, decgfx: 0 })));
+});
 
 test('scatter flags preserve explode.c hack.h bit assignments', () => {
     assert.equal(SCATTER_VIS_EFFECTS, 0x01);

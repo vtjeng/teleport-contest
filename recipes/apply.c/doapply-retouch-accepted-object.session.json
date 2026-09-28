@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first apply.c:doapply variation: a chaotic human Wizard wishes for a dagger, then applies the item at the letter shown in the C inventory menu. The final fallback message proves the selected ordinary object passed the retouch_object preflight and continued into doapply's source default arm. The admitted v10 Grimtooth case separately exercises artifact refusal.",
+  "segments": [
+    {
+      "seed": 20384761,
+      "datetime": "20411112123000",
+      "nethackrc": "OPTIONS=name:OrbRetouch,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017Grimtooth\na*n"
+    }
+  ]
+}

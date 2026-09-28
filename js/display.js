@@ -101,6 +101,7 @@ import {
     CLR_BRIGHT_MAGENTA,
     CLR_GRAY,
     CLR_GREEN,
+    CLR_MAGENTA,
     CLR_ORANGE,
     CLR_RED,
     CLR_WHITE,
