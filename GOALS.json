@@ -104538,16 +104538,20 @@
     {
       "id": "port-mon-xkilled-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port mon.c xkilled and its explosion kill caller across source-defined monster death outcomes",
       "cFile": "mon.c",
       "sessions": [
         "synthetic/v10/blessed-fire-scroll-centered-explosion"
       ],
-      "selectionReason": "The highest-count unreserved v10 mismatch is synthetic/v10/blessed-fire-scroll-centered-explosion (manifest challenges/manifests/v10.json SHA-256 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recording challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json SHA-256 9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc; evaluation challenges/evaluations/20260928083103-v10.json). The complete investigation at investigations/synthetic/v10/blessed-fire-scroll-centered-explosion.json traces the blessed scroll through read.c:seffect_fire and explode.c:explode to mon.c:xkilled; its JavaScript caller currently throws on an injected unsupported operation. Worker B owns read.c create-monster paths, while this task owns mon.c kill processing and the explosion caller contract.",
+      "selectionReason": "Current v10 fire-scroll case has 73 remaining screens and a source-traced first refusal in explode.c -> mon.c:xkilled; selected among complete investigations for the independent A40 worker scope.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "f95e06f7482860e8e94b38aa61430ed0ce4cc642",
+      "openStanding": {
+        "sha": "f14b5e39fd3f2cc35f960409bb3168a4ea415129",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -104576,7 +104580,161 @@
           "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
           "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f14b5e39fd3f2cc35f960409bb3168a4ea415129",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "blessed-fire-scroll-centered-explosion",
+          "session": "synthetic/v10/blessed-fire-scroll-centered-explosion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+          "recordingPath": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+          "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+          "recipe": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.recipe.session.json",
+          "recipeSha256": "31654d1effdfaf1db9591c9149112914e8a1bf7d911df70cdb012f16472e5a2b",
+          "replayInputSha256": "963b92430aee902d75afeb7f913188cee6c8bbabf53e657d716706d56f0db106",
+          "evaluationPath": "challenges/evaluations/20260928100009-v10.json",
+          "evaluationCommit": "f14b5e39fd3f2cc35f960409bb3168a4ea415129",
+          "evaluationArtifact": "challenges/evaluations/20260928100009-v10.json",
+          "evaluationUtc": "2026-09-28T10:00:13.169Z",
+          "remainingScreens": 73,
+          "recordedSteps": 73,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "the monster kill path requires unsupported",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 73
+            },
+            "rng": {
+              "matched": 0,
+              "total": 4015
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 73
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: the monster kill path requires unsupported",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: the monster kill path requires unsupported",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/blessed-fire-scroll-centered-explosion.json",
+            "result": {
+              "session": "synthetic/v10/blessed-fire-scroll-centered-explosion",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "blessed-fire-scroll-centered-explosion",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 73,
+              "recordedSteps": 73,
+              "status": "complete",
+              "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "blessed-fire-scroll-centered-explosion",
+                "session": "synthetic/v10/blessed-fire-scroll-centered-explosion",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+                "recordingPath": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+                "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+                "recipe": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.recipe.session.json",
+                "recipeSha256": "31654d1effdfaf1db9591c9149112914e8a1bf7d911df70cdb012f16472e5a2b",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 73,
+                "recordedSteps": 73,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "the monster kill path requires unsupported",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 73
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 4015
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 73
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: the monster kill path requires unsupported",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: the monster kill path requires unsupported",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The blessed fire-scroll path reaches explode.c:explode and kills its adjacent hostile newt. C then calls mon.c:xkilled when the monster is dead and the hero is not moving. The JavaScript xkilled() currently eagerly requires an injected env.unsupported callback before executing any kill behavior; read.js calls explode() without a raw environment, so the callback is absent and replay stops with “the monster kill path requires unsupported”. It also eagerly requires env.message, another non-C callback absent from this caller. The actionable source owner is the whole mon.c:xkilled function, with its existing explosion caller and consumed-result dependencies audited as part of the source port.",
+              "source": {
+                "file": "mon.c",
+                "branch": "When a monster in the explosion radius reaches DEADMONSTER after explode.c:explode applies item and blast damage, and svc.context.mon_moving is false, C calls xkilled(mtmp, XKILL_GIVEMSG | xkflg); for AD_FIRE, xkflg adds XKILL_NOCORPSE when completelyburns(mtmp->data). In this case read.c:seffect_fire is a blessed, non-confused scroll centered on the hero, the adjacent hostile newt is killed by the blast, and normal hero-caused kill processing begins.",
+                "functions": [
+                  "xkilled"
+                ],
+                "callers": [
+                  "read.c:seffect_fire -> explode.c:explode(SCR_FIRE) -> xkilled; the selected blessed scroll reaches the hero-centered blast and kills the adjacent newt. The JavaScript production path is already wired as read.js:seffect_fire -> explode.js:explode -> mon.js:xkilled.",
+                  "mon.c:killed is a wrapper that calls xkilled; additional active C call sites pass kill flags from uhitm.c, zap.c, trap.c, pray.c, dbridge.c, mhitm.c, mthrowu.c, music.c, muse.c, spell.c, and wizcmds.c. Their existing JavaScript xkilled callers need a caller-contract audit when removing the injected-operation requirement."
+                ],
+                "dependencies": [
+                  "mon.c:mondead and monstone are void lifecycle calls; xkilled consumes their monster-state changes and DEADMONSTER/lifesaving result before continuing.",
+                  "The normal corpse and loot path consumes mkobj.c:corpse_chance as a Boolean and make_corpse as an object pointer; it also consumes do.c:flooreffects as a placement Boolean. Preserve their conditions and RNG order, including rn2(6) treasure selection before corpse_chance.",
+                  "exper.c:experience returns the amount passed to more_experienced; preserve newexplevel and source-ordered alignment and luck effects after corpse/drop handling.",
+                  "The quest-leader cleanup consumes dungeon.c:iter_mons callback traversal for anger_quest_guardians; preserve cached-next iteration order and the C condition that excludes monster movement."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The exact queue entry from /tmp/v10-baseline-work-queue.json records 73 unmatched screens, 73 recorded steps, and the replay stop “the monster kill path requires unsupported”; the saved evaluation is challenges/evaluations/20260928083103-v10.json at d739756c29e8e3afb6e2bf95c325f019693b4160. Its runner error has no step index, while the C28 crosswalk places the first exception at zero-based step 72.",
+                "C28 immutable v10 evidence records an independent, byte-identical replay of challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json (SHA-256 9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc): blessed non-confused fire scroll, getpos centered at the hero, explosion at step 71, and “the newt caught in the flame and killed” at step 72. C28 crosswalk identifies the resulting first JavaScript exception as explode.c:explode -> mon.c:xkilled.",
+                "Upstream read.c:seffect_fire (1890-1915) selects the blessed getpos-centered explosion and calls explode(); explode.c:explode (553-581) applies fire damage, checks DEADMONSTER, and calls xkilled at 560-561 when !svc.context.mon_moving.",
+                "At the examined main, js/read.js:seffect_fire calls explode without an environment; js/explode.js:explode adds state to an otherwise empty raw environment and forwards it to xkilled at 600-604. js/mon.js:xkilled immediately calls requiredKillOperation(env, \"unsupported\") at 5608-5610, which throws the observed error before C-equivalent kill processing; it then also requires env.message.",
+                "The whole C owner is mon.c:xkilled (3477-3740). The corresponding js/mon.js function still contains source-named unsupported branches for thrown objects handed to engulfer, unsaved monsters, mail daemon, engulfed expulsion, murder penalty, unicorn guilt, quest nemesis/guardian/priest, and peaceful monsters; the function header documents these partial branches. A valid task is a whole-function mon.c source port, not a blessed-scroll-specific workaround."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-uhitm-force-do-attack-synthetic-v10-20260928",
