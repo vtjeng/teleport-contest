@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T06:18:09.078Z",
+  "capturedAt": "2026-09-28T07:38:53.223Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6854,12 +6854,134 @@
         "type": "accepted",
         "at": "2026-09-28T06:17:57.224Z",
         "task": "B38"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B38-published-548623e4",
+        "type": "published",
+        "at": "2026-09-28T06:20:06.319Z",
+        "task": "B38",
+        "commit": "548623e49abae77023c21c271e97982b5c76f16b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B39-assign-ef3a17e5",
+        "type": "assign",
+        "at": "2026-09-28T06:24:57.332Z",
+        "task": "B39",
+        "worker": "B",
+        "goal": "port-potion-restore-ability-synthetic-v9-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-18a7236c0a581f98429174b45c58df6d288191e9",
+        "type": "ready",
+        "at": "2026-09-28T06:25:34.523Z",
+        "task": "C31",
+        "delivery": "18a7236c0a581f98429174b45c58df6d288191e9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C31-received-18a7236c",
+        "type": "received",
+        "at": "2026-09-28T06:26:29.892Z",
+        "task": "C31",
+        "delivery": "18a7236c0a581f98429174b45c58df6d288191e9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C31-integrating-eaf254e8",
+        "type": "integrating",
+        "at": "2026-09-28T06:28:09.507Z",
+        "task": "C31",
+        "integration": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C31-validated-eaf254e8",
+        "type": "validated",
+        "at": "2026-09-28T06:43:44.109Z",
+        "task": "C31",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C31-accepted-eaf254e8",
+        "type": "accepted",
+        "at": "2026-09-28T06:43:44.572Z",
+        "task": "C31"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C31-published-38d7fb83",
+        "type": "published",
+        "at": "2026-09-28T06:46:41.325Z",
+        "task": "C31",
+        "commit": "38d7fb835ffa91e68df9436aba448848ac871b0a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C32-assign-557a74e5",
+        "type": "assign",
+        "at": "2026-09-28T06:51:26.940Z",
+        "task": "C32",
+        "worker": "C",
+        "goal": "port-read-forget-amnesia-synthetic-v9-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6c80f2ac29213e2560ab2a107de297a42c3b39be",
+        "type": "ready",
+        "at": "2026-09-28T07:10:39.784Z",
+        "task": "B39",
+        "delivery": "6c80f2ac29213e2560ab2a107de297a42c3b39be"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B39-6c80f2ac",
+        "type": "received",
+        "at": "2026-09-28T07:11:40.537Z",
+        "task": "B39",
+        "delivery": "6c80f2ac29213e2560ab2a107de297a42c3b39be"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B39-b442bd49",
+        "type": "integrating",
+        "at": "2026-09-28T07:13:41.799Z",
+        "task": "B39",
+        "integration": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-8aa7c225e66a8ad5a2bf5afd62e00006eabd36c1",
+        "type": "ready",
+        "at": "2026-09-28T07:31:36.058Z",
+        "task": "C32",
+        "delivery": "8aa7c225e66a8ad5a2bf5afd62e00006eabd36c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B39-b442bd49",
+        "type": "validated",
+        "at": "2026-09-28T07:35:55.325Z",
+        "task": "B39",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B39-b442bd49",
+        "type": "accepted",
+        "at": "2026-09-28T07:36:12.711Z",
+        "task": "B39"
       }
     ]
   },
   "development": {
-    "executionCommit": "533d144713ebda5784bfbde54c648abde78b7883",
-    "measuredAt": "2026-09-28T06:11:58.805Z",
+    "executionCommit": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6",
+    "measuredAt": "2026-09-28T07:30:30.074Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

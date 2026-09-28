@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked source-directed entry for engrave.c:doengrave_sfx_item -> read.c:wand_explode. This seed reaches the cursed-wand gate but draws rn2(WAND_BACKFIRE_CHANCE)=11; the branch requires zero. Four bounded source-reaching seeds drew 33, 2, 76, and 11. The rare backfire caller remains uncovered; do not treat the normal-engraving recording as evidence for it.",
+  "segments": [
+    {
+      "seed": 73190596,
+      "datetime": "20381206112156",
+      "nethackrc": "OPTIONS=name:BackfireC31,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " .\u0017amulet of life saving\nWn\u0017cursed wand of polymorph\nEp x"
+    }
+  ]
+}

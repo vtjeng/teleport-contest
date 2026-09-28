@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent normal-path cursed-wand engraving evidence. This persisted seed reaches engrave.c:doengrave_sfx_item's cursed-wand gate, draws rn2(WAND_BACKFIRE_CHANCE)=11, follows ordinary engraving, and strictly matches C/JS. It does not witness the wand_explode branch.",
+  "segments": [
+    {
+      "seed": 73190596,
+      "datetime": "20381206112156",
+      "nethackrc": "OPTIONS=name:BackfireC31,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " .\u0017amulet of life saving\nWn\u0017cursed wand of polymorph\nEp x"
+    }
+  ]
+}

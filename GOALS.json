@@ -102229,7 +102229,7 @@
     {
       "id": "port-read-charging-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port charging-scroll effect and its complete recharge source family",
       "cFile": "read.c",
       "sessions": [
@@ -102237,8 +102237,12 @@
       ],
       "selectionReason": "v9 charging-scroll-recharges-wand is the first actionable queue candidate; investigations/synthetic/v9/charging-scroll-recharges-wand.json traces the missing prompt to read.c:seffect_charging and the shared recharge family. Continue related read.c work with worker C after identify.",
       "detail": "Port seffect_charging, recharge, charge_ok, stripspe and p_glow helpers from read.c; preserve wand, ring and tool branches, source RNG order, caller wiring, and independent entry-point evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "e330a0af6f55f190675eb787de6ddcda494b4b3d",
+      "openStanding": {
+        "sha": "533d144713ebda5784bfbde54c648abde78b7883",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -102246,8 +102250,8 @@
           "name": "seffect_charging",
           "line": 1788,
           "endLine": 1829,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -102267,7 +102271,335 @@
           "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
           "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "533d144713ebda5784bfbde54c648abde78b7883",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "charging-scroll-recharges-wand",
+          "session": "synthetic/v9/charging-scroll-recharges-wand",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+          "recordingPath": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+          "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+          "recipe": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.recipe.session.json",
+          "recipeSha256": "ddcd719f6eb75e23a4f2c85bc3f363b26ec52ab0e0b89baf940da5ee87eaaf67",
+          "replayInputSha256": "e34266a7d4063160bb871c81b86e20ea3adab12291e729522431af074c658405",
+          "evaluationPath": "challenges/evaluations/20260928061245-v9.json",
+          "evaluationCommit": "533d144713ebda5784bfbde54c648abde78b7883",
+          "evaluationArtifact": "challenges/evaluations/20260928061245-v9.json",
+          "evaluationUtc": "2026-09-28T06:13:28.451Z",
+          "remainingScreens": 4,
+          "recordedSteps": 36,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2853,
+              "total": 2864
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2853,
+              "cEntry": "rn2(19)=7",
+              "cCaller": "exercise(attrib.c:509)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "o"
+              },
+              "stepIndex": 32
+            },
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "o"
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/charging-scroll-recharges-wand.json",
+            "result": {
+              "session": "synthetic/v9/charging-scroll-recharges-wand",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "charging-scroll-recharges-wand",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 4,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "charging-scroll-recharges-wand",
+                "session": "synthetic/v9/charging-scroll-recharges-wand",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+                "recordingPath": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+                "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+                "recipe": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.recipe.session.json",
+                "recipeSha256": "ddcd719f6eb75e23a4f2c85bc3f363b26ec52ab0e0b89baf940da5ee87eaaf67",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 4,
+                "recordedSteps": 36,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2853,
+                    "total": 2864
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2853,
+                    "cEntry": "rn2(19)=7",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "o"
+                    },
+                    "stepIndex": 32
+                  },
+                  "cursor": {
+                    "index": 32,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 32,
+                      "key": "o"
+                    },
+                    "cCursor": [
+                      74,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 32,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "Reading a charging scroll reaches read.c:seffect_charging, but js/read.js:seffects records the effect as unported. C identifies and consumes the scroll before a chargeable-object prompt, then read.c:recharge changes the selected wand. Port the complete source family, including recharge branches and other active callers; the selected wand case alone does not cover rings, tools, or explosion paths.",
+              "source": {
+                "file": "read.c",
+                "branch": "seffect_charging handles confused hero energy separately, otherwise identifies and consumes the scroll before getobj(charge, charge_ok). A chosen item goes to recharge with -1, 0, or +1 from curse/bless. The selected case chooses a wand; recharge handles cancellation, explosion chance from prior recharge count, charge ceiling, source-ordered RNG, object glow messages, and cap_spe. The same function has ring and tool branches with different state effects.",
+                "functions": [
+                  "stripspe",
+                  "p_glow1",
+                  "p_glow2",
+                  "p_glow3",
+                  "recharge",
+                  "seffect_charging"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_CHARGING arm calls seffect_charging; js/read.js:seffects currently records note_unported(read.c seffect_charging).",
+                  "read.c:seffect_charging calls recharge after getobj; other C callers include artifacts.c recharge invocation and zap.c destruction effects, represented by explicit read.c recharge gaps in js/artifacts.js and js/zap_destroy_items.js."
+                ],
+                "dependencies": [
+                  "read.c:charge_ok and learnscroll already have JavaScript implementations in js/read.js; getobj, useup, object discovery, and prompt ordering must match C.",
+                  "read.c:recharge owns stripspe and p_glow helpers. Its wand_explode, Ring_off/gone, burn, shop, HP, and cap_spe effects require source-matched callees or explicit discarded-result gaps under AGENTS.md.",
+                  "The selected wand path is only one object class; independent recordings must cover active ring/tool and cursed/blessed paths before source completion."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json leaves 4 of 36 screens unmatched; the first screen and cursor differ at segment 0 step 32 when C prompts for a chargeable object. The later C exercise RNG call reflects action-history divergence and does not identify the source owner.",
+                "Fresh scan at b6e28d15 reports note_unported(read.c seffect_charging). The C recipe challenges/cases/v9/charging-scroll-recharges-wand.recipe.session.json reads a charging scroll and chooses a wand; there is no matching JavaScript source effect yet.",
+                "Upstream nethack-c/upstream/src/read.c:seffect_charging at 1788-1828 invokes read.c:recharge at 729-1009. Its immediate source helpers stripspe and p_glow1/2/3 are at 652-684, while js/read.js:charge_ok and learnscroll are already ported."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_charging",
+            "implementation": "js/read.js",
+            "symbol": "seffect_charging",
+            "sourceReview": "Compared all of read.c:1788-1827, preserving confusion/BUC ordering, scroll identification and consumption before getobj, and the pointer-to-pointer consumed result used by seffects.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects SCR_CHARGING dispatch"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread -> seffects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/charging-overloaded-wishing-wand-c31-independent.session.json",
+              "recordings/read.c/charging-worn-adornment-ring-c31-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "charging-scroll-recharges-wand",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 35,
+                "source": "read.c:doread -> seffects -> seffect_charging -> recharge"
+              }
+            ],
+            "checkedAt": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73"
+          }
+        ],
+        "entryPointReview": "Whole source functions completed in read.c are cap_spe, charge_ok, recharge, seffect_charging, and wand_explode. stripspe, p_glow2, and p_glow3 are implemented but listed incomplete because this delivery lacks matching C runtime evidence. The ordinary scroll dispatcher reaches seffect_charging via doread/seffects; v9 charging-scroll-recharges-wand and the independent wand/ring recordings cover the ordinary wand and charged-ring paths. The independent overloaded-wishing-wand record reaches recharge -> wand_explode; it does not prove the cursed engraving backfire call. zap.c:maybe_destroy_item calls recharge only for the hero's eligible charged-ring branch; the independent self-lightning replay reaches that path and strictly matches. artifact.c:invoke_charge_obj now calls recharge, but its independent PYEC recipe stops earlier in artifact.c:set_artifact_intrinsic, so artifact invocation has no matching evidence. engrave.c:doengrave_sfx_item's cursed wand gate was reached in the matching normal-engraving recording at recordings/engrave.c/cursed-wand-engraving-normal-c31-independent.session.json, but rn2(WAND_BACKFIRE_CHANCE) was nonzero; four bounded source-reaching attempts drew 33, 2, 76, and 11, and the separate recipes/engrave.c/cursed-wand-backfire-blocked-c31.session.json names the still-uncovered wand_explode engraving entry. The exported do_wear.c:Ring_off wrapper is exercised only for RIN_ADORNMENT in the worn-ring recording; Ring_off_or_gone's levitation and other unsupported effect branches remain gaps. cap_spe is also a caller of read.c:seffect_enchant_weapon and now replaces the duplicate clamp there; A28's independent blessed-enchant recording was rechecked after that change. read.c:seffect_enchant_armor is still an unported JS branch and is not claimed here. The GOALS source range for C31 names seffect_charging only; supporting read.c helpers and other production callers remain in the immutable worker delivery packet and are not claimed complete by this goal record.",
+        "entryPoints": [
+          {
+            "name": "read charging scroll: ordinary wand and charged adornment ring",
+            "functions": [
+              "seffect_charging"
+            ],
+            "recordings": [
+              "recordings/read.c/charging-overloaded-wishing-wand-c31-independent.session.json",
+              "recordings/read.c/charging-worn-adornment-ring-c31-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "charging-scroll-recharges-wand",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 35,
+                "source": "read.c:doread -> seffects -> seffect_charging -> recharge -> p_glow1"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The selected charging-scroll entry and independent wand, worn-ring, self-lightning, and normal engraving C recordings match, but the task also implemented read.c recharge helpers outside this goal range. stripspe, p_glow2, and p_glow3 still lack matching runtime evidence; artifact.c:invoke_charge_obj is blocked by artifact.c:set_artifact_intrinsic display state; cursed-wand engraving backfire needs its source rn2(100)==0 branch; and non-adornment Ring_off effects lack recorded entry evidence. Resume with source-reaching independent C recordings and separate helper source-completion records before closing the whole charging family."
     },
     {
       "id": "port-potion-hallucination-water-synthetic-v9-20260928",
@@ -102845,16 +103177,20 @@
     {
       "id": "port-potion-restore-ability-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port restore-ability potion and spell effects from source",
       "cFile": "potion.c",
       "sessions": [
         "synthetic/v9/restore-ability-potion-recovers-stats"
       ],
-      "selectionReason": "The current admitted v9 restore-ability case stops at potion.c:peffect_restore_ability in the quaff dispatcher, as traced in investigations/synthetic/v9/restore-ability-potion-recovers-stats.json. Its potion.c function and required pure apply.c:unfixable_trouble_count return-value helper are unreserved; A39 owns earlier apply.c whistle/doapply lines and C31 owns read.c/recharge, so the helper must be edited only in its distinct end-of-file source region.",
+      "selectionReason": "Selected v9 restore-ability mismatch at potion.c:peffect_restore_ability; B39 source-traced packet is ready for combined validation.",
       "detail": "Port the complete potion.c:peffect_restore_ability function, POT_RESTORE_ABILITY and SPE_RESTORE_ABILITY dispatch, and source-required pure apply.c:unfixable_trouble_count. Preserve cursed early return, blessed wording and trouble status conditions, random attribute loop, base/max/abuse changes, and potion-only lost-level restoration through exper.c:pluslvl. Add source-pinned pure helper tests and independent C recordings for potion and spell entry points without copying the selected v9 case.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "29b15eb5e9f642d639951c70bd1b25d9cb870565",
+      "openStanding": {
+        "sha": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -102862,8 +103198,8 @@
           "name": "peffect_restore_ability",
           "line": 646,
           "endLine": 695,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -102882,6 +103218,303 @@
           "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
           "evaluationPath": "challenges/evaluations/20260928061245-v9.json",
           "evaluationCommit": "533d144713ebda5784bfbde54c648abde78b7883"
+        }
+      },
+      "activeStanding": {
+        "sha": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "restore-ability-potion-recovers-stats",
+          "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+          "recordingPath": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+          "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+          "recipe": "challenges/cases/v9/restore-ability-potion-recovers-stats.recipe.session.json",
+          "recipeSha256": "86e478e79e5c68dfcc77d45e96d7283761e1b099f676d0690fb30661f86bca59",
+          "replayInputSha256": "0cac3433593dfdfaef5b84a0961b2c4faf64a9ad4bbf534b8dc399ee07473419",
+          "evaluationPath": "challenges/evaluations/20260928063714-v9.json",
+          "evaluationCommit": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
+          "evaluationArtifact": "challenges/evaluations/20260928063714-v9.json",
+          "evaluationUtc": "2026-09-28T06:37:55.246Z",
+          "remainingScreens": 1,
+          "recordedSteps": 40,
+          "previousScreensMatched": 39,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 40
+            },
+            "rng": {
+              "matched": 2429,
+              "total": 2430
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+            "step": 39
+          },
+          "step": 39,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_restore_ability",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/restore-ability-potion-recovers-stats.json",
+            "result": {
+              "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "restore-ability-potion-recovers-stats",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "restore-ability-potion-recovers-stats",
+                "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+                "recordingPath": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+                "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+                "recipe": "challenges/cases/v9/restore-ability-potion-recovers-stats.recipe.session.json",
+                "recipeSha256": "86e478e79e5c68dfcc77d45e96d7283761e1b099f676d0690fb30661f86bca59",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 40,
+                "previousScreensMatched": 39,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 39,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 2429,
+                    "total": 2430
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+                  "step": 39
+                },
+                "step": 39,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_restore_ability",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The restore-ability potion reaches potion.c:peffect_restore_ability, but JavaScript refuses the quaff. C chooses cursed or restorative wording, starts at a random attribute, restores base attributes and abuse counters, and for a potion can restore lost experience levels. The blessed wording consumes apply.c:unfixable_trouble_count(FALSE), which is not yet ported; complete that pure helper in the same task.",
+              "source": {
+                "file": "potion.c",
+                "branch": "potion.c:peffect_restore_ability (646-692) increments potion_unkn, returns after cursed mediocre message, otherwise chooses good/better/great (blessed consumes unfixable_trouble_count), draws rn2(A_MAX), loops through attributes in wraparound order restoring ABASE up to AMAX and clamping negative AEXE, stopping after first repair if unblessed. A POT_RESTORE_ABILITY potion then calls exper.c:pluslvl until lost levels are restored, once or repeatedly when blessed.",
+                "functions": [
+                  "peffect_restore_ability"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_RESTORE_ABILITY dispatch reaches peffect_restore_ability; js/potion.js currently refuses this effect.",
+                  "potion.c:dodrink -> dopotion -> peffects reaches quaffed potions; spell.c healing-skill spell dispatch can call the same source effect with a temporary blessed spellbook; fountain.c:drinksink can also reach dopotion."
+                ],
+                "dependencies": [
+                  "apply.c:unfixable_trouble_count(FALSE) is a pure return-valued helper not yet ported; implement and source-pin it in the same task.",
+                  "exper.c:pluslvl is already ported; preserve its repeated call and messages for lost-level restoration.",
+                  "Keep C ABASE, AMAX, AEXE, and potion-specific ulevel/ulevelmax in their existing state locations; cursed branch must not draw rn2(A_MAX)."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 39/40 screens and first stops at step 39: “unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()”.",
+                "Upstream nethack-c/upstream/src/potion.c lines 646-692 defines the effect and apply.c lines 4431-4471 defines its blessed-message return-valued helper.",
+                "js/potion.js refuses peffect_restore_ability; js/exper.js already implements pluslvl, so the task must wire the source caller and helper rather than substitute a case-specific stat change."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_restore_ability",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_restore_ability",
+            "sourceReview": "Compared all of potion.c:peffect_restore_ability() (646-695). The JavaScript preserves the initial gp.potion_unkn increment, cursed message and immediate no-RNG return, then the uncursed/blesed wording selected with apply.c:unfixable_trouble_count(FALSE), one rn2(A_MAX) start draw, the wrapping ABASE-to-AMAX scan, AEXE=max(AEXE,0), disp.botl update, and the unblessed first-match break. The potion-only branch calls pluslvl(FALSE) only when ulevel < ulevelmax, repeating only while blessed; the SPE pseudo-object never takes that branch. peffects() supplies the normalized source message/random environment for both object types. The potion-only lost-level branch is implemented but not runtime verified: wizcmds.c:wiz_level_change() assigns u.ulevelmax=u.ulevel after lowering, so the attempted #levelchange setup cannot preserve the required ulevel < ulevelmax state.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects() dispatches POT_RESTORE_ABILITY and SPE_RESTORE_ABILITY to peffect_restore_ability() (1333-1337)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() calls peffects() for an inventory quaff (618-641); dodrink() is the production quaff command caller."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() sets the skilled blessing state then calls peffects() for SPE_RESTORE_ABILITY (1538-1545)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "dowizcast",
+                "source": "spell.c:dowizcast() selects a spell and calls spelleffects(); the independent #wizcast recording reaches the SPE_RESTORE_ABILITY row."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/restore-ability-cursed-b39.session.json",
+              "recordings/potion.c/restore-ability-blessed-attribute-loop-b39.session.json",
+              "recordings/potion.c/restore-ability-wizcast-b39.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "restore-ability-potion-recovers-stats",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "quaff -> potion.c:dodrink/dopotion -> potion.c:peffects(POT_RESTORE_ABILITY) -> peffect_restore_ability"
+              }
+            ],
+            "checkedAt": "58d48a2e661c2cb0cf9b219d71a3b947db9bbb63"
+          }
+        ],
+        "entryPointReview": "The active inventory POT_RESTORE_ABILITY route is dodrink() -> dopotion() -> peffects(); strict C recordings cover cursed and blessed quaffs, and admitted synthetic/v9/restore-ability-potion-recovers-stats covers the uncursed quaff from step 0 through its complete 40-step replay. The active spell route is spell.c:spelleffects(SPE_RESTORE_ABILITY) -> peffects(); an independent #wizcast C recording selects that spell and strictly matches. The pure helper apply.c:unfixable_trouble_count() is supplemental evidence below. The POT-only lost-level recovery arm is source-implemented but remains unverified: it requires u.ulevel < u.ulevelmax, while the attempted debug #levelchange sequence resets u.ulevelmax to the current level after lowering. No recording is claimed for that stateful arm.",
+        "entryPoints": [
+          {
+            "name": "Inventory quaff of POT_RESTORE_ABILITY (cursed, blessed and uncursed paths)",
+            "functions": [
+              "peffect_restore_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/restore-ability-cursed-b39.session.json",
+              "recordings/potion.c/restore-ability-blessed-attribute-loop-b39.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "restore-ability-potion-recovers-stats",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "quaff -> potion.c:dodrink/dopotion -> peffects(POT_RESTORE_ABILITY) -> peffect_restore_ability"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #wizcast of SPE_RESTORE_ABILITY",
+            "functions": [
+              "peffect_restore_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/restore-ability-wizcast-b39.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "POT_RESTORE_ABILITY lost-level recovery when ulevel is below ulevelmax",
+            "functions": [
+              "peffect_restore_ability"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "POT_RESTORE_ABILITY lost-level pluslvl(FALSE) branch still lacks matching runtime evidence: #levelchange lowers ulevel but resets ulevelmax, so it cannot establish ulevel < ulevelmax. The quaff BUC and spell entry points strictly match; resume after an independent C setup reaches naturally lost levels or a source-proven state route. apply.c:unfixable_trouble_count is pure and source-pinned in the immutable B39 packet but is supplemental to this goal range."
+    },
+    {
+      "id": "port-read-forget-amnesia-synthetic-v9-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port amnesia forgetting and its scroll effect",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/read-amnesia-forgets-known-spells"
+      ],
+      "selectionReason": "The current admitted v9 amnesia-scroll case first diverges at read.c:forget rnd(3), as traced in investigations/synthetic/v9/read-amnesia-forgets-known-spells.json. JavaScript seffects still leaves the SCR_AMNESIA arm unported. The whole read.c:forget function and its seffect_amnesia caller, plus source state dependencies spell.c:losespells and weapon.c:drain_weapon_skill, form one coherent amnesia effect task; A owns apply.c whistles and B owns potion.c restore ability, so these source owners are free.",
+      "detail": "Port complete read.c:forget and seffect_amnesia with the SCR_AMNESIA dispatcher. Implement whole spell.c:losespells and weapon.c:drain_weapon_skill so spell memory, skill training, seen-monster flags, punished ball-chain memory, wisdom exercise, messages, and RNG calls follow source order across future inputs. Add source-pinned pure helper tests and independent cursed, blessed, or known-spell C recordings; preserve the selected v9 range and name any active unreachable or blocked state path.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "forget",
+          "line": 1020,
+          "endLine": 1043,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1020,
+        "to": 1043
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/read-amnesia-forgets-known-spells": {
+          "session": "synthetic/v9/read-amnesia-forgets-known-spells",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "read-amnesia-forgets-known-spells",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+          "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
+          "evaluationPath": "challenges/evaluations/20260928063714-v9.json",
+          "evaluationCommit": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73"
         }
       }
     }

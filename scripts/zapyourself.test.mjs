@@ -89,6 +89,22 @@ test('zapyourself no-op source arms complete without consuming RNG', async () =>
     }
 });
 
+test('zapyourself routes source physical exercise through encumber_msg', () => {
+    // zap.c:2723 and :2737 call exercise() after self-directed physical damage.
+    // The async port must supply attrib.c:exercise()'s trailing operation,
+    // which C invokes once moves have begun for Strength and Constitution.
+    assert.match(C_FUNCTION, /exercise\(A_STR, FALSE\);/u);
+    assert.match(C_FUNCTION, /exercise\(A_CON, FALSE\);/u);
+    assert.match(
+        JS_FUNCTION,
+        /await exercise\(A_STR, false, state, random, \{\s*encumberMessage: encumber_msg,/u,
+    );
+    assert.match(
+        JS_FUNCTION,
+        /await exercise\(A_CON, false, state, random, \{\s*encumberMessage: encumber_msg,/u,
+    );
+});
+
 test('self-directed drain life executes the canonical level loss', async () => {
     // zap.c:2817-2823 calls losexp and adds no direct hit-point damage.
     // An initialized hero pins the production call, message and XP tail.
