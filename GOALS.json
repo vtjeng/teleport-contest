@@ -105428,6 +105428,49 @@
           "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
         }
       }
+    },
+    {
+      "id": "port-apply-flip-through-book-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port spellbook page-flipping and apply dispatch from source",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v10/apply-flips-through-blank-spellbook"
+      ],
+      "selectionReason": "v10/apply-flips-through-blank-spellbook remains unmatched at step 29 in current saved evaluation challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/apply-flips-through-blank-spellbook.json traces the refusal to apply.c:flip_through_book and doapply SPBOOK_CLASS. This independent source family does not overlap assigned invent/altar or potion work.",
+      "detail": "Implement all apply.c:flip_through_book branches and wire doapply SPBOOK_CLASS. Preserve underwater, Blind, Deaf, Hallucination, Book of the Dead, blank, novel, and faded-book behavior, discovery, messages, and source order; create an independently recorded C witness.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "flip_through_book",
+          "line": 4473,
+          "endLine": 4526,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4473,
+        "to": 4526
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/apply-flips-through-blank-spellbook": {
+          "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-flips-through-blank-spellbook",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+          "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
+        }
+      }
     }
   ]
 }
