@@ -108440,16 +108440,20 @@
     {
       "id": "port-read-remove-curse-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete remove-curse effect and runtime blessorcurse behavior",
       "cFile": "read.c",
       "sessions": [
         "synthetic/v10/confused-remove-curse-blessorcurse"
       ],
-      "selectionReason": "Current v10 confused remove-curse case is source-traced and has two unmatched screens; read.c:seffect_remove_curse and mkobj.c:blessorcurse are unreserved.",
+      "selectionReason": "Integrate assigned C38 source port from the v10 confused remove curse mismatch; source evidence is partial and active caller blockers remain",
       "detail": "At step 80 uncursed confused SCR_REMOVE_CURSE enters missing inventory traversal; C then calls mkobj.c:blessorcurse with rn2(2), while JavaScript diverges. Port whole effect, runtime BUC helper and source callers without case-specific logic.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "be69548a77c6899056b335ffae17d07aa1994ea7",
+      "openStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -108458,7 +108462,7 @@
           "line": 1489,
           "endLine": 1607,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -108478,7 +108482,131 @@
           "evaluationPath": "challenges/evaluations/20260928181249-v10.json",
           "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_remove_curse",
+            "implementation": "js/read.js",
+            "symbol": "seffect_remove_curse",
+            "sourceReview": "Read and ported the complete read.c:seffect_remove_curse definition (1489-1605), preserving the opening You_feel branch, cursed-scroll early return, saved-next inventory traversal, coin/self-scroll exclusions, wornmask and auxiliary weapon/quiver predicates, blessed/confused/cursed branches, shop-water price adjustments, learned-scroll update, steed saddle feedback, final update_inventory, and unchanged consumed pointer. The confused path calls mkobj.c:blessorcurse in its two-draw order; ordinary changes call mkobj.c:uncurse. The two void teardown calls remain named gaps at their C call sites: read.c:unpunish and dig.c:buried_ball_to_freedom. The SCR_REMOVE_CURSE and SPE_REMOVE_CURSE cases are wired through read.c:seffects; the learned spell path reaches that dispatcher through spell.c:spelleffects. No session identity or seed behavior is special-cased.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread reads a scroll and calls seffects; the remove-curse helper leaves the scroll pointer unchanged so the caller consumes it afterward."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects dispatches SCR_REMOVE_CURSE and SPE_REMOVE_CURSE to seffect_remove_curse without consuming the object."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects routes SPE_REMOVE_CURSE through read.c:seffects for a learned spell cast."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "special_throne_effect",
+                "source": "sit.c:special_throne_effect case 10 creates a blessed fake SPE_REMOVE_CURSE object, temporarily sets HConfusion, and calls seffects."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "domagictrap",
+                "source": "trap.c:domagictrap case 20 creates an unblessed fake SPE_REMOVE_CURSE object, clears HConfusion, and calls seffects."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-remove-curse.test.mjs",
+              "scripts/hero-magic-trap.test.mjs",
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/remove-curse-loadstone-c38-independent.session.json",
+              "recordings/read.c/remove-curse-confused-cloak-c38-independent.session.json",
+              "recordings/read.c/remove-curse-priest-learned-cast-c38-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "confused-remove-curse-blessorcurse",
+                "segment": 0,
+                "fromStep": 81,
+                "throughStep": 81,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_remove_curse -> mkobj.c:blessorcurse"
+              }
+            ],
+            "checkedAt": "be69548a77c6899056b335ffae17d07aa1994ea7"
+          }
+        ],
+        "entryPointReview": "Verified runtime entries are scroll reading through read.c:doread -> read.c:seffects and a learned #cast through spell.c:docast -> spell.c:spelleffects -> read.c:seffects. The independent C recordings cover an ordinary loadstone uncurse, a confused cloak BUC change, and a learned spell cast; the admitted v10 confused case reaches the effect at segment 0 step 81. Two additional active caller arms were implemented but lack matching C evidence and are intentionally incomplete: Vlad’s Tower sit.c:special_throne_effect case 10 and hero magic-trap trap.c:domagictrap case 20. The direct Tower-name recipe stayed at teleport.c:level_tele’s prompt because dungeon.c:lev_by_name rejects that cross-branch destination. The repeated magic-trap C-only probe reached eight hero outcomes (fates 14, 16, 3, 19, 8) but never fate 20; after fate 19, later observed trap draws were monster-side rn2(21). Their blocked recipes are retained under recipes/read.c and are not regression recordings. The JS domagictrap helper still has unsupported fate <10 monster creation and fate 19 tame-monster branches, so a preceding different fate can prevent strict parity before case 20.",
+        "entryPoints": [
+          {
+            "name": "read SCR_REMOVE_CURSE",
+            "functions": [
+              "seffect_remove_curse"
+            ],
+            "recordings": [
+              "recordings/read.c/remove-curse-loadstone-c38-independent.session.json",
+              "recordings/read.c/remove-curse-confused-cloak-c38-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "confused-remove-curse-blessorcurse",
+                "segment": 0,
+                "fromStep": 81,
+                "throughStep": 81,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_remove_curse"
+              }
+            ]
+          },
+          {
+            "name": "learned #cast SPE_REMOVE_CURSE",
+            "functions": [
+              "seffect_remove_curse"
+            ],
+            "recordings": [
+              "recordings/read.c/remove-curse-priest-learned-cast-c38-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Vlad Tower throne case 10",
+            "functions": [
+              "seffect_remove_curse"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "hero magic-trap fate 20",
+            "functions": [
+              "seffect_remove_curse"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "be69548a77c6899056b335ffae17d07aa1994ea7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "C38 verified seffect_remove_curse through scroll and learned spell recordings, but sit.c:special_throne_effect case 10 lacks a Tower throne witness (teleport.c:level_tele/dungeon.c:lev_by_name blocks setup), and trap.c:domagictrap case 20 lacks a matching magic-trap witness after bounded non-20 fate probes. Both blocked recipes are preserved."
     },
     {
       "id": "port-dothrow-hitfloor-synthetic-v10-20260928",
