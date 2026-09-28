@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93628147,
+      "datetime": "20391107195642",
+      "nethackrc": "OPTIONS=name:HallucinatedCoin,role:Wizard,race:gnome,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": " \u0017100 gold pieces\n#wizintrinsic\n30h\n a*$ "
+    }
+  ],
+  "comment": "Blocked visible-Hallucination attempt for apply.c:flip_coin. C reaches rn2(100) in the coin effect, but strict JS replay first diverges after Hallucination is granted, before the apply command, when allmain.c:moveloop_core refreshes the map through display.c:see_objects/map_object and C/JS choose different hallucinated object glyphs. The blinded-Hallucination recipe supplies the matching coin-effect witness."
+}
