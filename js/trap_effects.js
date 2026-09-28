@@ -50,6 +50,7 @@ import {
     FUMBLING,
     HEAD,
     HALF_PHDAM,
+    HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
     HOLE,
@@ -72,6 +73,7 @@ import {
     INVIS,
     NOWEBMSG,
     PIT,
+    PASSES_WALLS,
     POLY_TRAP,
     RIGHT_SIDE,
     RECURSIVETRAP,
@@ -176,6 +178,7 @@ import {
     defends_when_carried,
     is_art,
 } from './artifacts.js';
+import { is_quest_artifact } from './questpgr.js';
 import { count_wsegs } from './makemon_create.js';
 import {
     maybe_unhide_at,
@@ -304,6 +307,7 @@ import {
     otense,
     suit_simple_name,
     Yname2,
+    yname,
     xnameFresh,
 } from './objnam.js';
 import { encumber_msg } from './pickup.js';
@@ -2065,17 +2069,84 @@ async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
     return Trap_Effect_Finished;
 }
 
-// C ref: trap.c trapeffect_anti_magic() (2323-2452), monster arm only.
-// The hero arm remains behind preflight_dotrap(); callers that reach this
-// selector with the hero still get an explicit boundary rather than silently
-// taking the monster path.
+// C ref: trap.c trapeffect_anti_magic() (2323-2452), both hero and monster
+// arms. The hero arm drains energy through trap.c:drain_en() after resolving
+// any antimagic damage and the additional maximum-energy drain.
 async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
-    const { state } = env;
+    const { state, random } = env;
 
     if (mtmp === state.youmonst) {
-        const unsupported = requireTrapOperation(env, 'unsupported');
-        unsupported('anti-magic trap hero activation');
-        return Trap_Effect_Finished; // unreachable
+        const message = requireTrapOperation(env, 'message');
+        if (wearing_iron_shoes(mtmp, state)) {
+            const shoes = which_armor(mtmp, W_ARMF, state);
+            if (shoes.spe > 0) {
+                seetrap(trap, env);
+                await message(
+                    `A lethargic aura surrounds ${yname(shoes, state)}.`,
+                    state,
+                    env,
+                );
+                // C's costly_alteration() result is discarded; its source
+                // implementation remains a named void-call gap.
+                note_unported('mkobj.c costly_alteration');
+                shoes.spe -= 1;
+                update_inventory({ state });
+                return Trap_Effect_Finished;
+            }
+        }
+
+        seetrap(trap, env);
+        if (antimagicTrapHero(state)) {
+            let damage = random.rnd(4);
+            const hp = Upolyd(state.u) ? state.u.mh : state.u.uhp;
+            const halfPhysical = state.u?.uprops?.[HALF_PHDAM];
+            const halfSpell = state.u?.uprops?.[HALF_SPDAM];
+            if (halfPhysical?.intrinsic || halfPhysical?.extrinsic
+                || halfSpell?.intrinsic || halfSpell?.extrinsic) {
+                damage += random.rnd(4);
+            }
+            if (state.uwep && is_art(state.uwep, ART_MAGICBANE))
+                damage += random.rnd(4);
+
+            let object = state.invent;
+            for (; object; object = object.nobj) {
+                if (object.oartifact && !is_quest_artifact(object, state)
+                    && defends_when_carried(AD_MAGM, object, state)) {
+                    break;
+                }
+            }
+            if (object) damage += random.rnd(4);
+
+            const passesWalls = state.u?.uprops?.[PASSES_WALLS];
+            if (passesWalls?.intrinsic || passesWalls?.extrinsic)
+                damage = Math.trunc((damage + 3) / 4);
+
+            await message(
+                damage >= hp ? 'You feel unbearably torpid!'
+                    : damage >= Math.trunc(hp / 4) ? 'You feel very lethargic.'
+                        : 'You feel sluggish.',
+                state,
+                env,
+            );
+            await losehp(
+                damage,
+                'anti-magic implosion',
+                KILLED_BY_AN,
+                state,
+                env,
+            );
+        }
+
+        let drain = random.d(2, 6);
+        const halfDrain = random.rnd(Math.trunc(drain / 2));
+        let maxAlreadyDrained = false;
+        if (state.u.uenmax > drain) {
+            state.u.uenmax -= halfDrain;
+            drain -= halfDrain;
+            maxAlreadyDrained = true;
+        }
+        await drain_en(drain, maxAlreadyDrained, state, env);
+        return Trap_Effect_Finished;
     }
 
     // Iron shoes protect against an anti-magic trap only while positively
@@ -2090,7 +2161,6 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
         }
     }
 
-    const random = env.random;
     const message = requireTrapOperation(env, 'message');
     const inSight = canSeeMonster(mtmp, state)
         || mtmp === state.u?.usteed;
@@ -3487,7 +3557,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // that arrives another way.
 //
 // The stops, and what each of them needs:
-//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, SLP_GAS_TRAP, RUST_TRAP,
+//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, ANTI_MAGIC, SLP_GAS_TRAP,
+//     RUST_TRAP,
 //     LANDMINE, PIT, SPIKED_PIT, TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP --
 //     its own trapeffect_*() arm;
 //   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
@@ -3500,12 +3571,13 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     :3039 are outside those effects;
 //   a mounted hero -- s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509
 //     (bear trap), while steedintrap() handles the dart, gas, magic, landmine
-//     and pit arms admitted below;
+//     and pit arms admitted below; ANTI_MAGIC acts directly on the hero;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game, trflags = 0) {
     const pitTrap = is_pit(trap.ttyp);
     if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
         && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== SLP_GAS_TRAP
+        && trap.ttyp !== ANTI_MAGIC
         && trap.ttyp !== RUST_TRAP && trap.ttyp !== TELEP_TRAP
         && trap.ttyp !== LANDMINE && !pitTrap
         && trap.ttyp !== WEB
@@ -3529,7 +3601,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         }
     }
     if (trap.tseen && trap.ttyp !== WEB && trap.ttyp !== LANDMINE
-        && !pitTrap && !is_hole(trap.ttyp)) {
+        && trap.ttyp !== ANTI_MAGIC && !pitTrap && !is_hole(trap.ttyp)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
         );
@@ -3537,6 +3609,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
     if (state.u.usteed && trap.ttyp !== WEB
         && trap.ttyp !== LANDMINE && trap.ttyp !== DART_TRAP
         && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
+        && trap.ttyp !== ANTI_MAGIC
         && !pitTrap) {
         // trap.c:1507-1511 names a bear-trap steed through
         // s_suffix(mon_nam()) and mbodypart(); the other mounted arms call
@@ -3833,4 +3906,49 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
         }
     }
     return result;
+}
+
+// C ref: trap.c drain_en() (5202-5243). This shared helper updates the
+// canonical hero energy fields (`u.uen`, `u.uenmax`) and bottom-line flag
+// before printing through You_feel(), whose prefix reflects Unaware.
+export async function drain_en(n, maxAlreadyDrained, state = game, env = {}) {
+    const random = env.random ?? { rnd };
+    const message = env.message ?? ttyPline;
+    const punctuation = maxAlreadyDrained ? '!' : '.';
+    let ending = punctuation;
+    let text;
+
+    if (state.u.uenmax < 1) {
+        if (state.u.uen || state.u.uenmax) {
+            state.u.uen = 0;
+            state.u.uenmax = 0;
+            state.disp ??= {};
+            state.disp.botl = true;
+        }
+        text = 'momentarily lethargic';
+    } else {
+        // C int division truncates toward zero; these energy values are ints.
+        if (n > Math.trunc((state.u.uen + state.u.uenmax) / 3))
+            n = random.rnd(n);
+
+        text = 'your magical energy drain away';
+        if (n > state.u.uen) ending = '!';
+
+        state.u.uen -= n;
+        if (state.u.uen < 0) {
+            state.u.uenmax -= random.rnd(-state.u.uen);
+            if (state.u.uenmax < 0) state.u.uenmax = 0;
+            state.u.uen = 0;
+        } else if (state.u.uen > state.u.uenmax) {
+            // The caller may have lowered uenmax before drain_en() throttles
+            // the current-energy loss.
+            state.u.uen = state.u.uenmax;
+        }
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+
+    const prefix = heroUnaware(state)
+        ? 'You dream that you feel' : 'You feel';
+    await message(`${prefix} ${text}${ending}`, state);
 }
