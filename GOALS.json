@@ -42757,7 +42757,15 @@
         "sha": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef",
         "screens": 8718,
         "rng": 640345
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "peffect_see_invisible",
+          "reason": "The prior goal recorded only potion.c:peffect_see_invisible POT_FRUIT_JUICE early return while its detail explicitly left the shared POT_SEE_INVISIBLE continuation separate. Current v10/quaff-see-invisible-potion stops at the peffects refusal at step 28; the source continuation at potion.c:841-880 is not implemented or runtime-evidenced. Retire whole-function completion until the new goal ports and verifies both arms and caller wiring.",
+          "followupGoal": "port-potion-see-invisible-synthetic-v10-20260928",
+          "at": "a289c9da454a94377d554909071dee743753ea5b"
+        }
+      ]
     },
     {
       "id": "port-potion-paralysis-seed0002",
@@ -105376,7 +105384,7 @@
     {
       "id": "port-invent-hold-another-object-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port hold_another_object and wished-object drop admission across source branches",
       "cFile": "invent.c",
       "sessions": [
@@ -105385,8 +105393,12 @@
       ],
       "selectionReason": "Current v10 offer-human-corpse-own-race and eat-same-race-human-corpse remain source-traced failures sharing invent.c:hold_another_object after zap.c:makewish. Complete investigations under investigations/synthetic/v10/ identify the existing held-object drop refusal and source-ordered fatal-corpse versus ordinary inventory/drop arms; the later eat/offer effects are separate. Their current remaining screens are 11 and 4. v10 manifest 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recordings 33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296 and 12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e; latest evaluation challenges/evaluations/20260928101733-v10.json. Independent of B41 sit.c and C33 uhitm.c reservations.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "63e2fa7d0f89fb9e2b8981db504729e0d5ddaf91",
+      "openStanding": {
+        "sha": "39b000fbed439e22068eae3411407a63033d43e6",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -105395,7 +105407,7 @@
           "line": 1208,
           "endLine": 1311,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -105427,12 +105439,483 @@
           "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
           "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "39b000fbed439e22068eae3411407a63033d43e6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "offer-human-corpse-own-race",
+          "session": "synthetic/v10/offer-human-corpse-own-race",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+          "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+          "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+          "replayInputSha256": "6390d8a8bb8dd92e0ea88ac2583f44b795c3c7e2d9740003687a16d1845f606c",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6",
+          "evaluationArtifact": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationUtc": "2026-09-28T11:36:30.233Z",
+          "remainingScreens": 11,
+          "recordedSteps": 41,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2315,
+              "total": 2471
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/offer-human-corpse-own-race.json",
+            "result": {
+              "session": "synthetic/v10/offer-human-corpse-own-race",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "offer-human-corpse-own-race",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 11,
+              "recordedSteps": 41,
+              "status": "complete",
+              "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "session": "synthetic/v10/offer-human-corpse-own-race",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+                "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+                "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+                "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+                "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 11,
+                "recordedSteps": 41,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2315,
+                    "total": 2471
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A wizard wish successfully constructs a human corpse, then JavaScript refuses the invent.c:hold_another_object drop path after addinv_core0. Both the altar-offering and same-race eating recordings stop before their intended actions. The source helper admits a corpse to inventory temporarily, splits any quantity merged into an existing stack when burden or inventory count requires dropping it, prints the source drop message, and calls dropx or hitfloor. The JavaScript preflight declines mergeable objects and its runtime drop arm throws when quantity changed; makewish also has a stale comment claiming readobjnam cannot create a corpse.",
+              "source": {
+                "file": "invent.c",
+                "branch": "When a wished human corpse passes through zap.c:makewish and hold_another_object, the ordinary addinv_core0 arm tests inventory count and near_capacity against the prior encumbrance limit; on failure, it separates a merged quantity with splitobj and enters drop_it. A wished corpse judged unsafe by u_safe_from_fatal_corpse instead clears wishedfor, adds without inventory update, and also enters drop_it. Both source arms must preserve message and floor placement order.",
+                "functions": [
+                  "hold_another_object"
+                ],
+                "callers": [
+                  "zap.c:makewish calls invent.c:hold_another_object after readobjnam constructs the wished object. js/zap.js:makewish prepares a drop admission and calls js/invent.js:hold_another_object."
+                ],
+                "dependencies": [
+                  "invent.c:splitobj and obj.c object extraction may be reached by a merged wished corpse; preserve their source ordering and caller contracts.",
+                  "do.c:dropx and dothrow.c:hitfloor handle the two floor-reaching branches after drop_it; admit the actual source route generally rather than by object type or case ID.",
+                  "zap.c:makewish lines 6401-6419 tests u_safe_from_fatal_corpse and wishedfor, selects materialize/drop wording, and passes the object to hold_another_object; its JavaScript caller must match those conditions.",
+                  "The later own-race eat.c and pray.c behaviors are separate source work only after this shared wish/drop blocker is cleared."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260928083103-v10.json first stops synthetic/v10/offer-human-corpse-own-race at step 30, with 11 unmatched screens and \"held object dropped is not available for otyp 265\". The two cases share this first failing source route.",
+                "nethack-c/upstream/src/invent.c:1208-1305 implements hold_another_object including fatal-corpse and burden/slot drop_it routes, splitobj for a merged quantity, and dropx/hitfloor after the message.",
+                "js/invent.js:4845-4984 restricts prepared drops to nonmergeable objects and refuses a changed quantity in the ordinary drop branch; js/zap.js:2169 incorrectly claims that readobjnam refuses corpses, although both C recordings reached corpse holding."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "eat-same-race-human-corpse",
+          "session": "synthetic/v10/eat-same-race-human-corpse",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+          "recordingPath": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+          "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
+          "recipe": "challenges/cases/v10/eat-same-race-human-corpse.recipe.session.json",
+          "recipeSha256": "0ad0bc7fa45389765c5c9c5315f11461fc2114844cb30068bb38ce5ab4572d11",
+          "replayInputSha256": "6390d8a8bb8dd92e0ea88ac2583f44b795c3c7e2d9740003687a16d1845f606c",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6",
+          "evaluationArtifact": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationUtc": "2026-09-28T11:36:30.233Z",
+          "remainingScreens": 4,
+          "recordedSteps": 19,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 19
+            },
+            "rng": {
+              "matched": 3902,
+              "total": 4314
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/eat-same-race-human-corpse.json",
+            "result": {
+              "session": "synthetic/v10/eat-same-race-human-corpse",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "eat-same-race-human-corpse",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 4,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "eat-same-race-human-corpse",
+                "session": "synthetic/v10/eat-same-race-human-corpse",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+                "recordingPath": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+                "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
+                "recipe": "challenges/cases/v10/eat-same-race-human-corpse.recipe.session.json",
+                "recipeSha256": "0ad0bc7fa45389765c5c9c5315f11461fc2114844cb30068bb38ce5ab4572d11",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 4,
+                "recordedSteps": 19,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 3902,
+                    "total": 4314
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+                  "step": 15
+                },
+                "step": 15,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A wizard wish successfully constructs a human corpse, then JavaScript refuses the invent.c:hold_another_object drop path after addinv_core0. Both the altar-offering and same-race eating recordings stop before their intended actions. The source helper admits a corpse to inventory temporarily, splits any quantity merged into an existing stack when burden or inventory count requires dropping it, prints the source drop message, and calls dropx or hitfloor. The JavaScript preflight declines mergeable objects and its runtime drop arm throws when quantity changed; makewish also has a stale comment claiming readobjnam cannot create a corpse.",
+              "source": {
+                "file": "invent.c",
+                "branch": "When a wished human corpse passes through zap.c:makewish and hold_another_object, the ordinary addinv_core0 arm tests inventory count and near_capacity against the prior encumbrance limit; on failure, it separates a merged quantity with splitobj and enters drop_it. A wished corpse judged unsafe by u_safe_from_fatal_corpse instead clears wishedfor, adds without inventory update, and also enters drop_it. Both source arms must preserve message and floor placement order.",
+                "functions": [
+                  "hold_another_object"
+                ],
+                "callers": [
+                  "zap.c:makewish calls invent.c:hold_another_object after readobjnam constructs the wished object. js/zap.js:makewish prepares a drop admission and calls js/invent.js:hold_another_object."
+                ],
+                "dependencies": [
+                  "invent.c:splitobj and obj.c object extraction may be reached by a merged wished corpse; preserve their source ordering and caller contracts.",
+                  "do.c:dropx and dothrow.c:hitfloor handle the two floor-reaching branches after drop_it; admit the actual source route generally rather than by object type or case ID.",
+                  "zap.c:makewish lines 6401-6419 tests u_safe_from_fatal_corpse and wishedfor, selects materialize/drop wording, and passes the object to hold_another_object; its JavaScript caller must match those conditions.",
+                  "The later own-race eat.c and pray.c behaviors are separate source work only after this shared wish/drop blocker is cleared."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260928083103-v10.json first stops synthetic/v10/eat-same-race-human-corpse at step 15, with 4 unmatched screens and \"held object dropped is not available for otyp 265\". The two cases share this first failing source route.",
+                "nethack-c/upstream/src/invent.c:1208-1305 implements hold_another_object including fatal-corpse and burden/slot drop_it routes, splitobj for a merged quantity, and dropx/hitfloor after the message.",
+                "js/invent.js:4845-4984 restricts prepared drops to nonmergeable objects and refuses a changed quantity in the ordinary drop branch; js/zap.js:2169 incorrectly claims that readobjnam refuses corpses, although both C recordings reached corpse holding."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hold_another_object",
+            "implementation": "js/invent.js",
+            "symbol": "hold_another_object",
+            "sourceReview": "Compared the complete invent.c:hold_another_object() definition (1208-1311) in C order. The port preserves observe_object before artifact placement/touch, fatal touch and polymorph return paths, crysknife restoration, Fumbling and wished fatal-corpse priority, addinv_core0 before slot/burden checks, pickup_burden max, merge undo via splitobj, autoquiver, prinv/update/encumber order, then drop message, nomerge clear and floor/swallow versus hitfloor handling. Return-valued callees touch_artifact, addinv_core0, inv_cnt/near_capacity, splitobj, can_reach_floor and object hooks are consumed in source order. The newly reached wish path supplies the dropx/dropy hooks; dropx implements ship-before-altar-before-dropz and doaltarobj. C discards dropy and hitfloor results; the JS caller uses a named do.c dropy gap when its hook is absent, and the unreachable-floor branch records note_unported(\"dothrow.c hitfloor\") after freeinv. The complete supporting do.c:doaltarobj() (363-386) and altar arm of dropx() (785-797) are source-shaped in js/do.js. do.c:flooreffects() on a monster over an altar now calls doaltarobj in source order, covered by a source-pinned test but not independent runtime evidence. Caller audit found existing JS direct callers in makewish, hornoplenty, invoke_create_ammo, whipattack, use_tinning_kit, dowrite, engrave, and ucatchgem; they call the same canonical implementation. Other C sites in pickup.c:2464, mail.c:441, potion.c:2257, apply.c:3230, and uhitm.c:2246 have no matching direct JS hold call in this checkout and remain outside the A41 production caller set. No session, seed, or object-specific behavior was introduced.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "makewish",
+                "source": "zap.c:makewish() calls hold_another_object() after object creation, conduct logging, and drop-message selection."
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "hornoplenty",
+                "source": "mkobj.c:hornoplenty() calls hold_another_object() for a non-tipping spill."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_create_ammo",
+                "source": "artifact.c:invoke_create_ammo() calls hold_another_object() after constructing and weighting ammunition."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "whipattack",
+                "source": "apply.c:use_whip() calls hold_another_object() when the hero snatches an object from a monster."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_tinning_kit",
+                "source": "apply.c:use_tinning_kit() calls hold_another_object() after converting a corpse to a tin."
+              },
+              {
+                "path": "js/write.js",
+                "symbol": "dowrite",
+                "source": "write.c:docreate() calls hold_another_object() for the newly written object."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "engrave",
+                "source": "engrave.c:doengrave() calls hold_another_object() after splitting a stylus stack."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ucatchgem",
+                "source": "mthrowu.c:ucatchgem() calls hold_another_object() when the hero catches a non-glass gem."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/pickup-tip.test.mjs",
+              "scripts/object-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/hold-human-corpse-altar-valkyrie-a41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c #wizwish -> zap.c:makewish() -> invent.c:hold_another_object() -> do.c:dropx() -> do.c:doaltarobj()"
+              },
+              {
+                "batch": "v10",
+                "caseId": "eat-same-race-human-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c #wizwish -> zap.c:makewish() -> invent.c:hold_another_object()"
+              }
+            ],
+            "checkedAt": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279"
+          }
+        ],
+        "entryPointReview": "The verified A41 production entry is #wizwish: zap.c:makewish creates the object and invokes hold_another_object after the wish message/conduct sequence. The independent recipe records a wished same-race human corpse dropped on an altar and strictly matches through the complete command, including do.c:dropx -> doaltarobj; v10 offer-human-corpse-own-race is cited only through zero-based step 38 because step 39 enters the separate pray.c:sacrifice_your_race mismatch, and v10 eat-same-race-human-corpse matches through step 18. The task also source-ports do.c:doaltarobj and the dropx altar arm and wires them from the pickup.c:tipcontainer cursed-horn altar route and do.c:flooreffects monster-on-altar route. Those extra active caller paths remain unverified at runtime: the #tip probe first selected the wrong inventory letter and printed Nothing happens; the corrected selection reached a later strict mismatch at segment 0 step 51 in attrib.c:exercise (C rn2(19)=6, JS rn2(12)=0), so it is not a matching recording and does not establish pickup.c:tipcontainer -> mkobj.c:hornoplenty -> do.c:doaltarobj coverage. The committed blocked recipe names that source/recording boundary. do.c:flooreffects has source-pinned branch coverage only. C direct callers in pickup.c, mail.c, potion.c, apply.c:use_wand and uhitm.c do not have matching JS direct-call paths in this checkout and are not claimed by A41. do.c:dropx non-altar paths retain their prior behavior; do.c:dropy and dothrow.c:hitfloor remain named void-result gaps where the source results are discarded. The other existing JavaScript callers of hold_another_object are hornoplenty non-tipping spill, invoke_create_ammo, whipattack snatch, use_tinning_kit, dowrite, engrave, and ucatchgem; their active runtime paths lack a matching cited recording or synthetic range and remain open. The tipcontainer, hornoplenty tipping, and monster flooreffects paths exercise supporting doaltarobj rather than hold_another_object and do not count as this function’s entry-point evidence.",
+        "entryPoints": [
+          {
+            "name": "Wizard object wish held or dropped through makewish",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [
+              "recordings/invent.c/hold-human-corpse-altar-valkyrie-a41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c #wizwish -> zap.c:makewish -> invent.c:hold_another_object -> do.c:dropx -> do.c:doaltarobj"
+              },
+              {
+                "batch": "v10",
+                "caseId": "eat-same-race-human-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c #wizwish -> zap.c:makewish -> invent.c:hold_another_object"
+              }
+            ]
+          },
+          {
+            "name": "Horn of plenty non-tipping object spill",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Artifact invocation creates ammunition",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Bullwhip snatches a monster-held object",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Tinning kit produces a tin",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Writing creates an object",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Engraving splits a stylus stack",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hero catches a thrown gem",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole invent.c:hold_another_object and the #wizwish entry are source-reviewed and strictly evidenced, but active existing JS callers hornoplenty non-tipping spill, invoke_create_ammo, whipattack snatch, use_tinning_kit, dowrite, engrave, and ucatchgem still lack matching runtime entry-point evidence. Supporting do.c:doaltarobj caller paths tipcontainer/hornoplenty tipping and monster flooreffects also lack matching C recordings; the independent #tip probe diverged earlier at attrib.c:exercise step 51 (C rn2(19), JS rn2(12)). Resume after independent caller witnesses or source fixes make those routes match. v10/offer-human-corpse-own-race now reaches a separate pray.c:sacrifice_your_race mismatch at step 39."
     },
     {
       "id": "port-apply-flip-through-book-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port spellbook page-flipping and apply dispatch from source",
       "cFile": "apply.c",
       "sessions": [
@@ -105440,17 +105923,24 @@
       ],
       "selectionReason": "v10/apply-flips-through-blank-spellbook remains unmatched at step 29 in current saved evaluation challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/apply-flips-through-blank-spellbook.json traces the refusal to apply.c:flip_through_book and doapply SPBOOK_CLASS. This independent source family does not overlap assigned invent/altar or potion work.",
       "detail": "Implement all apply.c:flip_through_book branches and wire doapply SPBOOK_CLASS. Preserve underwater, Blind, Deaf, Hallucination, Book of the Dead, blank, novel, and faded-book behavior, discovery, messages, and source order; create an independently recorded C witness.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "c7505ea7566f5715a1312c53b97dfdd62fc75eb7",
+      "openStanding": {
+        "sha": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "flip_through_book",
           "line": 4473,
           "endLine": 4526,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -105470,7 +105960,435 @@
           "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
           "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
         }
+      },
+      "activeStanding": {
+        "sha": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-flips-through-blank-spellbook",
+          "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+          "recordingPath": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+          "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+          "recipe": "challenges/cases/v10/apply-flips-through-blank-spellbook.recipe.session.json",
+          "recipeSha256": "782faf86bbe11596ef057aa18c5e9cbf6f6b28eb27c14c4b3c477144032fdfd7",
+          "replayInputSha256": "491e1fd65f444f07e832b0c7b744ada54c3ed901093926ca98c876885943fc69",
+          "evaluationPath": "challenges/evaluations/20260928123006-v10.json",
+          "evaluationCommit": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279",
+          "evaluationArtifact": "challenges/evaluations/20260928123006-v10.json",
+          "evaluationUtc": "2026-09-28T12:30:10.132Z",
+          "remainingScreens": 2,
+          "recordedSteps": 31,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2326,
+              "total": 2334
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_through_book()",
+            "step": 29
+          },
+          "step": 29,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "flip_through_book",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_through_book()",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/apply-flips-through-blank-spellbook.json",
+            "result": {
+              "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "apply-flips-through-blank-spellbook",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 2,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "apply-flips-through-blank-spellbook",
+                "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+                "recordingPath": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+                "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+                "recipe": "challenges/cases/v10/apply-flips-through-blank-spellbook.recipe.session.json",
+                "recipeSha256": "782faf86bbe11596ef057aa18c5e9cbf6f6b28eb27c14c4b3c477144032fdfd7",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 2,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2326,
+                    "total": 2334
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_through_book()",
+                  "step": 29
+                },
+                "step": 29,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "flip_through_book",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_through_book()",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a blank spellbook matches C through item selection, then JavaScript refuses the entire flip_through_book call. C apply.c:flip_through_book describes flipping pages, reports an empty book when sighted, and makes that book type known. Its other source branches handle underwater, blindness, hallucination, the Book of the Dead, a novel, and spellbook ink fading. The missing owner is this whole function and the doapply spellbook dispatch.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For a sighted, nonhallucinating Wizard above water applying SPE_BLANK_PAPER, doapply calls flip_through_book, which prints the page-flipping message, then the blank-book message, calls makeknown for the type, and returns ECMD_TIME. Underwater returns ECMD_OK before flipping; the entire function also handles Book of the Dead sensory messages, blind pages, hallucination, novels, and studied-book fadeness.",
+                "functions": [
+                  "flip_through_book"
+                ],
+                "callers": [
+                  "apply.c:doapply selects SPBOOK_CLASS and returns flip_through_book(obj) at lines 4237-4238; js/apply.js:doapply currently throws UnsupportedApplyError for that class."
+                ],
+                "dependencies": [
+                  "objnam.c:thesimpleoname supplies the printed item name; preserve its existing display semantics.",
+                  "o_init.c:makeknown changes object-type discovery in the blank-paper arm; use the ported canonical discovery helper.",
+                  "pline.c:You_hear, You_see, You_feel and hcolor affect Book of the Dead sensory messages; message behavior remains source-conditioned by Deaf, Blind and Hallucination."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 29/31 screens, then stops at step 29 with the explicit flip_through_book refusal; the C recording SHA-256 is 68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9.",
+                "Upstream nethack-c/upstream/src/apply.c:4473-4520 defines the complete flip_through_book source function and its source-conditioned sensory/discovery branches. Upstream apply.c:4237-4238 wires it to SPBOOK_CLASS.",
+                "js/apply.js:3469-3471 throws for SPBOOK_CLASS before the source function is reached. The independent recipe wishes blank paper and applies it as a normal Wizard."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "flip_through_book",
+            "implementation": "js/apply.js",
+            "symbol": "flip_through_book",
+            "sourceReview": "Compared apply.c:4473-4526 in full and doapply's caller at apply.c:4237-4238. Preserves the Underwater early return; common page message; Book of the Dead Deaf/Hallucination/Blind sensory order; ordinary Blind branch; blank-paper message followed by makeknown; Hallucination and novel precedence; MAX_SPELL_STUDY fadeness lookup and objects[otyp].oc_magic adjective; and ECMD_TIME result. C makeknown is the discover_object(otyp, TRUE, TRUE, TRUE) macro, so the JS call preserves name discovery, encounter discovery, Wisdom exercise, and their source order. The recorder tty build compiles Soundeffect(se_rustling_paper, 50) to no output; You_hear remains subject to Deaf, acoustics, Underwater, and Unaware. The Deaf+Blind Book of the Dead branch uses the source-formatted You_feel prefix and heroUnaware. No callees with consumed returns are omitted.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply dispatches SPBOOK_CLASS directly to flip_through_book at lines 4237-4238 before its type switch"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "The apply key and #apply extended command queue doapply; js/cmd.js dispatches case doapply to runApplyCommand, which calls apply.c:doapply behavior."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-book.test.mjs",
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-through-healer-book-independent.session.json",
+              "recordings/apply.c/flip-through-deaf-blind-dead-book-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "apply-flips-through-blank-spellbook",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 30,
+                "source": "apply.c:doapply -> flip_through_book(SPE_BLANK_PAPER) -> makeknown -> o_init.c:discover_object"
+              }
+            ],
+            "checkedAt": "76e0be8a2f175f8728c111d53d24bb689d7845b1"
+          }
+        ],
+        "entryPointReview": "The active apply.c entry selects SPBOOK_CLASS in doapply before the regular type switch. Both the a key and #apply extcommand queue doapply; js/cmd.js dispatches case doapply to runApplyCommand, which calls the apply.c:doapply implementation. The synthetic case and independent recordings exercise the a-key caller through that production handler. The selected v10 case reaches the blank-paper makeknown branch; the independent Healer recording reaches the ordinary visible faded-ink branch, and the independent Deaf+Blind Book of the Dead recording reaches the You_feel sensory branch. The `Soundeffect` call is a compile-time no-op in the patched tty recorder. The Book of the Dead deaf-but-not-blind You_see branch and blind-but-not-deaf You_hear gates remain source-reviewed branches; they share the same production entry and have no separate recordings in this delivery.",
+        "entryPoints": [
+          {
+            "name": "Apply command selecting an SPBOOK_CLASS object",
+            "functions": [
+              "flip_through_book"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-through-healer-book-independent.session.json",
+              "recordings/apply.c/flip-through-deaf-blind-dead-book-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "apply-flips-through-blank-spellbook",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 30,
+                "source": "cmd.c apply command -> apply.c:doapply -> flip_through_book(SPE_BLANK_PAPER) -> makeknown"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+        "screens": 11405,
+        "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-see-invisible-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Complete see-invisible and fruit-juice potion effect from source",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v10/quaff-see-invisible-potion"
+      ],
+      "selectionReason": "v10/quaff-see-invisible-potion remains unmatched at step 28 in current challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/quaff-see-invisible-potion.json traces the refusal to potion.c:peffect_see_invisible and peffects POT_SEE_INVISIBLE dispatch. This source and see-invisible state contract are independent of assigned invent/altar and spellbook work.",
+      "detail": "Complete shared fruit-juice and see-invisible branches of potion.c:peffect_see_invisible, preserving taste, identification, blindness clearing, intrinsic HSee_invisible permanent chance, timed effect, redraw, and messages. Wire peffects POT_SEE_INVISIBLE caller; trace ordinary quaff and debug fuzzer paths and record independent C variations.",
+      "openedAt": "9a1a1a4503924236a337e9c3260155e5cc300c33",
+      "openStanding": {
+        "sha": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_see_invisible",
+          "line": 841,
+          "endLine": 880,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 841,
+        "to": 880
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/quaff-see-invisible-potion": {
+          "session": "synthetic/v10/quaff-see-invisible-potion",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "quaff-see-invisible-potion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+          "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
+        }
+      },
+      "activeStanding": {
+        "sha": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "quaff-see-invisible-potion",
+          "session": "synthetic/v10/quaff-see-invisible-potion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+          "recordingPath": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+          "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+          "recipe": "challenges/cases/v10/quaff-see-invisible-potion.recipe.session.json",
+          "recipeSha256": "ecc5a606dc01e7780d5025786c5875e6efee1b6384600747b794951f597ea686",
+          "replayInputSha256": "c95c0479e5560d178e8ed3c35c19b4934a9667ae641da814eac4547f717f6525",
+          "evaluationPath": "challenges/evaluations/20260928125041-v10.json",
+          "evaluationCommit": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+          "evaluationArtifact": "challenges/evaluations/20260928125041-v10.json",
+          "evaluationUtc": "2026-09-28T12:50:45.430Z",
+          "remainingScreens": 3,
+          "recordedSteps": 31,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2309,
+              "total": 2317
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_see_invisible",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/quaff-see-invisible-potion.json",
+            "result": {
+              "session": "synthetic/v10/quaff-see-invisible-potion",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "quaff-see-invisible-potion",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 3,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "quaff-see-invisible-potion",
+                "session": "synthetic/v10/quaff-see-invisible-potion",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+                "recordingPath": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+                "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+                "recipe": "challenges/cases/v10/quaff-see-invisible-potion.recipe.session.json",
+                "recipeSha256": "ecc5a606dc01e7780d5025786c5875e6efee1b6384600747b794951f597ea686",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 3,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2309,
+                    "total": 2317
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_see_invisible",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing a see-invisible potion stops at an explicit peffects refusal after the wish and quaff command match C. potion.c:peffect_see_invisible already has a fruit-juice preamble in JavaScript, but its see-invisible continuation is unreachable. The shared function must use intrinsic HSee_invisible for the permanent-effect chance, update blindness and see-invisible duration in source order, and reach the existing monster/hero redraw calls. The void display.c:set_mimic_blocking call remains a documented gap.",
+              "source": {
+                "file": "potion.c",
+                "branch": "For POT_SEE_INVISIBLE, peffects enters the shared peffect_see_invisible taste branch, skips the POT_FRUIT_JUICE nutrition return, clears temporary blindness unless cursed, then grants permanent see-invisible with blessed rn2(10 - 3*Boolean(HInvis) - 6*Boolean(HSee_invisible)) or a timed rn1(100,750) effect; it redraws and may report a previously invisible hero. The fruit-juice arm must retain its existing behavior.",
+                "functions": [
+                  "peffect_see_invisible"
+                ],
+                "callers": [
+                  "potion.c:peffects dispatches POT_SEE_INVISIBLE and POT_FRUIT_JUICE to peffect_see_invisible; the quaff path reaches peffects from dopotion/dodrink. js/potion.js:peffects currently refuses POT_SEE_INVISIBLE and calls the shared function for POT_FRUIT_JUICE."
+                ],
+                "dependencies": [
+                  "potion.c:make_blinded, display.c:see_monsters, and display.c:newsym already have JavaScript implementations; preserve their runtime caller environment and source order.",
+                  "display.c:set_mimic_blocking is an unported void callee whose return is discarded; preserve note_unported without inventing its effects.",
+                  "HSee_invisible is u.uprops[SEE_INVIS].intrinsic (youprop.h:150), while See_invisible includes extrinsic sources (youprop.h:152); the current JavaScript permanent-chance expression incorrectly uses the latter."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260928083103-v10.json records 28/31 matching screens and 2309/2317 matching RNG calls, then the explicit peffects POT_SEE_INVISIBLE refusal at step 28.",
+                "nethack-c/upstream/src/potion.c:841-880 defines the whole shared peffect_see_invisible function, its fruit-juice early return, noncursed blindness clearing, blessed permanent chance or timed effect, redraws, and invisible-hero message.",
+                "nethack-c/upstream/src/potion.c:1356-1359 dispatches both potion types into that function. js/potion.js:1719 throws for POT_SEE_INVISIBLE; js/potion.js:1318-1377 has a partial implementation called only by fruit juice and uses See_invisible rather than HSee_invisible in permchance."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "502dd4bc9e1bdc245fc0d223217696088126a592",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The ordinary POT_SEE_INVISIBLE and POT_FRUIT_JUICE quaff paths match, including an independent blessed potion recording, but fountain.c:drinksink case 4 can create POT_SEE_INVISIBLE and still lacks matching runtime evidence. Resume when an independent sink-created subtype recording or admitted synthetic range is available; blocked recipe recipes/potion.c/see-invisible-sink-subtype-unmatched-b42.session.json preserves the attempt."
     }
   ]
 }

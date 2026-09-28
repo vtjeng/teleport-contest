@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked setup probe for pickup.c:tipcontainer -> mkobj.c:hornoplenty -> do.c:doaltarobj. Correct item selection reaches a later first mismatch in attrib.c:exercise at segment 0 step 51: C rn2(19)=6, JS rn2(12)=0; this is not a strict matching recording.",
+  "segments": [
+    {
+      "seed": 83001623,
+      "datetime": "20291002101010",
+      "nethackrc": "OPTIONS=name:A41Tip,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " \u0017chaotic altar\n\u0017cursed +1 horn of plenty\n#tip\ne        "
+    }
+  ]
+}

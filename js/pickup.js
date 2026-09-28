@@ -113,7 +113,7 @@ import { autokey, pick_lock } from './lock.js';
 import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling, surface, surface_typ } from './dungeon.js';
-import { dropy, revive_corpse } from './do.js';
+import { doaltarobj, dropy, revive_corpse } from './do.js';
 import { exercise } from './attrib.js';
 import { can_reach_floor, freehand, read_engr_at } from './engrave.js';
 import { makesingular } from './fruit.js';
@@ -3574,7 +3574,14 @@ async function tipcontainer_checks(box, targetbox, allowempty, state) {
                 if (!result.moncount) break;
                 totalSeen += result.seecount;
             } else {
-                if (!await hornoplenty(box, true, targetbox, { state }))
+                if (!await hornoplenty(box, true, targetbox, {
+                    state,
+                    hooks: {
+                        encumberMessage: encumber_msg,
+                        extractExternalObject: remove_object,
+                        newsym,
+                    },
+                }))
                     break;
             }
         } while (box.spe > 0);
@@ -3734,7 +3741,7 @@ async function tipcontainer(box, state) {
             note_unported('do.c hitfloor');
         } else {
             if (altarizing) {
-                note_unported('pray.c doaltarobj');
+                await doaltarobj(otmp, state);
             } else if (!terse) {
                 await ttyPline(
                     `${upstart(donameFresh(otmp, state))} `

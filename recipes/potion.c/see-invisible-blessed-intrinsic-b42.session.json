@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Wizard wish for a blessed see-invisible potion, then quaff it through potion.c:dodrink -> dopotion -> peffects. The blessed branch exercises the HInvis/HSee_invisible permanence denominator.",
+  "segments": [
+    {
+      "seed": 71239017,
+      "datetime": "20281101123456",
+      "nethackrc": "OPTIONS=name:B42Seer,role:Wizard,race:gnome,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017blessed potion of see invisible\nqo \n"
+    }
+  ]
+}

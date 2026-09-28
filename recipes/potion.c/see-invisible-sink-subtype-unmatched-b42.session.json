@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked B42 sink-entry witness. fountain.c:drinksink case 4 calls mkobj(POTION_CLASS, FALSE) and then dopotion(), so the potion subtype is selected by source RNG. A bounded independent JavaScript candidate search over seeds 94300000–94301999 found 84 generated non-water potions but no POT_SEE_INVISIBLE; this recipe records one source-reachable sink setup, not a matching see-invisible witness. The sink entry remains unverified until an independent C recording reaches POT_SEE_INVISIBLE through this path.",
+  "segments": [
+    {
+      "seed": 94300006,
+      "datetime": "20310928094500",
+      "nethackrc": "OPTIONS=name:B42SinkSweep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=!acoustics,!autopickup\n",
+      "moves": "\u0017sink\nqy"
+    }
+  ]
+}
