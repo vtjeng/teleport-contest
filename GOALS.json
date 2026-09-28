@@ -104757,7 +104757,7 @@
     {
       "id": "port-uhitm-force-do-attack-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port uhitm.c force_attack and do_attack through source-defined human and polymorphed combat paths",
       "cFile": "uhitm.c",
       "sessions": [
@@ -104779,7 +104779,7 @@
           "line": 432,
           "endLine": 447,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "do_attack",
@@ -104962,7 +104962,82 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "force_attack",
+            "implementation": "js/uhitm.js",
+            "symbol": "force_attack",
+            "sourceReview": "Compared the complete uhitm.c:432-448 function. Saves the prior forcefight value, enables forcefight for hostiles or when pets_too is true, calls do_attack exactly once, returns its result unchanged, and restores the previous state in a finally path even when the callee exits or throws.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "whipattack",
+                "source": "apply.c:use_whip:3255 reaches force_attack through this helper"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "force_attack",
+                "source": "uhitm.c:440 forwards and returns do_attack(mtmp)'s result"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-to-hit.test.mjs",
+              "scripts/apply-pole-whip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/force-attack-bullwhip-giant-rat-independent-c33.session.json",
+              "recordings/uhitm.c/force-attack-leprechaun-bullwhip-independent-c33.session.json",
+              "recordings/uhitm.c/force-attack-leprechaun-awake-independent-c33.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "bullwhip-lashes-unarmed-soldier",
+                "segment": 0,
+                "fromStep": 23,
+                "throughStep": 23,
+                "source": "apply.c:use_whip -> uhitm.c:force_attack -> do_attack -> hitum"
+              }
+            ],
+            "checkedAt": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5"
+          }
+        ],
+        "entryPointReview": "The source caller of force_attack is apply.c:use_whip, reached through the apply command and js/apply.js:whipattack. The admitted v10 bullwhip case and an independent giant-rat recording execute this complete wrapper. Its consumed do_attack result is implemented in the same delivery, but do_attack retains uncovered active entries and its leprechaun m_move branch has no matching C runtime witness; this evidence does not claim do_attack complete.",
+        "entryPoints": [
+          {
+            "name": "Bullwhip lash at a hostile monster",
+            "functions": [
+              "force_attack"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/force-attack-bullwhip-giant-rat-independent-c33.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "bullwhip-lashes-unarmed-soldier",
+                "segment": 0,
+                "fromStep": 23,
+                "throughStep": 23,
+                "source": "apply.c:use_whip -> force_attack -> do_attack -> hitum"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "force_attack is source-complete and witnessed by the v10 bullwhip and independent rat recording. do_attack implementation reaches the source-ordered melee path, but its leprechaun rn2(7)==0 -> consumed m_move result lacks a C recording, and active ordinary movement, polearm, grappling-hook, pick-axe, and polymorph attack entries remain unverified or gap-marked. The supporting attack_checks port also needs its own completion record because it lies outside this goal range. Resume after independent C witnesses and hmonas/source caller coverage are available."
     },
     {
       "id": "port-sit-take-gold-synthetic-v10-20260928",
