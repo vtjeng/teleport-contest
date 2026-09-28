@@ -100369,7 +100369,7 @@
     {
       "id": "port-detect-gold-food-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port gold and food detection source functions through scroll effects",
       "cFile": "detect.c",
       "sessions": [
@@ -100378,24 +100378,31 @@
       ],
       "selectionReason": "The accepted v9 evaluation still has first source-traced mismatches in read.c:seffect_gold_detection -> detect.c:gold_detect and read.c:seffect_food_detection -> detect.c:food_detect; investigations for both cases are complete. These adjacent C functions share the detect.c map, stale-mark, and consumed-return contracts and can be assigned to one worker.",
       "detail": "Implement complete detect.c:gold_detect and food_detect in C definition order, not just the selected floor-object paths: floor and monster inventories, stale map marks, no-detection and underfoot results, cursed/confused variants, temporary map presentation and restore, messages, Wisdom exercise, RNG, and input waits. Port complete read.c:seffect_gold_detection and seffect_food_detection wrappers and their seffects dispatch arms, preserving the consumed return that clears the scroll pointer; include spell alias when active. Reuse already ported trap_detect and other helpers only where source behavior matches. Verify the two admitted v9 cases and independent C recipes for uncovered entry branches.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "83eadf8bad622d06795bd8bcaa965a569607654f",
+      "openStanding": {
+        "sha": "83eadf8bad622d06795bd8bcaa965a569607654f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "83eadf8bad622d06795bd8bcaa965a569607654f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "gold_detect",
           "line": 335,
           "endLine": 478,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "food_detect",
           "line": 479,
           "endLine": 602,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -100427,6 +100434,146 @@
           "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
           "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
         }
+      },
+      "activeStanding": {
+        "sha": "83eadf8bad622d06795bd8bcaa965a569607654f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "gold_detect",
+            "implementation": "js/detect.js",
+            "symbol": "gold_detect",
+            "sourceReview": "Read nethack-c/upstream/src/detect.c gold_detect() lines 335-477 in full. The port preserves clear_stale_map initialization, monster inventory traversal and gold-golem handling, steed special state, floor-object order, no-gold message choice, underfoot-only return, map-object temporary coordinates, monster-carried-gold rnd(10), hero glyph preservation, Wisdom exercise, map browsing, redisplay, and the exact 1/0 return in C order. Direct helpers used here are source-backed: clear_stale_map, findgold, o_material, o_in, currency, money_cnt, hidden_gold, x_monnam/s_suffix, strange_feeling, map_object, exercise, and browse_map. The previous unsupported gold-detection refusal is removed. The cursed/confused read wrapper’s distinct trap-detection branch is wired and has its own matching recording; it does not substitute for this ordinary gold_detect branch.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_gold_detection",
+                "source": "read.c seffect_gold_detection() calls gold_detect(sobj) when neither Confusion nor sobj->cursed selects trap_detect()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c seffects() dispatches SCR_GOLD_DETECTION to seffect_gold_detection(&sobj); the wrapper consumes the object iff its selected detector returns 1."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "gold-detection-scroll-maps-floor-gold",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c seffects() -> seffect_gold_detection(&sobj) -> detect.c gold_detect(sobj) -> browse_map(TER_DETECT|TER_OBJ, \"gold\")"
+              }
+            ],
+            "checkedAt": "83eadf8bad622d06795bd8bcaa965a569607654f"
+          },
+          {
+            "name": "food_detect",
+            "implementation": "js/detect.js",
+            "symbol": "food_detect",
+            "sourceReview": "Read nethack-c/upstream/src/detect.c food_detect() lines 479-601 in full. The port preserves confusion/cursed object-class selection, stale detection state, steed coordinate normalization, floor then monster inventory counts and early scan condition, no-result stale-map and blessed-edibility feedback, underfoot-only feedback, map-object order and temporary coordinates, nose feedback, Wisdom exercise, browse_map mode, redisplay, and the exact 1/0 result consumed by the read-effect wrapper. The prior food-detection refusal is removed.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_food_detection",
+                "source": "read.c seffect_food_detection() calls food_detect(sobj), then clears its local object pointer when the return is 1."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c seffects() dispatches SCR_FOOD_DETECTION and SPE_DETECT_FOOD to seffect_food_detection(&sobj)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c spelleffects() includes SPE_DETECT_FOOD among duplicate scroll effects, adjusts pseudo->blessed by skill, and calls seffects(pseudo); js/spell.js now includes the same switch arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/detect-food-wizcast-c29-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "food-detection-scroll-smells-ration",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "read.c seffects() -> seffect_food_detection(&sobj) -> detect.c food_detect(sobj) -> browse_map(TER_DETECT|TER_OBJ)"
+              }
+            ],
+            "checkedAt": "83eadf8bad622d06795bd8bcaa965a569607654f"
+          }
+        ],
+        "entryPointReview": "The selected source range has ordinary gold and food detection entry points. Reading SCR_GOLD_DETECTION reaches read.c:seffects() -> seffect_gold_detection(&sobj) -> detect.c:gold_detect(sobj); its current v9 recording covers the map branch through the last boundary. Reading SCR_FOOD_DETECTION reaches seffect_food_detection() -> food_detect(); its v9 recording covers the scroll route, and an independently selected #wizcast recording covers spell.c:spelleffects() -> read.c:seffects() -> SPE_DETECT_FOOD. The C29 scope was expanded for those read/spell wrappers and for the cursed/confused gold branch, which calls trap_detect() rather than gold_detect(). That branch, including detect.c:display_trap_map(), sense_trap(), and browse_map() with the matching TER_DETECT map type, is independently recorded at recordings/read.c/cursed-gold-detection-trap-map-c29-independent.session.json. The previously blocked ordinary crystal-ball trap map now also matches at recordings/detect.c/crystal-ball-trap-map-c29-independent.session.json and exercises the uncurssed browse branch. The wider read.c:seffects(), spell.c:spelleffects(), and detect.c:detect_obj_traps() functions are not claimed whole; detect_obj_traps() still names its optional non-null findone callback as a void gap, and the C29 callers pass ft=NULL. No source caller for either selected detection function is build-excluded.",
+        "entryPoints": [
+          {
+            "name": "read gold-detection scroll",
+            "functions": [
+              "gold_detect"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "gold-detection-scroll-maps-floor-gold",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c seffects() -> seffect_gold_detection() -> gold_detect()"
+              }
+            ]
+          },
+          {
+            "name": "read food-detection scroll",
+            "functions": [
+              "food_detect"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "food-detection-scroll-smells-ration",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "read.c seffects() -> seffect_food_detection() -> food_detect()"
+              }
+            ]
+          },
+          {
+            "name": "cast detect-food spell through #wizcast",
+            "functions": [
+              "food_detect"
+            ],
+            "recordings": [
+              "recordings/spell.c/detect-food-wizcast-c29-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "83eadf8bad622d06795bd8bcaa965a569607654f",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -100512,6 +100659,49 @@
           "recordingSha256": "7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5",
           "evaluationPath": "challenges/evaluations/20260928015355-v9.json",
           "evaluationCommit": "7311475572cdadbc440bcac61cb0f98f42dfd481"
+        }
+      }
+    },
+    {
+      "id": "port-read-identify-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete identify-scroll and identify-spell effect branches",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/blessed-identify-scroll-identifies-pack"
+      ],
+      "selectionReason": "Current v9 evaluation 20260928021405 leaves two unmatched screens in blessed-identify-scroll-identifies-pack. investigations/synthetic/v9/blessed-identify-scroll-identifies-pack.json traces the first mismatch to the partial read.c:seffect_identify wrapper, which omits blessed identification count and invent.c:identify_pack behavior. It is independent of active dig.c and potion.c source contracts. Manifest 00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594; C recording challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json sha256 788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2.",
+      "detail": "Translate whole read.c:seffect_identify with C BUC/confusion/RNG order, inventory prompt/result path, scroll consumption and spell alias. Verify the existing invent.c:identify_pack callee and wire both production dispatches; make independent strict C recordings across active entry points.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_identify",
+          "line": 2055,
+          "endLine": 2101,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2055,
+        "to": 2101
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/blessed-identify-scroll-identifies-pack": {
+          "session": "synthetic/v9/blessed-identify-scroll-identifies-pack",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-identify-scroll-identifies-pack",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+          "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+          "evaluationPath": "challenges/evaluations/20260928021405-v9.json",
+          "evaluationCommit": "83eadf8bad622d06795bd8bcaa965a569607654f"
         }
       }
     }
