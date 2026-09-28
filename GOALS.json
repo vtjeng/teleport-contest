@@ -107076,6 +107076,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-flip-coin-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port coin-flipping apply behavior from source",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v10/flip-coin-normal-outcome"
+      ],
+      "selectionReason": "The saved v10 coin case matches selection and stops at step 16 because apply.c:doapply COIN_CLASS has no flip_coin behavior in JavaScript. The complete apply.c:flip_coin handles dry heads/tails, hallucination, underwater, glib/fumbling, Dexterity and dropped stacked coins. No other unresolved flip_coin case is queued; related apply.c wand and artifact cases execute different source functions and action histories. Investigation: investigations/synthetic/v10/flip-coin-normal-outcome.json; current evaluation challenges/evaluations/20260928145605-v10.json.",
+      "detail": "Port whole apply.c:flip_coin in source order, including message construction, per-branch RNG, quantity splitobj and dropx calls, and coin-class dispatch in doapply. Remove the stale COIN_CLASS refusal and update its focused test. Provide independent C recordings for normal and source-reached drop/hallucination states, preserving existing matches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "flip_coin",
+          "line": 4527,
+          "endLine": 4559,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4527,
+        "to": 4559
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/flip-coin-normal-outcome": {
+          "session": "synthetic/v10/flip-coin-normal-outcome",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "flip-coin-normal-outcome",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+          "recordingSha256": "74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0",
+          "evaluationPath": "challenges/evaluations/20260928145605-v10.json",
+          "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393"
+        }
+      }
     }
   ]
 }
