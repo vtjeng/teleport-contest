@@ -102272,7 +102272,7 @@
     {
       "id": "port-potion-hallucination-water-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port hallucination and water potion effects through the quaff dispatcher",
       "cFile": "potion.c",
       "sessions": [
@@ -102281,8 +102281,12 @@
       ],
       "selectionReason": "The two unresolved v9 potion cases share adjacent peffects quaff dispatch and potion state helpers; investigations/synthetic/v9/hallucination-potion-starts-hallucination.json and blessed-water-potion-awe.json trace distinct branches in one coherent potion.c family. Assign both to worker B.",
       "detail": "Port whole potion.c peffect_hallucination and peffect_water bodies in definition order, retain source branch and RNG order, wire POT_HALLUCINATION and POT_WATER dispatch, and record independent BUC/state variants.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "a35002f1ba3f1fdd6d15f700b397bcddb6c8ec55",
+      "openStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -102330,7 +102334,300 @@
           "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
           "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-water-potion-awe",
+          "session": "synthetic/v9/blessed-water-potion-awe",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+          "recordingPath": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+          "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+          "recipe": "challenges/cases/v9/blessed-water-potion-awe.recipe.session.json",
+          "recipeSha256": "04d95ba5a4bb1fbd516cd4eee6f37b9780846edc6f39226dc51aa8e23d40c7a7",
+          "replayInputSha256": "b51be257d639f7c28dc199b5184d50e5de46f914cc14e3c64ec510cd8bb906dd",
+          "evaluationPath": "challenges/evaluations/20260928053730-v9.json",
+          "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+          "evaluationArtifact": "challenges/evaluations/20260928053730-v9.json",
+          "evaluationUtc": "2026-09-28T05:38:09.534Z",
+          "remainingScreens": 1,
+          "recordedSteps": 29,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2695,
+              "total": 2705
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_water",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/blessed-water-potion-awe.json",
+            "result": {
+              "session": "synthetic/v9/blessed-water-potion-awe",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "blessed-water-potion-awe",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "blessed-water-potion-awe",
+                "session": "synthetic/v9/blessed-water-potion-awe",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+                "recordingPath": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+                "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+                "recipe": "challenges/cases/v9/blessed-water-potion-awe.recipe.session.json",
+                "recipeSha256": "04d95ba5a4bb1fbd516cd4eee6f37b9780846edc6f39226dc51aa8e23d40c7a7",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 29,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 2695,
+                    "total": 2705
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_water",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_water()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The blessed water quaff reaches potion.c:peffect_water, but js/potion.js throws UnsupportedQuaffError. C’s non-chaotic, non-undead blessed arm says the hero feels full of awe, clears sickness, and exercises wisdom and constitution. Port the whole water effect, including neutral hunger, chaotic/undead, cursed, lycanthropy, and polymorph branches with source-ordered messages, RNG, and state changes.",
+              "source": {
+                "file": "potion.c",
+                "branch": "potion.c:peffect_water (717-767) first distinguishes neutral from blessed/cursed water. Neutral draws rnd(10) for hunger and calls newuhs. Blessed or cursed increments potion_unkn, then branches on mon_hates_blessings or chaotic alignment. Blessed ordinary hero says full of awe, clears sickness, and exercises attributes; opposite-alignment and lycanthropy arms can burn, heal, polymorph, or cure. Preserve d(2,6), Maybe_Half_Phys, and killer formatting where reached.",
+                "functions": [
+                  "peffect_water"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_WATER dispatch calls peffect_water; js/potion.js currently throws UnsupportedQuaffError in that arm.",
+                  "potion.c:dodrink -> dopotion -> peffects reaches the effect for an ordinary water quaff; sink and other potion creation paths can call dopotion."
+                ],
+                "dependencies": [
+                  "Existing or newly completed mon_hates_blessings, make_sick, newuhs, healup, losehp, exercise, and lycanthropy helpers must be invoked in C order. If C consumes a missing helper return, port that callee in the same task.",
+                  "Delete the UnsupportedQuaffError site when the whole effect is wired; do not special-case the blessed v9 recipe."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 reports 28/29 screens; the first stop at step 28 is “unsupported hero command: an unported branch of this command: quaffing requires peffect_water()”.",
+                "Upstream nethack-c/upstream/src/potion.c lines 717-767 defines the whole effect; js/potion.js POT_WATER dispatch at lines 1431-1432 throws an unported refusal.",
+                "The selected v9 case reaches the ordinary blessed branch, but source review also identifies neutral, cursed, chaotic/undead, and lycanthropy state paths that require general implementation."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "hallucination-potion-starts-hallucination",
+          "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+          "recordingPath": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+          "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+          "recipe": "challenges/cases/v9/hallucination-potion-starts-hallucination.recipe.session.json",
+          "recipeSha256": "56f28ae232931e066dcfa62ec7a9878c3cabd37535cad41b7abb4f03fb9bec39",
+          "replayInputSha256": "b51be257d639f7c28dc199b5184d50e5de46f914cc14e3c64ec510cd8bb906dd",
+          "evaluationPath": "challenges/evaluations/20260928053730-v9.json",
+          "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+          "evaluationArtifact": "challenges/evaluations/20260928053730-v9.json",
+          "evaluationUtc": "2026-09-28T05:38:09.534Z",
+          "remainingScreens": 1,
+          "recordedSteps": 38,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 38
+            },
+            "rng": {
+              "matched": 2599,
+              "total": 2609
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 38
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_hallucination",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/hallucination-potion-starts-hallucination.json",
+            "result": {
+              "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "hallucination-potion-starts-hallucination",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 38,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "hallucination-potion-starts-hallucination",
+                "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+                "recordingPath": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+                "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+                "recipe": "challenges/cases/v9/hallucination-potion-starts-hallucination.recipe.session.json",
+                "recipeSha256": "56f28ae232931e066dcfa62ec7a9878c3cabd37535cad41b7abb4f03fb9bec39",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 38,
+                "previousScreensMatched": 37,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 38
+                  },
+                  "rng": {
+                    "matched": 2599,
+                    "total": 2609
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 38
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+                  "step": 37
+                },
+                "step": 37,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_hallucination",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing a hallucination potion reaches potion.c:peffect_hallucination, but JavaScript refuses the effect. C checks resistance and existing hallucination, draws a blessing-dependent timeout, updates the Hallucination state, and conditionally draws for a magic enlightenment sequence. Port the entire effect, including its short-circuit RNG order and the existing make_hallucinated/enlightenment callers.",
+              "source": {
+                "file": "potion.c",
+                "branch": "potion.c:peffect_hallucination (696-713) returns after Halluc_resistance while incrementing potion_nothing; an already hallucinating hero also increments potion_nothing but continues. It draws rn1(200,600-300*bcsign), increments HHallucination, and calls make_hallucinated. The optional message/window branch evaluates `(blessed && !rn2(3)) || (!cursed && !rn2(6))` left-to-right, then calls enlightenment(MAGICENLIGHTENMENT,ENL_GAMEINPROGRESS) and exercises wisdom.",
+                "functions": [
+                  "peffect_hallucination"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_HALLUCINATION dispatch invokes peffect_hallucination; js/potion.js currently throws UnsupportedQuaffError in that arm.",
+                  "potion.c:dodrink -> dopotion -> peffects reaches ordinary quaff, and fountain.c:drinksink can generate non-water potion effects."
+                ],
+                "dependencies": [
+                  "potion.c:make_hallucinated and insight.c:enlightenment are already present in JS; preserve their message/window operations and required environment.",
+                  "Keep separate potion_nothing and HHallucination state, and preserve conditional short-circuit draws for blessed, uncursed, and cursed potions."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 reports 37/38 screens and first stops at step 37: “unsupported hero command: an unported branch of this command: quaffing requires peffect_hallucination()”.",
+                "Upstream nethack-c/upstream/src/potion.c lines 696-713 defines the complete effect; js/potion.js POT_HALLUCINATION branch throws the current refusal.",
+                "The selected v9 case reaches the initial effect, while the source also includes resistance, repeated hallucination, and optional enlightenment paths requiring general implementation."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-apply-whistle-family-synthetic-v8-20260928",
