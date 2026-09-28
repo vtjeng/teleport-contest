@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-27T23:11:42.166Z",
+  "capturedAt": "2026-09-28T00:34:17.482Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6157,12 +6157,140 @@
         "type": "accepted",
         "at": "2026-09-27T23:11:13.514Z",
         "task": "B34"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B34-7169423e",
+        "type": "published",
+        "at": "2026-09-27T23:13:00.474Z",
+        "task": "B34",
+        "commit": "7169423ed660224d1c0b5041d4d4879cbcdba7c4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B35-stinking-cloud",
+        "type": "assign",
+        "at": "2026-09-27T23:16:32.748Z",
+        "task": "B35",
+        "worker": "B",
+        "goal": "port-read-stinking-cloud-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1134e2396d27e62761cc51179b09cbb511076ca8",
+        "type": "ready",
+        "at": "2026-09-27T23:54:47.011Z",
+        "task": "B35",
+        "delivery": "1134e2396d27e62761cc51179b09cbb511076ca8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B35-1134e239-20260927",
+        "type": "received",
+        "at": "2026-09-27T23:55:40.304Z",
+        "task": "B35",
+        "delivery": "1134e2396d27e62761cc51179b09cbb511076ca8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B35-c104502d-20260927",
+        "type": "integrating",
+        "at": "2026-09-27T23:56:57.769Z",
+        "task": "B35",
+        "integration": "c104502d62ec68ae50b4b4fefc02b4f8ed181074"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B35-monmove-gas-env-20260927",
+        "type": "feedback",
+        "at": "2026-09-28T00:00:26.069Z",
+        "task": "B35",
+        "delivery": "1134e2396d27e62761cc51179b09cbb511076ca8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B35-monmove-gas-env-20260928",
+        "type": "resume",
+        "at": "2026-09-28T00:06:35.050Z",
+        "task": "B35"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1ec845f648b21f0e35a6f6e637957a1a3579821c",
+        "type": "ready",
+        "at": "2026-09-28T00:11:57.324Z",
+        "task": "C28",
+        "delivery": "1ec845f648b21f0e35a6f6e637957a1a3579821c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C28-1ec845f6-20260927",
+        "type": "received",
+        "at": "2026-09-28T00:12:51.718Z",
+        "task": "C28",
+        "delivery": "1ec845f648b21f0e35a6f6e637957a1a3579821c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6f0ad05faab4c6e9ecb445dcf1a34da858ecb764",
+        "type": "ready",
+        "at": "2026-09-28T00:17:54.997Z",
+        "task": "B35",
+        "delivery": "6f0ad05faab4c6e9ecb445dcf1a34da858ecb764"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B35-correction-6f0ad05f-20260927",
+        "type": "received",
+        "at": "2026-09-28T00:18:25.307Z",
+        "task": "B35",
+        "delivery": "6f0ad05faab4c6e9ecb445dcf1a34da858ecb764"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B35-correction-60d5bb5c-20260927",
+        "type": "integrating",
+        "at": "2026-09-28T00:19:12.236Z",
+        "task": "B35",
+        "integration": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-26a6f4384a10b04cd007d5a77abba4e4c7159dd3",
+        "type": "ready",
+        "at": "2026-09-28T00:28:26.583Z",
+        "task": "A35",
+        "delivery": "26a6f4384a10b04cd007d5a77abba4e4c7159dd3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A35-26a6f438-20260927",
+        "type": "received",
+        "at": "2026-09-28T00:29:07.719Z",
+        "task": "A35",
+        "delivery": "26a6f4384a10b04cd007d5a77abba4e4c7159dd3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B35-60d5bb5c-20260927",
+        "type": "validated",
+        "at": "2026-09-28T00:33:00.467Z",
+        "task": "B35",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B35-60d5bb5c-20260927",
+        "type": "accepted",
+        "at": "2026-09-28T00:33:56.193Z",
+        "task": "B35"
       }
     ]
   },
   "development": {
-    "executionCommit": "85e2d70dee8d90a18baf62ee852ba83e8102b18d",
-    "measuredAt": "2026-09-27T23:02:08.533Z",
+    "executionCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+    "measuredAt": "2026-09-28T00:25:15.954Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

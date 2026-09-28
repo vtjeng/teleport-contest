@@ -99846,7 +99846,7 @@
     {
       "id": "port-read-stinking-cloud-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port stinking-cloud targeting and effect through the scroll wrapper",
       "cFile": "read.c",
       "sessions": [
@@ -99854,17 +99854,24 @@
       ],
       "selectionReason": "Current v9 stinking-cloud-scroll-targets-floor first diverges when read.c:seffects skips seffect_stinking_cloud; C prompts through do_stinking_cloud and later draws region.c:create_gas_cloud RNG. The selected source function and wrapper form one coherent read.c effect and have no active reservation.",
       "detail": "Port complete read.c:do_stinking_cloud, including prompt, getpos highlight and consumed return, cancellation, invalid center, Hallucination, scroll versus spell wording, and BUC-dependent gas size and duration; implement whole seffect_stinking_cloud wrapper and wire SCR_STINKING_CLOUD in seffects. Use existing can_center_cloud/getpos/create_gas_cloud contracts in C order, with independent C recordings for uncovered branches and named blockers. Investigation: investigations/synthetic/v9/stinking-cloud-scroll-targets-floor.json.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+      "openStanding": {
+        "sha": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_stinking_cloud",
           "line": 3082,
           "endLine": 3111,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -99884,6 +99891,203 @@
           "evaluationPath": "challenges/evaluations/20260927230232-v9.json",
           "evaluationCommit": "85e2d70dee8d90a18baf62ee852ba83e8102b18d"
         }
+      },
+      "activeStanding": {
+        "sha": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "stinking-cloud-scroll-targets-floor",
+          "session": "synthetic/v9/stinking-cloud-scroll-targets-floor",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.session.json",
+          "recordingPath": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.session.json",
+          "recordingSha256": "30f21674ec8e7fe7965fdf526cb0933ae59855cee2b0d2ba83d659cc85bd1fbc",
+          "recipe": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.recipe.session.json",
+          "recipeSha256": "6a4dc2d619e853d5aee1fd2950976bc6a26f4a7f64ca369b5e56c060cbe484d6",
+          "replayInputSha256": "449a6999b2feae5cff174dd1e10a32c00e59adb9f03d242254448ae7d5bee8ee",
+          "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
+          "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+          "evaluationArtifact": "challenges/evaluations/20260928002536-v9.json",
+          "evaluationUtc": "2026-09-28T00:26:13.438Z",
+          "remainingScreens": 1,
+          "recordedSteps": 35,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2626,
+              "total": 2626
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported region callback inside_gas_cloud with positive damage",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported region callback inside_gas_cloud with positive damage",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v9/stinking-cloud-scroll-targets-floor.json",
+            "previousRemainingScreens": 5
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_stinking_cloud",
+            "implementation": "js/read.js",
+            "symbol": "do_stinking_cloud",
+            "sourceReview": "Compared all of read.c:do_stinking_cloud() (3082-3111) in source order. It prints the conditional stinking-cloud prompt, initializes cc from u.ux/u.uy, installs display_stinking_cloud_positions/can_center_cloud for getpos, resets both callbacks after getpos, prints Never_mind on a negative result, handles an invalid center with the Hallucination or scroll-versus-spell rotten-egg message, then calls create_gas_cloud with cloud size 15 + 10*bcsign(sobj) and damage 8 + 4*bcsign(sobj). The create_gas_cloud return is explicitly discarded by C; JS awaits it only for its effects and never uses the return as data. The existing can_center_cloud/getpos helpers retain source behavior. Valid-target blessed and cursed recordings exercise their distinct size/damage arguments; cancellation has an independent matching recording. The admitted v9 case matches its wrapper/getpos prompt prefix through step 33, but step 34 enters a later region callback and is not claimed as a full case match.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_stinking_cloud",
+                "source": "read.c:seffect_stinking_cloud() (1991-2002) calls do_stinking_cloud(sobj, already_known) after identification feedback and setting gk.known."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs",
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/stinking-cloud-blessed-east-independent-b35.session.json",
+              "recordings/read.c/stinking-cloud-cursed-east-independent-b35.session.json",
+              "recordings/read.c/stinking-cloud-cancel-independent-b35.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "stinking-cloud-scroll-targets-floor",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 33,
+                "source": "read.c:doread -> seffects(SCR_STINKING_CLOUD) -> seffect_stinking_cloud -> do_stinking_cloud; this matched prefix covers discovery, the target prompt and getpos help/highlight setup, not the target confirmation or gas callback."
+              }
+            ],
+            "checkedAt": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
+          }
+        ],
+        "entryPointReview": "The active production entry is reading a scroll: cmd.c read dispatch reaches read.c:doread, which calls seffects(scroll) at read.c:635; seffects dispatches SCR_STINKING_CLOUD to seffect_stinking_cloud at read.c:2279; the wrapper calls do_stinking_cloud. Independent C recordings strictly match a blessed valid target, a cursed valid target, and ESC cancellation, covering both cloud-size/damage variants and the cancellation branch. The admitted v9 case synthetic/v9/stinking-cloud-scroll-targets-floor matches segment 0, steps 30-33, through wrapper discovery and the target-selection prompt; it is not claimed as a full selected-case match. When the case confirms its target at step 34, C enters region.c:inside_gas_cloud and emits the gas envelope/eye-sting behavior. JS currently stops at the explicit UnsupportedRegionCallbackError for positive-damage inside_gas_cloud before that step completes. That callback is a separate source function and is not claimed by B35; keep the v9 case open for its follow-up task. No spell duplicate reaches SCR_STINKING_CLOUD through spell.c's SPE_* seffects list. The integration correction also wires the separate C production path monmove.c:m_move() -> m_postmove_effect() -> create_gas_cloud() with clone-safe blockPoint/canSee/newsym/message operations in js/monmove.js. The focused Hezrou action test verifies that the planning pass remains atomic and the live path adds the region at the pre-move square. This supplemental monmove path is outside B35's selected read.c source unit and has no independent C recording here; it is not claimed complete as a separate source port. The later positive-damage inside_gas_cloud callback remains the next unsupported boundary.",
+        "entryPoints": [
+          {
+            "name": "Read a stinking-cloud scroll and select a valid target",
+            "functions": [
+              "do_stinking_cloud"
+            ],
+            "recordings": [
+              "recordings/read.c/stinking-cloud-blessed-east-independent-b35.session.json",
+              "recordings/read.c/stinking-cloud-cursed-east-independent-b35.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "stinking-cloud-scroll-targets-floor",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 33,
+                "source": "read.c:doread -> seffects(SCR_STINKING_CLOUD) -> seffect_stinking_cloud -> do_stinking_cloud target prompt/getpos setup"
+              }
+            ]
+          },
+          {
+            "name": "Cancel stinking-cloud target selection",
+            "functions": [
+              "do_stinking_cloud"
+            ],
+            "recordings": [
+              "recordings/read.c/stinking-cloud-cancel-independent-b35.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "stinking-cloud-scroll-targets-floor",
+          "session": "synthetic/v9/stinking-cloud-scroll-targets-floor",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.session.json",
+          "recordingPath": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.session.json",
+          "recordingSha256": "30f21674ec8e7fe7965fdf526cb0933ae59855cee2b0d2ba83d659cc85bd1fbc",
+          "recipe": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.recipe.session.json",
+          "recipeSha256": "6a4dc2d619e853d5aee1fd2950976bc6a26f4a7f64ca369b5e56c060cbe484d6",
+          "replayInputSha256": "449a6999b2feae5cff174dd1e10a32c00e59adb9f03d242254448ae7d5bee8ee",
+          "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
+          "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+          "evaluationArtifact": "challenges/evaluations/20260928002536-v9.json",
+          "evaluationUtc": "2026-09-28T00:26:13.438Z",
+          "remainingScreens": 1,
+          "recordedSteps": 35,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2626,
+              "total": 2626
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported region callback inside_gas_cloud with positive damage",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported region callback inside_gas_cloud with positive damage",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v9/stinking-cloud-scroll-targets-floor.json",
+            "previousRemainingScreens": 5
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
