@@ -1349,7 +1349,9 @@ export async function zapyourself(obj, ordinary, state = game) {
             if (ordinary)
                 await ttyPline('You bash yourself!', state);
             damage = ordinary ? d(2, 12) : d(1 + obj.spe, 6);
-            await exercise(A_STR, false, state);
+            await exercise(A_STR, false, state, random, {
+                encumberMessage: encumber_msg,
+            });
             monstunseesu(M_SEEN_MAGR, state);
         }
         break;
@@ -1360,7 +1362,9 @@ export async function zapyourself(obj, ordinary, state = game) {
         if (!heroHasProperty(state, SHOCK_RES)) {
             await ttyPline('You shock yourself!', state);
             damage = orig_dmg;
-            await exercise(A_CON, false, state);
+            await exercise(A_CON, false, state, random, {
+                encumberMessage: encumber_msg,
+            });
             monstunseesu(M_SEEN_ELEC, state);
         } else {
             note_unported('display.c shieldeff');

@@ -129,6 +129,7 @@ import { donameFresh, otense, Tobjnam, xnameFresh, Yname2,
 import { body_part } from './polyself.js';
 import { make_blinded } from './potion.js';
 import { note_unported } from './unported.js';
+import { wand_explode } from './read.js';
 import { check_unpaid } from './shk.js';
 import { learnwand, zappable } from './zap.js';
 import {
@@ -621,7 +622,7 @@ export async function doengrave_sfx_item(de, state = game, env = {}) {
         if (await zappable(otmp, state)) {
             check_unpaid(otmp, state);
             if (otmp.cursed && !env.random.rn2(WAND_BACKFIRE_CHANCE)) {
-                note_unported('zap.c wand_explode');
+                await wand_explode(otmp, 0, state);
                 de.ret = env.ECMD_TIME ?? ECMD_TIME;
                 return false;
             }

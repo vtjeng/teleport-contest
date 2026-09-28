@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent artifact.c invoke_charge_obj recipe: a neutral debug Tourist wishes The Platinum Yendorian Express Card and a wand, then selects #invoke and its charge target. C reaches invoke_charge_obj and read.c:recharge, but strict JS replay stops during pickup at artifact.c:set_artifact_intrinsic's ESP/WARN/XRAY display guard in js/artifacts.js, before #invoke. Keep this C trace as blocked provenance, not a matching recording.",
+  "segments": [
+    {
+      "seed": 73190563,
+      "datetime": "20380902101742",
+      "nethackrc": "OPTIONS=name:CardChargeC31,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017The Platinum Yendorian Express Card\n \u0017uncursed wand of light\n#invoke\nmn"
+    }
+  ]
+}
