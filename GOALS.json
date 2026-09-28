@@ -107717,6 +107717,113 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-read-enchant-armor-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port enchant-armor scroll effect from source",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1"
+      ],
+      "selectionReason": "The selected v8 case has a historical fire-scroll name but C reaches read.c:seffect_enchant_armor and rnd(2) at step 20; js/read.js leaves SCR_ENCHANT_ARMOR unported. Investigation investigations/synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1.json traces the true source owner. C37 owns the whole effect and dispatch, with do_wear.c:adj_abon caller support; the other unresolved v8 destroy-armor case instead follows do_wear.c:maybe_destroy_armor and zap.c:obj_resists and remains separate.",
+      "detail": "Port complete read.c:seffect_enchant_armor in source order, including no-armor scroll consumption, confused erosion-proofing, over-enchantment loss, dragon-scale conversion, BUC, shop-cost and messages; wire SCR_ENCHANT_ARMOR in seffects and existing doread caller. Export and verify already implemented do_wear.c:adj_abon for its armor bonus update. Preserve return-valued helpers, pointer consumption, RNG order, every prior match, and independent C variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_enchant_armor",
+          "line": 1115,
+          "endLine": 1293,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1115,
+        "to": 1293
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1": {
+          "session": "synthetic/v8/read-fire-scroll-effect-setup-miss-attempt1",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-fire-scroll-effect-setup-miss-attempt1",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.session.json",
+          "recordingSha256": "ee0e28cf295b60138d51379d06273fcbc5022484cc4e2cb4d05e3060ad17eb4d",
+          "evaluationPath": "challenges/evaluations/20260928162841-v8.json",
+          "evaluationCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
+        }
+      }
+    },
+    {
+      "id": "port-apply-break-wand-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port wand-breaking apply behavior from source",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v10/apply-breaks-exhausted-wand-of-nothing"
+      ],
+      "selectionReason": "The current v10 apply-breaks-exhausted-wand-of-nothing case first stops at step 26 on js/apply.js do_break_wand refusal; investigation investigations/synthetic/v10/apply-breaks-exhausted-wand-of-nothing.json traces the apply.c WAND_CLASS doapply caller. B45 owns the contiguous discard_broken_wand through do_break_wand helper family, independent of C37 read/do_wear/mkobj and A42 v11 preparation. The larger bullwhip hitfloor case has separate dothrow/drop caller scope and remains queued.",
+      "detail": "Port apply.c:discard_broken_wand, broken_wand_explode, maybe_dunk_boulders, do_break_wand in source order and wire doapply WAND_CLASS. Preserve hands/strength/confirmation, object removal, consumed zap.c:zappable and zapyourself returns, last-charge and fragile wand branches, per-type effects and RNG. Port consumed missing callees in task; record only truly discarded void gaps at their C sites. Use independent C wand variations and preserve every admitted match.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "discard_broken_wand",
+          "line": 3876,
+          "endLine": 3887,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "broken_wand_explode",
+          "line": 3888,
+          "endLine": 3896,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "maybe_dunk_boulders",
+          "line": 3897,
+          "endLine": 3908,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "do_break_wand",
+          "line": 3909,
+          "endLine": 4150,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3876,
+        "to": 4150
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/apply-breaks-exhausted-wand-of-nothing": {
+          "session": "synthetic/v10/apply-breaks-exhausted-wand-of-nothing",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-breaks-exhausted-wand-of-nothing",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+          "recordingSha256": "5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90",
+          "evaluationPath": "challenges/evaluations/20260928162841-v10.json",
+          "evaluationCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
+        }
+      }
     }
   ]
 }
