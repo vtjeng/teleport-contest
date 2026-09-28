@@ -101073,7 +101073,7 @@
     {
       "id": "port-dig-occupation-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port the complete dig occupation across lateral and downward source branches",
       "cFile": "dig.c",
       "sessions": [
@@ -101081,8 +101081,12 @@
       ],
       "selectionReason": "Current v9 evaluation 20260928015355 leaves one unmatched screen in archeologist-pickaxe-finds-hidden-door. investigations/synthetic/v9/archeologist-pickaxe-finds-hidden-door.json traces the first mismatch to dig.c:dig, where JS skips all lateral occupation progress. The complete dig function and its occupation return are independent of active detection and potion source reservations. Manifest 00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594; C recording challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json sha256 7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5.",
       "detail": "Translate all of dig.c:dig, including lateral material/secret-door completion and existing downward partial branches, preserving effort, fumbling RNG, occupation return, terrain/vision, shop and trap effects. Wire the existing occupation caller and make independent strict C recordings for active entry points; retain named gaps only for discarded unported callees.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "d39de942c936ed62bd9055a00f1b29b4b426353c",
+      "openStanding": {
+        "sha": "b3559b21b4087eb86dad1a798fe621067c921f47",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -101111,7 +101115,244 @@
           "evaluationPath": "challenges/evaluations/20260928015355-v9.json",
           "evaluationCommit": "7311475572cdadbc440bcac61cb0f98f42dfd481"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "b3559b21b4087eb86dad1a798fe621067c921f47",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "archeologist-pickaxe-finds-hidden-door",
+          "session": "synthetic/v9/archeologist-pickaxe-finds-hidden-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json",
+          "recordingPath": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json",
+          "recordingSha256": "7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5",
+          "recipe": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.recipe.session.json",
+          "recipeSha256": "43e43429e6a583a171e8074c07046a144d48064b0301d4c07a3a6c70120124fc",
+          "replayInputSha256": "34b7c01e076a76c1b186cd0826d3bde4f26bfc991ebd657025e2eb7f07608828",
+          "evaluationPath": "challenges/evaluations/20260928032810-v9.json",
+          "evaluationCommit": "b3559b21b4087eb86dad1a798fe621067c921f47",
+          "evaluationArtifact": "challenges/evaluations/20260928032810-v9.json",
+          "evaluationUtc": "2026-09-28T03:28:53.349Z",
+          "remainingScreens": 1,
+          "recordedSteps": 7,
+          "previousScreensMatched": 6,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 6,
+              "total": 7
+            },
+            "rng": {
+              "matched": 3381,
+              "total": 3381
+            },
+            "cursors": {
+              "matched": 6,
+              "total": 7
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 6,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": "j"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 43,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3381,
+              "cCaller": null,
+              "jsEntry": "rn2(20)=7",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 6,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 6,
+                "key": "j"
+              },
+              "cCursor": [
+                51,
+                0,
+                1
+              ],
+              "jsCursor": [
+                19,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 6,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/archeologist-pickaxe-finds-hidden-door.json",
+            "result": {
+              "session": "synthetic/v9/archeologist-pickaxe-finds-hidden-door",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "archeologist-pickaxe-finds-hidden-door",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 1,
+              "recordedSteps": 7,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "archeologist-pickaxe-finds-hidden-door",
+                "session": "synthetic/v9/archeologist-pickaxe-finds-hidden-door",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json",
+                "recordingPath": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json",
+                "recordingSha256": "7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5",
+                "recipe": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.recipe.session.json",
+                "recipeSha256": "43e43429e6a583a171e8074c07046a144d48064b0301d4c07a3a6c70120124fc",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 1,
+                "recordedSteps": 7,
+                "previousScreensMatched": 6,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 6,
+                    "total": 7
+                  },
+                  "rng": {
+                    "matched": 3381,
+                    "total": 3381
+                  },
+                  "cursors": {
+                    "matched": 6,
+                    "total": 7
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 6,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": "j"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 43,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3381,
+                    "cCaller": null,
+                    "jsEntry": "rn2(20)=7",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 6,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 6,
+                      "key": "j"
+                    },
+                    "cCursor": [
+                      51,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      19,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 6,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The Archeologist’s lateral pickaxe occupation reaches dig.c:dig, but js/dig.js explicitly skips its lateral arm. C accumulates effort, breaks through the secret door, updates terrain and vision, and prints the resulting message. Port the complete dig function across lateral and downward branches from the C source, preserving its occupation return and state transitions.",
+              "source": {
+                "file": "dig.c",
+                "branch": "dig first validates the worn tool and current digging target, then checks downward or lateral material, fumbling, and effort accumulation. The lateral completion arm at effort >100 converts secret doors, walls, doors, trees, and rocks with distinct terrain, billing, trap, vision, and message effects. The selected case uses a pickaxe on a secret door; JS dig has a source gap for all lateral occupation progress.",
+                "functions": [
+                  "dig"
+                ],
+                "callers": [
+                  "apply.c:use_pick_axe sets the dig occupation, which calls dig.c:dig on subsequent hero turns; js/dig.js:dig is the production occupation callback but records note_unported(dig.c dig lateral occupation)."
+                ],
+                "dependencies": [
+                  "dig.c:dig_check, digcheck_fail_message, and dig_typ already have JavaScript counterparts in js/dig.js. Preserve shared svc.context.digging effort, quiet, level, and position fields across the occupation.",
+                  "C dig returns one while the occupation continues and zero when done; its caller consumes that return. Source branches include Fumbling, traps, shops, and terrain/vision updates beyond the selected secret door."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json leaves 1 of 7 screens unmatched at segment 0 step 6 when the pickaxe occupation should reveal a hidden door.",
+                "Fresh scan at b6e28d15 reports note_unported(dig.c dig lateral occupation) and the same first screen/cursor mismatch; the later JS-only rn2(20) is downstream of state divergence.",
+                "Upstream nethack-c/upstream/src/dig.c:dig spans about lines 300-570 and owns the lateral secret-door conversion. js/dig.js:dig notes a lateral gap at line 368; its downward path is only a partial source port."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-read-identify-synthetic-v9-20260927",
