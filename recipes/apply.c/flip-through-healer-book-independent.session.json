@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Healer starting-inventory route for apply.c:doapply -> flip_through_book; the normal-vision read reaches the spellbook's faded-ink text.",
+  "segments": [
+    {
+      "seed": 71035025,
+      "datetime": "20281028111526",
+      "nethackrc": "OPTIONS=name:C34BookTrace,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": ".ai "
+    }
+  ]
+}
