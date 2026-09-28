@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T03:32:21.577Z",
+  "capturedAt": "2026-09-28T05:43:53.446Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6627,12 +6627,182 @@
         "type": "accepted",
         "at": "2026-09-28T03:32:15.555Z",
         "task": "A37"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C30-resume-learned-cast-20260928",
+        "type": "resume",
+        "at": "2026-09-28T03:33:24.094Z",
+        "task": "C30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A37-published-202609280335",
+        "type": "published",
+        "at": "2026-09-28T03:34:10.049Z",
+        "task": "A37",
+        "commit": "d39de942c936ed62bd9055a00f1b29b4b426353c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-def1a4e3625df3e4686b7215508ea2f3f5cdd370",
+        "type": "ready",
+        "at": "2026-09-28T03:34:19.557Z",
+        "task": "C30",
+        "delivery": "def1a4e3625df3e4686b7215508ea2f3f5cdd370"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B37-received-202609280337",
+        "type": "received",
+        "at": "2026-09-28T03:36:19.237Z",
+        "task": "B37",
+        "delivery": "a41481471daa48f65d5fe31aff44bca35bd5f7bd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B37-integrating-202609280339",
+        "type": "integrating",
+        "at": "2026-09-28T03:39:55.653Z",
+        "task": "B37",
+        "integration": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A38-202609280340",
+        "type": "assign",
+        "at": "2026-09-28T03:40:25.567Z",
+        "task": "A38",
+        "worker": "A",
+        "goal": "port-pline-you-hear-synthetic-v9-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B37-validated-202609280351",
+        "type": "validated",
+        "at": "2026-09-28T03:52:03.583Z",
+        "task": "B37",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B37-accepted-202609280351",
+        "type": "accepted",
+        "at": "2026-09-28T03:52:35.274Z",
+        "task": "B37"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B37-published-202609280353",
+        "type": "published",
+        "at": "2026-09-28T03:54:47.104Z",
+        "task": "B37",
+        "commit": "572ec87519aad01cc4f79a2858c94fed4211f2da"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C30-correction-received-202609280355",
+        "type": "received",
+        "at": "2026-09-28T03:56:19.926Z",
+        "task": "C30",
+        "delivery": "def1a4e3625df3e4686b7215508ea2f3f5cdd370"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C30-integrating-202609280357",
+        "type": "integrating",
+        "at": "2026-09-28T03:58:12.702Z",
+        "task": "C30",
+        "integration": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-C30-8a92f8-20260928",
+        "type": "validated",
+        "at": "2026-09-28T04:11:05.632Z",
+        "task": "C30",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-C30-8a92f8-20260928",
+        "type": "accepted",
+        "at": "2026-09-28T04:11:19.323Z",
+        "task": "C30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-C30-4a631568-20260928",
+        "type": "published",
+        "at": "2026-09-28T04:13:16.660Z",
+        "task": "C30",
+        "commit": "4a6315680dc0ebd276f1c57e97241fce8ee89aef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C31-charging-20260928",
+        "type": "assign",
+        "at": "2026-09-28T04:19:12.896Z",
+        "task": "C31",
+        "worker": "C",
+        "goal": "port-read-charging-synthetic-v9-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B38-potion-effects-20260928",
+        "type": "assign",
+        "at": "2026-09-28T04:19:32.839Z",
+        "task": "B38",
+        "worker": "B",
+        "goal": "port-potion-hallucination-water-synthetic-v9-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-60ecaaae8ef2ff4ac37a2f8755ea80514427972a",
+        "type": "ready",
+        "at": "2026-09-28T05:25:34.445Z",
+        "task": "A38",
+        "delivery": "60ecaaae8ef2ff4ac37a2f8755ea80514427972a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A38-60ecaaae-20260928",
+        "type": "received",
+        "at": "2026-09-28T05:26:14.828Z",
+        "task": "A38",
+        "delivery": "60ecaaae8ef2ff4ac37a2f8755ea80514427972a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A38-0ad1813e-20260928",
+        "type": "integrating",
+        "at": "2026-09-28T05:28:45.386Z",
+        "task": "A38",
+        "integration": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A38-validated-0ad1813",
+        "type": "validated",
+        "at": "2026-09-28T05:42:38.366Z",
+        "task": "A38",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A38-accepted-0ad1813",
+        "type": "accepted",
+        "at": "2026-09-28T05:42:43.017Z",
+        "task": "A38"
       }
     ]
   },
   "development": {
-    "executionCommit": "b3559b21b4087eb86dad1a798fe621067c921f47",
-    "measuredAt": "2026-09-28T03:27:48.445Z",
+    "executionCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+    "measuredAt": "2026-09-28T05:36:10.560Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

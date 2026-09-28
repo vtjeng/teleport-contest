@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8137464,
+      "datetime": "20310917111500",
+      "nethackrc": "OPTIONS=name:EarthDig,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": "  #wizlevelport\n?\n>>N       #wizwish\nblessed +7 pick-axe\nwoaoh ............"
+    }
+  ],
+  "comment": "Blocked independent B37 Earth-level stone-dig/makemon attempt. C levelport reaches Earth and applying the wished pick-axe west starts the dig occupation. Its next turn runs the Wizard of Yendor teleport (teleport.c:tele -> collect_coords at step 62) and prints a pager; the remaining `.` inputs are consumed while that pager remains active, so this bounded recipe never reaches dig.c:dig or the Earth-level makemon call. The cache-only attempts b37-earth-dig-trial-v2 through v6 preserve setup history; this input has no C recording and is not completion evidence."
+}

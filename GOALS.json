@@ -101073,7 +101073,7 @@
     {
       "id": "port-dig-occupation-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port the complete dig occupation across lateral and downward source branches",
       "cFile": "dig.c",
       "sessions": [
@@ -101352,12 +101352,22 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The active Earth-level lateral dig branch in dig.c:dig is not covered by a matching C/JS recording: six debug-level setups reached Earth, but Wizard teleport.c:collect_coords and its pager interrupted before dig() or the consumed makemon() result. Resume with an independent source-reaching Earth recipe (prefer preparing the pickaxe before levelport), then verify the makemon return and mkcavearea arm. Other source-named void gaps in dig/dighole, including dig.c:liquid_flow and shop/trapped-door effects, also require source implementation and entry-point evidence before closure. The selected v9 hidden-door case and the independent ordinary down-pit recording already match."
     },
     {
       "id": "port-read-identify-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete identify-scroll and identify-spell effect branches",
       "cFile": "read.c",
       "sessions": [
@@ -101365,17 +101375,24 @@
       ],
       "selectionReason": "Current v9 evaluation 20260928021405 leaves two unmatched screens in blessed-identify-scroll-identifies-pack. investigations/synthetic/v9/blessed-identify-scroll-identifies-pack.json traces the first mismatch to the partial read.c:seffect_identify wrapper, which omits blessed identification count and invent.c:identify_pack behavior. It is independent of active dig.c and potion.c source contracts. Manifest 00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594; C recording challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json sha256 788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2.",
       "detail": "Translate whole read.c:seffect_identify with C BUC/confusion/RNG order, inventory prompt/result path, scroll consumption and spell alias. Verify the existing invent.c:identify_pack callee and wire both production dispatches; make independent strict C recordings across active entry points.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "572ec87519aad01cc4f79a2858c94fed4211f2da",
+      "openStanding": {
+        "sha": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8a92f8faba9bf438288fc394e610c10c2884c84a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_identify",
           "line": 2055,
           "endLine": 2101,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -101395,6 +101412,372 @@
           "evaluationPath": "challenges/evaluations/20260928021405-v9.json",
           "evaluationCommit": "83eadf8bad622d06795bd8bcaa965a569607654f"
         }
+      },
+      "activeStanding": {
+        "sha": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-identify-scroll-identifies-pack",
+          "session": "synthetic/v9/blessed-identify-scroll-identifies-pack",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+          "recordingPath": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+          "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+          "recipe": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.recipe.session.json",
+          "recipeSha256": "e9bc808bf20aa788848418209aac39b8fb9efd304b07e67e317308a26d2e9e67",
+          "replayInputSha256": "ebef3189b3a3f7f5215b1e1e5b9e9fa1dac4f5ac310eb1f87368e4fb4dbf9e2e",
+          "evaluationPath": "challenges/evaluations/20260928034843-v9.json",
+          "evaluationCommit": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e",
+          "evaluationArtifact": "challenges/evaluations/20260928034843-v9.json",
+          "evaluationUtc": "2026-09-28T03:49:24.074Z",
+          "remainingScreens": 2,
+          "recordedSteps": 52,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 52
+            },
+            "rng": {
+              "matched": 2152,
+              "total": 2160
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 52
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "g"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2152,
+              "cEntry": "rn2(19)=6",
+              "cCaller": "exercise(attrib.c:509)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "g"
+              },
+              "stepIndex": 50
+            },
+            "cursor": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "g"
+              },
+              "cCursor": [
+                75,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 50,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/blessed-identify-scroll-identifies-pack.json",
+            "result": {
+              "session": "synthetic/v9/blessed-identify-scroll-identifies-pack",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "blessed-identify-scroll-identifies-pack",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 2,
+              "recordedSteps": 52,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "blessed-identify-scroll-identifies-pack",
+                "session": "synthetic/v9/blessed-identify-scroll-identifies-pack",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+                "recordingPath": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+                "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+                "recipe": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.recipe.session.json",
+                "recipeSha256": "e9bc808bf20aa788848418209aac39b8fb9efd304b07e67e317308a26d2e9e67",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 2,
+                "recordedSteps": 52,
+                "previousScreensMatched": 50,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 52
+                  },
+                  "rng": {
+                    "matched": 2152,
+                    "total": 2160
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 52
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "g"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2152,
+                    "cEntry": "rn2(19)=6",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "g"
+                    },
+                    "stepIndex": 50
+                  },
+                  "cursor": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "g"
+                    },
+                    "cCursor": [
+                      75,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 50,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The blessed identify scroll reaches read.c:seffect_identify, but js/read.js:seffects supports only a narrow ordinary-scroll arm and records this blessed arm as unported. C consumes the scroll before item discovery, chooses an identification count from BUC and RNG, then calls invent.c:identify_pack. Port the complete read.c effect and production spell/scroll wiring so prompts, scroll removal, RNG, and inventory messages follow source order.",
+              "source": {
+                "file": "read.c",
+                "branch": "seffect_identify consumes a scroll before learnscrolltyp, prints the identification message based on Confusion, curse, and prior knowledge, and may return after identifying only itself. Otherwise it selects cval, with blessed or one-in-five uncursed RNG taking a second rn2(5), then calls identify_pack(cval,!already_known) if inventory remains; empty inventory emits a separate message. A spellbook caller skips scroll consumption.",
+                "functions": [
+                  "seffect_identify"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_IDENTIFY and SPE_IDENTIFY arms dispatch seffect_identify after doread or spell.c:spelleffects; js/read.js:seffects currently covers a narrow ordinary-scroll arm and records note_unported(read.c seffect_identify) for this blessed case and the remaining arms."
+                ],
+                "dependencies": [
+                  "invent.c:identify_pack has a JavaScript counterpart in js/invent.js with automatic-all and menu selection branches; the C caller discards its result but awaits its messages and inventory state changes.",
+                  "read.c:learnscrolltyp, useup, and object discovery must run before the inventory prompt as C orders them. Check confusion, cursed-unknown, blessed, and spellbook paths in addition to the selected case."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json leaves 2 of 52 screens unmatched, first at segment 0 step 50 when the blessed identify effect should alter the item prompt. The later exercise RNG difference follows the missing effect.",
+                "Fresh scan at b6e28d15 reports note_unported(read.c seffect_identify); the C recipe wishes a blessed identify scroll and pack items, then reads it.",
+                "Upstream nethack-c/upstream/src/read.c:seffect_identify lines 2055-2100 owns consumption, message, RNG, and identify_pack dispatch; js/read.js:seffects has only an ordinary-scroll subset. invent.c:identify_pack at 2711 has a current JS counterpart."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_identify",
+            "implementation": "js/read.js",
+            "symbol": "seffect_identify",
+            "sourceReview": "Reviewed the complete upstream read.c:seffect_identify() body at lines 2055–2101. The port snapshots object type/class, BUC, confusion, and already-known state before effects. For scrolls it calls useup first, emits the confused/cursed-unknown or ordinary unknown self-identification message, learns SCR_IDENTIFY when unknown, and returns the consumed-scroll signal on C's early-return arms. Otherwise it follows the source inventory branch: cval starts at 1; an uncursed scroll draws rn2(5) before deciding whether to identify; blessed identification draws cval directly; the positive-Luck increment occurs only after cval==1 on the blessed path; identify_pack receives cval and !already_known. The empty-inventory scroll/spell messages retain C's different suffix. C30 ports this function without a remaining callee gap; read.c:seffects and spell.c:spelleffects are dispatchers only, not claimed whole-function ports.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() SCR_IDENTIFY/SPE_IDENTIFY switch arm calls seffect_identify(&sobj) and returns the consumed-scroll state when the effect clears sobj."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() selects a scroll and routes its effect through seffects(sobj)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() routes SPE_IDENTIFY through seffects(pseudo), setting the pseudo object's blessed field at Skilled or Expert skill and freeing the pseudo object after the effect."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "docast",
+                "source": "spell.c:docast() selects a learned spell and calls spelleffects(spell, FALSE, FALSE)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "dowizcast",
+                "source": "spell.c:dowizcast() selects a spell object from the wizard menu and calls spelleffects(i, FALSE, TRUE)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "The read command dispatcher invokes doread(); this is the production command route into read.c:seffects and seffect_identify."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runWizCastCommand",
+                "source": "The #wizcast extended-command dispatcher invokes dowizcast(); spell.c:dowizcast then calls spelleffects and read.c:seffects."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runCastCommand",
+                "source": "cmd.c dispatch for the Z command invokes spell.js docast through runCastCommand; docast selects a learned spell and calls spelleffects(spell, FALSE, FALSE), which routes SPE_IDENTIFY to read.js seffects and seffect_identify."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/identify-cursed-scroll-c30-independent.session.json",
+              "recordings/spell.c/identify-wizcast-c30-independent.session.json",
+              "recordings/spell.c/identify-learned-docast-c30-correction.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-identify-scroll-identifies-pack",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 50,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_IDENTIFY) -> read.c:seffect_identify; the scroll is consumed and its blessed pack-identification branch runs."
+              }
+            ],
+            "checkedAt": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+          }
+        ],
+        "entryPointReview": "The active scroll entry is the read command: cmd.c dispatches to doread(), which calls seffects(sobj); its SCR_IDENTIFY arm calls seffect_identify(&sobj). JS follows cmd.js runReadCommand -> read.js doread -> read.js seffects -> seffect_identify. The admitted v9 case exercises the blessed scroll branch through zero-based step 50, and the independent cursed-scroll recording covers the self-identification/early-return branch. The active spell entry is SPE_IDENTIFY through spell.c:spelleffects -> read.c:seffects -> seffect_identify. Both spell.c:docast (learned #cast) and spell.c:dowizcast (#wizcast) call spelleffects; the independent #wizcast C recording enters the same SPE_IDENTIFY effect-dispatch arm. JS routes these through spell.js spelleffects and read.js seffects. The wider read.c:seffects and spell.c:spelleffects functions remain partial outside the identify arms changed here; C30 claims only seffect_identify. The independent learned-cast recording recordings/spell.c/identify-learned-docast-c30-correction.session.json reaches spell.c:docast through the ordinary Z command, then spelleffects(SPE_IDENTIFY) -> read.c:seffects -> seffect_identify at the final selection boundary (zero-based step 85); the full 86-screen C/JS recording matches. This is separate runtime evidence from the #wizcast path, which calls dowizcast rather than docast.",
+        "entryPoints": [
+          {
+            "name": "Reading an identify scroll",
+            "functions": [
+              "seffect_identify"
+            ],
+            "recordings": [
+              "recordings/read.c/identify-cursed-scroll-c30-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-identify-scroll-identifies-pack",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 50,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_IDENTIFY) -> read.c:seffect_identify"
+              }
+            ]
+          },
+          {
+            "name": "Casting SPE_IDENTIFY through #wizcast",
+            "functions": [
+              "seffect_identify"
+            ],
+            "recordings": [
+              "recordings/spell.c/identify-wizcast-c30-independent.session.json"
+            ]
+          },
+          {
+            "name": "Casting learned SPE_IDENTIFY with Z (#cast)",
+            "functions": [
+              "seffect_identify"
+            ],
+            "recordings": [
+              "recordings/spell.c/identify-learned-docast-c30-correction.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8a92f8faba9bf438288fc394e610c10c2884c84a",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -101682,7 +102065,7 @@
     {
       "id": "port-pline-you-hear-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port source-conditioned hearing messages and their active callers",
       "cFile": "pline.c",
       "sessions": [
@@ -101690,8 +102073,12 @@
       ],
       "selectionReason": "The v9 sleeping-potion effect now matches all C RNG values, but its final fountain sound uses a short unconditional JavaScript prefix. The complete current investigation at investigations/synthetic/v9/sleeping-potion-falls-asleep.json traces the source owner to pline.c:You_hear and the Unaware dream prefix; dig.c and read.c are reserved by other workers.",
       "detail": "Port all pline.c:You_hear gates and prefixes from source and wire active existing JavaScript sound callers through that function. Preserve the tty --More-- boundary arising from full message length and record independent hearing state variations; avoid a session-specific pause.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+      "openStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -101719,6 +102106,286 @@
           "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
           "evaluationPath": "challenges/evaluations/20260928032810-v9.json",
           "evaluationCommit": "b3559b21b4087eb86dad1a798fe621067c921f47"
+        }
+      },
+      "activeStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "You_hear",
+            "implementation": "js/pline.js",
+            "symbol": "youHear",
+            "sourceReview": "Read all of pline.c:You_hear() (436-454). Preserved the early return when (Deaf && !Unaware) || !flags.acoustics, followed by the Underwater, Unaware, and ordinary prefixes in C order. `heroDeaf` maps HDeaf/EDeaf and roleplay deafness; `heroUnaware` maps gm.multi < 0 && (unconscious() || is_fainted()). The helper returns null or the source-composed line so the production caller writes it through its normal pline callback and preserves the existing input boundary. Moved the implementation from monmove.js to pline.js and retained the monmove.js export for existing callers. Removed the duplicate magicTrapHear composition and routed trap-effects callers through the canonical helper. Source-backed callers added or corrected: trap.c:domagictrap fates 11 and 14, trap.c:launch_obj fallback, trap.c:trapeffect_arrow_trap hero wear-out, and trap.c:trapeffect_dart_trap hero misfire. Arrow/dart keep rn2(15), You_hear output, deltrap, newsym, and Trap_Is_Gone in source order; their independent C entry recordings are not yet available and remain explicit runtime gaps. Other existing JS callers retain their monmove.js import surface.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_scare_monster",
+                "source": "read.c:seffect_scare_monster() calls You_hear() for a scare scroll or when no non-pet monster is counted; the independent scare-scroll recording reaches this call."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "hear",
+                "source": "sounds.c:dosounds() and its sound-category helpers call You_hear/You_hear1; the selected sleeping-potion case reaches the ambient fountain message through this helper."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "domagictrap",
+                "source": "trap.c:domagictrap() emits You_hear() for low-hum and howling fates; the local duplicate composer is removed and the canonical helper now handles Deaf, acoustics, Underwater, and Unaware."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "launch_obj",
+                "source": "trap.c:launch_obj() uses You_hear() when its target cannot be seen; its fallback now uses the canonical helper."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_arrow_trap",
+                "source": "trap.c:trapeffect_arrow_trap() hero wear-out branch calls You_hear(\"a loud click!\") before deltrap(), newsym(), and Trap_Is_Gone."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_dart_trap",
+                "source": "trap.c:trapeffect_dart_trap() hero misfire branch calls You_hear(\"a soft click.\") before deltrap(), newsym(), and Trap_Is_Gone."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pline.test.mjs",
+              "scripts/hero-magic-trap.test.mjs",
+              "scripts/hero-dart-trap.test.mjs",
+              "scripts/sounds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pline.c/you-hear-scare-scroll-independent-a38.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sleeping-potion-falls-asleep",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "potion.c:peffect_sleeping -> timeout.c:fall_asleep -> allmain.c:moveloop_core -> sounds.c:dosounds -> pline.c:You_hear"
+              }
+            ],
+            "checkedAt": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
+          }
+        ],
+        "entryPointReview": "The selected active entry is the v9 sleeping-potion turn, whose ambient fountain output executes sounds.c:dosounds -> pline.c:You_hear and matches through zero-based step 32. An independent Wizard scare-scroll recipe also reaches read.c:seffect_scare_monster -> You_hear and strictly matches all 38 steps. Existing call sites that import youHear from monmove.js retain that public import path, now re-exporting the canonical pline.js implementation. The A38 scope also corrects trap.c callers: domagictrap fates 11/14 and launch_obj use the shared Deaf/acoustics/Underwater/Unaware behavior; direct tests cover the low-hum/howling prefix and caller order. However, those trap caller paths do not yet have matching independent C recordings. The hero arrow-trap wear-out and dart-trap misfire branches are source-wired and directly tested for rn2(15), message-before-removal, and Trap_Is_Gone, but have no matching C recordings in this packet. These trap entry paths remain uncovered runtime evidence and must not be counted as recorded completion. The task's source function itself is exercised by both the selected synthetic range and the independent scare-scroll recording.",
+        "entryPoints": [
+          {
+            "name": "Ambient sounds after the sleeping-potion turn",
+            "functions": [
+              "You_hear"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sleeping-potion-falls-asleep",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "potion.c:peffect_sleeping -> timeout.c:fall_asleep -> allmain.c:moveloop_core -> sounds.c:dosounds -> pline.c:You_hear"
+              }
+            ]
+          },
+          {
+            "name": "Read a scare-monster scroll that emits sound feedback",
+            "functions": [
+              "You_hear"
+            ],
+            "recordings": [
+              "recordings/pline.c/you-hear-scare-scroll-independent-a38.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Trap sound callers: magic-trap fates, launch object, arrow wear-out, and dart misfire",
+            "functions": [
+              "You_hear"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "You_hear source function and ambient/read callers match, but active trap.c caller entry points (domagictrap sound fates, launch_obj fallback, arrow wear-out, and dart misfire) still lack independent strictly matching C recordings; resume when source-reaching trap recipes can verify those paths."
+    },
+    {
+      "id": "port-read-charging-synthetic-v9-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port charging-scroll effect and its complete recharge source family",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/charging-scroll-recharges-wand"
+      ],
+      "selectionReason": "v9 charging-scroll-recharges-wand is the first actionable queue candidate; investigations/synthetic/v9/charging-scroll-recharges-wand.json traces the missing prompt to read.c:seffect_charging and the shared recharge family. Continue related read.c work with worker C after identify.",
+      "detail": "Port seffect_charging, recharge, charge_ok, stripspe and p_glow helpers from read.c; preserve wand, ring and tool branches, source RNG order, caller wiring, and independent entry-point evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_charging",
+          "line": 1788,
+          "endLine": 1829,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1788,
+        "to": 1829
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/charging-scroll-recharges-wand": {
+          "session": "synthetic/v9/charging-scroll-recharges-wand",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "charging-scroll-recharges-wand",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+          "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+          "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
+          "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+        }
+      }
+    },
+    {
+      "id": "port-potion-hallucination-water-synthetic-v9-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port hallucination and water potion effects through the quaff dispatcher",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/hallucination-potion-starts-hallucination",
+        "synthetic/v9/blessed-water-potion-awe"
+      ],
+      "selectionReason": "The two unresolved v9 potion cases share adjacent peffects quaff dispatch and potion state helpers; investigations/synthetic/v9/hallucination-potion-starts-hallucination.json and blessed-water-potion-awe.json trace distinct branches in one coherent potion.c family. Assign both to worker B.",
+      "detail": "Port whole potion.c peffect_hallucination and peffect_water bodies in definition order, retain source branch and RNG order, wire POT_HALLUCINATION and POT_WATER dispatch, and record independent BUC/state variants.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_hallucination",
+          "line": 696,
+          "endLine": 716,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "peffect_water",
+          "line": 717,
+          "endLine": 770,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 696,
+        "to": 770
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/hallucination-potion-starts-hallucination": {
+          "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "hallucination-potion-starts-hallucination",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+          "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+          "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
+          "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+        },
+        "synthetic/v9/blessed-water-potion-awe": {
+          "session": "synthetic/v9/blessed-water-potion-awe",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-water-potion-awe",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+          "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+          "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
+          "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+        }
+      }
+    },
+    {
+      "id": "port-apply-whistle-family-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port ordinary and magic whistle application with tame-pet relocation",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v8/magic-whistle-recalls-tame-dog"
+      ],
+      "selectionReason": "The current admitted v8 magic-whistle case stops in apply.c:doapply at the missing MAGIC_WHISTLE arm, as traced in investigations/synthetic/v8/magic-whistle-recalls-tame-dog.json. Its source call reaches apply.c:use_magic_whistle then magic_whistled; the adjacent TIN_WHISTLE and EUCALYPTUS_LEAF arms share use_whistle/use_magic_whistle and belong in the same coherent source family. B reserves potion.c and C reserves read.c/recharge, so this apply.c scope is independent.",
+      "detail": "Port complete apply.c:use_whistle, use_magic_whistle, and magic_whistled in source order, with doapply arms for MAGIC_WHISTLE, TIN_WHISTLE, and EUCALYPTUS_LEAF. Preserve cursed and ordinary paths, pet movement and trap/luck/discovery effects, RNG order, messages, and caller state. Trace consumed helper returns to source, and record independent C variations without copying the selected case.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "use_whistle",
+          "line": 476,
+          "endLine": 494,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_magic_whistle",
+          "line": 495,
+          "endLine": 517,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "magic_whistled",
+          "line": 518,
+          "endLine": 691,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 476,
+        "to": 691
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/magic-whistle-recalls-tame-dog": {
+          "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "magic-whistle-recalls-tame-dog",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+          "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+          "evaluationPath": "challenges/evaluations/20260928053730-v8.json",
+          "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
         }
       }
     }

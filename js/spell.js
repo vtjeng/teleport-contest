@@ -106,6 +106,7 @@ import {
     SPE_HEALING,
     SPE_BOOK_OF_THE_DEAD,
     SPE_BLANK_PAPER,
+    SPE_IDENTIFY,
     BELL_OF_OPENING,
     CANDELABRUM_OF_INVOCATION,
     SPE_INVISIBILITY,
@@ -1287,7 +1288,7 @@ function Maybe_Half_Phys(dmg, state) {
 // spell_otyp (an object type such as SPE_HEALING). The wand-duplicate and
 // potion-duplicate dispatch arms are open; scroll-duplicate spells (seffects)
 // and standalone spells (cure blindness, etc.) remain fail-closed except for
-// the source-wired SPE_CHARM_MONSTER and SPE_CAUSE_FEAR effects.
+// the source-wired scroll-duplicate effects.
 export async function spelleffects(spell_otyp, atme, force, state = game,
     env = {}) {
     const spell = force ? spell_otyp : spell_idx(spell_otyp, state);
@@ -1381,11 +1382,12 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
         update_inventory({ state });
         break;
 
-    // spell.c routes cause fear and charm monster through the scroll effects
-    // after granting the blessed-scroll equivalent at Skilled or Expert skill.
+    // spell.c routes scroll-duplicate spells through read.c:seffects() after
+    // granting the blessed-scroll equivalent at Skilled or Expert skill.
     case SPE_CAUSE_FEAR:
     case SPE_CHARM_MONSTER:
     case SPE_DETECT_FOOD:
+    case SPE_IDENTIFY:
         if (role_skill >= P_SKILLED)
             pseudo.blessed = 1;
         await seffects(pseudo, state);

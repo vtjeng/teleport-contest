@@ -1385,7 +1385,16 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (NO_MINVENT | MM_NOMSG);
+    // C makemon() has no species admission rule for explicit runtime
+    // coordinates. dig.c:dig uses this ordinary pointer/coordinate/flag
+    // contract for its Earth-level elemental or xorn, but any non-genocided
+    // species follows the same source path and must not need a JS allowlist.
+    const explicitCoordinateRuntimeCall = !state.in_mklev
+        && Boolean(ptr)
+        && !randomCoordinates
+        && mmflags === MM_NOMSG;
     if (tutorialLevel && !explicitInventorylessHeroCall
+        && !explicitCoordinateRuntimeCall
         && (!state.in_mklev
             || randomCoordinates
             || !ptr
@@ -1517,6 +1526,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || runtimeRandomCall || runtimeGroupCall || createParticularCall
         || deadbookCall || vaultGuardCall || revivalCall || statueAnimationCall
         || figurineAnimationCall || explicitInventorylessHeroCall
+        || explicitCoordinateRuntimeCall
         || cloneuCall || minionSummonCall
         || nastyCall;
     if (runtimeCall
@@ -1556,7 +1566,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         );
     }
     if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall
-        && !explicitInventorylessHeroCall) {
+        && !explicitInventorylessHeroCall && !explicitCoordinateRuntimeCall) {
         throw new UnsupportedMonsterCreationError(
             'shopkeeper creation outside shkinit',
         );
@@ -1576,7 +1586,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     // invault() converts to doors immediately after creation.
     if (!state.in_mklev && !startingPetCall && !deadbookCall
         && !explicitInventorylessHeroCall && !randomCoordinates
-        && !vaultGuardCall
+        && !explicitCoordinateRuntimeCall && !vaultGuardCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
             `non-accessible location <${x},${y}>`,
@@ -1629,6 +1639,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !cloneuCall
             && !deadbookCall
             && !explicitInventorylessHeroCall
+            && !explicitCoordinateRuntimeCall
             && !nastyCall
             && (!state.in_mklev || (isMainDungeonLevel(state)
                 && !normalized._rndmonMklev))) {
