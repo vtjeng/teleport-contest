@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73901283,
+      "datetime": "20360929113600",
+      "nethackrc": "OPTIONS=name:VibrationProbe,role=Wizard,race=human,gender=male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:dog,!autopickup,!acoustics\n",
+      "moves": "\u0017cursed magic whistle\nao"
+    }
+  ],
+  "comment": "Independent cursed variation with a distinct seed, clock, and name: exercises use_magic_whistle's cursed branch and the alternate magic_whistled effect when the source-ordered first roll does not select vibration."
+}

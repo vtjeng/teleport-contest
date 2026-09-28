@@ -25,6 +25,7 @@ import {
     always_hostile,
     always_peaceful,
     big_little_match,
+    can_blow,
     breakarm,
     can_track,
     emits_light,
@@ -81,6 +82,32 @@ test('hates_light singles out the gremlin', () => {
     assert.equal(hates_light(pm(M.PM_GREMLIN)), true);
     assert.equal(hates_light(pm(M.PM_YELLOW_LIGHT)), false);
     assert.equal(mon_hates_light({ data: pm(M.PM_GREMLIN) }), true);
+});
+
+// C ref: mondata.c:567-579; MS_SILENT/MS_BUZZ are monflag.h:10-60,
+// S_EEL is monsters.h's eel class, and Strangled is youprop.h:110.
+test('can_blow applies sound, anatomy, eel, and hero strangulation guards', () => {
+    const human = pm(M.PM_HUMAN);
+    const ordinary = { data: { ...human, msound: 1 } };
+    const state = { youmonst: ordinary, u: { uprops: { 19: { intrinsic: 0 } } } };
+    assert.equal(can_blow(ordinary, state), true);
+
+    // monflag.h: MS_SILENT=0 and MS_BUZZ=10. Silent/buzzing only applies the
+    // anatomy checks: a normally sized, breathing human can still blow.
+    assert.equal(can_blow({ data: { ...human, msound: 0 } }, state), true);
+    assert.equal(can_blow({ data: { ...human, msound: 10 } }, state), true);
+    for (const sound of [0, 10]) {
+        assert.equal(can_blow({ data: { ...human, msound: sound, msize: 0 } }, state), false);
+        assert.equal(can_blow({ data: { ...human, msound: sound, mlet: M.S_EEL } }, state), false);
+        assert.equal(can_blow({ data: { ...human, msound: sound, mflags1: human.mflags1 | M.M1_BREATHLESS } }, state), false);
+        assert.equal(can_blow({ data: { ...human, msound: sound, mflags1: human.mflags1 | M.M1_NOHEAD } }, state), false);
+    }
+
+    state.u.uprops[19].intrinsic = 1;
+    assert.equal(can_blow(ordinary, state), false);
+    // The same property does not affect a monster; C compares the pointer to
+    // &gy.youmonst before reading Strangled.
+    assert.equal(can_blow({ data: ordinary.data }, state), true);
 });
 
 test('the completely-destroyed golem sets each name exactly one pair', () => {

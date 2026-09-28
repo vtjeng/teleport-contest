@@ -30,7 +30,6 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    can_blow,
     cures_stoning,
     find_offensive,
     find_defensive,
@@ -46,6 +45,7 @@ import {
     find_misc,
     ureflects,
 } from '../js/muse.js';
+import { can_blow } from '../js/mondata.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { UnsupportedSimpleMonsterActionError }
