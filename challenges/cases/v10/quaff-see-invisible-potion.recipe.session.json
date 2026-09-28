@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for potion.c:peffect_see_invisible. Independent Wizard setup wishes an uncursed potion, quaffs inventory item o, dismisses effect output, then accepts the unknown-potion naming prompt with an empty line so the segment exits at a gameplay boundary.",
+  "segments": [
+    {
+      "seed": 71035031,
+      "datetime": "20281027112614",
+      "nethackrc": "OPTIONS=name:V10Seer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": ".\u0017potion of see invisible\nqo \n"
+    }
+  ]
+}

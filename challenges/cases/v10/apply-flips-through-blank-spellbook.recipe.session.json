@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for apply.c:doapply -> flip_through_book(SPE_BLANK_PAPER). The explicit `spellbook of blank paper` wish resolves to the plain spellbook; select inventory letter o and dismiss the effect pager to complete its output.",
+  "segments": [
+    {
+      "seed": 71035024,
+      "datetime": "20281027111526",
+      "nethackrc": "OPTIONS=name:V10BlankBook,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": ".\u0017spellbook of blank paper\nao "
+    }
+  ]
+}
