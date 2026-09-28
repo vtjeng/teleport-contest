@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent A35 attempt at uhitm.c:joust -> hmon_hitmon_jousting -> dothrow.c:mhurtle. Three bounded setup attempts did not reach the joust call: the starting-pet attempts could not mount, and the debug-created pony in the final attempt already had a saddle, so steed.c:use_saddle rejected the added saddle. The resulting --More-- message then swallowed the later attack inputs. Keep this recipe as blocked provenance, not runtime evidence.",
+  "segments": [
+    {
+      "seed": 351992813,
+      "datetime": "20281206120300",
+      "nethackrc": "OPTIONS=name:JoustProbeA35,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen\nOPTIONS=!autopickup\n",
+      "moves": "\u0007tame pony\n\u0017saddle\n aiu#ride\nuy\u0007hostile newt\nwb l"
+    }
+  ]
+}
