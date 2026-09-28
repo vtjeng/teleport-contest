@@ -1187,24 +1187,47 @@ export function learnscrolltyp(scrolltyp, state = game) {
     return false;
 }
 
-// C ref: read.c seffect_identify() (2055-2099), restricted to an unknown,
-// sighted, unconfused, unblessed, uncursed identify scroll. Both ordinary-scroll
-// rn2(5) outcomes are retained because the zero result spends a second rn2(5).
+// C ref: read.c seffect_identify() (2055-2099). A scroll is consumed before
+// learning its own type; a spellbook is left alone and is already known.
 export async function seffect_identify(scroll, state = game) {
-    if (scroll.otyp !== SCR_IDENTIFY || scroll.oclass !== SCROLL_CLASS
-        || scroll.blessed || scroll.cursed
-        || objectType(scroll, state).oc_name_known
-        || scroll.quan !== 1) {
-        throw new UnsupportedReadError('the selected identify-scroll branch');
+    const otyp = scroll.otyp;
+    const isScroll = scroll.oclass === SCROLL_CLASS;
+    const sblessed = Boolean(scroll.blessed);
+    const scursed = Boolean(scroll.cursed);
+    const confused = propertyActive(CONFUSION, state);
+    const alreadyKnown = scroll.oclass === SPBOOK_CLASS
+        || objectType(otyp, state).oc_name_known;
+
+    if (isScroll) {
+        // C consumes the scroll before its self-identification can refresh
+        // the permanent inventory, and before testing whether anything else
+        // remains to identify.
+        useup(scroll, { state, hooks: {} });
+        if (confused || (scursed && !alreadyKnown)) {
+            await ttyPline('You identify this as an identify scroll.', state);
+        } else if (!alreadyKnown) {
+            await ttyPline('This is an identify scroll.', state);
+        }
+        if (!alreadyKnown) learnscrolltyp(SCR_IDENTIFY, state);
+        if (confused || (scursed && !alreadyKnown)) return true;
     }
 
-    useup(scroll, { state, hooks: {} });
-    await ttyPline('This is an identify scroll.', state);
-    learnscrolltyp(SCR_IDENTIFY, state);
-
-    let cval = 1;
-    if (rn2(5) === 0) cval = rn2(5);
-    await identify_pack(cval, true, state);
+    if (state.invent) {
+        let cval = 1;
+        if (sblessed || (!scursed && rn2(5) === 0)) {
+            cval = rn2(5);
+            if (cval === 1 && sblessed
+                && ((state.u.uluck ?? 0) + (state.u.moreluck ?? 0)) > 0)
+                cval++;
+        }
+        await identify_pack(cval, !alreadyKnown, state);
+    } else {
+        await ttyPline(
+            `You're not carrying anything${isScroll ? ' else' : ''} to be identified.`,
+            state,
+        );
+    }
+    return isScroll;
 }
 
 // C ref: read.c set_lit() (2471-2488).  The callback keeps the permanent
@@ -2337,16 +2360,7 @@ export async function seffects(scroll, state = game) {
         break;
     case SCR_IDENTIFY:
     case SPE_IDENTIFY:
-        if (scroll.otyp === SCR_IDENTIFY && !scroll.blessed
-            && !scroll.cursed && !confused
-            && !objectType(scroll, state).oc_name_known
-            && scroll.quan === 1) {
-        await seffect_identify(scroll, state);
-        update_inventory({ state });
-            scroll = null;
-        } else {
-            note_unported('read.c seffect_identify');
-        }
+        if (await seffect_identify(scroll, state)) scroll = null;
         break;
     case SCR_CHARGING:
         note_unported('read.c seffect_charging');
