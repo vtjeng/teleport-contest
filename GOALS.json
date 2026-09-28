@@ -101159,7 +101159,7 @@
     {
       "id": "port-potion-gain-energy-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete gain-energy potion effect and quaff dispatch",
       "cFile": "potion.c",
       "sessions": [
@@ -101173,15 +101173,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b3559b21b4087eb86dad1a798fe621067c921f47",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_gain_energy",
           "line": 1224,
           "endLine": 1259,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -101351,7 +101354,89 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_gain_energy",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_gain_energy",
+            "sourceReview": "Read all of potion.c:peffect_gain_energy() (1224-1258) and the POT_GAIN_ENERGY arm in potion.c:peffects(). Preserved source order: cursed/un-cursed feedback, BUC-dependent d(3/2/1, 6), cursed sign reversal, u.uenmax increase and peak/clamp logic, current energy increase by 3*num and clamp/floor, disp.botl, then exercise(A_WIS, TRUE). The C helper returns void and has no additional unported callee; its RNG call uses the existing d() port, and exercise/output effects use existing ports. Replaced the POT_GAIN_ENERGY UnsupportedQuaffError with the source dispatch. Production quaff path is cmd.c q -> potion.c:dodrink() -> dopotion() -> peffects() -> peffect_gain_energy().",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects() dispatches POT_GAIN_ENERGY to peffect_gain_energy(otmp), then continues to the shared -1 result."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() calls peffects(otmp) for the selected potion and consumes its return."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink() selects a potion and calls dopotion(otmp)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c's q command row (around line 1810) dispatches to dodrink(); the JavaScript quaff command seam calls runQuaffCommand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-energy-blessed-independent-a37.session.json",
+              "recordings/potion.c/gain-energy-uncursed-independent-a37.session.json",
+              "recordings/potion.c/gain-energy-cursed-independent-a37.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "gain-energy-potion-restores-energy",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 35,
+                "source": "cmd.c q -> potion.c:dodrink() -> dopotion() -> peffects(POT_GAIN_ENERGY) -> peffect_gain_energy()"
+              }
+            ],
+            "checkedAt": "b3559b21b4087eb86dad1a798fe621067c921f47"
+          }
+        ],
+        "entryPointReview": "The active source entry is quaffing a POT_GAIN_ENERGY potion through q/#quaff: cmd.c dispatches q to dodrink(), which selects the potion, calls dopotion(), then peffects() dispatches POT_GAIN_ENERGY to peffect_gain_energy(). Three independent C recordings strictly match through the complete command for blessed, uncursed, and cursed potions and exercise each dice/message branch. The selected admitted v9 range matches all 36 recorded steps through the wizard-wish and quaff sequence. spell.c:spelleffects() also calls peffects() for spell pseudo-objects, but its source switch contains no POT_GAIN_ENERGY spell case; end.c:fuzzer_savelife() calls peffects() only for water and restore-ability potions, so neither provides another gain-energy entry. No active gain-energy entry remains uncovered.",
+        "entryPoints": [
+          {
+            "name": "Quaff a gain-energy potion through q/#quaff",
+            "functions": [
+              "peffect_gain_energy"
+            ],
+            "recordings": [
+              "recordings/potion.c/gain-energy-blessed-independent-a37.session.json",
+              "recordings/potion.c/gain-energy-uncursed-independent-a37.session.json",
+              "recordings/potion.c/gain-energy-cursed-independent-a37.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "gain-energy-potion-restores-energy",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 35,
+                "source": "cmd.c q -> potion.c:dodrink() -> dopotion() -> peffects(POT_GAIN_ENERGY) -> peffect_gain_energy()"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b3559b21b4087eb86dad1a798fe621067c921f47",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
