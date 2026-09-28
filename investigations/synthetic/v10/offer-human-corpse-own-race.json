@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v10.json",
   "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
   "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
-  "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
-  "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
-  "remainingScreens": 11,
+  "evaluationPath": "challenges/evaluations/20260928130935-v10.json",
+  "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592",
+  "remainingScreens": 2,
   "recordedSteps": 41,
   "status": "complete",
-  "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+  "commit": "502dd4bc9e1bdc245fc0d223217696088126a592",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v10",
@@ -24,66 +24,116 @@
     "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
     "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
     "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
-    "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
-    "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
-    "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
-    "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
-    "evaluationUtc": "2026-09-28T08:31:23.355Z",
-    "remainingScreens": 11,
+    "replayInputSha256": "24e068511f16e4cd8dca714851523783d922f6c3d4a8fa7a51fcca5dd4c86dde",
+    "evaluationPath": "challenges/evaluations/20260928130935-v10.json",
+    "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592",
+    "evaluationArtifact": "challenges/evaluations/20260928130935-v10.json",
+    "evaluationUtc": "2026-09-28T13:09:38.613Z",
+    "remainingScreens": 2,
     "recordedSteps": 41,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 39,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 30,
+        "matched": 39,
         "total": 41
       },
       "rng": {
-        "matched": 2315,
+        "matched": 2316,
         "total": 2471
       },
       "cursors": {
-        "matched": 30,
+        "matched": 39,
         "total": 41
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
-      "step": 30
+      "screen": {
+        "index": 39,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 39,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 3,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "r",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2316,
+        "cEntry": "rn2(2)=1",
+        "cCaller": "dlord(minion.c:410)",
+        "jsEntry": "rn2(12)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 39,
+          "key": "y"
+        },
+        "stepIndex": 39
+      },
+      "cursor": {
+        "index": 39,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 39,
+          "key": "y"
+        },
+        "cCursor": [
+          64,
+          0,
+          1
+        ],
+        "jsCursor": [
+          5,
+          6,
+          1
+        ]
+      }
     },
-    "step": 30,
-    "kind": "stop",
-    "sourceFile": null,
-    "function": null,
-    "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
-    "cFile": null,
+    "step": 39,
+    "kind": "rng",
+    "sourceFile": "minion.c",
+    "function": "dlord",
+    "message": null,
+    "cFile": "minion.c",
     "luaFile": null,
-    "line": null
+    "line": 410
   },
-  "summary": "A wizard wish successfully constructs a human corpse, then JavaScript refuses the invent.c:hold_another_object drop path after addinv_core0. Both the altar-offering and same-race eating recordings stop before their intended actions. The source helper admits a corpse to inventory temporarily, splits any quantity merged into an existing stack when burden or inventory count requires dropping it, prints the source drop message, and calls dropx or hitfloor. The JavaScript preflight declines mergeable objects and its runtime drop arm throws when quantity changed; makewish also has a stale comment claiming readobjnam cannot create a corpse.",
+  "summary": "The wished human corpse now reaches pray.c:sacrifice_your_race. JavaScript stops that source call with note_unported after the own-race check, while C proceeds through its altar branch and calls minion.c:dlord; the first remaining mismatch is step 39. The source task is the whole sacrifice_your_race function and its offer_corpse caller, including altar transformation, demon summoning, alignment and luck consequences, and corpse consumption. minion.c:dlord is already ported; its first rn1 draw is missing only because the prayer call is skipped.",
   "source": {
-    "file": "invent.c",
-    "branch": "When a wished human corpse passes through zap.c:makewish and hold_another_object, the ordinary addinv_core0 arm tests inventory count and near_capacity against the prior encumbrance limit; on failure, it separates a merged quantity with splitobj and enters drop_it. A wished corpse judged unsafe by u_safe_from_fatal_corpse instead clears wishedfor, adds without inventory update, and also enters drop_it. Both source arms must preserve message and floor placement order.",
+    "file": "pray.c",
+    "branch": "offer_corpse calls sacrifice_your_race when your_race(ptr) is true. For a nonchaotic human offering a human corpse, sacrifice_your_race first reports the offense and Wisdom exercise, then chooses the high/lawful-neutral/chaotic-unaligned altar branch; the latter calls dlord(altaralign), may create a demon, applies fear, alignment, anger and luck changes, then consumes the offered corpse. Preserve all other species/alignment/altar branches of the whole function.",
     "functions": [
-      "hold_another_object"
+      "sacrifice_your_race"
     ],
     "callers": [
-      "zap.c:makewish calls invent.c:hold_another_object after readobjnam constructs the wished object. js/zap.js:makewish prepares a drop admission and calls js/invent.js:hold_another_object."
+      "pray.c:offer_corpse at 1994 calls sacrifice_your_race after your_race; js/pray.js:offer_corpse at 551-553 currently calls note_unported and returns. #offer reaches offer_corpse through the existing altar path."
     ],
     "dependencies": [
-      "invent.c:splitobj and obj.c object extraction may be reached by a merged wished corpse; preserve their source ordering and caller contracts.",
-      "do.c:dropx and dothrow.c:hitfloor handle the two floor-reaching branches after drop_it; admit the actual source route generally rather than by object type or case ID.",
-      "zap.c:makewish lines 6401-6419 tests u_safe_from_fatal_corpse and wishedfor, selects materialize/drop wording, and passes the object to hold_another_object; its JavaScript caller must match those conditions.",
-      "The later own-race eat.c and pray.c behaviors are separate source work only after this shared wish/drop blocker is cleared."
+      "minion.c:dlord returns a monster type and is already ported in js/minion.js; preserve its rn1/ndemon behavior when called from the altar branch.",
+      "makemon.c:makemon return controls whether demon-summoning feedback and paralysis happen; use the existing runtime port and port any missing return-valued callee it needs.",
+      "Void source calls to desecrate_altar and angry_priest may remain recorded gaps only where the C discards their results; do not invent their effects."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "challenges/evaluations/20260928083103-v10.json first stops synthetic/v10/offer-human-corpse-own-race at step 30, with 11 unmatched screens and \"held object dropped is not available for otyp 265\". The two cases share this first failing source route.",
-    "nethack-c/upstream/src/invent.c:1208-1305 implements hold_another_object including fatal-corpse and burden/slot drop_it routes, splitobj for a merged quantity, and dropx/hitfloor after the message.",
-    "js/invent.js:4845-4984 restricts prepared drops to nonmergeable objects and refuses a changed quantity in the ordinary drop branch; js/zap.js:2169 incorrectly claims that readobjnam refuses corpses, although both C recordings reached corpse holding."
+    "Current saved challenges/evaluations/20260928130935-v10.json at 502dd4bc9e1bdc245fc0d223217696088126a592 matches 39/41 screens and first differs at segment 0 step 39. C next calls rn2(2) from dlord(minion.c:410) while JS next has rn2(12). The immutable recording SHA-256 is 33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296.",
+    "Upstream nethack-c/upstream/src/pray.c:1698-1784 defines sacrifice_your_race and pray.c:1994 calls it for own-race corpses. The chaotic/unaligned altar branch invokes dlord at 1744 and consumes the corpse at the end.",
+    "js/pray.js:551-553 returns after note_unported(pray.c sacrifice_your_race); js/minion.js:282-300 implements dlord, so the missing first source action is the prayer branch rather than the selector itself.",
+    "Earlier investigation at commit 395a168f identified a wished-corpse holding refusal at step 30, now resolved by A41. Its shared eat-same-race case passes; preserve that gain while repairing the altar path."
   ]
 }

@@ -106389,6 +106389,693 @@
         "rng": 792838
       },
       "parkedReason": "The ordinary POT_SEE_INVISIBLE and POT_FRUIT_JUICE quaff paths match, including an independent blessed potion recording, but fountain.c:drinksink case 4 can create POT_SEE_INVISIBLE and still lacks matching runtime evidence. Resume when an independent sink-created subtype recording or admitted synthetic range is available; blocked recipe recipes/potion.c/see-invisible-sink-subtype-unmatched-b42.session.json preserves the attempt."
+    },
+    {
+      "id": "port-music-awaken-soldiers-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port bugle awakening across hero and monster callers",
+      "cFile": "music.c",
+      "sessions": [
+        "synthetic/v10/bugle-awakens-hostile-soldier"
+      ],
+      "selectionReason": "The saved v10 bugle case first diverges at step 38 after the hero plays a bugle: music.c:do_improvisation calls awaken_soldiers, but js/music.js only records the gap. Source audit found a second active call at muse.c:use_defensive MUSE_BUGLE, selected for a mercenary carrying a bugle when a sleepy soldier is visible. No other unresolved music session is queued. Port the whole awaken_soldiers function and both caller arms; use a separate C recording for the monster caller. Investigation: investigations/synthetic/v10/bugle-awakens-hostile-soldier.json; current evaluation challenges/evaluations/20260928130935-v10.json.",
+      "detail": "music.c:awaken_soldiers wakes and angers living non-guard mercenaries, clears their movement/wait state, reports visible or audible feedback, and calls the existing awaken_scare for nearby other monsters. Preserve source order and RNG, wire music.c:do_improvisation BUGLE and muse.c:use_defensive MUSE_BUGLE. Claim completion only with hero and monster caller runtime evidence.",
+      "openedAt": "9af9d35fdd823b095c9133ffc863b21fa5586fc4",
+      "openStanding": {
+        "sha": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "awaken_soldiers",
+          "line": 162,
+          "endLine": 195,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 162,
+        "to": 195
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/bugle-awakens-hostile-soldier": {
+          "session": "synthetic/v10/bugle-awakens-hostile-soldier",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bugle-awakens-hostile-soldier",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+          "recordingSha256": "bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9",
+          "evaluationPath": "challenges/evaluations/20260928130935-v10.json",
+          "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592"
+        }
+      },
+      "activeStanding": {
+        "sha": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bugle-awakens-hostile-soldier",
+          "session": "synthetic/v10/bugle-awakens-hostile-soldier",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+          "recordingPath": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+          "recordingSha256": "bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9",
+          "recipe": "challenges/cases/v10/bugle-awakens-hostile-soldier.recipe.session.json",
+          "recipeSha256": "eb17038ab8d989f80d59ad65b25a6e5937102a0c99a02c92257322b142b56909",
+          "replayInputSha256": "a08758108ab0a96324515f8c5ef36934e8334fa3ab8b3773a0e0ec5109d0c00b",
+          "evaluationPath": "challenges/evaluations/20260928143652-v10.json",
+          "evaluationCommit": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+          "evaluationArtifact": "challenges/evaluations/20260928143652-v10.json",
+          "evaluationUtc": "2026-09-28T14:36:55.746Z",
+          "remainingScreens": 2,
+          "recordedSteps": 40,
+          "previousScreensMatched": 38,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 38,
+              "total": 40
+            },
+            "rng": {
+              "matched": 2851,
+              "total": 2851
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 41,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": " "
+              },
+              "cCursor": [
+                49,
+                0,
+                1
+              ],
+              "jsCursor": [
+                28,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 38,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/bugle-awakens-hostile-soldier.json",
+            "result": {
+              "session": "synthetic/v10/bugle-awakens-hostile-soldier",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "bugle-awakens-hostile-soldier",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 2,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "bugle-awakens-hostile-soldier",
+                "session": "synthetic/v10/bugle-awakens-hostile-soldier",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+                "recordingPath": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+                "recordingSha256": "bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9",
+                "recipe": "challenges/cases/v10/bugle-awakens-hostile-soldier.recipe.session.json",
+                "recipeSha256": "eb17038ab8d989f80d59ad65b25a6e5937102a0c99a02c92257322b142b56909",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 2,
+                "recordedSteps": 40,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 38,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 2851,
+                    "total": 2851
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 41,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      49,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      28,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 38,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The bugle case matches every recorded RNG call and the first 38 screens, then C announces that the visible hostile soldier is ready for battle while JavaScript has only a note_unported for music.c:awaken_soldiers. The whole source function wakes every living mercenary except guards regardless of distance, changes its hostility and wait state, and emits sight- or hearing-based feedback; nearby other monsters use the already-ported awaken_scare branch. The bugle improvisation caller needs to invoke it after the sound and before Wisdom exercise.",
+              "source": {
+                "file": "music.c",
+                "branch": "When a hero improvises on a BUGLE, do_improvisation calls awaken_soldiers(&gy.youmonst) after Hero_playnotes. For every living mercenary other than a guard, the function makes an untamed monster hostile, clears sleep and freezing, restores movement, clears STRAT_WAITMASK, and reports readiness if visible or battle-gear sounds if heard. Other living monsters within hero level times 30 squared-distance units call awaken_scare, with scary true below one third of that range.",
+                "functions": [
+                  "awaken_soldiers"
+                ],
+                "callers": [
+                  "music.c:do_improvisation BUGLE arm at 649-658 calls awaken_soldiers with the hero; js/music.js:do_improvisation BUGLE arm prints the sound then only notes the unported call."
+                ],
+                "dependencies": [
+                  "music.c:awaken_scare is already ported in js/music.js and handles the nonmercenary branch; retain its distance, resistance, fear and RNG behavior.",
+                  "canseemon, Monnam, Deaf-aware Norep, and monster list iteration determine the visible and heard mercenary messages and source state order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json has 38/40 matching screens, 2851/2851 matching RNG calls, and its first screen mismatch at step 38, where the C message extends the top row and JavaScript does not. The C recording SHA-256 is bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9.",
+                "Upstream nethack-c/upstream/src/music.c:162-199 defines awaken_soldiers, with a no-distance mercenary arm and distance-limited awaken_scare for other monsters. Its BUGLE caller is at music.c:649-658.",
+                "js/music.js:219-226 prints the bugle line but calls note_unported(music.c awaken_soldiers) instead of changing the soldier or emitting the C readiness message. The independent recipe summons a hostile soldier, confirms improvisation, and dismisses the separate music pagers."
+              ]
+            }
+          }
+        }
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "58639035d0e7ada6a49be353c938613f4266f393",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The hero BUGLE entry matches the admitted v10 case through step 39, and music.c:awaken_soldiers plus the muse.c:use_defensive caller are implemented. The active monster MUSE_BUGLE entry remains unverified: monmove.c:1925-1928 calls find_defensive(mtmp, TRUE) only when mfndpos() yields no legal moves. B43 C attempts reached wand combat but not that gate. Resume when an independent C recipe with a bugle-carrying mercenary and zero legal moves reaches use_defensive(MUSE_BUGLE) and its recording strictly matches. Blocked setup recipe: recipes/muse.c/muse-bugle-no-moves-entry-unverified.session.json."
+    },
+    {
+      "id": "port-read-confuse-monster-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port confuse-monster scroll and spell effects from source",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-confuse-monster-scroll"
+      ],
+      "selectionReason": "The unresolved v8 scroll first differs at step 49 in read.c:seffect_confuse_monster, where C draws rnd(2) after the hand-glow message and js/read.js records an unported gap. The function also has active SPE_CONFUSE_MONSTER dispatch through spell.c:spelleffects, so cover both scroll and spell entry points. The v10 confused-remove-curse case shares hero confusion state but executes seffect_remove_curse and a different action history; it is a separate source task. Investigation: investigations/synthetic/v8/read-confuse-monster-scroll.json; current evaluation challenges/evaluations/20260928130935-v8.json.",
+      "detail": "Port all read.c:seffect_confuse_monster branches in C order: cursed/nonhuman, confused, ordinary/blessed, blindness/invisibility message variants, scroll versus spell increments, HConfusion changes via potion.c:make_confused, u.umconf growth and >=40 cap, with exact rnd/rn1 placement. Wire both SCR_CONFUSE_MONSTER and SPE_CONFUSE_MONSTER in read.c:seffects and verify independent scroll and spell recordings.",
+      "openedAt": "ccf8f6daa9f704cdd5588194f422f1fc468fdbab",
+      "openStanding": {
+        "sha": "502dd4bc9e1bdc245fc0d223217696088126a592",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "seffect_confuse_monster",
+          "line": 1399,
+          "endLine": 1453,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1399,
+        "to": 1453
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-confuse-monster-scroll": {
+          "session": "synthetic/v8/read-confuse-monster-scroll",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-confuse-monster-scroll",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-confuse-monster-scroll.session.json",
+          "recordingSha256": "69207cf1a491e36ac32f7f7de432ae70954b8e2d4c987c2c0d17676f3881c122",
+          "evaluationPath": "challenges/evaluations/20260928130935-v8.json",
+          "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592"
+        }
+      },
+      "activeStanding": {
+        "sha": "502dd4bc9e1bdc245fc0d223217696088126a592",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-confuse-monster-scroll",
+          "session": "synthetic/v8/read-confuse-monster-scroll",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/read-confuse-monster-scroll.session.json",
+          "recordingPath": "challenges/cases/v8/read-confuse-monster-scroll.session.json",
+          "recordingSha256": "69207cf1a491e36ac32f7f7de432ae70954b8e2d4c987c2c0d17676f3881c122",
+          "recipe": "challenges/cases/v8/read-confuse-monster-scroll.recipe.session.json",
+          "recipeSha256": "76d0f4cb9e9e0201afe50bff5103ebc1e8a274fb51e373899fba75d37c9fa5e8",
+          "replayInputSha256": "7332e2e65087c9194cabf87a1d254c73ed258a6fa66e00a65467f7d41cce2a85",
+          "evaluationPath": "challenges/evaluations/20260928130935-v8.json",
+          "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592",
+          "evaluationArtifact": "challenges/evaluations/20260928130935-v8.json",
+          "evaluationUtc": "2026-09-28T13:10:12.412Z",
+          "remainingScreens": 1,
+          "recordedSteps": 51,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 51
+            },
+            "rng": {
+              "matched": 2355,
+              "total": 2356
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 49,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 49,
+                "key": "o"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2355,
+              "cEntry": "rnd(2)=2",
+              "cCaller": "seffect_confuse_monster(read.c:1436)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 49,
+                "key": "o"
+              },
+              "stepIndex": 49
+            },
+            "cursor": {
+              "index": 49,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 49,
+                "key": "o"
+              },
+              "cCursor": [
+                77,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 49,
+          "kind": "rng",
+          "sourceFile": "read.c",
+          "function": "seffect_confuse_monster",
+          "message": null,
+          "cFile": "read.c",
+          "luaFile": null,
+          "line": 1436,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/read-confuse-monster-scroll.json",
+            "result": {
+              "session": "synthetic/v8/read-confuse-monster-scroll",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "read-confuse-monster-scroll",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "69207cf1a491e36ac32f7f7de432ae70954b8e2d4c987c2c0d17676f3881c122",
+              "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 51,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "read-confuse-monster-scroll",
+                "session": "synthetic/v8/read-confuse-monster-scroll",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/read-confuse-monster-scroll.session.json",
+                "recordingPath": "challenges/cases/v8/read-confuse-monster-scroll.session.json",
+                "recordingSha256": "69207cf1a491e36ac32f7f7de432ae70954b8e2d4c987c2c0d17676f3881c122",
+                "recipe": "challenges/cases/v8/read-confuse-monster-scroll.recipe.session.json",
+                "recipeSha256": "76d0f4cb9e9e0201afe50bff5103ebc1e8a274fb51e373899fba75d37c9fa5e8",
+                "replayInputSha256": "27f18d189b460e5d07fcbe8d4669298ca261f8e066dfb04e4481c65916a5d755",
+                "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v8.json",
+                "evaluationUtc": "2026-09-27T19:11:43.974Z",
+                "remainingScreens": 1,
+                "recordedSteps": 51,
+                "previousScreensMatched": 50,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 2355,
+                    "total": 2356
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 51
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 49,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 49,
+                      "key": "o"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2355,
+                    "cEntry": "rnd(2)=2",
+                    "cCaller": "seffect_confuse_monster(read.c:1436)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 49,
+                      "key": "o"
+                    },
+                    "stepIndex": 49
+                  },
+                  "cursor": {
+                    "index": 49,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 49,
+                      "key": "o"
+                    },
+                    "cCursor": [
+                      77,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 49,
+                "kind": "rng",
+                "sourceFile": "read.c",
+                "function": "seffect_confuse_monster",
+                "message": null,
+                "cFile": "read.c",
+                "luaFile": null,
+                "line": 1436
+              },
+              "summary": "The confuse-monster scroll reaches read.c:seffect_confuse_monster, but js/read.js records an unported gap. The ordinary visible human scroll arm emits a hand-glow message, then C draws rnd(2) at step 49 and increments u.umconf. Port every cursed, confused, blessed, blind, invisible, scroll, and spell branch from source and keep the draw after the selected message.",
+              "source": {
+                "file": "read.c",
+                "branch": "read.c:seffect_confuse_monster (1400-1454) first distinguishes nonhuman/cursed, already-confused, and ordinary human arms; message wording depends on Blind/Invisible and current u.umconf. The ordinary unblessed scroll arm adds 3 plus rnd(2), while blessed uses rn1(8,2), and a high umconf value caps the increment to 1. Confused branches call potion.c:make_confused with source-ordered timeout draws.",
+                "functions": [
+                  "seffect_confuse_monster"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_CONFUSE_MONSTER and SPE_CONFUSE_MONSTER dispatch to seffect_confuse_monster; js/read.js:seffects currently notes the gap for both.",
+                  "read.c:doread and spell.c:spelleffects reach the scroll and spell dispatch paths."
+                ],
+                "dependencies": [
+                  "potion.c:make_confused is already ported in js/potion.js; pass its output and timeout environment without changing the C draw order.",
+                  "Use the single C u.umconf state for repeated uses, preserving the >=40 cap and scroll versus spell base increment."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v8.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 50/51 screens and 2355/2356 RNG calls; first C RNG at mismatch is rnd(2)=2 from seffect_confuse_monster(read.c:1436).",
+                "Upstream nethack-c/upstream/src/read.c defines seffect_confuse_monster with all branches described above; js/read.js dispatch records note_unported for the same source function.",
+                "The selected v8 case's setup and first mismatch are independent C recording evidence; port the full function and both production dispatch arms rather than keying behavior to this case."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_confuse_monster",
+            "implementation": "js/read.js",
+            "symbol": "seffect_confuse_monster",
+            "sourceReview": "Read the full read.c:seffect_confuse_monster definition at 1399-1451 and compared every condition, output call, RNG draw, and mutation in source order. The first branch applies HConfusion + rnd(100) for nonhuman forms or cursed objects; the already-confused human branches distinguish blessed clearing from unblessed extension; otherwise the scroll-only base increment is 3, blessed and ordinary effects use their source RNG, and the umconf >= 40 adjustment occurs after the RNG draw. The JS keeps HConfusion (uprops[CONFUSION].intrinsic) separate from u.umconf, and evaluates Blind with its full property predicate and Invisible as Invis && !See_invisible per youprop.h. The integration correction at a86e43d7 adds that See_invisible condition and a source-pinned state test. read.c:seffects dispatches both SCR_CONFUSE_MONSTER and SPE_CONFUSE_MONSTER here; spell.c:spelleffects marks the pseudo-object blessed at Skilled and routes the duplicate through seffects. The existing make_confused callee returns void and its implementation is already ported; no consumed return or unported callee is skipped. The JS SCR/SPE switch arm and spell dispatch are wired to the same helper.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects, SCR_CONFUSE_MONSTER and SPE_CONFUSE_MONSTER cases at 2214-2216, dispatches the object to seffect_confuse_monster."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread at 635 calls seffects(scroll) after the scroll-use message and optional confused-word message; JS doread passes the selected scroll to seffects."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects, SPE_CONFUSE_MONSTER duplicate case at 1518 onward, sets pseudo->blessed for Skilled+ and calls seffects(pseudo), which dispatches to this helper."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runCastCommand",
+                "source": "cmd.c:docast at 820-827 calls spelleffects for the selected learned spell; the cast command row dispatches to the JS runCastCommand handler."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runWizCastCommand",
+                "source": "cmd.c:dowizcast at 785-813 calls spelleffects for the selected wizard spell; the WIZMODECMD extended-command row dispatches to the JS runWizCastCommand handler."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-confuse-monster.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/confuse-monster-cursed-scroll-c35-independent.session.json",
+              "recordings/spell.c/confuse-monster-wizcast-c35-independent.session.json",
+              "recordings/spell.c/confuse-monster-learned-docast-c35-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-confuse-monster-scroll",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 49,
+                "source": "cmd.c doread -> read.c:doread -> read.c:seffects(SCR_CONFUSE_MONSTER) -> read.c:seffect_confuse_monster"
+              }
+            ],
+            "checkedAt": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d"
+          }
+        ],
+        "entryPointReview": "The active scroll entry is cmd.c:doread -> read.c:doread -> read.c:seffects -> seffect_confuse_monster; the selected v8 read-confuse-monster-scroll case reaches the effect at segment 0, step 49, and the independent cursed scroll reaches read.c:seffect_confuse_monster at its effect step. The active learned-spell entry is cmd.c:docast -> spell.c:spelleffects -> read.c:seffects -> this helper; the independent ordinary #cast recording reaches the helper at step 89. The wizard-only entry is cmd.c:dowizcast -> spell.c:spelleffects -> read.c:seffects -> this helper; the independent #wizcast recording reaches it at step 11. All three command routes use the production JS command handler and spell/read dispatch. Cursed, learned #cast, and #wizcast independent recordings are fully strict-matched; the v8 range is strict-matched through step 49. Initial setup-only trials (wrong cursed-scroll inventory selector, wrong #wizcast spell selection, and incorrect learned-cast inventory/menu selectors) are retained only under .cache/C35-attempts and are excluded from the regression recordings/evidence.",
+        "entryPoints": [
+          {
+            "name": "Read a confusion scroll",
+            "functions": [
+              "seffect_confuse_monster"
+            ],
+            "recordings": [
+              "recordings/read.c/confuse-monster-cursed-scroll-c35-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-confuse-monster-scroll",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 49,
+                "source": "cmd.c doread -> read.c:doread -> read.c:seffects(SCR_CONFUSE_MONSTER) -> read.c:seffect_confuse_monster"
+              }
+            ]
+          },
+          {
+            "name": "Learned confuse-monster spell through #cast",
+            "functions": [
+              "seffect_confuse_monster"
+            ],
+            "recordings": [
+              "recordings/spell.c/confuse-monster-learned-docast-c35-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard spell through #wizcast",
+            "functions": [
+              "seffect_confuse_monster"
+            ],
+            "recordings": [
+              "recordings/spell.c/confuse-monster-wizcast-c35-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

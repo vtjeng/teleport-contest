@@ -15,6 +15,8 @@ import {
     BY_COOKIE,
     COLNO,
     CONFUSION,
+    INVIS,
+    SEE_INVIS,
     DEAF,
     UNCHANGING,
     DISP_BEAM,
@@ -132,6 +134,7 @@ import {
     MS_LEADER,
     MS_NEMESIS,
     S_EEL,
+    S_HUMAN,
     S_MIMIC,
     S_WORM_TAIL,
     S_invisible,
@@ -349,6 +352,7 @@ import { hard_helmet } from './do_wear.js';
 import { dmgval, drain_weapon_skill } from './weapon.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { body_part, mbodypart } from './polyself.js';
+import { make_confused } from './potion.js';
 // read.js -> monmove.js -> muse.js -> read.js is a function-body-only cycle:
 // these imported helpers are first read during gameplay.
 import { closed_door, monflee, youHear } from './monmove.js';
@@ -927,6 +931,103 @@ export async function wand_explode(obj, charge, state = game) {
 function propertyActive(property, state) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
+// C ref: read.c seffect_confuse_monster() (1399-1451). `Confusion` is
+// HConfusion, so this effect tests and updates only the intrinsic timeout;
+// blindness/invisibility, by contrast, use their full property predicates.
+export async function seffect_confuse_monster(sobj, state = game, env = {}) {
+    const random = env.random ?? { rn1, rn2, rnd };
+    const message = env.message ?? ttyPline;
+    const confusion = state.u.uprops[CONFUSION] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+    };
+    const hconfusion = confusion.intrinsic ?? 0;
+    const sblessed = Boolean(sobj.blessed);
+    const scursed = Boolean(sobj.cursed);
+    const confused = hconfusion !== 0;
+    // youprop.h: Invisible is Invis && !See_invisible.
+    const seeInvisible = state.u.uprops[SEE_INVIS];
+    const altfeedback = propertyActive(BLINDED, state)
+        || (propertyActive(INVIS, state)
+            && !seeInvisible?.intrinsic && !seeInvisible?.extrinsic);
+    const hands = makeplural(body_part(HAND, state.youmonst));
+
+    if (state.youmonst?.data?.mlet !== S_HUMAN || scursed) {
+        if (!hconfusion) {
+            let prefix = 'You feel';
+            if (Math.trunc(state.multi ?? 0) < 0) {
+                const { unconscious } = await import('./trap.js');
+                if (unconscious(state) || state.u?.uhs === FAINTED)
+                    prefix = 'You dream that you feel';
+            }
+            await message(`${prefix} confused.`, state);
+        }
+        await make_confused(
+            hconfusion + random.rnd(100), false, state, { message },
+        );
+    } else if (confused) {
+        if (!sblessed) {
+            await message(
+                `Your ${hands} begin to ${altfeedback
+                    ? 'tingle' : `glow ${hcolor('purple', state)}`}.`,
+                state,
+            );
+            await make_confused(
+                hconfusion + random.rnd(100), false, state, { message },
+            );
+        } else {
+            await message(
+                `A ${altfeedback ? 'faint buzz'
+                    : `${hcolor('red', state)} glow`} surrounds your `
+                    + `${body_part(HEAD, state.youmonst)}.`,
+                state,
+            );
+            await make_confused(0, true, state, { message });
+        }
+    } else {
+        // read.c distinguishes scrolls (starting increment 3) from the
+        // spell.c duplicate, whose pseudo-object has SPBOOK_CLASS.
+        let incr = sobj.oclass === SCROLL_CLASS ? 3 : 0;
+        if (!sblessed) {
+            if (altfeedback) {
+                await message(
+                    `Your ${hands} tingle${state.u.umconf ? ' even more' : ''}.`,
+                    state,
+                );
+            } else if (!state.u.umconf) {
+                await message(
+                    `Your ${hands} begin to glow ${hcolor('red', state)}.`,
+                    state,
+                );
+            } else {
+                await message(
+                    `The ${hcolor('red', state)} glow of your ${hands} intensifies.`,
+                    state,
+                );
+            }
+            incr += random.rnd(2);
+        } else {
+            if (altfeedback) {
+                await message(
+                    `Your ${hands} tingle ${state.u.umconf
+                        ? 'even more' : 'very'} sharply.`,
+                    state,
+                );
+            } else {
+                await message(
+                    `Your ${hands} glow ${state.u.umconf
+                        ? 'an even more' : 'a'} brilliant ${hcolor('red', state)}.`,
+                    state,
+                );
+            }
+            incr += random.rn1(8, 2);
+        }
+        // Repeated uses become less effective after the C threshold.
+        if (state.u.umconf >= 40) incr = 1;
+        state.u.umconf += incr;
+    }
 }
 
 // C ref: read.c seffect_scare_monster() (1454-1485). C's fmon chain is
@@ -2757,7 +2858,7 @@ async function seffect_create_monster(scroll, state = game,
 
 export async function seffects(scroll, state = game, env = {}) {
     state.gk ??= {};
-    const random = env.random ?? { rn2, rnd, rnl };
+    const random = env.random ?? { rn1, rn2, rnd, rnl };
     if (objectType(scroll, state).oc_magic)
         await exercise(A_WIS, true, state, random);
 
@@ -2782,7 +2883,7 @@ export async function seffects(scroll, state = game, env = {}) {
         break;
     case SCR_CONFUSE_MONSTER:
     case SPE_CONFUSE_MONSTER:
-        note_unported('read.c seffect_confuse_monster');
+        await seffect_confuse_monster(scroll, state, { ...env, random });
         break;
     case SCR_SCARE_MONSTER:
     case SPE_CAUSE_FEAR:
