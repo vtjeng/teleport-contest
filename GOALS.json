@@ -107721,7 +107721,7 @@
     {
       "id": "port-read-enchant-armor-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port enchant-armor scroll effect from source",
       "cFile": "read.c",
       "sessions": [
@@ -107742,8 +107742,8 @@
           "name": "seffect_enchant_armor",
           "line": 1115,
           "endLine": 1293,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -108013,7 +108013,77 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_enchant_armor",
+            "implementation": "js/read.js",
+            "symbol": "seffect_enchant_armor",
+            "sourceReview": "Read the whole read.c:seffect_enchant_armor definition (1115-1293) and seffects caller. Ported source order for the no-armor strange_feeling/consumed-pointer path; confused erosion-proof path; special-armor and same-color guards; pre-enchantment evaporation rn2; negative-s overflow clamp and signed enchantment-power calculation; blessed bonus and rnd; scale-to-mail conversion with blessing, uncurse, and light order; ordinary message, shop-cost call, BUC mutation, cap_spe, adj_abon call, and final over-enchantment warning. The SCR_ENCHANT_ARMOR dispatcher now passes the scroll pointer through the helper's consumed boolean so doread only uses up a still-live scroll. C discards costly_alteration results; its shop effects remain explicit note_unported('shk.c costly_alteration') gaps. The required mkobj.c:bless helper is covered as supplemental source evidence. The do_wear.c:adj_abon helper is also documented as a supplemental dependency, with its unverified Helm of Brilliance runtime branch and blocked recipe detailed in supplementalSources.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:doread dispatches scrolls through seffects; read.c:seffects calls seffect_enchant_armor for SCR_ENCHANT_ARMOR and propagates the possibly consumed struct obj ** scroll pointer."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-enchant-armor.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/enchant-armor-valkyrie-independent-c37.session.json",
+              "recordings/read.c/enchant-armor-blessed-buc-c37.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect-setup-miss-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_enchant_armor"
+              }
+            ],
+            "checkedAt": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
+          }
+        ],
+        "entryPointReview": "The active production entry is the 'r' read command through read.c:doread -> read.c:seffects -> read.c:seffect_enchant_armor; JS read.js keeps the consumed-scroll result at the same dispatcher boundary. The selected admitted v8 case reaches the effect at segment 0 step 20, and two independently selected, fully matching C recordings reach the normal and blessed worn-shield paths (their enchantment draws are at step 37 and step 36 respectively). The blessed case also invokes mkobj.c:bless on a carried, initially unblessed shield. The complete do_wear.c:adj_abon helper is source-pinned and its direct state changes are tested, but an independent Helm of Brilliance production witness remains blocked: after dismissing the welcome pager, the equip turn causes C monmove.c:distfleeck rn2(5) draws before the scroll, while JS has no matching calls. The blocked recipe is named below and is not in recordings/. Separately, js/read.js exports its existing litroom body unchanged under the authorized C37 scope event so B45 can wire read.c:litroom; C37 does not claim litroom source completion or runtime coverage.",
+        "entryPoints": [
+          {
+            "name": "Read an enchant-armor scroll through the production read command",
+            "functions": [
+              "seffect_enchant_armor"
+            ],
+            "recordings": [
+              "recordings/read.c/enchant-armor-valkyrie-independent-c37.session.json",
+              "recordings/read.c/enchant-armor-blessed-buc-c37.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect-setup-miss-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_enchant_armor"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "d8207c5c6028852458dab58e90e8bda34fddb0c4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The read.c enchant-armor effect and two independent shield entry recordings match, but the Helm of Brilliance adj_abon production witness in recipes/read.c/enchant-armor-helm-abon-seed-9385141-c37.session.json diverges first at monmove.c:distfleeck during equipment before the scroll. Resume after that source behavior matches, then record the Helm path and close."
     },
     {
       "id": "port-apply-break-wand-synthetic-v10-20260928",
