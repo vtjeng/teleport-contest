@@ -104235,6 +104235,56 @@
           "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
         }
       }
+    },
+    {
+      "id": "port-uhitm-force-do-attack-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port uhitm.c force_attack and do_attack through source-defined human and polymorphed combat paths",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v10/bullwhip-lashes-unarmed-soldier"
+      ],
+      "selectionReason": "The second highest-count unreserved v10 mismatch is synthetic/v10/bullwhip-lashes-unarmed-soldier (manifest challenges/manifests/v10.json SHA-256 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recording challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json SHA-256 7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7; evaluation challenges/evaluations/20260928083103-v10.json). Investigation investigations/synthetic/v10/bullwhip-lashes-unarmed-soldier.json traces apply.c:use_whip through force_attack and do_attack and the eager injected-operation refusal. Worker A owns mon.c:xkilled; this uhitm.c task may use that shared kill dependency after its integration but owns the attack path and apply caller contract.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "force_attack",
+          "line": 432,
+          "endLine": 447,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "do_attack",
+          "line": 448,
+          "endLine": 586,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 432,
+        "to": 586
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/bullwhip-lashes-unarmed-soldier": {
+          "session": "synthetic/v10/bullwhip-lashes-unarmed-soldier",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bullwhip-lashes-unarmed-soldier",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+          "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
+          "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+          "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
+        }
+      }
     }
   ]
 }
