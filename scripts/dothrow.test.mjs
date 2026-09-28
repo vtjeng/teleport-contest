@@ -72,6 +72,7 @@ import {
     endmultishot,
     find_launcher,
     impact_disturbs_zombies,
+    mhurtle,
     multishot_class_bonus,
     should_mulch_missile,
     throw_obj,
@@ -80,6 +81,7 @@ import {
     walk_path,
 } from '../js/dothrow.js';
 import { GameMap } from '../js/game.js';
+import { resetGame } from '../js/gstate.js';
 import { isThrowingWeapon } from '../js/invent.js';
 import {
     PM_CAVE_DWELLER,
@@ -508,6 +510,47 @@ test('walk_path() follows the source Bresenham cells and rewinds on failure', as
     ]);
     assert.deepEqual(destination, { x: 4, y: 3 });
 });
+
+test('mhurtle() moves a monster through the source callback and floor tail',
+    async () => {
+        const stepStart = DOTHROW_C.indexOf('mhurtle_step(genericptr_t arg');
+        const stepEnd = DOTHROW_C.indexOf('/*\n * The player moves', stepStart);
+        const cStep = DOTHROW_C.slice(stepStart, stepEnd);
+        assert.match(cStep, /res = mintrap\(mon, HURTLING\);/u);
+        assert.match(cStep,
+            /res == Trap_Killed_Mon[\s\S]*?res == Trap_Caught_Mon[\s\S]*?res == Trap_Moved_Mon/u);
+        assert.match(DOTHROW_C,
+            /walk_path\(&mc, &cc, mhurtle_step,[\s\S]*?if \(!DEADMONSTER\(mon\)\)/u);
+
+        const fixture = arena();
+        const state = Object.assign(resetGame(), fixture);
+        // The callback still calls display.c flush_screen() at each cell;
+        // the source's level-construction suppression keeps this unit test
+        // focused on map movement instead of full status-line initialization.
+        state.in_mklev = true;
+        state.level.regions = [];
+        state.context = { ident: 1, mon_moving: false };
+        const monster = newMonster({
+            data: state.mons[PM_ORC],
+            m_id: 1,
+            mhp: 20,
+            mhpmax: 20,
+            mcansee: true,
+            mcanmove: true,
+        });
+        place_monster(monster, 7, 4, state);
+        try {
+            await mhurtle(monster, -1, 0, 2, {
+                state,
+                message: async () => {},
+            });
+            assert.deepEqual([monster.mx, monster.my], [5, 4]);
+            assert.equal(monster.movement, 0);
+            assert.equal(monster.mstun, 1);
+        } finally {
+            resetGame();
+        }
+    });
 
 // ---------------------------------------------------------------------------
 // dofire(), throw_obj() and throwit() on a built state
