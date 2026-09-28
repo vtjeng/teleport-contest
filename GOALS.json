@@ -104153,7 +104153,7 @@
     {
       "id": "port-read-create-monster-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port create-monster scroll and spell effects with runtime monster creation",
       "cFile": "read.c",
       "sessions": [
@@ -104161,8 +104161,12 @@
       ],
       "selectionReason": "The v8 create-monster recording first diverges at read.c:seffect_create_monster rn2(73) in investigations/synthetic/v8/read-create-monster-scroll-no-prior-monsters.json. Port the whole effect and SCR/SPE seffects dispatch, including its consumed makemon.c:create_critters Boolean and runtime makemon continuation. C32 released read.c:seffects on acceptance.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "8ac207f7909ff6dc849b4bc141c90703ab041c87",
+      "openStanding": {
+        "sha": "1555af1bb95b60ce1cfbb302fbeb60527efb6489",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -104191,7 +104195,257 @@
           "evaluationPath": "challenges/evaluations/20260928075052-v8.json",
           "evaluationCommit": "61db2f29db823f3a5d87886797e12fa604d89a2e"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1555af1bb95b60ce1cfbb302fbeb60527efb6489",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-create-monster-scroll-no-prior-monsters",
+          "session": "synthetic/v8/read-create-monster-scroll-no-prior-monsters",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+          "recordingPath": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+          "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+          "recipe": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.recipe.session.json",
+          "recipeSha256": "2ebfe64f4817de715a428c8dac99f16e7ddec0aebd7665e16b218cc1d8d4bca5",
+          "replayInputSha256": "00a964ee07478ab93c3bb1009162b85ad34ab3c99a1fc76187bdbbbe1cdd8fce",
+          "evaluationPath": "challenges/evaluations/20260928081512-v8.json",
+          "evaluationCommit": "711422bb31ddb697934196d4a58eb7fb00db8ce5",
+          "evaluationArtifact": "challenges/evaluations/20260928081512-v8.json",
+          "evaluationUtc": "2026-09-28T08:15:44.697Z",
+          "remainingScreens": 1,
+          "recordedSteps": 31,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2413,
+              "total": 2414
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 30,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "i"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2413,
+              "cEntry": "rn2(73)=44",
+              "cCaller": "seffect_create_monster(read.c:1616)",
+              "jsEntry": "rn2(12)=11",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "i"
+              },
+              "stepIndex": 30
+            },
+            "cursor": {
+              "index": 30,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "i"
+              },
+              "cCursor": [
+                46,
+                0,
+                1
+              ],
+              "jsCursor": [
+                5,
+                4,
+                1
+              ]
+            }
+          },
+          "step": 30,
+          "kind": "rng",
+          "sourceFile": "read.c",
+          "function": "seffect_create_monster",
+          "message": null,
+          "cFile": "read.c",
+          "luaFile": null,
+          "line": 1616,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/read-create-monster-scroll-no-prior-monsters.json",
+            "result": {
+              "session": "synthetic/v8/read-create-monster-scroll-no-prior-monsters",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "read-create-monster-scroll-no-prior-monsters",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+              "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "read-create-monster-scroll-no-prior-monsters",
+                "session": "synthetic/v8/read-create-monster-scroll-no-prior-monsters",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+                "recordingPath": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+                "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+                "recipe": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.recipe.session.json",
+                "recipeSha256": "2ebfe64f4817de715a428c8dac99f16e7ddec0aebd7665e16b218cc1d8d4bca5",
+                "replayInputSha256": "27f18d189b460e5d07fcbe8d4669298ca261f8e066dfb04e4481c65916a5d755",
+                "evaluationPath": "challenges/evaluations/20260927191056-v8.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v8.json",
+                "evaluationUtc": "2026-09-27T19:11:43.974Z",
+                "remainingScreens": 1,
+                "recordedSteps": 31,
+                "previousScreensMatched": 30,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2413,
+                    "total": 2414
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 30,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "i"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2413,
+                    "cEntry": "rn2(73)=44",
+                    "cCaller": "seffect_create_monster(read.c:1616)",
+                    "jsEntry": "rn2(12)=11",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "i"
+                    },
+                    "stepIndex": 30
+                  },
+                  "cursor": {
+                    "index": 30,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "i"
+                    },
+                    "cCursor": [
+                      46,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      5,
+                      4,
+                      1
+                    ]
+                  }
+                },
+                "step": 30,
+                "kind": "rng",
+                "sourceFile": "read.c",
+                "function": "seffect_create_monster",
+                "message": null,
+                "cFile": "read.c",
+                "luaFile": null,
+                "line": 1616
+              },
+              "summary": "The create-monster scroll reaches read.c:seffect_create_monster, but js/read.js records an unported gap. C makes its extra-monster rn2(73) draw before calling create_critters; the missing draw is the first RNG difference at step 30, and the final inventory screen also differs. Port the whole effect and use the existing create_critters Boolean result to set scroll knowledge.",
+              "source": {
+                "file": "read.c",
+                "branch": "read.c:seffect_create_monster (1606-1623) computes count in C evaluation order: one base creature, twelve extra for confusion or curse, and for an unblessed ordinary state rn2(73) followed by optional rnd(4). It passes acid blob species only when confused, calls makemon.c:create_critters, and sets known only when that consumed Boolean is true.",
+                "functions": [
+                  "seffect_create_monster"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_CREATE_MONSTER and SPE_CREATE_MONSTER dispatch to seffect_create_monster; js/read.js:seffects currently notes the gap for both.",
+                  "read.c:doread and spell.c:spelleffects reach the scroll and spell dispatch paths."
+                ],
+                "dependencies": [
+                  "makemon.c:create_critters is already ported in js/makemon.js and returns a Boolean; use its return value and preserve the wizard-mode prompt behavior.",
+                  "Keep the rn2(73)/rnd(4) order and gk.known update exactly as C."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v8.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 30/31 screens and 2413/2414 RNG calls; first C RNG at mismatch is rn2(73)=44 from seffect_create_monster(read.c:1616).",
+                "Upstream nethack-c/upstream/src/read.c defines seffect_create_monster with all branches described above; js/read.js dispatch records note_unported for the same source function.",
+                "The selected v8 case's setup and first mismatch are independent C recording evidence; port the full function and both production dispatch arms rather than keying behavior to this case."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-mon-xkilled-synthetic-v10-20260928",
