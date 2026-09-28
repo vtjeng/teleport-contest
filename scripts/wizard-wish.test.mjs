@@ -53,6 +53,12 @@ function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
 }
 
+function inventoryHas(otyp) {
+    for (let obj = game.invent; obj; obj = obj.nobj)
+        if (obj.otyp === otyp) return true;
+    return false;
+}
+
 // Locate a segment by the keys it types, so reordering the matrix cannot
 // silently point a test at a different case.
 function segmentFor(moves) {
@@ -333,23 +339,18 @@ test('Escape over a typed wish restarts the prompt instead of ending it',
     assert.equal(topLine(), 'For what do you wish? ri');
 });
 
-// invent.c hold_another_object() is reachable from the wish path, and reaches
-// drop_it whenever near_capacity() passes flags.pickup_burden. A boulder does
-// that on any hero, and do.c flooreffects() has an arm for a landing boulder
-// that this port does not translate, so preflight_dropx() refuses the drop
-// before makewish() writes anything. The class has to convert at the command
-// seam like every other one makewish() can reach: left out, the throw escapes
-// runSegment() and the scorer discards every screen the wish prompt already
-// matched instead of stopping on the last of them.
-test('a wish the hero cannot carry stops the segment rather than escaping',
+// zap.c:makewish writes wish conduct before invent.c:hold_another_object adds
+// an over-limit object and calls do.c:dropx. The partial dropz port then
+// refuses a boulder floor effect at the command seam, after those source-order
+// writes; the wish path must retain that boundary instead of escaping.
+test('an unsupported heavy-wish floor effect stops after hold source writes',
     async () => {
         assert.ok(failClosedCommandRefusals().includes(UnsupportedDropError));
 
-        // End to end: readobjnam() grants a boulder without refusing it, so
-        // the drop preflight is the first thing that stops this wish. The
-        // matrix has no boulder segment, because no fresh recording can pass
-        // through a refusal, so this borrows a recorded segment's
-        // configuration and types a different wish.
+        // readobjnam() grants the boulder, then makewish writes wish conduct
+        // and hold_another_object adds it before dropx reaches its supported
+        // floor-effect boundary. This borrows a recording's configuration
+        // and supplies a distinct wish input.
         //
         // runSegment()'s onBoundary is what makes this an assertion rather
         // than a smoke test: without it the call passes just as happily when
@@ -369,22 +370,19 @@ test('a wish the hero cannot carry stops the segment rather than escaping',
             boundaries[0].message,
             /unsupported drop: a boulder landing on the floor/u,
         );
-        // The stop precedes every write makewish() makes after readobjnam(),
-        // so the boulder reaches neither the inventory nor the floor and the
-        // wish is never counted.
-        assert.equal(game.u.uconduct.wishes, 0);
-        for (let obj = game.invent; obj; obj = obj.nobj)
-            assert.notEqual(obj.otyp, BOULDER);
+        // The unsupported floor effect is later than both source writes.
+        assert.equal(game.u.uconduct.wishes, 1);
+        assert.equal(inventoryHas(BOULDER), true);
         for (let obj = game.level.objects[game.u.ux][game.u.uy]; obj;
             obj = obj.nexthere) {
             assert.notEqual(obj.otyp, BOULDER);
         }
     });
 
-test('an excluded heavy-ball drop refuses before wish state changes',
+test('a trap stops a heavy wish only after hold and wish state changes',
     async () => {
         const recorded = loadWizardWishRecipe().segments[0];
-        const replay = await runSegment({ ...recorded, moves: '.' });
+        await runSegment({ ...recorded, moves: '.' });
         // Strength and Constitution 3 make the 480-weight ball exceed the
         // default MOD_ENCUMBER pickup limit on this otherwise live hero.
         game.u.acurr.a[A_STR] = 3;
@@ -397,12 +395,7 @@ test('an excluded heavy-ball drop refuses before wish state changes',
         const before = {
             blesscnt: game.u.ublesscnt,
             conduct: game.u.uconduct.wishes,
-            discovery: [...game.svd.disco],
-            encountered: game.objects[HEAVY_IRON_BALL].oc_encountered,
             floor: game.level.objects[ux][uy],
-            gw: structuredClone(game.gw),
-            inventory: game.invent,
-            rng: replay.getRngLog().length,
         };
         for (const ch of 'heavy iron ball\n')
             game.nhDisplay.pushKey(ch.charCodeAt(0));
@@ -413,25 +406,12 @@ test('an excluded heavy-ball drop refuses before wish state changes',
                 && /trap/u.test(error.message),
         );
 
-        assert.equal(game.u.uconduct.wishes, before.conduct);
-        assert.deepEqual(game.svd.disco, before.discovery);
-        assert.equal(
-            game.objects[HEAVY_IRON_BALL].oc_encountered,
-            before.encountered,
-        );
-        assert.equal(game.invent, before.inventory);
+        assert.equal(game.u.uconduct.wishes, before.conduct + 1);
+        assert.equal(inventoryHas(HEAVY_IRON_BALL), true);
         assert.equal(game.level.objects[ux][uy], before.floor);
         assert.equal(game.u.ublesscnt, before.blesscnt);
-        assert.deepEqual(game.gw, before.gw);
-        // mksobj() spends rnd(2) while creating the ball. Admission precedes
-        // the later rn1(100, 50) blessing timeout draw.
-        assert.deepEqual(
-            replay.getRngLog().slice(before.rng).map(
-                (entry) => entry.replace(/=.*/u, ''),
-            ),
-            ['rnd(2)'],
-        );
-        assert.doesNotMatch(topLine(), /Oops!/u);
+        // makewish's final rn1(100, 50) blessing timeout is after hold/drop;
+        // it is therefore not reached when dropx refuses this trapped square.
     });
 
 // invent.c:1261-1264 raises the hold limit to flags.pickup_burden, exactly as

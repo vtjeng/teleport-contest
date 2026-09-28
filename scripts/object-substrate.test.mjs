@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ALTAR,
     A_NONE,
     COST_DEGRD,
     MAX_OIL_IN_FLASK,
@@ -37,6 +38,7 @@ import {
     rnd_class,
     splitobj,
     weight,
+    hornoplenty,
 } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import {
@@ -70,6 +72,7 @@ import {
     GLOB_OF_BLACK_PUDDING,
     GLOB_OF_GRAY_OOZE,
     GOLD_PIECE,
+    HORN_OF_PLENTY,
     LANCE,
     LONG_SWORD,
     OIL_LAMP,
@@ -108,6 +111,8 @@ import {
     getRngLog,
     initRng,
 } from '../js/rng.js';
+import { runSegment } from '../js/jsmain.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 
 function initializedState() {
     const state = {
@@ -1594,4 +1599,50 @@ test('rnd_class preserves the all-zero equal-probability branch', () => {
     ]);
     assert.equal(rnd_class(first, last, { state, ...random }), last);
     random.done();
+});
+
+test('hornoplenty identifies a cursed item spilled onto an altar', async () => {
+    await runSegment({
+        seed: 83001619,
+        datetime: '20290911093400',
+        nethackrc: 'OPTIONS=name:Test,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics,!autopickup',
+        moves: '',
+    });
+    clearTtyMessageWindow(game);
+    const { ux, uy } = game.u;
+    game.level.at(ux, uy).typ = ALTAR;
+    game.level.objects[ux][uy] = null;
+
+    const horn = newObject({
+        otyp: HORN_OF_PLENTY,
+        oclass: game.objects[HORN_OF_PLENTY].oc_class,
+        quan: 1,
+        spe: 1,
+        cursed: 1,
+        where: OBJ_INVENT,
+        invlet: 'a',
+        owt: 25,
+    });
+    game.invent = horn;
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
+
+    // mkobj.c:2924 calls doaltarobj before its following dropy() call.
+    // The hooks are the display/inventory operations dropz requires from
+    // production callers; no floor merge occurs on this isolated tile.
+    const hooks = {
+        encumberMessage() {},
+        extractExternalObject() {},
+        newsym() {},
+    };
+    assert.equal(await hornoplenty(horn, true, null, { state: game, hooks }), 1);
+    const spilled = game.level.objects[ux][uy];
+    assert.equal(horn.spe, 0);
+    assert.equal(spilled.where, OBJ_FLOOR);
+    assert.equal(spilled.cursed, 1);
+    assert.equal(spilled.bknown, 1);
+    assert.equal(game.u.uconduct.gnostic, 1);
+    assert.match(game.nhDisplay.toplines, /black flash as .* hits the altar/u);
+    assert.equal(game.iflags.suppress_price, 0);
 });

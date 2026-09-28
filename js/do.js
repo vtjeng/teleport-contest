@@ -93,6 +93,7 @@ import {
     is_pit,
     u_at,
     LL_ACHIEVE,
+    LL_CONDUCT,
     LL_DEBUG,
     is_hole,
     plur,
@@ -211,10 +212,12 @@ import {
 } from './obj.js';
 import { oinit } from './o_init.js';
 import {
-    The, Tobjnam, corpse_xname, donameFresh, is_plural, otense, the, vtense,
+    The, Tobjnam, Doname2, an, corpse_xname, donameFresh, is_plural, otense,
+    the, vtense,
     xnameFresh, yname,
 } from './objnam.js';
 import {
+    COIN_CLASS,
     BOULDER,
     CORPSE,
     LEASH,
@@ -910,8 +913,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             return !survivor;
         } else if (state.context?.mon_moving && IS_ALTAR(state.level?.at(x, y)?.typ)
             && cansee(x, y, state)) {
-            // doaltarobj() is a void pray.c dependency, so preserve its gap.
-            note_unported('pray.c doaltarobj');
+            await doaltarobj(obj, state);
         } else if (obj.oclass === POTION_CLASS
             && Math.trunc(state.level?.flags?.temperature ?? 0) > 0
             && (state.level?.at(x, y)?.typ === ROOM
@@ -1376,10 +1378,8 @@ export async function canletgo(obj, word, state = game) {
 // C ref: do.c drop() (713-780), staticfn. The sink arm delegates to
 // dosinkring(); remaining unsupported conditions are kept at their C branch.
 //
-// C's altar arm is not a stop of its own. do.c:774 only suppresses the message
-// there and falls through to dropx(), whose doaltarobj() is unported, so
-// preflight_dropx() below refuses the square and this function reproduces the
-// suppressed message either way.
+// C's altar arm suppresses the ordinary drop message, then delegates to
+// dropx(), which calls doaltarobj() before placing the object.
 async function drop(obj, state = game) {
     if (!obj)
         return ECMD_FAIL;
@@ -1455,15 +1455,10 @@ export const _dropInternals = Object.freeze({
     teleport_sink,
 });
 
-// Complete admission check for the source-inert ground subset below: what
-// dropx()'s ship_object() and doaltarobj(), and dropz()'s flooreffects(),
-// container impact, zombie disturbance, ball, shop and blind-levitation arms
-// would each need. drop() above reaches it with the message already printed,
-// which is where C's own dropx() call sits; the wish path calls it earlier,
-// while the object is still OBJ_FREE and before observe_object(), its failure
-// message, or addinv() can change visible state. The returned one-shot
-// admission lets that caller execute the approved tail after addinv() without
-// repeating checks against state changed by the admitted transaction.
+// Guard the still-partial dropx/dropz tail before its unported floor effects.
+// C callers reach this only at their source call site; in particular,
+// invent.c:hold_another_object has already observed and added the object, and
+// printed its drop message, before it calls dropx().
 export function preflight_dropx(obj, env = {}) {
     const normalized = dropEnv(env);
     const { state } = normalized;
@@ -1515,8 +1510,6 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('non-ordinary terrain');
     // A down gate is handled by dropx() before the ordinary floor tail.
     const stway = stairway_at(x, y, state);
-    if (IS_ALTAR(location.typ))
-        throw new UnsupportedDropError('an altar');
     // sellobj() handles billing when an object lands on a shop square. Its
     // early returns (shk.c:3938-3944) skip the billing body when the hero is
     // not in *u.ushops, the shopkeeper is absent, or the square is not a
@@ -1542,7 +1535,8 @@ export function preflight_dropx(obj, env = {}) {
     // Doorways and stairways add no flooreffects() branch when shipping
     // leaves the object on this level.
     if (location.typ !== ROOM && location.typ !== CORR
-        && location.typ !== DOOR && location.typ !== SINK && !stway) {
+        && location.typ !== DOOR && location.typ !== SINK
+        && !IS_ALTAR(location.typ) && !stway) {
         throw new UnsupportedDropError('non-ordinary terrain');
     }
     if (engr_at(x, y, state))
@@ -1617,14 +1611,58 @@ function consumeDropAdmission(obj, env, admission) {
     return admission.normalized;
 }
 
-// C ref: do.c dropx() (785-797). The altar arm remains owned by the admission
-// boundary; shipping now precedes the ordinary drop tail as it does in C.
+// C ref: do.c doaltarobj() (363-386). It is called after a failed ship attempt
+// and before dropy(), so the altar message and BUC knowledge precede placement.
+export async function doaltarobj(obj, state = game) {
+    if (heroIsBlind(state)) return;
+
+    if (obj.oclass !== COIN_CLASS) {
+        if (!state.context?.mon_moving) {
+            const priorGnostic = Math.trunc(state.u.uconduct?.gnostic ?? 0);
+            state.u.uconduct ??= {};
+            state.u.uconduct.gnostic = priorGnostic + 1;
+            if (!priorGnostic) {
+                livelog_printf(
+                    LL_CONDUCT,
+                    `eschewed atheism, by dropping ${donameFresh(obj, state)} on an altar`,
+                    state,
+                );
+            }
+        }
+    } else {
+        obj.blessed = 0;
+        obj.cursed = 0;
+    }
+
+    if (obj.blessed || obj.cursed) {
+        const color = hcolor(obj.blessed ? 'amber' : 'black', state);
+        const name = donameFresh(obj, state);
+        const verb = otense(obj, 'hit');
+        await ttyPline(
+            `There is ${an(color)} flash as ${name} ${verb} the altar.`,
+            state,
+        );
+        if (!heroHallucinating(state)) obj.bknown = 1;
+    } else {
+        const name = Doname2(obj, state);
+        const verb = otense(obj, 'land');
+        await ttyPline(`${name} ${verb} on the altar.`, state);
+        if (obj.oclass !== COIN_CLASS) obj.bknown = 1;
+    }
+}
+
+// C ref: do.c dropx() (785-797). Shipping precedes the altar effect, which
+// precedes the ordinary dropy() tail, as in the source.
 export async function dropx(obj, env = {}, prepared = null) {
     const admission = prepared ?? preflight_dropx(obj, env);
     const normalized = consumeDropAdmission(obj, env, admission);
     freeinv(obj, normalized);
     const { ux, uy } = normalized.state.u;
     if (await ship_object(obj, ux, uy, false, normalized)) return;
+    if (!normalized.state.u.uswallow
+        && IS_ALTAR(normalized.state.level.at(ux, uy).typ)) {
+        await doaltarobj(obj, normalized.state);
+    }
     await dropzAdmitted(obj, normalized);
 }
 
