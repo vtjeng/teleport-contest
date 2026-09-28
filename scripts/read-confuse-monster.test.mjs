@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { BLINDED, CONFUSION } from '../js/const.js';
+import { BLINDED, CONFUSION, INVIS, SEE_INVIS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { S_HUMANOID } from '../js/monsters.js';
@@ -59,6 +59,28 @@ test('read.c confusion scroll increments source amount and RNG order', async () 
     assert.deepEqual(messages, ['Your hands tingle.']);
     assert.deepEqual(calls, [['rnd', 2]]);
     assert.equal(game.u.umconf, 5); // scroll 3 plus rnd(2)
+});
+
+test('see-invisible suppresses Invisible feedback for the confusion scroll', async () => {
+    const youprop = readFileSync(new URL(
+        '../nethack-c/upstream/include/youprop.h', import.meta.url,
+    ), 'utf8');
+    assert.ok(youprop.includes('#define Invisible (Invis && !See_invisible)'));
+    await initialize(9303508);
+    game.u.uprops[BLINDED].intrinsic = 0;
+    game.u.uprops[INVIS].intrinsic = 1;
+    game.u.uprops[SEE_INVIS].extrinsic = 1;
+    const messages = [];
+    await seffect_confuse_monster(
+        confusionObject(SCR_CONFUSE_MONSTER, SCROLL_CLASS),
+        game,
+        {
+            random: { rnd(n) { assert.equal(n, 2); return 1; } },
+            message(line) { messages.push(line); },
+        },
+    );
+    assert.deepEqual(messages, ['Your hands begin to glow red.']);
+    assert.equal(game.u.umconf, 4);
 });
 
 test('read.c confusion cap still draws, then fixes gain to one', async () => {
