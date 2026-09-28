@@ -2102,11 +2102,14 @@ export async function Helmet_off(state = game) {
 // here. The identity and type checks are part of the helper's contract: it
 // adjusts only a worn pair of gauntlets of dexterity, and discovers the type
 // only when the adjustment is nonzero.
-function adj_abon(obj, delta, state) {
+export function adj_abon(obj, delta, state = game, env = {}) {
     if (state.uarmg && state.uarmg === obj
         && obj.otyp === GAUNTLETS_OF_DEXTERITY) {
         if (delta) {
-            discover_object(obj.otyp, true, true, true, state);
+            discover_object(
+                obj.otyp, true, true, true, state,
+                env.random ? { random: env.random } : {},
+            );
             state.u.abon ??= {};
             const abon = Array.isArray(state.u.abon)
                 ? state.u.abon : (state.u.abon.a ??= []);
@@ -2118,7 +2121,10 @@ function adj_abon(obj, delta, state) {
     if (state.uarmh && state.uarmh === obj
         && obj.otyp === HELM_OF_BRILLIANCE) {
         if (delta) {
-            discover_object(obj.otyp, true, true, true, state);
+            discover_object(
+                obj.otyp, true, true, true, state,
+                env.random ? { random: env.random } : {},
+            );
             state.u.abon ??= {};
             const abon = Array.isArray(state.u.abon)
                 ? state.u.abon : (state.u.abon.a ??= []);

@@ -10,6 +10,7 @@
 
 import {
     A_WIS,
+    A_CON,
     ALL_SPELLS,
     BLINDED,
     BY_COOKIE,
@@ -78,6 +79,7 @@ import {
     W_BALL,
     W_CHAIN,
     W_ARMH,
+    W_ARM,
     WT_IRON_BALL_INCR,
     Is_rogue_level,
     Is_waterlevel,
@@ -90,6 +92,7 @@ import {
     LL_GENOCIDE,
     MAX_ERODE,
     OBJ_FREE,
+    OBJ_INVENT,
     Upolyd,
     Ugender,
     plur,
@@ -129,6 +132,7 @@ import {
     PM_TOURIST,
     PM_YELLOW_LIGHT,
     PM_WATER_MOCCASIN,
+    PM_WIZARD,
     PM_XAN,
     MS_GUARDIAN,
     MS_LEADER,
@@ -248,6 +252,18 @@ import {
     SCR_MAIL,
     SCR_SCARE_MONSTER,
     SCR_STINKING_CLOUD,
+    BLACK_DRAGON_SCALES,
+    BLACK_DRAGON_SCALE_MAIL,
+    ELVEN_BOOTS,
+    ELVEN_CLOAK,
+    ELVEN_LEATHER_HELM,
+    ELVEN_MITHRIL_COAT,
+    ELVEN_SHIELD,
+    GRAY_DRAGON_SCALES,
+    GRAY_DRAGON_SCALE_MAIL,
+    SHIELD_OF_REFLECTION,
+    SILVER_DRAGON_SCALES,
+    SILVER_DRAGON_SCALE_MAIL,
     SCR_TAMING,
     ROCK,
     SCROLL_CLASS,
@@ -289,12 +305,15 @@ import {
 import {
     bcsign,
     greatest_erosion,
+    Is_dragon_scales,
     is_flammable,
+    is_shield,
     is_weptool,
     bless,
     curse,
     uncurse,
     costly_alteration,
+    maybe_adjust_light,
     mkobj,
     mksobj,
     objectType,
@@ -328,6 +347,7 @@ import {
     Ring_gone,
     Ring_off,
     Ring_on,
+    adj_abon,
     destroy_arm,
     some_armor,
     setwornEnv,
@@ -340,7 +360,7 @@ import {
     artifact_light,
     is_art,
 } from './artifacts.js';
-import { del_light_source } from './light.js';
+import { arti_light_radius, del_light_source } from './light.js';
 import { light_hits_gremlin } from './uhitm.js';
 import {
     block_point, cansee, do_clear_area, does_block, unblock_point,
@@ -352,7 +372,7 @@ import { hard_helmet } from './do_wear.js';
 import { dmgval, drain_weapon_skill } from './weapon.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { body_part, mbodypart } from './polyself.js';
-import { make_confused } from './potion.js';
+import { make_confused, strange_feeling } from './potion.js';
 // read.js -> monmove.js -> muse.js -> read.js is a function-body-only cycle:
 // these imported helpers are first read during gameplay.
 import { closed_door, monflee, youHear } from './monmove.js';
@@ -384,6 +404,7 @@ import { explode } from './explode.js';
 import { create_gas_cloud, valid_cloud_pos } from './region.js';
 import { end_burn } from './timeout.js';
 import { encumber_msg } from './pickup.js';
+import { remove_worn_item } from './steal.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
 // source-ordered doread() and seffects() dispatches use note_unported() for
@@ -784,7 +805,7 @@ export async function recharge(obj, curseBless, state = game) {
             } else if (isBlessed) {
                 obj.spe = 7;
                 await p_glow2(obj, obj.blessed ? 'blue' : 'light blue', state);
-                if (!obj.blessed) bless(obj, { state });
+                if (!obj.blessed) await bless(obj, { state });
             } else if (obj.spe < 7 || obj.cursed) {
                 n = rnd(2);
                 obj.spe = Math.min(obj.spe + n, 7);
@@ -1592,6 +1613,191 @@ export async function doread(state = game) {
     return ECMD_TIME;
 }
 
+// C ref: read.c seffect_enchant_armor() (1115-1293). The returned boolean is
+// the source's `struct obj **` consumption channel: no armor calls
+// strange_feeling() and clears the caller's scroll pointer; every other arm
+// leaves useup() to doread().
+export async function seffect_enchant_armor(scroll, state = game, env = {}) {
+    const sobj = scroll;
+    const sblessed = Boolean(sobj.blessed);
+    const scursed = Boolean(sobj.cursed);
+    const confused = propertyActive(CONFUSION, state);
+    const random = env.random ?? { rn2, rnd };
+    const message = env.message ?? ttyPline;
+    const effectEnv = { ...env, state, message };
+    const otmp = some_armor(state.youmonst, state, random);
+
+    if (!otmp) {
+        await strange_feeling(
+            sobj,
+            propertyActive(BLINDED, state)
+                ? 'Your skin feels warm for a moment.'
+                : 'Your skin glows then fades.',
+            state,
+        );
+        await exercise(A_CON, !scursed, state, { rn2: random.rn2 }, {
+            encumberMessage: encumber_msg,
+        });
+        await exercise(A_STR, !scursed, state, { rn2: random.rn2 }, {
+            encumberMessage: encumber_msg,
+        });
+        return true;
+    }
+
+    if (confused) {
+        const oldErodeproof = Boolean(otmp.oerodeproof);
+        const newErodeproof = !scursed;
+        const blind = propertyActive(BLINDED, state);
+        otmp.oerodeproof = false;
+        if (blind) {
+            otmp.rknown = false;
+            await ttyPline(
+                `${Yobjnam2(otmp, 'feel', state)} warm for a moment.`, state,
+            );
+        } else {
+            otmp.rknown = true;
+            const surface = scursed ? 'mottled' : 'shimmering';
+            const color = hcolor(scursed ? 'black' : 'golden', state);
+            const objectLayer = scursed
+                ? 'glow' : is_shield(otmp, state) ? 'layer' : 'shield';
+            await ttyPline(
+                `${Yobjnam2(otmp, 'are', state)} covered by a ${surface} `
+                + `${color} ${objectLayer}!`,
+                state,
+            );
+        }
+        if (newErodeproof && (otmp.oeroded || otmp.oeroded2)) {
+            otmp.oeroded = 0;
+            otmp.oeroded2 = 0;
+            await ttyPline(
+                `${Yobjnam2(otmp, blind ? 'feel' : 'look', state)} `
+                + 'as good as new!',
+                state,
+            );
+        }
+        if (oldErodeproof && !newErodeproof) {
+            // C restores the old flag before shop billing.
+            otmp.oerodeproof = true;
+            sourceCostlyAlteration(otmp, COST_DEGRD, state);
+        }
+        otmp.oerodeproof = newErodeproof;
+        return false;
+    }
+
+    const specialArmor = otmp.otyp === ELVEN_LEATHER_HELM
+        || otmp.otyp === ELVEN_MITHRIL_COAT
+        || otmp.otyp === ELVEN_CLOAK
+        || otmp.otyp === ELVEN_SHIELD
+        || otmp.otyp === ELVEN_BOOTS
+        || (state.urole?.mnum === PM_WIZARD && otmp.otyp === CORNUTHAUM);
+    let sameColor = scursed
+        ? otmp.otyp === BLACK_DRAGON_SCALE_MAIL
+            || otmp.otyp === BLACK_DRAGON_SCALES
+        : otmp.otyp === SILVER_DRAGON_SCALE_MAIL
+            || otmp.otyp === SILVER_DRAGON_SCALES
+            || otmp.otyp === SHIELD_OF_REFLECTION;
+    const blind = propertyActive(BLINDED, state);
+    if (blind) sameColor = false;
+
+    // C first tests whether a very highly enchanted item evaporates; that
+    // random draw precedes all enchantment-power draws below.
+    let s = scursed ? -otmp.spe : otmp.spe;
+    if (s > (specialArmor ? 5 : 3) && random.rn2(s)) {
+        otmp.in_use = true;
+        const verb = otense(otmp, blind ? 'vibrate' : 'glow');
+        const separator = !blind && !sameColor ? ' ' : '';
+        const color = blind || sameColor
+            ? '' : hcolor(scursed ? 'black' : 'silver', state);
+        const evaporate = otense(otmp, 'evaporate');
+        await ttyPline(
+            `${Yname2(otmp, state)} violently ${verb}${separator}${color} `
+            + `for a while, then ${evaporate}.`,
+            state,
+        );
+        await remove_worn_item(otmp, false, state, effectEnv);
+        useup(otmp, { state });
+        return false;
+    }
+    if (s < -100) s = -100; // read.c avoids overflow in (4 - s) / 2.
+
+    s = Math.trunc((4 - s) / 2);
+    if (specialArmor) ++s;
+    if (!objectType(otmp, state).oc_magic) ++s;
+    if (sblessed) ++s;
+    if (s <= 0) {
+        s = 0;
+        if (otmp.spe > 0 && !random.rn2(otmp.spe)) s = 1;
+    } else {
+        s = random.rnd(s);
+    }
+    if (s > 11) s = 11;
+    if (scursed) s = -s;
+
+    if (s >= 0 && Is_dragon_scales(otmp)) {
+        const wasLit = Boolean(otmp.lamplit);
+        const oldLight = artifact_light(otmp)
+            ? arti_light_radius(otmp, state) : 0;
+
+        await ttyPline(`${Yname2(otmp, state)} merges and hardens!`, state);
+        setworn(null, W_ARM, setwornEnv(state));
+        otmp.otyp += GRAY_DRAGON_SCALE_MAIL - GRAY_DRAGON_SCALES;
+        otmp.lamplit = false;
+        if (sblessed) {
+            ++otmp.spe;
+            cap_spe(otmp);
+            if (!otmp.blessed) await bless(otmp, effectEnv);
+        } else if (otmp.cursed) {
+            await uncurse(otmp, effectEnv);
+        }
+        otmp.known = true;
+        setworn(otmp, W_ARM, setwornEnv(state));
+        if (otmp.unpaid) alter_cost(otmp, 0, state);
+        otmp.lamplit = wasLit;
+        if (oldLight)
+            await maybe_adjust_light(otmp, oldLight, effectEnv);
+        return false;
+    }
+
+    const glowVerb = otense(otmp, blind ? 'vibrate' : 'glow');
+    const separator = !blind && !sameColor ? ' ' : '';
+    const color = blind || sameColor
+        ? '' : hcolor(scursed ? 'black' : 'silver', state);
+    const duration = s * s > 1 ? 'while' : 'moment';
+    await ttyPline(
+        `${Yname2(otmp, state)} ${s === 0 ? 'violently ' : ''}`
+        + `${glowVerb}${separator}${color} for a ${duration}.`,
+        state,
+    );
+
+    if (s < 0)
+        sourceCostlyAlteration(otmp, COST_DECHNT, state);
+    if (scursed && !otmp.cursed)
+        await curse(otmp, effectEnv);
+    else if (sblessed && !otmp.blessed)
+        await bless(otmp, effectEnv);
+    else if (!scursed && otmp.cursed)
+        await uncurse(otmp, effectEnv);
+    if (s) {
+        const oldSpe = otmp.spe;
+        otmp.spe += s;
+        cap_spe(otmp);
+        s = otmp.spe - oldSpe;
+        if (s) adj_abon(otmp, s, state, { random });
+        state.gk.known = Boolean(otmp.known);
+        if (s > 0 && otmp.unpaid) alter_cost(otmp, 0, state);
+    }
+
+    if (otmp.spe > (specialArmor ? 5 : 3)
+        && (specialArmor || !random.rn2(7))) {
+        await ttyPline(
+            `${Yobjnam2(otmp, 'suddenly vibrate', state)} `
+            + `${blind ? 'again' : 'unexpectedly'}.`,
+            state,
+        );
+    }
+    return false;
+}
+
 // C ref: read.c seffect_destroy_armor() (1324-1396). Covers the ordinary,
 // uncursed and unblessed fallback that calls do_wear.c destroy_arm().
 // some_armor() is deliberately called before destroy_arm(), as in C; the
@@ -1768,7 +1974,7 @@ function set_lit(x, y, lit, state, gremlins) {
 // guard follow the source.  Artifact-light BUC transitions belong to
 // artifact.c impact_arti_light(); those objects remain lit here, as C's
 // artifact branch does when that helper elects not to extinguish them.
-async function litroom(on, object, state) {
+export async function litroom(on, object, state) {
     const blessedEffect = Boolean(
         object && object.oclass === SCROLL_CLASS && object.blessed,
     );
@@ -2868,7 +3074,8 @@ export async function seffects(scroll, state = game, env = {}) {
         note_unported('read.c seffect_mail');
         break;
     case SCR_ENCHANT_ARMOR:
-        note_unported('read.c seffect_enchant_armor');
+        if (await seffect_enchant_armor(scroll, state, { ...env, random }))
+            scroll = null;
         break;
     case SCR_DESTROY_ARMOR:
         if (!scroll.blessed && !scroll.cursed

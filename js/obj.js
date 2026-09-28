@@ -1557,14 +1557,30 @@ function assertStartupBucObject(obj, operation) {
     }
 }
 
-// C ref: mkobj.c bless() (1745-1765).  The debug-fuzzer's temporary potion
-// path in end.c calls this source owner directly, so expose the same startup
-// BUC mutation to that caller instead of duplicating it there.
-export function bless(obj) {
+// C ref: mkobj.c bless() (1745-1765).  Keep the common free-object startup
+// path synchronous, while also preserving the carried-object side effects
+// used by gameplay callers: carried luck, bag weight, figurine timers, and
+// artifact light changes.  A light change returns maybe_adjust_light()'s
+// Promise so callers that can reach that branch can await its message.
+export function bless(obj, env = {}) {
+    const state = env.state ?? game;
     if (obj.oclass === COIN_CLASS) return obj;
-    assertStartupBucObject(obj, 'bless outside object initialization');
+
+    let oldLight = 0;
+    if (obj.lamplit)
+        oldLight = arti_light_radius(obj, state);
     obj.cursed = false;
     obj.blessed = true;
+
+    if (carried(obj) && confers_luck(obj, state))
+        set_moreluck(state);
+    else if (obj.otyp === BAG_OF_HOLDING)
+        obj.owt = weight(obj, env);
+    else if (obj.otyp === FIGURINE && obj.timed)
+        stop_timer(FIG_TRANSFORM, obj, state, env);
+
+    if (obj.lamplit)
+        return maybe_adjust_light(obj, oldLight, env);
     return obj;
 }
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T16:35:35.147Z",
+  "capturedAt": "2026-09-28T18:35:55.161Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -7722,12 +7722,126 @@
         "type": "accepted",
         "at": "2026-09-28T16:35:28.329Z",
         "task": "B44"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B44-05e1f941",
+        "type": "published",
+        "at": "2026-09-28T16:37:29.393Z",
+        "task": "B44",
+        "commit": "05e1f941d74d038bbefc6d2f387b7c3e2a2ae53c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C37-enchant-armor-20260928",
+        "type": "assign",
+        "at": "2026-09-28T16:40:45.543Z",
+        "task": "C37",
+        "worker": "C",
+        "goal": "port-read-enchant-armor-synthetic-v8-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B45-break-wand-20260928",
+        "type": "assign",
+        "at": "2026-09-28T16:51:41.488Z",
+        "task": "B45",
+        "worker": "B",
+        "goal": "port-apply-break-wand-synthetic-v10-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cd1c34036eed8773c66d6d7f845308850d9f114d",
+        "type": "ready",
+        "at": "2026-09-28T18:01:21.445Z",
+        "task": "C37",
+        "delivery": "cd1c34036eed8773c66d6d7f845308850d9f114d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C37-cd1c3403-20260928",
+        "type": "received",
+        "at": "2026-09-28T18:02:54.036Z",
+        "task": "C37",
+        "delivery": "cd1c34036eed8773c66d6d7f845308850d9f114d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C37-d8207c5c-20260928",
+        "type": "integrating",
+        "at": "2026-09-28T18:05:03.098Z",
+        "task": "C37",
+        "integration": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-09015da1ec0a6fd4c9a7eacb9b24b4cb2b7eee53",
+        "type": "ready",
+        "at": "2026-09-28T18:05:13.136Z",
+        "task": "A42-v11-prep",
+        "delivery": "09015da1ec0a6fd4c9a7eacb9b24b4cb2b7eee53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A42-09015da1-20260928",
+        "type": "received",
+        "at": "2026-09-28T18:06:30.691Z",
+        "task": "A42-v11-prep",
+        "delivery": "09015da1ec0a6fd4c9a7eacb9b24b4cb2b7eee53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C37-d8207c5c-20260928",
+        "type": "validated",
+        "at": "2026-09-28T18:18:32.108Z",
+        "task": "C37",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C37-d8207c5c-20260928",
+        "type": "accepted",
+        "at": "2026-09-28T18:18:52.678Z",
+        "task": "C37"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C37-e4ec7bd1-20260928",
+        "type": "published",
+        "at": "2026-09-28T18:23:53.457Z",
+        "task": "C37",
+        "commit": "e4ec7bd1eb3cfbce2a42d5896be7406e3e5f4138"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A42-a0a35a94-20260928",
+        "type": "integrating",
+        "at": "2026-09-28T18:26:21.589Z",
+        "task": "A42-v11-prep",
+        "integration": "a0a35a9440ac1c744c5f1e6be85c62f5aa0f4dfa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A42-a0a35a94-20260928",
+        "type": "validated",
+        "at": "2026-09-28T18:35:01.687Z",
+        "task": "A42-v11-prep",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-A42-a0a35a94-20260928",
+        "type": "accepted",
+        "at": "2026-09-28T18:35:18.567Z",
+        "task": "A42-v11-prep"
       }
     ]
   },
   "development": {
-    "executionCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2",
-    "measuredAt": "2026-09-28T16:27:40.510Z",
+    "executionCommit": "a0a35a9440ac1c744c5f1e6be85c62f5aa0f4dfa",
+    "measuredAt": "2026-09-28T18:32:15.460Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
