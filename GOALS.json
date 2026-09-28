@@ -104153,7 +104153,7 @@
     {
       "id": "port-read-create-monster-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port create-monster scroll and spell effects with runtime monster creation",
       "cFile": "read.c",
       "sessions": [
@@ -104174,8 +104174,8 @@
           "name": "seffect_create_monster",
           "line": 1608,
           "endLine": 1626,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -104445,7 +104445,95 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_create_monster",
+            "implementation": "js/read.js",
+            "symbol": "seffect_create_monster",
+            "sourceReview": "Compared all of read.c:seffect_create_monster() (1608-1626). The JavaScript snapshots blessed/cursed/confused in C order; computes one base creature plus twelve for confusion or curse; performs rn2(73) only for an unblessed, unconfused, uncursed scroll and rnd(4) only when that draw is zero; supplies PM_ACID_BLOB only while confused; and sets gk.known only when the consumed create_critters() Boolean is true. The selected function body and the SCR/SPE dispatcher arms match C. The runtime chain still has the explicitly blocked Wizard named-species path described below; this packet does not claim the wider makemon.c:makemon source unit complete.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() dispatches SCR_CREATE_MONSTER and SPE_CREATE_MONSTER to seffect_create_monster(&sobj) (2229-2232)."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() calls seffects() for an inventory scroll (635)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() routes SPE_CREATE_MONSTER through seffects() at skilled or expert skill (1529 and following dispatch)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/create-monster-scroll-independent-b40.session.json",
+              "recordings/spell.c/create-monster-spell-independent-b40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-create-monster-scroll-no-prior-monsters",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "doread -> read.c:seffects(SCR_CREATE_MONSTER) -> seffect_create_monster -> create_critters"
+              }
+            ],
+            "checkedAt": "f14b5e39fd3f2cc35f960409bb3168a4ea415129"
+          }
+        ],
+        "entryPointReview": "The selected read.c effect has two active production entries: inventory SCR_CREATE_MONSTER through doread/seffects, and skilled-or-expert SPE_CREATE_MONSTER through spell.c:spelleffects/seffects. They are covered by separate strict C recordings; the selected admitted v8 scroll case strictly matches all 31 boundaries, steps 0-30. The shared makemon.c:create_critters() helper is implemented in js/makemon.js and its visibility Boolean is consumed by both the scroll effect and zap.c:zapnodir() WAN_CREATE_MONSTER arm; an independent wand recording covers that production caller. The helper’s ordinary null-species call now admits the C-defined explicit hero/enexto coordinate shape without a species or seed allowlist, and recursive MM_NOGRP members use their C flag shape. A separate high-difficulty dynamic test selects a C G_SGROUP species and verifies its recursive makemon call. The source goal remains parked: the Wizard create_critters() branch can accept a named species through read.c:create_particular()/create_particular_creation(), but its return-valued creation route still reaches makemon.c:makemon’s existing assertSupportedSpecies guard for valid species not in its partial set. C has no such species allowlist. The blocked recipe records the planned named-species route; no completion is claimed for that path or for whole makemon.c:makemon.",
+        "entryPoints": [
+          {
+            "name": "Inventory scroll of create monster",
+            "functions": [
+              "seffect_create_monster"
+            ],
+            "recordings": [
+              "recordings/read.c/create-monster-scroll-independent-b40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-create-monster-scroll-no-prior-monsters",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c:doread -> seffects(SCR_CREATE_MONSTER) -> seffect_create_monster"
+              }
+            ]
+          },
+          {
+            "name": "Skilled or expert spell of create monster",
+            "functions": [
+              "seffect_create_monster"
+            ],
+            "recordings": [
+              "recordings/spell.c/create-monster-spell-independent-b40.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "f14b5e39fd3f2cc35f960409bb3168a4ea415129",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The scroll and skilled-spell effects have complete source and strict replay evidence, but the Wizard named-species create_critters path still consumes makemon.c:makemon through its partial assertSupportedSpecies guard. The blocked troll recipe is committed; complete the named-species and other consumed makemon call shapes before closing this goal."
     },
     {
       "id": "port-mon-xkilled-synthetic-v10-20260928",
