@@ -104192,6 +104192,49 @@
           "evaluationCommit": "61db2f29db823f3a5d87886797e12fa604d89a2e"
         }
       }
+    },
+    {
+      "id": "port-mon-xkilled-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port mon.c xkilled and its explosion kill caller across source-defined monster death outcomes",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v10/blessed-fire-scroll-centered-explosion"
+      ],
+      "selectionReason": "The highest-count unreserved v10 mismatch is synthetic/v10/blessed-fire-scroll-centered-explosion (manifest challenges/manifests/v10.json SHA-256 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recording challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json SHA-256 9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc; evaluation challenges/evaluations/20260928083103-v10.json). The complete investigation at investigations/synthetic/v10/blessed-fire-scroll-centered-explosion.json traces the blessed scroll through read.c:seffect_fire and explode.c:explode to mon.c:xkilled; its JavaScript caller currently throws on an injected unsupported operation. Worker B owns read.c create-monster paths, while this task owns mon.c kill processing and the explosion caller contract.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "xkilled",
+          "line": 3477,
+          "endLine": 3747,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3477,
+        "to": 3747
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/blessed-fire-scroll-centered-explosion": {
+          "session": "synthetic/v10/blessed-fire-scroll-centered-explosion",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "blessed-fire-scroll-centered-explosion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+          "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+          "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+          "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
+        }
+      }
     }
   ]
 }
