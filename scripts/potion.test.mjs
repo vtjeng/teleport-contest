@@ -20,7 +20,7 @@ import {
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
     POTHIT_MONST_THROW, SEE_INVIS,
-    SATIATED, SLEEP_RES, WEAK,
+    SATIATED, SICK, SLEEP_RES, WEAK,
     KILLED_BY, STONED, TELEPAT, TIMEOUT, UNCHANGING, WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
@@ -63,6 +63,7 @@ import {
     MUMMY_WRAPPING,
     SPBOOK_CLASS,
     SPE_INVISIBILITY,
+    SPE_RESTORE_ABILITY,
     TOWEL,
     COIN_CLASS,
     RING_CLASS,
@@ -633,6 +634,132 @@ function vaporPotion(otyp) {
     obj.dknown = true;
     return obj;
 }
+
+test('restore-ability potion repairs the first base score from its one C draw',
+    async () => {
+        await startedGame(8460391, 'RestoreAbilityFirstScore', 'Wizard');
+        const maximum = game.urace.attrmax;
+        game.u.acurr.a = [...maximum];
+        game.u.amax.a = [...maximum];
+        game.u.aexe.fill(0);
+        game.u.atemp.fill(0);
+        game.u.acurr.a[A_WIS]--;
+        game.u.aexe[A_WIS] = 7;
+        game.u.atemp[A_STR] = -1;
+        game.disp.botl = false;
+        game.u.ulevelmax = game.u.ulevel;
+        game.gp.potion_unkn = 0;
+        const events = [];
+        const draws = [];
+
+        assert.equal(await peffects(vaporPotion(POT_RESTORE_ABILITY), game, {
+            random: {
+                rn2: (bound) => {
+                    draws.push(bound);
+                    return A_STR;
+                },
+            },
+            message: async (line) => events.push(line),
+        }), -1);
+
+        assert.deepEqual(draws, [A_MAX],
+            'C draws one random starting attribute and then walks forward');
+        assert.deepEqual(events, ['Wow!  This makes you feel good!']);
+        assert.equal(game.u.acurr.a[A_WIS], maximum[A_WIS]);
+        assert.equal(game.u.aexe[A_WIS], 7,
+            'ABASE restoration retains positive AEXE');
+        assert.equal(game.u.atemp[A_STR], -1,
+            'ABASE restoration does not undo ATEMP loss');
+        assert.equal(game.disp.botl, true);
+        assert.equal(game.gp.potion_unkn, 1);
+    });
+
+test('blessed restore-ability walks all scores while cursed restoration draws none',
+    async () => {
+        await startedGame(8460392, 'RestoreAbilityBlessingOrder', 'Wizard');
+        const maximum = game.urace.attrmax;
+        game.u.acurr.a = maximum.map((value) => value - 1);
+        game.u.amax.a = [...maximum];
+        game.u.aexe = [ -1, 4, -2, 5, -3, 6 ];
+        game.u.atemp.fill(0);
+        game.u.ulevelmax = game.u.ulevel;
+        const blessedEvents = [];
+        const draws = [];
+        const blessed = vaporPotion(POT_RESTORE_ABILITY);
+        blessed.blessed = true;
+
+        await peffects(blessed, game, {
+            random: {
+                rn2: (bound) => {
+                    draws.push(bound);
+                    return A_DEX;
+                },
+            },
+            message: async (line) => blessedEvents.push(line),
+        });
+
+        assert.deepEqual(draws, [A_MAX]);
+        assert.deepEqual(blessedEvents, ['Wow!  This makes you feel great!']);
+        assert.deepEqual(game.u.acurr.a, maximum);
+        assert.deepEqual(game.u.aexe, [0, 4, 0, 5, 0, 6],
+            'C clamps negative AEXE but preserves positive exercise');
+
+        game.u.uprops[SICK] ??= { intrinsic: 0, extrinsic: 0 };
+        game.u.uprops[SICK].intrinsic = TIMEOUT;
+        blessedEvents.length = 0;
+        await peffects(blessed, game, {
+            random: { rn2: (bound) => {
+                assert.equal(bound, A_MAX);
+                return A_DEX;
+            } },
+            message: async (line) => blessedEvents.push(line),
+        });
+        assert.equal(blessedEvents[0], 'Wow!  This makes you feel better!',
+            'the blessed wording consumes unfixable_trouble_count(FALSE)');
+
+        game.u.acurr.a[A_STR]--;
+        const cursed = vaporPotion(POT_RESTORE_ABILITY);
+        cursed.cursed = true;
+        const cursedEvents = [];
+        assert.equal(await peffects(cursed, game, {
+            random: { rn2: () => assert.fail('cursed path has no RNG') },
+            message: async (line) => cursedEvents.push(line),
+        }), -1);
+        assert.equal(game.u.acurr.a[A_STR], maximum[A_STR] - 1);
+        assert.deepEqual(cursedEvents, ['Ulch!  This makes you feel mediocre!']);
+    });
+
+test('restore-ability spell restores scores but not potion-only lost levels',
+    async () => {
+        await startedGame(8460393, 'RestoreAbilitySpellLevelLimit', 'Wizard');
+        const maximum = game.urace.attrmax;
+        game.u.acurr.a = [...maximum];
+        game.u.amax.a = [...maximum];
+        game.u.acurr.a[A_STR]--;
+        game.u.aexe.fill(0);
+        game.u.ulevel = Math.max(1, game.u.ulevel - 1);
+        game.u.ulevelmax = game.u.ulevel + 1;
+        const originalLevel = game.u.ulevel;
+        const events = [];
+
+        assert.equal(await peffects({
+            otyp: SPE_RESTORE_ABILITY,
+            blessed: false,
+            cursed: false,
+        }, game, {
+            random: { rn2: (bound) => {
+                assert.equal(bound, A_MAX);
+                return A_STR;
+            } },
+            message: async (line) => events.push(line),
+        }), -1);
+
+        assert.equal(game.u.acurr.a[A_STR], maximum[A_STR]);
+        assert.equal(game.u.ulevel, originalLevel,
+            'C gates pluslvl() on the POT_RESTORE_ABILITY object type');
+        assert.equal(game.u.ulevelmax, originalLevel + 1);
+        assert.equal(events[0], 'Wow!  This makes you feel good!');
+    });
 
 test('acid resistance lets an acid potion cure stoning without damage', async () => {
     await startedGame(8460119, 'AcidPotionCuresStoning');
