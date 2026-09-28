@@ -57,6 +57,7 @@ import {
     PM_ACID_BLOB,
     PM_GHOUL,
     PM_HORNED_DEVIL,
+    PM_HUMAN,
     PM_KNIGHT,
     PM_LICH,
 } from '../js/monsters.js';
@@ -232,6 +233,48 @@ test('dosacrifice reaches offer_corpse through the canned selector',
         game.invent = previousInventory;
         game.unported = previousUnported;
     }
+});
+
+test('own-race sacrifice summons the source-selected altar demon', async () => {
+    await startedGame();
+    const altar = game.level.at(game.u.ux, game.u.uy);
+    altar.typ = ALTAR;
+    altar.altarmask = Align2amask(A_CHAOTIC);
+    game.u.ualign.type = A_CHAOTIC;
+    const priorAlignmentRecord = game.u.ualign.record;
+    const priorLuck = game.u.uluck;
+    const corpse = {
+        invlet: 'a',
+        otyp: CORPSE,
+        oclass: FOOD_CLASS,
+        corpsenm: PM_HUMAN,
+        quan: 1,
+        where: OBJ_INVENT,
+        nobj: null,
+        nexthere: null,
+    };
+    game.invent = corpse;
+    const oldIds = new Set();
+    for (let monster = game.level.monlist; monster; monster = monster.nmon)
+        oldIds.add(monster.m_id);
+    game.nhDisplay.terminal._inputQueue.push(...Array(12).fill(32));
+    cmdq_add_key(CQ_CANNED, 'a', game);
+
+    assert.equal(await dosacrifice(game), ECMD_TIME);
+    assert.notEqual(game.invent, corpse);
+    assert.ok(!game.unported.has('pray.c sacrifice_your_race'));
+    assert.equal(game.multi, -3);
+    assert.equal(game.multi_reason, 'being terrified of a demon');
+    assert.equal(game.nomovemsg, null);
+    assert.equal(game.u.ualign.record, priorAlignmentRecord + 5);
+    assert.equal(game.u.uluck, priorLuck + 2);
+    const summoned = [];
+    for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+        if (!oldIds.has(monster.m_id)) summoned.push(monster);
+    }
+    assert.equal(summoned.length, 1);
+    assert.equal(summoned[0].mpeaceful, true);
+    assert.match(game._ttyToplines, /unable to move/u);
 });
 
 async function startedGame(moves = '') {
