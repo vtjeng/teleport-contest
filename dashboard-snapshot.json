@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T10:03:46.130Z",
+  "capturedAt": "2026-09-28T10:20:19.140Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -7155,12 +7155,43 @@
         "type": "accepted",
         "at": "2026-09-28T10:03:30.103Z",
         "task": "B40"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "publish-B40-f95e06f7",
+        "type": "published",
+        "at": "2026-09-28T10:05:21.182Z",
+        "task": "B40",
+        "commit": "f95e06f7482860e8e94b38aa61430ed0ce4cc642"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrate-A40-8115539e",
+        "type": "integrating",
+        "at": "2026-09-28T10:08:38.554Z",
+        "task": "A40",
+        "integration": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validate-A40-8115539e",
+        "type": "validated",
+        "at": "2026-09-28T10:16:34.587Z",
+        "task": "A40",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accept-A40-8115539e",
+        "type": "accepted",
+        "at": "2026-09-28T10:19:57.621Z",
+        "task": "A40"
       }
     ]
   },
   "development": {
-    "executionCommit": "f14b5e39fd3f2cc35f960409bb3168a4ea415129",
-    "measuredAt": "2026-09-28T09:58:41.725Z",
+    "executionCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f",
+    "measuredAt": "2026-09-28T10:16:18.224Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

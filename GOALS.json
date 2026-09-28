@@ -104538,7 +104538,7 @@
     {
       "id": "port-mon-xkilled-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port mon.c xkilled and its explosion kill caller across source-defined monster death outcomes",
       "cFile": "mon.c",
       "sessions": [
@@ -104734,7 +104734,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8115539ecb3dbe59a8accf08d9a80235d523b63f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The ordinary fire-scroll explosion kill path and independent gas-spore death explosion now strictly match C, but mon.c:xkilled is not whole: swallowed death still skips hack.c:spoteffects(TRUE), and the buried-boulder corpse branch consumes make_corpse() returned object that the current JS path refuses. Keep the committed blocked recipe and complete these source branches before closure."
     },
     {
       "id": "port-uhitm-force-do-attack-synthetic-v10-20260928",
