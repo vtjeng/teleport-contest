@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "After object selection, js/apply.js refuses Grimtooth before apply.c:doapply’s unconditional retouch_object(&obj,FALSE) preflight. The artifact helpers already exist; the source defect is the missing production call and consumed Boolean/object-pointer flow before all doapply class dispatch. The neutral Wizard case then reaches touch_artifact’s alignment blast RNG. Repair this shared preflight for every selected artifact without claiming the other partial doapply arms are complete.",
+  "summary": "The former doapply artifact refusal is resolved: the saved v10 Grimtooth case now matches all 16 screens and cursors and all 2625 RNG calls. apply.c:doapply calls artifact.c:retouch_object for every selected object before class dispatch, consumes its Boolean result, and keeps the updated object pointer. The selected C case reaches touch_artifact and draws rn2(4)=1, then follows the source fallback; the separate ordinary dagger recording confirms the successful retouch continuation. Other partial doapply switch arms remain outside this narrow divergence goal.",
   "source": {
     "file": "apply.c",
     "branch": "After getobj returns a selected artifact, doapply calls retouch_object(&obj,FALSE) before testing WAND_CLASS, SPBOOK_CLASS, COIN_CLASS or the type switch. If touch_artifact rejects it, doapply returns ECMD_TIME; otherwise it continues with the possibly updated object. For a neutral Wizard using chaotic Grimtooth, artifact.c:touch_artifact checks bad alignment and may blast the hero before doapply resumes.",
@@ -82,6 +82,8 @@
   "evidence": [
     "Saved v10 evaluation challenges/evaluations/20260928193155-v10.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de still stops at step 15 before artifact retouch; recording SHA-256 9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3.",
     "Upstream apply.c:4224-4235 calls retouch_object(&obj,FALSE) for every chosen object before class dispatch and consumes its Boolean return. artifact.c:2508-2591 and 908-976 define the existing callee and touch behavior.",
-    "js/apply.js refuses artifacts before this source call; js/artifacts.js already exports retouch_object and touch_artifact. The independent recipe wishes Grimtooth then applies it as a neutral Wizard."
+    "js/apply.js refuses artifacts before this source call; js/artifacts.js already exports retouch_object and touch_artifact. The independent recipe wishes Grimtooth then applies it as a neutral Wizard.",
+    "Current result: challenges/evaluations/20260928205149-v10.json at 1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186 matches 16/16 screens and cursors and 2625/2625 RNG calls. The independent doapply-retouch-accepted-object recording matches 16 screens/cursors and 2396 RNG calls.",
+    "The selected Grimtooth C trace draws rn2(4)=1 in artifact.c:touch_artifact and continues; a focused JS state test covers the false-return turn cost without claiming an independent C witness for that branch."
   ]
 }

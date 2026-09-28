@@ -108654,7 +108654,7 @@
     {
       "id": "div-apply-doapply-artifact-retouch-v10-20260928",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Wire doapply artifact retouch preflight and consumed return",
       "cFile": "apply.c",
       "sessions": [],
@@ -108666,8 +108666,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "doapply",
       "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
       "step": 15,
@@ -108833,7 +108836,56 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-trap-antimagic-hero-synthetic-v11-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port hero anti-magic trap effect and source energy drain",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v11/hero-antimagic-trap-drains-energy"
+      ],
+      "selectionReason": "Select synthetic/v11/hero-antimagic-trap-drains-energy from challenges/evaluations/20260928205149-v11.json at 1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186; immutable recording challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json SHA-256 c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd, manifest SHA-256 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347. The source trace in investigations/synthetic/v11/hero-antimagic-trap-drains-energy.json identifies the missing hero trapeffect_anti_magic arm and trap.c:drain_en, independent of reserved A43 dothrow.c work.",
+      "detail": "Port trap.c:trapeffect_anti_magic hero and monster arms as one complete function, plus required trap.c:drain_en; admit the hero trap through preflight_dotrap and wire active callers in source order. Source definitions trap.c:2323-2452 and 5202-5243.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_anti_magic",
+          "line": 2323,
+          "endLine": 2452,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2323,
+        "to": 2452
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-antimagic-trap-drains-energy": {
+          "session": "synthetic/v11/hero-antimagic-trap-drains-energy",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-antimagic-trap-drains-energy",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json",
+          "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
+          "evaluationPath": "challenges/evaluations/20260928205149-v11.json",
+          "evaluationCommit": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186"
+        }
+      }
     }
   ]
 }
