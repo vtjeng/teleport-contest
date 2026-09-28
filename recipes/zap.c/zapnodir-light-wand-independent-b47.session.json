@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent zap.c:zapnodir(WAN_LIGHT) witness. A fresh debug Wizard wishes for a light wand and zaps it without a direction.",
+  "segments": [
+    {
+      "seed": 83047104,
+      "datetime": "20321117113640",
+      "nethackrc": "OPTIONS=name:B47LightWand,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of light\nzo"
+    }
+  ]
+}

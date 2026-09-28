@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Wizard #wizcast route to zap.c:zapnodir(SPE_LIGHT), with a fresh seed and one Escape after the spell to close the command loop.",
+  "segments": [
+    {
+      "seed": 83047211,
+      "datetime": "20330114120516",
+      "nethackrc": "OPTIONS=name:B47LitSpell,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizcast\ng\u001b"
+    }
+  ]
+}
