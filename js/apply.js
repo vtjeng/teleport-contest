@@ -98,6 +98,8 @@ import {
     P_RIDING,
     STOMACH,
     STONE,
+    STONED,
+    STRANGLED,
     PROT_FROM_SHAPE_CHANGERS,
     STUNNED,
     JUMPING,
@@ -108,6 +110,7 @@ import {
     RIGHT_SIDE,
     SHOPBASE,
     SICK,
+    SLIMED,
     SEE_INVIS,
     MONSEEN_INFRAVIS,
     MONSEEN_NORMAL,
@@ -3508,4 +3511,42 @@ export async function use_grease(obj, state = game, env = {}) {
 
     update_inventory({ ...env, state });
     return ECMD_TIME;
+}
+
+// C ref: apply.c unfixable_trouble_count() (4431-4470). The current potion
+// caller passes false, while the is_horn parameter's timed-malady masks are
+// preserved as part of the complete helper contract.
+export function unfixable_trouble_count(isHorn = false, state = game) {
+    const u = state?.u ?? {};
+    const prop = (index) => u.uprops?.[index] ?? {};
+    const intrinsic = (index) => prop(index).intrinsic ?? 0;
+    let count = 0;
+
+    if (intrinsic(STONED)) count++;
+    if (intrinsic(SLIMED)) count++;
+    if (intrinsic(STRANGLED)) count++;
+    if ((u.atemp?.[A_DEX] ?? 0) < 0
+        && (intrinsic(WOUNDED_LEGS) || prop(WOUNDED_LEGS).extrinsic)) count++;
+    if ((u.atemp?.[A_STR] ?? 0) < 0 && (u.uhs ?? 0) >= WEAK) count++;
+
+    if (intrinsic(SICK)
+        && (!isHorn || (intrinsic(SICK) & ~TIMEOUT) !== 0)) count++;
+    if (intrinsic(STUNNED)
+        && (!isHorn || (intrinsic(STUNNED) & ~TIMEOUT) !== 0)) count++;
+    if (intrinsic(CONFUSION)
+        && (!isHorn || (intrinsic(CONFUSION) & ~TIMEOUT) !== 0)) count++;
+
+    const hallucination = intrinsic(HALLUC);
+    const resistance = prop(HALLUC_RES);
+    if (hallucination && !(resistance.intrinsic || resistance.extrinsic)
+        && (!isHorn || (hallucination & ~TIMEOUT) !== 0)) count++;
+
+    if (intrinsic(VOMITING)
+        && (!isHorn || (intrinsic(VOMITING) & ~TIMEOUT) !== 0)) count++;
+
+    const deafness = prop(DEAF);
+    if ((deafness.intrinsic || deafness.extrinsic || u.uroleplay?.deaf)
+        && (!isHorn || (deafness.intrinsic & ~TIMEOUT) !== 0)) count++;
+
+    return count;
 }

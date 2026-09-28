@@ -4,6 +4,7 @@
 //        make_confused() (89-104), self_invis_message() (471-478),
 //        peffect_booze() (771-792), peffect_confusion() (1014-1027),
 //        peffect_gain_ability() (1030-1051),
+//        peffect_restore_ability() (646-695),
 //        peffect_gain_energy() (1224-1258),
 //        peffect_gain_level() (1083-1118),
 //        peffect_paralysis() (881-898),
@@ -20,12 +21,13 @@
 // branch still names the void ghost_from_bottle() gap; the common path calls
 // getobj() -> dopotion() -> peffects().
 //
-// peffects() dispatches 28 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
+// peffects() dispatches the potion and spell effects; POT_ACID, POT_BOOZE, POT_CONFUSION,
 // POT_GAIN_ABILITY, POT_GAIN_ENERGY, POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
 // POT_GAIN_LEVEL, POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
 // peffect_see_invisible(), the ordinary POT_PARALYSIS and POT_SLEEPING arms,
 // POT_POLYMORPH,
 // POT_INVISIBILITY (also SPE_INVISIBILITY), POT_HALLUCINATION, POT_WATER,
+// POT_RESTORE_ABILITY and SPE_RESTORE_ABILITY,
 // are ported. Remaining unported arms throw UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
@@ -141,6 +143,7 @@ import { tamedog } from './dog.js';
 import { can_reach_floor } from './engrave.js';
 import { drinkfountain, drinksink } from './fountain.js';
 import { more_experienced, pluslvl, rndexp } from './exper.js';
+import { unfixable_trouble_count } from './apply.js';
 import { fruitname, makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import {
@@ -764,6 +767,46 @@ export async function make_hallucinated(
         await env.message(message, state, env);
     }
     return true;
+}
+
+// C ref: potion.c peffect_restore_ability() (646-695). Restore base ability
+// scores from a random start point, and restore lost levels only for a potion
+// (never the spellbook effect).
+async function peffect_restore_ability(otmp, state = game, rawEnv = {}) {
+    state.gp ??= {};
+    state.gp.potion_unkn ??= 0;
+    state.gp.potion_unkn++;
+    const { message, random } = potionEffectEnvironment(rawEnv);
+
+    if (otmp.cursed) {
+        await message('Ulch!  This makes you feel mediocre!', state);
+        return;
+    }
+
+    const feels = !otmp.blessed ? 'good'
+        : unfixable_trouble_count(false, state) ? 'better' : 'great';
+    await message(`Wow!  This makes you feel ${feels}!`, state);
+
+    let index = random.rn2(A_MAX);
+    for (let attempt = 0; attempt < A_MAX; attempt++) {
+        const limit = state.u.amax.a[index];
+        if (state.u.acurr.a[index] < limit) {
+            state.u.acurr.a[index] = limit;
+            // AEXE is abuse accumulated by exercise(); positive exercise is
+            // retained, while negative abuse is reset with the base score.
+            state.u.aexe[index] = Math.max(state.u.aexe[index], 0);
+            state.disp.botl = true;
+            if (!otmp.blessed) break;
+        }
+        if (++index >= A_MAX) index = 0;
+    }
+
+    if (otmp.otyp === POT_RESTORE_ABILITY
+        && state.u.ulevel < state.u.ulevelmax) {
+        do {
+            await pluslvl(false, state, { message, random });
+        } while (state.u.ulevel < state.u.ulevelmax && otmp.blessed);
+    }
 }
 
 // C ref: potion.c peffect_hallucination() (696-713). The one shared gp state
@@ -1652,7 +1695,10 @@ export async function peffects(otmp, state = game, env = {}) {
     switch (otmp.otyp) {
     case POT_RESTORE_ABILITY:
     case SPE_RESTORE_ABILITY:
-        throw new UnsupportedQuaffError('peffect_restore_ability()');
+        await peffect_restore_ability(
+            otmp, state, potionEffectEnvironment(env),
+        );
+        break;
     case POT_HALLUCINATION:
         await peffect_hallucination(
             otmp, state, potionEffectEnvironment(env),
