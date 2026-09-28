@@ -706,7 +706,7 @@ test('the Deaf guard reads the intrinsic and the extrinsic, not the option',
     }
 });
 
-test('doapply refuses every class and arm this slice does not port',
+test('doapply refuses unsupported classes and dispatches spellbooks',
     async () => {
     const segment = segmentFor('ac.');
     // js/cmd.js failClosedCommand() rewraps the refusal, so the reason
@@ -715,16 +715,21 @@ test('doapply refuses every class and arm this slice does not port',
     const refusal = async (moves) =>
         (await boundaryFor(segment, moves))?.message ?? '';
 
-    // The three oclass shortcuts apply.c takes before its switch, reached by
-    // answering the prompt with this Healer's wand, first spellbook and gold.
+    // The remaining unsupported oclass shortcuts in apply.c, reached by
+    // answering the prompt with this Healer's wand and gold.
     for (const [letter, branch] of [
         ['h', 'do_break_wand()'],
-        ['i', 'flip_through_book()'],
         ['$', 'flip_coin()'],
     ]) {
         assert.match(await refusal(`.a${letter}`),
             new RegExp(`applying a tool requires ${branch}`, 'u'), letter);
     }
+
+    // apply.c:4237-4238 dispatches SPBOOK_CLASS directly to
+    // flip_through_book(). The Healer segment's first book reaches the
+    // source-defined page message and completes without a fail-closed
+    // boundary.
+    assert.equal(await boundaryFor(segment, '.ai '), null);
 
     // The Rogue's sack (apply.c:4274) now reaches use_container() without
     // stopping. Her lock pick, slot `e`, is tested in

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A41 source witness for invent.c:hold_another_object and do.c:dropx -> doaltarobj. A chaotic human Valkyrie wishes for a chaotic altar, then a human corpse; the same-race wished corpse is added and dropped onto the altar. The new seed/date and role differ from v10's Wizard case.",
+  "segments": [
+    {
+      "seed": 83001617,
+      "datetime": "20290911093400",
+      "nethackrc": "OPTIONS=name:A41Drop,role:Valkyrie,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017chaotic altar\n\u0017human corpse\n "
+    }
+  ]
+}

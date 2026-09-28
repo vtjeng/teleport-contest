@@ -2,7 +2,7 @@
 // C refs: src/invent.c addinv(), mergable(), merged(), nxtobj(), useupall();
 //         src/mkobj.c add_to_container() and add_to_buried().
 
-import { calc_capacity, inv_cnt, near_capacity } from './hack.js';
+import { inv_cnt, near_capacity } from './hack.js';
 import {
     ACH_AMUL,
     ACH_BELL,
@@ -40,6 +40,7 @@ import {
     HAND,
     HALLUC,
     HALLUC_RES,
+    st_all,
     engulfing_u,
     LEFT_HANDED,
     LEFT_RING,
@@ -213,7 +214,7 @@ import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
 import { ice_descr } from './pager.js';
 import { can_reach_floor } from './engrave.js';
-import { force_decor } from './pickup.js';
+import { force_decor, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -289,6 +290,7 @@ import {
     isContainer,
     isPudding,
     is_ammo,
+    ammo_and_launcher,
     is_missile,
     is_spear,
     is_wet_towel,
@@ -328,6 +330,7 @@ import { is_quest_artifact } from './questpgr.js';
 import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
 import { record_achievement } from './insight.js';
+import { setuqwep } from './worn.js';
 import {
     inhishop,
     inside_shop,
@@ -4792,139 +4795,14 @@ function encumbranceLimit(current, state) {
     return Math.max(current, state.flags.pickup_burden);
 }
 
-// Predicts invent.c:1274-1276, the test C makes after addinv_core0(). C reads
-// inv_cnt() and near_capacity() once the object is in inventory; this reads
-// them before, so it adds the slot and the weight itself. The two agree only
-// because the caller below admits no object that can merge, which is what
-// makes the added slot exactly one and the added weight exactly obj.owt.
-// C's `obj->otyp != LOADSTONE || !obj->cursed` clause is absent for the same
-// reason: objects.h gives the one loadstone type oc_merge, so no object that
-// reaches here can be one.
-//
-// C calls addinv_core0(obj, NULL, FALSE), whose FALSE holds back the
-// permanent-inventory refresh until the explicit update_inventory() below.
-function projectsDropOnHold(obj, state) {
-    const hadGw = Object.hasOwn(state, 'gw');
-    const previousGw = state.gw;
-    const hadWeightCache = previousGw
-        && Object.hasOwn(previousGw, 'wc');
-    const previousWeightCache = previousGw?.wc;
-    try {
-        const projectedLimit = encumbranceLimit(near_capacity(state), state);
-        return inv_cnt(false, state) + 1 > INVLET_BASIC
-            || calc_capacity(obj.owt, state) > projectedLimit;
-    } finally {
-        // inv_weight() caches weight_cap() in gw.wc. The prediction precedes
-        // the drop preflight, so put that cache back before a refusal can
-        // escape. The source-visible calculation runs again after admission.
-        if (!hadGw) {
-            delete state.gw;
-        } else if (!previousGw) {
-            state.gw = previousGw;
-        } else if (!hadWeightCache) {
-            delete previousGw.wc;
-        } else {
-            previousGw.wc = previousWeightCache;
-        }
-    }
-}
-
-// Prepare the only drop_it route this port can finish: the one invent.c:1280
-// jumps to, from the encumbrance test above it. makewish() calls this before
-// doname() records discovery and before it increments wish conduct. The token
-// records both a hold decision and an admitted drop decision so
-// hold_another_object() need not repeat a guard after those source-ordered
-// writes. It also restores near_capacity()'s cache before returning.
-//
-// The type is not what decides this. C's drop_it makes no test of one, and the
-// two properties below are what the ported tail needs: a merge would reach
-// splitobj() at 1279, and an artifact would have taken the place_object() and
-// touch_artifact() block at 1218-1244. Which objects then arrive is a question
-// for preflight_dropx(), which answers it from the square, the pile and the
-// object's own timers rather than from its otyp.
-export function prepareHoldDropAdmission(obj, env = {}) {
-    const normalized = inventoryEnv(env);
-    const { state } = normalized;
-    if (!obj || typeof obj !== 'object')
-        throw new TypeError('hold-drop admission requires an object');
-    if (obj.oartifact || state.objects?.[obj.otyp]?.oc_merge)
-        return null;
-    // invent.c:1245-1250 sends a fumbling hero to drop_it by a different route,
-    // setting nomerge and skipping the encumbrance test entirely. That route is
-    // unported. hold_another_object() below stops on it anyway, but only after
-    // the writes this token exists to precede, so the objects the token covers
-    // stop here instead.
-    if (propertyPresent(state, FUMBLING))
-        throw new UnsupportedObjectOperationError('held while fumbling', obj);
-    const willDrop = projectsDropOnHold(obj, state);
-    let dropObject = null;
-    let dropAdmission = null;
-    if (willDrop) {
-        dropObject = requiredHook(normalized, 'dropObject', obj);
-        dropAdmission = requiredHook(
-            normalized,
-            'preflightDropObject',
-            obj,
-        )(obj, normalized);
-    }
-    return {
-        consumed: false,
-        dropAdmission,
-        dropObject,
-        inventory: state.invent ?? null,
-        object: obj,
-        objectFacts: {
-            oartifact: obj.oartifact,
-            otyp: obj.otyp,
-            owt: obj.owt,
-            quan: obj.quan,
-            where: obj.where,
-        },
-        state,
-        willDrop,
-    };
-}
-
-function consumeHoldDropAdmission(obj, state, admission) {
-    if (!admission) return null;
-    if (admission.object !== obj)
-        throw new Error('hold-drop admission belongs to another object');
-    if (admission.state !== state)
-        throw new Error('hold-drop admission belongs to another state');
-    if (admission.consumed)
-        throw new Error('hold-drop admission was already consumed');
-    const facts = admission.objectFacts;
-    if ((state.invent ?? null) !== admission.inventory
-        || obj.oartifact !== facts.oartifact
-        || obj.otyp !== facts.otyp
-        || obj.owt !== facts.owt
-        || obj.quan !== facts.quan
-        || obj.where !== facts.where) {
-        throw new Error('hold-drop admission is stale');
-    }
-    admission.consumed = true;
-    return admission;
-}
-
-// C ref: invent.c hold_another_object() (1207-1306), restricted to the plain
-// addinv arm and the nonmerging route through drop_it. Artifact, Fumbling,
-// fatal-corpse, merging and the other drop routes remain fail-closed, and
-// projectsDropOnHold() above is what predicts which of the two arms C takes.
+// C ref: invent.c hold_another_object() (1208-1311), in source order. The
+// burden and slot checks happen only after addinv_core0(); callers must not
+// preflight a drop before this function observes or adds the object.
 export async function hold_another_object(
-    obj, drop_fmt, drop_arg, hold_msg, env = {}, preparedHoldDrop = null,
+    obj, drop_fmt, drop_arg, hold_msg, env = {},
 ) {
     const normalized = inventoryEnv(env);
     const { state } = normalized;
-
-    // Direct callers retain the old entry contract. makewish() supplies the
-    // prepared token so the supported hold and drop decisions are made before
-    // discovery and conduct; the refusals below stay where C tests them.
-    const holdDropAdmission = consumeHoldDropAdmission(
-        obj,
-        state,
-        preparedHoldDrop
-            ?? prepareHoldDropAdmission(obj, normalized),
-    );
 
     if (!isBlind(normalized))
         observe_object(obj, state); /* maximize mergeability */
@@ -4938,16 +4816,17 @@ export async function hold_another_object(
         place_object(obj, state.u.ux, state.u.uy, normalized);
 
         if (!await touch_artifact(obj, state.youmonst, normalized)) {
-            // invent.c:1228-1230 pulls the artifact back off the floor and
-            // drops it again through dropy().  touch_artifact() answers false
-            // only for a monster, and this caller is always the hero, so the
-            // branch stands unported behind a fail-closed stop.
-            throw new UnsupportedObjectOperationError('refused artifact', obj);
+            obj_extract_self(obj, normalized);
+            await holdDropY(obj, normalized);
+            return obj;
         } else if (wasUpolyd && !Upolyd(state.u)) {
-            // 1231-1238: only the blast touch_artifact() refuses can revert
-            // the hero's form, so nothing can reach this yet.
-            throw new UnsupportedObjectOperationError('lost artifact grip',
-                                                      obj);
+            if (drop_fmt) {
+                const message = normalized.hooks.message ?? ttyPline;
+                await message(drop_fmt.replace('%s', drop_arg ?? ''), state);
+            }
+            obj_extract_self(obj, normalized);
+            await holdDropY(obj, normalized);
+            return obj;
         }
         obj_extract_self(obj, normalized);
         if (crysknife) {
@@ -4956,9 +4835,17 @@ export async function hold_another_object(
         }
     }
     if (propertyPresent(state, FUMBLING)) {
-        throw new UnsupportedObjectOperationError('held while fumbling', obj);
-    } else if (obj.otyp === CORPSE && obj.wishedfor) {
-        throw new UnsupportedObjectOperationError('held fatal corpse', obj);
+        obj.nomerge = 1;
+        obj = await addinvCore0Runtime(obj, normalized, null, false);
+        await gotoDrop(obj, drop_fmt, drop_arg, normalized);
+        return null;
+    } else if (obj.otyp === CORPSE
+               && !u_safe_from_fatal_corpse(obj, st_all, state)
+               && obj.wishedfor) {
+        obj.wishedfor = 0;
+        obj = await addinvCore0Runtime(obj, normalized, null, false);
+        await gotoDrop(obj, drop_fmt, drop_arg, normalized);
+        return null;
     } else {
         const oquan = obj.quan;
         /* encumbrance limit is max( current_state, pickup_burden ), taken
@@ -4971,26 +4858,17 @@ export async function hold_another_object(
         if (inv_cnt(false, state) > INVLET_BASIC
             || ((obj.otyp !== LOADSTONE || !obj.cursed)
                 && near_capacity(state) > prev_encumbr)) {
-            /* 1275-1281 undoes any merge that took place and drops it */
-            if (!holdDropAdmission?.willDrop || obj.quan !== oquan) {
-                throw new UnsupportedObjectOperationError('held object dropped',
-                                                          obj);
-            }
-            if (drop_fmt) {
-                const message = normalized.hooks.message ?? ttyPline;
-                await message(drop_fmt.replace('%s', drop_arg ?? ''), state);
-            }
-            obj.nomerge = 0;
-            await holdDropAdmission.dropObject(
-                obj,
-                normalized,
-                holdDropAdmission.dropAdmission,
-            );
+            /* 1275-1281 undoes any merge which took place before drop_it. */
+            if (obj.quan > oquan)
+                obj = splitobj(obj, oquan, normalized);
+            await gotoDrop(obj, drop_fmt, drop_arg, normalized);
             return null;
         }
-        if (state.flags?.autoquiver && !state.uquiver && !obj.owornmask) {
-            /* 1283-1286 quivers a missile; ammo_and_launcher() is unported */
-            throw new UnsupportedObjectOperationError('held autoquiver', obj);
+        if (state.flags?.autoquiver && !state.uquiver && !obj.owornmask
+            && (is_missile(obj)
+                || ammo_and_launcher(obj, state.uwep, state)
+                || ammo_and_launcher(obj, state.uswapwep, state))) {
+            setuqwep(obj, { state });
         }
         if (hold_msg || drop_fmt)
             await prinv(hold_msg, obj, oquan, normalized);
@@ -4999,6 +4877,33 @@ export async function hold_another_object(
         await requiredHook(normalized, 'encumberMessage', obj)(state);
     }
     return obj;
+}
+
+async function gotoDrop(obj, drop_fmt, drop_arg, normalized) {
+    if (drop_fmt) {
+        const message = normalized.hooks.message ?? ttyPline;
+        await message(drop_fmt.replace('%s', drop_arg ?? ''), normalized.state);
+    }
+    obj.nomerge = 0;
+    if (can_reach_floor(true, normalized.state) || normalized.state.u.uswallow) {
+        const dropObject = normalized.hooks.dropObject;
+        if (typeof dropObject === 'function')
+            await dropObject(obj, normalized);
+        else
+            note_unported('do.c dropx');
+    } else {
+        freeinv(obj, normalized);
+        // invent.c:1302 calls dothrow.c:hitfloor() and discards its void result.
+        note_unported('dothrow.c hitfloor');
+    }
+}
+
+async function holdDropY(obj, normalized) {
+    const dropy = normalized.hooks.dropy;
+    if (typeof dropy === 'function')
+        await dropy(obj, normalized);
+    else
+        note_unported('do.c dropy');
 }
 
 // C ref: mkobj.c add_to_minv(). Returns true when `obj` merged into an

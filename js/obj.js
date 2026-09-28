@@ -96,7 +96,7 @@ import { noveltitle, x_monnam } from './do_name.js';
 // dropy() is imported for hornoplenty()'s tipping-to-floor path. do.js
 // imports from this file; both sides use the other's exports only inside
 // function bodies.
-import { dropy } from './do.js';
+import { doaltarobj, dropy } from './do.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
 // can_reach_floor() is imported for hornoplenty()'s tipping path. engrave.js
 // imports nothing from this file; the edge is acyclic.
@@ -3353,8 +3353,7 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
             } else {
                 if (IS_ALTAR(state.level.at(u.ux, u.uy).typ)) {
                     // C: doaltarobj(obj) -- does its own drop message.
-                    // doaltarobj() is in pray.c and not yet ported.
-                    note_unported('pray.c doaltarobj');
+                    await doaltarobj(obj, state);
                 } else {
                     // C uses Doname2(obj) which requires doname(), not yet
                     // ported. Record the gap and skip the message.
