@@ -16,6 +16,7 @@
 import {
     ACH_MEDU,
     A_CHAOTIC,
+    A_NONE,
     ALLOW_BARS,
     ALLOW_DIG,
     ALLOW_M,
@@ -67,6 +68,7 @@ import {
     HALLUC,
     HALLUC_RES,
     HALF_PHDAM,
+    INTRINSIC,
     KILLED_BY_AN,
     LL_KILLEDPET,
     MAGICAL_BREATHING,
@@ -143,6 +145,7 @@ import {
     AUGMENT_IT,
     TAINT_AGE,
     TEMPLE,
+    TELEPAT,
     thats_enough_tries,
     UNLOCKDOOR,
     WATER,
@@ -598,6 +601,7 @@ import {
     STATUE,
     ROCK_CLASS,
     SCROLL_CLASS,
+    SCR_MAIL,
     SCR_SCARE_MONSTER,
     SPE_EXTRA_HEALING,
     SPE_HEALING,
@@ -5556,7 +5560,8 @@ export async function killed(mtmp, state = game, env = {}) {
 
 // C ref: mon.c xkilled() (3476-3740). "the player has killed the monster
 // mtmp". `xkill_flags` is 1 to suppress the message, 2 the corpse and 4 the
-// conduct; killed() passes 0 and is the only caller wired here.
+// conduct. Production callers include killed(), combat, zaps, spells, monster
+// attacks and explosions.
 //
 // Two random-number calls sit between the kill message and experience(), and
 // an ordinary kill makes both: the `!rn2(6)` treasure drop at 3587 and
@@ -5576,38 +5581,30 @@ export async function killed(mtmp, state = game, env = {}) {
 // treasure draw. C's "corpse ends up buried" line at 3625-3628 is below them
 // as well as below make_corpse()'s own stop, so it has no counterpart here.
 //
-// The four arms C guards on mtmp->mtame are ported together, because they are
-// spread through the function and a hero who kills a pet reaches all of them
-// on one move: the "poor <pet>" message at 3502-3511, EDOG()->killed_by_u at
-// 3524-3526, the sad feeling at 3563-3564, and the alignment and sound
-// fallout at 3703-3722. The murder penalty above them and the peaceful
-// alignment arm below them guard on is_human and mpeaceful instead, so they
-// stop with the rest.
-//
-// Eight arms stop, each guarded by exactly C's condition and each placed above
-// the first draw, message or object on its path:
-//
-//   3528-3541  mpickobj(), handing a thrown missile to the engulfer it killed.
-//   3546-3547  monstone(), for a monster killed by petrification, and with it
-//              the gs.stoned cleanup at 3569-3572.
-//   3552-3561  the life-saved return and its "Maybe not..." message.
-//   3577-3581  the mail daemon's scroll of mail. include/global.h:430 defines
-//              MAIL_STRUCTURES unconditionally, so the arm is compiled.
-//   3632-3640  spoteffects(), which expels the hero from a dead engulfer.
-//   3648-3663  the murder punishment, which needs the intrinsic-telepathy
-//              clear at 3658 and display.c see_monsters().
-//   3666-3669  the guilt for killing a co-aligned unicorn.
-//   3677-3702  the quest leader, nemesis, guardian and priest alignment arms,
-//   3723-3724  together with the peaceful one below the tame arm. Every one
-//              reaches attrib.c adjalign() with a negative argument.
+// The ordinary kill path and cleanup arms are translated in C order,
+// including thrown-object transfer, lifesaving, the compiled mail-daemon
+// branch, murder and unicorn penalties, quest/nemesis/guardian/priest
+// alignment, pets, and peaceful monsters. Remaining helper boundaries are
+// explicit: monstone()/mondead(), corpse_chance(), make_corpse(), and
+// flooreffects() still have their own unported species or object branches;
+// the void hack.c:spoteffects() call at 3638 is recorded and skipped below.
+// The buried-corpse message also depends on make_corpse() returning a buried
+// object, which that helper currently refuses.
 //
 // C's `goto cleanup` at 3571 and 3575 jumps over the corpse-and-drop half, so
 // that half becomes the `if (!skipCorpseAndDrops)` block below and the cleanup
 // label's own work runs either way. The newsym() at 3642 is jumped over too,
 // so it belongs inside the guard rather than to cleanup.
 export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
-    const unsupported = requiredKillOperation(env, 'unsupported');
-    const message = requiredKillOperation(env, 'message');
+    // C callers do not supply JavaScript operations for ordinary kill
+    // processing. Keep the old refusal available only at the source branches
+    // that still lack an implementation; requiring it before testing those
+    // guards prevented every production caller from reaching the C path.
+    const unsupported = env.unsupported ?? (() => {
+        throw new TypeError('the monster kill path requires unsupported');
+    });
+    const message = env.message ?? ttyPline;
+    env = { ...env, state, unsupported, message };
     const random = env.random ?? { d, rn1, rn2, rnd, rne };
     const x = mtmp.mx;
     const y = mtmp.my;
@@ -5671,7 +5668,10 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         && state.gt.thrownobj.oclass !== POTION_CLASS
         /* "don't give to mon if missile is going to return to hero" */
         && state.gt.thrownobj !== state.iflags?.returning_missile) {
-        unsupported('a thrown missile handed to the engulfer it killed');
+        // mon.c:3533-3541. mpickobj() consumes the source global itself in
+        // this port, then the explicit assignment mirrors gt.thrownobj = 0.
+        mpickobj(mtmp, state.gt.thrownobj, { ...env, state });
+        state.gt.thrownobj = null;
     }
 
     /* "dispose of monster and make cadaver" */
@@ -5683,13 +5683,11 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     state.gd.disintegested = false;
 
     if (mtmp.mhp >= 1) { /* !DEADMONSTER(): "monster lifesaved" */
-        if (stoned) {
-            state.gs.stoned = false;
-            if (!cansee(x, y, state) && !state.gv?.vamp_rise_msg)
-                await message('Maybe not...', state);
-        } else {
-            unsupported('a monster that survived being killed');
-        }
+        // mon.c:3552-3561. This cleanup/message also runs when the monster
+        // survived for a reason other than the stoning path.
+        state.gs.stoned = false;
+        if (!cansee(x, y, state) && !state.gv?.vamp_rise_msg)
+            await message('Maybe not...', state);
         return;
     }
 
@@ -5707,8 +5705,19 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         || LEVEL_SPECIFIC_NOCORPSE(mdat, state, random);
     if (stoned) state.gs.stoned = false;
     if (!skipCorpseAndDrops) {
-        if (mdat === state.mons[PM_MAIL_DAEMON])
-            unsupported("the mail daemon's scroll of mail");
+        if (mdat === state.mons[PM_MAIL_DAEMON]) {
+            // MAIL_STRUCTURES is enabled in the recorder build. The daemon is
+            // not normally generated, but preserve the compiled source arm.
+            const mail = mksobj_at(
+                SCR_MAIL,
+                x,
+                y,
+                false,
+                false,
+                objectGenerationEnv({ ...env, state, random }),
+            );
+            stackobj(mail, objectGenerationEnv({ ...env, state, random }));
+        }
         if (accessible(x, y, state) || is_pool(x, y, state)) {
             /* "illogical but traditional 'treasure drop'" */
             if (!random.rn2(6)
@@ -5765,7 +5774,13 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
             }
         }
 
-        if (wasinside) unsupported('being expelled from a dead engulfer');
+        if (wasinside) {
+            // mon.c:3638 discards hack.c:spoteffects()'s void result. That
+            // source unit is still partial, so keep the gap at its call site;
+            // continue with xkilled()'s saved-monster cleanup as C does.
+            note_unported('hack.c spoteffects');
+            mtmp = { ...mtmp, nmon: null, minvent: null, mextra: null };
+        }
         /* "monster is gone, corpse or other object might now be visible" */
         killRedraw(x, y, { ...env, state });
     }
@@ -5779,13 +5794,23 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         && mndx !== PM_HUMAN
         /* "only applicable if hero is lawful or neutral" */
         && state.u.ualign.type !== A_CHAOTIC) {
-        unsupported('the murder penalty for killing a human');
+        // mon.c:3650-3663. HTelepat is intrinsic telepathy and ETelepat is
+        // equipment-granted telepathy; only the former is removed here.
+        const telepathy = state.u.uprops?.[TELEPAT];
+        if (telepathy)
+            telepathy.intrinsic = (telepathy.intrinsic ?? 0) & ~INTRINSIC;
+        change_luck(-2, state);
+        await message('You murderer!', state);
+        if (heroIsBlind(state)
+            && !(telepathy?.intrinsic || telepathy?.extrinsic))
+            see_monsters(state);
     }
     if ((mtmp.mpeaceful && !random.rn2(2)) || mtmp.mtame)
         change_luck(-1, state);
     if (is_unicorn(mdat)
         && Math.sign(state.u.ualign.type) === Math.sign(mdat.maligntyp)) {
-        unsupported('the guilt for killing a co-aligned unicorn');
+        change_luck(-5, state);
+        await message('You feel guilty...', state);
     }
 
     /* "give experience points" */
@@ -5809,11 +5834,26 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                 guardian = next;
             }
         }
-    } else if (mdat.msound === MS_NEMESIS)
-        unsupported('killing the quest nemesis');
-    else if (mdat.msound === MS_GUARDIAN)
-        unsupported('killing a quest guardian');
-    else if (mtmp.ispriest) unsupported('killing a priest');
+    } else if (mdat.msound === MS_NEMESIS) {
+        if (!state.svq?.quest_status?.killed_leader)
+            adjalign(Math.trunc(ALIGNLIM(state) / 4), state);
+    } else if (mdat.msound === MS_GUARDIAN) {
+        adjalign(-Math.trunc(ALIGNLIM(state) / 8), state);
+        state.u.ugangr++;
+        change_luck(-4, state);
+        await message(
+            heroHallucinating(state)
+                ? 'Whoopsie-daisy!'
+                : 'That was probably a bad idea...',
+            state,
+        );
+    } else if (mtmp.ispriest) {
+        const coaligned = p_coaligned(mtmp, state);
+        adjalign(coaligned ? -2 : 2, state);
+        if (coaligned) state.u.ublessed = 0;
+        if (mdat.maligntyp === A_NONE)
+            adjalign(Math.trunc(ALIGNLIM(state) / 4), state);
+    }
     else if (mtmp.mtame) {
         adjalign(-15, state); /* "bad!!" */
         /* "your god is mighty displeased..." C's Soundeffect() is a no-op in
@@ -5840,7 +5880,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                 state,
             );
         }
-    } else if (mtmp.mpeaceful) unsupported('killing a peaceful monster');
+    } else if (mtmp.mpeaceful) adjalign(-5, state);
 
     /* "malign was already adjusted for u.ualign.type and randomization" */
     adjalign(mtmp.malign, state);
