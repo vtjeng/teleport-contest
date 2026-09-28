@@ -1637,9 +1637,8 @@ export function can_center_cloud(x, y, state = game) {
         && dist2(x, y, state.u.ux, state.u.uy) < 32;
 }
 
-// C ref: read.c display_stinking_cloud_positions() (1087-1111). The callback
-// is also used by do_stinking_cloud(); that separate caller remains behind
-// seffect_stinking_cloud's recorded source gap.
+// C ref: read.c display_stinking_cloud_positions() (1087-1111). Both
+// do_stinking_cloud() and blessed seffect_fire() install this getpos callback.
 export async function display_stinking_cloud_positions(onOff, state = game) {
     if (onOff) {
         const dist = 6;
@@ -1656,6 +1655,65 @@ export async function display_stinking_cloud_positions(onOff, state = game) {
     } else {
         await tmp_at(DISP_END, 0, state);
     }
+}
+
+// C ref: read.c do_stinking_cloud() (3082-3111).  Its getpos callbacks live
+// only for this target selection; getpos() writes the selected coord in place
+// and a negative result is the one cancellation branch that suppresses the
+// cloud entirely.
+export async function do_stinking_cloud(sobj, mentionStinking, state = game) {
+    await ttyPline(
+        `Where do you want to center the ${mentionStinking ? 'stinking ' : ''}cloud?`,
+        state,
+    );
+    const cc = { x: state.u.ux, y: state.u.uy };
+    state.getpos_hilitefunc = (onOff, callbackState = state) => (
+        display_stinking_cloud_positions(onOff, callbackState)
+    );
+    state.getpos_getvalid = (x, y, callbackState = state) => (
+        can_center_cloud(x, y, callbackState)
+    );
+    let getposResult;
+    try {
+        getposResult = await getpos(cc, true, 'the desired position', state);
+    } finally {
+        // C resets getpos_sethilite(NULL, NULL) at the end of getpos().
+        state.getpos_hilitefunc = null;
+        state.getpos_getvalid = null;
+    }
+
+    if (getposResult < 0) {
+        await ttyPline('Never mind.', state);
+        return;
+    }
+    if (!can_center_cloud(cc.x, cc.y, state)) {
+        if (propertyActive(HALLUC, state)) {
+            await ttyPline('Ugh... someone cut the cheese.', state);
+        } else {
+            await ttyPline(
+                `${sobj.oclass === SCROLL_CLASS
+                    ? 'The scroll crumbles with' : 'You smell'} a whiff of rotten eggs.`,
+                state,
+            );
+        }
+        return;
+    }
+
+    const cloudSign = bcsign(sobj);
+    await create_gas_cloud(
+        cc.x,
+        cc.y,
+        15 + 10 * cloudSign,
+        8 + 4 * cloudSign,
+        {
+            state,
+            random: { rn2 },
+            blockPoint: (x, y) => block_point(x, y, state),
+            canSee: (x, y) => cansee(x, y, state),
+            newsym: (x, y) => newsym(x, y, state),
+            message: ttyPline,
+        },
+    );
 }
 
 // C ref: read.c seffect_fire() (1850-1917). C passes the consumed scroll by
@@ -2161,6 +2219,19 @@ export async function seffect_genocide(scroll, state = game) {
     }
 }
 
+// C ref: read.c seffect_stinking_cloud() (1991-2002). The wrapper only
+// identifies the scroll and marks the effect known; do_stinking_cloud() owns
+// target selection and cloud creation without consuming the scroll pointer.
+export async function seffect_stinking_cloud(scroll, state = game) {
+    const alreadyKnown = scroll.oclass === SPBOOK_CLASS
+        || objectType(scroll, state).oc_name_known;
+    if (!alreadyKnown)
+        await ttyPline('You have found a scroll of stinking cloud!', state);
+    state.gk ??= {};
+    state.gk.known = true;
+    await do_stinking_cloud(scroll, alreadyKnown, state);
+}
+
 // C ref: read.c seffects() (2194-2290). Preserve the complete source switch,
 // its pre-dispatch Wisdom exercise, post-effect inventory refresh, and
 // `sobj ? 0 : 1` return. C's effect helpers are void and receive `&sobj`;
@@ -2284,7 +2355,7 @@ export async function seffects(scroll, state = game) {
             note_unported('read.c seffect_punishment');
         break;
     case SCR_STINKING_CLOUD:
-        note_unported('read.c seffect_stinking_cloud');
+        await seffect_stinking_cloud(scroll, state);
         break;
     default:
         note_unported('read.c seffects default');

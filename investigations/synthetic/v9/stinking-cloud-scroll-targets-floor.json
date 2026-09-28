@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v9.json",
   "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
   "recordingSha256": "30f21674ec8e7fe7965fdf526cb0933ae59855cee2b0d2ba83d659cc85bd1fbc",
-  "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
-  "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
-  "remainingScreens": 5,
+  "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
+  "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+  "remainingScreens": 1,
   "recordedSteps": 35,
   "status": "complete",
-  "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+  "commit": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v9",
@@ -24,12 +24,12 @@
     "recordingSha256": "30f21674ec8e7fe7965fdf526cb0933ae59855cee2b0d2ba83d659cc85bd1fbc",
     "recipe": "challenges/cases/v9/stinking-cloud-scroll-targets-floor.recipe.session.json",
     "recipeSha256": "6a4dc2d619e853d5aee1fd2950976bc6a26f4a7f64ca369b5e56c060cbe484d6",
-    "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
-    "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
-    "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
-    "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
-    "evaluationUtc": "2026-09-27T18:00:12.845Z",
-    "remainingScreens": 5,
+    "replayInputSha256": "449a6999b2feae5cff174dd1e10a32c00e59adb9f03d242254448ae7d5bee8ee",
+    "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
+    "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab",
+    "evaluationArtifact": "challenges/evaluations/20260928002536-v9.json",
+    "evaluationUtc": "2026-09-28T00:26:13.438Z",
+    "remainingScreens": 1,
     "recordedSteps": 35,
     "previousScreensMatched": 30,
     "regression": false,
@@ -37,103 +37,51 @@
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 30,
+        "matched": 34,
         "total": 35
       },
       "rng": {
-        "matched": 2613,
+        "matched": 2626,
         "total": 2626
       },
       "cursors": {
-        "matched": 30,
+        "matched": 34,
         "total": 35
       }
     },
     "firstMismatch": {
-      "screen": {
-        "index": 30,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 30,
-          "key": " "
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 0,
-        "cCell": {
-          "ch": "Y",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "C",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": {
-        "index": 2613,
-        "cEntry": "rn2(4)=1",
-        "cCaller": "create_gas_cloud(region.c:1255)",
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 34,
-          "key": "."
-        },
-        "stepIndex": 34
-      },
-      "cursor": {
-        "index": 30,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 30,
-          "key": " "
-        },
-        "cCursor": [
-          50,
-          0,
-          1
-        ],
-        "jsCursor": [
-          37,
-          0,
-          1
-        ]
-      }
+      "kind": "stop",
+      "message": "unsupported region callback inside_gas_cloud with positive damage",
+      "step": 34
     },
-    "step": 30,
-    "kind": "screen",
+    "step": 34,
+    "kind": "stop",
     "sourceFile": null,
     "function": null,
-    "message": null,
+    "message": "unsupported region callback inside_gas_cloud with positive damage",
     "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "Reading a stinking-cloud scroll reaches read.c:seffect_stinking_cloud, but js/read.js:seffects records the effect as unported. The C wrapper prints discovery feedback and enters read.c:do_stinking_cloud, which prompts for a location, validates it, then calls region.c:create_gas_cloud. Port the whole prompt and cloud effect family so the recorded location and later cloud RNG are source ordered.",
+  "summary": "The scroll target prompt and positive-damage cloud creation now match C through step 33. At step 34 C processes the hero inside the new poisonous gas cloud; JavaScript stops at region.c:inside_gas_cloud because its positive-damage callback remains unported. Port the whole callback for hero and monster occupants through run_regions, preserving its consumed death return and C message, RNG, status, and wakeup order.",
   "source": {
-    "file": "read.c",
-    "branch": "seffect_stinking_cloud checks spellbook or known scroll status, prints discovery only when unknown, sets gk.known, and passes that status to do_stinking_cloud. The callee asks for the cloud center, configures getpos highlighting with can_center_cloud, handles cancellation and invalid coordinates, then calls create_gas_cloud with size and damage derived from bcsign of the object. The selected case reaches the prompt at step 28 and waits after cloud creation at step 34.",
+    "file": "region.c",
+    "branch": "inside_gas_cloud (1091-1165): positive damage, hero poison tolerance, blindness, poison resistance, damage, and monster cough/anger/blindness/death. run_regions consumes the callback return for cached monster removal; the selected v9 case enters the hero arm after do_stinking_cloud creates the region.",
     "functions": [
-      "seffect_stinking_cloud",
-      "do_stinking_cloud"
+      "inside_gas_cloud"
     ],
     "callers": [
-      "read.c:seffects SCR_STINKING_CLOUD arm calls seffect_stinking_cloud after doread; js/read.js:seffects currently records note_unported(read.c seffect_stinking_cloud).",
-      "read.c:seffect_stinking_cloud calls do_stinking_cloud after identification feedback; its return is discarded."
+      "region.c:run_regions invokes inside_gas_cloud for the hero and cached monsters, consuming the monster death return; js/region.js:run_regions dispatches the callback through regionCallback and currently rejects positive damage in preflightCallback."
     ],
     "dependencies": [
-      "read.c:can_center_cloud and its getpos validity callback are already implemented in js/read.js; preserve the C prompt, highlight, cancellation, and invalid-location paths.",
-      "region.c:create_gas_cloud is implemented in js/region.js, but its return is discarded by read.c:do_stinking_cloud; wire its state, screen, and RNG effects through the production caller.",
-      "getpos.c:getpos is available in js/getpos.js. Check the scroll versus spell object class, bcsign, and Hallucination message branch from source."
+      "mon.c:m_poisongas_ok is already ported; trace the callback's remaining blinding, wakeup, damage, monster anger, and death helpers from C, and port return-valued callees as required.",
+      "read.c:do_stinking_cloud, seffect_stinking_cloud, and region.c:create_gas_cloud match through the preceding step; do not reopen that completed source range."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Current saved challenges/evaluations/20260927175933-v9.json leaves 5 of 35 screens unmatched, first at segment 0 step 30. Its later C RNG call rn2(4)=1 comes from region.c:create_gas_cloud at step 34, after the missing prompt path.",
-    "Fresh scan at b6e28d15 reports note_unported(read.c seffect_stinking_cloud) with the same screen and cursor mismatch. The C recipe challenges/cases/v9/stinking-cloud-scroll-targets-floor.recipe.session.json selects a floor location and waits to exercise a newly created cloud.",
-    "Upstream nethack-c/upstream/src/read.c:seffect_stinking_cloud at 1991-2002 calls do_stinking_cloud at 3082-3105; read.c:seffects calls the wrapper at 2279. The C function has cancellation, invalid center, hallucination, and blessed/cursed cloud-size branches beyond this one case."
+    "At 60d5bb5c, challenges/evaluations/20260928002536-v9.json matches 34 of 35 screens for this case and stops at zero-based segment 0 step 34 with UnsupportedRegionCallbackError: inside_gas_cloud with positive damage.",
+    "B35 independently recorded blessed and cursed valid-target stinking-cloud scrolls and cancellation, all strict C/JS matches; its admitted v9 synthetic-range evidence matches steps 30-33. The remaining selected boundary is region.c:inside_gas_cloud, not the read.c prompt or cloud creation.",
+    "Upstream nethack-c/upstream/src/region.c:inside_gas_cloud at 1091-1165 handles fog-cloud ttl, hero poison effects, monster effects, and a boolean monster death result used by region.c:run_regions. JavaScript preflightCallback and inside_gas_cloud in js/region.js refuse positive damage before the step completes."
   ]
 }

@@ -446,6 +446,7 @@ import { note_unported } from './unported.js';
 import { gd_move } from './vault.js';
 import { tactics } from './wizard.js';
 import {
+    block_point,
     canseemon,
     cansee,
     clear_path,
@@ -833,11 +834,51 @@ function m_postmove_effect(mtmp, env = {}) {
     if (mtmp.data === state.mons?.[PM_HEZROU]
         || mtmp.data?.pmidx === PM_HEZROU) {
         /* Hezrous create clouds of stench; this does not cost a move */
-        return create_gas_cloud(x, y, 1, 8, env);
+        return create_gas_cloud(x, y, 1, 8, postmoveRegionEnv(env, state));
     } else if ((mtmp.data === state.mons?.[PM_STEAM_VORTEX]
                || mtmp.data?.pmidx === PM_STEAM_VORTEX) && !mtmp.mcan) {
-        return create_gas_cloud(x, y, 1, 0, env); /* harmless vapor */
+        return create_gas_cloud(
+            x, y, 1, 0, postmoveRegionEnv(env, state),
+        ); /* harmless vapor */
     }
+}
+
+// monmove.c:m_move() passes m_postmove_effect() the same game context as its
+// other movement helpers. C's region.c:create_gas_cloud() gets display and
+// vision operations from global game state; its JS port requires them at this
+// call boundary. The planning pass owns a cloned level, so silence display
+// effects and isolate the borrowed vision buffers before block_point().
+function postmoveRegionEnv(env, state) {
+    const planning = Boolean(env.planning);
+    return {
+        ...env,
+        state,
+        blockPoint: (x, y) => {
+            if (planning) {
+                if (typeof env.admitPlannedVisionChange !== 'function') {
+                    throw new TypeError(
+                        'planned postmove gas requires '
+                        + 'admitPlannedVisionChange',
+                    );
+                }
+                env.admitPlannedVisionChange(x, y, state);
+            }
+            return typeof env.blockPoint === 'function'
+                ? env.blockPoint(x, y, state, env)
+                : block_point(x, y, state);
+        },
+        canSee: (x, y) => typeof env.canSee === 'function'
+            ? env.canSee(x, y, state, env)
+            : cansee(x, y, state),
+        newsym: planning ? () => {}
+            : (x, y) => typeof env.newsym === 'function'
+                ? env.newsym(x, y, state, env)
+                : newsym(x, y),
+        message: planning ? async () => {}
+            : (text) => typeof env.message === 'function'
+                ? env.message(text, state, env)
+                : ttyPline(text, state),
+    };
 }
 
 function requireDochugwOperation(env, name) {
