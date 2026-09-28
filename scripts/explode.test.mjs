@@ -38,12 +38,13 @@ import {
     PHYS_EXPL_TYPE,
     W_ARM,
 } from '../js/const.js';
-import { newMonster } from '../js/monst.js';
+import { newMonster, place_monster } from '../js/monst.js';
 import { mksobj, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     NON_PM,
     PM_GAS_SPORE,
+    PM_NEWT,
 } from '../js/monsters.js';
 import { LEATHER_ARMOR, ROCK, SCROLL_CLASS } from '../js/objects.js';
 import { zap_over_floor } from '../js/zap.js';
@@ -124,6 +125,53 @@ test('explode supplies rnl to blessed-armor fire damage', async () => {
         getRngLog().slice(firstDraw).some((entry) => entry.startsWith('rnl(4)')),
         'blessed armor erosion reaches the source rnl(4) call',
     );
+});
+
+test('a player-caused explosion keeps xkilled’s ordinary message flag', async () => {
+    await runSegment({
+        seed: 83015812,
+        datetime: '20321112131415',
+        nethackrc: [
+            'OPTIONS=name:FireKill,role:Valkyrie,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup',
+            '',
+        ].join('\n'),
+        moves: '',
+    });
+    game.u.uprops[FIRE_RES] ??= {};
+    game.u.uprops[FIRE_RES].extrinsic = 1;
+    const monster = newMonster({
+        data: game.mons[PM_NEWT],
+        cham: NON_PM,
+        m_lev: game.mons[PM_NEWT].mlevel,
+        m_id: 100,
+        mx: 0,
+        my: 0,
+        mhp: 1,
+        mhpmax: 1,
+        mcanmove: 1,
+    });
+    place_monster(monster, game.u.ux + 1, game.u.uy, game);
+    const lines = [];
+    const random = {
+        d: () => 1,
+        rn1: (_range, from) => from,
+        rn2: (bound) => Math.min(1, bound - 1),
+        rnd: () => 1,
+        rnl: () => 1,
+        rne: () => 1,
+    };
+
+    await explode(
+        game.u.ux, game.u.uy, 11, 100, SCROLL_CLASS, EXPL_FIERY, game,
+        { message: async (line) => lines.push(line), random },
+    );
+
+    // explode.c:560 passes XKILL_GIVEMSG (0) | xkflg. It must retain the
+    // separate kill line after the explosion's caught-in message.
+    assert.ok(lines.some((line) => line.includes('is caught in the tower of flame!')));
+    assert.ok(lines.includes('You kill the newt!'), JSON.stringify(lines));
+    assert.equal(monster.mhp, 0);
 });
 
 test('zap_over_floor ignores physical explosions before zap arms', async () => {
