@@ -106393,7 +106393,7 @@
     {
       "id": "port-music-awaken-soldiers-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port bugle awakening across hero and monster callers",
       "cFile": "music.c",
       "sessions": [
@@ -106401,8 +106401,12 @@
       ],
       "selectionReason": "The saved v10 bugle case first diverges at step 38 after the hero plays a bugle: music.c:do_improvisation calls awaken_soldiers, but js/music.js only records the gap. Source audit found a second active call at muse.c:use_defensive MUSE_BUGLE, selected for a mercenary carrying a bugle when a sleepy soldier is visible. No other unresolved music session is queued. Port the whole awaken_soldiers function and both caller arms; use a separate C recording for the monster caller. Investigation: investigations/synthetic/v10/bugle-awakens-hostile-soldier.json; current evaluation challenges/evaluations/20260928130935-v10.json.",
       "detail": "music.c:awaken_soldiers wakes and angers living non-guard mercenaries, clears their movement/wait state, reports visible or audible feedback, and calls the existing awaken_scare for nearby other monsters. Preserve source order and RNG, wire music.c:do_improvisation BUGLE and muse.c:use_defensive MUSE_BUGLE. Claim completion only with hero and monster caller runtime evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "9af9d35fdd823b095c9133ffc863b21fa5586fc4",
+      "openStanding": {
+        "sha": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -106431,7 +106435,234 @@
           "evaluationPath": "challenges/evaluations/20260928130935-v10.json",
           "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bugle-awakens-hostile-soldier",
+          "session": "synthetic/v10/bugle-awakens-hostile-soldier",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+          "recordingPath": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+          "recordingSha256": "bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9",
+          "recipe": "challenges/cases/v10/bugle-awakens-hostile-soldier.recipe.session.json",
+          "recipeSha256": "eb17038ab8d989f80d59ad65b25a6e5937102a0c99a02c92257322b142b56909",
+          "replayInputSha256": "a08758108ab0a96324515f8c5ef36934e8334fa3ab8b3773a0e0ec5109d0c00b",
+          "evaluationPath": "challenges/evaluations/20260928143652-v10.json",
+          "evaluationCommit": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+          "evaluationArtifact": "challenges/evaluations/20260928143652-v10.json",
+          "evaluationUtc": "2026-09-28T14:36:55.746Z",
+          "remainingScreens": 2,
+          "recordedSteps": 40,
+          "previousScreensMatched": 38,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 38,
+              "total": 40
+            },
+            "rng": {
+              "matched": 2851,
+              "total": 2851
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 41,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": " "
+              },
+              "cCursor": [
+                49,
+                0,
+                1
+              ],
+              "jsCursor": [
+                28,
+                6,
+                1
+              ]
+            }
+          },
+          "step": 38,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/bugle-awakens-hostile-soldier.json",
+            "result": {
+              "session": "synthetic/v10/bugle-awakens-hostile-soldier",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "bugle-awakens-hostile-soldier",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 2,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "bugle-awakens-hostile-soldier",
+                "session": "synthetic/v10/bugle-awakens-hostile-soldier",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+                "recordingPath": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+                "recordingSha256": "bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9",
+                "recipe": "challenges/cases/v10/bugle-awakens-hostile-soldier.recipe.session.json",
+                "recipeSha256": "eb17038ab8d989f80d59ad65b25a6e5937102a0c99a02c92257322b142b56909",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 2,
+                "recordedSteps": 40,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 38,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 2851,
+                    "total": 2851
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 41,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      49,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      28,
+                      6,
+                      1
+                    ]
+                  }
+                },
+                "step": 38,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The bugle case matches every recorded RNG call and the first 38 screens, then C announces that the visible hostile soldier is ready for battle while JavaScript has only a note_unported for music.c:awaken_soldiers. The whole source function wakes every living mercenary except guards regardless of distance, changes its hostility and wait state, and emits sight- or hearing-based feedback; nearby other monsters use the already-ported awaken_scare branch. The bugle improvisation caller needs to invoke it after the sound and before Wisdom exercise.",
+              "source": {
+                "file": "music.c",
+                "branch": "When a hero improvises on a BUGLE, do_improvisation calls awaken_soldiers(&gy.youmonst) after Hero_playnotes. For every living mercenary other than a guard, the function makes an untamed monster hostile, clears sleep and freezing, restores movement, clears STRAT_WAITMASK, and reports readiness if visible or battle-gear sounds if heard. Other living monsters within hero level times 30 squared-distance units call awaken_scare, with scary true below one third of that range.",
+                "functions": [
+                  "awaken_soldiers"
+                ],
+                "callers": [
+                  "music.c:do_improvisation BUGLE arm at 649-658 calls awaken_soldiers with the hero; js/music.js:do_improvisation BUGLE arm prints the sound then only notes the unported call."
+                ],
+                "dependencies": [
+                  "music.c:awaken_scare is already ported in js/music.js and handles the nonmercenary branch; retain its distance, resistance, fear and RNG behavior.",
+                  "canseemon, Monnam, Deaf-aware Norep, and monster list iteration determine the visible and heard mercenary messages and source state order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json has 38/40 matching screens, 2851/2851 matching RNG calls, and its first screen mismatch at step 38, where the C message extends the top row and JavaScript does not. The C recording SHA-256 is bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9.",
+                "Upstream nethack-c/upstream/src/music.c:162-199 defines awaken_soldiers, with a no-distance mercenary arm and distance-limited awaken_scare for other monsters. Its BUGLE caller is at music.c:649-658.",
+                "js/music.js:219-226 prints the bugle line but calls note_unported(music.c awaken_soldiers) instead of changing the soldier or emitting the C readiness message. The independent recipe summons a hostile soldier, confirms improvisation, and dismisses the separate music pagers."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-read-confuse-monster-synthetic-v8-20260928",
