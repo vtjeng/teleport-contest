@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93628141,
+      "datetime": "20390418142317",
+      "nethackrc": "OPTIONS=name:CoinTossCheck,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "moves": " \u0017100 gold pieces\na*$"
+    }
+  ],
+  "comment": "Independent apply.c:flip_coin normal outcome. A Valkyrie in debug mode receives a wished coin stack, then explicitly selects the coin class through the production apply command. Seed, date, character, and stack quantity are independently chosen."
+}

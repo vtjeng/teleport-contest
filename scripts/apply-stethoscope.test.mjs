@@ -706,7 +706,7 @@ test('the Deaf guard reads the intrinsic and the extrinsic, not the option',
     }
 });
 
-test('doapply refuses unsupported classes and dispatches spellbooks',
+test('doapply refuses unsupported classes and dispatches spellbooks and coins',
     async () => {
     const segment = segmentFor('ac.');
     // js/cmd.js failClosedCommand() rewraps the refusal, so the reason
@@ -715,15 +715,15 @@ test('doapply refuses unsupported classes and dispatches spellbooks',
     const refusal = async (moves) =>
         (await boundaryFor(segment, moves))?.message ?? '';
 
-    // The remaining unsupported oclass shortcuts in apply.c, reached by
-    // answering the prompt with this Healer's wand and gold.
-    for (const [letter, branch] of [
-        ['h', 'do_break_wand()'],
-        ['$', 'flip_coin()'],
-    ]) {
+    // The remaining unsupported oclass shortcut is the C wand-breaking
+    // function. The coin-class arm now reaches flip_coin() normally.
+    for (const [letter, branch] of [['h', 'do_break_wand()']]) {
         assert.match(await refusal(`.a${letter}`),
             new RegExp(`applying a tool requires ${branch}`, 'u'), letter);
     }
+
+    assert.equal(await boundaryFor(segment, '.a$'), null,
+        'apply.c COIN_CLASS reaches flip_coin() without a refusal');
 
     // apply.c:4237-4238 dispatches SPBOOK_CLASS directly to
     // flip_through_book(). The Healer segment's first book reaches the
