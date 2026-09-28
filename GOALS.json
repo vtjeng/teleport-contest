@@ -108148,6 +108148,92 @@
           "evaluationCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
         }
       }
+    },
+    {
+      "id": "port-read-remove-curse-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete remove-curse effect and runtime blessorcurse behavior",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v10/confused-remove-curse-blessorcurse"
+      ],
+      "selectionReason": "Current v10 confused remove-curse case is source-traced and has two unmatched screens; read.c:seffect_remove_curse and mkobj.c:blessorcurse are unreserved.",
+      "detail": "At step 80 uncursed confused SCR_REMOVE_CURSE enters missing inventory traversal; C then calls mkobj.c:blessorcurse with rn2(2), while JavaScript diverges. Port whole effect, runtime BUC helper and source callers without case-specific logic.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_remove_curse",
+          "line": 1489,
+          "endLine": 1607,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1489,
+        "to": 1607
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/confused-remove-curse-blessorcurse": {
+          "session": "synthetic/v10/confused-remove-curse-blessorcurse",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "confused-remove-curse-blessorcurse",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/confused-remove-curse-blessorcurse.session.json",
+          "recordingSha256": "9cb45869824984538232543de4eaefe08fc54fa66f0c7367d0a24d1b7208eb03",
+          "evaluationPath": "challenges/evaluations/20260928181249-v10.json",
+          "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
+        }
+      }
+    },
+    {
+      "id": "port-dothrow-hitfloor-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port dothrow.c hitfloor and unreachable-floor drop caller",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v10/bullwhip-snags-floor-object-while-floating"
+      ],
+      "selectionReason": "Current v10 floating bullwhip case stops at the source-traced dothrow.c:hitfloor gap with six unmatched screens; its source and callers are unreserved.",
+      "detail": "At step 22 do.c:drop frees a touchstone above unreachable floor and calls hitfloor; JavaScript refuses before that branch. Port whole hitfloor source order and wire active callers, including the Boolean hero_breaks and ship_object dependencies; use independent source-reaching recordings.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hitfloor",
+          "line": 606,
+          "endLine": 655,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 606,
+        "to": 655
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/bullwhip-snags-floor-object-while-floating": {
+          "session": "synthetic/v10/bullwhip-snags-floor-object-while-floating",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bullwhip-snags-floor-object-while-floating",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.session.json",
+          "recordingSha256": "c71b4f263a4927575c62d688896ad98dd979c7a1d8a006fb0973dbbb03b4de43",
+          "evaluationPath": "challenges/evaluations/20260928181249-v10.json",
+          "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
+        }
+      }
     }
   ]
 }
