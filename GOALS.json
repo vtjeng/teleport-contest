@@ -108619,7 +108619,7 @@
     {
       "id": "port-dothrow-hitfloor-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port dothrow.c hitfloor and unreachable-floor drop caller",
       "cFile": "dothrow.c",
       "sessions": [
@@ -108813,7 +108813,17 @@
             }
           }
         }
-      ]
+      ],
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "759b985c4bdf4978863b5d44a45a63bd0db7e61d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "A43 matches do.c:drop -> dothrow.c:hitfloor in the selected v10 case and independent levitating-drop recording, but active callers dothrow.c:toss_up/throwit, invent.c:hold_another_object, artifact.c:untouchable, mkobj.c:hornoplenty, ball.c:litter/drag_down, and pickup.c:use_container/tipcontainer lack matching runtime witnesses. The upward-boulder toss recipe stops earlier at zap.c:makewish on missing rn2(100). Supporting do.c:dropz still names void impact/swallow gaps; preserve the blocked recipe and resume after those caller witnesses or source blockers are repaired."
     },
     {
       "id": "div-apply-doapply-artifact-retouch-v10-20260928",
@@ -109011,7 +109021,7 @@
     {
       "id": "port-trap-antimagic-hero-synthetic-v11-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port hero anti-magic trap effect and source energy drain",
       "cFile": "trap.c",
       "sessions": [
@@ -109019,17 +109029,24 @@
       ],
       "selectionReason": "Select synthetic/v11/hero-antimagic-trap-drains-energy from challenges/evaluations/20260928205149-v11.json at 1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186; immutable recording challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json SHA-256 c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd, manifest SHA-256 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347. The source trace in investigations/synthetic/v11/hero-antimagic-trap-drains-energy.json identifies the missing hero trapeffect_anti_magic arm and trap.c:drain_en, independent of reserved A43 dothrow.c work.",
       "detail": "Port trap.c:trapeffect_anti_magic hero and monster arms as one complete function, plus required trap.c:drain_en; admit the hero trap through preflight_dotrap and wire active callers in source order. Source definitions trap.c:2323-2452 and 5202-5243.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "9ca3a02c627512e2f19f283d6c990d7fe38fe2f0",
+      "openStanding": {
+        "sha": "759b985c4bdf4978863b5d44a45a63bd0db7e61d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "9028001f08de9c754d4f7bff31e498baa7828c22",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "trapeffect_anti_magic",
           "line": 2323,
           "endLine": 2452,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -109048,6 +109065,416 @@
           "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
           "evaluationPath": "challenges/evaluations/20260928205149-v11.json",
           "evaluationCommit": "1c5cff7f2fc9176aaf4b8105b1fd9b4e25232186"
+        }
+      },
+      "activeStanding": {
+        "sha": "759b985c4bdf4978863b5d44a45a63bd0db7e61d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-antimagic-trap-drains-energy",
+          "session": "synthetic/v11/hero-antimagic-trap-drains-energy",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json",
+          "recordingPath": "challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json",
+          "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
+          "recipe": "challenges/cases/v11/hero-antimagic-trap-drains-energy.recipe.session.json",
+          "recipeSha256": "9f16976603ea08809f1d0bdf4643a37a0481787d98a2ffa123f0925e02a42a6c",
+          "replayInputSha256": "85025af8879ea9cf9833d17a0a5a5388ba25774fc413663e52a1a25e92ef69e8",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d",
+          "evaluationArtifact": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationUtc": "2026-09-28T21:15:52.594Z",
+          "remainingScreens": 3,
+          "recordedSteps": 25,
+          "previousScreensMatched": 22,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 22,
+              "total": 25
+            },
+            "rng": {
+              "matched": 2252,
+              "total": 2269
+            },
+            "cursors": {
+              "matched": 22,
+              "total": 25
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 22
+          },
+          "step": 22,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/hero-antimagic-trap-drains-energy.json",
+            "result": {
+              "session": "synthetic/v11/hero-antimagic-trap-drains-energy",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "hero-antimagic-trap-drains-energy",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
+              "evaluationPath": "challenges/evaluations/20260928203412-v11.json",
+              "evaluationCommit": "be69548a77c6899056b335ffae17d07aa1994ea7",
+              "remainingScreens": 3,
+              "recordedSteps": 25,
+              "status": "complete",
+              "commit": "be69548a77c6899056b335ffae17d07aa1994ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "hero-antimagic-trap-drains-energy",
+                "session": "synthetic/v11/hero-antimagic-trap-drains-energy",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json",
+                "recordingPath": "challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json",
+                "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
+                "recipe": "challenges/cases/v11/hero-antimagic-trap-drains-energy.recipe.session.json",
+                "recipeSha256": "9f16976603ea08809f1d0bdf4643a37a0481787d98a2ffa123f0925e02a42a6c",
+                "replayInputSha256": "c67d67472ba412e7e0b8b007ac8e78a0a568a4df1cc6a7e6b43c2114b51cafa3",
+                "evaluationPath": "challenges/evaluations/20260928203412-v11.json",
+                "evaluationCommit": "be69548a77c6899056b335ffae17d07aa1994ea7",
+                "evaluationArtifact": "challenges/evaluations/20260928203412-v11.json",
+                "evaluationUtc": "2026-09-28T20:34:22.192Z",
+                "remainingScreens": 3,
+                "recordedSteps": 25,
+                "previousScreensMatched": 22,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 22,
+                    "total": 25
+                  },
+                  "rng": {
+                    "matched": 2252,
+                    "total": 2269
+                  },
+                  "cursors": {
+                    "matched": 22,
+                    "total": 25
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: trap activation",
+                  "step": 22
+                },
+                "step": 22,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: trap activation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A hero steps on an anti-magic trap. JavaScript preflight_dotrap refuses ANTI_MAGIC before the move, and trapeffect_anti_magic currently has only the monster arm. Port the complete hero arm with its iron-shoes priority, resistance damage, two-dice drain, half-drain split, and trap.c:drain_en state/message/throttle order. Admit this trap type through the existing dotrap dispatcher only after those source effects are wired.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c:trapeffect_anti_magic hero arm (2323-2400) first handles positively enchanted iron shoes, then marks the trap, applies Antimagic resistance damage if active, draws d(2,6) and rnd(drain/2), lowers maximum energy when eligible, and calls trap.c:drain_en (5202-5243).",
+                "functions": [
+                  "trapeffect_anti_magic",
+                  "drain_en"
+                ],
+                "callers": [
+                  "trap.c:dotrap reaches trapeffect_anti_magic through the trap-effect selector; js/trap_effects.js:preflight_dotrap rejects ANTI_MAGIC before it reaches the existing monster-only function."
+                ],
+                "dependencies": [
+                  "trap.c:drain_en is absent in JavaScript and is required for current/max energy updates and the final You_feel message. It is a same-file source callee whose result is void but effects are essential to this selected case.",
+                  "Existing wearing_iron_shoes and which_armor helpers are in js/trap_effects.js; preserve their source order before any energy draw.",
+                  "The other C callers of trap.c:drain_en are mhitu.c engulfing AD_DREN and uhitm.c mhitm_ad_dren. Inspect their JavaScript production reachability; js/uhitm.js currently marks mhitm_ad_dren unported, so record that gap rather than claiming a caller witness."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260928203412-v11.json at be69548a77c6899056b335ffae17d07aa1994ea7 matches 22/25 screens, 2252/2269 RNG calls, and stops at zero-based step 22 with unsupported hero move: trap activation. Immutable C recording SHA-256 c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd.",
+                "Upstream nethack-c/upstream/src/trap.c:2323-2400 and 5202-5243 define the missing hero anti-magic trap and energy-drain behavior; js/trap_effects.js:2052-2060 refuses the hero arm and preflight_dotrap omits ANTI_MAGIC from its admitted types.",
+                "The prepared v11 batch crosswalk checked this trap state and action history against unresolved v6-v10 sessions before admission."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_anti_magic",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_anti_magic",
+            "sourceReview": "Read the complete trap.c:trapeffect_anti_magic() definition (2323-2452) and preserved its shared enchanted-iron-shoes test, then the hero and monster arms in source order. For the hero, the positive-shoe early return reveals the trap only inside that branch; otherwise seetrap runs after the shoe check. The antimagic damage path preserves the rnd(4), optional single Half_physical_damage/Half_spell_damage draw, Magicbane draw, carried non-quest MR artifact scan/draw, Passes_walls quartering, You_feel threshold, and losehp ordering. The energy path then performs d(2,6), rnd(drain/2), maximum-energy reduction when uenmax exceeds drain, and drain_en. The monster arm retains the spell-attack energy-use and resistance-damage branches, visibility, death, redraw, and Trap_* return ordering. The only skipped C callee is costly_alteration(), whose void result is discarded; it remains an explicit note_unported gap at the shoe branch. No session data is special-cased.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:trapeffect_selector dispatches ANTI_MAGIC to trapeffect_anti_magic(mtmp, trap, trflags); dotrap supplies the hero and mintrap supplies a monster."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-antimagic-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-anti-magic-field-valkyrie-c39.session.json",
+              "recordings/trap.c/monster-anti-magic-trap.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-antimagic-trap-drains-energy",
+                "segment": 0,
+                "fromStep": 22,
+                "throughStep": 22,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_anti_magic -> trap.c:drain_en"
+              }
+            ],
+            "checkedAt": "9028001f08de9c754d4f7bff31e498baa7828c22"
+          }
+        ],
+        "entryPointReview": "The active hero entry is a completed movement onto an anti-magic trap: hack.c:spoteffects calls trap.c:dotrap, which dispatches through trapeffect_selector to trapeffect_anti_magic; the hero arm calls drain_en. The independent C39 Valkyrie recording reaches the field after moving off the stair and exercises trapeffect_anti_magic at step 22; the admitted v11 case also reaches the hero energy drain at segment 0 step 22. The active monster entry is monmove.c:postmov -> trap.c:mintrap -> trapeffect_selector -> trapeffect_anti_magic; the existing monster-anti-magic-trap recording documents a non-resistant grid bug crossing the trap and is retained as runtime coverage for the preserved monster arm. The source helper drain_en also has separate callers mhitu.c:gulpmm and uhitm.c:mhitm_ad_dren, but those parent actions remain outside this delivery (no JS gulpmm, and js/uhitm.js still has an explicit unported AD_DREN arm), so this evidence does not claim those caller paths. In the positive enchanted-iron-shoes sub-branch C calls costly_alteration and discards its return; JS records that void gap with note_unported('mkobj.c costly_alteration').",
+        "entryPoints": [
+          {
+            "name": "hero steps onto an anti-magic trap",
+            "functions": [
+              "trapeffect_anti_magic"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-anti-magic-field-valkyrie-c39.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-antimagic-trap-drains-energy",
+                "segment": 0,
+                "fromStep": 22,
+                "throughStep": 22,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_anti_magic -> trap.c:drain_en"
+              }
+            ]
+          },
+          {
+            "name": "monster crosses an anti-magic trap",
+            "functions": [
+              "trapeffect_anti_magic"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-anti-magic-trap.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9028001f08de9c754d4f7bff31e498baa7828c22",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-zap-zapnodir-synthetic-v11-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port directionless wand effects and enlightenment helper from zap.c",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v11/wand-wishing-makes-wish",
+        "synthetic/v11/wand-light-room",
+        "synthetic/v11/wand-stasis-freezes-level",
+        "synthetic/v11/wand-enlightenment-reports-status"
+      ],
+      "selectionReason": "Select synthetic/v11/wand-wishing-makes-wish at challenges/evaluations/20260928211543-v11.json (759b985c4bdf4978863b5d44a45a63bd0db7e61d), immutable recording SHA-256 fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474, manifest SHA-256 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347. Group the three related v11 light, stasis, and enlightenment cases because all first stop in zap.c:zapnodir; their investigation records preserve separate C branch, state, and action history.",
+      "detail": "Implement zap.c:do_enlightenment_effect and whole zapnodir switch in C definition order, including light, detection, stasis, creation, wishing, enlightenment, and shared wand discovery. Wire charged NODIR callers and preserve all existing create-monster and secret-door matches. The wishing branch may expose a separately traced zap.c:makewish finalization defect; source-trace and record it rather than special-casing the case.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "do_enlightenment_effect",
+          "line": 2525,
+          "endLine": 2538,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "zapnodir",
+          "line": 2539,
+          "endLine": 2604,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2525,
+        "to": 2604
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/wand-wishing-makes-wish": {
+          "session": "synthetic/v11/wand-wishing-makes-wish",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-wishing-makes-wish",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-wishing-makes-wish.session.json",
+          "recordingSha256": "fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/wand-light-room": {
+          "session": "synthetic/v11/wand-light-room",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-light-room",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-light-room.session.json",
+          "recordingSha256": "94ced9f04ccf374c3e5d6eeb6212a2e95527c728f793ef2122e2f15da8712b1a",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/wand-stasis-freezes-level": {
+          "session": "synthetic/v11/wand-stasis-freezes-level",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-stasis-freezes-level",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-stasis-freezes-level.session.json",
+          "recordingSha256": "99fd172dd3ce7b4338525776ef1d196f4d9747563cc21fc17f946be34e638eb2",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/wand-enlightenment-reports-status": {
+          "session": "synthetic/v11/wand-enlightenment-reports-status",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-enlightenment-reports-status",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-enlightenment-reports-status.session.json",
+          "recordingSha256": "0825f81f6eed93f36a6b1d76dd2dde00fddd8b48fe2cfc5f14ac08b8dc919419",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        }
+      }
+    },
+    {
+      "id": "port-read-destroy-armor-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port destroy-armor scroll effects and return-valued disintegration chain",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-cursed-destroy-armor-scroll"
+      ],
+      "selectionReason": "The sole unresolved v8 case has exact screens but is missing C obj_resists rn2(100) at step 36. Source trace in investigations/synthetic/v8/read-cursed-destroy-armor-scroll.json selects read.c:disintegrate_cursed_armor..seffect_destroy_armor and its do_wear.c:maybe_destroy_armor/disintegrate_arm return-valued callees; preserve all already matching screens and RNG.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "disintegrate_cursed_armor",
+          "line": 1294,
+          "endLine": 1323,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "seffect_destroy_armor",
+          "line": 1324,
+          "endLine": 1398,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1294,
+        "to": 1398
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-cursed-destroy-armor-scroll": {
+          "session": "synthetic/v8/read-cursed-destroy-armor-scroll",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-cursed-destroy-armor-scroll",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-cursed-destroy-armor-scroll.session.json",
+          "recordingSha256": "284496eb42e96abd55dc09a2f531660b33caeb09d61dd5fb1474e4eb1b052452",
+          "evaluationPath": "challenges/evaluations/20260928211543-v8.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        }
+      }
+    },
+    {
+      "id": "div-zap-bhitm-slow-monster-synthetic-v11-20260928",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement immediate slow-monster hit and speed adjustment",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v11/slow-monster-spell-changes-target-speed",
+        "synthetic/v11/hostile-monster-picks-up-floor-weapon"
+      ],
+      "selectionReason": "Both distinct v11 histories stop at the same zap.c:bhitm slow-monster branch; source trace in investigations/synthetic/v11/slow-monster-spell-changes-target-speed.json and hostile-monster-picks-up-floor-weapon.json groups them for one worker after B47 releases js/zap.js.",
+      "detail": "zap.c:bhitm slow-monster cases call resist(), reveal a mimic if applicable, adjust speed through mon.c:mon_adjust_speed, schedule gear check, and continue the shared wake/learning tail. js/zap.js refuses the immediate effect type before these calls; preserve C RNG, message, state, and return order for both action histories.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "bhitm",
+      "session": "synthetic/v11/slow-monster-spell-changes-target-speed",
+      "step": 26,
+      "syntheticProvenance": {
+        "synthetic/v11/slow-monster-spell-changes-target-speed": {
+          "session": "synthetic/v11/slow-monster-spell-changes-target-speed",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "slow-monster-spell-changes-target-speed",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/slow-monster-spell-changes-target-speed.session.json",
+          "recordingSha256": "526fdb6d28ae6f2ff3fd1f9d0ebb7c0ab54e18eca1c0a40876c0dd90aa9fd54e",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/hostile-monster-picks-up-floor-weapon": {
+          "session": "synthetic/v11/hostile-monster-picks-up-floor-weapon",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hostile-monster-picks-up-floor-weapon",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hostile-monster-picks-up-floor-weapon.session.json",
+          "recordingSha256": "b221c25af4f45b5fdc66e67c39ff39b428fed2b9bc114dfd3d340756bdaa3bc5",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
       }
     }

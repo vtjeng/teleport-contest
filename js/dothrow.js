@@ -21,7 +21,8 @@
 // flint stones." and calls throwit() once per shot; throwit() flies each one
 // with zap.c bhit() and puts it down where it lands.
 //
-// throwit() below follows the complete dothrow.c:1507-1849 source chain.
+// throwit() below follows the complete dothrow.c:1507-1849 source chain;
+// hitfloor() owns the shared landing path from dothrow.c:606-655.
 // Calls whose C result is explicitly discarded retain a named note_unported()
 // boundary; command functions outside this source span may still use the
 // UnsupportedThrowError refusal while their own ports are pending.
@@ -97,7 +98,10 @@ import {
     PRONOUN_NO_IT,
     Has_contents,
     HALF_PHDAM,
+    HOLE,
+    IS_ALTAR,
     PASSES_WALLS,
+    PIT,
     ZAP_POS,
     VIBRATING_SQUARE,
     WATER,
@@ -142,6 +146,8 @@ import {
     W_SWAPWEP,
     W_WEP,
     TT_INFLOOR,
+    TRAPDOOR,
+    SPIKED_PIT,
     HMON_APPLIED,
     HMON_KICKED,
     HMON_THROWN,
@@ -180,7 +186,9 @@ import {
     obj_to_glyph,
     tmp_at,
 } from './display.js';
-import { canletgo, dropy, flooreffects } from './do.js';
+import {
+    canletgo, doaltarobj, dropy, dropz, flooreffects,
+} from './do.js';
 import { hard_helmet, setwornEnv } from './do_wear.js';
 import {
     ceiling, has_ceiling, on_level, surface, u_on_newpos,
@@ -358,6 +366,7 @@ import {
     STATUE,
     TOWEL,
     VENOM_CLASS,
+    WAN_STRIKING,
     WEAPON_CLASS,
     WAND_CLASS,
     PIERCE,
@@ -1013,10 +1022,53 @@ export function should_mulch_missile(obj, state = game, env = {}) {
     return broken;
 }
 
+// C ref: dothrow.c hitfloor() (606-655). Finish the drop only after the source
+// surface message, hero break check, and migration attempt, in that order.
+export async function hitfloor(obj, verbosely = true, state = game, rawEnv = {}) {
+    const { ux, uy } = state.u;
+    const location = state.level.at(ux, uy);
+    if (IS_SOFT(location.typ) || state.u.uinwater || state.u.uswallow) {
+        await dropy(obj, { ...rawEnv, state });
+        return;
+    }
+
+    if (IS_ALTAR(location.typ)) {
+        await doaltarobj(obj, state);
+    } else if (verbosely) {
+        const verb = obj.otyp === WAN_STRIKING ? 'strike' : 'hit';
+        let landingSurface = surface(ux, uy, state);
+        const trap = t_at(ux, uy, state);
+        if (trap?.tseen) {
+            switch (trap.ttyp) {
+            case TRAPDOOR:
+                landingSurface = 'trap door';
+                break;
+            case HOLE:
+                landingSurface = 'edge of the hole';
+                break;
+            case PIT:
+            case SPIKED_PIT:
+                landingSurface = 'edge of the pit';
+                break;
+            default:
+                break;
+            }
+        }
+        await (rawEnv.message ?? ttyPline)(
+            `${Doname2(obj, state)} ${otense(obj, verb)} the ${landingSurface}.`,
+            state,
+            rawEnv,
+        );
+    }
+
+    if (await hero_breaks(obj, ux, uy, BRK_FROM_INV,
+        { ...rawEnv, state })) return;
+    if (await ship_object(obj, ux, uy, false, { ...rawEnv, state })) return;
+    await dropz(obj, true, { ...rawEnv, state });
+}
+
 // C ref: dothrow.c toss_up() (1256-1431). A vertically thrown object either
 // breaks against the ceiling, hits the hero, or comes back down harmlessly.
-// C calls the void hitfloor() helper at several sites; it remains a named gap
-// while this caller preserves the source's thrown-object cleanup.
 export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
     const random = { d, rn1, rn2, rnd, ...(rawEnv.random ?? {}) };
     const message = rawEnv.message ?? ttyPline;
@@ -1042,7 +1094,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
             // Crackable armor may pass breaktest() but survive breakobj().
             if (!await breakobj(obj, u.ux, u.uy, true, true,
                 { ...rawEnv, state, random })) {
-                note_unported('dothrow.c hitfloor');
+                await hitfloor(obj, false, state, rawEnv);
                 state.gt.thrownobj = null;
                 return true;
             }
@@ -1126,11 +1178,11 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
         }
 
         if (!obj) return false;
-        note_unported('dothrow.c hitfloor');
+        await hitfloor(obj, false, state, rawEnv);
         state.gt.thrownobj = null;
     } else if (harmless_missile(obj, state)) {
         await message("It doesn't hurt.", state, rawEnv);
-        note_unported('dothrow.c hitfloor');
+        await hitfloor(obj, false, state, rawEnv);
         state.gt.thrownobj = null;
     } else {
         const material = objectData.oc_material;
@@ -1215,7 +1267,7 @@ export async function toss_up(obj, hitsroof, state = game, rawEnv = {}) {
                 " but doesn't hurt.", state, rawEnv);
         }
 
-        note_unported('dothrow.c hitfloor');
+        await hitfloor(obj, true, state, rawEnv);
         state.gt.thrownobj = null;
         if (!harmless)
             await losehp(damage, 'falling object', KILLED_BY_AN, state,
@@ -2421,7 +2473,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             && obj.oclass === POTION_CLASS && rn2(6)) {
             await potionhit(u.usteed, obj, POTHIT_HERO_THROW, { state });
         } else {
-            note_unported('dothrow.c hitfloor');
+            await hitfloor(obj, true, state);
         }
         throwit_return(true, state);
         return;

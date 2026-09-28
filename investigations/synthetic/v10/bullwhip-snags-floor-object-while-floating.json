@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The independent floating bullwhip case stops while dropping the touchstone that will become its floor target. With levitation active, do.c:drop enters its unreachable-floor branch and must free the object and call dothrow.c:hitfloor before the later bullwhip action. JavaScript explicitly refuses that branch. hitfloor handles soft surfaces, altar messaging, breakage, trap/stair shipping, and final floor placement in source order; the touchstone on stairs reaches the ordinary ground route. The later wrap/slip behavior remains to be checked after this drop blocker is removed.",
+  "summary": "The former unreachable-floor drop refusal is resolved: the saved v10 floating bullwhip case now matches all 28 screens and cursors and all 2769 RNG calls. dothrow.c:hitfloor is wired from do.c:drop, and an independent levitating-drop recording reaches the surface impact with exact C/JS parity. The wider source goal remains parked because other active hitfloor callers lack matching runtime witnesses; an upward-boulder toss probe stops earlier at zap.c:makewish.",
   "source": {
     "file": "dothrow.c",
     "branch": "When a hero who cannot reach the floor drops an ordinary touchstone on the stairs while levitating, do.c:drop checks finesse_ahriman, prints the verbose drop message, frees the inventory object, and calls hitfloor(obj, TRUE). On ordinary non-soft, non-altar terrain, hitfloor prints the hit-surface message, tests hero_breaks and ship_object in that order, then places a surviving object with dropz. Other surface, trap, altar, breakage and shipping branches are part of the whole function.",
@@ -85,6 +85,8 @@
   "evidence": [
     "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json records 22/28 screens matching and a stop at zero-based step 22: unsupported drop: hitfloor() from an unreachable floor. The immutable C recording challenges/cases/v10/bullwhip-snags-floor-object-while-floating.session.json has SHA-256 c71b4f263a4927575c62d688896ad98dd979c7a1d8a006fb0973dbbb03b4de43.",
     "The independent recipe activates wizard levitation, drops the Archeologist touchstone, then uses the bullwhip down toward the landed object; the JavaScript failure is during the drop setup, before apply.c:use_whip chooses its floor-object branch.",
-    "Upstream nethack-c/upstream/src/do.c:758-773 defines the unreachable-floor drop order and hitfloor call. nethack-c/upstream/src/dothrow.c:606-644 defines the full hitfloor function with soft, altar, trap message, hero_breaks, ship_object, and dropz paths. js/do.js:1432-1438 explicitly refuses before this call."
+    "Upstream nethack-c/upstream/src/do.c:758-773 defines the unreachable-floor drop order and hitfloor call. nethack-c/upstream/src/dothrow.c:606-644 defines the full hitfloor function with soft, altar, trap message, hero_breaks, ship_object, and dropz paths. js/do.js:1432-1438 explicitly refuses before this call.",
+    "Current result: challenges/evaluations/20260928211543-v10.json at 759b985c4bdf4978863b5d44a45a63bd0db7e61d matches 28/28 screens and cursors and 2769/2769 RNG calls. The independent hitfloor-floating-drop recording matches 30 screens/cursors and 2596 RNG calls and reaches do.c:drop -> dothrow.c:hitfloor.",
+    "The source task is parked rather than closed: throw, inventory, artifact, horn, ball, and container caller witnesses remain absent. The blocked upward-boulder recipe first diverges at zap.c:makewish before toss_up reaches hitfloor."
   ]
 }
