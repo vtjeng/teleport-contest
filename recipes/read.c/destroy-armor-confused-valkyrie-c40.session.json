@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent confused effect route; wish a confusion potion and uncursed destroy-armor scroll, quaff the potion, then read the scroll on the Valkyrie's worn shield.",
+  "segments": [
+    {
+      "seed": 8822514,
+      "datetime": "20321013161718",
+      "nethackrc": "OPTIONS=name:Shield,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " \u0017potion of confusion\n\u0017uncursed scroll of destroy armor\nqe rf  "
+    }
+  ]
+}

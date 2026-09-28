@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent blessed no-choice path: use a cursed armor-enchantment scroll to curse the Valkyrie's only worn shield, then read a blessed destroy-armor scroll. This selects read.c:disintegrate_cursed_armor before do_wear.c:disintegrate_arm.",
+  "segments": [
+    {
+      "seed": 8822515,
+      "datetime": "20321014171819",
+      "nethackrc": "OPTIONS=name:ShieldProbe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " \u0017cursed scroll of enchant armor\nrf \u0017blessed scroll of destroy armor\nrg  "
+    }
+  ]
+}
