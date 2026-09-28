@@ -20,6 +20,7 @@ import {
     HALLUC_RES,
     HANDS_SYM,
     HVY_ENCUMBER,
+    IN_SIGHT,
     LAST_PROP,
     LAVAPOOL,
     LEVITATION,
@@ -28,7 +29,6 @@ import {
     MOD_ENCUMBER,
     NON_PM,
     NUM_ATTRS,
-    A_CHAOTIC,
     A_LAWFUL,
     ENERGY_REGENERATION,
     HALF_SPDAM,
@@ -61,6 +61,7 @@ import {
     dropy,
     dropz,
     dropx,
+    flooreffects,
     preflight_dropx,
     UnsupportedDropError,
 } from '../js/do.js';
@@ -97,7 +98,6 @@ import {
     obj_to_let,
     preflight_addinv,
     preflight_addinv_sequence,
-    prepareHoldDropAdmission,
     prinv,
     reassign,
     replace_inventory_core,
@@ -148,7 +148,6 @@ import {
     CORPSE,
     DART,
     ARROW,
-    BOULDER,
     EGG,
     FIGURINE,
     FOOD_RATION,
@@ -185,7 +184,6 @@ import {
 const TEST_SPECIES = PM_FOX;
 const LETTERS_PER_CASE = 26; // a-z or A-Z inventory slots
 const MINIMUM_HERO_ATTRIBUTE = 3; // makes a normal heavy ball exceed MOD_ENCUMBER
-const NON_OBJECT_VALUE = 7; // exercises a truthy primitive object argument
 // Construct corpse fixtures without invoking the monster seam before the test.
 const PLACEHOLDER_CORPSE_WEIGHT = 1;
 
@@ -2746,54 +2744,26 @@ test('hold_another_object holds an artifact the hero can touch', async () => {
     assert.equal(state.level.objects[10][5], null);
 });
 
-test('hold_another_object stops on the arms it cannot finish', async () => {
-    // 1216-1244 puts an artifact on the floor to run touch_artifact().  A
-    // chaotic Knight fails Excalibur's SPFX_RESTR alignment test, and its
-    // SPFX_INTEL makes the first half of artifact.c:944 true on its own, so
-    // the blast arm is reached without its rn2(4) being evaluated.
-    // The blast path is now fully implemented, requiring display, objects,
-    // discovery, and HP state that this unit test does not set up. The blast
-    // itself is verified by the development sessions and recordings corpus.
-    // Here we verify that hold_another_object still rejects (the artifact
-    // lookup fails because the full game state is not present).
-    const blasted = artifactHolderState(A_CHAOTIC);
-    const artifact = instance(LONG_SWORD, blasted, { oartifact: ART_EXCALIBUR });
-    await assert.rejects(
-        () => hold_another_object(artifact, null, null, null,
-                                  { state: blasted,
-                                    hooks: { encumberMessage: () => {} } }),
-    );
-
+test('Fumbling adds the object before issuing the drop callback', async () => {
     const state = carryingState();
-    const env = { state, hooks: { encumberMessage: () => {} } };
-    // 1245-1249 adds the object and drops it again while Fumbling.
-    const fumbling = carryingState();
-    fumbling.u.uprops[FUMBLING] = { blocked: 0, extrinsic: 0, intrinsic: 1 };
-    await assert.rejects(
-        () => hold_another_object(instance(OIL_LAMP, fumbling), null, null,
-                                  null,
-                                  { state: fumbling,
-                                    hooks: { encumberMessage: () => {} } }),
-        UnsupportedObjectOperationError,
-    );
-    // 1275-1281 drops what will not fit: a boulder outweighs any hero's
-    // capacity, so near_capacity() rises past the pickup burden. This env
-    // carries no drop operations, so the admission stops for want of them
-    // rather than running the branch.
-    await assert.rejects(
-        () => hold_another_object(instance(BOULDER, state), null, null, null,
-                                 env),
-        /dropObject is not available/u,
-    );
-    // 1278-1279 splits a stack that merged on the way in, and splitobj() is
-    // unported, so no object with oc_merge may take the drop route at all.
-    // Four hundred rocks weigh 4000, past this hero's capacity of 950, and
-    // reach the encumbrance test with no admission behind them.
-    await assert.rejects(
-        () => hold_another_object(instance(ROCK, state, { quan: 400 }), null,
-                                  null, null, env),
-        /held object dropped/u,
-    );
+    state.u.uswallow = true;
+    state.youmonst = {
+        data: { mflags1: 0, msize: 2, mattk: [] },
+    };
+    state.u.uprops[FUMBLING] = { blocked: 0, extrinsic: 0, intrinsic: 1 };
+    const lamp = instance(OIL_LAMP, state);
+    const dropStates = [];
+    const result = await hold_another_object(lamp, null, null, null, {
+        state,
+        hooks: {
+            encumberMessage: () => {},
+            dropObject: (obj) => dropStates.push([obj.where, obj.nomerge]),
+        },
+    });
+
+    assert.equal(result, null);
+    assert.equal(state.invent, lamp);
+    assert.deepEqual(dropStates, [[OBJ_INVENT, 0]]);
 });
 
 // invent.c:1258-1264 takes the encumbrance limit before addinv() as
@@ -2850,7 +2820,7 @@ test('the hold limit takes the larger of the load and the burden option',
         assert.equal(near_capacity(permitted), HVY_ENCUMBER);
     });
 
-test('hold-drop projection keeps exact inventory and burden boundaries',
+test('hold_another_object applies inventory and burden limits after addinv',
     async () => {
         const state = carryingState();
         let tail = null;
@@ -2868,228 +2838,94 @@ test('hold-drop projection keeps exact inventory and burden boundaries',
             tail = lamp;
         }
         const gold = instance(GOLD_PIECE, state, {
-            invlet: '$',
-            owt: 0,
-            where: OBJ_INVENT,
+            invlet: '$', owt: 0, where: OBJ_INVENT,
         });
         tail.nobj = gold;
-        const ball = instance(HEAVY_IRON_BALL, state);
-        // Exactly MOD_ENCUMBER pins `calc_capacity(...) > projectedLimit`;
-        // 51 non-gold slots plus the new ball pins the strict INVLET_BASIC
-        // comparison while the gold slot distinguishes inv_cnt(FALSE).
-        ball.owt = Math.ceil(weight_cap(state) * 1.5);
-        assert.equal(calc_capacity(ball.owt, state), 2);
+        const ball = instance(HEAVY_IRON_BALL, state, { owt: 0 });
+        let drops = 0;
         let preflights = 0;
         const env = {
             state,
             hooks: {
                 encumberMessage: () => {},
                 preflightDropObject: () => { ++preflights; },
+                dropObject: () => { ++drops; },
             },
         };
-        const admission = prepareHoldDropAdmission(ball, env);
 
-        const held = await hold_another_object(
-            ball,
-            null,
-            null,
-            null,
-            env,
-            admission,
-        );
-
-        assert.equal(held, ball);
-        assert.equal(preflights, 0);
+        // 51 non-gold objects plus this ball is exactly INVLET_BASIC. C adds
+        // it first, then observes that only more than 52 triggers drop_it.
+        assert.equal(await hold_another_object(ball, null, null, null, env),
+                     ball);
         assert.equal(ball.where, OBJ_INVENT);
+        assert.equal(drops, 0);
+        // The old JS-only admission helper ran before addinv; C never calls it.
+        assert.equal(preflights, 0);
     });
 
-test('hold-drop admission distinguishes the 52nd and 53rd non-gold slots',
+test('hold_another_object drops the 53rd non-gold slot after addinv',
     async () => {
-        for (const [existingSlots, expectedDrop] of [
-            // The incoming ball receives the last legal non-gold letter.
-            [INVLET_BASIC - 1, false],
-            // The incoming ball is the first item beyond the 52-letter limit.
-            [INVLET_BASIC, true],
-        ]) {
-            const state = carryingState();
-            let tail = null;
-            for (let index = 0; index < existingSlots; ++index) {
-                const lamp = instance(OIL_LAMP, state, {
-                    invlet: index < LETTERS_PER_CASE
-                        ? String.fromCharCode(97 + index)
-                        : String.fromCharCode(
-                            65 + index - LETTERS_PER_CASE,
-                        ),
-                    nomerge: true,
-                    owt: 0,
-                    where: OBJ_INVENT,
-                });
-                if (tail) tail.nobj = lamp;
-                else state.invent = lamp;
-                tail = lamp;
-            }
-            const gold = instance(GOLD_PIECE, state, {
-                invlet: '$',
+        const state = carryingState();
+        state.u.uswallow = true;
+        state.youmonst = {
+            data: { mflags1: 0, msize: 2, mattk: [] },
+        };
+        let tail = null;
+        for (let index = 0; index < INVLET_BASIC; ++index) {
+            const lamp = instance(OIL_LAMP, state, {
+                invlet: index < LETTERS_PER_CASE
+                    ? String.fromCharCode(97 + index)
+                    : String.fromCharCode(65 + index - LETTERS_PER_CASE),
+                nomerge: true,
                 owt: 0,
                 where: OBJ_INVENT,
             });
-            tail.nobj = gold;
-            const ball = instance(HEAVY_IRON_BALL, state, { owt: 0 });
-            let drops = 0;
-            const env = {
-                state,
-                hooks: {
-                    encumberMessage: () => {},
-                    preflightDropObject: () => ({ object: ball }),
-                    dropObject: () => { ++drops; },
-                },
-            };
-            const admission = prepareHoldDropAdmission(ball, env);
-
-            const held = await hold_another_object(
-                ball, null, null, null, env, admission,
-            );
-
-            assert.equal(held, expectedDrop ? null : ball, existingSlots);
-            assert.equal(drops, expectedDrop ? 1 : 0, existingSlots);
+            if (tail) tail.nobj = lamp;
+            else state.invent = lamp;
+            tail = lamp;
         }
+        const ball = instance(HEAVY_IRON_BALL, state, { owt: 0 });
+        const events = [];
+        const env = {
+            state,
+            hooks: {
+                message: (text) => events.push(['message', text, ball.where]),
+                encumberMessage: () => {},
+                dropObject: () => events.push(['dropx', null, ball.where]),
+            },
+        };
+        assert.equal(await hold_another_object(
+            ball, 'Oops! %s', 'The ball drops', null, env,
+        ), null);
+        assert.equal(ball.where, OBJ_INVENT);
+        assert.deepEqual(events, [
+            ['message', 'Oops! The ball drops', OBJ_INVENT],
+            ['dropx', null, OBJ_INVENT],
+        ]);
     });
 
-test('hold-drop admission validates its object before reading its type', () => {
+// invent.c's Fumbling branch adds the object and then reaches dropx without
+// checking the ordinary slot or burden limits.
+test('Fumbling adds the object before issuing the drop callback', async () => {
     const state = carryingState();
-    for (const value of [null, NON_OBJECT_VALUE]) {
-        assert.throws(
-            () => prepareHoldDropAdmission(value, { state }),
-            /hold-drop admission requires an object/u,
-        );
-    }
-});
-
-test('hold-drop admission is object-specific, state-specific, and one-shot',
-    async () => {
-        const first = ordinaryDropFixture();
-        first.obj.where = OBJ_FREE;
-        first.state.invent = null;
-        first.state.u.acurr.a[A_STR] = MINIMUM_HERO_ATTRIBUTE;
-        first.state.u.acurr.a[A_CON] = MINIMUM_HERO_ATTRIBUTE;
-        first.hooks.preflightDropObject = () => ({ object: first.obj });
-        first.hooks.dropObject = () => {};
-        const admission = prepareHoldDropAdmission(first.obj, first);
-        const other = instance(HEAVY_IRON_BALL, first.state);
-
-        await assert.rejects(
-            hold_another_object(
-                other, null, null, null, first, admission,
-            ),
-            /admission belongs to another object/u,
-        );
-        const otherState = carryingState();
-        await assert.rejects(
-            hold_another_object(
-                first.obj,
-                null,
-                null,
-                null,
-                { state: otherState, hooks: first.hooks },
-                admission,
-            ),
-            /admission belongs to another state/u,
-        );
-        await hold_another_object(
-            first.obj, null, null, null, first, admission,
-        );
-        await assert.rejects(
-            hold_another_object(
-                first.obj, null, null, null, first, admission,
-            ),
-            /admission was already consumed/u,
-        );
-
-        const stale = ordinaryDropFixture();
-        stale.obj.where = OBJ_FREE;
-        stale.state.invent = null;
-        stale.state.u.acurr.a[A_STR] = MINIMUM_HERO_ATTRIBUTE;
-        stale.state.u.acurr.a[A_CON] = MINIMUM_HERO_ATTRIBUTE;
-        stale.hooks.preflightDropObject = () => ({ object: stale.obj });
-        stale.hooks.dropObject = () => {};
-        const staleAdmission = prepareHoldDropAdmission(
-            stale.obj,
-            stale,
-        );
-        stale.state.invent = instance(OIL_LAMP, stale.state, {
-            where: OBJ_INVENT,
-        });
-        await assert.rejects(
-            hold_another_object(
-                stale.obj, null, null, null, stale, staleAdmission,
-            ),
-            /admission is stale/u,
-        );
-
-        for (const [name, mutate] of [
-            ['type', (obj) => { obj.otyp = OIL_LAMP; }],
-            ['weight', (obj) => { ++obj.owt; }],
-            // Quantity 2 changes the admitted single ball into a split stack.
-            ['quantity', (obj) => { obj.quan = 2; }],
-            ['ownership', (obj) => { obj.where = OBJ_FLOOR; }],
-        ]) {
-            const changed = ordinaryDropFixture();
-            changed.obj.where = OBJ_FREE;
-            changed.state.invent = null;
-            changed.state.u.acurr.a[A_STR] = MINIMUM_HERO_ATTRIBUTE;
-            changed.state.u.acurr.a[A_CON] = MINIMUM_HERO_ATTRIBUTE;
-            changed.hooks.preflightDropObject = () => ({
-                object: changed.obj,
-            });
-            changed.hooks.dropObject = () => {};
-            const changedAdmission = prepareHoldDropAdmission(
-                changed.obj,
-                changed,
-            );
-            mutate(changed.obj);
-
-            await assert.rejects(
-                hold_another_object(
-                    changed.obj,
-                    null,
-                    null,
-                    null,
-                    changed,
-                    changedAdmission,
-                ),
-                /admission is stale/u,
-                name,
-            );
-        }
+    state.u.uswallow = true;
+    state.youmonst = {
+        data: { mflags1: 0, msize: 2, mattk: [] },
+    };
+    state.u.uprops[FUMBLING] = { blocked: 0, extrinsic: 0, intrinsic: 1 };
+    const lamp = instance(OIL_LAMP, state);
+    const dropStates = [];
+    const result = await hold_another_object(lamp, null, null, null, {
+        state,
+        hooks: {
+            encumberMessage: () => {},
+            dropObject: (obj) => dropStates.push([obj.where, obj.nomerge]),
+        },
     });
 
-// invent.c runs the artifact block at 1218 and the Fumbling test at 1245
-// before the encumbrance projection at 1258-1281, so a ball too heavy to hold
-// still stops on whichever of the two comes first.
-test('heavy artifact and Fumbling guards precede drop projection', async () => {
-    for (const [name, makeState, setup, reason] of [
-        // A chaotic Knight cannot touch Excalibur, so the artifact block stops
-        // the hold before the ball's weight is ever measured.
-        ['artifact', () => artifactHolderState(A_CHAOTIC),
-         (state, ball) => { ball.oartifact = ART_EXCALIBUR; }, /artifact/u],
-        ['Fumbling', () => carryingState(), (state) => {
-            state.u.uprops[FUMBLING].intrinsic = 1;
-        }, /fumbling/u],
-    ]) {
-        const state = makeState();
-        state.u.acurr.a[A_STR] = 3;
-        state.u.acurr.a[A_CON] = 3;
-        const ball = instance(HEAVY_IRON_BALL, state);
-        setup(state, ball);
-        await assert.rejects(
-            hold_another_object(ball, null, null, null, {
-                state,
-                hooks: { encumberMessage: () => {} },
-            }),
-            reason,
-            name,
-        );
-    }
+    assert.equal(result, null);
+    assert.equal(state.invent, lamp);
+    assert.deepEqual(dropStates, [[OBJ_INVENT, 0]]);
 });
 
 // invent.c hold_another_object() (1275-1304) and do.c dropx(), dropy(), and
@@ -3213,13 +3049,12 @@ test('heavy-ball retain and drop paths preserve source callback order',
                 message(text) {
                     snapshot('message', text);
                 },
-                preflightDropObject: preflight_dropx,
                 extractExternalObject: (object, env2) => remove_object(
                     object, env2,
                 ),
-                async dropObject(object, env, admission) {
+                async dropObject(object, env) {
                     snapshot('dropx');
-                    await dropx(object, env, admission);
+                    await dropx(object, env);
                 },
                 newsym() {
                     snapshot('newsym');
@@ -3234,7 +3069,6 @@ test('heavy-ball retain and drop paths preserve source callback order',
                 };
             }
             const env = { state, hooks };
-            const admission = prepareHoldDropAdmission(obj, env);
 
             const held = await hold_another_object(
                 obj,
@@ -3242,7 +3076,6 @@ test('heavy-ball retain and drop paths preserve source callback order',
                 'The heavy iron ball drops',
                 'You hold',
                 env,
-                admission,
             );
 
             if (!currentCase.drops) {
@@ -3299,14 +3132,12 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
         let encumbered = 0;
         const hooks = {
             message: (text) => lines.push(text),
-            preflightDropObject: preflight_dropx,
             dropObject: dropx,
             newsym: () => {},
             encumberMessage: () => { ++encumbered; },
             extractExternalObject: (object, env2) => remove_object(object, env2),
         };
         const env = { state, hooks };
-        const admission = prepareHoldDropAdmission(ball, env);
 
         const held = await hold_another_object(
             ball,
@@ -3314,7 +3145,6 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
             'The heavy iron ball drops',
             null,
             env,
-            admission,
         );
 
         assert.equal(held, null);
@@ -3323,14 +3153,12 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
         assert.equal(ball.where, OBJ_FLOOR);
         assert.equal(ball.nomerge, 0);
         const second = instance(HEAVY_IRON_BALL, state);
-        const secondAdmission = prepareHoldDropAdmission(second, env);
         assert.equal(await hold_another_object(
             second,
             'Oops!  %s to the floor!',
             'The heavy iron ball drops',
             null,
             env,
-            secondAdmission,
         ), null);
         // place_object() prepends the new object to both independent source
         // indexes; oc_merge=0 leaves both nodes distinct through stackobj().
@@ -3344,6 +3172,58 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
         ]);
         assert.equal(encumbered, 2);
     });
+
+test('dropx runs doaltarobj before placing cursed noncoin and coin objects',
+    async () => {
+        const noncoin = ordinaryDropFixture();
+        noncoin.state.level.at(10, 5).typ = ALTAR;
+        noncoin.state.u.uconduct = { gnostic: 0 };
+        noncoin.obj.blessed = 0;
+        noncoin.obj.cursed = 1;
+        noncoin.obj.bknown = 0;
+
+        await dropx(noncoin.obj, {
+            state: noncoin.state,
+            hooks: noncoin.hooks,
+        });
+
+        assert.equal(noncoin.state.u.uconduct.gnostic, 1);
+        assert.equal(noncoin.obj.bknown, 1);
+        assert.equal(noncoin.obj.where, OBJ_FLOOR);
+
+        const coins = ordinaryDropFixture(GOLD_PIECE);
+        coins.state.level.at(10, 5).typ = ALTAR;
+        coins.obj.blessed = 1;
+        coins.obj.cursed = 1;
+        await dropx(coins.obj, { state: coins.state, hooks: coins.hooks });
+        assert.equal(coins.obj.blessed, 0);
+        assert.equal(coins.obj.cursed, 0);
+        assert.equal(coins.obj.where, OBJ_FLOOR);
+        assert.equal(coins.state.u.uconduct?.gnostic ?? 0, 0);
+    });
+
+test('monster altar flooreffects calls the shared doaltarobj port', async () => {
+    const { obj, state } = ordinaryDropFixture();
+    obj.where = OBJ_FREE;
+    obj.nobj = null;
+    obj.nexthere = null;
+    obj.blessed = 0;
+    obj.cursed = 1;
+    obj.bknown = 0;
+    state.context = { mon_moving: true };
+    state.level.at(10, 5).typ = ALTAR;
+    state.viz_array = Array.from(
+        { length: 21 }, () => new Array(80).fill(0),
+    );
+    state.viz_array[5][10] |= IN_SIGHT;
+
+    assert.equal(await flooreffects(obj, 10, 5, 'fall', {
+        state,
+        message: () => {},
+    }), false);
+    assert.equal(obj.bknown, 1);
+    assert.equal(obj.where, OBJ_FREE);
+});
 
 test('heavy wish drops stay on an up staircase and a doorway', async () => {
     for (const [name, configure] of [
@@ -3504,9 +3384,6 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 state.uball = obj;
             }],
             ['unpaid ball', /unpaid/u, ({ obj }) => { obj.unpaid = true; }],
-            ['altar', /altar/u, ({ state }) => {
-                state.level.at(10, 5).typ = ALTAR;
-            }],
             ['trap effects', /trap/u, ({ state }) => {
                 state.level.traps.push({ tx: 10, ty: 5, ttyp: WEB });
             }],
@@ -3555,6 +3432,16 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             );
             assert.deepEqual(lines, [], `${name}: output`);
         }
+
+        const altar = ordinaryDropFixture();
+        altar.state.level.at(10, 5).typ = ALTAR;
+        assert.doesNotThrow(
+            () => preflight_dropx(altar.obj, {
+                state: altar.state,
+                hooks: altar.hooks,
+            }),
+            'C do.c:dropx reaches doaltarobj before the ordinary floor tail',
+        );
     });
 
 test('drop preflight admits down gates without moving the inventory object',
@@ -3669,23 +3556,21 @@ test('dropz refuses container impact before placing or announcing the object',
         assert.deepEqual(lines, []);
     });
 
-test('heavy wish-drop refusal restores capacity cache and leaves no trace',
+test('a heavy hold reaches drop admission after addinv and its message',
     async () => {
-        const state = carryingState();
+        const { hooks, obj: ball, state } = ordinaryDropFixture();
         state.u.acurr.a[A_STR] = 3;
         state.u.acurr.a[A_CON] = 3;
-        state.u.ux = 10;
-        state.u.uy = 5;
-        state.u.uz = { dnum: 0, dlevel: 1 };
-        state.youmonst = {
-            data: { mflags1: 0, msize: 2, mattk: [] },
+        state.level.traps = [{ tx: 10, ty: 5, ttyp: WEB }];
+        state.invent = null;
+        ball.where = OBJ_FREE;
+        ball.dknown = false;
+        const events = [];
+        hooks.message = (line) => events.push(['message', line]);
+        hooks.dropObject = async (object, env) => {
+            events.push(['dropx', object.where]);
+            await dropx(object, env);
         };
-        state.level = new GameMap();
-        state.level.at(10, 5).typ = ROOM;
-        state.level.flags.has_shop = true;
-        state.gw = { marker: 1 };
-        const ball = instance(HEAVY_IRON_BALL, state, { dknown: false });
-        const lines = [];
 
         await assert.rejects(
             () => hold_another_object(
@@ -3693,25 +3578,20 @@ test('heavy wish-drop refusal restores capacity cache and leaves no trace',
                 'Oops!  %s to the floor!',
                 'The heavy iron ball drops',
                 null,
-                {
-                    state,
-                    hooks: {
-                        message: (line) => lines.push(line),
-                        preflightDropObject: preflight_dropx,
-                        dropObject: () => {},
-                    },
-                },
+                { state, hooks },
             ),
             UnsupportedDropError,
         );
-        assert.deepEqual(state.gw, { marker: 1 });
-        assert.equal(ball.dknown, false);
-        assert.equal(ball.where, OBJ_FREE);
-        assert.equal(state.invent, null);
-        assert.deepEqual(lines, []);
+        assert.equal(ball.where, OBJ_INVENT);
+        assert.equal(state.invent, ball);
+        assert.equal(ball.dknown, true);
+        assert.deepEqual(events, [
+            ['message', 'Oops!  The heavy iron ball drops to the floor!'],
+            ['dropx', OBJ_INVENT],
+        ]);
     });
 
-test('a missing heavy drop owner is refused before observation or inventory',
+test('a missing dropx caller records the source gap after hold decisions',
     async () => {
         const { obj, state } = ordinaryDropFixture();
         state.u.acurr.a[A_STR] = 3;
@@ -3719,11 +3599,9 @@ test('a missing heavy drop owner is refused before observation or inventory',
         obj.where = OBJ_FREE;
         obj.dknown = false;
         state.invent = null;
-        state.gw = { marker: 1 };
         const lines = [];
 
-        await assert.rejects(
-            () => hold_another_object(
+        assert.equal(await hold_another_object(
                 obj,
                 'Oops!  %s to the floor!',
                 'The heavy iron ball drops',
@@ -3732,18 +3610,13 @@ test('a missing heavy drop owner is refused before observation or inventory',
                     state,
                     hooks: {
                         message: (line) => lines.push(line),
-                        preflightDropObject: preflight_dropx,
                     },
                 },
-            ),
-            /dropObject is not available/u,
-        );
-        assert.deepEqual(state.gw, { marker: 1 });
-        assert.equal(obj.dknown, false);
-        assert.equal(obj.where, OBJ_FREE);
-        assert.equal(state.invent, null);
+            ), null);
+        assert.equal(obj.where, OBJ_INVENT);
+        assert.equal(state.invent, obj);
         assert.equal(state.level.objects[10][5], null);
-        assert.deepEqual(lines, []);
+        assert.deepEqual(lines, ['Oops!  The heavy iron ball drops to the floor!']);
     });
 
 // C ref: youprop.h:65 Stone_resistance, read by invent.c
