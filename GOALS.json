@@ -108088,7 +108088,7 @@
     {
       "id": "port-apply-break-wand-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port wand-breaking apply behavior from source",
       "cFile": "apply.c",
       "sessions": [
@@ -108096,8 +108096,12 @@
       ],
       "selectionReason": "The current v10 apply-breaks-exhausted-wand-of-nothing case first stops at step 26 on js/apply.js do_break_wand refusal; investigation investigations/synthetic/v10/apply-breaks-exhausted-wand-of-nothing.json traces the apply.c WAND_CLASS doapply caller. B45 owns the contiguous discard_broken_wand through do_break_wand helper family, independent of C37 read/do_wear/mkobj and A42 v11 preparation. The larger bullwhip hitfloor case has separate dothrow/drop caller scope and remains queued.",
       "detail": "Port apply.c:discard_broken_wand, broken_wand_explode, maybe_dunk_boulders, do_break_wand in source order and wire doapply WAND_CLASS. Preserve hands/strength/confirmation, object removal, consumed zap.c:zappable and zapyourself returns, last-charge and fragile wand branches, per-type effects and RNG. Port consumed missing callees in task; record only truly discarded void gaps at their C sites. Use independent C wand variations and preserve every admitted match.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c3648055d8b9b54ee233e0c6c336719cf1c8e0cc",
+      "openStanding": {
+        "sha": "847d6a5cf3c0a81da63f3877b7b2bb04cee83185",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -108147,7 +108151,157 @@
           "evaluationPath": "challenges/evaluations/20260928162841-v10.json",
           "evaluationCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "847d6a5cf3c0a81da63f3877b7b2bb04cee83185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-breaks-exhausted-wand-of-nothing",
+          "session": "synthetic/v10/apply-breaks-exhausted-wand-of-nothing",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+          "recordingPath": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+          "recordingSha256": "5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90",
+          "recipe": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.recipe.session.json",
+          "recipeSha256": "5fdf51caadc6688e0962eb5f834bb7699f0bd6b3d4e61d7511b7578de1987299",
+          "replayInputSha256": "bfff709002c0d18293bf18cdd8b7e23bb96fe1af48ae91d1819060c819dabfec",
+          "evaluationPath": "challenges/evaluations/20260928181249-v10.json",
+          "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4",
+          "evaluationArtifact": "challenges/evaluations/20260928181249-v10.json",
+          "evaluationUtc": "2026-09-28T18:12:52.468Z",
+          "remainingScreens": 2,
+          "recordedSteps": 28,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 28
+            },
+            "rng": {
+              "matched": 2681,
+              "total": 2682
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 28
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires do_break_wand()",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "do_break_wand",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires do_break_wand()",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/apply-breaks-exhausted-wand-of-nothing.json",
+            "result": {
+              "session": "synthetic/v10/apply-breaks-exhausted-wand-of-nothing",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "apply-breaks-exhausted-wand-of-nothing",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 2,
+              "recordedSteps": 28,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "apply-breaks-exhausted-wand-of-nothing",
+                "session": "synthetic/v10/apply-breaks-exhausted-wand-of-nothing",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+                "recordingPath": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+                "recordingSha256": "5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90",
+                "recipe": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.recipe.session.json",
+                "recipeSha256": "5fdf51caadc6688e0962eb5f834bb7699f0bd6b3d4e61d7511b7578de1987299",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 2,
+                "recordedSteps": 28,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 26,
+                    "total": 28
+                  },
+                  "rng": {
+                    "matched": 2681,
+                    "total": 2682
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 28
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires do_break_wand()",
+                  "step": 26
+                },
+                "step": 26,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "do_break_wand",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires do_break_wand()",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a worn-out wand of nothing reaches the explicit js/apply.js refusal for do_break_wand after 26 matching screens. C apply.c:do_break_wand checks hands, strength and confirmation, removes the wand, then calls zap.c:zappable. For a zero-charge wand, zappable may wrest a final charge; this recording reaches that positive arm and then WAN_NOTHING prints the harmless break result. The missing owner is the whole apply.c:do_break_wand and its doapply dispatch, including its other wand effects and source-ordered consumed dependencies.",
+              "source": {
+                "file": "apply.c",
+                "branch": "When a Barbarian applies a zero-charge WAN_NOTHING, doapply calls do_break_wand; with hands, a free hand, strength at least ten for the nonfragile wand, and affirmative confirmation, the function removes the wand, calls zappable, restores a successful spent charge, grants rnd(3) if a last wrest returned it to zero, then the WAN_NOTHING switch arm prints that nothing else happens and discards the broken wand. The full function also covers unsuccessful zappable, fragile wand, other wand types, explosions, adjacent targets, objects, hero effects and shop consequences.",
+                "functions": [
+                  "do_break_wand"
+                ],
+                "callers": [
+                  "apply.c:doapply dispatches WAND_CLASS to do_break_wand (4235); js/apply.js:doapply at the WAND_CLASS branch currently throws UnsupportedApplyError."
+                ],
+                "dependencies": [
+                  "zap.c:zappable is already ported and its Boolean result and RNG call order must be consumed; the queue annotation names zappable only because the selected C path reaches it.",
+                  "apply.c:discard_broken_wand and broken_wand_explode, explode.c:explode, zap.c:bhitm/bhito/zapyourself and makemon.c:makemon are source callees for other wand types; port consumed returns or record discarded void gaps under the source-port rules.",
+                  "The do_break_wand body frees and unwields the object before the effect, with shop billing and confirmation branches that must retain their order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 26/28 screens and stops at step 26 on the explicit do_break_wand refusal; the immutable C recording challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json has SHA-256 5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90.",
+                "Upstream nethack-c/upstream/src/apply.c:3909-4147 defines the complete do_break_wand function; 3954-3988 calls zappable and handles WAN_NOTHING after restoring the charge. nethack-c/upstream/src/zap.c:2514-2528 defines zappable, already present in js/zap.js:1113.",
+                "js/apply.js:3467-3469 currently refuses every WAND_CLASS application before entering the source function, so a source port must wire that caller. The recipe independently wishes a zero-charge wand of nothing, applies it, and confirms the break."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-read-remove-curse-synthetic-v10-20260928",
