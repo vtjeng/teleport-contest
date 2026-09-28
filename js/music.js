@@ -15,9 +15,8 @@ import { losehp } from './hack.js';
 import { dist2, highc, mungspaces } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { consume_obj_charge } from './invent.js';
-import { mindless, unique_corpstat } from './mondata.js';
+import { can_blow, mindless, unique_corpstat } from './mondata.js';
 import { monflee, monfleeMessage, onscary, youHear } from './monmove.js';
-import { can_blow } from './muse.js';
 import { discover_object } from './o_init.js';
 import { an, the, thesimpleoname, Tobjnam, xnameFresh, yname, Yname2 } from './objnam.js';
 import {
@@ -284,7 +283,7 @@ export async function do_play_instrument(instr, state = game, env = {}) {
         await message("You can't play music underwater!", state);
         return ECMD_OK;
     } else if ([WOODEN_FLUTE, MAGIC_FLUTE, TOOLED_HORN, FROST_HORN, FIRE_HORN, BUGLE]
-        .includes(instr.otyp) && !can_blow(state.youmonst)) {
+        .includes(instr.otyp) && !can_blow(state.youmonst, state)) {
         await message(`You are incapable of playing ${thesimpleoname(instr, state)}.`, state);
         return ECMD_OK;
     }

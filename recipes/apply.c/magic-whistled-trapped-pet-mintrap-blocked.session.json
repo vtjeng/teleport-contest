@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73901286,
+      "datetime": "20360929113900",
+      "nethackrc": "OPTIONS=name:TrapRecall,role=Wizard,race=human,gender=male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:dog,!autopickup,!acoustics\n",
+      "moves": "\u0017magic whistle\nao"
+    }
+  ],
+  "comment": "Blocked entry recipe for apply.c:magic_whistled() when a relocated pet triggers an active trap. The returned trap outcome is consumed by apply.c, but the current trap.c:mintrap() port still lacks active trap-effect branches; do not count this setup as runtime evidence until that source dependency is complete."
+}

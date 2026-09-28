@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v10/offer-human-corpse-own-race",
+  "corpus": "synthetic",
+  "batch": "v10",
+  "caseId": "offer-human-corpse-own-race",
+  "manifestPath": "challenges/manifests/v10.json",
+  "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+  "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+  "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+  "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+  "remainingScreens": 11,
+  "recordedSteps": 41,
+  "status": "complete",
+  "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v10",
+    "caseId": "offer-human-corpse-own-race",
+    "session": "synthetic/v10/offer-human-corpse-own-race",
+    "manifestPath": "challenges/manifests/v10.json",
+    "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+    "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+    "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+    "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+    "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+    "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+    "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+    "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+    "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+    "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+    "evaluationUtc": "2026-09-28T08:31:23.355Z",
+    "remainingScreens": 11,
+    "recordedSteps": 41,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 30,
+        "total": 41
+      },
+      "rng": {
+        "matched": 2315,
+        "total": 2471
+      },
+      "cursors": {
+        "matched": 30,
+        "total": 41
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+      "step": 30
+    },
+    "step": 30,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A wizard wish successfully constructs a human corpse, then JavaScript refuses the invent.c:hold_another_object drop path after addinv_core0. Both the altar-offering and same-race eating recordings stop before their intended actions. The source helper admits a corpse to inventory temporarily, splits any quantity merged into an existing stack when burden or inventory count requires dropping it, prints the source drop message, and calls dropx or hitfloor. The JavaScript preflight declines mergeable objects and its runtime drop arm throws when quantity changed; makewish also has a stale comment claiming readobjnam cannot create a corpse.",
+  "source": {
+    "file": "invent.c",
+    "branch": "When a wished human corpse passes through zap.c:makewish and hold_another_object, the ordinary addinv_core0 arm tests inventory count and near_capacity against the prior encumbrance limit; on failure, it separates a merged quantity with splitobj and enters drop_it. A wished corpse judged unsafe by u_safe_from_fatal_corpse instead clears wishedfor, adds without inventory update, and also enters drop_it. Both source arms must preserve message and floor placement order.",
+    "functions": [
+      "hold_another_object"
+    ],
+    "callers": [
+      "zap.c:makewish calls invent.c:hold_another_object after readobjnam constructs the wished object. js/zap.js:makewish prepares a drop admission and calls js/invent.js:hold_another_object."
+    ],
+    "dependencies": [
+      "invent.c:splitobj and obj.c object extraction may be reached by a merged wished corpse; preserve their source ordering and caller contracts.",
+      "do.c:dropx and dothrow.c:hitfloor handle the two floor-reaching branches after drop_it; admit the actual source route generally rather than by object type or case ID.",
+      "zap.c:makewish lines 6401-6419 tests u_safe_from_fatal_corpse and wishedfor, selects materialize/drop wording, and passes the object to hold_another_object; its JavaScript caller must match those conditions.",
+      "The later own-race eat.c and pray.c behaviors are separate source work only after this shared wish/drop blocker is cleared."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/evaluations/20260928083103-v10.json first stops synthetic/v10/offer-human-corpse-own-race at step 30, with 11 unmatched screens and \"held object dropped is not available for otyp 265\". The two cases share this first failing source route.",
+    "nethack-c/upstream/src/invent.c:1208-1305 implements hold_another_object including fatal-corpse and burden/slot drop_it routes, splitobj for a merged quantity, and dropx/hitfloor after the message.",
+    "js/invent.js:4845-4984 restricts prepared drops to nonmergeable objects and refuses a changed quantity in the ordinary drop branch; js/zap.js:2169 incorrectly claims that readobjnam refuses corpses, although both C recordings reached corpse holding."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent spell.c:dowizcast -> spell.c:spelleffects -> potion.c:peffects -> peffect_restore_ability entry. A debug Wizard selects restore ability from the wizard spell menu; this pseudo spellbook path must restore attributes without potion-only lost-level recovery.",
+  "segments": [
+    {
+      "seed": 3939093,
+      "datetime": "20420927171000",
+      "nethackrc": "OPTIONS=name:RestoreSpellB39,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": ".#wizcast\n>f"
+    }
+  ]
+}

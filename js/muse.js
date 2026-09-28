@@ -50,7 +50,6 @@ import {
     MIGR_STAIRS_DOWN,
     MIGR_STAIRS_UP,
     MM_NOMSG,
-    MS_SILENT,
     M_SEEN_ACID,
     M_SEEN_COLD,
     M_SEEN_ELEC,
@@ -146,8 +145,8 @@ import {
     seemimic, wakeup, xkilled, is_Vlad, flash_mon,
 } from './mon.js';
 import {
-    acidic, amorphous, attacktype, attacktype_fordmg, breathless, dmgtype,
-    has_head, haseyes, is_animal,
+    acidic, amorphous, attacktype, attacktype_fordmg, can_blow, dmgtype,
+    haseyes, is_animal,
     is_bat, is_floater, is_flyer, is_mercenary, is_undead, is_unicorn,
     is_vampshifter, locomotion, mhe, mhim, mindless, mon_hates_silver,
     mon_knows_traps, mon_learns_traps, monster_resists_element, monstseesu,
@@ -224,11 +223,8 @@ import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
 
 // The generated catalog stores these values but does not currently export
-// their source enum names. MS_SILENT moved to js/const.js when sounds.c
-// dochat() needed mondata.h is_silent(); the other two stay here until a
-// second caller wants them.
+// their source enum names.
 const AT_GAZE = 15;
-const MS_BUZZ = 10;
 
 // C ref: muse.c:1272-1290, the offensive half of the MUSE_* action codes.
 // Only the five throwable potions are ported; the rest are named so that
@@ -2718,17 +2714,6 @@ function resistsStoning(monster) {
         | (monster.mextrinsics ?? 0)
         | (monster.mintrinsics ?? 0);
     return Boolean(resistanceBits & M.MR_STONE);
-}
-
-export function can_blow(monster) {
-    const species = monster.data;
-    const silentOrBuzzing = species?.msound === MS_SILENT
-        || species?.msound === MS_BUZZ;
-    return !(silentOrBuzzing
-        && (breathless(species)
-            || verysmall(species)
-            || !has_head(species)
-            || species?.mlet === M.S_EEL));
 }
 
 export function cures_stoning(monster, obj, tinok, state = game) {

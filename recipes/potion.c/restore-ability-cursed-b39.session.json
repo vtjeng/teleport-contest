@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cursed potion.c:peffect_restore_ability witness. A debug Monk wishes and quaffs a cursed restore-ability potion to exercise the no-RNG mediocre branch through dodrink -> dopotion -> peffects.",
+  "segments": [
+    {
+      "seed": 3939091,
+      "datetime": "20420927170000",
+      "nethackrc": "OPTIONS=name:RestoreCursedB39,role:Monk,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " .\u0017cursed potion of restore ability\nqj"
+    }
+  ]
+}

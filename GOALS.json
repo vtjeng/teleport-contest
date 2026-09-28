@@ -103120,16 +103120,20 @@
     {
       "id": "port-apply-whistle-family-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port ordinary and magic whistle application with tame-pet relocation",
       "cFile": "apply.c",
       "sessions": [
         "synthetic/v8/magic-whistle-recalls-tame-dog"
       ],
-      "selectionReason": "The current admitted v8 magic-whistle case stops in apply.c:doapply at the missing MAGIC_WHISTLE arm, as traced in investigations/synthetic/v8/magic-whistle-recalls-tame-dog.json. Its source call reaches apply.c:use_magic_whistle then magic_whistled; the adjacent TIN_WHISTLE and EUCALYPTUS_LEAF arms share use_whistle/use_magic_whistle and belong in the same coherent source family. B reserves potion.c and C reserves read.c/recharge, so this apply.c scope is independent.",
+      "selectionReason": "Selected v8 magic-whistle mismatch at apply.c:use_magic_whistle; A39 source-traced whistle-family packet is ready after C32 publication.",
       "detail": "Port complete apply.c:use_whistle, use_magic_whistle, and magic_whistled in source order, with doapply arms for MAGIC_WHISTLE, TIN_WHISTLE, and EUCALYPTUS_LEAF. Preserve cursed and ordinary paths, pet movement and trap/luck/discovery effects, RNG order, messages, and caller state. Trace consumed helper returns to source, and record independent C variations without copying the selected case.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "ca87d1f0d92ceb0c1e0e2bc080974138615565ec",
+      "openStanding": {
+        "sha": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -103137,21 +103141,21 @@
           "name": "use_whistle",
           "line": 476,
           "endLine": 494,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_magic_whistle",
           "line": 495,
           "endLine": 517,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "magic_whistled",
           "line": 518,
           "endLine": 691,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -103172,21 +103176,323 @@
           "evaluationPath": "challenges/evaluations/20260928053730-v8.json",
           "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "magic-whistle-recalls-tame-dog",
+          "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+          "recordingPath": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+          "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+          "recipe": "challenges/cases/v8/magic-whistle-recalls-tame-dog.recipe.session.json",
+          "recipeSha256": "d98f467f09db33d09f62c318cda76b6ed9c93a94249c3f1e1584ad7d7c671d4f",
+          "replayInputSha256": "0638e9a4c84c940d5d6a8178c4a5268f84056ace66ecab23134b1761cc7c463b",
+          "evaluationPath": "challenges/evaluations/20260928075052-v8.json",
+          "evaluationCommit": "61db2f29db823f3a5d87886797e12fa604d89a2e",
+          "evaluationArtifact": "challenges/evaluations/20260928075052-v8.json",
+          "evaluationUtc": "2026-09-28T07:51:25.426Z",
+          "remainingScreens": 1,
+          "recordedSteps": 29,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2486,
+              "total": 2524
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/magic-whistle-recalls-tame-dog.json",
+            "result": {
+              "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "magic-whistle-recalls-tame-dog",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+              "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+              "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "remainingScreens": 1,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "magic-whistle-recalls-tame-dog",
+                "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+                "recordingPath": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+                "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+                "recipe": "challenges/cases/v8/magic-whistle-recalls-tame-dog.recipe.session.json",
+                "recipeSha256": "d98f467f09db33d09f62c318cda76b6ed9c93a94249c3f1e1584ad7d7c671d4f",
+                "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+                "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+                "evaluationArtifact": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationUtc": "2026-09-27T14:26:06.427Z",
+                "remainingScreens": 1,
+                "recordedSteps": 29,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 2486,
+                    "total": 2524
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a magic whistle with a tame dog reaches apply.c:use_magic_whistle and its magic_whistled pet-relocation loop. JavaScript doapply lacks the MAGIC_WHISTLE arm and refuses before the source-ordered teleport.c:collect_coords draws. Port the complete magic-whistle family and both doapply instrument paths; preserve the distinction between ordinary and cursed magic outcomes.",
+              "source": {
+                "file": "apply.c",
+                "branch": "doapply selects MAGIC_WHISTLE and calls use_magic_whistle. With a noncursed whistle and a hero who can blow, it prints the strange whistle line and calls magic_whistled; each live tame non-steed monster can be moved beside the hero through mnexto and observed or discovered depending on prior visibility. Cursed whistles can instead hum, wake nearby monsters, and conditionally teleport a pet.",
+                "functions": [
+                  "use_magic_whistle",
+                  "magic_whistled"
+                ],
+                "callers": [
+                  "C apply.c:doapply MAGIC_WHISTLE arm calls use_magic_whistle; its blessed EUCALYPTUS_LEAF arm also calls that function before a possible blessing wear-off draw. JS js/apply.js:doapply currently lacks the MAGIC_WHISTLE arm and raises UnsupportedApplyError."
+                ],
+                "dependencies": [
+                  "C muse.c:can_blow is a consumed boolean and JS counterpart exists; C teleport.c:noteleport_level and mon.c:mnexto/enexto/teleport.c:collect_coords are active on cursed and ordinary routes. JS mnexto currently has an ignored _rlocflags parameter, so verify its RLOC_MSG/RLOC_NONE behavior and relocation messages against the source.",
+                  "The magic_whistled loop consumes trap.c:mintrap result after relocation; JS mintrap is present but may refuse unported trap effects. Keep its active return branches and luck/message ordering.",
+                  "Soundeffect is silent under the recorder nosound backend. C discover_object via makeknown occurs only after visible pet relocation on a previously unknown whistle; preserve that state transition."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927142534-v8.json leaves one of 29 screens unmatched. A fresh scan at f2d05fac73e9e9f9294c78d98ac3508ee1b846ba stops at segment 0 step 28 with UnsupportedApplyError for doapply object type 246.",
+                "The independent C recording challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json shows step 28 printing \"You produce a strange whistling sound.\" and consuming a collect_coords draw sequence from teleport.c while recalling the tame dog. JS never enters the whistle function.",
+                "Upstream nethack-c/upstream/src/apply.c:use_magic_whistle around lines 495-520 owns the cursed/ordinary decision, and magic_whistled around lines 523-689 owns tame-monster relocation, trap, discovery, and cumulative messages. doapply at line 4304 is the selected caller; JavaScript needs the whole family rather than a whistle line or injected RNG calls.",
+                "The first C RNG label collect_coords is downstream of apply.c:magic_whistled -> mon.c:mnexto, not the missing dispatcher owner. Source callers and relocation-state conditions distinguish this from earlier cases that happen to call collect_coords."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_whistle",
+            "implementation": "js/apply.js",
+            "symbol": "use_whistle",
+            "sourceReview": "Ported all of apply.c:use_whistle() (476-491) in C order: can_blow guard, Underwater bubble message and early exit, Deaf/non-Deaf output, TTY Soundeffect no-op, wake_nearby(TRUE), then the discarded-void vault_summon_gd() call represented by note_unported('vault.c vault_summon_gd'). The production doapply() arms call it for TIN_WHISTLE and unblessed EUCALYPTUS_LEAF. The canonical pure can_blow() port is in js/mondata.js; its silent/buzzing anatomy conjunction, eel exception, and hero Strangled check are pinned by scripts/mondata-pure.test.mjs. The tin-whistle recording proves the ordinary production arm; unblessed-leaf and cursed-vault-summon caller variations remain without matching runtime evidence.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() dispatches TIN_WHISTLE and, for an unblessed EUCALYPTUS_LEAF, calls use_whistle()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-whistle.test.mjs",
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/tin-whistle-ordinary-independent.session.json"
+            ],
+            "checkedAt": "ec683b5eb18005fc4ae8e8845d8a1ad7f9058636"
+          },
+          {
+            "name": "use_magic_whistle",
+            "implementation": "js/apply.js",
+            "symbol": "use_magic_whistle",
+            "sourceReview": "Ported all of apply.c:use_magic_whistle() (493-516): can_blow refusal; cursed rn2(2) vibration selection; vibration text; wake_nearby(TRUE); source-ordered second rn2(2), noteleport_level guard, then tele_to_rnd_pet(); and the normal whistle text, Soundeffect no-op, and magic_whistled() call. The caller is js/apply.js:doapply() for MAGIC_WHISTLE and blessed EUCALYPTUS_LEAF. Also ported the consumed helper teleport.c:tele_to_rnd_pet() (814-838) into js/teleport.js: it uses reservoir sampling across living tame on-map monsters, C's dist2>2 m_next2u condition, two adjacent-square draws, teleok(), and teleds(). Its no-teleport path retains the discarded impossible() gap with note_unported('pline.c impossible'). The selected v8 case and independent ordinary, cursed-non-vibration, and blessed-leaf recordings reach the normal effect arm. The one bounded cursed-branch attempt took rn2(2)=1 at apply.c:499, so the vibration-to-tele_to_rnd_pet call remains uncovered; see the blocked recipe and entryPointReview.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() calls use_magic_whistle() for MAGIC_WHISTLE and for a blessed EUCALYPTUS_LEAF before its rn2(49) blessing roll."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-whistle.test.mjs",
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/magic-whistle-dog-independent.session.json",
+              "recordings/apply.c/magic-whistle-cursed-dog-independent.session.json",
+              "recordings/apply.c/blessed-eucalyptus-leaf-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "magic-whistle-recalls-tame-dog",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "apply.c:doapply(MAGIC_WHISTLE) -> use_magic_whistle"
+              }
+            ],
+            "checkedAt": "ec683b5eb18005fc4ae8e8845d8a1ad7f9058636"
+          }
+        ],
+        "entryPointReview": "The formal A39 source range is exactly apply.c:use_whistle(), use_magic_whistle(), and magic_whistled(); doapply() is a supporting caller, not a fourth completed source unit. The selected admitted v8 range, magic-whistle-recalls-tame-dog segment 0 steps 0-28, reaches doapply(MAGIC_WHISTLE) -> use_magic_whistle() -> magic_whistled(). Independent strict recordings cover TIN_WHISTLE ordinary, MAGIC_WHISTLE ordinary relocation, cursed MAGIC_WHISTLE's non-vibration arm, and blessed EUCALYPTUS_LEAF through its post-effect rn2(49)=18 roll. Supporting pure mondata.c:can_blow() was moved to js/mondata.js and checked against silent/buzzing, anatomy, eel, and hero-Strangled source values; active apply.c, music.c, and muse.c callers use the same helper. Supporting teleport.c:tele_to_rnd_pet() is implemented in js/teleport.js but lacks a matching recording: the single distinct-seed cursed variation in recipes/apply.c/cursed-whistle-vibration-branch-unreached.session.json recorded rn2(2)=1 at apply.c:499 and took the ordinary magic-whistle branch. The separate blessed-leaf recording reached doapply(EUCALYPTUS_LEAF) and its post-effect rn2(49)=18, but did not take the rare zero-result glow/unbless sub-branch. The unblessed EUCALYPTUS_LEAF caller arm has no independent runtime witness in this bounded window. C-discarded void helpers remain exact gaps: apply.c:use_whistle() notes vault.c:vault_summon_gd(), and apply.c:magic_whistled() clears mtrapped then notes trap.c:fill_pit(). For relocated pets that land on an active trap, the consumed mintrap() return remains uncovered; the committed blocked recipe names trap.c:mintrap(). Do not count those blocked paths as complete entry evidence.",
+        "entryPoints": [
+          {
+            "name": "TIN_WHISTLE ordinary apply",
+            "functions": [
+              "use_whistle"
+            ],
+            "recordings": [
+              "recordings/apply.c/tin-whistle-ordinary-independent.session.json"
+            ]
+          },
+          {
+            "name": "MAGIC_WHISTLE ordinary pet relocation",
+            "functions": [
+              "use_magic_whistle",
+              "magic_whistled"
+            ],
+            "recordings": [
+              "recordings/apply.c/magic-whistle-dog-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "magic-whistle-recalls-tame-dog",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "apply.c:doapply(MAGIC_WHISTLE) -> use_magic_whistle() -> magic_whistled()"
+              }
+            ]
+          },
+          {
+            "name": "Cursed MAGIC_WHISTLE non-vibration branch",
+            "functions": [
+              "use_magic_whistle",
+              "magic_whistled"
+            ],
+            "recordings": [
+              "recordings/apply.c/magic-whistle-cursed-dog-independent.session.json"
+            ]
+          },
+          {
+            "name": "Blessed EUCALYPTUS_LEAF apply and whistle effect",
+            "functions": [
+              "use_magic_whistle",
+              "magic_whistled"
+            ],
+            "recordings": [
+              "recordings/apply.c/blessed-eucalyptus-leaf-independent.session.json"
+            ]
+          },
+          {
+            "name": "Cursed MAGIC_WHISTLE vibration and pet teleport",
+            "functions": [
+              "use_magic_whistle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Unblessed EUCALYPTUS_LEAF apply",
+            "functions": [
+              "use_whistle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Relocated tame pet lands on an active trap",
+            "functions": [
+              "magic_whistled"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "711422bb31ddb697934196d4a58eb7fb00db8ce5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Selected v8 whistle case and four independent C recordings match, and use_whistle/use_magic_whistle are verified. magic_whistled still consumes trap.c:mintrap return on relocated pets landing on traps; current mintrap refuses active effects. Cursed vibration/teleport.c:tele_to_rnd_pet and unblessed EUCALYPTUS_LEAF lack matching entry-point recordings; the bounded cursed seed took the ordinary branch. Resume when independent C recordings reach those states and trap.c:mintrap supports its consumed return, preserving source-ordered effects."
     },
     {
       "id": "port-potion-restore-ability-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port restore-ability potion and spell effects from source",
       "cFile": "potion.c",
       "sessions": [
         "synthetic/v9/restore-ability-potion-recovers-stats"
       ],
-      "selectionReason": "The current admitted v9 restore-ability case stops at potion.c:peffect_restore_ability in the quaff dispatcher, as traced in investigations/synthetic/v9/restore-ability-potion-recovers-stats.json. Its potion.c function and required pure apply.c:unfixable_trouble_count return-value helper are unreserved; A39 owns earlier apply.c whistle/doapply lines and C31 owns read.c/recharge, so the helper must be edited only in its distinct end-of-file source region.",
+      "selectionReason": "Selected v9 restore-ability mismatch at potion.c:peffect_restore_ability; B39 source-traced packet is ready for combined validation.",
       "detail": "Port the complete potion.c:peffect_restore_ability function, POT_RESTORE_ABILITY and SPE_RESTORE_ABILITY dispatch, and source-required pure apply.c:unfixable_trouble_count. Preserve cursed early return, blessed wording and trouble status conditions, random attribute loop, base/max/abuse changes, and potion-only lost-level restoration through exper.c:pluslvl. Add source-pinned pure helper tests and independent C recordings for potion and spell entry points without copying the selected v9 case.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "29b15eb5e9f642d639951c70bd1b25d9cb870565",
+      "openStanding": {
+        "sha": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -103194,8 +103500,8 @@
           "name": "peffect_restore_ability",
           "line": 646,
           "endLine": 695,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -103215,30 +103521,291 @@
           "evaluationPath": "challenges/evaluations/20260928061245-v9.json",
           "evaluationCommit": "533d144713ebda5784bfbde54c648abde78b7883"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "restore-ability-potion-recovers-stats",
+          "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+          "recordingPath": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+          "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+          "recipe": "challenges/cases/v9/restore-ability-potion-recovers-stats.recipe.session.json",
+          "recipeSha256": "86e478e79e5c68dfcc77d45e96d7283761e1b099f676d0690fb30661f86bca59",
+          "replayInputSha256": "0cac3433593dfdfaef5b84a0961b2c4faf64a9ad4bbf534b8dc399ee07473419",
+          "evaluationPath": "challenges/evaluations/20260928063714-v9.json",
+          "evaluationCommit": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
+          "evaluationArtifact": "challenges/evaluations/20260928063714-v9.json",
+          "evaluationUtc": "2026-09-28T06:37:55.246Z",
+          "remainingScreens": 1,
+          "recordedSteps": 40,
+          "previousScreensMatched": 39,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 40
+            },
+            "rng": {
+              "matched": 2429,
+              "total": 2430
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+            "step": 39
+          },
+          "step": 39,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_restore_ability",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/restore-ability-potion-recovers-stats.json",
+            "result": {
+              "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "restore-ability-potion-recovers-stats",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "restore-ability-potion-recovers-stats",
+                "session": "synthetic/v9/restore-ability-potion-recovers-stats",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+                "recordingPath": "challenges/cases/v9/restore-ability-potion-recovers-stats.session.json",
+                "recordingSha256": "15e358379aafa24a7c3f1a5e2bfa50ff7a45aec0331c8fb49580da59f6c869b4",
+                "recipe": "challenges/cases/v9/restore-ability-potion-recovers-stats.recipe.session.json",
+                "recipeSha256": "86e478e79e5c68dfcc77d45e96d7283761e1b099f676d0690fb30661f86bca59",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 40,
+                "previousScreensMatched": 39,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 39,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 2429,
+                    "total": 2430
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+                  "step": 39
+                },
+                "step": 39,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_restore_ability",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The restore-ability potion reaches potion.c:peffect_restore_ability, but JavaScript refuses the quaff. C chooses cursed or restorative wording, starts at a random attribute, restores base attributes and abuse counters, and for a potion can restore lost experience levels. The blessed wording consumes apply.c:unfixable_trouble_count(FALSE), which is not yet ported; complete that pure helper in the same task.",
+              "source": {
+                "file": "potion.c",
+                "branch": "potion.c:peffect_restore_ability (646-692) increments potion_unkn, returns after cursed mediocre message, otherwise chooses good/better/great (blessed consumes unfixable_trouble_count), draws rn2(A_MAX), loops through attributes in wraparound order restoring ABASE up to AMAX and clamping negative AEXE, stopping after first repair if unblessed. A POT_RESTORE_ABILITY potion then calls exper.c:pluslvl until lost levels are restored, once or repeatedly when blessed.",
+                "functions": [
+                  "peffect_restore_ability"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_RESTORE_ABILITY dispatch reaches peffect_restore_ability; js/potion.js currently refuses this effect.",
+                  "potion.c:dodrink -> dopotion -> peffects reaches quaffed potions; spell.c healing-skill spell dispatch can call the same source effect with a temporary blessed spellbook; fountain.c:drinksink can also reach dopotion."
+                ],
+                "dependencies": [
+                  "apply.c:unfixable_trouble_count(FALSE) is a pure return-valued helper not yet ported; implement and source-pin it in the same task.",
+                  "exper.c:pluslvl is already ported; preserve its repeated call and messages for lost-level restoration.",
+                  "Keep C ABASE, AMAX, AEXE, and potion-specific ulevel/ulevelmax in their existing state locations; cursed branch must not draw rn2(A_MAX)."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 39/40 screens and first stops at step 39: “unsupported hero command: an unported branch of this command: quaffing requires peffect_restore_ability()”.",
+                "Upstream nethack-c/upstream/src/potion.c lines 646-692 defines the effect and apply.c lines 4431-4471 defines its blessed-message return-valued helper.",
+                "js/potion.js refuses peffect_restore_ability; js/exper.js already implements pluslvl, so the task must wire the source caller and helper rather than substitute a case-specific stat change."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_restore_ability",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_restore_ability",
+            "sourceReview": "Compared all of potion.c:peffect_restore_ability() (646-695). The JavaScript preserves the initial gp.potion_unkn increment, cursed message and immediate no-RNG return, then the uncursed/blesed wording selected with apply.c:unfixable_trouble_count(FALSE), one rn2(A_MAX) start draw, the wrapping ABASE-to-AMAX scan, AEXE=max(AEXE,0), disp.botl update, and the unblessed first-match break. The potion-only branch calls pluslvl(FALSE) only when ulevel < ulevelmax, repeating only while blessed; the SPE pseudo-object never takes that branch. peffects() supplies the normalized source message/random environment for both object types. The potion-only lost-level branch is implemented but not runtime verified: wizcmds.c:wiz_level_change() assigns u.ulevelmax=u.ulevel after lowering, so the attempted #levelchange setup cannot preserve the required ulevel < ulevelmax state.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects() dispatches POT_RESTORE_ABILITY and SPE_RESTORE_ABILITY to peffect_restore_ability() (1333-1337)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() calls peffects() for an inventory quaff (618-641); dodrink() is the production quaff command caller."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() sets the skilled blessing state then calls peffects() for SPE_RESTORE_ABILITY (1538-1545)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "dowizcast",
+                "source": "spell.c:dowizcast() selects a spell and calls spelleffects(); the independent #wizcast recording reaches the SPE_RESTORE_ABILITY row."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/restore-ability-cursed-b39.session.json",
+              "recordings/potion.c/restore-ability-blessed-attribute-loop-b39.session.json",
+              "recordings/potion.c/restore-ability-wizcast-b39.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "restore-ability-potion-recovers-stats",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "quaff -> potion.c:dodrink/dopotion -> potion.c:peffects(POT_RESTORE_ABILITY) -> peffect_restore_ability"
+              }
+            ],
+            "checkedAt": "58d48a2e661c2cb0cf9b219d71a3b947db9bbb63"
+          }
+        ],
+        "entryPointReview": "The active inventory POT_RESTORE_ABILITY route is dodrink() -> dopotion() -> peffects(); strict C recordings cover cursed and blessed quaffs, and admitted synthetic/v9/restore-ability-potion-recovers-stats covers the uncursed quaff from step 0 through its complete 40-step replay. The active spell route is spell.c:spelleffects(SPE_RESTORE_ABILITY) -> peffects(); an independent #wizcast C recording selects that spell and strictly matches. The pure helper apply.c:unfixable_trouble_count() is supplemental evidence below. The POT-only lost-level recovery arm is source-implemented but remains unverified: it requires u.ulevel < u.ulevelmax, while the attempted debug #levelchange sequence resets u.ulevelmax to the current level after lowering. No recording is claimed for that stateful arm.",
+        "entryPoints": [
+          {
+            "name": "Inventory quaff of POT_RESTORE_ABILITY (cursed, blessed and uncursed paths)",
+            "functions": [
+              "peffect_restore_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/restore-ability-cursed-b39.session.json",
+              "recordings/potion.c/restore-ability-blessed-attribute-loop-b39.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "restore-ability-potion-recovers-stats",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 39,
+                "source": "quaff -> potion.c:dodrink/dopotion -> peffects(POT_RESTORE_ABILITY) -> peffect_restore_ability"
+              }
+            ]
+          },
+          {
+            "name": "Wizard #wizcast of SPE_RESTORE_ABILITY",
+            "functions": [
+              "peffect_restore_ability"
+            ],
+            "recordings": [
+              "recordings/potion.c/restore-ability-wizcast-b39.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "POT_RESTORE_ABILITY lost-level recovery when ulevel is below ulevelmax",
+            "functions": [
+              "peffect_restore_ability"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "POT_RESTORE_ABILITY lost-level pluslvl(FALSE) branch still lacks matching runtime evidence: #levelchange lowers ulevel but resets ulevelmax, so it cannot establish ulevel < ulevelmax. The quaff BUC and spell entry points strictly match; resume after an independent C setup reaches naturally lost levels or a source-proven state route. apply.c:unfixable_trouble_count is pure and source-pinned in the immutable B39 packet but is supplemental to this goal range."
     },
     {
       "id": "port-read-forget-amnesia-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port amnesia forgetting and its scroll effect",
       "cFile": "read.c",
       "sessions": [
         "synthetic/v9/read-amnesia-forgets-known-spells"
       ],
-      "selectionReason": "The current admitted v9 amnesia-scroll case first diverges at read.c:forget rnd(3), as traced in investigations/synthetic/v9/read-amnesia-forgets-known-spells.json. JavaScript seffects still leaves the SCR_AMNESIA arm unported. The whole read.c:forget function and its seffect_amnesia caller, plus source state dependencies spell.c:losespells and weapon.c:drain_weapon_skill, form one coherent amnesia effect task; A owns apply.c whistles and B owns potion.c restore ability, so these source owners are free.",
+      "selectionReason": "Selected v9 amnesia mismatch at read.c:forget; C32 source-traced delivery is ready after B39 publication.",
       "detail": "Port complete read.c:forget and seffect_amnesia with the SCR_AMNESIA dispatcher. Implement whole spell.c:losespells and weapon.c:drain_weapon_skill so spell memory, skill training, seen-monster flags, punished ball-chain memory, wisdom exercise, messages, and RNG calls follow source order across future inputs. Add source-pinned pure helper tests and independent cursed, blessed, or known-spell C recordings; preserve the selected v9 range and name any active unreachable or blocked state path.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "29147c7d5bd1ee9bfab90dd4fdd29343af090bb0",
+      "openStanding": {
+        "sha": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "forget",
           "line": 1020,
           "endLine": 1043,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -103257,6 +103824,465 @@
           "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
           "evaluationPath": "challenges/evaluations/20260928063714-v9.json",
           "evaluationCommit": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73"
+        }
+      },
+      "activeStanding": {
+        "sha": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "read-amnesia-forgets-known-spells",
+          "session": "synthetic/v9/read-amnesia-forgets-known-spells",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+          "recordingPath": "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+          "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
+          "recipe": "challenges/cases/v9/read-amnesia-forgets-known-spells.recipe.session.json",
+          "recipeSha256": "1158dda37a8223f534c7fc25886062202644163070813c17d573f0b2f538aebc",
+          "replayInputSha256": "36e7e3767d657e72e0f67eb408f0d831f663e61822e11ad0b98c6ef12c8ee00c",
+          "evaluationPath": "challenges/evaluations/20260928073101-v9.json",
+          "evaluationCommit": "b442bd4961f144a9c03100d0b5fedb0e1bfb73b6",
+          "evaluationArtifact": "challenges/evaluations/20260928073101-v9.json",
+          "evaluationUtc": "2026-09-28T07:31:40.312Z",
+          "remainingScreens": 1,
+          "recordedSteps": 24,
+          "previousScreensMatched": 23,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 23,
+              "total": 24
+            },
+            "rng": {
+              "matched": 3133,
+              "total": 3145
+            },
+            "cursors": {
+              "matched": 23,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 23,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 23,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3133,
+              "cEntry": "rnd(3)=1",
+              "cCaller": "forget(read.c:1031)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 22,
+                "key": "o"
+              },
+              "stepIndex": 22
+            },
+            "cursor": {
+              "index": 23,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 23,
+                "key": " "
+              },
+              "cCursor": [
+                8,
+                3,
+                1
+              ],
+              "jsCursor": [
+                39,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 22,
+          "kind": "rng",
+          "sourceFile": "read.c",
+          "function": "forget",
+          "message": null,
+          "cFile": "read.c",
+          "luaFile": null,
+          "line": 1031,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/read-amnesia-forgets-known-spells.json",
+            "result": {
+              "session": "synthetic/v9/read-amnesia-forgets-known-spells",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "read-amnesia-forgets-known-spells",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 24,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "read-amnesia-forgets-known-spells",
+                "session": "synthetic/v9/read-amnesia-forgets-known-spells",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+                "recordingPath": "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+                "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
+                "recipe": "challenges/cases/v9/read-amnesia-forgets-known-spells.recipe.session.json",
+                "recipeSha256": "1158dda37a8223f534c7fc25886062202644163070813c17d573f0b2f538aebc",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 24,
+                "previousScreensMatched": 23,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 23,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 3133,
+                    "total": 3145
+                  },
+                  "cursors": {
+                    "matched": 23,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 23,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 23,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3133,
+                    "cEntry": "rnd(3)=1",
+                    "cCaller": "forget(read.c:1031)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 22,
+                      "key": "o"
+                    },
+                    "stepIndex": 22
+                  },
+                  "cursor": {
+                    "index": 23,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 23,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      8,
+                      3,
+                      1
+                    ],
+                    "jsCursor": [
+                      39,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 22,
+                "kind": "rng",
+                "sourceFile": "read.c",
+                "function": "forget",
+                "message": null,
+                "cFile": "read.c",
+                "luaFile": null,
+                "line": 1031
+              },
+              "summary": "Reading the amnesia scroll reaches read.c:seffect_amnesia, but JavaScript only records an unported gap. C first draws rnd(3) inside read.c:forget at step 22, then chooses the Maud message and exercises wisdom. The whole source path must also update spell memory, weapon skill training, seen-monster flags, and punished ball-and-chain memory; later status or action histories can expose those effects.",
+              "source": {
+                "file": "read.c",
+                "branch": "read.c:seffect_amnesia (1830-1847) sets known, calls forget with ALL_SPELLS unless blessed, chooses one of three messages under Hallucination/name/RNG conditions, and exercises wisdom. read.c:forget (1020-1043) clears punished ball-chain memory, conditionally calls losespells, draws rnd(howmuch?5:3) for drain_weapon_skill, and clears meverseen on current and migrating monsters except steed/stuck. Preserve the RNG before the Maud-message draw.",
+                "functions": [
+                  "forget",
+                  "seffect_amnesia"
+                ],
+                "callers": [
+                  "read.c:seffects case SCR_AMNESIA calls seffect_amnesia(&sobj); js/read.js:seffects currently calls note_unported at that dispatch arm.",
+                  "read.c:doread reaches seffects after ordinary scroll selection and consumption setup."
+                ],
+                "dependencies": [
+                  "spell.c:losespells and weapon.c:drain_weapon_skill are not yet implemented in JS; C discards their return values, but their state changes matter for later inputs and should be included or explicitly noted as gaps.",
+                  "attrib.c:exercise and message operations must follow C order; preserve the ALL_SPELLS flag and blessed distinction."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 23/24 screens and 3133/3145 RNG calls; first mismatch is C rnd(3)=1 at forget(read.c:1031) on segment 0 step 22.",
+                "Upstream nethack-c/upstream/src/read.c lines 1020-1043 and 1830-1847 define forget and seffect_amnesia; js/read.js SCR_AMNESIA dispatch at line 1837 records note_unported instead of executing the effect.",
+                "Current JS tree has no losespells or drain_weapon_skill implementation, so completion must account for these source state changes rather than merely matching the first message."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "forget",
+            "implementation": "js/read.js",
+            "symbol": "forget",
+            "sourceReview": "Compared all of read.c:1020-1040. Preserves the Punished ball/chain-memory clear, conditional losespells call before skill loss, rnd(howmuch ? 5 : 3) bound, current-level monster-recognition clearing with steed/ustuck exclusions, and migrating-monster clearing. Supporting source functions seffect_amnesia, spell.c:losespells, and weapon.c:drain_weapon_skill are implemented and described in supplementalSources.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_amnesia",
+                "source": "read.c:seffect_amnesia:1836"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/amnesia-blessed-healer-independent-c32.session.json",
+              "recordings/read.c/amnesia-known-spellbook-independent-c32.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "read-amnesia-forgets-known-spells",
+                "segment": 0,
+                "fromStep": 22,
+                "throughStep": 23,
+                "source": "read.c:doread -> seffects(SCR_AMNESIA) -> seffect_amnesia -> forget"
+              }
+            ],
+            "checkedAt": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4"
+          }
+        ],
+        "entryPointReview": "The selected production entry is the SCR_AMNESIA read effect: doread selects a scroll, seffects applies its existing pre-dispatch Wisdom exercise and dispatches SCR_AMNESIA to seffect_amnesia; seffect_amnesia marks it known, calls forget, emits source-ordered feedback, and performs the final Wisdom exercise. Blessed reads retain spell knowledge while still clearing Punished ball memory if present, draining weapon skill, clearing eligible monster recognition, and emitting feedback. Unblessed reads additionally call spell.c:losespells. The selected v9 case reaches the chain at segment 0 steps 22-23; the independent Healer recording covers blessed retention and skill drain, and the independent Wizard recording first learns a spell then covers actual spell loss, Luck/confusion selection, and skill drain. These are the only production amnesia entry-point branches. The supplemental sources are complete for the calls used by read.c:forget. C also calls losespells and drain_weapon_skill from uhitm.c:mhitm_ad_drin; that separate monster-attack source caller remains explicitly unported as js/uhitm.js AD_DRIN: unported('mhitm_ad_drin'), and C32 does not claim that entry. No pure source function is in this task.",
+        "entryPoints": [
+          {
+            "name": "Read an unblessed amnesia scroll with a learned spell",
+            "functions": [
+              "forget"
+            ],
+            "recordings": [
+              "recordings/read.c/amnesia-known-spellbook-independent-c32.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "read-amnesia-forgets-known-spells",
+                "segment": 0,
+                "fromStep": 22,
+                "throughStep": 23,
+                "source": "read.c:doread -> seffects -> seffect_amnesia -> forget; supporting losespells and drain_weapon_skill also execute"
+              }
+            ]
+          },
+          {
+            "name": "Read a blessed amnesia scroll while retaining spell knowledge",
+            "functions": [
+              "forget"
+            ],
+            "recordings": [
+              "recordings/read.c/amnesia-blessed-healer-independent-c32.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-read-create-monster-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port create-monster scroll and spell effects with runtime monster creation",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-create-monster-scroll-no-prior-monsters"
+      ],
+      "selectionReason": "The v8 create-monster recording first diverges at read.c:seffect_create_monster rn2(73) in investigations/synthetic/v8/read-create-monster-scroll-no-prior-monsters.json. Port the whole effect and SCR/SPE seffects dispatch, including its consumed makemon.c:create_critters Boolean and runtime makemon continuation. C32 released read.c:seffects on acceptance.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_create_monster",
+          "line": 1608,
+          "endLine": 1626,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1608,
+        "to": 1626
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-create-monster-scroll-no-prior-monsters": {
+          "session": "synthetic/v8/read-create-monster-scroll-no-prior-monsters",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-create-monster-scroll-no-prior-monsters",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+          "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+          "evaluationPath": "challenges/evaluations/20260928075052-v8.json",
+          "evaluationCommit": "61db2f29db823f3a5d87886797e12fa604d89a2e"
+        }
+      }
+    },
+    {
+      "id": "port-mon-xkilled-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port mon.c xkilled and its explosion kill caller across source-defined monster death outcomes",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v10/blessed-fire-scroll-centered-explosion"
+      ],
+      "selectionReason": "The highest-count unreserved v10 mismatch is synthetic/v10/blessed-fire-scroll-centered-explosion (manifest challenges/manifests/v10.json SHA-256 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recording challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json SHA-256 9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc; evaluation challenges/evaluations/20260928083103-v10.json). The complete investigation at investigations/synthetic/v10/blessed-fire-scroll-centered-explosion.json traces the blessed scroll through read.c:seffect_fire and explode.c:explode to mon.c:xkilled; its JavaScript caller currently throws on an injected unsupported operation. Worker B owns read.c create-monster paths, while this task owns mon.c kill processing and the explosion caller contract.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "xkilled",
+          "line": 3477,
+          "endLine": 3747,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3477,
+        "to": 3747
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/blessed-fire-scroll-centered-explosion": {
+          "session": "synthetic/v10/blessed-fire-scroll-centered-explosion",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "blessed-fire-scroll-centered-explosion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+          "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+          "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+          "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
+        }
+      }
+    },
+    {
+      "id": "port-uhitm-force-do-attack-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port uhitm.c force_attack and do_attack through source-defined human and polymorphed combat paths",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v10/bullwhip-lashes-unarmed-soldier"
+      ],
+      "selectionReason": "The second highest-count unreserved v10 mismatch is synthetic/v10/bullwhip-lashes-unarmed-soldier (manifest challenges/manifests/v10.json SHA-256 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recording challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json SHA-256 7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7; evaluation challenges/evaluations/20260928083103-v10.json). Investigation investigations/synthetic/v10/bullwhip-lashes-unarmed-soldier.json traces apply.c:use_whip through force_attack and do_attack and the eager injected-operation refusal. Worker A owns mon.c:xkilled; this uhitm.c task may use that shared kill dependency after its integration but owns the attack path and apply caller contract.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "force_attack",
+          "line": 432,
+          "endLine": 447,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "do_attack",
+          "line": 448,
+          "endLine": 586,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 432,
+        "to": 586
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/bullwhip-lashes-unarmed-soldier": {
+          "session": "synthetic/v10/bullwhip-lashes-unarmed-soldier",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bullwhip-lashes-unarmed-soldier",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+          "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
+          "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+          "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
         }
       }
     }

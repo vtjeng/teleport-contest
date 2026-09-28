@@ -987,6 +987,9 @@ export const PLNMSG_BACK_ON_GROUND = (PLNMSG_OK_DONT_DIE + 1);
 export const PLNMSG_GROWL = (PLNMSG_BACK_ON_GROUND + 1);
 export const PLNMSG_HIDE_UNDER = (PLNMSG_GROWL + 1);
 export const PLNMSG_MON_TAKES_OFF_ITEM = (PLNMSG_HIDE_UNDER + 1);
+// include/flag.h's final enum member used when last_msg is deliberately
+// cleared before a source call that may emit an intervening message.
+export const PLNMSG_enum = (PLNMSG_MON_TAKES_OFF_ITEM + 1);
 export const RUN_TPORT = 0;
 export const RUN_LEAP = (RUN_TPORT + 1);
 export const RUN_STEP = (RUN_LEAP + 1);
