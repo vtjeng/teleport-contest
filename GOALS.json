@@ -109149,6 +109149,56 @@
           "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
       }
+    },
+    {
+      "id": "port-read-destroy-armor-synthetic-v8-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port destroy-armor scroll effects and return-valued disintegration chain",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v8/read-cursed-destroy-armor-scroll"
+      ],
+      "selectionReason": "The sole unresolved v8 case has exact screens but is missing C obj_resists rn2(100) at step 36. Source trace in investigations/synthetic/v8/read-cursed-destroy-armor-scroll.json selects read.c:disintegrate_cursed_armor..seffect_destroy_armor and its do_wear.c:maybe_destroy_armor/disintegrate_arm return-valued callees; preserve all already matching screens and RNG.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "disintegrate_cursed_armor",
+          "line": 1294,
+          "endLine": 1323,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "seffect_destroy_armor",
+          "line": 1324,
+          "endLine": 1398,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1294,
+        "to": 1398
+      },
+      "syntheticProvenance": {
+        "synthetic/v8/read-cursed-destroy-armor-scroll": {
+          "session": "synthetic/v8/read-cursed-destroy-armor-scroll",
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "read-cursed-destroy-armor-scroll",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recordingPath": "challenges/cases/v8/read-cursed-destroy-armor-scroll.session.json",
+          "recordingSha256": "284496eb42e96abd55dc09a2f531660b33caeb09d61dd5fb1474e4eb1b052452",
+          "evaluationPath": "challenges/evaluations/20260928211543-v8.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        }
+      }
     }
   ]
 }
