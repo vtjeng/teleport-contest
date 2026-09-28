@@ -546,7 +546,11 @@ import { note_unported } from './unported.js';
 import { dbon, setmnotwielded, uwep_skill_type } from './weapon.js';
 import { mwelded } from './wield.js';
 import { u_wipe_engr } from './engrave.js';
-import { ART_SNICKERSNEE, Stone_resistance } from './artifacts.js';
+import {
+    ART_SNICKERSNEE,
+    Stone_resistance,
+    retouch_object,
+} from './artifacts.js';
 
 function applyPropertyActive(property, state = game) {
     const value = state.u?.uprops?.[property];
@@ -2927,19 +2931,10 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
 
 // C ref: apply.c doapply() (4213-4430), the `a` command.
 //
-// retouch_object(&obj, FALSE) sits between getobj() and the switch, and only
-// an artifact stops here, on the same derivation js/eat.js:1449-1458 records
-// for doeat(). artifact.c retouch_object() (2507-2528) answers 1 with no side
-// effect unless `ag` or `bane` is set; both need get_artifact() to answer
-// something, except for `ag`'s other conjunct Hate_silver. That one is
-// provably false in this port: youprop.h:401 spells it
-// `u.ulycn >= LOW_PM || hates_silver(gy.youmonst.data)`, js/u_init.js:368
-// writes NON_PM into u.ulycn and nothing writes it again, and
-// js/u_init.js:275 builds state.youmonst once and nothing reassigns its
-// `data`, because no polymorph is ported. The BELL_OF_OPENING shortcut at the
-// top of retouch_object() answers 1 as well, so it changes nothing either.
-// Porting the artifact arm needs touch_artifact()'s blast, bane_applies(),
-// losehp() and remove_worn_item().
+// apply.c:doapply() calls artifact.c:retouch_object(&obj, FALSE) for every
+// selected object before class dispatch. The helper can blast the hero and
+// its Boolean answer controls whether this command continues; keep its
+// possibly updated object pointer for the source's subsequent dispatch.
 // apply.c:doapply() switch cases whose handlers are not ported in this
 // JavaScript slice. Keep them out of the generic default, which C reaches
 // only after every named case has failed to match.
@@ -3816,12 +3811,14 @@ export async function doapply(state = game, env = {}) {
     if (await check_capacity(null, state))
         return ECMD_OK;
 
-    const obj = await getobj('use or apply', apply_ok, GETOBJ_NOFLAGS, state);
+    let obj = await getobj('use or apply', apply_ok, GETOBJ_NOFLAGS, state);
     if (!obj)
         return ECMD_CANCEL;
 
-    if (obj.oartifact)
-        throw new UnsupportedApplyError('retouch_object() for an artifact');
+    const objp = { obj };
+    if (!await retouch_object(objp, false, state))
+        return ECMD_TIME;
+    obj = objp.obj;
 
     if (obj.oclass === WAND_CLASS)
         return await do_break_wand(obj, state, env);
@@ -4010,9 +4007,6 @@ export async function doapply(state = game, env = {}) {
         await ttyPline("Sorry, I don't know how to use that.", state);
         return ECMD_FAIL;
     }
-    // C's tail, `if (obj && obj->oartifact) res |= arti_speak(obj)`, has no
-    // reachable input: the retouch_object() stop above refuses every artifact
-    // before the switch, and no arm here can turn a non-artifact into one.
 }
 
 // C ref: apply.c flip_coin() (4526-4556). splitobj()'s returned coin is used
