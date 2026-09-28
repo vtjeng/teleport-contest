@@ -212,6 +212,7 @@ import { check_capacity, losehp, near_capacity, nomul, overexertion } from './ha
 import { dist2, highc, isqrt, s_suffix, strstri, truncateByteString, upstart } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import { gulp_blnd_check } from './mhitu.js';
+import { litroom } from './read.js';
 import {
     delobj,
     freeinv,
@@ -3799,7 +3800,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     await zapwrapup(state, env);
     if (shopDamage) note_unported('shk.c pay_for_damage');
     if (obj.otyp === WAN_LIGHT)
-        note_unported('read.c litroom');
+        await litroom(true, obj, state);
     discard_broken_wand(state, env);
     return ECMD_TIME;
 }
