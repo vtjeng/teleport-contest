@@ -11,7 +11,10 @@ import {
     ENGRAVE,
     HEADSTONE,
     IRONBARS,
+    I_SPECIAL,
     INVIS_BEAM,
+    MSLOW,
+    NORMAL_SPEED,
     OBJ_DELETED,
     KICKED_WEAPON,
     LAVAWALL,
@@ -65,7 +68,9 @@ import {
     IMMEDIATE,
     SPE_FORCE_BOLT,
     WAN_POLYMORPH,
+    WAN_SLOW_MONSTER,
     WAN_STRIKING,
+    SPE_SLOW_MONSTER,
 } from '../js/objects.js';
 
 // A straight run of floor at row 4 from column 1 to `last`, with the hero at
@@ -261,6 +266,105 @@ test('bhitm keeps its ray position separate from zap.c hit()', async () => {
     assert.equal(monster.mhp, 28);
     assert.deepEqual(draws, [['rnd', 20], ['d', 2, 12], ['rn2', 111]]);
 });
+
+test('bhitm applies a successful wand or spell slow effect before its common tail',
+    async () => {
+        // zap.c:218-231: both effects make the same resist() call, lower
+        // permanent speed with mon_adjust_speed(-1), flag gear reassessment,
+        // and then reach bhitm()'s shared wake/reveal/learn tail.
+        for (const otyp of [WAN_SLOW_MONSTER, SPE_SLOW_MONSTER]) {
+            const state = corridor();
+            state.u.ulevel = 1;
+            const monster = newMonster({
+                data: state.mons[PM_KOBOLD],
+                mnum: PM_KOBOLD,
+                m_id: otyp,
+                mx: 2,
+                my: 4,
+                mhp: 30,
+                mhpmax: 30,
+                m_lev: 1,
+                mspeed: NORMAL_SPEED,
+                permspeed: 0,
+                misc_worn_check: 0,
+                mcanmove: true,
+                mcansee: true,
+                mpeaceful: false,
+                msleeping: 0,
+                mfrozen: 0,
+            });
+            place_monster(monster, 2, 4, state);
+            monster.nmon = state.level.monlist;
+            state.level.monlist = monster;
+            state.gb = { bhitpos: { x: 2, y: 4 } };
+
+            const draws = [];
+            const messages = [];
+            const random = {
+                rn2: (bound) => {
+                    draws.push(['rn2', bound]);
+                    return bound - 1;
+                },
+                rnd: (bound) => bound,
+                d: (count, sides) => count * sides,
+            };
+            await bhitm(monster, missile(state, otyp), state, random, {
+                message: async (line) => messages.push(line),
+                learnwand: () => {},
+            });
+
+            assert.deepEqual(draws, [[
+                'rn2',
+                otyp === WAN_SLOW_MONSTER ? 111 : 100,
+            ]]);
+            assert.equal(monster.permspeed, MSLOW);
+            assert.equal(monster.mspeed, MSLOW);
+            // mon.c:5915; worn.c's speed change schedules this source flag.
+            assert.equal(monster.misc_worn_check & I_SPECIAL, I_SPECIAL);
+            assert.ok(messages.some((line) => line.includes('moving slower')));
+        }
+    });
+
+test('bhitm leaves monster speed and gear unchanged when Slow Monster is resisted',
+    async () => {
+        // zap.c:220-224: a true resist() result skips mimic reveal, speed
+        // adjustment, and the gear-check flag while the common wake tail runs.
+        const state = corridor();
+        const monster = newMonster({
+            data: { ...state.mons[PM_KOBOLD], mr: 100 },
+            mnum: PM_KOBOLD,
+            m_id: 9002,
+            mx: 2,
+            my: 4,
+            mhp: 30,
+            mhpmax: 30,
+            m_lev: 1,
+            mspeed: NORMAL_SPEED,
+            permspeed: 0,
+            misc_worn_check: 0,
+            mcanmove: true,
+            mcansee: true,
+            mpeaceful: false,
+            msleeping: 0,
+            mfrozen: 0,
+        });
+        place_monster(monster, 2, 4, state);
+        monster.nmon = state.level.monlist;
+        state.level.monlist = monster;
+        state.gb = { bhitpos: { x: 2, y: 4 } };
+
+        const draws = [];
+        await bhitm(monster, missile(state, WAN_SLOW_MONSTER), state, {
+            rn2: (bound) => { draws.push(bound); return 0; },
+            rnd: (bound) => bound,
+            d: (count, sides) => count * sides,
+        }, { message: async () => {} });
+
+        assert.deepEqual(draws, [111]);
+        assert.equal(monster.permspeed, 0);
+        assert.equal(monster.mspeed, NORMAL_SPEED);
+        assert.equal(monster.misc_worn_check & I_SPECIAL, 0);
+    });
 
 test('bhito fractures a boulder for Force Bolt and preserves its return',
     async () => {

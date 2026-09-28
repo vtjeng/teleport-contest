@@ -81,6 +81,7 @@
   "evidence": [
     "Saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 26/27 screens and stops at zero-based step 26 with unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 380. Immutable C recording SHA-256 526fdb6d28ae6f2ff3fd1f9d0ebb7c0ab54e18eca1c0a40876c0dd90aa9fd54e.",
     "Upstream nethack-c/upstream/src/zap.c:217-229 defines the slow-monster effect; js/zap.js:3149-3156 refuses this immediate effect type before source behavior.",
-    "The two v11 recordings have distinct prior action histories, but share this first C branch; keep both as separate regression cases while assigning one source family."
+    "The two v11 recordings have distinct prior action histories, but share this first C branch; keep both as separate regression cases while assigning one source family.",
+    "Current result: challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 matches all 27 screens and cursors and 2382/2382 RNG calls. Divergence goal div-zap-bhitm-slow-monster-synthetic-v11-20260928 is closed; an independent Slow Monster wand recording also strictly matches through zap.c:bhitm."
   ]
 }

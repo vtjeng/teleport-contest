@@ -110306,7 +110306,7 @@
     {
       "id": "div-zap-bhitm-slow-monster-synthetic-v11-20260928",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement immediate slow-monster hit and speed adjustment",
       "cFile": "zap.c",
       "sessions": [
@@ -110315,10 +110315,17 @@
       ],
       "selectionReason": "Both distinct v11 histories stop at the same zap.c:bhitm slow-monster branch; source trace in investigations/synthetic/v11/slow-monster-spell-changes-target-speed.json and hostile-monster-picks-up-floor-weapon.json groups them for one worker after B47 releases js/zap.js.",
       "detail": "zap.c:bhitm slow-monster cases call resist(), reveal a mimic if applicable, adjust speed through mon.c:mon_adjust_speed, schedule gear check, and continue the shared wake/learning tail. js/zap.js refuses the immediate effect type before these calls; preserve C RNG, message, state, and return order for both action histories.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+      "openStanding": {
+        "sha": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "bhitm",
       "session": "synthetic/v11/slow-monster-spell-changes-target-speed",
       "step": 26,
@@ -110347,6 +110354,18 @@
           "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
           "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
+      },
+      "activeStanding": {
+        "sha": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
