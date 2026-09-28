@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T00:48:46.593Z",
+  "capturedAt": "2026-09-28T01:12:38.377Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6326,12 +6326,53 @@
         "type": "accepted",
         "at": "2026-09-28T00:48:38.759Z",
         "task": "C28"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C28-87ccba27-20260927",
+        "type": "published",
+        "at": "2026-09-28T00:50:53.894Z",
+        "task": "C28",
+        "commit": "87ccba27009e38dbc588a7ea65ca687e896cc954"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A35-92337428-20260927",
+        "type": "integrating",
+        "at": "2026-09-28T00:55:43.195Z",
+        "task": "A35",
+        "integration": "92337428e67cca2eea46bf6ddbf9f1412851dd43"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C29-20260928",
+        "type": "assign",
+        "at": "2026-09-28T00:55:51.442Z",
+        "task": "C29",
+        "worker": "C",
+        "goal": "port-detect-gold-food-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A35-validated-92337428",
+        "type": "validated",
+        "at": "2026-09-28T01:11:53.551Z",
+        "task": "A35",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A35-accepted-92337428",
+        "type": "accepted",
+        "at": "2026-09-28T01:12:09.705Z",
+        "task": "A35"
       }
     ]
   },
   "development": {
-    "executionCommit": "53cc6b92add1297a9b69eb64121a2858312f81a2",
-    "measuredAt": "2026-09-28T00:47:58.925Z",
+    "executionCommit": "92337428e67cca2eea46bf6ddbf9f1412851dd43",
+    "measuredAt": "2026-09-28T01:03:21.851Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

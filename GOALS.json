@@ -99803,7 +99803,7 @@
     {
       "id": "port-dothrow-mhurtle-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port monster hurtling and its source step callback through knockback and wand callers",
       "cFile": "dothrow.c",
       "sessions": [
@@ -99811,8 +99811,12 @@
       ],
       "selectionReason": "The current v9 kick-closed-door first mismatch is C uhitm.c:mhitm_knockback calling dothrow.c:mhurtle while JavaScript records a gap; monster position and stun then cause downstream screen, cursor, and monmove RNG differences. A32 supplied the consumed mintrap return path. Port the full monster hurtle function and its static mhurtle_step callback as one coherent task.",
       "detail": "Implement all dothrow.c:mhurtle branches and complete static mhurtle_step, including walk_path sequencing, will_hurtle, m_in_out_region, steed and collision arms, petrification, mintrap result handling, and final trap/liquid check. Wire active uhitm.c:mhurtle_to_doom and mhitm_knockback, zap.c:bhitm, and wizard debug caller where production wiring exists. Preserve source-named gaps only for void callees whose results C discards. Use independent C recordings for uncovered entries. Investigation: investigations/synthetic/v9/kick-closed-door.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "92337428e67cca2eea46bf6ddbf9f1412851dd43",
+      "openStanding": {
+        "sha": "92337428e67cca2eea46bf6ddbf9f1412851dd43",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -99820,8 +99824,8 @@
           "name": "mhurtle",
           "line": 1130,
           "endLine": 1180,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -99841,7 +99845,131 @@
           "evaluationPath": "challenges/evaluations/20260927221853-v9.json",
           "evaluationCommit": "31a2ed22a45f64162949a29f462c23cd51827978"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "92337428e67cca2eea46bf6ddbf9f1412851dd43",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhurtle",
+            "implementation": "js/dothrow.js",
+            "symbol": "mhurtle",
+            "sourceReview": "Read the whole dothrow.c:mhurtle() body (1130-1178) and its complete static mhurtle_step() callback (992-1074). Preserved wakeup and movement/stun state changes; the huge/stuck/trapped, normalized direction, zero-range and NODIAG guards; undetected/mimic reveal; walk_path source-to-destination ordering; callback collision and region checks; monster versus steed movement; flush_screen(1), nh_delay_output(), set_apparxy(), waterwall handling, and the consumed HURTLING Trap_* result; then the discarded walk_path, FORCEBUNGLE mintrap, and minliquid results in source order. The callback uses the existing partial trap.c:mintrap implementation for the consumed HURTLING status; its unsupported selector/effect branches remain an explicit external blocker, and this evidence does not claim those trap entries complete. The void trap.c:minstapetrify and trap.c:instapetrify calls remain named note_unported gaps at their source sites; no return value is fabricated. Removed the old dothrow.c:mhurtle caller refusals in uhitm.c and wired the source callers. The selected and independent runtime evidence covers ordinary open-floor hurtling only; the active stagger-success, mounted-joust, wizard-command, and trap-return entries remain unverified as detailed in entryPointReview. Supporting caller ports in uhitm.c also include joust(), hmon_hitmon_jousting(), mhurtle_to_doom(), and the source branch in mhitm_knockback(); zap.c:bhitm wires SPE_KNOCK. These supporting functions are not listed as completed source units under this dothrow.c goal.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhurtle_to_doom",
+                "source": "uhitm.c:mhurtle_to_doom() calls dothrow.c:mhurtle() after the successful uhitm.c:hmon_hitmon_stagger() or hmon_hitmon_jousting() path."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_knockback",
+                "source": "uhitm.c:mhitm_knockback() calls dothrow.c:mhurtle() for the monster-defender arm."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm() calls dothrow.c:mhurtle() for SPE_KNOCK when the target can be moved."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs",
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/spe-knock-wizcast-monster-hurtle-a35.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "kick-closed-door",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 8,
+                "source": "C kick -> uhitm.c:mhitm_knockback() -> dothrow.c:mhurtle() -> mhurtle_step()"
+              }
+            ],
+            "checkedAt": "92337428e67cca2eea46bf6ddbf9f1412851dd43"
+          }
+        ],
+        "entryPointReview": "Active C callers found: uhitm.c:mhitm_knockback() from monster-hit processing; uhitm.c:mhurtle_to_doom() from successful hmon_hitmon_stagger() and hmon_hitmon_jousting(); zap.c:bhitm() for SPE_KNOCK; and cmd.c's #wiztelekinesis dispatch to wizcmds.c:wiz_telekinesis(). The selected v9 kick-closed-door case matches all 9 steps (zero-based 0-8) through the knockback/mhurtle path. The independent SPE_KNOCK recording matches all 31 screens, cursors and RNG calls and reaches zap.c:bhitm(SPE_KNOCK) -> mhurtle on a monster. The two admitted v4 Monk cases monk-nymph-wake-only-miss and monk-nymph-theft-recovery each reach uhitm.c:hmon_hitmon_stagger() at segment 0 step 36 but record rnd(100)=38, which fails the source success guard; neither reaches mhurtle_to_doom or proves the stagger-success movement tail. Three independent joust setup attempts are retained in recipes/uhitm.c/mounted-lance-joust-a35-independent.session.json; the starting-pet attempts do not reach a mounted attack, and the final debug pony already has a saddle so steed.c:use_saddle() refuses the extra saddle and its --More-- message swallows the remaining attack keys. This recipe is blocked and is not runtime evidence for joust or mhurtle. The wizard caller is active in cmd.c:1996 and wizcmds.c:wiz_telekinesis() (494-521), but JS has no #wiztelekinesis dispatcher; its hero-target branch also calls the separate unported dothrow.c:hurtle() family. No runtime evidence is claimed for this caller. In mhurtle_step(), a trap landing consumes trap.c:mintrap(mon, HURTLING)'s Trap_* result; A32's mintrap has unsupported selector/effect branches, so the trap-return entry remains blocked and this handoff does not certify it. All three unverified active callers and the trap-return dependency keep A35 open for follow-up evidence.",
+        "entryPoints": [
+          {
+            "name": "Monster hurtled by a hero kick through the knockback caller",
+            "functions": [
+              "mhurtle"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "kick-closed-door",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 8,
+                "source": "uhitm.c:mhitm_knockback() -> dothrow.c:mhurtle()"
+              }
+            ]
+          },
+          {
+            "name": "Monster knocked back by a SPE_KNOCK hit",
+            "functions": [
+              "mhurtle"
+            ],
+            "recordings": [
+              "recordings/zap.c/spe-knock-wizcast-monster-hurtle-a35.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Successful unarmed stagger hurtles the defender",
+            "functions": [
+              "mhurtle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Mounted lance joust hurtles the defender",
+            "functions": [
+              "mhurtle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard #wiztelekinesis hurtles a selected monster",
+            "functions": [
+              "mhurtle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hurtled monster lands on a trap and consumes the HURTLING result",
+            "functions": [
+              "mhurtle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "92337428e67cca2eea46bf6ddbf9f1412851dd43",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Active entry points still lack matching play: unarmed stagger success, mounted lance joust, wizard #wiztelekinesis dispatch, and HURTLING trap-return behavior. The kick and SPE_KNOCK callers are verified; complete those dependencies and recordings before closure."
     },
     {
       "id": "port-read-stinking-cloud-synthetic-v9-20260927",
@@ -100193,6 +100321,49 @@
           "recordingSha256": "51b904213bb51ac8bb79bbe9ed1ab8aff746ab6d6e6ec0be08efd46604e01d8e",
           "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
           "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
+        }
+      }
+    },
+    {
+      "id": "port-potion-sleeping-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete sleeping-potion effect and production quaff dispatch",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/sleeping-potion-falls-asleep"
+      ],
+      "selectionReason": "Current v9 evaluation 20260928010351 has one unmatched screen in sleeping-potion-falls-asleep; investigations/synthetic/v9/sleeping-potion-falls-asleep.json traces POT_SLEEPING to potion.c:peffect_sleeping, which JS currently refuses. This potion function and its timeout state contract are independent of active region.c and detect.c worker reservations. Manifest 00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594; C recording challenges/cases/v9/sleeping-potion-falls-asleep.session.json sha256 f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f.",
+      "detail": "Translate both resistance/free-action and nonresistant sleep branches in C order, including monstseesu state, blessed/cursed duration RNG, timeout.c:fall_asleep, and peffects dispatch. Exercise independent variations with complete C recordings and source-pinned pure helper tests where needed.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_sleeping",
+          "line": 901,
+          "endLine": 913,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 901,
+        "to": 913
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/sleeping-potion-falls-asleep": {
+          "session": "synthetic/v9/sleeping-potion-falls-asleep",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "sleeping-potion-falls-asleep",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+          "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+          "evaluationPath": "challenges/evaluations/20260928010351-v9.json",
+          "evaluationCommit": "92337428e67cca2eea46bf6ddbf9f1412851dd43"
         }
       }
     }
