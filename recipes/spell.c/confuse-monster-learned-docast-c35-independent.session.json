@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 53092833,
+      "datetime": "20310928120345",
+      "nethackrc": "OPTIONS=name:ConfuseCastC35,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed spellbook of confuse monster\n\u0017uncursed potion of gain level\nqqrp #enhance\nyp \u001bZc"
+    }
+  ],
+  "comment": "Independent learned-spell route for C35: use a debug Wizard/elf with an independently chosen seed and date, wish a blessed spellbook of confuse monster, gain a level for energy, study the spellbook, advance attack-spell skill, then use ordinary #cast (Z). Verify C spell.c:docast -> spelleffects(SPE_CONFUSE_MONSTER) -> read.c:seffects -> seffect_confuse_monster. This is distinct from the debug #wizcast case."
+}
