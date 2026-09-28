@@ -960,6 +960,115 @@ test('peffect_sleeping follows the C branch and call order', () => {
         /await peffect_sleeping\(otmp, state, env\);\s*break;/u);
 });
 
+test('peffect_gain_energy follows C source order and the POT_GAIN_ENERGY arm',
+    () => {
+        const source = potionSource();
+        const cStart = source.indexOf('peffect_gain_energy(struct obj *otmp)');
+        const cEnd = source.indexOf(
+            '\n}\n\nstaticfn void\npeffect_oil', cStart,
+        );
+        assert.ok(cStart > 0 && cEnd > cStart);
+        const cBody = source.slice(cStart, cEnd).replace(/\s+/gu, ' ');
+        for (const sourceStep of [
+            'You_feel("lackluster.")',
+            'pline("Magical energies course through your body.")',
+            'num = d(otmp->blessed ? 3 : !otmp->cursed ? 2 : 1, 6)',
+            'if (otmp->cursed) num = -num',
+            'u.uenmax += num',
+            'if (u.uenmax > u.uenpeak) u.uenpeak = u.uenmax',
+            'else if (u.uenmax <= 0) u.uenmax = 0',
+            'u.uen += 3 * num',
+            'if (u.uen > u.uenmax) u.uen = u.uenmax',
+            'else if (u.uen <= 0) u.uen = 0',
+            'disp.botl = TRUE',
+            'exercise(A_WIS, TRUE)',
+        ]) assert.ok(cBody.includes(sourceStep), sourceStep);
+        const orderedSourceSteps = [
+            'num = d(', 'if (otmp->cursed) num = -num',
+            'u.uenmax += num', 'if (u.uenmax > u.uenpeak)',
+            'u.uen += 3 * num', 'if (u.uen > u.uenmax)',
+            'disp.botl = TRUE', 'exercise(A_WIS, TRUE)',
+        ];
+        let previous = -1;
+        for (const step of orderedSourceSteps) {
+            const index = cBody.indexOf(step);
+            assert.ok(index > previous, `${step} follows its C predecessor`);
+            previous = index;
+        }
+
+        const cDispatchStart = source.indexOf('peffects(struct obj *otmp)');
+        const cDispatchEnd = source.indexOf('\n}\n\nvoid\nhealup', cDispatchStart);
+        assert.ok(cDispatchStart > 0 && cDispatchEnd > cDispatchStart);
+        const cDispatch = source.slice(cDispatchStart, cDispatchEnd);
+        assert.match(cDispatch,
+            /case POT_GAIN_ENERGY:[\s\S]*?peffect_gain_energy\(otmp\);\s*break;/u);
+
+        const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+        const jsStart = js.indexOf('async function peffect_gain_energy(');
+        const jsEnd = js.indexOf(
+            '\n}\n\n// C ref: potion.c peffect_monster_detection', jsStart,
+        );
+        assert.ok(jsStart > 0 && jsEnd > jsStart);
+        const jsBody = js.slice(jsStart, jsEnd).replace(/\s+/gu, ' ');
+        assert.match(jsBody,
+            /if \(otmp\.cursed\) await ttyPline\('You feel lackluster\.', state\); else await ttyPline\('Magical energies course through your body\.', state\); let amount = d\(otmp\.blessed \? 3 : !otmp\.cursed \? 2 : 1, 6\); if \(otmp\.cursed\) amount = -amount; u\.uenmax \+= amount;/u);
+        const dispatchStart = js.indexOf('export async function peffects(');
+        const energyArm = js.indexOf('case POT_GAIN_ENERGY:', dispatchStart);
+        const oilArm = js.indexOf('case POT_OIL:', energyArm);
+        assert.ok(energyArm > dispatchStart && oilArm > energyArm);
+        assert.match(js.slice(energyArm, oilArm),
+            /await peffect_gain_energy\(otmp, state\);\s*break;/u);
+    });
+
+test('gain-energy potion applies the C BUC dice and energy clamps',
+    async () => {
+        for (const variant of [
+            { name: 'Blessed', seed: 937281001, blessed: true, dice: 3 },
+            { name: 'Uncursed', seed: 937281002, blessed: false, dice: 2 },
+            { name: 'Cursed', seed: 937281003, cursed: true, dice: 1 },
+        ]) {
+            await startedGame(
+                variant.seed, `GainEnergy${variant.name}A37`, 'Wizard',
+            );
+            const potion = vaporPotion(POT_GAIN_ENERGY);
+            potion.blessed = Boolean(variant.blessed);
+            potion.cursed = Boolean(variant.cursed);
+            game.u.uen = 2;
+            game.u.uenmax = 4;
+            game.u.uenpeak = 4;
+            game.u.aexe[A_WIS] = 0;
+            game.disp.botl = false;
+            clearTopline();
+            enableRngLog();
+
+            assert.equal(await peffects(potion, game), -1);
+
+            const draws = getRngLog();
+            assert.equal(draws.length, 2);
+            const dice = /^d\((\d+),6\)=(\d+)$/u.exec(draws[0]);
+            assert.ok(dice, draws[0]);
+            assert.equal(Number(dice[1]), variant.dice);
+            assert.match(draws[1], /^rn2\(19\)=\d+$/u);
+            const rolled = Number(dice[2]);
+            assert.ok(rolled >= variant.dice
+                && rolled <= 6 * variant.dice, draws[0]);
+            const amount = variant.cursed ? -rolled : rolled;
+            const rawMaximum = 4 + amount;
+            const expectedMaximum = rawMaximum <= 0 ? 0 : rawMaximum;
+            const expectedPeak = rawMaximum > 4 ? rawMaximum : 4;
+            const rawCurrent = 2 + 3 * amount;
+            const expectedCurrent = rawCurrent > expectedMaximum
+                ? expectedMaximum : rawCurrent <= 0 ? 0 : rawCurrent;
+            assert.equal(game.u.uenmax, expectedMaximum, variant.name);
+            assert.equal(game.u.uenpeak, expectedPeak, variant.name);
+            assert.equal(game.u.uen, expectedCurrent, variant.name);
+            assert.equal(game.disp.botl, true);
+            assert.equal(toplines(), variant.cursed
+                ? 'You feel lackluster.'
+                : 'Magical energies course through your body.');
+        }
+    });
+
 test('sleeping potion uses the C BUC-scaled duration and timeout state',
     async () => {
         await startedGame(260927361, 'SleepingPotionDuration', 'Wizard');
