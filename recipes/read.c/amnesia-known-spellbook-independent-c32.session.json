@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C32 known-spell amnesia setup: learn a wished force-bolt spellbook before reading an amnesia scroll.",
+  "segments": [
+    {
+      "seed": 32032623,
+      "datetime": "20420306083000",
+      "nethackrc": "OPTIONS=name:C32Known,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017spellbook of healing\nro .\u0017cursed scroll of amnesia\nrp "
+    }
+  ]
+}

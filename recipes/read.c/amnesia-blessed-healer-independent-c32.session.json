@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent read.c:seffect_amnesia recipe for C32; inputs chosen to exercise this branch with a separate setup.",
+  "segments": [
+    {
+      "seed": 32032621,
+      "datetime": "20420304083000",
+      "nethackrc": "OPTIONS=name:C32Blessed,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017blessed scroll of amnesia\nrl "
+    }
+  ]
+}
