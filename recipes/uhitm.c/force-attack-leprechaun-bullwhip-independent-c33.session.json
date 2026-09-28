@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 219201,
+      "datetime": "20330821111600",
+      "nethackrc": "OPTIONS=name:Greenglove,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile leprechaun\naal aal",
+      "comment": "Independent C33 force_attack/hitum witness through production apply.c:use_whip. makemon.c puts leprechauns to sleep, so do_attack is helpless-gated before its rn2(7)/m_move arm in this recipe; it does not establish movement-call coverage."
+    }
+  ]
+}
