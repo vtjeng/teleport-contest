@@ -38,6 +38,7 @@ import {
     mon_has_friends,
     mon_likes_objpile_at,
     use_offensive,
+    use_defensive,
     use_misc,
     mcould_eat_tin,
     searches_for_item,
@@ -381,6 +382,52 @@ test('find_defensive selects a bugle before carried healing', () => {
         kind: 'bugle',
         object: bugle,
     });
+});
+
+test('the defensive bugle caller wakes the soldier group and consumes its turn', async () => {
+    const state = makeSelectionState();
+    const bugle = makeObject(state, BUGLE);
+    const bugler = makeMonster(state, PM_SOLDIER, {
+        mx: 10,
+        my: 10,
+        mhp: 1,
+        mhpmax: 8,
+        minvent: bugle,
+        mux: state.u.ux,
+        muy: state.u.uy,
+        mpeaceful: false,
+        mtame: 0,
+        msleeping: true,
+        mfrozen: 5,
+        mcanmove: false,
+    });
+    const sleeping = makeMonster(state, PM_SOLDIER, {
+        mx: 9,
+        my: 10,
+        mhp: 8,
+        mhpmax: 8,
+        mpeaceful: true,
+        mtame: 0,
+        msleeping: true,
+        mfrozen: 5,
+        mcanmove: false,
+    });
+    bugler.nmon = sleeping;
+    state.level.monlist = bugler;
+    state.level.monsters[bugler.mx][bugler.my] = bugler;
+    state.level.monsters[sleeping.mx][sleeping.my] = sleeping;
+
+    const selection = find_defensive(bugler, false, { state });
+    assert.deepEqual(selection, { kind: 'bugle', object: bugle });
+    assert.equal(await use_defensive(bugler, selection, state), 2);
+    assert.deepEqual(
+        [bugler.mpeaceful, bugler.msleeping, bugler.mfrozen, bugler.mcanmove],
+        [false, 0, 0, 1],
+    );
+    assert.deepEqual(
+        [sleeping.mpeaceful, sleeping.msleeping, sleeping.mfrozen, sleeping.mcanmove],
+        [false, 0, 0, 1],
+    );
 });
 
 test('find_defensive with tryescape skips the distance and health gates', () => {

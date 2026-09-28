@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent witness for the monster MUSE_BUGLE caller. C invokes find_defensive(mtmp, TRUE) from monmove.c:1927 only when mfndpos() returns zero legal moves (monmove.c:1925-1928); the preceding B43 combat recipes leave the bugler with legal moves and never enter that source gate. This input preserves the best source-directed attempt but does not establish runtime evidence for muse.c:use_defensive(MUSE_BUGLE).",
+  "segments": [
+    {
+      "seed": 24983018,
+      "datetime": "20310407143000",
+      "nethackrc": "OPTIONS=name:Alert,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " \u0007sergeant\n\u0007soldier\n#wizwish\namulet of life saving\nPo#wizwish\nwand of sleep\n#wizwish\nwand of striking\nzpuzqy  zqy  zqy"
+    }
+  ]
+}
