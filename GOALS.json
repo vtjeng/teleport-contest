@@ -102229,7 +102229,7 @@
     {
       "id": "port-read-charging-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port charging-scroll effect and its complete recharge source family",
       "cFile": "read.c",
       "sessions": [
@@ -102250,8 +102250,8 @@
           "name": "seffect_charging",
           "line": 1788,
           "endLine": 1829,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -102525,7 +102525,81 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_charging",
+            "implementation": "js/read.js",
+            "symbol": "seffect_charging",
+            "sourceReview": "Compared all of read.c:1788-1827, preserving confusion/BUC ordering, scroll identification and consumption before getobj, and the pointer-to-pointer consumed result used by seffects.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects SCR_CHARGING dispatch"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread -> seffects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/charging-overloaded-wishing-wand-c31-independent.session.json",
+              "recordings/read.c/charging-worn-adornment-ring-c31-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "charging-scroll-recharges-wand",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 35,
+                "source": "read.c:doread -> seffects -> seffect_charging -> recharge"
+              }
+            ],
+            "checkedAt": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73"
+          }
+        ],
+        "entryPointReview": "Whole source functions completed in read.c are cap_spe, charge_ok, recharge, seffect_charging, and wand_explode. stripspe, p_glow2, and p_glow3 are implemented but listed incomplete because this delivery lacks matching C runtime evidence. The ordinary scroll dispatcher reaches seffect_charging via doread/seffects; v9 charging-scroll-recharges-wand and the independent wand/ring recordings cover the ordinary wand and charged-ring paths. The independent overloaded-wishing-wand record reaches recharge -> wand_explode; it does not prove the cursed engraving backfire call. zap.c:maybe_destroy_item calls recharge only for the hero's eligible charged-ring branch; the independent self-lightning replay reaches that path and strictly matches. artifact.c:invoke_charge_obj now calls recharge, but its independent PYEC recipe stops earlier in artifact.c:set_artifact_intrinsic, so artifact invocation has no matching evidence. engrave.c:doengrave_sfx_item's cursed wand gate was reached in the matching normal-engraving recording at recordings/engrave.c/cursed-wand-engraving-normal-c31-independent.session.json, but rn2(WAND_BACKFIRE_CHANCE) was nonzero; four bounded source-reaching attempts drew 33, 2, 76, and 11, and the separate recipes/engrave.c/cursed-wand-backfire-blocked-c31.session.json names the still-uncovered wand_explode engraving entry. The exported do_wear.c:Ring_off wrapper is exercised only for RIN_ADORNMENT in the worn-ring recording; Ring_off_or_gone's levitation and other unsupported effect branches remain gaps. cap_spe is also a caller of read.c:seffect_enchant_weapon and now replaces the duplicate clamp there; A28's independent blessed-enchant recording was rechecked after that change. read.c:seffect_enchant_armor is still an unported JS branch and is not claimed here. The GOALS source range for C31 names seffect_charging only; supporting read.c helpers and other production callers remain in the immutable worker delivery packet and are not claimed complete by this goal record.",
+        "entryPoints": [
+          {
+            "name": "read charging scroll: ordinary wand and charged adornment ring",
+            "functions": [
+              "seffect_charging"
+            ],
+            "recordings": [
+              "recordings/read.c/charging-overloaded-wishing-wand-c31-independent.session.json",
+              "recordings/read.c/charging-worn-adornment-ring-c31-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "charging-scroll-recharges-wand",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 35,
+                "source": "read.c:doread -> seffects -> seffect_charging -> recharge -> p_glow1"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The selected charging-scroll entry and independent wand, worn-ring, self-lightning, and normal engraving C recordings match, but the task also implemented read.c recharge helpers outside this goal range. stripspe, p_glow2, and p_glow3 still lack matching runtime evidence; artifact.c:invoke_charge_obj is blocked by artifact.c:set_artifact_intrinsic display state; cursed-wand engraving backfire needs its source rn2(100)==0 branch; and non-adornment Ring_off effects lack recorded entry evidence. Resume with source-reaching independent C recordings and separate helper source-completion records before closing the whole charging family."
     },
     {
       "id": "port-potion-hallucination-water-synthetic-v9-20260928",
