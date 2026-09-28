@@ -102104,6 +102104,112 @@
           "evaluationCommit": "b3559b21b4087eb86dad1a798fe621067c921f47"
         }
       }
+    },
+    {
+      "id": "port-read-charging-synthetic-v9-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port charging-scroll effect and its complete recharge source family",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/charging-scroll-recharges-wand"
+      ],
+      "selectionReason": "v9 charging-scroll-recharges-wand is the first actionable queue candidate; investigations/synthetic/v9/charging-scroll-recharges-wand.json traces the missing prompt to read.c:seffect_charging and the shared recharge family. Continue related read.c work with worker C after identify.",
+      "detail": "Port seffect_charging, recharge, charge_ok, stripspe and p_glow helpers from read.c; preserve wand, ring and tool branches, source RNG order, caller wiring, and independent entry-point evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_charging",
+          "line": 1788,
+          "endLine": 1829,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1788,
+        "to": 1829
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/charging-scroll-recharges-wand": {
+          "session": "synthetic/v9/charging-scroll-recharges-wand",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "charging-scroll-recharges-wand",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/charging-scroll-recharges-wizard-wand.session.json",
+          "recordingSha256": "7fd5daa16ea94909d338d09598f4c367cc62eef033928f2c82be9b4e935c1c77",
+          "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
+          "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+        }
+      }
+    },
+    {
+      "id": "port-potion-hallucination-water-synthetic-v9-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port hallucination and water potion effects through the quaff dispatcher",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/hallucination-potion-starts-hallucination",
+        "synthetic/v9/blessed-water-potion-awe"
+      ],
+      "selectionReason": "The two unresolved v9 potion cases share adjacent peffects quaff dispatch and potion state helpers; investigations/synthetic/v9/hallucination-potion-starts-hallucination.json and blessed-water-potion-awe.json trace distinct branches in one coherent potion.c family. Assign both to worker B.",
+      "detail": "Port whole potion.c peffect_hallucination and peffect_water bodies in definition order, retain source branch and RNG order, wire POT_HALLUCINATION and POT_WATER dispatch, and record independent BUC/state variants.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_hallucination",
+          "line": 696,
+          "endLine": 716,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "peffect_water",
+          "line": 717,
+          "endLine": 770,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 696,
+        "to": 770
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/hallucination-potion-starts-hallucination": {
+          "session": "synthetic/v9/hallucination-potion-starts-hallucination",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "hallucination-potion-starts-hallucination",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/hallucination-potion-starts-hallucination.session.json",
+          "recordingSha256": "bf7537070332a4ee8a643904f156e48dd0d2848e613b7222eb72bcc43d788761",
+          "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
+          "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+        },
+        "synthetic/v9/blessed-water-potion-awe": {
+          "session": "synthetic/v9/blessed-water-potion-awe",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-water-potion-awe",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/blessed-water-potion-awe.session.json",
+          "recordingSha256": "a15e584bd6b124d04ecea3b33074ba3d02e22f7a94b9a27a6dd6c24d217395f8",
+          "evaluationPath": "challenges/evaluations/20260928040506-v9.json",
+          "evaluationCommit": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+        }
+      }
     }
   ]
 }
