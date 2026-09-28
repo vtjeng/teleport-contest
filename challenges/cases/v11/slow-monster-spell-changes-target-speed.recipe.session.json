@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe for SPE_SLOW_MONSTER against an awake hostile newt. The C map places the target directly south of the hero; #wizcast selects o and j aims at it.",
+  "segments": [
+    {
+      "seed": 71844045,
+      "datetime": "20421215091508",
+      "nethackrc": "OPTIONS=name:V11Explore,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0007hostile newt\n#wizcast\noj"
+    }
+  ]
+}

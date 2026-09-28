@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A42 C-first mission for trap.c:trapeffect_anti_magic's hero branch. A fresh Healer with ordinary magic energy and no antimagical equipment leaves the upstairs square, wishes an anti-magic field onto ordinary floor, steps away, then triggers it. Observe the source energy-drain path and updated Pw status; this is distinct from physical trap impacts or monster-triggered traps. The C terrain-wish name is the cmap explanation `anti-magic field` (defsym.c), not “anti magic trap.”",
+  "segments": [
+    {
+      "seed": 71844113,
+      "datetime": "20421203091508",
+      "nethackrc": "OPTIONS=name:V11Anti,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".h\u0017anti-magic field\nlh. "
+    }
+  ]
+}

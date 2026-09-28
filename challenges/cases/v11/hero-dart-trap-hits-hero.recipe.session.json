@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A42 C-first overlap probe for hero-triggered trap.c:trapeffect_dart_trap. A fresh Wizard with a distinct seed moves off the upstairs tile, places a dart trap on ordinary floor by wish, steps away, then crosses it and dismisses the effect. This is substantively distinct from v10's hostile-newt-triggered arrow trap: the hero is the target and the branch creates a dart, applies hero damage/poison, and may place it on the floor.",
+  "segments": [
+    {
+      "seed": 71844111,
+      "datetime": "20421201091508",
+      "nethackrc": "OPTIONS=name:V11DartHero,role:Wizard,race=human,gender=female,align=neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".h\u0017dart trap\nlh. "
+    }
+  ]
+}

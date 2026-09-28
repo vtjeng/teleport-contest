@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v11 route to the hero branch of trap.c:trapeffect_slp_gas_trap. The source terrain description is `sleeping gas trap`. The wizard dismisses startup, leaves the upstairs square, wishes the trap on ordinary floor, steps off and back onto it, then searches once to show the aftermath.",
+  "segments": [{
+    "seed": 11841017,
+    "datetime": "20410914113227",
+    "nethackrc": "OPTIONS=name:V11Gas,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+    "moves": ".h\u0017sleeping gas trap\nlhs"
+  }]
+}

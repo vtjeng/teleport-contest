@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A42 C-first hostile weapon-pickup attempt: drop a long sword beneath the hero, create a hostile orc to the west, use the nondamaging Slow Monster effect to ensure it wakes or changes speed, then step east so it can pursue across the sword.",
+  "segments": [
+    {
+      "seed": 71844050,
+      "datetime": "20421220091508",
+      "nethackrc": "OPTIONS=name:V11Pickup,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": "h\u0017long sword\ndo\u0007hostile orc\n#wizcast\nohl"
+    }
+  ]
+}

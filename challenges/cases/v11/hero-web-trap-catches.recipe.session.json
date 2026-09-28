@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v11 hero web-trap mission. The Wizard leaves the upstairs tile, wishes a web trap on ordinary floor, returns onto it, and then attempts movement while caught.",
+  "segments": [
+    {
+      "seed": 71844013,
+      "datetime": "20421011091508",
+      "nethackrc": "OPTIONS=name:V11Web,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".h\u0017web trap\nlh."
+    }
+  ]
+}

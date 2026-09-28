@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v11 mission for trap.c:trapeffect_magic_trap -> domagictrap fate<10. The Wizard leaves the upstairs square, wishes a magic trap onto ordinary floor, steps away, and re-enters, observing the hero-arm magic-trap outcome. This differs from the unresolved parked monster-triggered magic-trap arm and from the anti-magic field case: the hero voluntarily steps onto a distinct trap type and C enters domagictrap. Preserve the actual fate and spawned-monster/state trace; compare the complete action/state path with v10 and unresolved older cases before manifest inclusion.",
+  "segments": [
+    {
+      "seed": 71844117,
+      "datetime": "20421205091508",
+      "nethackrc": "OPTIONS=name:V11MagicTrap,role:Wizard,race:human,gender:female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".h\u0017magic trap\nlh"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v11 hero polymorph-trap case. A debug Valkyrie leaves the upstairs tile, wishes a polymorph trap on ordinary floor, steps onto it, and dismisses the effect message to inspect the resulting form.",
+  "segments": [
+    {
+      "seed": 71844018,
+      "datetime": "20421101091508",
+      "nethackrc": "OPTIONS=name:V11PolyAlt,role=Valkyrie,race=human,gender=female,align=lawful,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": " h\u0017polymorph trap\nlh "
+    }
+  ]
+}
