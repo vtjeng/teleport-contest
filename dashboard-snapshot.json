@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T01:12:38.377Z",
+  "capturedAt": "2026-09-28T02:02:35.538Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6367,12 +6367,85 @@
         "type": "accepted",
         "at": "2026-09-28T01:12:09.705Z",
         "task": "A35"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A35-published-c9f71c18",
+        "type": "published",
+        "at": "2026-09-28T01:14:26.073Z",
+        "task": "A35",
+        "commit": "c9f71c18f2b23b955fe49987a70a5b777f6f8a2e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A36-assign-dd245657",
+        "type": "assign",
+        "at": "2026-09-28T01:19:13.799Z",
+        "task": "A36",
+        "worker": "A",
+        "goal": "port-potion-sleeping-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3dce837b0d2af054972b6045aaed7af76a12158f",
+        "type": "ready",
+        "at": "2026-09-28T01:43:41.620Z",
+        "task": "B36",
+        "delivery": "3dce837b0d2af054972b6045aaed7af76a12158f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B36-received-3dce837b",
+        "type": "received",
+        "at": "2026-09-28T01:45:19.262Z",
+        "task": "B36",
+        "delivery": "3dce837b0d2af054972b6045aaed7af76a12158f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B36-integrating-73114755",
+        "type": "integrating",
+        "at": "2026-09-28T01:46:36.947Z",
+        "task": "B36",
+        "integration": "7311475572cdadbc440bcac61cb0f98f42dfd481"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4482da687be65c1eb22e42ba53b554b82a8eaf19",
+        "type": "ready",
+        "at": "2026-09-28T01:51:50.719Z",
+        "task": "C29",
+        "delivery": "4482da687be65c1eb22e42ba53b554b82a8eaf19"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4fc55ed2475ed7ad9d31e536bf6cc7287d2f0e13",
+        "type": "ready",
+        "at": "2026-09-28T01:56:50.357Z",
+        "task": "A36",
+        "delivery": "4fc55ed2475ed7ad9d31e536bf6cc7287d2f0e13"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B36-validated-73114755",
+        "type": "validated",
+        "at": "2026-09-28T02:01:15.046Z",
+        "task": "B36",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B36-accepted-73114755",
+        "type": "accepted",
+        "at": "2026-09-28T02:01:46.546Z",
+        "task": "B36"
       }
     ]
   },
   "development": {
-    "executionCommit": "92337428e67cca2eea46bf6ddbf9f1412851dd43",
-    "measuredAt": "2026-09-28T01:03:21.851Z",
+    "executionCommit": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+    "measuredAt": "2026-09-28T01:53:27.372Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -100221,7 +100221,7 @@
     {
       "id": "port-region-inside-gas-cloud-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port poisonous gas-cloud inside callback for hero and monsters",
       "cFile": "region.c",
       "sessions": [
@@ -100229,17 +100229,24 @@
       ],
       "selectionReason": "At the accepted B35 evaluation, v9/stinking-cloud-scroll-targets-floor matches through step 33 and stops at step 34 on region.c:inside_gas_cloud positive damage; investigation investigations/synthetic/v9/stinking-cloud-scroll-targets-floor.json traces the callback and its consumed return.",
       "detail": "Implement the complete region.c:inside_gas_cloud callback in source order, including fog-cloud TTL, zero-damage early return, hero poison tolerance, eye and lung effects, blindness, wakeup, damage and status, plus monster cough, anger, eye blindness, poison resistance, death and lifesaving. Wire region.c:run_regions callback preflight and consumed monster-death return through js/region.js. Preserve RNG and message order; port return-valued callees the C consumes and name skipped void gaps. Provide independent strict C recordings for active hero and monster entries. The selected v9 case has one remaining screen after B35.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+      "openStanding": {
+        "sha": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "inside_gas_cloud",
           "line": 1091,
           "endLine": 1167,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -100259,6 +100266,104 @@
           "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
           "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
         }
+      },
+      "activeStanding": {
+        "sha": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "inside_gas_cloud",
+            "implementation": "js/region.js",
+            "symbol": "inside_gas_cloud",
+            "sourceReview": "Compared the complete upstream region.c:inside_gas_cloud() body (1091-1165) in C order. It chooses mtmp or &youmonst, extends ttl by five for a fog-cloud occupant while ttl<20, then returns immediately for dam<1. The hero arm checks m_poisongas_ok first; when not blind it pluralizes the correct eye body part, prints the sting message, and calls make_blinded(1,FALSE). Without Poison_resistance it prints the burning-lungs and blood-cough messages, wakes nearby monsters, draws rnd(dam)+5, applies Maybe_Half_Phys, then the damp-towel Half_gas_damage reduction, calls losehp, clears seen poison resistance, and returns false. With Poison_resistance it only coughs, wakes nearby monsters, records seen poison resistance, and returns false. The monster arm checks m_poisongas_ok; for a non-silent monster it coughs only when cansee or distu()<8 (distu is squared Euclidean distance), then wakes nearby monsters. It next applies heros_fault/setmangry, updates mblinded/mcansee for an eyed visible monster, returns on resists_poison, or draws rnd(dam)+5 and subtracts HP. A dead monster goes to killed() for a hero-created cloud or monkilled() otherwise, and the callback returns true only when it remains dead after that void helper (the return is consumed by run_regions to remove the cached monster ID). JavaScript preserves this order and uses the existing source ports for m_poisongas_ok, body_part, makeplural, make_blinded, wake_nearto, losehp, dist2, monster_resists_element, setmangry, killed, and monkilled. The C function's direct damage RNG is exactly one rnd(dam) in the hero vulnerable branch and one rnd(dam) in the non-resistant monster branch; the strict recordings confirm ordering with each helper's draws. The preflight refusal for positive damage was removed. Existing mon.c killed()/monkilled() implementations retain explicit unsupported internal branches; when reached, the void-call adapter records note_unported('mon.c ...') for every state object and invokes any supplied unsupported hook. A focused long-worm witness confirms the named gap is recorded even with an injected state; the ordinary newt death route matches C through killed() and the callback true return. No return from note_unported is used as data.",
+            "callers": [
+              {
+                "path": "js/region.js",
+                "symbol": "run_regions",
+                "source": "region.c:run_regions() (439-454) dispatches the registered inside callback with NULL for the hero and each cached monster pointer; it consumes TRUE to remove a dead monster ID from the region's cache. region.c's callback table maps INSIDE_GAS_CLOUD to inside_gas_cloud()."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurnAfterTimeout",
+                "source": "allmain.c:moveloop_core() calls run_regions() immediately after nh_timeout() on each elapsed turn. The JavaScript production path builds regionEffectEnv() and awaits run_regions() at the corresponding point."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [
+              "recordings/region.c/inside-gas-cloud-hero-independent-b36.session.json",
+              "recordings/region.c/inside-gas-cloud-monster-independent-b36.session.json",
+              "recordings/region.c/inside-gas-cloud-peaceful-monster-independent-b36.session.json",
+              "recordings/region.c/inside-gas-cloud-monster-death-independent-b36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "stinking-cloud-scroll-targets-floor",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "read.c:doread -> seffects(SCR_STINKING_CLOUD) -> read.c:do_stinking_cloud -> region.c:create_gas_cloud/make_gas_cloud -> allmain.c:moveloop_core -> region.c:run_regions -> region.c:inside_gas_cloud hero arm; the full selected 35-boundary C/JS replay now matches through callback completion."
+              }
+            ],
+            "checkedAt": "7311475572cdadbc440bcac61cb0f98f42dfd481"
+          }
+        ],
+        "entryPointReview": "The selected function is a registered region callback, not a direct command handler. region.c:make_gas_cloud installs INSIDE_GAS_CLOUD and allmain.c:moveloop_core dispatches run_regions every elapsed turn. Active gas-cloud producers in the C source include read.c:do_stinking_cloud, fountain.c, trap.c, mkmaze.c, mon.c, zap.c, quest.c, sp_lev.c, and monmove.c; they all reach this one region callback dispatcher. B36 changes no producer; independent read-scroll recordings reach the selected callback and cover the hero and cached-monster states. The v9 case synthetic/v9/stinking-cloud-scroll-targets-floor matches segment 0 steps 0-34 including the hero callback after target confirmation. The independent human Wizard hero recording reaches the sting/damage path; the Orc Wizard troll recordings reach the poison-tolerant hero cough path and monster nonlethal cough/blindness behavior, including the peaceful heros_fault/setmangry branch; the low-HP newt recording reaches killed(), a true callback return, and run_regions' monster-cache removal path. The separate hostile-troll recording covers a non-peaceful monster on the same callback path. No producer-specific B36 claim is made for the other cloud-creation callers because they converge at region.c:run_regions before entering this selected function. The fog-cloud ttl extension is in the source review; it is not a separate command entry point. The existing mon.c kill helpers have source-named void gaps for rare branches; these are recorded through note_unported rather than treated as callback return values. A focused long-worm test reaches and records that boundary, while the standard newt death recording strictly matches the supported kill branch.",
+        "entryPoints": [
+          {
+            "name": "Hero takes a turn inside a positive-damage gas cloud",
+            "functions": [
+              "inside_gas_cloud"
+            ],
+            "recordings": [
+              "recordings/region.c/inside-gas-cloud-hero-independent-b36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "stinking-cloud-scroll-targets-floor",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "read.c scroll dispatch -> do_stinking_cloud -> create_gas_cloud -> run_regions hero callback"
+              }
+            ]
+          },
+          {
+            "name": "Cached monster coughs, is blinded, or becomes angry inside a gas cloud",
+            "functions": [
+              "inside_gas_cloud"
+            ],
+            "recordings": [
+              "recordings/region.c/inside-gas-cloud-monster-independent-b36.session.json",
+              "recordings/region.c/inside-gas-cloud-peaceful-monster-independent-b36.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Cached monster dies in a gas cloud and returns true for cache removal",
+            "functions": [
+              "inside_gas_cloud"
+            ],
+            "recordings": [
+              "recordings/region.c/inside-gas-cloud-monster-death-independent-b36.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
@@ -100364,6 +100469,49 @@
           "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
           "evaluationPath": "challenges/evaluations/20260928010351-v9.json",
           "evaluationCommit": "92337428e67cca2eea46bf6ddbf9f1412851dd43"
+        }
+      }
+    },
+    {
+      "id": "port-dig-occupation-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete dig occupation across lateral and downward source branches",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v9/archeologist-pickaxe-finds-hidden-door"
+      ],
+      "selectionReason": "Current v9 evaluation 20260928015355 leaves one unmatched screen in archeologist-pickaxe-finds-hidden-door. investigations/synthetic/v9/archeologist-pickaxe-finds-hidden-door.json traces the first mismatch to dig.c:dig, where JS skips all lateral occupation progress. The complete dig function and its occupation return are independent of active detection and potion source reservations. Manifest 00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594; C recording challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json sha256 7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5.",
+      "detail": "Translate all of dig.c:dig, including lateral material/secret-door completion and existing downward partial branches, preserving effort, fumbling RNG, occupation return, terrain/vision, shop and trap effects. Wire the existing occupation caller and make independent strict C recordings for active entry points; retain named gaps only for discarded unported callees.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dig",
+          "line": 300,
+          "endLine": 570,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 300,
+        "to": 570
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/archeologist-pickaxe-finds-hidden-door": {
+          "session": "synthetic/v9/archeologist-pickaxe-finds-hidden-door",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "archeologist-pickaxe-finds-hidden-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json",
+          "recordingSha256": "7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5",
+          "evaluationPath": "challenges/evaluations/20260928015355-v9.json",
+          "evaluationCommit": "7311475572cdadbc440bcac61cb0f98f42dfd481"
         }
       }
     }
