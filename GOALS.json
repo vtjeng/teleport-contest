@@ -103120,16 +103120,20 @@
     {
       "id": "port-apply-whistle-family-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port ordinary and magic whistle application with tame-pet relocation",
       "cFile": "apply.c",
       "sessions": [
         "synthetic/v8/magic-whistle-recalls-tame-dog"
       ],
-      "selectionReason": "The current admitted v8 magic-whistle case stops in apply.c:doapply at the missing MAGIC_WHISTLE arm, as traced in investigations/synthetic/v8/magic-whistle-recalls-tame-dog.json. Its source call reaches apply.c:use_magic_whistle then magic_whistled; the adjacent TIN_WHISTLE and EUCALYPTUS_LEAF arms share use_whistle/use_magic_whistle and belong in the same coherent source family. B reserves potion.c and C reserves read.c/recharge, so this apply.c scope is independent.",
+      "selectionReason": "Selected v8 magic-whistle mismatch at apply.c:use_magic_whistle; A39 source-traced whistle-family packet is ready after C32 publication.",
       "detail": "Port complete apply.c:use_whistle, use_magic_whistle, and magic_whistled in source order, with doapply arms for MAGIC_WHISTLE, TIN_WHISTLE, and EUCALYPTUS_LEAF. Preserve cursed and ordinary paths, pet movement and trap/luck/discovery effects, RNG order, messages, and caller state. Trace consumed helper returns to source, and record independent C variations without copying the selected case.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "ca87d1f0d92ceb0c1e0e2bc080974138615565ec",
+      "openStanding": {
+        "sha": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -103137,21 +103141,21 @@
           "name": "use_whistle",
           "line": 476,
           "endLine": 494,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_magic_whistle",
           "line": 495,
           "endLine": 517,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "magic_whistled",
           "line": 518,
           "endLine": 691,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -103172,7 +103176,305 @@
           "evaluationPath": "challenges/evaluations/20260928053730-v8.json",
           "evaluationCommit": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "13d2f95ed43bfcd93ca6f797a74684bdef879ba4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v8",
+          "caseId": "magic-whistle-recalls-tame-dog",
+          "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+          "manifestPath": "challenges/manifests/v8.json",
+          "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+          "recording": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+          "recordingPath": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+          "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+          "recipe": "challenges/cases/v8/magic-whistle-recalls-tame-dog.recipe.session.json",
+          "recipeSha256": "d98f467f09db33d09f62c318cda76b6ed9c93a94249c3f1e1584ad7d7c671d4f",
+          "replayInputSha256": "0638e9a4c84c940d5d6a8178c4a5268f84056ace66ecab23134b1761cc7c463b",
+          "evaluationPath": "challenges/evaluations/20260928075052-v8.json",
+          "evaluationCommit": "61db2f29db823f3a5d87886797e12fa604d89a2e",
+          "evaluationArtifact": "challenges/evaluations/20260928075052-v8.json",
+          "evaluationUtc": "2026-09-28T07:51:25.426Z",
+          "remainingScreens": 1,
+          "recordedSteps": 29,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2486,
+              "total": 2524
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v8/magic-whistle-recalls-tame-dog.json",
+            "result": {
+              "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+              "corpus": "synthetic",
+              "batch": "v8",
+              "caseId": "magic-whistle-recalls-tame-dog",
+              "manifestPath": "challenges/manifests/v8.json",
+              "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+              "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+              "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+              "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "remainingScreens": 1,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v8",
+                "caseId": "magic-whistle-recalls-tame-dog",
+                "session": "synthetic/v8/magic-whistle-recalls-tame-dog",
+                "manifestPath": "challenges/manifests/v8.json",
+                "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+                "recording": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+                "recordingPath": "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+                "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+                "recipe": "challenges/cases/v8/magic-whistle-recalls-tame-dog.recipe.session.json",
+                "recipeSha256": "d98f467f09db33d09f62c318cda76b6ed9c93a94249c3f1e1584ad7d7c671d4f",
+                "replayInputSha256": "f12aaa199382908484612c7c8d311b333eb8a8d5cb1f2a5aba58e1ae8afc64b3",
+                "evaluationPath": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationCommit": "c54c2c13ca30ebad8411cbcd4b7dcd3e193fbddc",
+                "evaluationArtifact": "challenges/evaluations/20260927142534-v8.json",
+                "evaluationUtc": "2026-09-27T14:26:06.427Z",
+                "remainingScreens": 1,
+                "recordedSteps": 29,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 2486,
+                    "total": 2524
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 246",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a magic whistle with a tame dog reaches apply.c:use_magic_whistle and its magic_whistled pet-relocation loop. JavaScript doapply lacks the MAGIC_WHISTLE arm and refuses before the source-ordered teleport.c:collect_coords draws. Port the complete magic-whistle family and both doapply instrument paths; preserve the distinction between ordinary and cursed magic outcomes.",
+              "source": {
+                "file": "apply.c",
+                "branch": "doapply selects MAGIC_WHISTLE and calls use_magic_whistle. With a noncursed whistle and a hero who can blow, it prints the strange whistle line and calls magic_whistled; each live tame non-steed monster can be moved beside the hero through mnexto and observed or discovered depending on prior visibility. Cursed whistles can instead hum, wake nearby monsters, and conditionally teleport a pet.",
+                "functions": [
+                  "use_magic_whistle",
+                  "magic_whistled"
+                ],
+                "callers": [
+                  "C apply.c:doapply MAGIC_WHISTLE arm calls use_magic_whistle; its blessed EUCALYPTUS_LEAF arm also calls that function before a possible blessing wear-off draw. JS js/apply.js:doapply currently lacks the MAGIC_WHISTLE arm and raises UnsupportedApplyError."
+                ],
+                "dependencies": [
+                  "C muse.c:can_blow is a consumed boolean and JS counterpart exists; C teleport.c:noteleport_level and mon.c:mnexto/enexto/teleport.c:collect_coords are active on cursed and ordinary routes. JS mnexto currently has an ignored _rlocflags parameter, so verify its RLOC_MSG/RLOC_NONE behavior and relocation messages against the source.",
+                  "The magic_whistled loop consumes trap.c:mintrap result after relocation; JS mintrap is present but may refuse unported trap effects. Keep its active return branches and luck/message ordering.",
+                  "Soundeffect is silent under the recorder nosound backend. C discover_object via makeknown occurs only after visible pet relocation on a previously unknown whistle; preserve that state transition."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927142534-v8.json leaves one of 29 screens unmatched. A fresh scan at f2d05fac73e9e9f9294c78d98ac3508ee1b846ba stops at segment 0 step 28 with UnsupportedApplyError for doapply object type 246.",
+                "The independent C recording challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json shows step 28 printing \"You produce a strange whistling sound.\" and consuming a collect_coords draw sequence from teleport.c while recalling the tame dog. JS never enters the whistle function.",
+                "Upstream nethack-c/upstream/src/apply.c:use_magic_whistle around lines 495-520 owns the cursed/ordinary decision, and magic_whistled around lines 523-689 owns tame-monster relocation, trap, discovery, and cumulative messages. doapply at line 4304 is the selected caller; JavaScript needs the whole family rather than a whistle line or injected RNG calls.",
+                "The first C RNG label collect_coords is downstream of apply.c:magic_whistled -> mon.c:mnexto, not the missing dispatcher owner. Source callers and relocation-state conditions distinguish this from earlier cases that happen to call collect_coords."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_whistle",
+            "implementation": "js/apply.js",
+            "symbol": "use_whistle",
+            "sourceReview": "Ported all of apply.c:use_whistle() (476-491) in C order: can_blow guard, Underwater bubble message and early exit, Deaf/non-Deaf output, TTY Soundeffect no-op, wake_nearby(TRUE), then the discarded-void vault_summon_gd() call represented by note_unported('vault.c vault_summon_gd'). The production doapply() arms call it for TIN_WHISTLE and unblessed EUCALYPTUS_LEAF. The canonical pure can_blow() port is in js/mondata.js; its silent/buzzing anatomy conjunction, eel exception, and hero Strangled check are pinned by scripts/mondata-pure.test.mjs. The tin-whistle recording proves the ordinary production arm; unblessed-leaf and cursed-vault-summon caller variations remain without matching runtime evidence.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() dispatches TIN_WHISTLE and, for an unblessed EUCALYPTUS_LEAF, calls use_whistle()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-whistle.test.mjs",
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/tin-whistle-ordinary-independent.session.json"
+            ],
+            "checkedAt": "ec683b5eb18005fc4ae8e8845d8a1ad7f9058636"
+          },
+          {
+            "name": "use_magic_whistle",
+            "implementation": "js/apply.js",
+            "symbol": "use_magic_whistle",
+            "sourceReview": "Ported all of apply.c:use_magic_whistle() (493-516): can_blow refusal; cursed rn2(2) vibration selection; vibration text; wake_nearby(TRUE); source-ordered second rn2(2), noteleport_level guard, then tele_to_rnd_pet(); and the normal whistle text, Soundeffect no-op, and magic_whistled() call. The caller is js/apply.js:doapply() for MAGIC_WHISTLE and blessed EUCALYPTUS_LEAF. Also ported the consumed helper teleport.c:tele_to_rnd_pet() (814-838) into js/teleport.js: it uses reservoir sampling across living tame on-map monsters, C's dist2>2 m_next2u condition, two adjacent-square draws, teleok(), and teleds(). Its no-teleport path retains the discarded impossible() gap with note_unported('pline.c impossible'). The selected v8 case and independent ordinary, cursed-non-vibration, and blessed-leaf recordings reach the normal effect arm. The one bounded cursed-branch attempt took rn2(2)=1 at apply.c:499, so the vibration-to-tele_to_rnd_pet call remains uncovered; see the blocked recipe and entryPointReview.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() calls use_magic_whistle() for MAGIC_WHISTLE and for a blessed EUCALYPTUS_LEAF before its rn2(49) blessing roll."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-whistle.test.mjs",
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/magic-whistle-dog-independent.session.json",
+              "recordings/apply.c/magic-whistle-cursed-dog-independent.session.json",
+              "recordings/apply.c/blessed-eucalyptus-leaf-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "magic-whistle-recalls-tame-dog",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "apply.c:doapply(MAGIC_WHISTLE) -> use_magic_whistle"
+              }
+            ],
+            "checkedAt": "ec683b5eb18005fc4ae8e8845d8a1ad7f9058636"
+          }
+        ],
+        "entryPointReview": "The formal A39 source range is exactly apply.c:use_whistle(), use_magic_whistle(), and magic_whistled(); doapply() is a supporting caller, not a fourth completed source unit. The selected admitted v8 range, magic-whistle-recalls-tame-dog segment 0 steps 0-28, reaches doapply(MAGIC_WHISTLE) -> use_magic_whistle() -> magic_whistled(). Independent strict recordings cover TIN_WHISTLE ordinary, MAGIC_WHISTLE ordinary relocation, cursed MAGIC_WHISTLE's non-vibration arm, and blessed EUCALYPTUS_LEAF through its post-effect rn2(49)=18 roll. Supporting pure mondata.c:can_blow() was moved to js/mondata.js and checked against silent/buzzing, anatomy, eel, and hero-Strangled source values; active apply.c, music.c, and muse.c callers use the same helper. Supporting teleport.c:tele_to_rnd_pet() is implemented in js/teleport.js but lacks a matching recording: the single distinct-seed cursed variation in recipes/apply.c/cursed-whistle-vibration-branch-unreached.session.json recorded rn2(2)=1 at apply.c:499 and took the ordinary magic-whistle branch. The separate blessed-leaf recording reached doapply(EUCALYPTUS_LEAF) and its post-effect rn2(49)=18, but did not take the rare zero-result glow/unbless sub-branch. The unblessed EUCALYPTUS_LEAF caller arm has no independent runtime witness in this bounded window. C-discarded void helpers remain exact gaps: apply.c:use_whistle() notes vault.c:vault_summon_gd(), and apply.c:magic_whistled() clears mtrapped then notes trap.c:fill_pit(). For relocated pets that land on an active trap, the consumed mintrap() return remains uncovered; the committed blocked recipe names trap.c:mintrap(). Do not count those blocked paths as complete entry evidence.",
+        "entryPoints": [
+          {
+            "name": "TIN_WHISTLE ordinary apply",
+            "functions": [
+              "use_whistle"
+            ],
+            "recordings": [
+              "recordings/apply.c/tin-whistle-ordinary-independent.session.json"
+            ]
+          },
+          {
+            "name": "MAGIC_WHISTLE ordinary pet relocation",
+            "functions": [
+              "use_magic_whistle",
+              "magic_whistled"
+            ],
+            "recordings": [
+              "recordings/apply.c/magic-whistle-dog-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "magic-whistle-recalls-tame-dog",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "apply.c:doapply(MAGIC_WHISTLE) -> use_magic_whistle() -> magic_whistled()"
+              }
+            ]
+          },
+          {
+            "name": "Cursed MAGIC_WHISTLE non-vibration branch",
+            "functions": [
+              "use_magic_whistle",
+              "magic_whistled"
+            ],
+            "recordings": [
+              "recordings/apply.c/magic-whistle-cursed-dog-independent.session.json"
+            ]
+          },
+          {
+            "name": "Blessed EUCALYPTUS_LEAF apply and whistle effect",
+            "functions": [
+              "use_magic_whistle",
+              "magic_whistled"
+            ],
+            "recordings": [
+              "recordings/apply.c/blessed-eucalyptus-leaf-independent.session.json"
+            ]
+          },
+          {
+            "name": "Cursed MAGIC_WHISTLE vibration and pet teleport",
+            "functions": [
+              "use_magic_whistle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Unblessed EUCALYPTUS_LEAF apply",
+            "functions": [
+              "use_whistle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Relocated tame pet lands on an active trap",
+            "functions": [
+              "magic_whistled"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "711422bb31ddb697934196d4a58eb7fb00db8ce5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Selected v8 whistle case and four independent C recordings match, and use_whistle/use_magic_whistle are verified. magic_whistled still consumes trap.c:mintrap return on relocated pets landing on traps; current mintrap refuses active effects. Cursed vibration/teleport.c:tele_to_rnd_pet and unblessed EUCALYPTUS_LEAF lack matching entry-point recordings; the bounded cursed seed took the ordinary branch. Resume when independent C recordings reach those states and trap.c:mintrap supports its consumed return, preserving source-ordered effects."
     },
     {
       "id": "port-potion-restore-ability-synthetic-v9-20260928",
@@ -103888,6 +104190,99 @@
           "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
           "evaluationPath": "challenges/evaluations/20260928075052-v8.json",
           "evaluationCommit": "61db2f29db823f3a5d87886797e12fa604d89a2e"
+        }
+      }
+    },
+    {
+      "id": "port-mon-xkilled-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port mon.c xkilled and its explosion kill caller across source-defined monster death outcomes",
+      "cFile": "mon.c",
+      "sessions": [
+        "synthetic/v10/blessed-fire-scroll-centered-explosion"
+      ],
+      "selectionReason": "The highest-count unreserved v10 mismatch is synthetic/v10/blessed-fire-scroll-centered-explosion (manifest challenges/manifests/v10.json SHA-256 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recording challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json SHA-256 9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc; evaluation challenges/evaluations/20260928083103-v10.json). The complete investigation at investigations/synthetic/v10/blessed-fire-scroll-centered-explosion.json traces the blessed scroll through read.c:seffect_fire and explode.c:explode to mon.c:xkilled; its JavaScript caller currently throws on an injected unsupported operation. Worker B owns read.c create-monster paths, while this task owns mon.c kill processing and the explosion caller contract.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "xkilled",
+          "line": 3477,
+          "endLine": 3747,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3477,
+        "to": 3747
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/blessed-fire-scroll-centered-explosion": {
+          "session": "synthetic/v10/blessed-fire-scroll-centered-explosion",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "blessed-fire-scroll-centered-explosion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+          "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+          "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+          "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
+        }
+      }
+    },
+    {
+      "id": "port-uhitm-force-do-attack-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port uhitm.c force_attack and do_attack through source-defined human and polymorphed combat paths",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v10/bullwhip-lashes-unarmed-soldier"
+      ],
+      "selectionReason": "The second highest-count unreserved v10 mismatch is synthetic/v10/bullwhip-lashes-unarmed-soldier (manifest challenges/manifests/v10.json SHA-256 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recording challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json SHA-256 7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7; evaluation challenges/evaluations/20260928083103-v10.json). Investigation investigations/synthetic/v10/bullwhip-lashes-unarmed-soldier.json traces apply.c:use_whip through force_attack and do_attack and the eager injected-operation refusal. Worker A owns mon.c:xkilled; this uhitm.c task may use that shared kill dependency after its integration but owns the attack path and apply caller contract.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "force_attack",
+          "line": 432,
+          "endLine": 447,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "do_attack",
+          "line": 448,
+          "endLine": 586,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 432,
+        "to": 586
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/bullwhip-lashes-unarmed-soldier": {
+          "session": "synthetic/v10/bullwhip-lashes-unarmed-soldier",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bullwhip-lashes-unarmed-soldier",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+          "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
+          "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+          "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
         }
       }
     }

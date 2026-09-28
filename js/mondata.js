@@ -808,6 +808,23 @@ export function passes_bars(species) {
         || metallivorous(species) || (slithy(species) && !bigmonst(species));
 }
 
+// C ref: mondata.c can_blow() (567-579). A silent/buzzing creature needs
+// breath, a head, and enough size to use a whistle; the hero also cannot blow
+// while the STRANGLED intrinsic is active.
+export function can_blow(monster, state = game) {
+    const species = monster?.data;
+    if ((is_silent(species) || species?.msound === MS_BUZZ)
+        && (breathless(species) || verysmall(species) || !has_head(species)
+            || species?.mlet === M.S_EEL)) {
+        return false;
+    }
+    if (monster === state.youmonst
+        && Boolean(state.u?.uprops?.[STRANGLED]?.intrinsic)) {
+        return false;
+    }
+    return true;
+}
+
 // C ref: mondata.c sticks(). A wrapping attack sticks unless it is the
 // engulfing form; explicit sticky damage and hug attacks always do.
 export function sticks(species) {
@@ -1514,13 +1531,11 @@ export function dead_species(m_idx, egg = false, env = {}) {
 //   Resists_Elem            already ported above as monster_resists_element
 //   defended, resists_drli  retain source branches used by other effects
 //   pronoun_gender          calls rn2()
-//   pronoun_gender          calls rn2()
 //   set_mon_data, give_u_to_m_resistances, mon_learns_traps, mons_see_trap,
 //   monstseesu             change monster or hero state.  monstunseesu() is
 //                           ported below rather than here, because it does
 //                           change monster state; setworn() calls it.
-//   can_blow               its hero branch reads Strangled, which callers
-//                           of the port do not exercise yet
+//   (no deferred pure functions in this range)
 
 // C ref: mondata.c can_be_strangled() (591-619). Strangulation is loss of
 // blood flow to the brain from neck constriction: headless creatures are immune

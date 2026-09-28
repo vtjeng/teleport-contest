@@ -1,0 +1,1052 @@
+{
+  "version": 1,
+  "batch": "v10",
+  "priorComparisonSet": {
+    "precedingBatch": {
+      "batch": "v9",
+      "manifest": "challenges/manifests/v9.json",
+      "manifestSha256": "aed1179bbc469c46829606c433f0ca053549a889636f381cd1f3c6fd20324cf1",
+      "evaluation": "challenges/evaluations/20260927230232-v9.json",
+      "evaluationSha256": "31aa609341e4a7b4398b8ba58631212db4944ce836f693c31c68fb5efed5012e",
+      "caseCount": 35,
+      "allCaseIds": [
+        "earth-scroll-blessed-boulder-fall",
+        "charging-scroll-recharges-wand",
+        "genocide-scroll-selects-species",
+        "light-scroll-illuminates-room",
+        "punishment-scroll-adds-ball-chain",
+        "stinking-cloud-scroll-targets-floor",
+        "cursed-teleport-scroll-level-teleport",
+        "gold-detection-scroll-maps-floor-gold",
+        "food-detection-scroll-smells-ration",
+        "blessed-identify-scroll-identifies-pack",
+        "blessed-gain-ability-potion",
+        "speed-potion-grants-intrinsic",
+        "healing-potion-restores-hit-points",
+        "booze-potion-confuses-and-feeds",
+        "acid-potion-quaff-damages-hero",
+        "blessed-water-potion-awe",
+        "marker-engraves-custom-text",
+        "oil-lamp-ignites",
+        "kick-closed-door",
+        "eat-lichen-corpse-nutrition",
+        "archeologist-pickaxe-finds-hidden-door",
+        "read-amnesia-forgets-known-spells",
+        "gain-energy-potion-restores-energy",
+        "paralysis-potion-freezes-hero",
+        "hallucination-potion-starts-hallucination",
+        "magic-mapping-scroll-reveals-map",
+        "blindness-potion-blinds-hero",
+        "sleeping-potion-falls-asleep",
+        "sickness-potion-poisons-hero",
+        "restore-ability-potion-recovers-stats",
+        "zap-sleep-wand-at-hostile-newt",
+        "apply-blessed-horn-clears-timed-blindness",
+        "rogue-throws-dagger-into-wall",
+        "valkyrie-opens-spinach-tin-with-tin-opener",
+        "fire-wand-self-zap-burns-hero"
+      ],
+      "unresolvedCaseIds": [
+        "charging-scroll-recharges-wand",
+        "stinking-cloud-scroll-targets-floor",
+        "gold-detection-scroll-maps-floor-gold",
+        "food-detection-scroll-smells-ration",
+        "blessed-identify-scroll-identifies-pack",
+        "blessed-water-potion-awe",
+        "kick-closed-door",
+        "archeologist-pickaxe-finds-hidden-door",
+        "read-amnesia-forgets-known-spells",
+        "gain-energy-potion-restores-energy",
+        "hallucination-potion-starts-hallucination",
+        "sleeping-potion-falls-asleep",
+        "restore-ability-potion-recovers-stats"
+      ]
+    },
+    "unresolvedOlderBatches": [
+      {
+        "batch": "v8",
+        "manifest": "challenges/manifests/v8.json",
+        "manifestSha256": "f6dca0ef2f7368fa7f1a60feac9be66fb73c3d745643174f1331907c5a5aadfc",
+        "evaluation": "challenges/evaluations/20260927230232-v8.json",
+        "evaluationSha256": "bf3e67868f74fa19d03a4d6a9320a7931a4a47d560d7ab035bd6e09b3651d406",
+        "caseCount": 21,
+        "unresolvedCaseIds": [
+          "magic-whistle-recalls-tame-dog",
+          "read-fire-scroll-effect-setup-miss-attempt1",
+          "read-confuse-monster-scroll",
+          "read-create-monster-scroll-no-prior-monsters",
+          "read-cursed-destroy-armor-scroll"
+        ]
+      }
+    ],
+    "resolvedOlderBatches": "v1-v7 have zero unresolved sessions in the current B34 evaluations; their resolved-case history and any noted closest cases remain in missionPlan.",
+    "comparedCaseCountPerV10Case": 40,
+    "comparisonRule": "All 35 v9 manifest cases plus all 5 currently unresolved v8 cases; reached C behavior, state, and action history are compared per case. Every v10 pair is also audited."
+  },
+  "countedDistinctFirstMismatchCount": 12,
+  "cases": [
+    {
+      "id": "apply-breaks-exhausted-wand-of-nothing",
+      "title": "Apply Breaks Exhausted Wand Of Nothing",
+      "mission": "Source: apply.c:doapply -> do_break_wand -> zappable(WAN_NOTHING). Setup: Human Barbarian on D:1 has the wished ebony wand of nothing with zero charges; wizard menu offers use/apply and break confirmation. Action history: Dismiss startup; wish an ebony wand of nothing; apply it; confirm breaking the wand. C observation: C’s positive zappable() call returns through the WAN_NOTHING behavior at zero-based step 27: rn2(121)=25 at zap.c:zappable(2516), then “Raising your ebony wand high above your head, you break it in two!” First local mismatch at zero-based step 27: zap.c:zappable (zap.c:zappable WAN_NOTHING positive-branch contract).",
+      "selectionRationale": "This v10 C observation reaches apply.c:doapply -> do_break_wand -> zappable(WAN_NOTHING) at zero-based step 27: C’s positive zappable() call returns through the WAN_NOTHING behavior at zero-based step 27: rn2(121)=25 at zap.c:zappable(2516), then “Raising your ebony wand high above your head, you break it in two!” State: Human Barbarian on D:1 has the wished ebony wand of nothing with zero charges; wizard menu offers use/apply and break confirmation. Action history: Dismiss startup; wish an ebony wand of nothing; apply it; confirm breaking the wand. Prior v9/fire-wand-self-zap-burns-hero is Fire wand hits the hero and burns the cloak; its C mission is: Source: nethack-c/upstream/src/zap.c:dobuzz -> u_at -> zhitu(ZT_FIRE) -> nethack-c/upstream/src/trap.c:burnarmor. Setup: Debug Wizard wears the starting CLOAK_OF_MAGIC_RESISTANCE and wishes an uncursed wand of fire; no monster is created or allowed to act. The carried wand is used with self-target direction `.`. Action history: Dismiss the initial pager, wish the uncursed fire wand, then issue zap and select self as the direction. C observation: C says “You've set yourself afire!  Your cloak smoulders!” after the self-targeted fire ray reaches the hero; the strict replay matches 2,320 RNG calls and 19 screens/cursors. The complete local C/JavaScript differential matches. Its source owner is nethack-c/upstream/src/zap.c:dobuzz, nethack-c/upstream/src/trap.c:burnarmor and it has no recorded JS mismatch. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. This v10 C observation reaches apply.c:doapply -> do_break_wand -> zappable(WAN_NOTHING) at zero-based step 27: C’s positive zappable() call returns through the WAN_NOTHING behavior at zero-based step 27: rn2(121)=25 at zap.c:zappable(2516), then “Raising your ebony wand high above your head, you break it in two!” State: Human Barbarian on D:1 has the wished ebony wand of nothing with zero charges; wizard menu offers use/apply and break confirmation. Action history: Dismiss startup; wish an ebony wand of nothing; apply it; confirm breaking the wand. Prior v8/magic-whistle-recalls-tame-dog is Use a magic whistle with a tame dog; its C mission is: Source: nethack-c/upstream/src/apply.c:use_magic_whistle -> nethack-c/upstream/src/teleport.c:magic_whistled -> nethack-c/upstream/src/teleport.c:collect_coords. Setup: Wizard debug hero has a tame dog and uncursed magic whistle. Action history: Apply the whistle after the dog moves away. C observation: C reaches collect_coords at step 29 and exercises same-level pet recall. Its source owner is nethack-c/upstream/src/apply.c:use_magic_whistle, nethack-c/upstream/src/teleport.c:magic_whistled, nethack-c/upstream/src/teleport.c:collect_coords and it has first JS stop {\"kind\":\"rng\",\"step\":29,\"source\":\"teleport.c:collect_coords\",\"bucket\":\"teleport.c:collect_coords\",\"counted\":true}. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply"
+      ],
+      "cOutcome": "C’s positive zappable() call returns through the WAN_NOTHING behavior at zero-based step 27: rn2(121)=25 at zap.c:zappable(2516), then “Raising your ebony wand high above your head, you break it in two!”",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 27,
+        "source": "zap.c:zappable",
+        "bucket": "zap.c:zappable WAN_NOTHING positive-branch contract",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/apply-breaks-exhausted-wand-of-nothing.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/fire-wand-self-zap-burns-hero",
+        "v8/magic-whistle-recalls-tame-dog"
+      ],
+      "inputs": {
+        "seed": 71035042,
+        "datetime": "20281027114320",
+        "role": "Barbarian",
+        "keyCount": 27,
+        "boundaries": 28
+      },
+      "recipe": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.recipe.session.json",
+      "recipeSha256": "5fdf51caadc6688e0962eb5f834bb7699f0bd6b3d4e61d7511b7578de1987299",
+      "recording": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+      "recordingSha256": "5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.recipe.session.json\",\".cache/C28-rerecords/apply-breaks-exhausted-wand-of-nothing.session.json\"]; exit 0; byte-identical SHA-256 5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90; 28 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/apply-breaks-exhausted-wand-of-nothing.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 27,
+          "source": "zap.c:zappable",
+          "bucket": "zap.c:zappable WAN_NOTHING positive-branch contract",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/apply-breaks-exhausted-wand-of-nothing.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/apply-breaks-exhausted-wand-of-nothing.log"
+      }
+    },
+    {
+      "id": "apply-flips-through-blank-spellbook",
+      "title": "Apply Flips Through Blank Spellbook",
+      "mission": "Source: apply.c:doapply -> flip_through_book() SPE_BLANK_PAPER arm. Setup: Human Wizard on D:1 with a wished plain spellbook of blank paper; no pages or spells are present. Action history: Dismiss startup; wish a blank spellbook; apply inventory item o; dismiss the flip-through pager. C observation: C apply.c:doapply selects flip_through_book for SPE_BLANK_PAPER. At step 29 it prints “You flip through the pages of the plain spellbook”; at step 30 it says “This spellbook has nothing written in it.” First local mismatch at zero-based step 30: attrib.c:exercise (attrib.c:exercise shared helper).",
+      "selectionRationale": "This v10 C observation reaches apply.c:doapply -> flip_through_book() SPE_BLANK_PAPER arm at zero-based step 30: C apply.c:doapply selects flip_through_book for SPE_BLANK_PAPER. At step 29 it prints “You flip through the pages of the plain spellbook”; at step 30 it says “This spellbook has nothing written in it.” State: Human Wizard on D:1 with a wished plain spellbook of blank paper; no pages or spells are present. Action history: Dismiss startup; wish a blank spellbook; apply inventory item o; dismiss the flip-through pager. Prior v9/marker-engraves-custom-text is Magic marker writes custom floor text; its C mission is: Source: nethack-c/upstream/src/engrave.c:doengrave. Setup: Debug Wizard wishes a magic marker and writes on the stairs where the generated starting hero is located. Action history: Dismiss the marker use message, then type the independent text “marker” and finish the line. C observation: You scribble on the stairs with a magic marker. The complete local C/JavaScript differential matches. Its source owner is nethack-c/upstream/src/engrave.c:doengrave and it has no recorded JS mismatch. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. This v10 C observation reaches apply.c:doapply -> flip_through_book() SPE_BLANK_PAPER arm at zero-based step 30: C apply.c:doapply selects flip_through_book for SPE_BLANK_PAPER. At step 29 it prints “You flip through the pages of the plain spellbook”; at step 30 it says “This spellbook has nothing written in it.” State: Human Wizard on D:1 with a wished plain spellbook of blank paper; no pages or spells are present. Action history: Dismiss startup; wish a blank spellbook; apply inventory item o; dismiss the flip-through pager. Prior v8/magic-whistle-recalls-tame-dog is Use a magic whistle with a tame dog; its C mission is: Source: nethack-c/upstream/src/apply.c:use_magic_whistle -> nethack-c/upstream/src/teleport.c:magic_whistled -> nethack-c/upstream/src/teleport.c:collect_coords. Setup: Wizard debug hero has a tame dog and uncursed magic whistle. Action history: Apply the whistle after the dog moves away. C observation: C reaches collect_coords at step 29 and exercises same-level pet recall. Its source owner is nethack-c/upstream/src/apply.c:use_magic_whistle, nethack-c/upstream/src/teleport.c:magic_whistled, nethack-c/upstream/src/teleport.c:collect_coords and it has first JS stop {\"kind\":\"rng\",\"step\":29,\"source\":\"teleport.c:collect_coords\",\"bucket\":\"teleport.c:collect_coords\",\"counted\":true}. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply"
+      ],
+      "cOutcome": "C apply.c:doapply selects flip_through_book for SPE_BLANK_PAPER. At step 29 it prints “You flip through the pages of the plain spellbook”; at step 30 it says “This spellbook has nothing written in it.”",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 30,
+        "source": "attrib.c:exercise",
+        "bucket": "attrib.c:exercise shared helper",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/apply-flips-through-blank-spellbook.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/marker-engraves-custom-text",
+        "v8/magic-whistle-recalls-tame-dog"
+      ],
+      "inputs": {
+        "seed": 71035024,
+        "datetime": "20281027111526",
+        "role": "Wizard",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v10/apply-flips-through-blank-spellbook.recipe.session.json",
+      "recipeSha256": "782faf86bbe11596ef057aa18c5e9cbf6f6b28eb27c14c4b3c477144032fdfd7",
+      "recording": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+      "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/apply-flips-through-blank-spellbook.recipe.session.json\",\".cache/C28-rerecords/apply-flips-through-blank-spellbook.session.json\"]; exit 0; byte-identical SHA-256 68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9; 31 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/apply-flips-through-blank-spellbook.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 30,
+          "source": "attrib.c:exercise",
+          "bucket": "attrib.c:exercise shared helper",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/apply-flips-through-blank-spellbook.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/apply-flips-through-blank-spellbook.log"
+      }
+    },
+    {
+      "id": "apply-neutral-grimtooth-touches-artifact",
+      "title": "Applying Grimtooth reaches artifact touch restrictions",
+      "mission": "Source: apply.c:doapply -> artifact.c:retouch_object -> touch_artifact. Setup: Neutral female human Wizard on D:1 carries wished chaotic Grimtooth (a poisoned crude dagger); the artifact is non-self-willed; no time-advancing action occurs between wishing it and application. Action history: Dismiss welcome; Ctrl-W wish Grimtooth; select apply, open the category menu, select actual inventory letter o. C observation: The selected Grimtooth reaches touch_artifact before the apply type switch; C draws rn2(4)=1 at artifact.c:945, so the bad-alignment roll does not blast the hero and doapply reaches its default message “Sorry, I don't know how to use that.” First local mismatch at zero-based step 15: apply.c:doapply -> artifact.c:retouch_object -> touch_artifact (artifact.c:touch_artifact aligned-restriction roll during application).",
+      "selectionRationale": "The v9 case zaps a wand through the ray/self-zap path; this applies a carried artifact and reaches retouch_object/touch_artifact before the apply switch. Both begin with apply, but this branch resolves artifact restrictions and a bad-alignment roll; the marker enters do_write/engraving and consumes text input. Both use an applied tool, but the v8 case enters whistle/teleport pet recall; this enters artifact touch and its alignment test. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply",
+        "nethack-c/upstream/src/artifact.c:retouch_object"
+      ],
+      "cOutcome": "The selected Grimtooth reaches touch_artifact before the apply type switch; C draws rn2(4)=1 at artifact.c:945, so the bad-alignment roll does not blast the hero and doapply reaches its default message “Sorry, I don't know how to use that.”",
+      "firstMismatch": {
+        "kind": "rng+screen",
+        "step": 15,
+        "source": "apply.c:doapply -> artifact.c:retouch_object -> touch_artifact",
+        "bucket": "artifact.c:touch_artifact aligned-restriction roll during application",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/apply-neutral-grimtooth-touches-artifact.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/fire-wand-self-zap-burns-hero",
+        "v9/marker-engraves-custom-text",
+        "v8/magic-whistle-recalls-tame-dog"
+      ],
+      "inputs": {
+        "seed": 86290183,
+        "datetime": "20411007111500",
+        "role": "Wizard",
+        "keyCount": 15,
+        "boundaries": 16
+      },
+      "recipe": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.recipe.session.json",
+      "recipeSha256": "e0d47ae954ca33dca1a1f9af37a651d6c6105a2d6e41f1038b594d9f68db7c90",
+      "recording": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+      "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/record-session.mjs\",\".cache/C28-artifact-touch.recipe.session.json\",\".cache/C28-artifact-touch-rerecord.session.json\"]; exit 0; byte-identical SHA-256 9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3; 16 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/apply-neutral-grimtooth-touches-artifact.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng+screen",
+          "step": 15,
+          "source": "apply.c:doapply -> artifact.c:retouch_object -> touch_artifact",
+          "bucket": "artifact.c:touch_artifact aligned-restriction roll during application",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/apply-neutral-grimtooth-touches-artifact.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/apply-neutral-grimtooth-touches-artifact.log"
+      }
+    },
+    {
+      "id": "blessed-fire-scroll-centered-explosion",
+      "title": "Blessed Fire Scroll Centered Explosion",
+      "mission": "Source: read.c:seffect_fire blessed non-confused branch -> getpos center -> explode. Setup: Debug Wizard at level 10 with tips disabled, blessed fire scroll and adjacent hostile newt; not confused or underwater; hero/current map tile chosen as explosion center. Action history: Dismiss startup; use #levelchange 10 to survive debug setup; wizard-create hostile newt; wish blessed scroll of fire; read inventory scroll n; clear both pagers; accept hero tile with getpos “.”; dismiss explosion result. C observation: C reaches read.c:seffect_fire on blessed non-confused scroll, draws rn2(3)=1 for fire damage, opens centered getpos, then at step 71 erupts a tower of flame; after dismissal step 72 reports the newt caught in the flame and killed. First local mismatch at zero-based step 72: explode.c:explode -> mon.c:xkilled (blessed-fire explosion monster-kill path).",
+      "selectionRationale": "Both execute read.c:seffect_fire, but v8 is an uncursed scroll and reaches its ordinary fire branch; C28 uses the blessed getpos-centered explosion branch and kills the adjacent newt. The recorded v10 behavior reaches read.c:seffect_fire blessed non-confused branch -> getpos center -> explode under state “Debug Wizard at level 10 with tips disabled, blessed fire scroll and adjacent hostile newt; not confused or underwater; hero/current map tile chosen as explosion center.” via actions “Dismiss startup; use #levelchange 10 to survive debug setup; wizard-create hostile newt; wish blessed scroll of fire; read inventory scroll n; clear both pagers; accept hero tile with getpos “.”; dismiss explosion result.”. Compared with v8/read-fire-scroll-effect-setup-miss-attempt1 source/history: nethack-c/upstream/src/read.c:seffect_enchant_armor. Source: nethack-c/upstream/src/read.c:seffect_enchant_armor. Setup: Wizard debug inventory places enchant-armor scroll at the selected letter. Action history: The recorded fire-scroll recipe selects the enchant-armor scroll; preserve actual C behavior. C observation: C enters seffect_enchant_armor at step 21; first mismatch is rnd(2) at read.c:1217. This reaches a distinct source branch and causal state/action transition; shared startup setup is not counted as overlap. The recorded v10 behavior reaches read.c:seffect_fire blessed non-confused branch -> getpos center -> explode under state “Debug Wizard at level 10 with tips disabled, blessed fire scroll and adjacent hostile newt; not confused or underwater; hero/current map tile chosen as explosion center.” via actions “Dismiss startup; use #levelchange 10 to survive debug setup; wizard-create hostile newt; wish blessed scroll of fire; read inventory scroll n; clear both pagers; accept hero tile with getpos “.”; dismiss explosion result.”. Compared with v9/stinking-cloud-scroll-targets-floor source/history: nethack-c/upstream/src/read.c:seffect_stinking_cloud; nethack-c/upstream/src/region.c:create_gas_cloud. Source: nethack-c/upstream/src/read.c:seffect_stinking_cloud -> do_stinking_cloud -> nethack-c/upstream/src/region.c:create_gas_cloud. Setup: Wizard debug hero with an uncursed stinking-cloud scroll on an ordinary level. Action history: Read the scroll, dismiss its identification and target prompts, then choose the current floor square in getpos. C observation: You are enveloped in a cloud of noxious gas!  Your eyes sting. First JavaScript divergence: read.c:seffect_stinking_cloud -> getpos -> region.c:create_gas_cloud at step 31 (stinking-cloud target prompt / cloud creation). This reaches a distinct source branch and causal state/action transition; shared startup setup is not counted as overlap. The recorded v10 behavior reaches read.c:seffect_fire blessed non-confused branch -> getpos center -> explode under state “Debug Wizard at level 10 with tips disabled, blessed fire scroll and adjacent hostile newt; not confused or underwater; hero/current map tile chosen as explosion center.” via actions “Dismiss startup; use #levelchange 10 to survive debug setup; wizard-create hostile newt; wish blessed scroll of fire; read inventory scroll n; clear both pagers; accept hero tile with getpos “.”; dismiss explosion result.”. Compared with v9/fire-wand-self-zap-burns-hero source/history: nethack-c/upstream/src/zap.c:dobuzz; nethack-c/upstream/src/trap.c:burnarmor. Source: nethack-c/upstream/src/zap.c:dobuzz -> u_at -> zhitu(ZT_FIRE) -> nethack-c/upstream/src/trap.c:burnarmor. Setup: Debug Wizard wears the starting CLOAK_OF_MAGIC_RESISTANCE and wishes an uncursed wand of fire; no monster is created or allowed to act. The carried wand is used with self-target direction `.`. Action history: Dismiss the initial pager, wish the uncursed fire wand, then issue zap and select self as the direction. C observation: C says “You've set yourself afire!  Your cloak smoulders!” after the self-targeted fire ray reaches the hero; the strict replay matches 2,320 RNG calls and 19 screens/cursors. The complete local C/JavaScript differential matches. This reaches a distinct source branch and causal state/action transition; shared startup setup is not counted as overlap. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_fire"
+      ],
+      "cOutcome": "C reaches read.c:seffect_fire on blessed non-confused scroll, draws rn2(3)=1 for fire damage, opens centered getpos, then at step 71 erupts a tower of flame; after dismissal step 72 reports the newt caught in the flame and killed.",
+      "firstMismatch": {
+        "kind": "exception",
+        "step": 72,
+        "source": "explode.c:explode -> mon.c:xkilled",
+        "bucket": "blessed-fire explosion monster-kill path",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/blessed-fire-scroll-centered-explosion.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/read-fire-scroll-effect",
+        "v8/read-fire-scroll-effect-setup-miss-attempt1",
+        "v9/stinking-cloud-scroll-targets-floor",
+        "v9/fire-wand-self-zap-burns-hero"
+      ],
+      "inputs": {
+        "seed": 48271983,
+        "datetime": "20281027090643",
+        "role": "Wizard",
+        "keyCount": 72,
+        "boundaries": 73
+      },
+      "recipe": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.recipe.session.json",
+      "recipeSha256": "31654d1effdfaf1db9591c9149112914e8a1bf7d911df70cdb012f16472e5a2b",
+      "recording": "challenges/cases/v10/blessed-fire-scroll-centered-explosion.session.json",
+      "recordingSha256": "9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/blessed-fire-scroll-centered-explosion.recipe.session.json\",\".cache/C28-rerecords/blessed-fire-scroll-centered-explosion.session.json\"]; exit 0; byte-identical SHA-256 9e609c1fa1a251cbc32e7a22afb52ea484af5c36e5136264eb363ef6a65674bc; 73 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/blessed-fire-scroll-centered-explosion.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "exception",
+          "step": 72,
+          "source": "explode.c:explode -> mon.c:xkilled",
+          "bucket": "blessed-fire explosion monster-kill path",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/blessed-fire-scroll-centered-explosion.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/blessed-fire-scroll-centered-explosion.log"
+      }
+    },
+    {
+      "id": "bugle-awakens-hostile-soldier",
+      "title": "Bugle Awakens Hostile Soldier",
+      "mission": "Source: music.c:do_play_instrument(BUGLE) -> do_improvisation -> awaken_soldiers. Setup: Hearing Barbarian on an indoor floor; wished uncursed bugle and hostile human soldier on the same level. Action history: Dismiss startup; wish bugle; wizard-create hostile soldier; apply bugle and answer yes to improvise. C observation: C emits bugle-specific sound and “The soldier is now ready for battle!”, reaching awaken_soldiers. First local mismatch at zero-based step 39: music.c:do_improvisation -> awaken_soldiers (music.c:awaken_soldiers soldier readiness/display update).",
+      "selectionRationale": "The C target is music.c’s area-based soldier alert and mercenary state update; a unicorn horn is a separate cure, and wand attacks are directed beams. The C target is music.c’s area-based soldier alert and mercenary state update; a unicorn horn is a separate cure, and wand attacks are directed beams. The C target is music.c’s area-based soldier alert and mercenary state update; a unicorn horn is a separate cure, and wand attacks are directed beams. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/music.c:do_play_instrument"
+      ],
+      "cOutcome": "C emits bugle-specific sound and “The soldier is now ready for battle!”, reaching awaken_soldiers.",
+      "firstMismatch": {
+        "kind": "screen+cursor",
+        "step": 39,
+        "source": "music.c:do_improvisation -> awaken_soldiers",
+        "bucket": "music.c:awaken_soldiers soldier readiness/display update",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bugle-awakens-hostile-soldier.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/apply-blessed-horn-clears-timed-blindness",
+        "v9/zap-sleep-wand-at-hostile-newt",
+        "v9/fire-wand-self-zap-burns-hero"
+      ],
+      "inputs": {
+        "seed": 48271937,
+        "datetime": "20281027090517",
+        "role": "Barbarian",
+        "keyCount": 39,
+        "boundaries": 40
+      },
+      "recipe": "challenges/cases/v10/bugle-awakens-hostile-soldier.recipe.session.json",
+      "recipeSha256": "eb17038ab8d989f80d59ad65b25a6e5937102a0c99a02c92257322b142b56909",
+      "recording": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+      "recordingSha256": "bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v10/bugle-awakens-hostile-soldier.recipe.session.json\",\".cache/C28-rerecords/bugle-awakens-hostile-soldier.session.json\"]; exit 0; byte-identical SHA-256 bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9; 40 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/bugle-awakens-hostile-soldier.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "screen+cursor",
+          "step": 39,
+          "source": "music.c:do_improvisation -> awaken_soldiers",
+          "bucket": "music.c:awaken_soldiers soldier readiness/display update",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bugle-awakens-hostile-soldier.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bugle-awakens-hostile-soldier.log"
+      }
+    },
+    {
+      "id": "bullwhip-lashes-unarmed-soldier",
+      "title": "Bullwhip Lashes Unarmed Soldier",
+      "mission": "Source: apply.c:use_whip -> whipattack with MON_WEP == NULL. Setup: Archaeologist wields a proficient bullwhip; adjacent visible hostile soldier has no active MON_WEP; no confusion/fumbling. Action history: Wish and wield bullwhip, wizard-genesis the hostile soldier, and apply whip toward its actual coordinate. C observation: C reaches whipattack’s no-wielded-weapon lash branch and prints “You lash the soldier.”; intended disarm branch is not reached. First local mismatch at zero-based step 23: apply.c:use_whip -> uhitm.c:force_attack -> do_attack (uhitm.c:do_attack through apply.c:use_whip force-attack caller).",
+      "selectionRationale": "The C action is applying a whip to a monster with MON_WEP null; prior cases kick terrain, throw a dagger into a wall, or use a sleep ray. The C action is applying a whip to a monster with MON_WEP null; prior cases kick terrain, throw a dagger into a wall, or use a sleep ray. The C action is applying a whip to a monster with MON_WEP null; prior cases kick terrain, throw a dagger into a wall, or use a sleep ray. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:use_whip"
+      ],
+      "cOutcome": "C reaches whipattack’s no-wielded-weapon lash branch and prints “You lash the soldier.”; intended disarm branch is not reached.",
+      "firstMismatch": {
+        "kind": "exception",
+        "step": 23,
+        "source": "apply.c:use_whip -> uhitm.c:force_attack -> do_attack",
+        "bucket": "uhitm.c:do_attack through apply.c:use_whip force-attack caller",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bullwhip-lashes-unarmed-soldier.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/kick-closed-door",
+        "v9/rogue-throws-dagger-into-wall",
+        "v9/zap-sleep-wand-at-hostile-newt"
+      ],
+      "inputs": {
+        "seed": 48271935,
+        "datetime": "20281027090515",
+        "role": "Archeologist",
+        "keyCount": 23,
+        "boundaries": 24
+      },
+      "recipe": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.recipe.session.json",
+      "recipeSha256": "99bd6c857db81793a14db9a36e71b2a8d937f86c0f95345935eba3c65e64d007",
+      "recording": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+      "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v10/bullwhip-lashes-unarmed-soldier.recipe.session.json\",\".cache/C28-rerecords/bullwhip-lashes-unarmed-soldier.session.json\"]; exit 0; byte-identical SHA-256 7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7; 24 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/bullwhip-lashes-unarmed-soldier.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "exception",
+          "step": 23,
+          "source": "apply.c:use_whip -> uhitm.c:force_attack -> do_attack",
+          "bucket": "uhitm.c:do_attack through apply.c:use_whip force-attack caller",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bullwhip-lashes-unarmed-soldier.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bullwhip-lashes-unarmed-soldier.log"
+      }
+    },
+    {
+      "id": "bullwhip-snags-floor-object-while-floating",
+      "title": "Bullwhip Snags Floor Object While Floating",
+      "mission": "Source: apply.c:use_whip -> levitating floor-object pickup branch. Setup: Archaeologist has proficiency and wields bullwhip; Wizard intrinsic setup gives 50-turn levitation; dropped touchstone rests on the stairs beneath the hero. Action history: Enable levitation, drop the touchstone onto the hero/stairs tile, then apply bullwhip downward and dismiss its pager. C observation: C wraps the whip around the touchstone on the stairs; rnl(6)=2 selects the slip-free outcome. First local mismatch at zero-based step 23: hitfloor -> breaktest -> obj_resists (drop-on-stairs floor-object breaktest resistance).",
+      "selectionRationale": "Though it shares use_whip with the unarmed-soldier case, this enters the levitating floor-object pickup branch with an object under the hero; digging, tin opening, and lamp lighting target different objects/functions. Though it shares use_whip with the unarmed-soldier case, this enters the levitating floor-object pickup branch with an object under the hero; digging, tin opening, and lamp lighting target different objects/functions. Though it shares use_whip with the unarmed-soldier case, this enters the levitating floor-object pickup branch with an object under the hero; digging, tin opening, and lamp lighting target different objects/functions. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:use_whip"
+      ],
+      "cOutcome": "C wraps the whip around the touchstone on the stairs; rnl(6)=2 selects the slip-free outcome.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 23,
+        "source": "hitfloor -> breaktest -> obj_resists",
+        "bucket": "drop-on-stairs floor-object breaktest resistance",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bullwhip-snags-floor-object-while-floating.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/archeologist-pickaxe-finds-hidden-door",
+        "v9/valkyrie-opens-spinach-tin-with-tin-opener",
+        "v9/oil-lamp-ignites"
+      ],
+      "inputs": {
+        "seed": 48271946,
+        "datetime": "20281027090526",
+        "role": "Archeologist",
+        "keyCount": 27,
+        "boundaries": 28
+      },
+      "recipe": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.recipe.session.json",
+      "recipeSha256": "e3a273915b18413de2b27851d413b088c8283d20c7bba55e18c13a35ba50e675",
+      "recording": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.session.json",
+      "recordingSha256": "c71b4f263a4927575c62d688896ad98dd979c7a1d8a006fb0973dbbb03b4de43",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/bullwhip-snags-floor-object-while-floating.recipe.session.json\",\".cache/C28-rerecords/bullwhip-snags-floor-object-while-floating.session.json\"]; exit 0; byte-identical SHA-256 c71b4f263a4927575c62d688896ad98dd979c7a1d8a006fb0973dbbb03b4de43; 28 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/bullwhip-snags-floor-object-while-floating.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 23,
+          "source": "hitfloor -> breaktest -> obj_resists",
+          "bucket": "drop-on-stairs floor-object breaktest resistance",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bullwhip-snags-floor-object-while-floating.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bullwhip-snags-floor-object-while-floating.log"
+      }
+    },
+    {
+      "id": "confused-remove-curse-blessorcurse",
+      "title": "Confused Remove Curse Blessorcurse",
+      "mission": "Source: read.c:seffect_remove_curse confused inventory branch. Setup: Debug Wizard with Confusion active; uncursed remove-curse scroll; carried cursed weapon plus a second eligible non-gold item; not riding and not punished/buried-ball trapped. Action history: Create confusion, wish an uncursed remove-curse scroll and cursed weapon, then read the scroll while Confused remains active; select its actual C inventory letter. C observation: C stays in the confused remove-curse branch, calls blessorcurse(obj,2), and prints “You feel like you need some help.”; the final effect step draws rn2(2)=1 at mkobj.c:blessorcurse. First local mismatch at zero-based step 81: mkobj.c:blessorcurse (mkobj.c:blessorcurse confused remove-curse inventory arm).",
+      "selectionRationale": "Same function family but that admitted case is unconfused and reaches the ordinary cursed-loadstone uncurse branch; this candidate enters the Confusion-driven blessorcurse/bknown-clear branch with different state and item traversal. Both require a confusion state or scroll command, but prior branch is seffect_confuse_monster and monster-hit handling; this candidate is seffect_remove_curse inventory traversal. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/read.c:seffect_remove_curse"
+      ],
+      "cOutcome": "C stays in the confused remove-curse branch, calls blessorcurse(obj,2), and prints “You feel like you need some help.”; the final effect step draws rn2(2)=1 at mkobj.c:blessorcurse.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 81,
+        "source": "mkobj.c:blessorcurse",
+        "bucket": "mkobj.c:blessorcurse confused remove-curse inventory arm",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/confused-remove-curse-blessorcurse.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v8/read-remove-curse-loadstone",
+        "v9/read-confuse-monster-scroll"
+      ],
+      "inputs": {
+        "seed": 86172940,
+        "datetime": "20411004091500",
+        "role": "Wizard",
+        "keyCount": 81,
+        "boundaries": 82
+      },
+      "recipe": "challenges/cases/v10/confused-remove-curse-blessorcurse.recipe.session.json",
+      "recipeSha256": "47997cd8c0b82b1e9e584c5bc80cf3e74ff58e99bb8612e35a7053290fcfe8cc",
+      "recording": "challenges/cases/v10/confused-remove-curse-blessorcurse.session.json",
+      "recordingSha256": "9cb45869824984538232543de4eaefe08fc54fa66f0c7367d0a24d1b7208eb03",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\".cache/C28-next-attempts/confused-remove-curse-blessorcurse.recipe.session.json\",\".cache/C28-rerecords/confused-remove-curse-blessorcurse.session.json\"]; exit 0; byte-identical SHA-256 9cb45869824984538232543de4eaefe08fc54fa66f0c7367d0a24d1b7208eb03; 82 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/confused-remove-curse-blessorcurse.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 81,
+          "source": "mkobj.c:blessorcurse",
+          "bucket": "mkobj.c:blessorcurse confused remove-curse inventory arm",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/confused-remove-curse-blessorcurse.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/confused-remove-curse-blessorcurse.log"
+      }
+    },
+    {
+      "id": "cursed-gain-level-potion-rises-from-dungeon-two",
+      "title": "Cursed Gain Level Potion Rises From Dungeon Two",
+      "mission": "Source: potion.c:peffect_gain_level cursed branch -> Can_rise_up -> goto_level(D:1). Setup: Fresh debug Wizard on ordinary D:2, no Amulet and no transition blocker; cursed potion of gain level. Action history: Dismiss startup; use #levelchange to D:2; wish one cursed gain-level potion; quaff, dismiss “You rise up” and the potion naming prompt. C observation: C reaches peffect_gain_level’s cursed Can_rise_up branch, prints “You rise up, through the ceiling!”, then after message dismissal places the hero on D:1; the cursed branch returns before pluslvl. The complete C/JavaScript differential matches.",
+      "selectionRationale": "The older case is an uncursed quaff that calls pluslvl on D:1; this case is cursed and takes Can_rise_up/goto_level from D:2 to D:1. The v5 case is a cursed teleport scroll with a selected destination; this is a cursed gain-level potion with the fixed one-level-up source path. The recorded v10 behavior reaches potion.c:peffect_gain_level cursed branch -> Can_rise_up -> goto_level(D:1) under state “Fresh debug Wizard on ordinary D:2, no Amulet and no transition blocker; cursed potion of gain level.” via actions “Dismiss startup; use #levelchange to D:2; wish one cursed gain-level potion; quaff, dismiss “You rise up” and the potion naming prompt.”. Compared with v9/cursed-teleport-scroll-level-teleport source/history: nethack-c/upstream/src/read.c:seffect_teleportation; nethack-c/upstream/src/dungeon.c:level_tele. Source: nethack-c/upstream/src/read.c:seffect_teleportation -> nethack-c/upstream/src/dungeon.c:level_tele. Setup: Wizard debug hero on an ordinary dungeon level with a cursed teleportation scroll. Action history: Read the scroll and answer any level destination prompts from C. C observation: You materialize on a different level! The complete local C/JavaScript differential matches. This reaches a distinct source branch and causal state/action transition; shared startup setup is not counted as overlap. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_gain_level"
+      ],
+      "cOutcome": "C reaches peffect_gain_level’s cursed Can_rise_up branch, prints “You rise up, through the ceiling!”, then after message dismissal places the hero on D:1; the cursed branch returns before pluslvl.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v7/potion-gain-level",
+        "v5/ranger-level-teleport-return",
+        "v9/cursed-teleport-scroll-level-teleport"
+      ],
+      "inputs": {
+        "seed": 48271981,
+        "datetime": "20281027090641",
+        "role": "Wizard",
+        "keyCount": 38,
+        "boundaries": 39
+      },
+      "recipe": "challenges/cases/v10/cursed-gain-level-potion-rises-from-dungeon-two.recipe.session.json",
+      "recipeSha256": "ccec21dcb54b94930f07bdd6438db5f20c460939fff8f2edb44b475e3ad7944c",
+      "recording": "challenges/cases/v10/cursed-gain-level-potion-rises-from-dungeon-two.session.json",
+      "recordingSha256": "3270ef7acac18e0869c4051f50fb21e8a7aa13d573124a91cf84bd814d43e6e7",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/cursed-gain-level-potion-rises-from-dungeon-two.recipe.session.json\",\".cache/C28-rerecords/cursed-gain-level-potion-rises-from-dungeon-two.session.json\"]; exit 0; byte-identical SHA-256 3270ef7acac18e0869c4051f50fb21e8a7aa13d573124a91cf84bd814d43e6e7; 39 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/cursed-gain-level-potion-rises-from-dungeon-two.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/cursed-gain-level-potion-rises-from-dungeon-two.log"
+      }
+    },
+    {
+      "id": "eat-same-race-human-corpse",
+      "title": "Eat Same Race Human Corpse",
+      "mission": "Source: eat.c:eatcorpse -> cprefx -> maybe_cannibal. Setup: Neutral human Barbarian on D:1 has a wished human corpse on the floor and chooses to eat it; no altar or sacrifice command is used. Action history: Wish a human corpse (it drops to the floor); use e and confirm eating the corpse. C observation: C reaches maybe_cannibal at eat.c:784 on step 17, draws rn2(4)=3, and prints “This human corpse is tough. You cannibal! You will regret this!”; step 18 completes eating. First local mismatch at zero-based step 15: zap.c:makewish (zap.c:makewish shared first divergence).",
+      "selectionRationale": "This v10 C observation reaches eat.c:eatcorpse -> cprefx -> maybe_cannibal at zero-based step 17: C reaches maybe_cannibal at eat.c:784 on step 17, draws rn2(4)=3, and prints “This human corpse is tough. You cannibal! You will regret this!”; step 18 completes eating. State: Neutral human Barbarian on D:1 has a wished human corpse on the floor and chooses to eat it; no altar or sacrifice command is used. Action history: Wish a human corpse (it drops to the floor); use e and confirm eating the corpse. Prior v9/eat-lichen-corpse-nutrition is Hero finishes eating a lichen corpse; its C mission is: Source: nethack-c/upstream/src/eat.c:eatfood -> done_eating. Setup: Wizard debug hero carries a lichen corpse, excluding lizard and stone-cure species. Action history: Eat the corpse through completion and dismiss the consumption result. C observation: This lichen corpse tastes okay.  You finish eating the lichen corpse. The complete local C/JavaScript differential matches. Its source owner is nethack-c/upstream/src/eat.c:eatfood and it has no recorded JS mismatch. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/eat.c:eatcorpse"
+      ],
+      "cOutcome": "C reaches maybe_cannibal at eat.c:784 on step 17, draws rn2(4)=3, and prints “This human corpse is tough. You cannibal! You will regret this!”; step 18 completes eating.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 15,
+        "source": "zap.c:makewish",
+        "bucket": "zap.c:makewish shared first divergence",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/eat-same-race-human-corpse.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/eat-lichen-corpse-nutrition",
+        "v2/altar-rite-history"
+      ],
+      "inputs": {
+        "seed": 72918023,
+        "datetime": "20281027124200",
+        "role": "Barbarian",
+        "keyCount": 18,
+        "boundaries": 19
+      },
+      "recipe": "challenges/cases/v10/eat-same-race-human-corpse.recipe.session.json",
+      "recipeSha256": "0ad0bc7fa45389765c5c9c5315f11461fc2114844cb30068bb38ce5ab4572d11",
+      "recording": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+      "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/eat-same-race-human-corpse.recipe.session.json\",\".cache/C28-rerecords/eat-same-race-human-corpse.session.json\"]; exit 0; byte-identical SHA-256 12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e; 19 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/eat-same-race-human-corpse.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 15,
+          "source": "zap.c:makewish",
+          "bucket": "zap.c:makewish shared first divergence",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/eat-same-race-human-corpse.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/eat-same-race-human-corpse.log"
+      }
+    },
+    {
+      "id": "flip-coin-normal-outcome",
+      "title": "Flip Coin Normal Outcome",
+      "mission": "Source: apply.c:doapply -> flip_coin normal safe outcome. Setup: Debug Wizard on dry ordinary floor; one carried gold piece/coin stack; not hallucinating, glib, fumbling, or underwater; DEX 18. Action history: Dismiss startup, wish one gold piece (gold coins are the C COIN_CLASS object), invoke #apply and select it; no other time-advancing action before the flip. C observation: C reaches apply.c:flip_coin and draws rn2(2)=0, printing “You flip a gold piece. It comes up tails.” First local mismatch at zero-based step 16: apply.c:flip_coin (apply.c:flip_coin normal coin-result draw).",
+      "selectionRationale": "Same broad item-command surface only; source is kick.c:dokick and target is a door, not apply.c:flip_coin or a coin result. Both use an applied tool, but marker routes through do_write/engrave and text input; this is apply.c:flip_coin and its rn2(2) coin result. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:doapply"
+      ],
+      "cOutcome": "C reaches apply.c:flip_coin and draws rn2(2)=0, printing “You flip a gold piece. It comes up tails.”",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 16,
+        "source": "apply.c:flip_coin",
+        "bucket": "apply.c:flip_coin normal coin-result draw",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/flip-coin-normal-outcome.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/kick-closed-door",
+        "v9/marker-engraves-custom-text"
+      ],
+      "inputs": {
+        "seed": 86290173,
+        "datetime": "20411003091500",
+        "role": "Wizard",
+        "keyCount": 16,
+        "boundaries": 17
+      },
+      "recipe": "challenges/cases/v10/flip-coin-normal-outcome.recipe.session.json",
+      "recipeSha256": "5793516f2bfe49d6a1a4c95ee58503fb8929c2db724aae27659871e930b8ecf0",
+      "recording": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+      "recordingSha256": "74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\".cache/C28-next-attempts/flip-coin-normal-outcome.recipe.session.json\",\".cache/C28-rerecords/flip-coin-normal-outcome.session.json\"]; exit 0; byte-identical SHA-256 74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0; 17 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/flip-coin-normal-outcome.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 16,
+          "source": "apply.c:flip_coin",
+          "bucket": "apply.c:flip_coin normal coin-result draw",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/flip-coin-normal-outcome.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/flip-coin-normal-outcome.log"
+      }
+    },
+    {
+      "id": "force-bolt-spell-at-hostile-monster",
+      "title": "Force Bolt Spell At Hostile Monster",
+      "mission": "Source: spell.c:dowizcast -> spelleffects(SPE_FORCE_BOLT) -> zap.c:weffects -> bhit -> bhitm. Setup: Debug Wizard has sufficient energy; hostile visible newt directly north; no reflection or antimagic. Action history: Dismiss startup, create hostile newt, invoke #wizcast, choose Force Bolt with k, then aim north with k. C observation: C executes bhit/bhitm and says “The spell hits the newt! You kill the newt!”; hero gains one experience point. The complete C/JavaScript differential matches.",
+      "selectionRationale": "The same general beam family appears in wand cases, but this source enters dowizcast/spelleffects for Force Bolt and directly hits a monster; the prior cases use dozap with sleep or self-targeted fire, while stinking cloud is a scroll/region effect. The same general beam family appears in wand cases, but this source enters dowizcast/spelleffects for Force Bolt and directly hits a monster; the prior cases use dozap with sleep or self-targeted fire, while stinking cloud is a scroll/region effect. The same general beam family appears in wand cases, but this source enters dowizcast/spelleffects for Force Bolt and directly hits a monster; the prior cases use dozap with sleep or self-targeted fire, while stinking cloud is a scroll/region effect. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/spell.c:dowizcast",
+        "nethack-c/upstream/src/zap.c:weffects"
+      ],
+      "cOutcome": "C executes bhit/bhitm and says “The spell hits the newt! You kill the newt!”; hero gains one experience point.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v9/zap-sleep-wand-at-hostile-newt",
+        "v9/fire-wand-self-zap-burns-hero",
+        "v9/stinking-cloud-scroll-targets-floor"
+      ],
+      "inputs": {
+        "seed": 48271953,
+        "datetime": "20281027090533",
+        "role": "Wizard",
+        "keyCount": 25,
+        "boundaries": 26
+      },
+      "recipe": "challenges/cases/v10/force-bolt-spell-at-hostile-monster.recipe.session.json",
+      "recipeSha256": "e7d0e1c283164e350c8645d57f4fba304e6f8613edf3611fdd7ffe9b950b06a7",
+      "recording": "challenges/cases/v10/force-bolt-spell-at-hostile-monster.session.json",
+      "recordingSha256": "e6eeab58f5364c7fd5cb2a8c4c1f14961610db0dcbca25a8b5626f58ec80be97",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/force-bolt-spell-at-hostile-monster.recipe.session.json\",\".cache/C28-rerecords/force-bolt-spell-at-hostile-monster.session.json\"]; exit 0; byte-identical SHA-256 e6eeab58f5364c7fd5cb2a8c4c1f14961610db0dcbca25a8b5626f58ec80be97; 26 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/force-bolt-spell-at-hostile-monster.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/force-bolt-spell-at-hostile-monster.log"
+      }
+    },
+    {
+      "id": "hostile-newt-triggers-arrow-trap",
+      "title": "Hostile Newt Triggers Arrow Trap",
+      "mission": "Source: trap.c:dotrap -> trapeffect_selector -> trapeffect_arrow_trap, monster target branch -> t_missile(ARROW) -> thitm. Setup: Debug Ranger starts on the upstairs tile, moves west onto ordinary floor (south is a wall and leaves the hero on stairs), wishes an arrow trap there, then generates a hostile newt immediately east of the trap; hero moves west away from the trap, leaving the newt a path toward it. Action history: Dismiss startup; move west off the upstairs square; wish an arrow trap on ordinary floor; wizard-create a hostile newt; move west away from the trap so the newt takes a turn toward the vacated trap square; wait only as needed to observe its trigger. C observation: The hostile newt reaches the arrow trap. C emits “The newt is almost hit by an arrow!” and logs rnd(20)=4 at thitm(trap.c:6724); the strict JS comparison matches. The complete C/JavaScript differential matches.",
+      "selectionRationale": "Both involve a projectile result, but this candidate uses trap.c:trapeffect_arrow_trap -> thitm for a hostile monster stepping onto terrain; v9 is a Rogue hero throw into a wall. Both cause a monster/terrain interaction after a command, but this reaches a monster-triggered trap and projectile attack rather than dokick on a closed door. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/trap.c:dotrap"
+      ],
+      "cOutcome": "The hostile newt reaches the arrow trap. C emits “The newt is almost hit by an arrow!” and logs rnd(20)=4 at thitm(trap.c:6724); the strict JS comparison matches.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v9/rogue-throws-dagger-into-wall",
+        "v9/kick-closed-door"
+      ],
+      "inputs": {
+        "seed": 86290182,
+        "datetime": "20411006101500",
+        "role": "Ranger",
+        "keyCount": 45,
+        "boundaries": 46
+      },
+      "recipe": "challenges/cases/v10/hostile-newt-triggers-arrow-trap.recipe.session.json",
+      "recipeSha256": "61d05287576a28a3fc0ecc1dbf62763000f362fdfddfbda37b25708bcd9907a0",
+      "recording": "challenges/cases/v10/hostile-newt-triggers-arrow-trap.session.json",
+      "recordingSha256": "8392c22cfd001d39e6966075c0c7390a22d719bf1f12cce1d01cd32cd5be3bcf",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/record-session.mjs\",\".cache/C28-arrow-trap-plan.recipe.session.json\",\".cache/C28-rerecords/hostile-newt-triggers-arrow-trap.session.json\"]; exit 0; byte-identical SHA-256 8392c22cfd001d39e6966075c0c7390a22d719bf1f12cce1d01cd32cd5be3bcf; 46 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/hostile-newt-triggers-arrow-trap.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/hostile-newt-triggers-arrow-trap.log"
+      }
+    },
+    {
+      "id": "kobold-shaman-fumbles-spell",
+      "title": "Kobold Shaman Fumbles Spell",
+      "mission": "Source: monmove.c:dochug -> mcastu.c:choose_monster_spell -> mcastu.c:castmu. Setup: Visible hostile low-level kobold shaman on D:1, Wizard has no antimagic; source attack reaches a directed spell attempt. Action history: Dismiss startup; wizard-genesis adjacent hostile shaman; use two forced monster-turn waits. C observation: C chooses spell with rn2(1)=0, then castmu rolls rn2(10)=8 and prints “The air crackles around the kobold shaman.”; fumble returns M_ATTK_MISS before a spell effect. The complete C/JavaScript differential matches.",
+      "selectionRationale": "The reached branch is castmu’s monster-caster fumble after its spell selection, not a hero wand effect or a monster item throw; the state/action history is monster-turn casting after waits. The reached branch is castmu’s monster-caster fumble after its spell selection, not a hero wand effect or a monster item throw; the state/action history is monster-turn casting after waits. The reached branch is castmu’s monster-caster fumble after its spell selection, not a hero wand effect or a monster item throw; the state/action history is monster-turn casting after waits. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/monmove.c:dochug",
+        "nethack-c/upstream/src/mcastu.c:choose_monster_spell",
+        "nethack-c/upstream/src/mcastu.c:castmu"
+      ],
+      "cOutcome": "C chooses spell with rn2(1)=0, then castmu rolls rn2(10)=8 and prints “The air crackles around the kobold shaman.”; fumble returns M_ATTK_MISS before a spell effect.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v9/zap-sleep-wand-at-hostile-newt",
+        "v8/gnome-king-hurls-potion",
+        "v9/fire-wand-self-zap-burns-hero"
+      ],
+      "inputs": {
+        "seed": 48271958,
+        "datetime": "20281027090545",
+        "role": "unknown",
+        "keyCount": 28,
+        "boundaries": 29
+      },
+      "recipe": "challenges/cases/v10/kobold-shaman-fumbles-spell.recipe.session.json",
+      "recipeSha256": "ee1595a66091850752448bcceeb237db86076f0b1a2a361e924e181d9641e405",
+      "recording": "challenges/cases/v10/kobold-shaman-fumbles-spell.session.json",
+      "recordingSha256": "234054b4e40cb90acc53d8386157d292aa41223d348762ffd59883f2646648c9",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/kobold-shaman-fumbles-spell.recipe.session.json\",\".cache/C28-rerecords/kobold-shaman-fumbles-spell.session.json\"]; exit 0; byte-identical SHA-256 234054b4e40cb90acc53d8386157d292aa41223d348762ffd59883f2646648c9; 29 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/kobold-shaman-fumbles-spell.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/kobold-shaman-fumbles-spell.log"
+      }
+    },
+    {
+      "id": "lawful-knight-fountain-dip-level5",
+      "title": "Lawful Knight Fountain Dip Level5",
+      "mission": "Source: cmd.c:#dip -> potion.c:dodip -> fountain.c:dipfountain. Setup: Lawful female Knight level 5 on a fountain tile with one wished long sword and no existing Excalibur; the level/role activates the Knight 1-in-6 eligibility gate. Action history: Dismiss startup; #levelchange to 5; wish fountain and long sword; open dip inventory with ?, select wished sword i, confirm y. C observation: C reaches rn2(6)=3 at dipfountain:405 (no Excalibur); then rn2(2)=1 and rnd(30)=28 yield “Your long sword rusts! An urge to take a bath overwhelms you.” The complete C/JavaScript differential matches.",
+      "selectionRationale": "The prior blessed-water case quaffs a potion and enters peffect_water; this case uses #dip on a terrain fountain with a long-sword/role/level-specific artifact gate and then the fountain’s ordinary damage branch. The prior blessed-water case quaffs a potion and enters peffect_water; this case uses #dip on a terrain fountain with a long-sword/role/level-specific artifact gate and then the fountain’s ordinary damage branch. The prior blessed-water case quaffs a potion and enters peffect_water; this case uses #dip on a terrain fountain with a long-sword/role/level-specific artifact gate and then the fountain’s ordinary damage branch. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:dodip",
+        "nethack-c/upstream/src/fountain.c:dipfountain"
+      ],
+      "cOutcome": "C reaches rn2(6)=3 at dipfountain:405 (no Excalibur); then rn2(2)=1 and rnd(30)=28 yield “Your long sword rusts! An urge to take a bath overwhelms you.”",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v9/blessed-water-potion-awe",
+        "v9/gold-detection-scroll-maps-floor-gold",
+        "v9/light-scroll-illuminates-room"
+      ],
+      "inputs": {
+        "seed": 48271960,
+        "datetime": "20281027090620",
+        "role": "unknown",
+        "keyCount": 49,
+        "boundaries": 50
+      },
+      "recipe": "challenges/cases/v10/lawful-knight-fountain-dip-level5.recipe.session.json",
+      "recipeSha256": "9282b5cbf03402d363bae6c6b136f59ec9e83ca798c0725f601550ec36542a5f",
+      "recording": "challenges/cases/v10/lawful-knight-fountain-dip-level5.session.json",
+      "recordingSha256": "3934d74d573fee02fb713fba98b041296179913f902c7f0138b8b7fe0412ed04",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/lawful-knight-fountain-dip-level5.recipe.session.json\",\".cache/C28-rerecords/lawful-knight-fountain-dip-level5.session.json\"]; exit 0; byte-identical SHA-256 3934d74d573fee02fb713fba98b041296179913f902c7f0138b8b7fe0412ed04; 50 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/lawful-knight-fountain-dip-level5.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/lawful-knight-fountain-dip-level5.log"
+      }
+    },
+    {
+      "id": "offer-human-corpse-own-race",
+      "title": "Offer Human Corpse Own Race",
+      "mission": "Source: pray.c:offer_corpse -> your_race -> sacrifice_your_race -> minion.c:dlord. Setup: Chaotic human Wizard on a chaotic altar has a human corpse of the same race available; the priest/altar transaction uses a positive accepted sacrifice. Action history: Create the chaotic altar and human corpse; clear the corpse-drop pager; issue #offer and confirm the corpse sacrifice. C observation: At step 39 C reaches the own-race sacrifice path and logs rn2(2)=1 at minion.c:dlord(410), printing “The blood covers the altar! You have summoned Yeenoghu!” First local mismatch at zero-based step 31: zap.c:makewish (zap.c:makewish shared first divergence).",
+      "selectionRationale": "This v10 C observation reaches pray.c:offer_corpse -> your_race -> sacrifice_your_race -> minion.c:dlord at zero-based step 39: At step 39 C reaches the own-race sacrifice path and logs rn2(2)=1 at minion.c:dlord(410), printing “The blood covers the altar! You have summoned Yeenoghu!” State: Chaotic human Wizard on a chaotic altar has a human corpse of the same race available; the priest/altar transaction uses a positive accepted sacrifice. Action history: Create the chaotic altar and human corpse; clear the corpse-drop pager; issue #offer and confirm the corpse sacrifice. Prior v9/eat-lichen-corpse-nutrition is Hero finishes eating a lichen corpse; its C mission is: Source: nethack-c/upstream/src/eat.c:eatfood -> done_eating. Setup: Wizard debug hero carries a lichen corpse, excluding lizard and stone-cure species. Action history: Eat the corpse through completion and dismiss the consumption result. C observation: This lichen corpse tastes okay.  You finish eating the lichen corpse. The complete local C/JavaScript differential matches. Its source owner is nethack-c/upstream/src/eat.c:eatfood and it has no recorded JS mismatch. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/pray.c:offer_corpse",
+        "nethack-c/upstream/src/minion.c:dlord"
+      ],
+      "cOutcome": "At step 39 C reaches the own-race sacrifice path and logs rn2(2)=1 at minion.c:dlord(410), printing “The blood covers the altar! You have summoned Yeenoghu!”",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 31,
+        "source": "zap.c:makewish",
+        "bucket": "zap.c:makewish shared first divergence",
+        "counted": false,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/offer-human-corpse-own-race.log"
+      },
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v2/altar-rite-history",
+        "v9/eat-lichen-corpse-nutrition"
+      ],
+      "inputs": {
+        "seed": 72916018,
+        "datetime": "20281027121500",
+        "role": "Wizard",
+        "keyCount": 40,
+        "boundaries": 41
+      },
+      "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+      "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+      "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+      "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json\",\".cache/C28-rerecords/offer-human-corpse-own-race.session.json\"]; exit 0; byte-identical SHA-256 33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296; 41 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/offer-human-corpse-own-race.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 31,
+          "source": "zap.c:makewish",
+          "bucket": "zap.c:makewish shared first divergence",
+          "counted": false,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/offer-human-corpse-own-race.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/offer-human-corpse-own-race.log"
+      }
+    },
+    {
+      "id": "pet-moves-to-floor-food",
+      "title": "Pet Moves To Floor Food",
+      "mission": "Source: dogmove.c:dog_move -> dog_eat combined movement/eating path. Setup: Debug Barbarian with pettype:dog (role.c has no fixed role pet, so makedog uses PM_LITTLE_DOG); one tame dog and wished tripe ration dropped on accessible floor. Object is not thrown/caught; pet is not starved, trapped, or interrupted. Action history: Dismiss startup, wish one tripe ration, drop its actual C inventory letter on the hero’s floor tile, step away so the dog may move onto the food and eat it. C observation: C drops the tripe ration on the floor, then the pet moves to that floor object and eats it at step 19 (“Idefix eats a tripe ration.”). The complete C/JavaScript differential matches.",
+      "selectionRationale": "Closest same helper: v5 reaches dog_eat through the thrown/caught-food path with a hero-thrown tripe ration and the player-owned/apport branch. Candidate is planned as dog_move’s floor-item approach with movement-then-eat transition; exclude if C instead reaches the same catch branch/state. Both mention food, but v9 is read.c:seffect_food_detection’s smell scan; candidate is pet movement onto a floor object and dog_eat, no scroll/map query. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/dogmove.c:dog_move"
+      ],
+      "cOutcome": "C drops the tripe ration on the floor, then the pet moves to that floor object and eats it at step 19 (“Idefix eats a tripe ration.”).",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v5/samurai-pet-ration-eating",
+        "v9/food-detection-scroll-smells-ration"
+      ],
+      "inputs": {
+        "seed": 86290174,
+        "datetime": "20411005091500",
+        "role": "Barbarian",
+        "keyCount": 19,
+        "boundaries": 20
+      },
+      "recipe": "challenges/cases/v10/pet-moves-to-floor-food.recipe.session.json",
+      "recipeSha256": "410b3cca7df0183b01a4c1809e775e4daf9aad6dcab91047675c866f024a67e6",
+      "recording": "challenges/cases/v10/pet-moves-to-floor-food.session.json",
+      "recordingSha256": "3cbf1d37a774ef1720cd6c60070ac9e8e445b8d0460c9d59579a83a633c96689",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\".cache/C28-next-attempts/pet-moves-to-floor-food.recipe.session.json\",\".cache/C28-rerecords/pet-moves-to-floor-food.session.json\"]; exit 0; byte-identical SHA-256 3cbf1d37a774ef1720cd6c60070ac9e8e445b8d0460c9d59579a83a633c96689; 20 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/pet-moves-to-floor-food.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/pet-moves-to-floor-food.log"
+      }
+    },
+    {
+      "id": "potion-levitation-uncursed-grounded",
+      "title": "Potion Levitation Uncursed Grounded",
+      "mission": "Source: potion.c:peffect_levitation -> trap.c:float_up. Setup: Grounded on ordinary D:1 floor with no levitation source, flight, sink, or stair transition; uncursed levitation potion. Action history: Dismiss startup; wish uncursed levitation potion; quaff and dismiss the floating message. C observation: C prints “You start to float in the air!” and starts timed levitation; the hero remains on the same level/tile. The complete C/JavaScript differential matches.",
+      "selectionRationale": "The target transitions a grounded hero into timed levitation through float_up; speed, blindness removal, and level teleport use different effects and do not set this source state. The target transitions a grounded hero into timed levitation through float_up; speed, blindness removal, and level teleport use different effects and do not set this source state. The target transitions a grounded hero into timed levitation through float_up; speed, blindness removal, and level teleport use different effects and do not set this source state. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_levitation",
+        "nethack-c/upstream/src/trap.c:float_up"
+      ],
+      "cOutcome": "C prints “You start to float in the air!” and starts timed levitation; the hero remains on the same level/tile.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v9/speed-potion-grants-intrinsic",
+        "v9/cursed-teleport-scroll-level-teleport",
+        "v9/apply-blessed-horn-clears-timed-blindness"
+      ],
+      "inputs": {
+        "seed": 48271933,
+        "datetime": "20281027090513",
+        "role": "Wizard",
+        "keyCount": 35,
+        "boundaries": 36
+      },
+      "recipe": "challenges/cases/v10/potion-levitation-uncursed-grounded.recipe.session.json",
+      "recipeSha256": "1759d4c016007e8c0bb33b9a34ab8858f7760b9b72a1391d114f107ef015882c",
+      "recording": "challenges/cases/v10/potion-levitation-uncursed-grounded.session.json",
+      "recordingSha256": "e8f278cee1ef2b52263cc45b5dc477ad3915d3d6fa452c99e80bb23d8c68f25f",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v10/potion-levitation-uncursed-grounded.recipe.session.json\",\".cache/C28-rerecords/potion-levitation-uncursed-grounded.session.json\"]; exit 0; byte-identical SHA-256 e8f278cee1ef2b52263cc45b5dc477ad3915d3d6fa452c99e80bb23d8c68f25f; 36 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/potion-levitation-uncursed-grounded.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/potion-levitation-uncursed-grounded.log"
+      }
+    },
+    {
+      "id": "quaff-see-invisible-potion",
+      "title": "Quaff See Invisible Potion",
+      "mission": "Source: potion.c:peffect_see_invisible -> blessed permanent-duration check / see_monsters. Setup: Human Wizard on D:1 has no prior see-invisible; quaffs a wish-created see-invisible potion whose generated BUC state reaches the blessed rn2(permchance) branch. Action history: Dismiss startup; wish a potion of see invisible; quaff its inventory letter; dismiss the taste pager and finish unknown-potion naming. C observation: C reaches peffect_see_invisible at step 28; rn2(100)=21 is logged at potion.c:870 while “This tastes like slime mold juice.” is displayed, then the effect updates see-invisible and monster visibility. First local mismatch at zero-based step 28: potion.c:peffect_see_invisible (potion.c:peffect_see_invisible duration roll).",
+      "selectionRationale": "This v10 C observation reaches potion.c:peffect_see_invisible -> blessed permanent-duration check / see_monsters at zero-based step 28: C reaches peffect_see_invisible at step 28; rn2(100)=21 is logged at potion.c:870 while “This tastes like slime mold juice.” is displayed, then the effect updates see-invisible and monster visibility. State: Human Wizard on D:1 has no prior see-invisible; quaffs a wish-created see-invisible potion whose generated BUC state reaches the blessed rn2(permchance) branch. Action history: Dismiss startup; wish a potion of see invisible; quaff its inventory letter; dismiss the taste pager and finish unknown-potion naming. Prior v9/blindness-potion-blinds-hero is Blindness potion blinds the hero; its C mission is: Source: nethack-c/upstream/src/potion.c:peffect_blindness -> make_blinded. Setup: Debug Wizard without current blindness quaffs an uncursed potion of blindness. Action history: Wish the potion, use its C-prompted inventory letter o, quaff, and retain the resulting screen. C observation: A cloud of darkness falls upon you. The complete local C/JavaScript differential matches. Its source owner is nethack-c/upstream/src/potion.c:peffect_blindness and it has no recorded JS mismatch. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. This v10 C observation reaches potion.c:peffect_see_invisible -> blessed permanent-duration check / see_monsters at zero-based step 28: C reaches peffect_see_invisible at step 28; rn2(100)=21 is logged at potion.c:870 while “This tastes like slime mold juice.” is displayed, then the effect updates see-invisible and monster visibility. State: Human Wizard on D:1 has no prior see-invisible; quaffs a wish-created see-invisible potion whose generated BUC state reaches the blessed rn2(permchance) branch. Action history: Dismiss startup; wish a potion of see invisible; quaff its inventory letter; dismiss the taste pager and finish unknown-potion naming. Prior v9/sickness-potion-poisons-hero is Sickness potion poisons the Ranger; its C mission is: Source: nethack-c/upstream/src/potion.c:peffect_sickness. Setup: Debug Ranger without poison resistance quaffs an uncursed potion of sickness. Action history: Wish potion, select C-prompted letter g, quaff, and retain poison attribute/HP effects. C observation: Yecch! This stuff tastes like poison. Your judgement is impaired. First JavaScript divergence: JS pre-game attrib.c message dependency at step 0 (pre-game attribute-upkeep message dependency). Its source owner is nethack-c/upstream/src/potion.c:peffect_sickness and it has first JS stop {\"kind\":\"runtime-error\",\"step\":0,\"source\":\"JS pre-game attrib.c message dependency\",\"bucket\":\"pre-game attribute-upkeep message dependency\",\"counted\":false,\"message\":\"attribute upkeep requires message\"}. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/potion.c:peffect_see_invisible"
+      ],
+      "cOutcome": "C reaches peffect_see_invisible at step 28; rn2(100)=21 is logged at potion.c:870 while “This tastes like slime mold juice.” is displayed, then the effect updates see-invisible and monster visibility.",
+      "firstMismatch": {
+        "kind": "rng",
+        "step": 28,
+        "source": "potion.c:peffect_see_invisible",
+        "bucket": "potion.c:peffect_see_invisible duration roll",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/quaff-see-invisible-potion.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/blindness-potion-blinds-hero",
+        "v9/sickness-potion-poisons-hero"
+      ],
+      "inputs": {
+        "seed": 71035031,
+        "datetime": "20281027112614",
+        "role": "Wizard",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v10/quaff-see-invisible-potion.recipe.session.json",
+      "recipeSha256": "ecc5a606dc01e7780d5025786c5875e6efee1b6384600747b794951f597ea686",
+      "recording": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+      "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/quaff-see-invisible-potion.recipe.session.json\",\".cache/C28-rerecords/quaff-see-invisible-potion.session.json\"]; exit 0; byte-identical SHA-256 eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3; 31 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/quaff-see-invisible-potion.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng",
+          "step": 28,
+          "source": "potion.c:peffect_see_invisible",
+          "bucket": "potion.c:peffect_see_invisible duration roll",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/quaff-see-invisible-potion.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/quaff-see-invisible-potion.log"
+      }
+    },
+    {
+      "id": "remove-levitation-ring-and-float-down",
+      "title": "Remove Levitation Ring And Float Down",
+      "mission": "Source: do_wear.c:Ring_off_or_gone -> trap.c:float_down. Setup: Ordinary floor; uncursed levitation ring is the sole levitation source; no flight or other levitation. Action history: Wish and wear the ring, then use the ring-removal selector to take it off. C observation: C removes ring extrinsic levitation, enters float_down, and reports landing on the stairs. The complete C/JavaScript differential matches.",
+      "selectionRationale": "This is the takeoff-side Ring_off transition from levitating to grounded; the prior ring conflict is Ring_on and the horn/tin cases do not remove a levitation source. This is the takeoff-side Ring_off transition from levitating to grounded; the prior ring conflict is Ring_on and the horn/tin cases do not remove a levitation source. This is the takeoff-side Ring_off transition from levitating to grounded; the prior ring conflict is Ring_on and the horn/tin cases do not remove a levitation source. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/do_wear.c:Ring_off_or_gone",
+        "nethack-c/upstream/src/trap.c:float_down"
+      ],
+      "cOutcome": "C removes ring extrinsic levitation, enters float_down, and reports landing on the stairs.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v8/wear-conflict-ring",
+        "v9/apply-blessed-horn-clears-timed-blindness",
+        "v9/valkyrie-opens-spinach-tin-with-tin-opener"
+      ],
+      "inputs": {
+        "seed": 48271934,
+        "datetime": "20281027090514",
+        "role": "Wizard",
+        "keyCount": 29,
+        "boundaries": 30
+      },
+      "recipe": "challenges/cases/v10/remove-levitation-ring-and-float-down.recipe.session.json",
+      "recipeSha256": "60246e672cd0adda76d09ead99c563de6edceff1c48eb9cdd379ab3501a82e25",
+      "recording": "challenges/cases/v10/remove-levitation-ring-and-float-down.session.json",
+      "recordingSha256": "fa4aa6821257a6181b9c408effcfd56b8346fb3398bb47fed36d1ed8b2a37663",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v10/remove-levitation-ring-and-float-down.recipe.session.json\",\".cache/C28-rerecords/remove-levitation-ring-and-float-down.session.json\"]; exit 0; byte-identical SHA-256 fa4aa6821257a6181b9c408effcfd56b8346fb3398bb47fed36d1ed8b2a37663; 30 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/remove-levitation-ring-and-float-down.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/remove-levitation-ring-and-float-down.log"
+      }
+    },
+    {
+      "id": "rub-magic-lamp",
+      "title": "Rub Magic Lamp",
+      "mission": "Source: apply.c:dorub MAGIC_LAMP. Setup: Wizard can wield a charged magic lamp; not swallowed and has hands. Action history: Wish a positively charged magic lamp, wield it, issue #rub, and select it. C observation: C dorub consumes the magic-lamp charge; rn2(3)=2 skips transformation and rn2(2)=1 produces the puff-of-smoke outcome. The complete C/JavaScript differential matches.",
+      "selectionRationale": "The closest same-file behavior ignites an oil lamp through use_lamp/#apply; this enters dorub for a charged magic lamp via #rub and tests its transformation/djinni branch. The closest same-file behavior ignites an oil lamp through use_lamp/#apply; this enters dorub for a charged magic lamp via #rub and tests its transformation/djinni branch. The closest same-file behavior ignites an oil lamp through use_lamp/#apply; this enters dorub for a charged magic lamp via #rub and tests its transformation/djinni branch. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/apply.c:dorub"
+      ],
+      "cOutcome": "C dorub consumes the magic-lamp charge; rn2(3)=2 skips transformation and rn2(2)=1 produces the puff-of-smoke outcome.",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v9/oil-lamp-ignites",
+        "v8/apply-blessed-touchstone-identifies-gem",
+        "v9/blessed-identify-scroll-identifies-pack"
+      ],
+      "inputs": {
+        "seed": 48271938,
+        "datetime": "20281027090518",
+        "role": "Wizard",
+        "keyCount": 27,
+        "boundaries": 28
+      },
+      "recipe": "challenges/cases/v10/rub-magic-lamp.recipe.session.json",
+      "recipeSha256": "1f1a3cdc46a9e55483335cf69d911fb025b92ce87004a39a97bd39baa950d8ee",
+      "recording": "challenges/cases/v10/rub-magic-lamp.session.json",
+      "recordingSha256": "f40833e73f74771f32474667170a90b82de1afeed57e166e7314d7124c34e59c",
+      "reproducibility": "Independent C rerecord command: [\"node\",\"scripts/record-session.mjs\",\"challenges/cases/v10/rub-magic-lamp.recipe.session.json\",\".cache/C28-rerecords/rub-magic-lamp.session.json\"]; exit 0; byte-identical SHA-256 f40833e73f74771f32474667170a90b82de1afeed57e166e7314d7124c34e59c; 28 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/rub-magic-lamp.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/rub-magic-lamp.log"
+      }
+    },
+    {
+      "id": "tame-newt-refuses-saddle",
+      "title": "Tame Newt Refuses Saddle",
+      "mission": "Source: steed.c:use_saddle -> can_saddle(newt)==false. Setup: Debug Wizard has a visible tame newt directly south, no saddle on it, and a wished saddle in inventory; hero has hands and is not swallowed or underwater. Action history: Dismiss character/startup; wizard-create “tame newt”; wish saddle; apply inventory saddle (o) and target south (j). C observation: C reaches use_saddle’s can_saddle false branch and prints “You can’t saddle such a creature.” It consumes a turn but never computes the saddle success chance or draws its rn2(100). The complete C/JavaScript differential matches.",
+      "selectionRationale": "v7 reaches the successful put_saddle_on_mon branch on a tame saddleable pony; this reaches the earlier can_saddle refusal for a tame newt. v5 exercises riding/dismount/remount on a valid steed, not use_saddle’s eligibility rejection. The v8 case is Ring_on wear conflict; it shares no saddle or target-eligibility branch. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/steed.c:use_saddle"
+      ],
+      "cOutcome": "C reaches use_saddle’s can_saddle false branch and prints “You can’t saddle such a creature.” It consumes a turn but never computes the saddle success chance or draws its rn2(100).",
+      "firstMismatch": null,
+      "countedTowardTwelve": false,
+      "closestPriorCases": [
+        "v7/saddled-horse-mount-knight-corrected",
+        "v5/knight-steed-dismount-remount",
+        "v8/wear-conflict-ring"
+      ],
+      "inputs": {
+        "seed": 48271982,
+        "datetime": "20281027090642",
+        "role": "Wizard",
+        "keyCount": 24,
+        "boundaries": 25
+      },
+      "recipe": "challenges/cases/v10/tame-newt-refuses-saddle.recipe.session.json",
+      "recipeSha256": "bd8a56dda592c3b38f4564e4df4025f909406b4957b664eaacbd5abe60aa77ae",
+      "recording": "challenges/cases/v10/tame-newt-refuses-saddle.session.json",
+      "recordingSha256": "6b3f3c98c7c0951f55af9d0622609caea58c1b0f2e443308387aefeb25957fd4",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/tame-newt-refuses-saddle.recipe.session.json\",\".cache/C28-rerecords/tame-newt-refuses-saddle.session.json\"]; exit 0; byte-identical SHA-256 6b3f3c98c7c0951f55af9d0622609caea58c1b0f2e443308387aefeb25957fd4; 25 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/tame-newt-refuses-saddle.record.log.",
+      "localDifferential": {
+        "status": "match",
+        "firstMismatch": null,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/tame-newt-refuses-saddle.log"
+      }
+    },
+    {
+      "id": "wizard-throne-effect-five-take-gold",
+      "title": "Wizard Throne Effect Five Take Gold",
+      "mission": "Source: sit.c:throne_sit_effect case 5 -> take_gold. Setup: Neutral human Wizard on D:1 has a wished throne; the gold wish is on the floor, so money_cnt(inventory) is zero when effect five executes. Action history: Wish a throne and floor gold; issue #sit, dismiss the throne pager, select effect 5. C observation: C reaches sit.c:throne_sit_effect case 5 and take_gold at step 30; with no carried coins it says “You notice you have no gold!” First local mismatch at zero-based step 30: sit.c:throne_sit_effect -> take_gold -> delobj -> obj_resists (sit.c:take_gold inventory coin-deletion resistance caller).",
+      "selectionRationale": "This v10 C observation reaches sit.c:throne_sit_effect case 5 -> take_gold at zero-based step 30: C reaches sit.c:throne_sit_effect case 5 and take_gold at step 30; with no carried coins it says “You notice you have no gold!” State: Neutral human Wizard on D:1 has a wished throne; the gold wish is on the floor, so money_cnt(inventory) is zero when effect five executes. Action history: Wish a throne and floor gold; issue #sit, dismiss the throne pager, select effect 5. Prior v9/gold-detection-scroll-maps-floor-gold is Gold detection scroll detects floor gold; its C mission is: Source: nethack-c/upstream/src/read.c:seffect_gold_detection -> nethack-c/upstream/src/detect.c:gold_detect. Setup: Debug Wizard reads an uncursed scroll of gold detection on a generated level with a visible floor-gold glyph. Action history: Wish only the scroll, read it, then dismiss the detection message/map result. C observation: You feel very greedy, and sense gold! First JavaScript divergence: attrib.c:exercise at step 31 (attrib.c:exercise shared helper). Its source owner is nethack-c/upstream/src/read.c:seffect_gold_detection, nethack-c/upstream/src/detect.c:gold_detect and it has first JS stop {\"kind\":\"rng\",\"step\":31,\"source\":\"attrib.c:exercise\",\"bucket\":\"attrib.c:exercise shared helper\",\"counted\":false,\"log\":\"/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/gold-detection-scroll-maps-floor-gold.diff-fresh.log\"}. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. This v10 C observation reaches sit.c:throne_sit_effect case 5 -> take_gold at zero-based step 30: C reaches sit.c:throne_sit_effect case 5 and take_gold at step 30; with no carried coins it says “You notice you have no gold!” State: Neutral human Wizard on D:1 has a wished throne; the gold wish is on the floor, so money_cnt(inventory) is zero when effect five executes. Action history: Wish a throne and floor gold; issue #sit, dismiss the throne pager, select effect 5. Prior v9/genocide-scroll-selects-species is Genocide scroll selects a species; its C mission is: Source: nethack-c/upstream/src/read.c:seffect_genocide -> do_genocide. Setup: Wizard debug hero has an uncursed genocide scroll; choose a nonessential species with no active instance. Action history: Read the scroll, select the species from the genocide prompt, and confirm. C observation: Wiped out all newts.  Wiped out all geckos.  Wiped out all iguanas. First JavaScript divergence: read.c:do_genocide species-selection/result branch at step 25 (read.c:do_genocide species result). Its source owner is nethack-c/upstream/src/read.c:seffect_genocide and it has first JS stop {\"kind\":\"screen\",\"step\":25,\"source\":\"read.c:do_genocide species-selection/result branch\",\"bucket\":\"read.c:do_genocide species result\",\"counted\":true,\"log\":\"/tmp/teleport-loop-worker-c-20260925/.cache/C27-logs/genocide-scroll-selects-species.diff-fresh.log\"}. The reached branch/result, precondition state, and causal action history are compared with that named prior individually; this C-only distinction is frozen before JS comparison. The case was individually compared with all 35 v9 cases and all 5 unresolved v8 cases; it was also pairwise crosswalked against every other v10 case.",
+      "sourcePointers": [
+        "nethack-c/upstream/src/sit.c:throne_sit_effect"
+      ],
+      "cOutcome": "C reaches sit.c:throne_sit_effect case 5 and take_gold at step 30; with no carried coins it says “You notice you have no gold!”",
+      "firstMismatch": {
+        "kind": "rng+screen",
+        "step": 30,
+        "source": "sit.c:throne_sit_effect -> take_gold -> delobj -> obj_resists",
+        "bucket": "sit.c:take_gold inventory coin-deletion resistance caller",
+        "counted": true,
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/wizard-throne-effect-five-take-gold.log"
+      },
+      "countedTowardTwelve": true,
+      "closestPriorCases": [
+        "v9/gold-detection-scroll-maps-floor-gold",
+        "v9/genocide-scroll-selects-species"
+      ],
+      "inputs": {
+        "seed": 72010041,
+        "datetime": "20281027115900",
+        "role": "Wizard",
+        "keyCount": 30,
+        "boundaries": 31
+      },
+      "recipe": "challenges/cases/v10/wizard-throne-effect-five-take-gold.recipe.session.json",
+      "recipeSha256": "859d0c6d52764080f6fb01fb23f10d7534d24f5cf2b76491e49f9e4e4faf03f1",
+      "recording": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+      "recordingSha256": "104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793",
+      "reproducibility": "Independent C rerecord command: [\"/home/vtjeng/.nvm/versions/node/v22.23.2/bin/node\",\"/tmp/teleport-loop-worker-c-20260925/scripts/record-session.mjs\",\"challenges/cases/v10/wizard-throne-effect-five-take-gold.recipe.session.json\",\".cache/C28-rerecords/wizard-throne-effect-five-take-gold.session.json\"]; exit 0; byte-identical SHA-256 104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793; 31 boundaries. Log: /tmp/teleport-loop-worker-c-20260925/.cache/C28-final-checks/wizard-throne-effect-five-take-gold.record.log.",
+      "localDifferential": {
+        "status": "mismatch",
+        "firstMismatch": {
+          "kind": "rng+screen",
+          "step": 30,
+          "source": "sit.c:throne_sit_effect -> take_gold -> delobj -> obj_resists",
+          "bucket": "sit.c:take_gold inventory coin-deletion resistance caller",
+          "counted": true,
+          "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/wizard-throne-effect-five-take-gold.log"
+        },
+        "log": "/tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/wizard-throne-effect-five-take-gold.log"
+      }
+    }
+  ]
+}

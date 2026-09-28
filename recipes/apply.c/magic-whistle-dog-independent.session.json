@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73901282,
+      "datetime": "20360929113500",
+      "nethackrc": "OPTIONS=name:RecallProbe,role=Wizard,race=human,gender=female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:dog,!autopickup,!acoustics\n",
+      "moves": "\u0017magic whistle\nao"
+    }
+  ],
+  "comment": "Independent C witness with a distinct seed, clock, and character selection: wishes for an ordinary magic whistle and applies it with the starting dog present to exercise apply.c:use_magic_whistle and magic_whistled relocation."
+}

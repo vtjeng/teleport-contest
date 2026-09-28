@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73901281,
+      "datetime": "20360929113400",
+      "nethackrc": "OPTIONS=name:AirProbe,role=Wizard,race=human,gender=male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:dog,!autopickup,!acoustics\n",
+      "moves": "\u0017tin whistle\nao"
+    }
+  ],
+  "comment": "Independent C witness: a newly chosen debug Wizard wishes for a tin whistle, then applies it to reach apply.c:use_whistle's ordinary audible branch with the default dog pet present."
+}

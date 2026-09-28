@@ -1,0 +1,137 @@
+{
+  "session": "synthetic/v10/confused-remove-curse-blessorcurse",
+  "corpus": "synthetic",
+  "batch": "v10",
+  "caseId": "confused-remove-curse-blessorcurse",
+  "manifestPath": "challenges/manifests/v10.json",
+  "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+  "recordingSha256": "9cb45869824984538232543de4eaefe08fc54fa66f0c7367d0a24d1b7208eb03",
+  "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+  "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+  "remainingScreens": 2,
+  "recordedSteps": 82,
+  "status": "complete",
+  "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v10",
+    "caseId": "confused-remove-curse-blessorcurse",
+    "session": "synthetic/v10/confused-remove-curse-blessorcurse",
+    "manifestPath": "challenges/manifests/v10.json",
+    "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+    "recording": "challenges/cases/v10/confused-remove-curse-blessorcurse.session.json",
+    "recordingPath": "challenges/cases/v10/confused-remove-curse-blessorcurse.session.json",
+    "recordingSha256": "9cb45869824984538232543de4eaefe08fc54fa66f0c7367d0a24d1b7208eb03",
+    "recipe": "challenges/cases/v10/confused-remove-curse-blessorcurse.recipe.session.json",
+    "recipeSha256": "47997cd8c0b82b1e9e584c5bc80cf3e74ff58e99bb8612e35a7053290fcfe8cc",
+    "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+    "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+    "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+    "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+    "evaluationUtc": "2026-09-28T08:31:23.355Z",
+    "remainingScreens": 2,
+    "recordedSteps": 82,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 80,
+        "total": 82
+      },
+      "rng": {
+        "matched": 2919,
+        "total": 2926
+      },
+      "cursors": {
+        "matched": 81,
+        "total": 82
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 80,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 80,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 51,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2915,
+        "cEntry": "rn2(2)=1",
+        "cCaller": "blessorcurse(mkobj.c:1846)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 81,
+          "key": " "
+        },
+        "stepIndex": 81
+      },
+      "cursor": {
+        "index": 80,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 80,
+          "key": " "
+        },
+        "cCursor": [
+          59,
+          0,
+          1
+        ],
+        "jsCursor": [
+          46,
+          15,
+          1
+        ]
+      }
+    },
+    "step": 80,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Reading an uncursed remove-curse scroll while confused reaches the inventory traversal of read.c:seffect_remove_curse. JavaScript has only its cursed-scroll arm and skips this traversal, so the C message and blessorcurse RNG diverge near the end. The whole effect must traverse a saved next pointer, select eligible worn or special items, change BUC state when confused, clear bknown, and handle saddle/punishment/final inventory updates. The existing mkobj.c:blessorcurse port rejects gameplay objects and its bless helper has a startup-only guard, so the runtime BUC source family is a required dependency.",
+  "source": {
+    "file": "read.c",
+    "branch": "For a noncursed SCR_REMOVE_CURSE read under Confusion, seffect_remove_curse prints the confused You_feel message, traverses inventory while saving obj->nobj before any change, ignores coins and a singleton source scroll, computes wornmask with auxiliary-slot exceptions, and calls blessorcurse(obj,2) for each eligible object before clearing bknown. The same function covers blessed scope, ordinary uncursing, water shop price, steed saddle, punishment, buried ball, and update_inventory.",
+    "functions": [
+      "seffect_remove_curse"
+    ],
+    "callers": [
+      "read.c:seffects dispatches SCR_REMOVE_CURSE and SPE_REMOVE_CURSE to seffect_remove_curse at 2225-2227; js/read.js:seffects currently calls its partial function only for a cursed scroll and otherwise notes the unported gap."
+    ],
+    "dependencies": [
+      "mkobj.c:blessorcurse must accept runtime inventory objects without a startup-only assertion and preserve rn2(chance), conditional rn2(2), and curse/bless source effects; js/obj.js currently limits this helper and bless to startup objects.",
+      "Inventory traversal must preserve the source next pointer when cursing a secondary weapon moves it out of the chain; related runtime BUC, billing, saddle, unpunish, and buried-ball operations need source-order wiring."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 80/82 screens, then diverges at step 80; C next records rn2(2)=1 in blessorcurse(mkobj.c:1846) while JavaScript next calls rn2(5). Recording SHA-256 is 9cb45869824984538232543de4eaefe08fc54fa66f0c7367d0a24d1b7208eb03.",
+    "Upstream nethack-c/upstream/src/read.c:1489-1605 defines the whole effect, including the confused inventory loop at 1513-1563 and call to blessorcurse(obj,2) at 1557; mkobj.c:1841-1854 defines the two-stage BUC RNG.",
+    "js/read.js:1518-1526 labels only the cursed-scroll arm ported, and js/read.js:2774-2780 skips the noncursed effect. js/obj.js:1692-1704 asserts startup-only BUC objects, and js/obj.js:1563-1568 applies the same restriction to bless."
+  ]
+}
