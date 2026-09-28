@@ -109296,7 +109296,7 @@
     {
       "id": "port-zap-zapnodir-synthetic-v11-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port directionless wand effects and enlightenment helper from zap.c",
       "cFile": "zap.c",
       "sessions": [
@@ -109313,22 +109313,25 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e95715168651db79aeea73854d9120ca5c69c55d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_enlightenment_effect",
           "line": 2525,
           "endLine": 2538,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "zapnodir",
           "line": 2539,
           "endLine": 2604,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -109960,7 +109963,184 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_enlightenment_effect",
+            "implementation": "js/zap.js",
+            "symbol": "do_enlightenment_effect",
+            "sourceReview": "Read zap.c:do_enlightenment_effect() (2525-2535) in full. Preserve the self-knowledge message, WIN_MESSAGE dismissal, MAGICENLIGHTENMENT/ENL_GAMEINPROGRESS status menu, trailing feeling-subsides message, and Wisdom exercise order. The call to insight.c:enlightenment() is void in C. For the C-defined polymorphed-hero condition, JS records note_unported('insight.c enlightenment') and skips that currently unsupported helper path, then continues the remaining caller tail. The ordinary-hero helper and complete caller tail strictly match an independent C run.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "zapnodir",
+                "source": "zap.c:zapnodir() sets known from obj->dknown and calls do_enlightenment_effect() in its WAN_ENLIGHTMENT arm"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapnodir-enlightenment-independent-b47.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-enlightenment-reports-status",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 26,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_ENLIGHTENMENT) -> zap.c:do_enlightenment_effect; this range reaches the initial message/pager"
+              }
+            ],
+            "checkedAt": "e95715168651db79aeea73854d9120ca5c69c55d"
+          },
+          {
+            "name": "zapnodir",
+            "implementation": "js/zap.js",
+            "symbol": "zapnodir",
+            "sourceReview": "Read zap.c:zapnodir() (2539-2604) in full. Ported each explicit arm and the discovery tail in source order: light/spell light checks dknown and blindness before litroom and discarded lightdamage; secret-door detection/spell detect unseen uses dknown and discarded findit; stasis draws rn1(21,10) and retains the later deadline; create-monster uses rn2(23) with the fallback rn1(7,2) and consumes create_critters() visibility for discovery; wishing draws Luck+rn2(5), preserves its no-effect versus makewish paths; enlightenment calls the helper before the shared tail. The default arm is a C no-op. The recorded WAN_NOTHING case reaches it because C init_objects(o_init.c:234) drew rn2(2)=1, making that wand NODIR.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects() calls zapnodir(obj) when objects[obj->otyp].oc_dir == NODIR"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dozap",
+                "source": "zap.c:dozap() calls weffects(obj) after charge and direction handling; the NODIR wand path reaches zapnodir through that dispatcher"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() calls weffects(pseudo) for light and detect-unseen directionless spell objects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-command.test.mjs",
+              "scripts/zapnodir.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapnodir-enlightenment-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-light-wand-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-secret-door-wand-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-spell-detect-unseen-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-spell-light-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-stasis-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-nothing-default-independent-b47.session.json",
+              "recordings/zap.c/create-monster-wand-independent-b40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-wishing-makes-wish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_WISHING)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-light-room",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_LIGHT) -> read.c:litroom"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-stasis-freezes-level",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_STASIS)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-enlightenment-reports-status",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 26,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_ENLIGHTENMENT) -> zap.c:do_enlightenment_effect"
+              }
+            ],
+            "checkedAt": "e95715168651db79aeea73854d9120ca5c69c55d"
+          }
+        ],
+        "entryPointReview": "zap.c:dozap() and spell.c:spelleffects() are the only production callers of zap.c:weffects(). A NODIR wand therefore reaches zapnodir through the hero #zap command, and directionless spells reach it through the spell-cast dispatcher. Source-reaching strict recordings cover light wand and SPE_LIGHT, secret-door wand and SPE_DETECT_UNSEEN, stasis, and the WAN_NOTHING default no-op. The existing B40 create-monster wand recording covers the create_critters return path. The admitted v11 cases cover wishing, light, stasis, and enlightenment through their real command dispatchers; enlightenment's selected range ends at the initial message boundary, so the independent 29-screen enlightenment recording verifies the menu, trailing line, and Wisdom exercise. The polymorphed WAN_ENLIGHTENMENT variant reaches a void insight.c:enlightenment call whose current JS helper refuses polymorphed heroes; zap.js records that exact dependency with note_unported and continues the source-ordered trailing message/exercise. That variant is not claimed as a strict C match.",
+        "entryPoints": [
+          {
+            "name": "Hero uses a directionless wand through the #zap command",
+            "functions": [
+              "zapnodir",
+              "do_enlightenment_effect"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapnodir-enlightenment-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-light-wand-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-secret-door-wand-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-stasis-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-nothing-default-independent-b47.session.json",
+              "recordings/zap.c/create-monster-wand-independent-b40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-wishing-makes-wish",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_WISHING)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-light-room",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_LIGHT)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-stasis-freezes-level",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 19,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_STASIS)"
+              },
+              {
+                "batch": "v11",
+                "caseId": "wand-enlightenment-reports-status",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 26,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:zapnodir(WAN_ENLIGHTENMENT)"
+              }
+            ]
+          },
+          {
+            "name": "Hero casts a directionless spell through spelleffects",
+            "functions": [
+              "zapnodir"
+            ],
+            "recordings": [
+              "recordings/zap.c/zapnodir-spell-light-independent-b47.session.json",
+              "recordings/zap.c/zapnodir-spell-detect-unseen-independent-b47.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e95715168651db79aeea73854d9120ca5c69c55d",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-read-destroy-armor-synthetic-v8-20260928",
