@@ -107352,7 +107352,7 @@
     {
       "id": "port-pray-sacrifice-your-race-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port own-race corpse sacrifice from source",
       "cFile": "pray.c",
       "sessions": [
@@ -107366,15 +107366,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "22052f52aabe0e04fb194d8f1f243d996c0603d2",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "sacrifice_your_race",
           "line": 1698,
           "endLine": 1780,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -107645,7 +107648,75 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "sacrifice_your_race",
+            "implementation": "js/pray.js",
+            "symbol": "sacrifice_your_race",
+            "sourceReview": "Read pray.c:sacrifice_your_race() 1698-1778 in full. Preserved demon-hero versus non-chaotic offense feedback and Wisdom exercise; the high-altar early return; lawful/neutral altar staining and newsym order; human sacrifice on chaotic or unaligned altars; black-cloud altar destruction; Luck adjustment before dlord(); dlord's PM return and makemon(&mons[pm], u.ux, u.uy, MM_NOMSG)'s pointer return; naming that returned monster, clearing STRAT_APPEARMSG, peacefulness, terror and nomul state; alignment/anger/attribute/luck tail; and carried versus floor corpse consumption. Existing makemon_runtime() is invoked with the source explicit-species, explicit-hero-coordinate, MM_NOMSG call shape, and its returned monster pointer drives the C conditional and subsequent effects. This is evidence for that call shape only, not a whole makemon.c:makemon port. At C void calls whose result is discarded, the JS records and skips pray.c:desecrate_altar, priest.c:angry_priest, and pray.c:angrygods. The independently matched recording exercises the unaligned human offering branch; the admitted v10 case exercises the chaotic human branch.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_corpse",
+                "source": "pray.c:offer_corpse() checks your_race(ptr) and calls sacrifice_your_race(otmp, highaltar, altaralign)"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "dosacrifice",
+                "source": "pray.c:dosacrifice() selects a sacrifice with floorfood() and sends a corpse to offer_corpse()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/sacrifice-your-race-unaligned-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 40,
+                "source": "cmd.c #offer -> pray.c:dosacrifice -> pray.c:offer_corpse own-race branch -> pray.c:sacrifice_your_race; dlord() and makemon() return-valued calls"
+              }
+            ],
+            "checkedAt": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
+          }
+        ],
+        "entryPointReview": "The active production entry point is the hero's #offer command: cmd.c's extended-command row dispatches dosacrifice(), which selects a corpse and calls offer_corpse(), whose own-race branch calls sacrifice_your_race(). The admitted v10 offer-human-corpse-own-race recording matches the entire 41-step segment; steps 39-40 reach the helper, dlord(), makemon(), summoning output, and terror state. The independent recipe/recording at recordings/pray.c/sacrifice-your-race-unaligned-independent.session.json also executes this command and strict-matches its full 43-step segment; C step 41 reaches dlord(minion.c:410) and makemon(makemon.c:1447), and step 42 shows the terror result. The high-altar early return still skips void pray.c:desecrate_altar; lawful/neutral altar staining and the black-cloud branch still skip void priest.c:angry_priest; non-chaotic tail effects still skip void pray.c:angrygods. These are source-named gaps at calls whose results C discards, not claims that their effects were ported. recipes/pray.c/sacrifice-your-race-nonchaotic-blocked.session.json preserves a source-blocked non-chaotic branch. The supplemental makemon observation covers only the explicit coordinate/MM_NOMSG call shape and consumed returned pointer used here, not whole makemon.c completion.",
+        "entryPoints": [
+          {
+            "name": "Hero offers an own-race corpse with #offer",
+            "functions": [
+              "sacrifice_your_race"
+            ],
+            "recordings": [
+              "recordings/pray.c/sacrifice-your-race-unaligned-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 40,
+                "source": "cmd.c #offer -> pray.c:dosacrifice -> pray.c:offer_corpse -> pray.c:sacrifice_your_race"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "22052f52aabe0e04fb194d8f1f243d996c0603d2",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
