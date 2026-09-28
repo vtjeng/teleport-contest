@@ -107076,6 +107076,321 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-flip-coin-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port coin-flipping apply behavior from source",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v10/flip-coin-normal-outcome"
+      ],
+      "selectionReason": "The saved v10 coin case matches selection and stops at step 16 because apply.c:doapply COIN_CLASS has no flip_coin behavior in JavaScript. The complete apply.c:flip_coin handles dry heads/tails, hallucination, underwater, glib/fumbling, Dexterity and dropped stacked coins. No other unresolved flip_coin case is queued; related apply.c wand and artifact cases execute different source functions and action histories. Investigation: investigations/synthetic/v10/flip-coin-normal-outcome.json; current evaluation challenges/evaluations/20260928145605-v10.json.",
+      "detail": "Port whole apply.c:flip_coin in source order, including message construction, per-branch RNG, quantity splitobj and dropx calls, and coin-class dispatch in doapply. Remove the stale COIN_CLASS refusal and update its focused test. Provide independent C recordings for normal and source-reached drop/hallucination states, preserving existing matches.",
+      "openedAt": "6be58f64e66f16eb890da5fa65a334d1a77ba000",
+      "openStanding": {
+        "sha": "58639035d0e7ada6a49be353c938613f4266f393",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "aef4649706699044364b3fcf0884ba94f5622cd3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "flip_coin",
+          "line": 4527,
+          "endLine": 4559,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 4527,
+        "to": 4559
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/flip-coin-normal-outcome": {
+          "session": "synthetic/v10/flip-coin-normal-outcome",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "flip-coin-normal-outcome",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+          "recordingSha256": "74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0",
+          "evaluationPath": "challenges/evaluations/20260928145605-v10.json",
+          "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393"
+        }
+      },
+      "activeStanding": {
+        "sha": "58639035d0e7ada6a49be353c938613f4266f393",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "flip-coin-normal-outcome",
+          "session": "synthetic/v10/flip-coin-normal-outcome",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+          "recordingPath": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+          "recordingSha256": "74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0",
+          "recipe": "challenges/cases/v10/flip-coin-normal-outcome.recipe.session.json",
+          "recipeSha256": "5793516f2bfe49d6a1a4c95ee58503fb8929c2db724aae27659871e930b8ecf0",
+          "replayInputSha256": "0fd8b2977a9c4f584dee6e8f9b94a514b18192d284d9ba0dc1d551acc5317e3d",
+          "evaluationPath": "challenges/evaluations/20260928145605-v10.json",
+          "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393",
+          "evaluationArtifact": "challenges/evaluations/20260928145605-v10.json",
+          "evaluationUtc": "2026-09-28T14:56:08.825Z",
+          "remainingScreens": 1,
+          "recordedSteps": 17,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 17
+            },
+            "rng": {
+              "matched": 2992,
+              "total": 3001
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 17
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_coin()",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "flip_coin",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_coin()",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/flip-coin-normal-outcome.json",
+            "result": {
+              "session": "synthetic/v10/flip-coin-normal-outcome",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "flip-coin-normal-outcome",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 1,
+              "recordedSteps": 17,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "flip-coin-normal-outcome",
+                "session": "synthetic/v10/flip-coin-normal-outcome",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+                "recordingPath": "challenges/cases/v10/flip-coin-normal-outcome.session.json",
+                "recordingSha256": "74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0",
+                "recipe": "challenges/cases/v10/flip-coin-normal-outcome.recipe.session.json",
+                "recipeSha256": "5793516f2bfe49d6a1a4c95ee58503fb8929c2db724aae27659871e930b8ecf0",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 1,
+                "recordedSteps": 17,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 17
+                  },
+                  "rng": {
+                    "matched": 2992,
+                    "total": 3001
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 17
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_coin()",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "flip_coin",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_coin()",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a gold piece matches C through item selection, then JavaScript refuses apply.c:flip_coin. C describes the coin, drops one if underwater or fingers are slippery (or a low-Dexterity draw fails), otherwise draws rn2(100) when hallucinating or rn2(2) for normal heads/tails. The whole function and doapply coin-class dispatch are missing; dropped-coin branches must preserve splitobj and dropx behavior.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For a dry, neither glib nor fumbling, nonhallucinating Wizard with normal Dexterity applying a gold piece, doapply dispatches COIN_CLASS to flip_coin; after the flip message it draws rn2(2) and prints heads or tails. Underwater, Glib/Fumbling and low Dexterity may instead split one coin from a stack and drop it, while hallucination uses a separate rn2(100) branch.",
+                "functions": [
+                  "flip_coin"
+                ],
+                "callers": [
+                  "apply.c:doapply dispatches COIN_CLASS to flip_coin at 4240-4241; js/apply.js:doapply currently throws UnsupportedApplyError for COIN_CLASS."
+                ],
+                "dependencies": [
+                  "invent.c:splitobj returns a separate coin when the stack has quantity above one; do.c:dropx then drops it. Preserve stack and floor state through those consumed and void calls.",
+                  "fingers_or_gloves and objnam.c:singular/xname determine messages; Glib, Fumbling, Hallucination and ACURR(A_DEX) control C branch/RNG order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 16/17 screens then stops at step 16 on flip_coin refusal, with 2992/3001 RNG calls matched. The C recording SHA-256 is 74a817f2bb295a3ec4019a480f358a4444124cac5e19e3d735a97f21fdf207e0.",
+                "Upstream nethack-c/upstream/src/apply.c:4528-4564 defines the full flip_coin function and the normal rn2(2) branch; apply.c:4240-4241 wires the coin class.",
+                "js/apply.js:3471-3472 refuses COIN_CLASS; the independent recipe wishes a gold piece and applies it."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "flip_coin",
+            "implementation": "js/apply.js",
+            "symbol": "flip_coin",
+            "sourceReview": "Compared the complete apply.c:flip_coin definition at 4526-4556 and its doapply caller at 4214-4241. Preserved the initial flip message, Underwater-first branch, short-circuit Glib/Fumbling/low-Dexterity test and its conditional rn2(ACURR(A_DEX)) draw, stack split only when quan > 1, then the separate Hallucination rn2(100) or normal rn2(2) outcome. The production apply.js:doapply COIN_CLASS arm returns this helper's ECMD_TIME result. splitobj()'s returned object is consumed and already ported in js/obj.js. C discards dropx()'s result; the ordinary floor-drop path is wired through do.c:dropx, while its underwater and visible-Hallucination floor/display side effects remain explicit note_unported('do.c dropx underwater') and note_unported('do.c dropx hallucinated display') gaps. No other substitute RNG or state change was added.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply, after getobj and retouch_object, checks COIN_CLASS and returns flip_coin(obj) at 4240-4241. The JS COIN_CLASS arm returns await flip_coin(obj, state, env)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c command table binds the 'a' apply command to doapply at 1677-1678; js/cmd.js routes the production doapply command through runApplyCommand at 5148-5149, which calls apply.js:doapply."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-flip-coin.test.mjs",
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-coin-normal-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-glib-drop-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-hallucination-blinded-independent-c36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "flip-coin-normal-outcome",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 16,
+                "source": "cmd.c apply command -> apply.c:doapply COIN_CLASS -> apply.c:flip_coin normal rn2(2) outcome"
+              }
+            ],
+            "checkedAt": "aef4649706699044364b3fcf0884ba94f5622cd3"
+          }
+        ],
+        "entryPointReview": "The active production entry is the 'a' command: cmd.c's command table dispatches it to doapply, whose COIN_CLASS branch calls flip_coin; js/cmd.js's production command route calls apply.js:doapply, which now selects the same helper. The selected v10 normal-outcome case reaches flip_coin at segment 0, step 16. Independent normal, GLIB stack-drop, and blinded-Hallucination recordings fully match C and exercise the regular result, splitobj plus ordinary dropx, and rn2(100) paths respectively. A visible-Hallucination attempt reaches C flip_coin, but its strict JS comparison diverges before the apply command while allmain.c:moveloop_core refreshes the hallucinated map through display.c:see_objects/map_object; its blocked recipe remains under recipes/apply.c and its cache-only C trace is excluded from recordings. Underwater is another active loss branch, but the dropped-floor effects of its void do.c:dropx call remain explicitly unported. These are named downstream evidence/behavior gaps, not claims that the corresponding dropx effects are complete.",
+        "entryPoints": [
+          {
+            "name": "Apply a coin with the production apply command",
+            "functions": [
+              "flip_coin"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-coin-normal-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-glib-drop-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-hallucination-blinded-independent-c36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "flip-coin-normal-outcome",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 16,
+                "source": "cmd.c apply command -> apply.c:doapply COIN_CLASS -> apply.c:flip_coin"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "aef4649706699044364b3fcf0884ba94f5622cd3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pray-sacrifice-your-race-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port own-race corpse sacrifice from source",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v10/offer-human-corpse-own-race"
+      ],
+      "selectionReason": "Current v10 case offer-human-corpse-own-race stops at step 39 when pray.c:offer_corpse skips sacrifice_your_race; C calls dlord after altar branching. Investigation investigations/synthetic/v10/offer-human-corpse-own-race.json corrects the saved queue stale minion.c owner; B44 owns whole sacrifice_your_race and offer_corpse wiring, with no C36 apply overlap.",
+      "detail": "Port pray.c:sacrifice_your_race in source order through altar transformation, dlord and return-valued makemon summon, alignment/luck consequences, corpse consumption. Review makemon.c:makemon runtime admission for the returned demon path and expand source-based scope if required. Existing void desecrate_altar and angry_priest gaps may remain named where their results are discarded. Preserve every admitted match.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "sacrifice_your_race",
+          "line": 1698,
+          "endLine": 1780,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1698,
+        "to": 1780
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/offer-human-corpse-own-race": {
+          "session": "synthetic/v10/offer-human-corpse-own-race",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "offer-human-corpse-own-race",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+          "evaluationPath": "challenges/evaluations/20260928145605-v10.json",
+          "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393"
+        }
+      }
     }
   ]
 }
