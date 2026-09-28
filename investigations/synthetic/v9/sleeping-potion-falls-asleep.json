@@ -10,7 +10,7 @@
   "evaluationCommit": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
   "remainingScreens": 1,
   "recordedSteps": 33,
-  "status": "partial",
+  "status": "complete",
   "commit": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
   "mismatch": {
     "corpus": "synthetic",
@@ -107,23 +107,27 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The sleeping-potion effect now matches C through its 1,952 RNG calls. At the final boundary, JavaScript appends an ambient fountain sound and continues turn processing while C still displays the sleep message with --More--. Trace the sounds.c:dosounds -> pline.c:You_hear message and input-boundary behavior before assigning a fix.",
+  "summary": "The sleeping-potion effect now matches all 1,952 C RNG calls. The remaining final screen comes from an incomplete pline.c:You_hear port: sounds.js:hear always prefixes the fountain message “You hear”, while C uses “You dream that you hear” for an asleep, Unaware hero. The longer C message cannot share the pending sleep-message line and triggers --More-- before the next turn; the shorter JavaScript message fits and allows extra turns.",
   "source": {
     "file": "pline.c",
+    "branch": "pline.c:You_hear (436-454) returns for Deaf unless Unaware or disabled acoustics, then chooses “You barely hear” under Underwater, “You dream that you hear” under Unaware, or “You hear” otherwise and writes via vpline. At the selected fountain gate, potion.c:peffect_sleeping has set gm.multi<0 and timeout.c:fall_asleep has set u.usleep, so youprop.h:Unaware is true. C sounds.c:dosounds (202-224) calls You_hear1, which expands to You_hear(\"%s\", cstr). The longer prefix makes update_topl call more() for the pending sleep message; the current JS short prefix shares the line and proceeds.",
     "functions": [
       "You_hear"
     ],
-    "branch": "sounds.c:dosounds emits the fountain message through You_hear1 after the sleeping effect; pline.c:You_hear chooses its prefix from Unaware, Underwater, Deaf, and acoustics. The exact suppression or --More-- boundary that keeps the C screen on the sleep message is still under investigation.",
     "callers": [
-      "sounds.c:dosounds fountain branch calls You_hear1; js/sounds.js:dosounds calls hear -> ttyPline."
+      "sounds.c:dosounds fountain branch calls You_hear1; js/sounds.js:dosounds calls its local hear helper, which always emits “You hear”.",
+      "Other active C You_hear callers should route through the same js/pline.js source function; inspect and wire relevant existing JavaScript callers in the file-port task."
     ],
     "dependencies": [
-      "Check the message window and turn continuation when the sleep message requires --More--; preserve the matching fountain RNG draw."
+      "Use trap.c:unconscious and eat.c:is_fainted semantics for youprop.h:Unaware; preserve Deaf, Underwater, and acoustics branch order.",
+      "Keep tty_message.js top-line capacity and --More-- behavior source-aligned; the observed boundary follows from the C prefix length and does not require a case-specific pause."
     ]
   },
   "evidence": [
-    "Current challenges/evaluations/20260928023415-v9.json at 18c2156b8bca0c7f7d09dee7e054416b96da162b matches 32/33 screens, 32/33 cursors, and all 1,952 recorded RNG values; the first screen and cursor mismatch is step 32.",
-    "The C screen remains on “You suddenly fall asleep!--More--”; JavaScript also prints “You hear water falling on coins.” and continues 153 extra RNG draws. The fountain gate and selection draws have matching C values before the screen divergence.",
-    "Upstream sounds.c:dosounds lines 202-224 calls You_hear1 for the fountain. Upstream pline.c:You_hear lines 436-454 changes its prefix when Unaware and writes through vpline. js/sounds.js:hear lines 442-444 always prefixes “You hear” and passes to ttyPline. Determine whether the message-prefix port, pending --More-- boundary, or both cause the final output before implementation."
-  ]
+    "Current challenges/evaluations/20260928023415-v9.json at 18c2156b8bca0c7f7d09dee7e054416b96da162b matches 32/33 screens, 32/33 cursors, and all 1,952 recorded RNG values; the first mismatch is step 32 after the sleeping effect.",
+    "The C screen remains “You suddenly fall asleep!--More--”; JavaScript appends “You hear water falling on coins.” and runs 153 further RNG calls. Upstream sounds.c:dosounds lines 202-224 makes the same fountain gate and selection RNG draws before that message.",
+    "Upstream pline.c:You_hear lines 436-454 changes the prefix to “You dream that you hear” when Unaware. youprop.h:399 defines Unaware from negative gm.multi and unconscious/fainted state; timeout.c:fall_asleep lines 951-974 sets negative multi and u.usleep. js/sounds.js:hear lines 442-444 always uses “You hear”, despite those source conditions.",
+    "win/tty/topl.c:update_topl and js/tty_message.js:fitsOnTtyTopline compare the current and next message lengths against the reserved --More-- width. The C dream prefix exceeds the available single-line space after the sleep message; the JS short prefix fits. Source-order message handling explains the final-screen and subsequent RNG differences without special-casing the session."
+  ],
+  "goalKind": "file-port"
 }

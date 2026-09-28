@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T02:40:56.164Z",
+  "capturedAt": "2026-09-28T03:32:21.577Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6538,12 +6538,101 @@
         "type": "accepted",
         "at": "2026-09-28T02:40:18.492Z",
         "task": "A36"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A36-published-202609280240",
+        "type": "published",
+        "at": "2026-09-28T02:43:19.360Z",
+        "task": "A36",
+        "commit": "ac7b4b7198ecd84cd39d36751b8f9cf9ae59b95d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A37-202609280244",
+        "type": "assign",
+        "at": "2026-09-28T02:49:50.694Z",
+        "task": "A37",
+        "worker": "A",
+        "goal": "port-potion-gain-energy-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b5950d1b3408541199cfe114d23df1cac3cafaa5",
+        "type": "ready",
+        "at": "2026-09-28T03:07:43.463Z",
+        "task": "C30",
+        "delivery": "b5950d1b3408541199cfe114d23df1cac3cafaa5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C30-received-202609280311",
+        "type": "received",
+        "at": "2026-09-28T03:10:09.556Z",
+        "task": "C30",
+        "delivery": "b5950d1b3408541199cfe114d23df1cac3cafaa5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C30-feedback-cast-202609280312",
+        "type": "feedback",
+        "at": "2026-09-28T03:10:51.796Z",
+        "task": "C30",
+        "delivery": "b5950d1b3408541199cfe114d23df1cac3cafaa5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a307fba23031c18d55ec5e60269769bf3060fcc5",
+        "type": "ready",
+        "at": "2026-09-28T03:18:28.611Z",
+        "task": "A37",
+        "delivery": "a307fba23031c18d55ec5e60269769bf3060fcc5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A37-received-202609280319",
+        "type": "received",
+        "at": "2026-09-28T03:19:30.738Z",
+        "task": "A37",
+        "delivery": "a307fba23031c18d55ec5e60269769bf3060fcc5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A37-integrating-202609280321",
+        "type": "integrating",
+        "at": "2026-09-28T03:21:24.114Z",
+        "task": "A37",
+        "integration": "b3559b21b4087eb86dad1a798fe621067c921f47"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a41481471daa48f65d5fe31aff44bca35bd5f7bd",
+        "type": "ready",
+        "at": "2026-09-28T03:25:16.582Z",
+        "task": "B37",
+        "delivery": "a41481471daa48f65d5fe31aff44bca35bd5f7bd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A37-validated-202609280332",
+        "type": "validated",
+        "at": "2026-09-28T03:31:58.881Z",
+        "task": "A37",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A37-accepted-202609280332",
+        "type": "accepted",
+        "at": "2026-09-28T03:32:15.555Z",
+        "task": "A37"
       }
     ]
   },
   "development": {
-    "executionCommit": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
-    "measuredAt": "2026-09-28T02:33:52.557Z",
+    "executionCommit": "b3559b21b4087eb86dad1a798fe621067c921f47",
+    "measuredAt": "2026-09-28T03:27:48.445Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
