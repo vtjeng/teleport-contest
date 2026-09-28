@@ -108522,6 +108522,37 @@
           "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
         }
       }
+    },
+    {
+      "id": "div-apply-doapply-artifact-retouch-v10-20260928",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire doapply artifact retouch preflight and consumed return",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "After B45 resolved the wand case, v10 Grimtooth remains source-traced at doapply artifact preflight; the same worker can repair the shared apply caller without overlapping A43 or C38.",
+      "detail": "C doapply calls retouch_object(&obj,FALSE) for every selected object before class dispatch and consumes both its Boolean and possibly updated pointer. JavaScript refuses artifacts before that call. Reuse the existing source-ported artifact helper across all artifact objects, preserving blast RNG and source order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doapply",
+      "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+      "step": 15,
+      "syntheticProvenance": {
+        "synthetic/v10/apply-neutral-grimtooth-touches-artifact": {
+          "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-neutral-grimtooth-touches-artifact",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+          "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
+          "evaluationPath": "challenges/evaluations/20260928193155-v10.json",
+          "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
+        }
+      }
     }
   ]
 }
