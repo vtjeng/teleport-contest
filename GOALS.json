@@ -103120,7 +103120,7 @@
     {
       "id": "port-apply-whistle-family-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port ordinary and magic whistle application with tame-pet relocation",
       "cFile": "apply.c",
       "sessions": [
@@ -103141,21 +103141,21 @@
           "name": "use_whistle",
           "line": 476,
           "endLine": 494,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_magic_whistle",
           "line": 495,
           "endLine": 517,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "magic_whistled",
           "line": 518,
           "endLine": 691,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -103328,7 +103328,153 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_whistle",
+            "implementation": "js/apply.js",
+            "symbol": "use_whistle",
+            "sourceReview": "Ported all of apply.c:use_whistle() (476-491) in C order: can_blow guard, Underwater bubble message and early exit, Deaf/non-Deaf output, TTY Soundeffect no-op, wake_nearby(TRUE), then the discarded-void vault_summon_gd() call represented by note_unported('vault.c vault_summon_gd'). The production doapply() arms call it for TIN_WHISTLE and unblessed EUCALYPTUS_LEAF. The canonical pure can_blow() port is in js/mondata.js; its silent/buzzing anatomy conjunction, eel exception, and hero Strangled check are pinned by scripts/mondata-pure.test.mjs. The tin-whistle recording proves the ordinary production arm; unblessed-leaf and cursed-vault-summon caller variations remain without matching runtime evidence.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() dispatches TIN_WHISTLE and, for an unblessed EUCALYPTUS_LEAF, calls use_whistle()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-whistle.test.mjs",
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/tin-whistle-ordinary-independent.session.json"
+            ],
+            "checkedAt": "ec683b5eb18005fc4ae8e8845d8a1ad7f9058636"
+          },
+          {
+            "name": "use_magic_whistle",
+            "implementation": "js/apply.js",
+            "symbol": "use_magic_whistle",
+            "sourceReview": "Ported all of apply.c:use_magic_whistle() (493-516): can_blow refusal; cursed rn2(2) vibration selection; vibration text; wake_nearby(TRUE); source-ordered second rn2(2), noteleport_level guard, then tele_to_rnd_pet(); and the normal whistle text, Soundeffect no-op, and magic_whistled() call. The caller is js/apply.js:doapply() for MAGIC_WHISTLE and blessed EUCALYPTUS_LEAF. Also ported the consumed helper teleport.c:tele_to_rnd_pet() (814-838) into js/teleport.js: it uses reservoir sampling across living tame on-map monsters, C's dist2>2 m_next2u condition, two adjacent-square draws, teleok(), and teleds(). Its no-teleport path retains the discarded impossible() gap with note_unported('pline.c impossible'). The selected v8 case and independent ordinary, cursed-non-vibration, and blessed-leaf recordings reach the normal effect arm. The one bounded cursed-branch attempt took rn2(2)=1 at apply.c:499, so the vibration-to-tele_to_rnd_pet call remains uncovered; see the blocked recipe and entryPointReview.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() calls use_magic_whistle() for MAGIC_WHISTLE and for a blessed EUCALYPTUS_LEAF before its rn2(49) blessing roll."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-whistle.test.mjs",
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/magic-whistle-dog-independent.session.json",
+              "recordings/apply.c/magic-whistle-cursed-dog-independent.session.json",
+              "recordings/apply.c/blessed-eucalyptus-leaf-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "magic-whistle-recalls-tame-dog",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "apply.c:doapply(MAGIC_WHISTLE) -> use_magic_whistle"
+              }
+            ],
+            "checkedAt": "ec683b5eb18005fc4ae8e8845d8a1ad7f9058636"
+          }
+        ],
+        "entryPointReview": "The formal A39 source range is exactly apply.c:use_whistle(), use_magic_whistle(), and magic_whistled(); doapply() is a supporting caller, not a fourth completed source unit. The selected admitted v8 range, magic-whistle-recalls-tame-dog segment 0 steps 0-28, reaches doapply(MAGIC_WHISTLE) -> use_magic_whistle() -> magic_whistled(). Independent strict recordings cover TIN_WHISTLE ordinary, MAGIC_WHISTLE ordinary relocation, cursed MAGIC_WHISTLE's non-vibration arm, and blessed EUCALYPTUS_LEAF through its post-effect rn2(49)=18 roll. Supporting pure mondata.c:can_blow() was moved to js/mondata.js and checked against silent/buzzing, anatomy, eel, and hero-Strangled source values; active apply.c, music.c, and muse.c callers use the same helper. Supporting teleport.c:tele_to_rnd_pet() is implemented in js/teleport.js but lacks a matching recording: the single distinct-seed cursed variation in recipes/apply.c/cursed-whistle-vibration-branch-unreached.session.json recorded rn2(2)=1 at apply.c:499 and took the ordinary magic-whistle branch. The separate blessed-leaf recording reached doapply(EUCALYPTUS_LEAF) and its post-effect rn2(49)=18, but did not take the rare zero-result glow/unbless sub-branch. The unblessed EUCALYPTUS_LEAF caller arm has no independent runtime witness in this bounded window. C-discarded void helpers remain exact gaps: apply.c:use_whistle() notes vault.c:vault_summon_gd(), and apply.c:magic_whistled() clears mtrapped then notes trap.c:fill_pit(). For relocated pets that land on an active trap, the consumed mintrap() return remains uncovered; the committed blocked recipe names trap.c:mintrap(). Do not count those blocked paths as complete entry evidence.",
+        "entryPoints": [
+          {
+            "name": "TIN_WHISTLE ordinary apply",
+            "functions": [
+              "use_whistle"
+            ],
+            "recordings": [
+              "recordings/apply.c/tin-whistle-ordinary-independent.session.json"
+            ]
+          },
+          {
+            "name": "MAGIC_WHISTLE ordinary pet relocation",
+            "functions": [
+              "use_magic_whistle",
+              "magic_whistled"
+            ],
+            "recordings": [
+              "recordings/apply.c/magic-whistle-dog-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "magic-whistle-recalls-tame-dog",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "apply.c:doapply(MAGIC_WHISTLE) -> use_magic_whistle() -> magic_whistled()"
+              }
+            ]
+          },
+          {
+            "name": "Cursed MAGIC_WHISTLE non-vibration branch",
+            "functions": [
+              "use_magic_whistle",
+              "magic_whistled"
+            ],
+            "recordings": [
+              "recordings/apply.c/magic-whistle-cursed-dog-independent.session.json"
+            ]
+          },
+          {
+            "name": "Blessed EUCALYPTUS_LEAF apply and whistle effect",
+            "functions": [
+              "use_magic_whistle",
+              "magic_whistled"
+            ],
+            "recordings": [
+              "recordings/apply.c/blessed-eucalyptus-leaf-independent.session.json"
+            ]
+          },
+          {
+            "name": "Cursed MAGIC_WHISTLE vibration and pet teleport",
+            "functions": [
+              "use_magic_whistle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Unblessed EUCALYPTUS_LEAF apply",
+            "functions": [
+              "use_whistle"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Relocated tame pet lands on an active trap",
+            "functions": [
+              "magic_whistled"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "711422bb31ddb697934196d4a58eb7fb00db8ce5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Selected v8 whistle case and four independent C recordings match, and use_whistle/use_magic_whistle are verified. magic_whistled still consumes trap.c:mintrap return on relocated pets landing on traps; current mintrap refuses active effects. Cursed vibration/teleport.c:tele_to_rnd_pet and unblessed EUCALYPTUS_LEAF lack matching entry-point recordings; the bounded cursed seed took the ordinary branch. Resume when independent C recordings reach those states and trap.c:mintrap supports its consumed return, preserving source-ordered effects."
     },
     {
       "id": "port-potion-restore-ability-synthetic-v9-20260928",
