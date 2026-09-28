@@ -109,6 +109,7 @@ import {
     PM_DISPATER,
     PM_GERYON,
     PM_DEMILICH,
+    PM_EARTH_ELEMENTAL,
     PM_FIRE_ELEMENTAL,
     PM_FIRE_GIANT,
     PM_FOG_CLOUD,
@@ -128,6 +129,7 @@ import {
     PM_HOBBIT,
     PM_HUMAN,
     PM_HUMAN_MUMMY,
+    PM_XORN,
     PM_DWARF,
     PM_GNOME,
     PM_GNOME_RULER,
@@ -2654,6 +2656,40 @@ test('makemon admits an explicit inventoryless hero-square species by source sha
         assert.equal(monster.minvent, null);
         assert.equal(state.mvitals[PM_FIRE_GIANT].born, 1);
         assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+    });
+
+test('makemon accepts the generic explicit-coordinate MM_NOMSG runtime shape',
+    async () => {
+        // dig.c:dig() supplies the chosen elemental/xorn pointer, the opened
+        // target square, and MM_NOMSG. C has no species allowlist in makemon();
+        // this test exercises that generic argument contract instead of adding
+        // one-off entries to assertSupportedSpecies().
+        for (const mndx of [PM_EARTH_ELEMENTAL, PM_XORN]) {
+            const state = initialLevelState();
+            state.in_mklev = false;
+            const x = MON_X + 8;
+            const y = MON_Y;
+            state.level.at(x, y).typ = ROOM;
+            const random = recordingRandom();
+            const monster = await makemon_runtime(
+                state.mons[mndx],
+                x,
+                y,
+                MM_NOMSG,
+                {
+                    state,
+                    random: random.random,
+                    message: async () => {},
+                    norepMessage: async () => {},
+                },
+            );
+
+            assert.equal(monster.data, state.mons[mndx]);
+            assert.equal(monster.mnum, mndx);
+            assert.deepEqual([monster.mx, monster.my], [x, y]);
+            assert.equal(state.level.monsters[x][y], monster);
+            assert.equal(state.mvitals[mndx].born, 1);
+        }
     });
 
 test('nasty runtime creation admits explicit species by the C pointer contract',
