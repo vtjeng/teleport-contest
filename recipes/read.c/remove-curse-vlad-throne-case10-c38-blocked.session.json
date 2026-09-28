@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked C38 entry recipe for sit.c:special_throne_effect case 10. From the main dungeon, teleport.c:level_tele rejects the direct Vlad's Tower name because dungeon.c:lev_by_name only resolves branch destinations in the current dungeon branch; the input remained at the level prompt and later numeric input teleported elsewhere. A matching Tower-level route is required before this caller can be evidenced.",
+  "segments": [
+    {
+      "seed": 38190521,
+      "datetime": "20450928130100",
+      "nethackrc": "OPTIONS=name:ThroneProbe,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0016Vlad's Tower\nh#wizwish\nthrone\n#sit\n10\n."
+    }
+  ]
+}

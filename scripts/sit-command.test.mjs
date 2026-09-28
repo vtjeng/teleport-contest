@@ -5,6 +5,7 @@ import { ART_EXCALIBUR } from '../js/artifacts.js';
 import {
     ALTAR,
     BLINDED,
+    CONFUSION,
     DEAF,
     DRAWBRIDGE_DOWN,
     ECMD_OK,
@@ -318,6 +319,42 @@ test('throne_sit_effect keeps its source random-call order on the comfort arm',
     assert.equal(await dosit(game, { random }), ECMD_TIME);
     assert.deepEqual(calls, ['rnd(6)', 'rn2(3)']);
     assert.ok(toplines().includes('You feel somehow out of place...'));
+});
+
+test('Vlad throne effect 10 runs blessed remove curse while forcing confusion',
+    async () => {
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    game.u.uz.dnum = game.tower_dnum;
+    game.wizard = false;
+    game.u.uprops[CONFUSION] ??= { intrinsic: 0, extrinsic: 0 };
+    game.u.uprops[CONFUSION].intrinsic = 7;
+    const calls = [];
+    const random = {
+        rnd(n) {
+            calls.push(`rnd(${n})`);
+            return n === 6 ? 5 : 10;
+        },
+        rn2(n) {
+            calls.push(`rn2(${n})`);
+            return 1;
+        },
+        rn1(n, x) {
+            calls.push(`rn1(${n},${x})`);
+            return x;
+        },
+        rne(n) {
+            calls.push(`rne(${n})`);
+            return 1;
+        },
+    };
+
+    assert.equal(await dosit(game, { random }), ECMD_TIME);
+    assert.deepEqual(calls.slice(0, 3), ['rnd(6)', 'rnd(13)', 'rn2(19)']);
+    assert.equal(game.u.uprops[CONFUSION].intrinsic, 7,
+        'special_throne_effect restores HConfusion after seffects');
+    assert.ok(toplines().includes('You feel like you need some help.'));
+    assert.ok(!game.unported.has('sit.c special_throne_effect'));
 });
 
 test('throne curse effect keeps its voice message before blindness changes',

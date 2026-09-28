@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 38190281,
+      "datetime": "20450928104600",
+      "nethackrc": "OPTIONS=name:CurseCastC38,role:Priest,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017blessed spellbook of remove curse\n#levelchange\n10\n        ri ..........Zc"
+    }
+  ],
+  "comment": "Independent learned-spell entry for C38. A lawful human Priest uses a blessed remove-curse spellbook; #levelchange provides power for its level-3 study, and ordinary Zc selects the learned spell. C reaches spell.c:docast -> spelleffects(SPE_REMOVE_CURSE) -> read.c:seffects -> seffect_remove_curse. The eight spaces dismiss each intermediate #levelchange pager; one more space dismisses the study-start pager before study completes."
+}
