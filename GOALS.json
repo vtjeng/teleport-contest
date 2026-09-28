@@ -106389,6 +106389,49 @@
         "rng": 792838
       },
       "parkedReason": "The ordinary POT_SEE_INVISIBLE and POT_FRUIT_JUICE quaff paths match, including an independent blessed potion recording, but fountain.c:drinksink case 4 can create POT_SEE_INVISIBLE and still lacks matching runtime evidence. Resume when an independent sink-created subtype recording or admitted synthetic range is available; blocked recipe recipes/potion.c/see-invisible-sink-subtype-unmatched-b42.session.json preserves the attempt."
+    },
+    {
+      "id": "port-music-awaken-soldiers-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port bugle awakening across hero and monster callers",
+      "cFile": "music.c",
+      "sessions": [
+        "synthetic/v10/bugle-awakens-hostile-soldier"
+      ],
+      "selectionReason": "The saved v10 bugle case first diverges at step 38 after the hero plays a bugle: music.c:do_improvisation calls awaken_soldiers, but js/music.js only records the gap. Source audit found a second active call at muse.c:use_defensive MUSE_BUGLE, selected for a mercenary carrying a bugle when a sleepy soldier is visible. No other unresolved music session is queued. Port the whole awaken_soldiers function and both caller arms; use a separate C recording for the monster caller. Investigation: investigations/synthetic/v10/bugle-awakens-hostile-soldier.json; current evaluation challenges/evaluations/20260928130935-v10.json.",
+      "detail": "music.c:awaken_soldiers wakes and angers living non-guard mercenaries, clears their movement/wait state, reports visible or audible feedback, and calls the existing awaken_scare for nearby other monsters. Preserve source order and RNG, wire music.c:do_improvisation BUGLE and muse.c:use_defensive MUSE_BUGLE. Claim completion only with hero and monster caller runtime evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "awaken_soldiers",
+          "line": 162,
+          "endLine": 195,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 162,
+        "to": 195
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/bugle-awakens-hostile-soldier": {
+          "session": "synthetic/v10/bugle-awakens-hostile-soldier",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bugle-awakens-hostile-soldier",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/bugle-awakens-hostile-soldier.session.json",
+          "recordingSha256": "bb0637589dd1526479948597aa5bb78d1f6bda888e5726641d7a1e22ec2a21e9",
+          "evaluationPath": "challenges/evaluations/20260928130935-v10.json",
+          "evaluationCommit": "502dd4bc9e1bdc245fc0d223217696088126a592"
+        }
+      }
     }
   ]
 }
