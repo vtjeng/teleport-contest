@@ -445,7 +445,7 @@ test('a pet swap onto furniture or a doorway describes after it moves',
 // at 300-320 -- C would ask "Really attack your kitten?" through
 // paranoid_query() -- and that happens before any draw, before the pet's flee
 // state is touched, and after the one write C makes at 195.
-test('do_attack sends a false safe-monster predicate to combat unchanged',
+test('do_attack uses peaceful confirmation when safe-pet protection is off',
     async () => {
         const pet = await startingPet({
             pettype: 'cat',
@@ -457,26 +457,21 @@ test('do_attack sends a false safe-monster predicate to combat unchanged',
             mfleetim: pet.mfleetim,
             mtrack: pet.mtrack,
         });
-        let unsupportedCalls = 0;
-
-        await assert.rejects(
-            do_attack(pet, game, {
-                random: {
-                    rn2: () => assert.fail('unsafe collision must not draw'),
-                    rnd: () => assert.fail('unsafe collision must not draw'),
-                },
-                unsupported(reason) {
-                    ++unsupportedCalls;
-                    assert.equal(
-                        reason,
-                        'confirming an attack on a peaceful monster',
-                    );
-                    throw new Error('combat boundary');
-                },
-            }),
-            /combat boundary/u,
-        );
-        assert.equal(unsupportedCalls, 1);
+        const prompts = [];
+        assert.equal(await do_attack(pet, game, {
+            random: {
+                rn2: () => assert.fail('confirmation refusal must not draw'),
+                rnd: () => assert.fail('confirmation refusal must not draw'),
+            },
+            paranoidQuery: async (...args) => {
+                prompts.push(args);
+                return false;
+            },
+        }), true);
+        assert.equal(prompts.length, 1);
+        assert.equal(prompts[0][1], 'Really attack the kitten?');
+        assert.equal(prompts[0][2], game);
+        assert.equal(game.context.move, 0);
         assert.equal(pet.mstrategy, 0);
         assert.deepEqual({
             mflee: pet.mflee,

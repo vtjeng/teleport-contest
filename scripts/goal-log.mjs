@@ -544,8 +544,9 @@ open-goal when integrating the task.`,
     },
     'invalidate-evidence': {
         description: 'Retire stale source completion evidence without deleting its history.',
-        usage: '--goal <closed-id> --function <name> --by <queued-id> --reason <source trace>',
+        usage: '--goal <completed-source-goal-id> --function <name> --by <queued-id> --reason <source trace>',
         details: 'Use only when a new source trace proves a completed function was partial.\n'
+            + 'The old goal may be closed, or parked with a closed span covering that function.\n'
             + 'Preserves the old evidence and makes the function eligible for a new whole-function task.',
     },
     'next-span': {
@@ -950,9 +951,12 @@ async function main(args) {
         const store = readGoals();
         const goal = findGoal(store, options.goal);
         const followup = findGoal(store, options.by);
-        if (goal.status !== 'closed' || !isSourcePort(goal)
+        const completedSourceGoal = goal.status === 'closed'
+            || (goal.status === 'parked' && goal.spans?.some((span) =>
+                span.status === 'closed' && span.functions?.includes(options.function)));
+        if (!completedSourceGoal || !isSourcePort(goal)
             || !goal.evidence?.functions?.some((entry) => entry.name === options.function)) {
-            throw new Error('invalidate-evidence requires a closed source goal with function evidence');
+            throw new Error('invalidate-evidence requires a completed source function with evidence');
         }
         if (followup.status !== 'queued' || !isSourcePort(followup)
             || sourceFile(followup) !== sourceFile(goal)

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 218887,
+      "datetime": "20330820100600",
+      "nethackrc": "OPTIONS=name:WhipProbe,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile giant rat\n aah",
+      "comment": "Independent C33 entry witness for apply.c:doapply -> use_whip -> uhitm.c:force_attack -> do_attack. The source-created hostile giant rat provides a live target for the Archaeologist's starting bullwhip; the opening space dismisses the welcome page."
+    }
+  ]
+}

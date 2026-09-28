@@ -321,6 +321,31 @@ function queueC(f, id = 'widget', file = 'widget.c') {
         '--c-file', file, '--summary', `Port ${file}`);
 }
 
+test('a parked source goal can retire evidence from its closed historical span', (t) => {
+    const f = fixture(t);
+    const old = {
+        id: 'old-widget', kind: 'file-port', status: 'parked', cFile: 'widget.c',
+        summary: 'Historical partial widget port',
+        functions: [{ name: 'helper', line: 1, endLine: 4, declared: true, complete: true }],
+        spans: [{ name: 'helper', status: 'closed', functions: ['helper'], closedBy: f.head() }],
+        evidence: f.evidence(),
+    };
+    const followup = {
+        id: 'new-widget', kind: 'file-port', status: 'queued', cFile: 'widget.c',
+        summary: 'Complete widget helper',
+        sessions: ['fixture-widget.c'],
+        functions: [{ name: 'helper', line: 1, endLine: 4, declared: true, complete: true }],
+    };
+    f.json('GOALS.json', { goals: [old, followup] });
+    f.cli('invalidate-evidence', '--goal', old.id, '--function', 'helper',
+        '--by', followup.id, '--reason', 'The historical port omitted a source branch.');
+    const [retired, current] = f.goals();
+    assert.equal(retired.invalidatedFunctions[0].followupGoal, followup.id);
+    assert.equal(current.functions[0].complete, false);
+    assert.deepEqual(JSON.parse(f.cli('task-context', '--goal', followup.id)).functions,
+        ['helper']);
+});
+
 function openC(f) {
     queueC(f);
     f.cli('open-goal', '--id', 'widget');
