@@ -105384,7 +105384,7 @@
     {
       "id": "port-invent-hold-another-object-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port hold_another_object and wished-object drop admission across source branches",
       "cFile": "invent.c",
       "sessions": [
@@ -105407,7 +105407,7 @@
           "line": 1208,
           "endLine": 1311,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -105734,7 +105734,183 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hold_another_object",
+            "implementation": "js/invent.js",
+            "symbol": "hold_another_object",
+            "sourceReview": "Compared the complete invent.c:hold_another_object() definition (1208-1311) in C order. The port preserves observe_object before artifact placement/touch, fatal touch and polymorph return paths, crysknife restoration, Fumbling and wished fatal-corpse priority, addinv_core0 before slot/burden checks, pickup_burden max, merge undo via splitobj, autoquiver, prinv/update/encumber order, then drop message, nomerge clear and floor/swallow versus hitfloor handling. Return-valued callees touch_artifact, addinv_core0, inv_cnt/near_capacity, splitobj, can_reach_floor and object hooks are consumed in source order. The newly reached wish path supplies the dropx/dropy hooks; dropx implements ship-before-altar-before-dropz and doaltarobj. C discards dropy and hitfloor results; the JS caller uses a named do.c dropy gap when its hook is absent, and the unreachable-floor branch records note_unported(\"dothrow.c hitfloor\") after freeinv. The complete supporting do.c:doaltarobj() (363-386) and altar arm of dropx() (785-797) are source-shaped in js/do.js. do.c:flooreffects() on a monster over an altar now calls doaltarobj in source order, covered by a source-pinned test but not independent runtime evidence. Caller audit found existing JS direct callers in makewish, hornoplenty, invoke_create_ammo, whipattack, use_tinning_kit, dowrite, engrave, and ucatchgem; they call the same canonical implementation. Other C sites in pickup.c:2464, mail.c:441, potion.c:2257, apply.c:3230, and uhitm.c:2246 have no matching direct JS hold call in this checkout and remain outside the A41 production caller set. No session, seed, or object-specific behavior was introduced.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "makewish",
+                "source": "zap.c:makewish() calls hold_another_object() after object creation, conduct logging, and drop-message selection."
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "hornoplenty",
+                "source": "mkobj.c:hornoplenty() calls hold_another_object() for a non-tipping spill."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_create_ammo",
+                "source": "artifact.c:invoke_create_ammo() calls hold_another_object() after constructing and weighting ammunition."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "whipattack",
+                "source": "apply.c:use_whip() calls hold_another_object() when the hero snatches an object from a monster."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_tinning_kit",
+                "source": "apply.c:use_tinning_kit() calls hold_another_object() after converting a corpse to a tin."
+              },
+              {
+                "path": "js/write.js",
+                "symbol": "dowrite",
+                "source": "write.c:docreate() calls hold_another_object() for the newly written object."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "engrave",
+                "source": "engrave.c:doengrave() calls hold_another_object() after splitting a stylus stack."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ucatchgem",
+                "source": "mthrowu.c:ucatchgem() calls hold_another_object() when the hero catches a non-glass gem."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/pickup-tip.test.mjs",
+              "scripts/object-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/hold-human-corpse-altar-valkyrie-a41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c #wizwish -> zap.c:makewish() -> invent.c:hold_another_object() -> do.c:dropx() -> do.c:doaltarobj()"
+              },
+              {
+                "batch": "v10",
+                "caseId": "eat-same-race-human-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c #wizwish -> zap.c:makewish() -> invent.c:hold_another_object()"
+              }
+            ],
+            "checkedAt": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279"
+          }
+        ],
+        "entryPointReview": "The verified A41 production entry is #wizwish: zap.c:makewish creates the object and invokes hold_another_object after the wish message/conduct sequence. The independent recipe records a wished same-race human corpse dropped on an altar and strictly matches through the complete command, including do.c:dropx -> doaltarobj; v10 offer-human-corpse-own-race is cited only through zero-based step 38 because step 39 enters the separate pray.c:sacrifice_your_race mismatch, and v10 eat-same-race-human-corpse matches through step 18. The task also source-ports do.c:doaltarobj and the dropx altar arm and wires them from the pickup.c:tipcontainer cursed-horn altar route and do.c:flooreffects monster-on-altar route. Those extra active caller paths remain unverified at runtime: the #tip probe first selected the wrong inventory letter and printed Nothing happens; the corrected selection reached a later strict mismatch at segment 0 step 51 in attrib.c:exercise (C rn2(19)=6, JS rn2(12)=0), so it is not a matching recording and does not establish pickup.c:tipcontainer -> mkobj.c:hornoplenty -> do.c:doaltarobj coverage. The committed blocked recipe names that source/recording boundary. do.c:flooreffects has source-pinned branch coverage only. C direct callers in pickup.c, mail.c, potion.c, apply.c:use_wand and uhitm.c do not have matching JS direct-call paths in this checkout and are not claimed by A41. do.c:dropx non-altar paths retain their prior behavior; do.c:dropy and dothrow.c:hitfloor remain named void-result gaps where the source results are discarded. The other existing JavaScript callers of hold_another_object are hornoplenty non-tipping spill, invoke_create_ammo, whipattack snatch, use_tinning_kit, dowrite, engrave, and ucatchgem; their active runtime paths lack a matching cited recording or synthetic range and remain open. The tipcontainer, hornoplenty tipping, and monster flooreffects paths exercise supporting doaltarobj rather than hold_another_object and do not count as this function’s entry-point evidence.",
+        "entryPoints": [
+          {
+            "name": "Wizard object wish held or dropped through makewish",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [
+              "recordings/invent.c/hold-human-corpse-altar-valkyrie-a41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c #wizwish -> zap.c:makewish -> invent.c:hold_another_object -> do.c:dropx -> do.c:doaltarobj"
+              },
+              {
+                "batch": "v10",
+                "caseId": "eat-same-race-human-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c #wizwish -> zap.c:makewish -> invent.c:hold_another_object"
+              }
+            ]
+          },
+          {
+            "name": "Horn of plenty non-tipping object spill",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Artifact invocation creates ammunition",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Bullwhip snatches a monster-held object",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Tinning kit produces a tin",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Writing creates an object",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Engraving splits a stylus stack",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hero catches a thrown gem",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole invent.c:hold_another_object and the #wizwish entry are source-reviewed and strictly evidenced, but active existing JS callers hornoplenty non-tipping spill, invoke_create_ammo, whipattack snatch, use_tinning_kit, dowrite, engrave, and ucatchgem still lack matching runtime entry-point evidence. Supporting do.c:doaltarobj caller paths tipcontainer/hornoplenty tipping and monster flooreffects also lack matching C recordings; the independent #tip probe diverged earlier at attrib.c:exercise step 51 (C rn2(19), JS rn2(12)). Resume after independent caller witnesses or source fixes make those routes match. v10/offer-human-corpse-own-race now reaches a separate pray.c:sacrifice_your_race mismatch at step 39."
     },
     {
       "id": "port-apply-flip-through-book-synthetic-v10-20260928",
