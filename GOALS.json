@@ -106186,7 +106186,7 @@
     {
       "id": "port-potion-see-invisible-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete see-invisible and fruit-juice potion effect from source",
       "cFile": "potion.c",
       "sessions": [
@@ -106194,8 +106194,12 @@
       ],
       "selectionReason": "v10/quaff-see-invisible-potion remains unmatched at step 28 in current challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/quaff-see-invisible-potion.json traces the refusal to potion.c:peffect_see_invisible and peffects POT_SEE_INVISIBLE dispatch. This source and see-invisible state contract are independent of assigned invent/altar and spellbook work.",
       "detail": "Complete shared fruit-juice and see-invisible branches of potion.c:peffect_see_invisible, preserving taste, identification, blindness clearing, intrinsic HSee_invisible permanent chance, timed effect, redraw, and messages. Wire peffects POT_SEE_INVISIBLE caller; trace ordinary quaff and debug fuzzer paths and record independent C variations.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "9a1a1a4503924236a337e9c3260155e5cc300c33",
+      "openStanding": {
+        "sha": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -106224,7 +106228,157 @@
           "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
           "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "quaff-see-invisible-potion",
+          "session": "synthetic/v10/quaff-see-invisible-potion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+          "recordingPath": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+          "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+          "recipe": "challenges/cases/v10/quaff-see-invisible-potion.recipe.session.json",
+          "recipeSha256": "ecc5a606dc01e7780d5025786c5875e6efee1b6384600747b794951f597ea686",
+          "replayInputSha256": "c95c0479e5560d178e8ed3c35c19b4934a9667ae641da814eac4547f717f6525",
+          "evaluationPath": "challenges/evaluations/20260928125041-v10.json",
+          "evaluationCommit": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+          "evaluationArtifact": "challenges/evaluations/20260928125041-v10.json",
+          "evaluationUtc": "2026-09-28T12:50:45.430Z",
+          "remainingScreens": 3,
+          "recordedSteps": 31,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2309,
+              "total": 2317
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_see_invisible",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/quaff-see-invisible-potion.json",
+            "result": {
+              "session": "synthetic/v10/quaff-see-invisible-potion",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "quaff-see-invisible-potion",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 3,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "quaff-see-invisible-potion",
+                "session": "synthetic/v10/quaff-see-invisible-potion",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+                "recordingPath": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+                "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+                "recipe": "challenges/cases/v10/quaff-see-invisible-potion.recipe.session.json",
+                "recipeSha256": "ecc5a606dc01e7780d5025786c5875e6efee1b6384600747b794951f597ea686",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 3,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2309,
+                    "total": 2317
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_see_invisible",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_see_invisible()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing a see-invisible potion stops at an explicit peffects refusal after the wish and quaff command match C. potion.c:peffect_see_invisible already has a fruit-juice preamble in JavaScript, but its see-invisible continuation is unreachable. The shared function must use intrinsic HSee_invisible for the permanent-effect chance, update blindness and see-invisible duration in source order, and reach the existing monster/hero redraw calls. The void display.c:set_mimic_blocking call remains a documented gap.",
+              "source": {
+                "file": "potion.c",
+                "branch": "For POT_SEE_INVISIBLE, peffects enters the shared peffect_see_invisible taste branch, skips the POT_FRUIT_JUICE nutrition return, clears temporary blindness unless cursed, then grants permanent see-invisible with blessed rn2(10 - 3*Boolean(HInvis) - 6*Boolean(HSee_invisible)) or a timed rn1(100,750) effect; it redraws and may report a previously invisible hero. The fruit-juice arm must retain its existing behavior.",
+                "functions": [
+                  "peffect_see_invisible"
+                ],
+                "callers": [
+                  "potion.c:peffects dispatches POT_SEE_INVISIBLE and POT_FRUIT_JUICE to peffect_see_invisible; the quaff path reaches peffects from dopotion/dodrink. js/potion.js:peffects currently refuses POT_SEE_INVISIBLE and calls the shared function for POT_FRUIT_JUICE."
+                ],
+                "dependencies": [
+                  "potion.c:make_blinded, display.c:see_monsters, and display.c:newsym already have JavaScript implementations; preserve their runtime caller environment and source order.",
+                  "display.c:set_mimic_blocking is an unported void callee whose return is discarded; preserve note_unported without inventing its effects.",
+                  "HSee_invisible is u.uprops[SEE_INVIS].intrinsic (youprop.h:150), while See_invisible includes extrinsic sources (youprop.h:152); the current JavaScript permanent-chance expression incorrectly uses the latter."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260928083103-v10.json records 28/31 matching screens and 2309/2317 matching RNG calls, then the explicit peffects POT_SEE_INVISIBLE refusal at step 28.",
+                "nethack-c/upstream/src/potion.c:841-880 defines the whole shared peffect_see_invisible function, its fruit-juice early return, noncursed blindness clearing, blessed permanent chance or timed effect, redraws, and invisible-hero message.",
+                "nethack-c/upstream/src/potion.c:1356-1359 dispatches both potion types into that function. js/potion.js:1719 throws for POT_SEE_INVISIBLE; js/potion.js:1318-1377 has a partial implementation called only by fruit juice and uses See_invisible rather than HSee_invisible in permchance."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
