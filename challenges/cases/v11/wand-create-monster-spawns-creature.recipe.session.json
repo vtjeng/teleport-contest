@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v11 mission for zap.c:zapnodir(WAN_CREATE_MONSTER). A fresh Wizard wishes for a wand of create monster, selects the wished item through the explicit item menu, then answers create_critters' debug-mode type prompt with `*` to choose a random monster. Retain only if C reaches the creation/discovery branch. Closest earlier monster case is v10 bugle-awakens-hostile-soldier: that wakes an already-present hostile, while this branch creates monsters through zapnodir/create_critters.",
+  "segments": [
+    {
+      "seed": 71844127,
+      "datetime": "20421210091508",
+      "nethackrc": "OPTIONS=name:V11CreateWand,role:Wizard,race:human,gender:female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of create monster\nz?n*\n"
+    }
+  ]
+}

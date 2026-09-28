@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v11 case for zap.c:zapnodir(WAN_LIGHT). A fresh Wizard wishes for a wand of light, then selects it with #zap; C's NODIR dispatch reaches this distinct switch arm. C runs litroom(TRUE) and lightdamage on the current room; record the light/message and any monster effects. Keep only after a source-reaching C record, independent byte-identical rerecord, and comparison to the earlier wand cases.",
+  "segments": [
+    {
+      "seed": 71844121,
+      "datetime": "20421207091508",
+      "nethackrc": "OPTIONS=name:V11LightWand,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of light\nzm"
+    }
+  ]
+}
