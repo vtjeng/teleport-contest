@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 219204,
+      "datetime": "20330821112600",
+      "nethackrc": "OPTIONS=name:WakeTest3,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizgenesis\nhostile leprechaun\n\u0017tin whistle\naiaak",
+      "comment": "Independent source-reaching C33 wake/attack witness. The leprechaun is initially asleep from makemon.c, the tin whistle invokes use_whistle() and wake_nearby(), then do_attack reaches its rn2(7) gate at step 50 and draws 4. The nonzero draw skips m_move; this recording does not evidence the movement call/return branch."
+    }
+  ],
+  "comment": "Independent C33 wake/attack witness. Source sets new leprechauns sleeping; a tin whistle wakes this target. The C trace then reaches do_attack's rn2(7) gate and draws 4, so the dodge m_move arm is skipped."
+}

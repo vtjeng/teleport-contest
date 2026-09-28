@@ -15,8 +15,10 @@ import {
     HALLUC,
     HALLUC_RES,
     HVY_ENCUMBER,
+    MMOVE_DIED,
     M_AP_OBJECT,
     M_AP_TYPE,
+    PARANOID_HIT,
     P_BARE_HANDED_COMBAT,
     P_SKILLED,
     STRAT_WAITFORU,
@@ -60,6 +62,7 @@ import {
     do_attack,
     double_punch,
     find_roll_to_hit,
+    force_attack,
     hitum,
     known_hitum,
     missum,
@@ -185,16 +188,23 @@ test('attack_checks keeps force-fight visibility independent', async () => {
     game.context.forcefight = 0;
 });
 
-test('attack_checks still refuses confirmation for a peaceful target',
-    async () => {
-        await hero();
-        const peaceful = target(PM_LICHEN, { mpeaceful: 1 });
-        await refusesAsync(
-            () => attack_checks(peaceful, game.uwep, game, REFUSING),
-            'confirming an attack on a peaceful monster',
-            'confirming an attack on a peaceful monster',
-        );
-    });
+test('attack_checks consumes a declined peaceful confirmation', async () => {
+    await hero();
+    const peaceful = target(PM_LICHEN, { mpeaceful: 1 });
+    const prompts = [];
+    game.context.move = 1;
+    assert.equal(await attack_checks(peaceful, game.uwep, game, {
+        paranoidQuery: async (...args) => {
+            prompts.push(args);
+            return false;
+        },
+    }), true);
+    assert.equal(prompts.length, 1);
+    assert.equal(prompts[0][0], PARANOID_HIT);
+    assert.equal(prompts[0][1], 'Really attack the lichen?');
+    assert.equal(prompts[0][2], game);
+    assert.equal(game.context.move, 0);
+});
 
 // uhitm.c:230-252. An unseen target on an ordinary glyph is announced,
 // remembered as an invisible monster, and woken before the attempted attack
@@ -250,11 +260,15 @@ test('a force-fight returns above the arms that stop an ordinary step',
             await hero();
             const stepped = target();
             apply(stepped);
-            await refusesAsync(
-                () => attack_checks(stepped, game.uwep, game, REFUSING),
-                reason,
-                reason,
-            );
+            const declined = [];
+            assert.equal(await attack_checks(stepped, game.uwep, game, {
+                paranoidQuery: async (...args) => {
+                    declined.push(args);
+                    return false;
+                },
+            }), true, reason);
+            assert.equal(declined.length, 1, reason);
+            assert.equal(game.context.move, 0, reason);
 
             await hero();
             // 0x40 is inside monst.h:187's STRAT_GOAL field, which the write
@@ -265,7 +279,11 @@ test('a force-fight returns above the arms that stop an ordinary step',
             apply(forced);
             game.context.forcefight = 1;
             assert.equal(
-                await attack_checks(forced, game.uwep, game, REFUSING),
+                await attack_checks(forced, game.uwep, game, {
+                    paranoidQuery: async () => {
+                        assert.fail('force-fight must bypass confirmation');
+                    },
+                }),
                 false,
                 reason,
             );
@@ -361,7 +379,7 @@ test('the confirmation reads each suppressing property the way C spells it',
             }],
         ]) {
             await hero();
-            const peaceful = target(PM_LICHEN, { mpeaceful: 1 });
+        const peaceful = target(PM_LICHEN, { mpeaceful: 1 });
             install(game.u);
             assert.equal(game.flags.confirm, true, label);
             if (suppressed) {
@@ -371,11 +389,15 @@ test('the confirmation reads each suppressing property the way C spells it',
                     label,
                 );
             } else {
-                await refusesAsync(
-                    () => attack_checks(peaceful, game.uwep, game, REFUSING),
-                    'confirming an attack on a peaceful monster',
-                    label,
-                );
+                let prompts = 0;
+                assert.equal(await attack_checks(peaceful, game.uwep, game, {
+                    paranoidQuery: async () => {
+                        prompts++;
+                        return false;
+                    },
+                }), true, label);
+                assert.equal(prompts, 1, label);
+                assert.equal(game.context.move, 0, label);
             }
         }
     });
@@ -852,13 +874,49 @@ test('do_attack names the source role verb and body for an unarmed swing',
         ]);
     });
 
-test('do_attack stops for the states below its upkeep', async () => {
+test('do_attack consumes leprechaun movement and misses after a dodge', async () => {
     await hero();
-    await refusesAsync(
-        () => do_attack(target(PM_LEPRECHAUN), game, meleeEnv()),
-        'leprechaun dodge',
-    );
+    const leprechaun = target(PM_LEPRECHAUN, { mcansee: 1 });
+    let moved = false;
+    const env = meleeEnv({
+        rn2Result: (bound) => bound === 7 ? 0 : 1,
+        moveMonster: async (monster, moveEnv) => {
+            assert.equal(monster, leprechaun);
+            assert.equal(moveEnv.state, game);
+            moved = true;
+            monster.mx += 1;
+            return MMOVE_DIED;
+        },
+    });
+    const oldX = leprechaun.mx;
+    assert.equal(await do_attack(leprechaun, game, env), false);
+    assert.equal(moved, true);
+    assert.equal(leprechaun.mx, oldX + 1);
+    assert.deepEqual(env.lines, ['You miss wildly and stumble forwards.']);
 });
+
+test('force_attack restores the caller\'s forcefight state on every exit',
+    async () => {
+        await hero();
+        const hostile = target();
+        delete game.context.forcefight;
+        const env = meleeEnv({ checkCapacity: async () => true });
+        assert.equal(await force_attack(hostile, false, game, env), true);
+        assert.equal(Object.hasOwn(game.context, 'forcefight'), false);
+
+        game.context.forcefight = 1;
+        assert.equal(await force_attack(hostile, false, game, env), true);
+        assert.equal(game.context.forcefight, 1);
+
+        await assert.rejects(
+            force_attack(hostile, false, game, {
+                ...env,
+                checkCapacity: async () => { throw new Error('test stop'); },
+            }),
+            /test stop/,
+        );
+        assert.equal(game.context.forcefight, 1);
+    });
 
 // uhitm.c:528-529, `if (u.twoweap && !can_twoweapon()) untwoweapon();`. A hero
 // who can still sustain the pair runs nothing here and falls through to the
@@ -1103,19 +1161,18 @@ test('a double punch swings a fist while the swap slot still holds a weapon',
 // uhitm.c:529's own arm: the pair has stopped being legal, so C hands over to
 // wield.c untwoweapon(), which prints, clears u.twoweap and redraws the
 // inventory. None of that is ported.
-test('do_attack stops when the two-weapon pair is no longer legal', async () => {
+test('do_attack ends an invalid two-weapon pair before the swing', async () => {
     await hero({ role: 'Samurai', gender: 'male', align: 'lawful' });
     game.u.twoweap = true;
     // wield.c:805-807. A shield in the off hand is the refusal that needs no
     // change to either weapon.
     game.uarms = { otyp: 0, oclass: 3 };
-    // can_twoweapon()'s refusal is C's own pline, and it lands on top of the
-    // line the segment left on screen, so it raises a More prompt first.
+    // Clear the startup pager and the shield refusal so untwoweapon() can
+    // emit its own source message and clear the pair.
     game.nhDisplay.pushKey(' '.charCodeAt(0));
-    await refusesAsync(
-        () => do_attack(target(), game, meleeEnv()),
-        'ending two-weapon combat',
-    );
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    assert.equal(await do_attack(target(), game, meleeEnv()), true);
+    assert.equal(game.u.twoweap, false);
 });
 
 // uhitm.c:779-790. The roll decides the arm, and only a hit exercises
