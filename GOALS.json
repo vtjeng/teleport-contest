@@ -107080,7 +107080,7 @@
     {
       "id": "port-apply-flip-coin-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port coin-flipping apply behavior from source",
       "cFile": "apply.c",
       "sessions": [
@@ -107094,15 +107094,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "aef4649706699044364b3fcf0884ba94f5622cd3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "flip_coin",
           "line": 4527,
           "endLine": 4559,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -107271,7 +107274,80 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "flip_coin",
+            "implementation": "js/apply.js",
+            "symbol": "flip_coin",
+            "sourceReview": "Compared the complete apply.c:flip_coin definition at 4526-4556 and its doapply caller at 4214-4241. Preserved the initial flip message, Underwater-first branch, short-circuit Glib/Fumbling/low-Dexterity test and its conditional rn2(ACURR(A_DEX)) draw, stack split only when quan > 1, then the separate Hallucination rn2(100) or normal rn2(2) outcome. The production apply.js:doapply COIN_CLASS arm returns this helper's ECMD_TIME result. splitobj()'s returned object is consumed and already ported in js/obj.js. C discards dropx()'s result; the ordinary floor-drop path is wired through do.c:dropx, while its underwater and visible-Hallucination floor/display side effects remain explicit note_unported('do.c dropx underwater') and note_unported('do.c dropx hallucinated display') gaps. No other substitute RNG or state change was added.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply, after getobj and retouch_object, checks COIN_CLASS and returns flip_coin(obj) at 4240-4241. The JS COIN_CLASS arm returns await flip_coin(obj, state, env)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c command table binds the 'a' apply command to doapply at 1677-1678; js/cmd.js routes the production doapply command through runApplyCommand at 5148-5149, which calls apply.js:doapply."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-flip-coin.test.mjs",
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-coin-normal-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-glib-drop-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-hallucination-blinded-independent-c36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "flip-coin-normal-outcome",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 16,
+                "source": "cmd.c apply command -> apply.c:doapply COIN_CLASS -> apply.c:flip_coin normal rn2(2) outcome"
+              }
+            ],
+            "checkedAt": "aef4649706699044364b3fcf0884ba94f5622cd3"
+          }
+        ],
+        "entryPointReview": "The active production entry is the 'a' command: cmd.c's command table dispatches it to doapply, whose COIN_CLASS branch calls flip_coin; js/cmd.js's production command route calls apply.js:doapply, which now selects the same helper. The selected v10 normal-outcome case reaches flip_coin at segment 0, step 16. Independent normal, GLIB stack-drop, and blinded-Hallucination recordings fully match C and exercise the regular result, splitobj plus ordinary dropx, and rn2(100) paths respectively. A visible-Hallucination attempt reaches C flip_coin, but its strict JS comparison diverges before the apply command while allmain.c:moveloop_core refreshes the hallucinated map through display.c:see_objects/map_object; its blocked recipe remains under recipes/apply.c and its cache-only C trace is excluded from recordings. Underwater is another active loss branch, but the dropped-floor effects of its void do.c:dropx call remain explicitly unported. These are named downstream evidence/behavior gaps, not claims that the corresponding dropx effects are complete.",
+        "entryPoints": [
+          {
+            "name": "Apply a coin with the production apply command",
+            "functions": [
+              "flip_coin"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-coin-normal-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-glib-drop-independent-c36.session.json",
+              "recordings/apply.c/flip-coin-hallucination-blinded-independent-c36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "flip-coin-normal-outcome",
+                "segment": 0,
+                "fromStep": 16,
+                "throughStep": 16,
+                "source": "cmd.c apply command -> apply.c:doapply COIN_CLASS -> apply.c:flip_coin"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "aef4649706699044364b3fcf0884ba94f5622cd3",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-pray-sacrifice-your-race-synthetic-v10-20260928",
