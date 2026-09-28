@@ -105915,7 +105915,7 @@
     {
       "id": "port-apply-flip-through-book-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port spellbook page-flipping and apply dispatch from source",
       "cFile": "apply.c",
       "sessions": [
@@ -105929,15 +105929,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "flip_through_book",
           "line": 4473,
           "endLine": 4526,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -106107,7 +106110,78 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "flip_through_book",
+            "implementation": "js/apply.js",
+            "symbol": "flip_through_book",
+            "sourceReview": "Compared apply.c:4473-4526 in full and doapply's caller at apply.c:4237-4238. Preserves the Underwater early return; common page message; Book of the Dead Deaf/Hallucination/Blind sensory order; ordinary Blind branch; blank-paper message followed by makeknown; Hallucination and novel precedence; MAX_SPELL_STUDY fadeness lookup and objects[otyp].oc_magic adjective; and ECMD_TIME result. C makeknown is the discover_object(otyp, TRUE, TRUE, TRUE) macro, so the JS call preserves name discovery, encounter discovery, Wisdom exercise, and their source order. The recorder tty build compiles Soundeffect(se_rustling_paper, 50) to no output; You_hear remains subject to Deaf, acoustics, Underwater, and Unaware. The Deaf+Blind Book of the Dead branch uses the source-formatted You_feel prefix and heroUnaware. No callees with consumed returns are omitted.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply dispatches SPBOOK_CLASS directly to flip_through_book at lines 4237-4238 before its type switch"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "The apply key and #apply extended command queue doapply; js/cmd.js dispatches case doapply to runApplyCommand, which calls apply.c:doapply behavior."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-book.test.mjs",
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-through-healer-book-independent.session.json",
+              "recordings/apply.c/flip-through-deaf-blind-dead-book-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "apply-flips-through-blank-spellbook",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 30,
+                "source": "apply.c:doapply -> flip_through_book(SPE_BLANK_PAPER) -> makeknown -> o_init.c:discover_object"
+              }
+            ],
+            "checkedAt": "76e0be8a2f175f8728c111d53d24bb689d7845b1"
+          }
+        ],
+        "entryPointReview": "The active apply.c entry selects SPBOOK_CLASS in doapply before the regular type switch. Both the a key and #apply extcommand queue doapply; js/cmd.js dispatches case doapply to runApplyCommand, which calls the apply.c:doapply implementation. The synthetic case and independent recordings exercise the a-key caller through that production handler. The selected v10 case reaches the blank-paper makeknown branch; the independent Healer recording reaches the ordinary visible faded-ink branch, and the independent Deaf+Blind Book of the Dead recording reaches the You_feel sensory branch. The `Soundeffect` call is a compile-time no-op in the patched tty recorder. The Book of the Dead deaf-but-not-blind You_see branch and blind-but-not-deaf You_hear gates remain source-reviewed branches; they share the same production entry and have no separate recordings in this delivery.",
+        "entryPoints": [
+          {
+            "name": "Apply command selecting an SPBOOK_CLASS object",
+            "functions": [
+              "flip_through_book"
+            ],
+            "recordings": [
+              "recordings/apply.c/flip-through-healer-book-independent.session.json",
+              "recordings/apply.c/flip-through-deaf-blind-dead-book-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "apply-flips-through-blank-spellbook",
+                "segment": 0,
+                "fromStep": 29,
+                "throughStep": 30,
+                "source": "cmd.c apply command -> apply.c:doapply -> flip_through_book(SPE_BLANK_PAPER) -> makeknown"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "76e0be8a2f175f8728c111d53d24bb689d7845b1",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-potion-see-invisible-synthetic-v10-20260928",
