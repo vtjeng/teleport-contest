@@ -1313,9 +1313,9 @@ test('hero walks onto a MARK engraving and reads it', async () => {
 // uhitm.c do_attack() takes its hostile arm at 511 rather than the swap arm.
 // attack_checks()'s confirm test at 300-320 is what stops it there: the pet is
 // peaceful and the hero is neither confused, hallucinating nor stunned, so C
-// asks "Really attack your kitten?" through paranoid_query(), which has no
-// port. The stop still costs nothing, because the test precedes every draw.
-test('live !safe_pet collision is a zero-PRNG retryable boundary',
+// asks "Really attack your kitten?" through paranoid_query(). Declining the
+// attack stops before any draw and leaves the pet in place for another try.
+test('live !safe_pet collision can decline the attack without a PRNG draw',
     async () => {
         const replay = await runSegment({
             seed: 31009,
@@ -1339,29 +1339,26 @@ test('live !safe_pet collision is a zero-PRNG retryable boundary',
         game.domoveAttempting = 1;
         const drawsBefore = replay.getRngLog().length;
 
-        // The first attempt is not silent: hack.c:2790-2792 runs nomul(0) for
-        // a target that fails is_safemon(), which normalizes context.mv,
-        // context.travel, context.travel1 and multi. Comparing the second
-        // attempt with the first is what shows the keystroke is retryable,
-        // and the random-number log is what shows the stop is free.
-        let previous = null;
+        // hack.c:2790-2792 runs nomul(0) for a target that fails is_safemon().
+        // attack_checks() then asks for confirmation before drawing random
+        // numbers. Both attempts decline that prompt.
+        const heroSquare = [game.u.ux, game.u.uy];
+        const petHp = pet.mhp;
         for (let attempt = 0; attempt < 2; ++attempt) {
-            await assert.rejects(
-                domove(game),
-                (error) => (
-                    error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason
-                        === 'confirming an attack on a peaceful monster'
-                ),
-            );
-            const snapshot = heroMoveAdmissionSnapshot(replay);
-            if (previous)
-                assert.deepEqual(snapshot, previous, `attempt ${attempt + 1}`);
-            previous = snapshot;
+            // The existing top-line message needs one More dismissal before
+            // getlin reads the empty response as the default "no".
+            game.nhDisplay.pushKey(commandKeyCode(' '));
+            game.nhDisplay.pushKey(commandKeyCode('\n'));
+            await domove(game);
+            assert.deepEqual([game.u.ux, game.u.uy], heroSquare);
+            assert.equal(pet.mhp, petHp);
             assert.equal(replay.getRngLog().length, drawsBefore);
+            assert.equal(game.context.move, 0);
+            game.context.move = 1;
+            game.domoveAttempting = 1;
         }
         assert.equal(game.multi, 0);
-        assert.deepEqual([game.u.umoved, game.domoveAttempting], [false, 1]);
+        assert.equal(game.u.umoved, false);
     });
 
 test('runtime hero refusals do not become phantom elapsed turns', async () => {

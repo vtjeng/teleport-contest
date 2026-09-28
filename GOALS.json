@@ -42757,7 +42757,15 @@
         "sha": "9fe6cb6aef11f733e2b24c17f4c1ed895b2d99ef",
         "screens": 8718,
         "rng": 640345
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "peffect_see_invisible",
+          "reason": "The prior goal recorded only potion.c:peffect_see_invisible POT_FRUIT_JUICE early return while its detail explicitly left the shared POT_SEE_INVISIBLE continuation separate. Current v10/quaff-see-invisible-potion stops at the peffects refusal at step 28; the source continuation at potion.c:841-880 is not implemented or runtime-evidenced. Retire whole-function completion until the new goal ports and verifies both arms and caller wiring.",
+          "followupGoal": "port-potion-see-invisible-synthetic-v10-20260928",
+          "at": "a289c9da454a94377d554909071dee743753ea5b"
+        }
+      ]
     },
     {
       "id": "port-potion-paralysis-seed0002",
@@ -104757,16 +104765,20 @@
     {
       "id": "port-uhitm-force-do-attack-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port uhitm.c force_attack and do_attack through source-defined human and polymorphed combat paths",
       "cFile": "uhitm.c",
       "sessions": [
         "synthetic/v10/bullwhip-lashes-unarmed-soldier"
       ],
-      "selectionReason": "The second highest-count unreserved v10 mismatch is synthetic/v10/bullwhip-lashes-unarmed-soldier (manifest challenges/manifests/v10.json SHA-256 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recording challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json SHA-256 7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7; evaluation challenges/evaluations/20260928083103-v10.json). Investigation investigations/synthetic/v10/bullwhip-lashes-unarmed-soldier.json traces apply.c:use_whip through force_attack and do_attack and the eager injected-operation refusal. Worker A owns mon.c:xkilled; this uhitm.c task may use that shared kill dependency after its integration but owns the attack path and apply caller contract.",
+      "selectionReason": "Current admitted v10 bullwhip-lashes-unarmed-soldier is source-traced to apply.c:use_whip -> uhitm.c:force_attack/do_attack. The selected C33 scope includes consumed attack_checks and the ordinary m_move return adapter; A41 invent.c and B41 sit.c are independent.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "61036114cac6fa9eed58476fa11663727a17463c",
+      "openStanding": {
+        "sha": "8115539ecb3dbe59a8accf08d9a80235d523b63f",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -104775,7 +104787,7 @@
           "line": 432,
           "endLine": 447,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "do_attack",
@@ -104802,12 +104814,243 @@
           "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
           "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "8115539ecb3dbe59a8accf08d9a80235d523b63f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bullwhip-lashes-unarmed-soldier",
+          "session": "synthetic/v10/bullwhip-lashes-unarmed-soldier",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+          "recordingPath": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+          "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
+          "recipe": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.recipe.session.json",
+          "recipeSha256": "99bd6c857db81793a14db9a36e71b2a8d937f86c0f95345935eba3c65e64d007",
+          "replayInputSha256": "79af0c98e795147773af18acb3e608067b98d7f1668fc655c40ca5f8a9cd84cb",
+          "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
+          "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f",
+          "evaluationArtifact": "challenges/evaluations/20260928101733-v10.json",
+          "evaluationUtc": "2026-09-28T10:17:36.562Z",
+          "remainingScreens": 24,
+          "recordedSteps": 24,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": "do_attack requires unsupported",
+          "metrics": {
+            "screens": {
+              "matched": 0,
+              "total": 24
+            },
+            "rng": {
+              "matched": 0,
+              "total": 3072
+            },
+            "cursors": {
+              "matched": 0,
+              "total": 24
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "Replay error: do_attack requires unsupported",
+            "step": null
+          },
+          "step": null,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "Replay error: do_attack requires unsupported",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/bullwhip-lashes-unarmed-soldier.json",
+            "result": {
+              "session": "synthetic/v10/bullwhip-lashes-unarmed-soldier",
+              "remainingScreens": 24,
+              "recordedSteps": 24,
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "bullwhip-lashes-unarmed-soldier",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "status": "complete",
+              "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "bullwhip-lashes-unarmed-soldier",
+                "session": "synthetic/v10/bullwhip-lashes-unarmed-soldier",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+                "recordingPath": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+                "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
+                "recipe": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.recipe.session.json",
+                "recipeSha256": "99bd6c857db81793a14db9a36e71b2a8d937f86c0f95345935eba3c65e64d007",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 24,
+                "recordedSteps": 24,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": "do_attack requires unsupported",
+                "metrics": {
+                  "screens": {
+                    "matched": 0,
+                    "total": 24
+                  },
+                  "rng": {
+                    "matched": 0,
+                    "total": 3072
+                  },
+                  "cursors": {
+                    "matched": 0,
+                    "total": 24
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "Replay error: do_attack requires unsupported",
+                  "step": null
+                },
+                "step": null,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "Replay error: do_attack requires unsupported",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The C case reaches the ordinary unarmed-target branch of apply.c:use_whip: a proficient Archeologist lashes a visible hostile soldier with no MON_WEP, and use_whip consumes the action through force_attack -> do_attack -> hitum. The JS replay stops before that behavior because uhitm.js:do_attack eagerly requires an unsupported callback; apply.js:use_whip calls force_attack without an operation environment. After removing that premature refusal, the active branch also needs its real capacity and overexertion operations wired. The intended bullwhip disarm branch is not reached.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "In apply.c:use_whip, a visible adjacent monster has MON_WEP == NULL; the hero is a proficient Archeologist (no fumbling or confusion), the target is hostile, and ordinary human melee proceeds through do_attack to hitum. force_attack temporarily sets forcefight for the hostile and returns do_attack result; use_whip returns ECMD_TIME when that result is true.",
+                "functions": [
+                  "force_attack",
+                  "do_attack"
+                ],
+                "callers": [
+                  "cmd.c: command table maps the apply command a to doapply (line 1678)",
+                  "apply.c:doapply selects BULLWHIP and dispatches to use_whip (4214-4232, 4265-4267)",
+                  "apply.c:use_whip calls force_attack(mtmp, FALSE) in its no-MON_WEP branch (3245-3261)"
+                ],
+                "dependencies": [
+                  "apply.c:use_whip requires wielded bullwhip, a direction, a visible adjacent target, proficiency, and the no-MON_WEP branch; its disarm branch is not reached.",
+                  "uhitm.c:do_attack calls attack_checks, check_capacity, overexertion, exercise, u_wipe_engr, and hitum for the active human hostile path (515-582). The JS use_whip caller currently passes no env to force_attack, while do_attack requires checkCapacity and overexertion operations after its eager unsupported callback.",
+                  "Other do_attack branches need their own C behavior and dependencies: safe peaceful/tame refusal (462-510), polymorph/noattacks and hmonas (524-529, 565-568), two-weapon teardown (536-537), and leprechaun evasion through m_move (555-563). This case does not evidence those branches."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/cmd.c:1678 maps command a to doapply. nethack-c/upstream/src/apply.c:4214-4232 selects and validates the object, and 4265-4267 dispatches BULLWHIP to use_whip.",
+                "nethack-c/upstream/src/apply.c:2955-3003 defines use_whip setup and proficiency: Archeologist adds one proficiency level; DEX below 6, DEX at least 14, and Fumbling adjust it. The recorded fresh Archeologist has no Fumbling and is proficient; the adjacent hostile soldier is visible and has no MON_WEP.",
+                "nethack-c/upstream/src/apply.c:3127-3151 selects MON_WEP only for a visible known monster. With MON_WEP null, 3245-3258 emits the flick line and invokes force_attack; a true return immediately consumes the turn. The C recording challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json at segment 0, zero-based step 23, key l, shows “You flick your bullwhip towards the soldier.  You lash the soldier.” and hitum RNG (rnd(20)=5); this is the lash/attack branch, not the intended disarm branch.",
+                "nethack-c/upstream/src/uhitm.c:432-443 sets forcefight for a hostile before calling do_attack and restores the prior value. Lines 448-583 show the ordinary attack path: after attack_checks and capacity/overexertion checks, a human hero reaches hitum and returns TRUE, which use_whip consumes.",
+                "At examined commit 395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb, js/apply.js:817-831 calls force_attack(monster, false, state) at line 826 without env. js/uhitm.js:1160-1171 forwards its default empty env to do_attack. js/uhitm.js:1034-1039 throws “do_attack requires unsupported” at the eager require before checking the C branch; the evaluator records zero JS screens/RNG against C 24 screens and 3072 RNG. The exact command log is /tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bullwhip-lashes-unarmed-soldier.log.",
+                "The active branch has further unresolved production wiring: js/uhitm.js:1084-1090 requires checkCapacity and overexertion operations, and apply.js currently supplies neither through force_attack. The implementation scope should make the ordinary hostile path source-complete and correctly wire its production caller before claiming the function; preserve unsupported refusals only at genuinely unported source branches."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "force_attack",
+            "implementation": "js/uhitm.js",
+            "symbol": "force_attack",
+            "sourceReview": "Compared the complete uhitm.c:432-448 function. Saves the prior forcefight value, enables forcefight for hostiles or when pets_too is true, calls do_attack exactly once, returns its result unchanged, and restores the previous state in a finally path even when the callee exits or throws.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "whipattack",
+                "source": "apply.c:use_whip:3255 reaches force_attack through this helper"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "force_attack",
+                "source": "uhitm.c:440 forwards and returns do_attack(mtmp)'s result"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-to-hit.test.mjs",
+              "scripts/apply-pole-whip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/force-attack-bullwhip-giant-rat-independent-c33.session.json",
+              "recordings/uhitm.c/force-attack-leprechaun-bullwhip-independent-c33.session.json",
+              "recordings/uhitm.c/force-attack-leprechaun-awake-independent-c33.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "bullwhip-lashes-unarmed-soldier",
+                "segment": 0,
+                "fromStep": 23,
+                "throughStep": 23,
+                "source": "apply.c:use_whip -> uhitm.c:force_attack -> do_attack -> hitum"
+              }
+            ],
+            "checkedAt": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5"
+          }
+        ],
+        "entryPointReview": "The source caller of force_attack is apply.c:use_whip, reached through the apply command and js/apply.js:whipattack. The admitted v10 bullwhip case and an independent giant-rat recording execute this complete wrapper. Its consumed do_attack result is implemented in the same delivery, but do_attack retains uncovered active entries and its leprechaun m_move branch has no matching C runtime witness; this evidence does not claim do_attack complete.",
+        "entryPoints": [
+          {
+            "name": "Bullwhip lash at a hostile monster",
+            "functions": [
+              "force_attack"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/force-attack-bullwhip-giant-rat-independent-c33.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "bullwhip-lashes-unarmed-soldier",
+                "segment": 0,
+                "fromStep": 23,
+                "throughStep": 23,
+                "source": "apply.c:use_whip -> force_attack -> do_attack -> hitum"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "force_attack is source-complete and witnessed by the v10 bullwhip and independent rat recording. do_attack implementation reaches the source-ordered melee path, but its leprechaun rn2(7)==0 -> consumed m_move result lacks a C recording, and active ordinary movement, polearm, grappling-hook, pick-axe, and polymorph attack entries remain unverified or gap-marked. The supporting attack_checks port also needs its own completion record because it lies outside this goal range. Resume after independent C witnesses and hmonas/source caller coverage are available."
     },
     {
       "id": "port-sit-take-gold-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port throne take_gold with source-ordered inventory deletion and messages",
       "cFile": "sit.c",
       "sessions": [
@@ -104815,17 +105058,24 @@
       ],
       "selectionReason": "Current v10 wizard-throne-effect-five-take-gold remains 30/31 matched. Its complete investigation at investigations/synthetic/v10/wizard-throne-effect-five-take-gold.json traces the missing sit.c:take_gold called by throne_sit_effect case 5; C advances to obj_resists rn2(100) while JS skips to throne rn2(3). v10 manifest 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57, recording 104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793, latest evaluation challenges/evaluations/20260928101733-v10.json. Independent of A40 xkilled and C33 uhitm reservations.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "5fb7e7e520459886e4689af81d6b1e2acfca4311",
+      "openStanding": {
+        "sha": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "39b000fbed439e22068eae3411407a63033d43e6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "take_gold",
           "line": 14,
           "endLine": 38,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -104845,12 +105095,296 @@
           "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
           "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
         }
+      },
+      "activeStanding": {
+        "sha": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "wizard-throne-effect-five-take-gold",
+          "session": "synthetic/v10/wizard-throne-effect-five-take-gold",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+          "recordingPath": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+          "recordingSha256": "104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793",
+          "recipe": "challenges/cases/v10/wizard-throne-effect-five-take-gold.recipe.session.json",
+          "recipeSha256": "859d0c6d52764080f6fb01fb23f10d7534d24f5cf2b76491e49f9e4e4faf03f1",
+          "replayInputSha256": "056d75fe12def57f01a1a795dbbae99e4b178612ffa8f47f027c451ee46746b0",
+          "evaluationPath": "challenges/evaluations/20260928111611-v10.json",
+          "evaluationCommit": "640fa277f4712d38f9f9dd8199ce25d495f5a3b5",
+          "evaluationArtifact": "challenges/evaluations/20260928111611-v10.json",
+          "evaluationUtc": "2026-09-28T11:16:15.322Z",
+          "remainingScreens": 1,
+          "recordedSteps": 31,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2991,
+              "total": 2998
+            },
+            "cursors": {
+              "matched": 31,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 30,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2991,
+              "cEntry": "rn2(100)=26",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(3)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 30,
+                "key": "\n"
+              },
+              "stepIndex": 30
+            },
+            "cursor": null
+          },
+          "step": 30,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/wizard-throne-effect-five-take-gold.json",
+            "result": {
+              "session": "synthetic/v10/wizard-throne-effect-five-take-gold",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "wizard-throne-effect-five-take-gold",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 1,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "wizard-throne-effect-five-take-gold",
+                "session": "synthetic/v10/wizard-throne-effect-five-take-gold",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+                "recordingPath": "challenges/cases/v10/wizard-throne-effect-five-take-gold.session.json",
+                "recordingSha256": "104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793",
+                "recipe": "challenges/cases/v10/wizard-throne-effect-five-take-gold.recipe.session.json",
+                "recipeSha256": "859d0c6d52764080f6fb01fb23f10d7534d24f5cf2b76491e49f9e4e4faf03f1",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 1,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2991,
+                    "total": 2998
+                  },
+                  "cursors": {
+                    "matched": 31,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 30,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2991,
+                    "cEntry": "rn2(100)=26",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(3)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 30,
+                      "key": "\n"
+                    },
+                    "stepIndex": 30
+                  },
+                  "cursor": null
+                },
+                "step": 30,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "The Wizard-selected throne effect 5 reaches sit.c:take_gold, but JavaScript only records an unported gap. C walks the hero inventory, removes each coin stack through remove_worn_item and delobj, prints the no-gold or gold-lost message, and refreshes the status. The missing deletion also skips delobj_core’s obj_resists rn2(100), which is why the saved RNG first diverges before the throne’s later rn2(3). The owner is the whole take_gold function and its throne caller.",
+              "source": {
+                "file": "sit.c",
+                "branch": "On a normal throne when the effect roll leads to Wizard selection of effect 5, throne_sit_effect calls take_gold. take_gold saves each next inventory link before deleting COIN_CLASS objects, calls remove_worn_item then delobj for each, and reports either a strange sensation (none found) or no gold with disp.botl set. The throne then continues to its possible disappearance roll.",
+                "functions": [
+                  "take_gold"
+                ],
+                "callers": [
+                  "sit.c:throne_sit_effect case 5 at lines 102-104 calls take_gold; js/sit.js:throne_sit_effect case 5 currently only calls note_unported."
+                ],
+                "dependencies": [
+                  "steal.c:remove_worn_item is called even for unworn coins; preserve the ordinary no-worn behavior.",
+                  "invent.c:delobj and delobj_core are already ported and consume zap.c:obj_resists(obj,0,0), including rn2(100) for ordinary coins; pass the runtime environment and preserve the inventory next pointer.",
+                  "The final no-gold status refresh uses disp.botl and source messages, and throne_sit_effect continues its post-effect rn2(3) only after take_gold returns."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 30/31 screens but at step 30 C calls rn2(100)=26 in obj_resists(zap.c:1469) while JavaScript instead calls rn2(3)=1. Recording SHA-256 is 104c9d2525500bd1a6df5ae10067c1a0886574b02fb832f4272dbab623b0f793.",
+                "Upstream nethack-c/upstream/src/sit.c:14-35 defines take_gold, and sit.c:102-104 invokes it for throne effect 5. Upstream invent.c:1435-1462 delobj_core calls obj_resists; zap.c:1458-1475 draws rn2(100) for ordinary objects.",
+                "js/sit.js:250-253 skips case 5 with note_unported; js/invent.js:3400 and :3426 already export delobj and its source object-resistance call. The independent recipe wishes two gold pieces, sits on a normal throne, and selects effect 5."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "take_gold",
+            "implementation": "js/sit.js",
+            "symbol": "take_gold",
+            "sourceReview": "Compared complete sit.c:take_gold() (14-35). The loop saves otmp->nobj before any deletion, checks COIN_CLASS, sets lost_money before calling remove_worn_item(otmp,FALSE) and delobj(otmp), then prints the no-coins or lost-gold message and sets disp.botl only in the latter branch. JavaScript preserves that order while awaiting the existing void remove_worn_item helper and passing state, message, and random into delobj. invent.c:delobj_core() consumes zap.c:obj_resists(obj,0,0), including rn2(100) for each ordinary coin stack, before extraction. No consumed return-valued callee or active source gap remains.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:throne_sit_effect() case 5 calls take_gold() at lines 102-104."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit() dispatches a throne sit to throne_sit_effect() at line 558, whose effect-5 arm calls take_gold()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-take-gold-independent-b41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "wizard-throne-effect-five-take-gold",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "cmd.c #sit dispatch -> sit.c:dosit -> sit.c:throne_sit_effect case 5 -> take_gold -> remove_worn_item -> delobj/delobj_core -> obj_resists"
+              }
+            ],
+            "checkedAt": "39b000fbed439e22068eae3411407a63033d43e6"
+          }
+        ],
+        "entryPointReview": "take_gold has one active production entry: sitting on a normal throne and selecting effect 5. sit.c:dosit() dispatches throne_sit_effect(), whose case 5 calls take_gold(); the JavaScript caller is throne_sit_effect() reached through dosit(). The admitted v10 case matches the full C take_gold call through segment 0 step 30, including inventory deletion and obj_resists' rn2(100). An independently designed female Wizard recipe reaches the same C source branch and strictly matches the complete recording. Focused tests cover both coin and empty-inventory branches and assert the required draw/message order. There are no inactive callers or blocked source dependencies.",
+        "entryPoints": [
+          {
+            "name": "Normal-throne effect 5",
+            "functions": [
+              "take_gold"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-take-gold-independent-b41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "wizard-throne-effect-five-take-gold",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "sit.c:dosit -> throne_sit_effect case 5 -> take_gold"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "39b000fbed439e22068eae3411407a63033d43e6",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-invent-hold-another-object-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port hold_another_object and wished-object drop admission across source branches",
       "cFile": "invent.c",
       "sessions": [
@@ -104859,8 +105393,12 @@
       ],
       "selectionReason": "Current v10 offer-human-corpse-own-race and eat-same-race-human-corpse remain source-traced failures sharing invent.c:hold_another_object after zap.c:makewish. Complete investigations under investigations/synthetic/v10/ identify the existing held-object drop refusal and source-ordered fatal-corpse versus ordinary inventory/drop arms; the later eat/offer effects are separate. Their current remaining screens are 11 and 4. v10 manifest 79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57; recordings 33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296 and 12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e; latest evaluation challenges/evaluations/20260928101733-v10.json. Independent of B41 sit.c and C33 uhitm.c reservations.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "63e2fa7d0f89fb9e2b8981db504729e0d5ddaf91",
+      "openStanding": {
+        "sha": "39b000fbed439e22068eae3411407a63033d43e6",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -104869,7 +105407,7 @@
           "line": 1208,
           "endLine": 1311,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -104900,6 +105438,563 @@
           "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
           "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
           "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
+        }
+      },
+      "activeStanding": {
+        "sha": "39b000fbed439e22068eae3411407a63033d43e6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "offer-human-corpse-own-race",
+          "session": "synthetic/v10/offer-human-corpse-own-race",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+          "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+          "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+          "replayInputSha256": "6390d8a8bb8dd92e0ea88ac2583f44b795c3c7e2d9740003687a16d1845f606c",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6",
+          "evaluationArtifact": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationUtc": "2026-09-28T11:36:30.233Z",
+          "remainingScreens": 11,
+          "recordedSteps": 41,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2315,
+              "total": 2471
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/offer-human-corpse-own-race.json",
+            "result": {
+              "session": "synthetic/v10/offer-human-corpse-own-race",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "offer-human-corpse-own-race",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 11,
+              "recordedSteps": 41,
+              "status": "complete",
+              "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "session": "synthetic/v10/offer-human-corpse-own-race",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+                "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+                "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+                "recipe": "challenges/cases/v10/offer-human-corpse-own-race.recipe.session.json",
+                "recipeSha256": "df6b7617306434df386dadb419e53cb4fbefde54e156b6e812e1eca75c088ec0",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 11,
+                "recordedSteps": 41,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2315,
+                    "total": 2471
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A wizard wish successfully constructs a human corpse, then JavaScript refuses the invent.c:hold_another_object drop path after addinv_core0. Both the altar-offering and same-race eating recordings stop before their intended actions. The source helper admits a corpse to inventory temporarily, splits any quantity merged into an existing stack when burden or inventory count requires dropping it, prints the source drop message, and calls dropx or hitfloor. The JavaScript preflight declines mergeable objects and its runtime drop arm throws when quantity changed; makewish also has a stale comment claiming readobjnam cannot create a corpse.",
+              "source": {
+                "file": "invent.c",
+                "branch": "When a wished human corpse passes through zap.c:makewish and hold_another_object, the ordinary addinv_core0 arm tests inventory count and near_capacity against the prior encumbrance limit; on failure, it separates a merged quantity with splitobj and enters drop_it. A wished corpse judged unsafe by u_safe_from_fatal_corpse instead clears wishedfor, adds without inventory update, and also enters drop_it. Both source arms must preserve message and floor placement order.",
+                "functions": [
+                  "hold_another_object"
+                ],
+                "callers": [
+                  "zap.c:makewish calls invent.c:hold_another_object after readobjnam constructs the wished object. js/zap.js:makewish prepares a drop admission and calls js/invent.js:hold_another_object."
+                ],
+                "dependencies": [
+                  "invent.c:splitobj and obj.c object extraction may be reached by a merged wished corpse; preserve their source ordering and caller contracts.",
+                  "do.c:dropx and dothrow.c:hitfloor handle the two floor-reaching branches after drop_it; admit the actual source route generally rather than by object type or case ID.",
+                  "zap.c:makewish lines 6401-6419 tests u_safe_from_fatal_corpse and wishedfor, selects materialize/drop wording, and passes the object to hold_another_object; its JavaScript caller must match those conditions.",
+                  "The later own-race eat.c and pray.c behaviors are separate source work only after this shared wish/drop blocker is cleared."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260928083103-v10.json first stops synthetic/v10/offer-human-corpse-own-race at step 30, with 11 unmatched screens and \"held object dropped is not available for otyp 265\". The two cases share this first failing source route.",
+                "nethack-c/upstream/src/invent.c:1208-1305 implements hold_another_object including fatal-corpse and burden/slot drop_it routes, splitobj for a merged quantity, and dropx/hitfloor after the message.",
+                "js/invent.js:4845-4984 restricts prepared drops to nonmergeable objects and refuses a changed quantity in the ordinary drop branch; js/zap.js:2169 incorrectly claims that readobjnam refuses corpses, although both C recordings reached corpse holding."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "eat-same-race-human-corpse",
+          "session": "synthetic/v10/eat-same-race-human-corpse",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+          "recordingPath": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+          "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
+          "recipe": "challenges/cases/v10/eat-same-race-human-corpse.recipe.session.json",
+          "recipeSha256": "0ad0bc7fa45389765c5c9c5315f11461fc2114844cb30068bb38ce5ab4572d11",
+          "replayInputSha256": "6390d8a8bb8dd92e0ea88ac2583f44b795c3c7e2d9740003687a16d1845f606c",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6",
+          "evaluationArtifact": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationUtc": "2026-09-28T11:36:30.233Z",
+          "remainingScreens": 4,
+          "recordedSteps": 19,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 19
+            },
+            "rng": {
+              "matched": 3902,
+              "total": 4314
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/eat-same-race-human-corpse.json",
+            "result": {
+              "session": "synthetic/v10/eat-same-race-human-corpse",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "eat-same-race-human-corpse",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 4,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "eat-same-race-human-corpse",
+                "session": "synthetic/v10/eat-same-race-human-corpse",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+                "recordingPath": "challenges/cases/v10/eat-same-race-human-corpse.session.json",
+                "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
+                "recipe": "challenges/cases/v10/eat-same-race-human-corpse.recipe.session.json",
+                "recipeSha256": "0ad0bc7fa45389765c5c9c5315f11461fc2114844cb30068bb38ce5ab4572d11",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 4,
+                "recordedSteps": 19,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 3902,
+                    "total": 4314
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+                  "step": 15
+                },
+                "step": 15,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: held object dropped is not available for otyp 265",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A wizard wish successfully constructs a human corpse, then JavaScript refuses the invent.c:hold_another_object drop path after addinv_core0. Both the altar-offering and same-race eating recordings stop before their intended actions. The source helper admits a corpse to inventory temporarily, splits any quantity merged into an existing stack when burden or inventory count requires dropping it, prints the source drop message, and calls dropx or hitfloor. The JavaScript preflight declines mergeable objects and its runtime drop arm throws when quantity changed; makewish also has a stale comment claiming readobjnam cannot create a corpse.",
+              "source": {
+                "file": "invent.c",
+                "branch": "When a wished human corpse passes through zap.c:makewish and hold_another_object, the ordinary addinv_core0 arm tests inventory count and near_capacity against the prior encumbrance limit; on failure, it separates a merged quantity with splitobj and enters drop_it. A wished corpse judged unsafe by u_safe_from_fatal_corpse instead clears wishedfor, adds without inventory update, and also enters drop_it. Both source arms must preserve message and floor placement order.",
+                "functions": [
+                  "hold_another_object"
+                ],
+                "callers": [
+                  "zap.c:makewish calls invent.c:hold_another_object after readobjnam constructs the wished object. js/zap.js:makewish prepares a drop admission and calls js/invent.js:hold_another_object."
+                ],
+                "dependencies": [
+                  "invent.c:splitobj and obj.c object extraction may be reached by a merged wished corpse; preserve their source ordering and caller contracts.",
+                  "do.c:dropx and dothrow.c:hitfloor handle the two floor-reaching branches after drop_it; admit the actual source route generally rather than by object type or case ID.",
+                  "zap.c:makewish lines 6401-6419 tests u_safe_from_fatal_corpse and wishedfor, selects materialize/drop wording, and passes the object to hold_another_object; its JavaScript caller must match those conditions.",
+                  "The later own-race eat.c and pray.c behaviors are separate source work only after this shared wish/drop blocker is cleared."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20260928083103-v10.json first stops synthetic/v10/eat-same-race-human-corpse at step 15, with 4 unmatched screens and \"held object dropped is not available for otyp 265\". The two cases share this first failing source route.",
+                "nethack-c/upstream/src/invent.c:1208-1305 implements hold_another_object including fatal-corpse and burden/slot drop_it routes, splitobj for a merged quantity, and dropx/hitfloor after the message.",
+                "js/invent.js:4845-4984 restricts prepared drops to nonmergeable objects and refuses a changed quantity in the ordinary drop branch; js/zap.js:2169 incorrectly claims that readobjnam refuses corpses, although both C recordings reached corpse holding."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hold_another_object",
+            "implementation": "js/invent.js",
+            "symbol": "hold_another_object",
+            "sourceReview": "Compared the complete invent.c:hold_another_object() definition (1208-1311) in C order. The port preserves observe_object before artifact placement/touch, fatal touch and polymorph return paths, crysknife restoration, Fumbling and wished fatal-corpse priority, addinv_core0 before slot/burden checks, pickup_burden max, merge undo via splitobj, autoquiver, prinv/update/encumber order, then drop message, nomerge clear and floor/swallow versus hitfloor handling. Return-valued callees touch_artifact, addinv_core0, inv_cnt/near_capacity, splitobj, can_reach_floor and object hooks are consumed in source order. The newly reached wish path supplies the dropx/dropy hooks; dropx implements ship-before-altar-before-dropz and doaltarobj. C discards dropy and hitfloor results; the JS caller uses a named do.c dropy gap when its hook is absent, and the unreachable-floor branch records note_unported(\"dothrow.c hitfloor\") after freeinv. The complete supporting do.c:doaltarobj() (363-386) and altar arm of dropx() (785-797) are source-shaped in js/do.js. do.c:flooreffects() on a monster over an altar now calls doaltarobj in source order, covered by a source-pinned test but not independent runtime evidence. Caller audit found existing JS direct callers in makewish, hornoplenty, invoke_create_ammo, whipattack, use_tinning_kit, dowrite, engrave, and ucatchgem; they call the same canonical implementation. Other C sites in pickup.c:2464, mail.c:441, potion.c:2257, apply.c:3230, and uhitm.c:2246 have no matching direct JS hold call in this checkout and remain outside the A41 production caller set. No session, seed, or object-specific behavior was introduced.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "makewish",
+                "source": "zap.c:makewish() calls hold_another_object() after object creation, conduct logging, and drop-message selection."
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "hornoplenty",
+                "source": "mkobj.c:hornoplenty() calls hold_another_object() for a non-tipping spill."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_create_ammo",
+                "source": "artifact.c:invoke_create_ammo() calls hold_another_object() after constructing and weighting ammunition."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "whipattack",
+                "source": "apply.c:use_whip() calls hold_another_object() when the hero snatches an object from a monster."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_tinning_kit",
+                "source": "apply.c:use_tinning_kit() calls hold_another_object() after converting a corpse to a tin."
+              },
+              {
+                "path": "js/write.js",
+                "symbol": "dowrite",
+                "source": "write.c:docreate() calls hold_another_object() for the newly written object."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "engrave",
+                "source": "engrave.c:doengrave() calls hold_another_object() after splitting a stylus stack."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ucatchgem",
+                "source": "mthrowu.c:ucatchgem() calls hold_another_object() when the hero catches a non-glass gem."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/inventory-substrate.test.mjs",
+              "scripts/pickup-tip.test.mjs",
+              "scripts/object-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/invent.c/hold-human-corpse-altar-valkyrie-a41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c #wizwish -> zap.c:makewish() -> invent.c:hold_another_object() -> do.c:dropx() -> do.c:doaltarobj()"
+              },
+              {
+                "batch": "v10",
+                "caseId": "eat-same-race-human-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c #wizwish -> zap.c:makewish() -> invent.c:hold_another_object()"
+              }
+            ],
+            "checkedAt": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279"
+          }
+        ],
+        "entryPointReview": "The verified A41 production entry is #wizwish: zap.c:makewish creates the object and invokes hold_another_object after the wish message/conduct sequence. The independent recipe records a wished same-race human corpse dropped on an altar and strictly matches through the complete command, including do.c:dropx -> doaltarobj; v10 offer-human-corpse-own-race is cited only through zero-based step 38 because step 39 enters the separate pray.c:sacrifice_your_race mismatch, and v10 eat-same-race-human-corpse matches through step 18. The task also source-ports do.c:doaltarobj and the dropx altar arm and wires them from the pickup.c:tipcontainer cursed-horn altar route and do.c:flooreffects monster-on-altar route. Those extra active caller paths remain unverified at runtime: the #tip probe first selected the wrong inventory letter and printed Nothing happens; the corrected selection reached a later strict mismatch at segment 0 step 51 in attrib.c:exercise (C rn2(19)=6, JS rn2(12)=0), so it is not a matching recording and does not establish pickup.c:tipcontainer -> mkobj.c:hornoplenty -> do.c:doaltarobj coverage. The committed blocked recipe names that source/recording boundary. do.c:flooreffects has source-pinned branch coverage only. C direct callers in pickup.c, mail.c, potion.c, apply.c:use_wand and uhitm.c do not have matching JS direct-call paths in this checkout and are not claimed by A41. do.c:dropx non-altar paths retain their prior behavior; do.c:dropy and dothrow.c:hitfloor remain named void-result gaps where the source results are discarded. The other existing JavaScript callers of hold_another_object are hornoplenty non-tipping spill, invoke_create_ammo, whipattack snatch, use_tinning_kit, dowrite, engrave, and ucatchgem; their active runtime paths lack a matching cited recording or synthetic range and remain open. The tipcontainer, hornoplenty tipping, and monster flooreffects paths exercise supporting doaltarobj rather than hold_another_object and do not count as this function’s entry-point evidence.",
+        "entryPoints": [
+          {
+            "name": "Wizard object wish held or dropped through makewish",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [
+              "recordings/invent.c/hold-human-corpse-altar-valkyrie-a41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "offer-human-corpse-own-race",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c #wizwish -> zap.c:makewish -> invent.c:hold_another_object -> do.c:dropx -> do.c:doaltarobj"
+              },
+              {
+                "batch": "v10",
+                "caseId": "eat-same-race-human-corpse",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c #wizwish -> zap.c:makewish -> invent.c:hold_another_object"
+              }
+            ]
+          },
+          {
+            "name": "Horn of plenty non-tipping object spill",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Artifact invocation creates ammunition",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Bullwhip snatches a monster-held object",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Tinning kit produces a tin",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Writing creates an object",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Engraving splits a stylus stack",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hero catches a thrown gem",
+            "functions": [
+              "hold_another_object"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole invent.c:hold_another_object and the #wizwish entry are source-reviewed and strictly evidenced, but active existing JS callers hornoplenty non-tipping spill, invoke_create_ammo, whipattack snatch, use_tinning_kit, dowrite, engrave, and ucatchgem still lack matching runtime entry-point evidence. Supporting do.c:doaltarobj caller paths tipcontainer/hornoplenty tipping and monster flooreffects also lack matching C recordings; the independent #tip probe diverged earlier at attrib.c:exercise step 51 (C rn2(19), JS rn2(12)). Resume after independent caller witnesses or source fixes make those routes match. v10/offer-human-corpse-own-race now reaches a separate pray.c:sacrifice_your_race mismatch at step 39."
+    },
+    {
+      "id": "port-apply-flip-through-book-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port spellbook page-flipping and apply dispatch from source",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v10/apply-flips-through-blank-spellbook"
+      ],
+      "selectionReason": "v10/apply-flips-through-blank-spellbook remains unmatched at step 29 in current saved evaluation challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/apply-flips-through-blank-spellbook.json traces the refusal to apply.c:flip_through_book and doapply SPBOOK_CLASS. This independent source family does not overlap assigned invent/altar or potion work.",
+      "detail": "Implement all apply.c:flip_through_book branches and wire doapply SPBOOK_CLASS. Preserve underwater, Blind, Deaf, Hallucination, Book of the Dead, blank, novel, and faded-book behavior, discovery, messages, and source order; create an independently recorded C witness.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "flip_through_book",
+          "line": 4473,
+          "endLine": 4526,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4473,
+        "to": 4526
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/apply-flips-through-blank-spellbook": {
+          "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-flips-through-blank-spellbook",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+          "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
+        }
+      }
+    },
+    {
+      "id": "port-potion-see-invisible-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete see-invisible and fruit-juice potion effect from source",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v10/quaff-see-invisible-potion"
+      ],
+      "selectionReason": "v10/quaff-see-invisible-potion remains unmatched at step 28 in current challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/quaff-see-invisible-potion.json traces the refusal to potion.c:peffect_see_invisible and peffects POT_SEE_INVISIBLE dispatch. This source and see-invisible state contract are independent of assigned invent/altar and spellbook work.",
+      "detail": "Complete shared fruit-juice and see-invisible branches of potion.c:peffect_see_invisible, preserving taste, identification, blindness clearing, intrinsic HSee_invisible permanent chance, timed effect, redraw, and messages. Wire peffects POT_SEE_INVISIBLE caller; trace ordinary quaff and debug fuzzer paths and record independent C variations.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_see_invisible",
+          "line": 841,
+          "endLine": 880,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 841,
+        "to": 880
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/quaff-see-invisible-potion": {
+          "session": "synthetic/v10/quaff-see-invisible-potion",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "quaff-see-invisible-potion",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/quaff-see-invisible-potion.session.json",
+          "recordingSha256": "eacfe31e01e600179b3ae1ea7948c1eef0ccefecd6461730020136fe6b3b86c3",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
         }
       }
     }

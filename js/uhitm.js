@@ -4,10 +4,12 @@ import {
     ART_CLEAVER,
     ART_GIANTSLAYER,
     ART_OGRESMASHER,
+    ART_STORMBRINGER,
     ART_SNICKERSNEE,
     ART_TROLLSBANE,
     artifact_hit,
     artifact_light,
+    is_art,
     permapoisoned,
     shade_glare,
 } from './artifacts.js';
@@ -69,7 +71,10 @@ import {
     STONE_RES,
     SHOCK_RES,
     DETECT_MONSTERS,
+    ECMD_TIME,
     EXACT_NAME,
+    IS_OBSTRUCTED,
+    MMOVE_DIED,
     MIM_REVEAL,
     M_AP_FURNITURE,
     M_AP_MONSTER,
@@ -100,6 +105,9 @@ import {
     MAX_EGG_HATCH_TIME,
     NEW_MOON,
     NEUTRAL,
+    PARANOID_HIT,
+    ROOMOFFSET,
+    SHOPBASE,
     CXN_ARTICLE,
     CXN_PFX_THE,
     XKILL_NOMSG,
@@ -134,15 +142,28 @@ import {
     glyph_is_invisible,
     glyph_is_monster,
     glyph_is_object,
+    glyph_is_warning,
     glyph_to_cmap,
     glyph_to_mon,
     glyph_to_obj,
     map_invisible,
     newsym,
+    tp_sensemon,
 } from './display.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
-import { doorless_door, test_move } from './hack.js';
+import {
+    check_capacity,
+    doorless_door,
+    end_running,
+    near_capacity,
+    overexertion,
+    test_move,
+} from './hack.js';
+import { in_rooms } from './rooms.js';
+import { dopay, tended_shop } from './shk.js';
+import { paranoid_query } from './cmd.js';
+import { Punished } from './steed.js';
 import { dist2, ing_suffix, s_suffix, sgn } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import { mhurtle, will_hurtle } from './dothrow.js';
@@ -199,6 +220,8 @@ import {
     monstunseesu,
     noncorporeal,
     monster_resists_element,
+    noattacks,
+    passes_walls,
     passes_rocks,
     resists_blnd,
     resists_blnd_by_arti,
@@ -217,6 +240,7 @@ import {
     set_apparxy,
     youHear,
 } from './monmove.js';
+import { moveSimpleOrdinary } from './unported_monster_actions.js';
 import { m_at } from './monst.js';
 import {
     AD_ACID,
@@ -275,6 +299,9 @@ import {
     PM_BLACK_PUDDING,
     PM_BROWN_PUDDING,
     PM_ELF,
+    PM_BABY_LONG_WORM,
+    PM_LONG_WORM,
+    PM_LONG_WORM_TAIL,
     PM_GREMLIN,
     PM_HEALER,
     PM_KNIGHT,
@@ -381,14 +408,13 @@ import { acurr } from './attrib.js';
 import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import { make_blinded, potionhit } from './potion.js';
-import { d, rn1, rn2, rnl, rnd } from './rng.js';
+import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
     heroIsBlind,
     messageAt,
     sensesMonster,
-    sensesMonsterWithoutDetection,
 } from './startup_a11y.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
@@ -405,7 +431,12 @@ import {
     mwepgone,
     possibly_unwield,
 } from './weapon.js';
-import { can_twoweapon, cantwield, uwepgone } from './wield.js';
+import {
+    can_twoweapon,
+    cantwield,
+    untwoweapon,
+    uwepgone,
+} from './wield.js';
 import {
     bimanual,
     extract_from_minvent,
@@ -795,13 +826,8 @@ export async function stumble_onto_mimic(mtmp, state = game, env = {}) {
 // strategy at 196.
 //
 // The force-fight arm at 201-214 returns FALSE above every arm below.
-//
-// Remaining unsupported arms:
-//   198-199  engulfing_u(): ported, returns false immediately.
-//   308-324  paranoid_query() for a peaceful target, and the Stormbringer
-//            override above it.
 export async function attack_checks(mtmp, wep, state = game, env = {}) {
-    const unsupported = requireAttackOperation(env, 'unsupported');
+    const message = env.message ?? ttyPline;
 
     mtmp.mstrategy &= ~STRAT_WAITMASK;
 
@@ -818,15 +844,12 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     const bhitpos = state.gb?.bhitpos ?? { x: mtmp.mx, y: mtmp.my };
     const glyph = glyph_at(bhitpos.x, bhitpos.y, state);
 
-    // glyph_is_warning() is constantly false in this port: a warning glyph
-    // needs a warning level this port never raises.
-
     // 230-252: a target the hero cannot spot, not hidden under something.
     if (!canSpotMonster(mtmp, state)
+        && !glyph_is_warning(glyph)
         && !glyph_is_invisible(glyph)
         && !(!(heroIsBlind(state)) && mtmp.mundetected
             && hides_under(mtmp.data))) {
-        const message = requireAttackOperation(env, 'message');
         await message(
             `Wait!  There's ${something} there you can't see!`,
             state,
@@ -849,6 +872,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     // 254-266: a mimicking target the hero cannot sense.
     if (M_AP_TYPE(mtmp)
         && !propertyPresent(state.u, PROT_FROM_SHAPE_CHANGERS)
+        && !glyph_is_warning(glyph)
         && !sensesMonster(mtmp, state)) {
         if (glyph_is_invisible(glyph)) {
             // If a hidden mimic was where the player remembers an unseen
@@ -856,13 +880,17 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
             seemimic(mtmp, state);
             return false;
         }
-        const pline = requireAttackOperation(env, 'message');
-        await stumble_onto_mimic(mtmp, state, { ...env, pline });
+        await stumble_onto_mimic(mtmp, state, {
+            ...env,
+            message,
+            pline: message,
+        });
         return true;
     }
 
     // 268-297: a hidden or submerged monster the hero cannot see.
     if (mtmp.mundetected && !canSeeMonster(mtmp, state)
+        && !glyph_is_warning(glyph)
         && (hides_under(mtmp.data) || mtmp.data?.mlet === S_EEL)) {
         mtmp.mundetected = 0;
         mtmp.msleeping = 0;
@@ -871,12 +899,8 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
             seemimic(mtmp, state);
             return false;
         }
-        // tp_sensemon: sensesMonsterWithoutDetection covers the same
-        // telepathy and warn-of-monster tests, with the swallowed/underwater
-        // gates that C's sensemon() wrapper adds.
-        if (!sensesMonsterWithoutDetection(mtmp, state)
+        if (!tp_sensemon(mtmp, state)
             && !propertyPresent(state.u, DETECT_MONSTERS)) {
-            const pline = requireAttackOperation(env, 'message');
             const lmonbuf = l_monnam(mtmp, state);
             const notseen = lmonbuf === 'it';
             if (!heroIsBlind(state) && Hallucination(state)) {
@@ -910,7 +934,20 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
         && !intrinsicProperty(state.u, CONFUSION)
         && !Hallucination(state)
         && !intrinsicProperty(state.u, STUNNED)) {
-        unsupported('confirming an attack on a peaceful monster');
+        if (is_art(wep, ART_STORMBRINGER)) {
+            state.go ??= {};
+            state.go.override_confirmation = true;
+            return false;
+        }
+        if (canSpotMonster(mtmp, state)) {
+            const prompt = `Really attack ${mon_nam(mtmp, state)}?`;
+            if (!await (env.paranoidQuery ?? paranoid_query)(
+                PARANOID_HIT, prompt, state,
+            )) {
+                state.context.move = 0;
+                return true;
+            }
+        }
     }
 
     return false;
@@ -1024,133 +1061,177 @@ export async function find_roll_to_hit(
     return tmp;
 }
 
-// C ref: uhitm.c do_attack() (446-583). The hero moves into a square holding a
-// monster. Returns TRUE when the step is used up.
-//
-// The `is_safemon(mtmp) && !forcefight` arm at 461-509 covers safe peaceful
-// monsters as well as tame pets. Result false lets hack.c swap places; true
-// consumes the move after the monster refuses. Everything from 511 on is the
-// hostile arm.
+// C ref: uhitm.c do_attack() (448-583). A step into a monster's square either
+// declines so hack.c can displace, or consumes the attempted attack.
 export async function do_attack(monster, state = game, env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rnd };
+    const random = env.random ?? { d, rn1, rn2, rne, rnd, rnz };
     if (typeof random.rn2 !== 'function')
         throw new TypeError('do_attack random injection requires rn2');
-    const unsupported = requireAttackOperation(env, 'unsupported');
+    const message = env.message ?? ttyPline;
+    const stopRunning = env.endRunning
+        ? (gameState) => env.endRunning(gameState)
+        : (gameState) => end_running(true, gameState);
 
     if (is_safemon(monster, state) && !state.context?.forcefight) {
-        const message = requireAttackOperation(env, 'message');
-        const stopRunning = requireAttackOperation(env, 'endRunning');
         const makeFlee = env.monFlee ?? monflee;
-        if (typeof makeFlee !== 'function')
-            throw new TypeError('do_attack requires monFlee');
+        let foo = Punished(state)
+            || !random.rn2(7)
+            || ([PM_BABY_LONG_WORM, PM_LONG_WORM, PM_LONG_WORM_TAIL]
+                .includes(monster.data?.pmidx) && monster.wormno)
+            || (IS_OBSTRUCTED(state.level.at(state.u.ux, state.u.uy).typ)
+                && !passes_walls(monster.data));
+        let inShop = false;
 
-        if (random.rn2(7)) return false;
+        if (!foo) {
+            for (const roomNumber of in_rooms(
+                monster.mx, monster.my, SHOPBASE, state,
+            )) {
+                const room = state.level.rooms[roomNumber - ROOMOFFSET];
+                if (tended_shop(room, state)) {
+                    inShop = true;
+                    break;
+                }
+            }
+        }
 
-        // uhitm.c:497 only frightens a tame pet. A peaceful non-pet uses the
-        // same safety stop but must not consume the rnd(6) flee duration.
-        if (monster.mtame) {
-            if (typeof random.rnd !== 'function')
-                throw new TypeError('do_attack pet refusal requires rnd');
-            await makeFlee(monster, random.rnd(6), false, false, {
-                ...env,
+        if (inShop || foo) {
+            if (!state.context?.travel && !state.context?.run
+                && canSpotMonster(monster, state) && monster.isshk) {
+                return ECMD_TIME | await dopay(state, {
+                    ...env,
+                    state,
+                    random,
+                    message,
+                });
+            }
+
+            // uhitm.c:497 only frightens a tame pet. A peaceful non-pet uses
+            // the same safety stop without a flee-duration roll.
+            if (monster.mtame) {
+                if (typeof random.rnd !== 'function')
+                    throw new TypeError('do_attack pet refusal requires rnd');
+                await makeFlee(monster, random.rnd(6), false, false, {
+                    ...env,
+                    state,
+                    random,
+                });
+            }
+            await message(
+                `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)} `
+                    + 'is in the way!',
+                state,
+            );
+            stopRunning(state);
+            return true;
+        }
+
+        if (monster.mfrozen || helpless(monster)
+            || (monster.data?.mmove === 0 && random.rn2(6))) {
+            await message(`${Monnam(monster, state)} doesn't seem to move!`, state);
+            stopRunning(state);
+            return true;
+        }
+        return false;
+    }
+
+    state.go ??= {};
+    state.go.override_confirmation = false;
+    state.gb ??= {};
+    state.gb.bhitpos = { x: state.u.ux + state.u.dx, y: state.u.uy + state.u.dy };
+    state.gn ??= {};
+    state.gn.notonhead = state.gb.bhitpos.x !== monster.mx
+        || state.gb.bhitpos.y !== monster.my;
+    const attackEnv = {
+        ...env,
+        state,
+        random,
+        message,
+        nearCapacity: env.nearCapacity
+            ?? (() => near_capacity(state)),
+        unsupported: env.unsupported
+            ?? ((reason) => { throw new Error(`uhitm.c: ${reason}`); }),
+    };
+    if (await attack_checks(monster, state.uwep, state, attackEnv)) return true;
+
+    let swing = true;
+    if (Upolyd(state.u) && noattacks(state.youmonst.data)) {
+        await message('You have no way to attack monsters physically.', state);
+        monster.mstrategy &= ~STRAT_WAITMASK;
+        swing = false;
+    } else if (await (env.checkCapacity ?? check_capacity)(
+        'You cannot fight while so heavily loaded.', state,
+    ) || await (env.overexertion ?? overexertion)(state)) {
+        swing = false;
+    }
+
+    if (swing) {
+        if (state.u.twoweap && !(await can_twoweapon(state)))
+            await untwoweapon(state);
+
+        if (state.unweapon) {
+            state.unweapon = false;
+            if (state.flags?.verbose) {
+                if (state.uwep) {
+                    await message(
+                        `You begin bashing monsters with ${yname(state.uwep, state)}.`,
+                        state,
+                    );
+                } else if (!cantwield(state.youmonst?.data)) {
+                    const verb = ing_suffix(
+                        state.urole?.mnum === PM_MONK ? 'strike' : 'bash',
+                    );
+                    const hands = makeplural(body_part(HAND, state.youmonst));
+                    await message(
+                        `You begin ${verb} monsters with your `
+                            + `${state.uarmg ? 'gloved' : 'bare'} ${hands}.`,
+                        state,
+                    );
+                }
+            }
+        }
+
+        await exercise(A_STR, true, state, random, {
+            encumberMessage: env.encumberMessage ?? encumber_msg,
+        });
+        u_wipe_engr(3, { ...env, state, random });
+
+        const species = monster.data;
+        if (species.mlet === S_LEPRECHAUN
+            && !monster.mfrozen && !helpless(monster)
+            && !monster.mconf && monster.mcansee && !random.rn2(7)) {
+        const moveResult = await (env.moveMonster ?? moveSimpleOrdinary)(monster, {
+                ...attackEnv,
                 state,
                 random,
             });
-        }
-        await message(
-            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)} `
-                + 'is in the way!',
-            state,
-        );
-        stopRunning(state);
-        return true;
-    }
-
-    // 511-514. go.override_confirmation is written only by attack_checks()'s
-    // Stormbringer arm, which stops below, and read only by known_hitum() at
-    // 601 and hitum() at 797; both read it as FALSE, so it is not carried.
-    // gb.bhitpos and gn.notonhead are set here too and are read only inside
-    // arms that stop: attack_checks()'s glyph tests, and known_hitum()'s
-    // hmon() and cutworm() calls.
-    if (await attack_checks(monster, state.uwep, state, env)) return true;
-
-    // 516-521's `Upolyd && noattacks()` and 578-579's hmonas() arm cannot run:
-    // polyself is unported, so Upolyd() is constantly false.
-
-    // 523-526. check_capacity() prints and abandons the attack for an
-    // overloaded hero. overexertion() spends the fight's extra nutrition and
-    // makes the attempt's first random-number call, an rn2(20) inside
-    // gethungry(). Both jump to atk_done, which returns TRUE.
-    if (await requireAttackOperation(env, 'checkCapacity')(
-        'You cannot fight while so heavily loaded.',
-        state,
-    )) {
-        return true;
-    }
-    if (await requireAttackOperation(env, 'overexertion')(state)) return true;
-
-    // 528-529. A hero still able to two-weapon falls straight through: C runs
-    // nothing here and reaches the exercise below. can_twoweapon() is
-    // wield.c's and fully ported, messages included, so evaluating it is
-    // source-faithful; only its FALSE branch stops, because that is where
-    // wield.c untwoweapon() takes over.
-    if (state.u.twoweap && !(await can_twoweapon(state)))
-        unsupported('ending two-weapon combat');
-
-    // 531-541. wield.c setuwep() sets gu.unweapon for a hero holding something
-    // that is not a weapon; the first swing clears it and, with `verbose` on,
-    // announces what the hero is now bashing monsters with. The no-weapon
-    // arm uses the hero's role verb and anatomy, but suppresses the line for a
-    // form that cannot wield.
-    if (state.unweapon) {
-        state.unweapon = false;
-        if (state.flags?.verbose) {
-            const message = requireAttackOperation(env, 'message');
-            if (state.uwep) {
-                await message(
-                    `You begin bashing monsters with ${yname(state.uwep, state)}.`,
-                    state,
-                );
-            } else if (!cantwield(state.youmonst?.data)) {
-                const verb = ing_suffix(
-                    state.urole?.mnum === PM_MONK ? 'strike' : 'bash',
-                );
-                const hands = makeplural(body_part(HAND, state.youmonst));
-                await message(
-                    `You begin ${verb} monsters with your `
-                        + `${state.uarmg ? 'gloved' : 'bare'} ${hands}.`,
-                    state,
-                );
+            if (moveResult === MMOVE_DIED
+                || monster.mx !== state.u.ux + state.u.dx
+                || monster.my !== state.u.uy + state.u.dy) {
+                await message('You miss wildly and stumble forwards.', state);
+                return false;
             }
         }
+
+        if (Upolyd(state.u)) {
+            // hmonas() is a static uhitm.c helper whose result is discarded.
+            // Its polymorph attack behavior remains a named source gap.
+            note_unported('uhitm.c hmonas');
+        } else {
+            await hitum(
+                monster, state.youmonst.data.mattk[0], state, attackEnv,
+            );
+        }
+        monster.mstrategy &= ~STRAT_WAITMASK;
     }
 
-    // 543-545. exercise() draws rn2(19) while |AEXE(A_STR)| is under its
-    // limit, so this is the attempt's second call. u_wipe_engr() draws only
-    // where something is engraved under the hero.
-    await exercise(A_STR, true, state, random, {
-        encumberMessage: env.encumberMessage ?? encumber_msg,
-    });
-    /* andrew@orca: prevent unlimited pick-axe attacks */
-    u_wipe_engr(3, { ...env, state, random });
-
-    // 547-556. A leprechaun dodges the blow and the hero stumbles forward.
-    // The arm needs monmove.c m_move(), so a leprechaun target stops here;
-    // every other species fails mlet and never reaches its rn2(7).
-    if (monster.data.mlet === S_LEPRECHAUN) unsupported('leprechaun dodge');
-
-    // 580. C passes the whole mattk[] array and hitum() reads element 0.
-    await hitum(monster, state.youmonst.data.mattk[0], state, env);
-    monster.mstrategy &= ~STRAT_WAITMASK;
-
-    // 577-580. C marks the square with an 'I' when a forced blow leaves a
-    // target the hero cannot spot alive. Nothing in this port reaches that
-    // tail: attack_checks() admits a force-fight only against a target the
-    // hero can spot, and the arms between there and here do not produce an
-    // invisible surviving target. The marker's `!glyph_is_invisible(...)`
-    // conjunct is therefore not reached, so whether a marker sits on the
-    // square is moot. Knockback remains a separate source arm and does not
-    // decide this reachability condition.
+    const x = state.u.ux + state.u.dx;
+    const y = state.u.uy + state.u.dy;
+    if (state.context?.forcefight && monster.mhp >= 1
+        && !canSpotMonster(monster, state)
+        && !glyph_is_invisible(glyph_at(x, y, state))
+        && !engulfing_u(monster, state)) {
+        map_invisible(x, y, state);
+    }
     return true;
 }
 
@@ -1158,7 +1239,8 @@ export async function do_attack(monster, state = game, env = {}) {
 // protection for hostiles and, when requested, pets, then return do_attack()'s
 // boolean result to callers such as apply.c:use_whip().
 export async function force_attack(monster, pets_too, state = game, env = {}) {
-    const previous = Boolean(state.context?.forcefight);
+    const previous = state.context?.forcefight;
+    const owned = Object.hasOwn(state.context ?? {}, 'forcefight');
     if (pets_too || !monster.mtame) {
         state.context ??= {};
         state.context.forcefight = true;
@@ -1166,8 +1248,10 @@ export async function force_attack(monster, pets_too, state = game, env = {}) {
     try {
         return await do_attack(monster, state, env);
     } finally {
-        if (state.context)
-            state.context.forcefight = previous;
+        if (state.context) {
+            if (owned) state.context.forcefight = previous;
+            else delete state.context.forcefight;
+        }
     }
 }
 

@@ -1109,7 +1109,9 @@ function monsterWieldOperations(env) {
     };
 }
 
-async function moveSimpleOrdinary(monster, env) {
+// Ordinary movement adapter used by the live monster turn and by
+// uhitm.c:do_attack()'s consumed-return m_move() leprechaun check.
+export async function moveSimpleOrdinary(monster, env) {
     return m_move(monster, {
         ...env,
         ...doorVisionOperations(env),
@@ -1120,6 +1122,8 @@ async function moveSimpleOrdinary(monster, env) {
             set_apparxy(subject, operationEnv),
         mdigTunnel: mdig_tunnel,
         mayCrossRegion: admitSimpleDestinationAndRegion,
+        finishEating: env.finishEating ?? finish_meating,
+        movePet: env.movePet ?? moveSimplePet,
         // monmove.c m_move():1953 rejects the square the hero most recently
         // kicked before it filters occupants and tracking. The ordinary
         // adapter must provide the same predicate that the pet adapter uses.

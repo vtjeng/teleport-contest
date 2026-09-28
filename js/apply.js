@@ -614,7 +614,7 @@ export function snickersnee_used_dist_attk(obj, state = game) {
 // C ref: apply.c use_whip() (2955-3279). The source's fire_damage(),
 // kick_steed(), possibly_unwield(), and instapetrify() results are discarded;
 // record those unported void boundaries without substituting a result.
-export async function use_whip(obj, state = game) {
+export async function use_whip(obj, state = game, env = {}) {
     let monster;
     let rx;
     let ry;
@@ -735,12 +735,12 @@ export async function use_whip(obj, state = game) {
             }
             if (monster) await wakeup(monster, true, { state });
         } else if (monster) {
-            return await whipattack(monster, rx, ry, proficient, state);
+            return await whipattack(monster, rx, ry, proficient, state, env);
         } else {
             await ttyPline(msgSnap, state);
         }
     } else if (monster) {
-        return await whipattack(monster, rx, ry, proficient, state);
+        return await whipattack(monster, rx, ry, proficient, state, env);
     } else if (Is_airlevel(u.uz) || Is_waterlevel(u.uz)) {
         await ttyPline('You snap your whip through thin air.', state);
     } else {
@@ -751,7 +751,7 @@ export async function use_whip(obj, state = game) {
 
 // C ref: apply.c use_whip()'s `whipattack:` label, shared by the pit case
 // when no boulder, furniture, or visible big monster can be used to escape.
-async function whipattack(monster, rx, ry, proficient, state) {
+async function whipattack(monster, rx, ry, proficient, state, env) {
         let object = null;
         if (!canSpotMonster(monster, state)) {
             monster.mundetected = 0;
@@ -837,7 +837,7 @@ async function whipattack(monster, rx, ry, proficient, state) {
             } else {
                 await ttyPline(`You flick your bullwhip towards ${mon_nam(monster, state)}.`, state);
             }
-            if (proficient && await force_attack(monster, false, state))
+            if (proficient && await force_attack(monster, false, state, env))
                 return ECMD_TIME;
             if (doSnap) await ttyPline(msgSnap, state);
         }
@@ -3498,7 +3498,7 @@ export async function doapply(state = game, env = {}) {
     case CREAM_PIE:
         return use_cream_pie(obj, state, env);
     case BULLWHIP:
-        return use_whip(obj, state);
+        return use_whip(obj, state, env);
     case SADDLE:
         return use_saddle(obj, state, env);
     case MAGIC_WHISTLE:
