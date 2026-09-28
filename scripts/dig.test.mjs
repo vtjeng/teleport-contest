@@ -30,10 +30,14 @@ import {
     DIGTYP_TREE,
     DIGTYP_UNDIGGABLE,
     DOOR,
+    D_BROKEN,
     D_CLOSED,
     D_LOCKED,
     D_NODOOR,
     DRAWBRIDGE_DOWN,
+    DRAWBRIDGE_UP,
+    DB_FLOOR,
+    DB_UNDER,
     FUMBLING,
     FLYING,
     FORCETRAP,
@@ -60,7 +64,7 @@ import {
     THRONE,
 } from '../js/const.js';
 import {
-    adj_pit_checks, dig, dig_check, dig_typ, fillholetyp, is_digging,
+    adj_pit_checks, dig, dig_check, dig_typ, dighole, fillholetyp, is_digging,
     mdig_tunnel, pick_can_reach,
     rot_corpse, unportedRotCorpseReason,
 } from '../js/dig.js';
@@ -359,6 +363,27 @@ test('fillholetyp preserves liquid counts, weighting and draw order', () => {
     draws.length = 0;
     assert.equal(fillholetyp(X, Y, true, state, random), LAVAPOOL);
     assert.deepEqual(draws, []);
+});
+
+test('dighole returns the drawbridge refusal after source-ordered spot checks', async () => {
+    const state = digCheckState();
+    const location = state.level.at(X, Y);
+    location.typ = DRAWBRIDGE_UP;
+    location.flags = DB_UNDER | DB_FLOOR;
+    const effects = [];
+    const messages = [];
+    const result = await dighole(false, false, null, {
+        state,
+        random: { rn2: (bound) => assert.fail(`unexpected rn2(${bound})`) },
+        message: async (text) => messages.push(text),
+        spotTimeLeft: () => { effects.push('time-left'); return true; },
+        spotStopTimers: () => effects.push('stop-timer'),
+        objIceEffects: () => effects.push('ice-effects'),
+    });
+
+    assert.equal(result, false);
+    assert.deepEqual(messages, ['The ground here is too hard to dig in.']);
+    assert.deepEqual(effects, ['time-left', 'stop-timer', 'ice-effects']);
 });
 
 test('adj_pit_checks reports hard foundations and supporting structures', () => {
@@ -820,10 +845,11 @@ test('dig preserves the C fumbling gate and outcome-selection draw', async () =>
     assert.ok(state.context.digging.effort > 0);
 });
 
-test('dig consumes both source fumbling draws before its unported outcome', async () => {
+test('dig uses the second fumbling draw to select the C swing-miss arm', async () => {
     const state = downDigState();
     const draws = [];
     const values = [0, 2]; // stumble, then select a C switch arm
+    const messages = [];
     const result = await dig(state, {
         random: {
             rn2: (bound) => {
@@ -831,11 +857,46 @@ test('dig consumes both source fumbling draws before its unported outcome', asyn
                 return values.shift();
             },
         },
+        message: async (text) => messages.push(text),
     });
 
     assert.equal(result, 0);
     assert.deepEqual(draws, [3, 3]);
     assert.equal(state.context.digging.effort, 0);
+    assert.deepEqual(messages, ['Your swing misses its mark.']);
+});
+
+test('lateral digging breaks a secret door and finishes the occupation', async () => {
+    const state = digCheckState();
+    const x = X + 1;
+    const y = Y;
+    state.u.ulevel = 10;
+    state.uwep = { ...tool(PICK_AXE, state), spe: 0 };
+    state.youmonst = { data: state.mons?.[PM_ORC] ?? null };
+    state.level.at(x, y).typ = SDOOR;
+    state.context = {
+        digging: {
+            down: false,
+            pos: { x, y },
+            level: { ...state.u.uz },
+            effort: 100,
+            quiet: false,
+            lastdigtime: 0,
+        },
+    };
+    const messages = [];
+
+    const result = await dig(state, {
+        random: { rn2: () => 0 },
+        message: async (text) => messages.push(text),
+    });
+
+    assert.equal(result, 0);
+    assert.equal(state.level.at(x, y).typ, DOOR);
+    assert.equal(state.level.at(x, y).doormask, D_BROKEN);
+    assert.equal(state.context.digging.level.dlevel, -1);
+    assert.equal(state.context.digging.quiet, false);
+    assert.ok(messages.includes('You break through a secret door!'));
 });
 
 test('dig triggers a set trap with the C FORCETRAP flag', () => {
