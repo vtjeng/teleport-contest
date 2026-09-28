@@ -103216,6 +103216,49 @@
           "evaluationCommit": "533d144713ebda5784bfbde54c648abde78b7883"
         }
       }
+    },
+    {
+      "id": "port-read-forget-amnesia-synthetic-v9-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port amnesia forgetting and its scroll effect",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/read-amnesia-forgets-known-spells"
+      ],
+      "selectionReason": "The current admitted v9 amnesia-scroll case first diverges at read.c:forget rnd(3), as traced in investigations/synthetic/v9/read-amnesia-forgets-known-spells.json. JavaScript seffects still leaves the SCR_AMNESIA arm unported. The whole read.c:forget function and its seffect_amnesia caller, plus source state dependencies spell.c:losespells and weapon.c:drain_weapon_skill, form one coherent amnesia effect task; A owns apply.c whistles and B owns potion.c restore ability, so these source owners are free.",
+      "detail": "Port complete read.c:forget and seffect_amnesia with the SCR_AMNESIA dispatcher. Implement whole spell.c:losespells and weapon.c:drain_weapon_skill so spell memory, skill training, seen-monster flags, punished ball-chain memory, wisdom exercise, messages, and RNG calls follow source order across future inputs. Add source-pinned pure helper tests and independent cursed, blessed, or known-spell C recordings; preserve the selected v9 range and name any active unreachable or blocked state path.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "forget",
+          "line": 1020,
+          "endLine": 1043,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1020,
+        "to": 1043
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/read-amnesia-forgets-known-spells": {
+          "session": "synthetic/v9/read-amnesia-forgets-known-spells",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "read-amnesia-forgets-known-spells",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/read-amnesia-forgets-known-spells.session.json",
+          "recordingSha256": "481f4e372c6513cf0f2e00e7b286c7a3c932884f9092ec9c0cee0293c76ac335",
+          "evaluationPath": "challenges/evaluations/20260928063714-v9.json",
+          "evaluationCommit": "eaf254e8fc985c3ea7f733ebbe90990f78e27a73"
+        }
+      }
     }
   ]
 }
