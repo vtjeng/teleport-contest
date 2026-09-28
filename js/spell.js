@@ -1427,6 +1427,7 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
 
     // spell.c routes scroll-duplicate spells through read.c:seffects() after
     // granting the blessed-scroll equivalent at Skilled or Expert skill.
+    case SPE_REMOVE_CURSE:
     case SPE_CAUSE_FEAR:
     case SPE_CHARM_MONSTER:
     case SPE_CONFUSE_MONSTER:

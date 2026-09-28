@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v11/hero-antimagic-trap-drains-energy",
+  "corpus": "synthetic",
+  "batch": "v11",
+  "caseId": "hero-antimagic-trap-drains-energy",
+  "manifestPath": "challenges/manifests/v11.json",
+  "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+  "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
+  "evaluationPath": "challenges/evaluations/20260928203412-v11.json",
+  "evaluationCommit": "be69548a77c6899056b335ffae17d07aa1994ea7",
+  "remainingScreens": 3,
+  "recordedSteps": 25,
+  "status": "complete",
+  "commit": "be69548a77c6899056b335ffae17d07aa1994ea7",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v11",
+    "caseId": "hero-antimagic-trap-drains-energy",
+    "session": "synthetic/v11/hero-antimagic-trap-drains-energy",
+    "manifestPath": "challenges/manifests/v11.json",
+    "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+    "recording": "challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json",
+    "recordingPath": "challenges/cases/v11/hero-antimagic-trap-drains-energy.session.json",
+    "recordingSha256": "c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd",
+    "recipe": "challenges/cases/v11/hero-antimagic-trap-drains-energy.recipe.session.json",
+    "recipeSha256": "9f16976603ea08809f1d0bdf4643a37a0481787d98a2ffa123f0925e02a42a6c",
+    "replayInputSha256": "c67d67472ba412e7e0b8b007ac8e78a0a568a4df1cc6a7e6b43c2114b51cafa3",
+    "evaluationPath": "challenges/evaluations/20260928203412-v11.json",
+    "evaluationCommit": "be69548a77c6899056b335ffae17d07aa1994ea7",
+    "evaluationArtifact": "challenges/evaluations/20260928203412-v11.json",
+    "evaluationUtc": "2026-09-28T20:34:22.192Z",
+    "remainingScreens": 3,
+    "recordedSteps": 25,
+    "previousScreensMatched": 22,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 22,
+        "total": 25
+      },
+      "rng": {
+        "matched": 2252,
+        "total": 2269
+      },
+      "cursors": {
+        "matched": 22,
+        "total": 25
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: trap activation",
+      "step": 22
+    },
+    "step": 22,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero move: trap activation",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A hero steps on an anti-magic trap. JavaScript preflight_dotrap refuses ANTI_MAGIC before the move, and trapeffect_anti_magic currently has only the monster arm. Port the complete hero arm with its iron-shoes priority, resistance damage, two-dice drain, half-drain split, and trap.c:drain_en state/message/throttle order. Admit this trap type through the existing dotrap dispatcher only after those source effects are wired.",
+  "source": {
+    "file": "trap.c",
+    "branch": "trap.c:trapeffect_anti_magic hero arm (2323-2400) first handles positively enchanted iron shoes, then marks the trap, applies Antimagic resistance damage if active, draws d(2,6) and rnd(drain/2), lowers maximum energy when eligible, and calls trap.c:drain_en (5202-5243).",
+    "functions": [
+      "trapeffect_anti_magic",
+      "drain_en"
+    ],
+    "callers": [
+      "trap.c:dotrap reaches trapeffect_anti_magic through the trap-effect selector; js/trap_effects.js:preflight_dotrap rejects ANTI_MAGIC before it reaches the existing monster-only function."
+    ],
+    "dependencies": [
+      "trap.c:drain_en is absent in JavaScript and is required for current/max energy updates and the final You_feel message. It is a same-file source callee whose result is void but effects are essential to this selected case.",
+      "Existing wearing_iron_shoes and which_armor helpers are in js/trap_effects.js; preserve their source order before any energy draw.",
+      "The other C callers of trap.c:drain_en are mhitu.c engulfing AD_DREN and uhitm.c mhitm_ad_dren. Inspect their JavaScript production reachability; js/uhitm.js currently marks mhitm_ad_dren unported, so record that gap rather than claiming a caller witness."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260928203412-v11.json at be69548a77c6899056b335ffae17d07aa1994ea7 matches 22/25 screens, 2252/2269 RNG calls, and stops at zero-based step 22 with unsupported hero move: trap activation. Immutable C recording SHA-256 c15351f9039084462fcd5d1fb074716d9586421e52b2499c3cd8951c2ab242cd.",
+    "Upstream nethack-c/upstream/src/trap.c:2323-2400 and 5202-5243 define the missing hero anti-magic trap and energy-drain behavior; js/trap_effects.js:2052-2060 refuses the hero arm and preflight_dotrap omits ANTI_MAGIC from its admitted types.",
+    "The prepared v11 batch crosswalk checked this trap state and action history against unresolved v6-v10 sessions before admission."
+  ]
+}

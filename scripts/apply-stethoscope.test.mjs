@@ -715,12 +715,9 @@ test('doapply refuses unsupported classes and dispatches spellbooks and coins',
     const refusal = async (moves) =>
         (await boundaryFor(segment, moves))?.message ?? '';
 
-    // The remaining unsupported oclass shortcut is the C wand-breaking
-    // function. The coin-class arm now reaches flip_coin() normally.
-    for (const [letter, branch] of [['h', 'do_break_wand()']]) {
-        assert.match(await refusal(`.a${letter}`),
-            new RegExp(`applying a tool requires ${branch}`, 'u'), letter);
-    }
+    // apply.c:doapply() now reaches do_break_wand() for the wand slot rather
+    // than stopping at the former fail-closed boundary.
+    assert.equal(await refusal('.ah'), '');
 
     assert.equal(await boundaryFor(segment, '.a$'), null,
         'apply.c COIN_CLASS reaches flip_coin() without a refusal');

@@ -29,6 +29,7 @@ import {
     ARM,
     BEAR_TRAP,
     BOLT_LIM,
+    CONFUSION,
     DART_TRAP,
     DEAF,
     DISP_END,
@@ -262,6 +263,7 @@ import {
     carried,
     isCandle,
     mksobj,
+    newObject,
     objectType,
     place_object,
     remove_object,
@@ -289,6 +291,8 @@ import {
     ROCK,
     SADDLE,
     WAND_CLASS,
+    SPE_REMOVE_CURSE,
+    SPBOOK_CLASS,
 } from './objects.js';
 import {
     an,
@@ -1582,7 +1586,7 @@ function Hallucination(state) {
 //   fate 12: dofiretrap() -- refused (not ported).
 //   fate 13-18: odd-feelings messages, fully ported.
 //   fate 19: tame nearby monsters -- refused (needs adjattrib, tamedog).
-//   fate 20: uncurse items -- refused (needs seffects with SPE_REMOVE_CURSE).
+//   fate 20: uncurse items through read.c:seffects(SPE_REMOVE_CURSE).
 
 // C ref: youprop.h:198 Invis, the intrinsic or extrinsic invisibility source
 // minus its block; :152 See_invisible has no block term. Each C file spells
@@ -1714,10 +1718,26 @@ async function domagictrap(env) {
             // Needs adjattrib() and tamedog().
             unsupported('magic trap tame monsters');
             break; // unreachable
-        case 20: /* uncurse stuff */
-            // Needs seffects() with SPE_REMOVE_CURSE.
-            unsupported('magic trap uncurse');
-            break; // unreachable
+        case 20: { /* uncurse stuff */
+            const confusion = state.u.uprops?.[CONFUSION];
+            const savedConfusion = confusion?.intrinsic ?? 0;
+            const confusionProperty = (state.u.uprops ??= {})[CONFUSION]
+                ??= { intrinsic: 0, extrinsic: 0 };
+            const pseudo = newObject({
+                otyp: SPE_REMOVE_CURSE,
+                oclass: SPBOOK_CLASS,
+            });
+            // trap.c:domagictrap() temporarily clears HConfusion, applies the
+            // unblessed pseudo-spellbook effect, and restores the old value.
+            confusionProperty.intrinsic = 0;
+            try {
+                const { seffects } = await import('./read.js');
+                await seffects(pseudo, state, { ...env, state, random });
+            } finally {
+                confusionProperty.intrinsic = savedConfusion;
+            }
+            break;
+        }
         default:
             break;
         }
@@ -3183,8 +3203,8 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
     }
 
     fill_pit(x, y, state);
-    // C discards maybe_dunk_boulders(); the helper remains unported.
-    note_unported('apply.c maybe_dunk_boulders');
+    const { maybe_dunk_boulders } = await import('./apply.js');
+    await maybe_dunk_boulders(x, y, state, { ...env, random });
     recalc_block_point(x, y, state);
     spot_checks(x, y, oldTyp, state, env);
 }

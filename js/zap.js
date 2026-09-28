@@ -1254,7 +1254,7 @@ async function boxlock_invent(obj, state = game) {
 // C ref: zap.c release_hold() (578-606).  The swallowed expels(TRUE) arm is
 // still outside the port; keep that void call as a named source gap rather
 // than invoking expels() with its different FALSE-message contract.
-async function release_hold(state = game) {
+export async function release_hold(state = game) {
     const holder = state.u?.ustuck;
     if (!holder) {
         note_unported('zap.c impossible release_hold');

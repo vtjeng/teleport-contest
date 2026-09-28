@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C38 confused-scroll route. A Wizard wishes a confusion potion and an uncursed remove-curse scroll; the starting worn cloak is neutral and eligible for the confused blessorcurse call. The source-reaching recording must show the C RNG calls from mkobj.c:blessorcurse after read.c:seffect_remove_curse begins.",
+  "segments": [
+    {
+      "seed": 38190273,
+      "datetime": "20450928101910",
+      "nethackrc": "OPTIONS=name:C38ConfusedCloak,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed potion of confusion\n \u0017uncursed scroll of remove curse\nqprq   \u001b"
+    }
+  ]
+}

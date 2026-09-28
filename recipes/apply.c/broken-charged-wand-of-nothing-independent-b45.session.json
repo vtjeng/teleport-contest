@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71035043,
+      "datetime": "20281028114320",
+      "nethackrc": "OPTIONS=name:B45Charge,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": ".\u0017wand of nothing (1:0)\naey"
+    }
+  ],
+  "comment": "Independent C variation for apply.c:doapply -> do_break_wand(WAN_NOTHING). Unlike the selected zero-charge case, the wished wand has one charge and reaches the successful zappable/refund path before the no-effect arm."
+}

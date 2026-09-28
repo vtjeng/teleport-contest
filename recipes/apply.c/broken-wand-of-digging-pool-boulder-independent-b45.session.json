@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71103375,
+      "datetime": "20311107091546",
+      "nethackrc": "OPTIONS=name:B45DunkProbe,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizwish\nboulder\n#wizwish\npool\n#wizwish\nwand of digging\ni\u001bafy        "
+    }
+  ],
+  "comment": "Blocked independent positive-branch attempt for apply.c:do_break_wand(WAN_DIGGING) -> maybe_dunk_boulders. C reached boulder_hits_pool() and the splash, but the strict JavaScript replay first diverges during the pool wish in zap.c:makewish(), before the wand-break call. The C-only trace is task-local evidence, not a passing recording; retain this recipe until the makewish pool-wish boundary is source-aligned."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked C38 entry recipe for trap.c:trapeffect_magic_trap -> trap.c:domagictrap case 20. The cache-only C trace reached eight hero-triggered fates (14, 16, 3, 19, 8, then monster-side triggers) but never fate 20; it also shows fate <10 entering monster creation before the target. JS has only the case-20 bridge here, so this recipe is provenance, not passing runtime evidence.",
+  "segments": [
+    {
+      "seed": 38190429,
+      "datetime": "20450928111600",
+      "nethackrc": "OPTIONS=name:TrapProbe,role:Healer,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": " h#wizwish\nmagic trap\nl hlhy          lhy          lhy          lhy          lhy          lhy          lhy          lhy          lhy          lhy          lhy          lhy          "
+    }
+  ]
+}
