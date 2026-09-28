@@ -32,6 +32,7 @@ import {
     WAN_LIGHT,
     WAN_POLYMORPH,
     WAN_SECRET_DOOR_DETECTION,
+    WAN_CREATE_MONSTER,
     WAN_SLEEP,
     POT_POLYMORPH,
     SPE_POLYMORPH,
@@ -48,6 +49,7 @@ import {
     UnsupportedZapError,
     zap_ok,
     zappable,
+    zapnodir,
 } from '../js/zap.js';
 import {
     BLIND,
@@ -528,6 +530,28 @@ test('a NODIR wand is never asked which way to point', async () => {
     // one draw the log carries is attrib.c's.
     assert.equal(carriedWand().spe, 3);
     assert.deepEqual(getRngLog(), ['rn2(19)=3']);
+});
+
+test('zap.c zapnodir uses create_critters return and source count draws', async () => {
+    const wand = await heroCarryingWand({
+        otyp: WAN_CREATE_MONSTER,
+        spe: 4,
+        dknown: true,
+    });
+    game.iflags.debug_mongen = true;
+    const calls = [];
+    const random = {
+        rn2(bound) { calls.push(['rn2', bound]); return 0; },
+        rn1(range, base) { calls.push(['rn1', range, base]); return base; },
+    };
+
+    await zapnodir(wand, game, random);
+
+    // zap.c evaluates rn2(23) ? 1 : rn1(7,2) before the helper; the helper's
+    // null result leaves the seen wand unidentified. debug_mongen makes each
+    // source makemon call return null before species selection.
+    assert.deepEqual(calls, [['rn2', 23], ['rn1', 7, 2]]);
+    assert.equal(game.objects[WAN_CREATE_MONSTER].oc_name_known, 0);
 });
 
 test('a secret-door-detection wand reports an empty findit result', async () => {
@@ -1083,9 +1107,9 @@ test('every remaining zap refusal names an unported zap.c function',
             'bhito', 'bhitm',
             // zhitu(): the still-unported hero damage branches.
             'zhitu', 'zhitu',
-            // zapnodir() remains limited to its supported wand. weffects()
-            // now sends IMMEDIATE objects through bhit(); its remaining
-            // refusal is the unexpected directional object-type default.
+            // zapnodir() handles create-monster and secret-door-detection
+            // wands; weffects() sends IMMEDIATE objects through bhit(). Its
+            // remaining refusal is the unexpected directional object default.
             'zapnodir', 'ubuzz', 'weffects',
         ],
     );

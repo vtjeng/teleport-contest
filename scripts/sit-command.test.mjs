@@ -28,7 +28,7 @@ import {
     TT_PIT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { delobj, useupf } from '../js/invent.js';
+import { addinv, delobj, useupf } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
 import { act_on_act, MCMD, rhack } from '../js/cmd.js';
 import { maybe_unhide_at } from '../js/mon.js';
@@ -52,9 +52,10 @@ import {
     S_DRAGON,
     S_EEL,
 } from '../js/monsters.js';
-import { mksobj_at, remove_object } from '../js/obj.js';
+import { mksobj, mksobj_at, remove_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
+    COIN_CLASS,
     CORPSE,
     CREAM_PIE,
     EGG,
@@ -122,6 +123,13 @@ async function standOnFloor() {
 
 function heroSquare() {
     return game.level.at(game.u.ux, game.u.uy);
+}
+
+function inventoryObjects() {
+    const result = [];
+    for (let current = game.invent; current; current = current.nobj)
+        result.push(current);
+    return result;
 }
 
 function putObject(otyp, overrides = {}) {
@@ -242,7 +250,7 @@ test('the throne command menu queues dosit through rhack', async () => {
     assert.equal(game.command_queue[0].at(-1).ec_entry.ef_funct, 'dosit');
     await rhack(0, game);
 
-    assert.equal(toplines(), 'You sit on the opulent throne.');
+    assert.ok(toplines().startsWith('You sit on the opulent throne.'));
     assert.ok(!game.unported.has('sit.c throne_sit_effect'));
     assert.equal(game.context.move, 1);
     assert.equal(game.moves, before);
@@ -272,7 +280,10 @@ test('the terrain chain runs each selected arm in source order', async () => {
         }
         if (typ === ALTAR)
             game.nhDisplay.terminal._inputQueue.push(32, 32, 32, 32);
-        assert.equal(await dosit(game), ECMD_TIME, `typ ${typ}`);
+        const rawEnv = typ === THRONE
+            ? { random: { rnd: () => 1, rn2: () => 1 } }
+            : undefined;
+        assert.equal(await dosit(game, rawEnv), ECMD_TIME, `typ ${typ}`);
         if (typ === ALTAR) {
             assert.ok(toplines().includes('Thou shalt pay, infidel'));
         } else {
@@ -342,6 +353,89 @@ test('throne curse effect keeps its voice message before blindness changes',
         < messages.indexOf('"A curse upon thee for sitting upon this most holy throne!"'));
     assert.deepEqual(calls, ['rnd(6)', 'rnd(13)', 'rn1(100,250)', 'rn2(3)']);
     assert.equal(game.u.uluck, 0);
+});
+
+test('take_gold deletes inventory coins and preserves obj_resists RNG order',
+    async () => {
+    // sit.c:14-35 and throne_sit_effect() case 5 at :102-104. invent.c
+    // delobj_core() calls zap.c obj_resists(), which draws rn2(100) even
+    // though the ordinary-object resistance chance is zero.
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    game.wizard = false;
+    game.disp ??= {};
+    game.disp.botl = false;
+    const coin = mksobj(
+        GOLD_PIECE,
+        true,
+        false,
+        objectGenerationEnv({ state: game }),
+    );
+    await addinv(coin, { state: game });
+    assert.ok(inventoryObjects().some((obj) => obj.oclass === COIN_CLASS));
+
+    const calls = [];
+    const messages = [];
+    const random = {
+        rnd(n) {
+            calls.push(`rnd(${n})`);
+            return 5;
+        },
+        rn2(n) {
+            calls.push(`rn2(${n})`);
+            return n === 3 ? 1 : 26;
+        },
+    };
+    assert.equal(await dosit(game, {
+        random,
+        message: async (line) => messages.push(line),
+    }), ECMD_TIME);
+
+    assert.deepEqual(calls, ['rnd(6)', 'rnd(13)', 'rn2(100)', 'rn2(3)']);
+    assert.ok(!inventoryObjects().some((obj) => obj.oclass === COIN_CLASS));
+    assert.deepEqual(messages, ['You sit on the opulent throne.',
+        'You notice you have no gold!']);
+    assert.equal(game.disp.botl, true);
+    assert.ok(!game.unported.has('sit.c take_gold'));
+});
+
+test('take_gold reports the source no-coins branch without an object-resistance draw',
+    async () => {
+    // sit.c:31-32. With no COIN_CLASS object, take_gold reports the strange
+    // sensation and does not reach invent.c delobj_core()/zap.c obj_resists().
+    await standOnStairs();
+    for (let current = game.invent; current;) {
+        const next = current.nobj;
+        if (current.oclass === COIN_CLASS)
+            delobj(current, { state: game });
+        current = next;
+    }
+    assert.ok(!inventoryObjects().some((obj) => obj.oclass === COIN_CLASS));
+    heroSquare().typ = THRONE;
+    game.wizard = false;
+    game.disp ??= {};
+    game.disp.botl = false;
+    const calls = [];
+    const messages = [];
+    const random = {
+        rnd(n) {
+            calls.push(`rnd(${n})`);
+            return 5;
+        },
+        rn2(n) {
+            calls.push(`rn2(${n})`);
+            return 1;
+        },
+    };
+
+    assert.equal(await dosit(game, {
+        random,
+        message: async (line) => messages.push(line),
+    }), ECMD_TIME);
+    assert.deepEqual(calls, ['rnd(6)', 'rnd(13)', 'rn2(3)']);
+    assert.deepEqual(messages, ['You sit on the opulent throne.',
+        'You feel a strange sensation.']);
+    assert.equal(game.disp.botl, false);
 });
 
 test('a water square follows the source goto into the shared in_water arm', async () => {

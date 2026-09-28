@@ -37,6 +37,10 @@ import {
     N_DIRS,
     SHOPBASE,
     STATUE_TRAP,
+    XKILL_GIVEMSG,
+    XKILL_NOCONDUCT,
+    XKILL_NOCORPSE,
+    XKILL_NOMSG,
     ZAP_POS,
     xdir,
     ydir,
@@ -599,9 +603,17 @@ export async function explode(
 
                 if (monster.mhp <= 0) {
                     const xkillFlags = adtyp === AD_FIRE
-                        && completelyburns(monster.data) ? 2 : 0;
+                        && completelyburns(monster.data)
+                        ? XKILL_NOCORPSE : 0;
                     if (!state.context?.mon_moving) {
-                        await xkilled(monster, 1 | xkillFlags, state, env);
+                        // explode.c passes XKILL_GIVEMSG (zero) plus xkflg;
+                        // do not suppress xkilled()'s ordinary kill line.
+                        await xkilled(
+                            monster,
+                            XKILL_GIVEMSG | xkillFlags,
+                            state,
+                            env,
+                        );
                     } else if (mdef && monster === mdef) {
                         if (cansee(monster.mx, monster.my, state)
                             || canSpotMonster(monster, state)) {
@@ -609,7 +621,12 @@ export async function explode(
                                 ? 'burned completely' : nonliving(monster.data)
                                     ? 'destroyed' : 'killed'}!`, state, env);
                         }
-                        await xkilled(monster, 4 | 2 | xkillFlags, state, env);
+                        await xkilled(
+                            monster,
+                            XKILL_NOMSG | XKILL_NOCONDUCT | xkillFlags,
+                            state,
+                            env,
+                        );
                     } else {
                         if (xkillFlags) adtyp = AD_PHYS;
                         await monkilled(monster, '', adtyp, state, env);

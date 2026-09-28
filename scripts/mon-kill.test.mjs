@@ -18,6 +18,7 @@ import {
     replmon,
     set_mon_min_mhpmax,
     unstuck,
+    xkilled,
     zombie_maker,
 } from '../js/mon.js';
 import {
@@ -111,6 +112,8 @@ import {
     TAINT_AGE,
     W_AMUL,
     W_SADDLE,
+    XKILL_NOCORPSE,
+    XKILL_NOMSG,
     LL_ACHIEVE,
     LL_UMONST,
 } from '../js/const.js';
@@ -1035,6 +1038,21 @@ test('mondead stops on the arms it does not own', async () => {
 
 // mon.c killed() (3469-3473) passes XKILL_GIVEMSG, so the message is given and
 // neither the corpse nor the conduct is suppressed.
+test('xkilled runs its ordinary C path without injected UI operations', async () => {
+    await hero();
+    const mon = spawn(PM_NEWT, { mhp: 0 });
+    const beforeDied = game.svm.mvitals[PM_NEWT].died;
+    const beforeConduct = game.u.uconduct.killer;
+
+    await xkilled(mon, XKILL_NOMSG | XKILL_NOCORPSE, game);
+
+    assert.equal(mon.mhp, 0);
+    assert.equal((mon.mstate ?? 0) & MON_DETACH, MON_DETACH);
+    assert.equal(game.svm.mvitals[PM_NEWT].died, beforeDied + 1);
+    assert.equal(game.u.uconduct.killer, beforeConduct + 1);
+    assert.equal(game.level.objects[mon.mx][mon.my], null);
+});
+
 test('killed spends the drop and corpse calls in that order', async () => {
     await hero();
     const mon = spawn(PM_GOBLIN, { mhp: 0 });
@@ -1073,15 +1091,15 @@ test('a peaceful kill costs luck behind its own draw', async () => {
     assert.deepEqual(quiet.bounds, ['rn2(6)', 'rn2(3)']);
     assert.equal(game.u.uluck, 0);
 
-    // A peaceful one draws, and a zero costs a point of luck. The alignment
-    // arm below stops afterwards, so this asserts the throw as well.
+    // A peaceful one draws, and a zero costs a point of luck before the
+    // source's peaceful-alignment penalty and final malign adjustment.
     const peaceful = spawn(PM_NEWT, { mhp: 0, mpeaceful: 1 });
     const env = killEnv([2, 1, 0]);
-    await refusesAsync(
-        () => killed(peaceful, game, env), 'killing a peaceful monster',
-    );
+    await killed(peaceful, game, env);
     assert.deepEqual(env.bounds, ['rn2(6)', 'rn2(3)', 'rn2(2)']);
     assert.equal(game.u.uluck, -1);
+    assert.equal(game.u.ualign.record, -5 + peaceful.malign,
+        'peaceful penalty and monster malign reach adjalign in C order');
 });
 
 // mon.c make_corpse():850. KEEPTRAITS() (549-556) sends the monster itself

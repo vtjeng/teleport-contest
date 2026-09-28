@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 64092801,
+      "datetime": "20300928121530",
+      "nethackrc": "OPTIONS=name:B40Wand,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017wand of create monster\nzp\u001b"
+    }
+  ],
+  "comment": "C-first wand of create monster entry. In Wizard mode, escape the optional create-particular species prompt so create_critters continues to the ordinary null-species makemon call."
+}

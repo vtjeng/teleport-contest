@@ -99,6 +99,7 @@ import {
     G_NOCORPSE,
     G_UNIQ,
     NON_PM,
+    PM_ACID_BLOB,
     PM_ALIGNED_CLERIC,
     PM_ANGEL,
     PM_DOPPELGANGER,
@@ -185,7 +186,12 @@ import {
     tamedog,
 } from './dog.js';
 import { makemon_runtime, newcham } from './makemon_create.js';
-import { mkclass, rndmonst, set_malign } from './makemon.js';
+import {
+    create_critters,
+    mkclass,
+    rndmonst,
+    set_malign,
+} from './makemon.js';
 import { monster_census } from './minion.js';
 import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
 import {
@@ -2727,6 +2733,28 @@ export async function seffect_amnesia(
 // its pre-dispatch Wisdom exercise, post-effect inventory refresh, and
 // `sobj ? 0 : 1` return. C's effect helpers are void and receive `&sobj`;
 // helpers not yet ported are explicit gaps rather than command refusals.
+//
+// C ref: read.c seffect_create_monster() (1606-1623). The count expression's
+// short-circuit draws precede the consumed create_critters() visibility result.
+async function seffect_create_monster(scroll, state = game,
+    random = { rn2, rnd }) {
+    const blessed = Boolean(scroll.blessed);
+    const cursed = Boolean(scroll.cursed);
+    const confused = propertyActive(CONFUSION, state);
+    const count = 1
+        + ((confused || cursed) ? 12 : 0)
+        + ((blessed || random.rn2(73)) ? 0 : random.rnd(4));
+    if (await create_critters(
+        count,
+        confused ? state.mons[PM_ACID_BLOB] : null,
+        false,
+        state,
+        { random },
+    )) {
+        state.gk.known = true;
+    }
+}
+
 export async function seffects(scroll, state = game, env = {}) {
     state.gk ??= {};
     const random = env.random ?? { rn2, rnd, rnl };
@@ -2780,7 +2808,7 @@ export async function seffects(scroll, state = game, env = {}) {
         break;
     case SCR_CREATE_MONSTER:
     case SPE_CREATE_MONSTER:
-        note_unported('read.c seffect_create_monster');
+        await seffect_create_monster(scroll, state, random);
         break;
     case SCR_ENCHANT_WEAPON:
         if (await seffect_enchant_weapon(scroll, state)) scroll = null;

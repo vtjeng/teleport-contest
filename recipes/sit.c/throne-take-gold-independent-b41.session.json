@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B41 throne effect 5 witness: a female Wizard on a distinct seed wishes the throne and a gold-piece stack, sits, and selects take_gold. This covers inventory deletion from a separately initialized role/date/seed combination.",
+  "segments": [
+    {
+      "seed": 97143123,
+      "datetime": "20260928153000",
+      "nethackrc": "OPTIONS=name:B41GoldProbe,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,!autopickup,pettype:none\n",
+      "moves": " \u0017throne\n \u0017gold pieces\n#sit\n 5\n"
+    }
+  ]
+}
