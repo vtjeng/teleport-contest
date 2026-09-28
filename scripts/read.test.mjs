@@ -5,14 +5,22 @@ import test from 'node:test';
 import { ECMD_TIME, G_GENOD, IN_SIGHT, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { can_center_cloud, seffects } from '../js/read.js';
+import {
+    can_center_cloud,
+    seffect_identify,
+    seffects,
+} from '../js/read.js';
 import { G_NOCORPSE, PM_NEWT, PM_WIZARD } from '../js/monsters.js';
 import {
     SCR_FOOD_DETECTION, SCR_GOLD_DETECTION, SCR_SCARE_MONSTER,
-    SCR_TAMING, SCROLL_CLASS, SPBOOK_CLASS,
+    SCR_IDENTIFY, SCR_TAMING, SCROLL_CLASS, SPBOOK_CLASS,
     SPE_CAUSE_FEAR, SPE_CHARM_MONSTER, SPE_DETECT_FOOD,
+    SPE_IDENTIFY, RIN_ADORNMENT, RIN_CONFLICT,
 } from '../js/objects.js';
 import { spelleffects } from '../js/spell.js';
+import { addinv } from '../js/invent.js';
+import { mksobj } from '../js/obj.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 
 async function replayGenocideRecipe(name, gender) {
     const recipe = JSON.parse(readFileSync(new URL(
@@ -169,6 +177,68 @@ test('read.c cursed gold detection selects the trap detector and consumes its sc
     assert.equal(game.gk.known, undefined);
     assert.match(game._pending_message, /stop itching/);
 });
+
+test('read.c seffect_identify consumes an unknown cursed scroll before returning',
+    async () => {
+        await emptyDetectionWorld(9876521);
+        game.objects[SCR_IDENTIFY].oc_name_known = false;
+        const scroll = mksobj(SCR_IDENTIFY, false, false, { state: game });
+        scroll.cursed = true;
+        addinv(scroll, { state: game });
+
+        assert.equal(await seffects(scroll, game), 1);
+        assert.equal(game.objects[SCR_IDENTIFY].oc_name_known, 1);
+        assert.equal(game.invent, null);
+        assert.equal(
+            game._pending_message.includes('to be identified.'),
+            false,
+        );
+    });
+
+test('read.c identify scroll applies the blessed Luck increment after rn2(5)',
+    async () => {
+        await emptyDetectionWorld(9876523);
+        game.objects[SCR_IDENTIFY].oc_name_known = true;
+        game.u.uluck = 1;
+        game.u.moreluck = 0;
+
+        const scroll = mksobj(SCR_IDENTIFY, false, false, { state: game });
+        scroll.blessed = true;
+        scroll.known = true;
+        scroll.dknown = true;
+        scroll.bknown = true;
+        scroll.cknown = true;
+        scroll.lknown = true;
+        scroll.rknown = true;
+        addinv(scroll, { state: game });
+        for (const type of [RIN_ADORNMENT, RIN_CONFLICT]) {
+            game.objects[type].oc_name_known = false;
+            addinv(mksobj(type, false, false, { state: game }), { state: game });
+        }
+
+        // C's blessed path draws cval directly. Seed 3 makes this draw one;
+        // positive Luck increments that value to two and identifies both
+        // remaining unknown objects without opening the item-selection menu.
+        initRng(3);
+        enableRngLog();
+        for (let i = 0; i < 20; ++i) game.nhDisplay.pushKey(32);
+        assert.equal(await seffect_identify(scroll, game), true);
+        assert.equal(getRngLog()[0], 'rn2(5)=1');
+        assert.equal(game.objects[RIN_ADORNMENT].oc_name_known, 1);
+        assert.equal(game.objects[RIN_CONFLICT].oc_name_known, 1);
+        assert.equal(
+            game.invent?.otyp === SCR_IDENTIFY,
+            false,
+        );
+    });
+
+test('spell.c routes SPE_IDENTIFY through read.c seffects for forced casts',
+    async () => {
+        await emptyDetectionWorld(9876527);
+        const result = await spelleffects(SPE_IDENTIFY, true, true, game);
+        assert.equal(result, ECMD_TIME);
+        assert.match(game._pending_message, /not carrying anything to be identified/u);
+    });
 
 test('read.c can_center_cloud pins valid terrain, sight, and distu boundary', async () => {
     await runSegment({
