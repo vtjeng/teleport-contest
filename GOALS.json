@@ -110145,7 +110145,7 @@
     {
       "id": "port-read-destroy-armor-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port destroy-armor scroll effects and return-valued disintegration chain",
       "cFile": "read.c",
       "sessions": [
@@ -110153,24 +110153,31 @@
       ],
       "selectionReason": "The sole unresolved v8 case has exact screens but is missing C obj_resists rn2(100) at step 36. Source trace in investigations/synthetic/v8/read-cursed-destroy-armor-scroll.json selects read.c:disintegrate_cursed_armor..seffect_destroy_armor and its do_wear.c:maybe_destroy_armor/disintegrate_arm return-valued callees; preserve all already matching screens and RNG.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "eb06c695ed24e22015df3976043fecbe353a8744",
+      "openStanding": {
+        "sha": "eb06c695ed24e22015df3976043fecbe353a8744",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "eb06c695ed24e22015df3976043fecbe353a8744",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "disintegrate_cursed_armor",
           "line": 1294,
           "endLine": 1323,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "seffect_destroy_armor",
           "line": 1324,
           "endLine": 1398,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -110190,12 +110197,116 @@
           "evaluationPath": "challenges/evaluations/20260928211543-v8.json",
           "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
+      },
+      "activeStanding": {
+        "sha": "eb06c695ed24e22015df3976043fecbe353a8744",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "disintegrate_cursed_armor",
+            "implementation": "js/read.js",
+            "symbol": "disintegrate_cursed_armor",
+            "sourceReview": "Read read.c:1294-1321 in full. The port builds the candidate array in C's uarm, uarmc, uarmh, uarms, uarmg, uarmf, uarmu order, returns without RNG when empty, consumes rn2(idx) once when populated, and propagates the return from do_wear.c:disintegrate_arm. That consumed callee and its do_wear.c:maybe_destroy_armor, wornarm_destroyed, Armor_off, count_worn_armor, and any_worn_armor_ok dependencies are implemented in js/do_wear.js; the two pure predicates are source-pinned in scripts/destroy-armor.test.mjs. do_wear.c:Armor_off is exercised when the selected armor is destroyed. C discards trap.c:selftouch after glove loss, so JS records note_unported('trap.c selftouch') and does not use its result. The function's selected caller is read.c:seffect_destroy_armor.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_destroy_armor",
+                "source": "read.c:seffect_destroy_armor calls disintegrate_cursed_armor only for a blessed scroll when cursed worn armor is available; it consumes the helper's boolean result to select the branch and scroll-known state."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/destroy-armor.test.mjs",
+              "scripts/read-destroy-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/destroy-armor-blessed-cursed-slot-valkyrie-c40.session.json"
+            ],
+            "checkedAt": "eb06c695ed24e22015df3976043fecbe353a8744"
+          },
+          {
+            "name": "seffect_destroy_armor",
+            "implementation": "js/read.js",
+            "symbol": "seffect_destroy_armor",
+            "sourceReview": "Read the complete read.c:1324-1396 function and read.c:seffects dispatch. The port keeps some_armor's RNG before branch selection; the confused erodeproof/glow/shop path; cursed already-cursed armor vibration, spe decrement, armor bonus, and rn1(10,10) evaluation; cursed disintegration; blessed getobj selection with actualoname and the getobj callback; blessed no-choice disintegrate_cursed_armor; and ordinary destroy_arm/failure handling. It propagates C's struct obj ** consumption result back through SCR_DESTROY_ARMOR so doread only consumes a still-live scroll. The consumed do_wear.c:disintegrate_arm chain is source ordered, including resistance draws, outer armor precedence, burning light cleanup, worn-slot removal and inventory identity scan. objnam.c:actualoname is ported through its temporary override_ID state, with a direct focused test and the blessed-choice recording. C discards timeout.c:make_stunned after evaluating rn1(10,10), so that state effect remains an explicit note_unported gap; C also discards trap.c:selftouch after glove loss, likewise named and skipped. No result from either gap is used as data.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:doread dispatches the selected scroll to read.c:seffects; the SCR_DESTROY_ARMOR arm calls seffect_destroy_armor(&sobj), then preserves its consumed-scroll pointer result for doread's later useup step. js/cmd.js:runReadCommand wires the production r command to doread."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/destroy-armor.test.mjs",
+              "scripts/read-destroy-armor.test.mjs",
+              "scripts/read.test.mjs",
+              "scripts/take-off-armor.test.mjs",
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/destroy-armor-cursed-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-ordinary-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-blessed-choice-knight-c40.session.json",
+              "recordings/read.c/destroy-armor-confused-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-blessed-cursed-slot-valkyrie-c40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-cursed-destroy-armor-scroll",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_destroy_armor -> do_wear.c:disintegrate_arm -> do_wear.c:maybe_destroy_armor -> zap.c:obj_resists"
+              }
+            ],
+            "checkedAt": "eb06c695ed24e22015df3976043fecbe353a8744"
+          }
+        ],
+        "entryPointReview": "The active entry is the production r command: js/cmd.js:runReadCommand calls js/read.js:doread, which dispatches the selected scroll through seffects; C read.c:doread -> read.c:seffects invokes seffect_destroy_armor for SCR_DESTROY_ARMOR. There is no spell entry for this scroll effect. The cursed and ordinary records exercise direct disintegrate_arm/fallback behavior; the blessed multi-armor record reaches actualoname, any_worn_armor_ok/getobj, and disintegrate_arm; the confused record reaches the purple glow path; and the blessed single-cursed-slot record reaches disintegrate_cursed_armor, consumes rn2(1), then reaches disintegrate_arm and obj_resists. The selected admitted v8 case now strictly matches through step 36, including the formerly missing obj_resists draw. The only retained runtime gaps are the discarded-result timeout.c:make_stunned and trap.c:selftouch calls; no effect is claimed for those helpers.",
+        "entryPoints": [
+          {
+            "name": "Read a destroy-armor scroll through the production read command",
+            "functions": [
+              "disintegrate_cursed_armor",
+              "seffect_destroy_armor"
+            ],
+            "recordings": [
+              "recordings/read.c/destroy-armor-cursed-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-ordinary-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-blessed-choice-knight-c40.session.json",
+              "recordings/read.c/destroy-armor-confused-valkyrie-c40.session.json",
+              "recordings/read.c/destroy-armor-blessed-cursed-slot-valkyrie-c40.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-cursed-destroy-armor-scroll",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_destroy_armor -> do_wear.c:disintegrate_arm -> do_wear.c:maybe_destroy_armor -> zap.c:obj_resists"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "eb06c695ed24e22015df3976043fecbe353a8744",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "div-zap-bhitm-slow-monster-synthetic-v11-20260928",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Implement immediate slow-monster hit and speed adjustment",
       "cFile": "zap.c",
       "sessions": [
@@ -110204,10 +110315,17 @@
       ],
       "selectionReason": "Both distinct v11 histories stop at the same zap.c:bhitm slow-monster branch; source trace in investigations/synthetic/v11/slow-monster-spell-changes-target-speed.json and hostile-monster-picks-up-floor-weapon.json groups them for one worker after B47 releases js/zap.js.",
       "detail": "zap.c:bhitm slow-monster cases call resist(), reveal a mimic if applicable, adjust speed through mon.c:mon_adjust_speed, schedule gear check, and continue the shared wake/learning tail. js/zap.js refuses the immediate effect type before these calls; preserve C RNG, message, state, and return order for both action histories.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+      "openStanding": {
+        "sha": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "bhitm",
       "session": "synthetic/v11/slow-monster-spell-changes-target-speed",
       "step": 26,
@@ -110236,6 +110354,18 @@
           "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
           "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
+      },
+      "activeStanding": {
+        "sha": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

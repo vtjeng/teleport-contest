@@ -908,6 +908,19 @@ function minimal_xname(obj, state = game) {
     return bufp;
 }
 
+// C ref: objnam.c actualoname() (2494). Temporarily force full type
+// identification while formatting the simplest name, then clear the flag as
+// the C assignment does.
+export function actualoname(obj, state = game) {
+    state.iflags ??= {};
+    state.iflags.override_ID = true;
+    try {
+        return minimal_xname(obj, state);
+    } finally {
+        state.iflags.override_ID = false;
+    }
+}
+
 // C ref: objnam.c simpleonames() (2427-2442). "scroll" or "scrolls":
 // minimal_xname's result, pluralized when quan > 1.
 export function simpleonames(obj, state = game) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent blessed getobj branch with a Knight's four worn armor pieces. The recipe dismisses the read/identify pagers before selecting armor at inventory letter c.",
+  "segments": [
+    {
+      "seed": 8822513,
+      "datetime": "20321012151617",
+      "nethackrc": "OPTIONS=name:Knight,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " \u0017blessed scroll of destroy armor\nri  c"
+    }
+  ]
+}
