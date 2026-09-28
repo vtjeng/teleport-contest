@@ -100221,7 +100221,7 @@
     {
       "id": "port-region-inside-gas-cloud-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port poisonous gas-cloud inside callback for hero and monsters",
       "cFile": "region.c",
       "sessions": [
@@ -100229,17 +100229,24 @@
       ],
       "selectionReason": "At the accepted B35 evaluation, v9/stinking-cloud-scroll-targets-floor matches through step 33 and stops at step 34 on region.c:inside_gas_cloud positive damage; investigation investigations/synthetic/v9/stinking-cloud-scroll-targets-floor.json traces the callback and its consumed return.",
       "detail": "Implement the complete region.c:inside_gas_cloud callback in source order, including fog-cloud TTL, zero-damage early return, hero poison tolerance, eye and lung effects, blindness, wakeup, damage and status, plus monster cough, anger, eye blindness, poison resistance, death and lifesaving. Wire region.c:run_regions callback preflight and consumed monster-death return through js/region.js. Preserve RNG and message order; port return-valued callees the C consumes and name skipped void gaps. Provide independent strict C recordings for active hero and monster entries. The selected v9 case has one remaining screen after B35.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+      "openStanding": {
+        "sha": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "inside_gas_cloud",
           "line": 1091,
           "endLine": 1167,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -100259,12 +100266,110 @@
           "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
           "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
         }
+      },
+      "activeStanding": {
+        "sha": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "inside_gas_cloud",
+            "implementation": "js/region.js",
+            "symbol": "inside_gas_cloud",
+            "sourceReview": "Compared the complete upstream region.c:inside_gas_cloud() body (1091-1165) in C order. It chooses mtmp or &youmonst, extends ttl by five for a fog-cloud occupant while ttl<20, then returns immediately for dam<1. The hero arm checks m_poisongas_ok first; when not blind it pluralizes the correct eye body part, prints the sting message, and calls make_blinded(1,FALSE). Without Poison_resistance it prints the burning-lungs and blood-cough messages, wakes nearby monsters, draws rnd(dam)+5, applies Maybe_Half_Phys, then the damp-towel Half_gas_damage reduction, calls losehp, clears seen poison resistance, and returns false. With Poison_resistance it only coughs, wakes nearby monsters, records seen poison resistance, and returns false. The monster arm checks m_poisongas_ok; for a non-silent monster it coughs only when cansee or distu()<8 (distu is squared Euclidean distance), then wakes nearby monsters. It next applies heros_fault/setmangry, updates mblinded/mcansee for an eyed visible monster, returns on resists_poison, or draws rnd(dam)+5 and subtracts HP. A dead monster goes to killed() for a hero-created cloud or monkilled() otherwise, and the callback returns true only when it remains dead after that void helper (the return is consumed by run_regions to remove the cached monster ID). JavaScript preserves this order and uses the existing source ports for m_poisongas_ok, body_part, makeplural, make_blinded, wake_nearto, losehp, dist2, monster_resists_element, setmangry, killed, and monkilled. The C function's direct damage RNG is exactly one rnd(dam) in the hero vulnerable branch and one rnd(dam) in the non-resistant monster branch; the strict recordings confirm ordering with each helper's draws. The preflight refusal for positive damage was removed. Existing mon.c killed()/monkilled() implementations retain explicit unsupported internal branches; when reached, the void-call adapter records note_unported('mon.c ...') for every state object and invokes any supplied unsupported hook. A focused long-worm witness confirms the named gap is recorded even with an injected state; the ordinary newt death route matches C through killed() and the callback true return. No return from note_unported is used as data.",
+            "callers": [
+              {
+                "path": "js/region.js",
+                "symbol": "run_regions",
+                "source": "region.c:run_regions() (439-454) dispatches the registered inside callback with NULL for the hero and each cached monster pointer; it consumes TRUE to remove a dead monster ID from the region's cache. region.c's callback table maps INSIDE_GAS_CLOUD to inside_gas_cloud()."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurnAfterTimeout",
+                "source": "allmain.c:moveloop_core() calls run_regions() immediately after nh_timeout() on each elapsed turn. The JavaScript production path builds regionEffectEnv() and awaits run_regions() at the corresponding point."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/region.test.mjs"
+            ],
+            "recordings": [
+              "recordings/region.c/inside-gas-cloud-hero-independent-b36.session.json",
+              "recordings/region.c/inside-gas-cloud-monster-independent-b36.session.json",
+              "recordings/region.c/inside-gas-cloud-peaceful-monster-independent-b36.session.json",
+              "recordings/region.c/inside-gas-cloud-monster-death-independent-b36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "stinking-cloud-scroll-targets-floor",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "read.c:doread -> seffects(SCR_STINKING_CLOUD) -> read.c:do_stinking_cloud -> region.c:create_gas_cloud/make_gas_cloud -> allmain.c:moveloop_core -> region.c:run_regions -> region.c:inside_gas_cloud hero arm; the full selected 35-boundary C/JS replay now matches through callback completion."
+              }
+            ],
+            "checkedAt": "7311475572cdadbc440bcac61cb0f98f42dfd481"
+          }
+        ],
+        "entryPointReview": "The selected function is a registered region callback, not a direct command handler. region.c:make_gas_cloud installs INSIDE_GAS_CLOUD and allmain.c:moveloop_core dispatches run_regions every elapsed turn. Active gas-cloud producers in the C source include read.c:do_stinking_cloud, fountain.c, trap.c, mkmaze.c, mon.c, zap.c, quest.c, sp_lev.c, and monmove.c; they all reach this one region callback dispatcher. B36 changes no producer; independent read-scroll recordings reach the selected callback and cover the hero and cached-monster states. The v9 case synthetic/v9/stinking-cloud-scroll-targets-floor matches segment 0 steps 0-34 including the hero callback after target confirmation. The independent human Wizard hero recording reaches the sting/damage path; the Orc Wizard troll recordings reach the poison-tolerant hero cough path and monster nonlethal cough/blindness behavior, including the peaceful heros_fault/setmangry branch; the low-HP newt recording reaches killed(), a true callback return, and run_regions' monster-cache removal path. The separate hostile-troll recording covers a non-peaceful monster on the same callback path. No producer-specific B36 claim is made for the other cloud-creation callers because they converge at region.c:run_regions before entering this selected function. The fog-cloud ttl extension is in the source review; it is not a separate command entry point. The existing mon.c kill helpers have source-named void gaps for rare branches; these are recorded through note_unported rather than treated as callback return values. A focused long-worm test reaches and records that boundary, while the standard newt death recording strictly matches the supported kill branch.",
+        "entryPoints": [
+          {
+            "name": "Hero takes a turn inside a positive-damage gas cloud",
+            "functions": [
+              "inside_gas_cloud"
+            ],
+            "recordings": [
+              "recordings/region.c/inside-gas-cloud-hero-independent-b36.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "stinking-cloud-scroll-targets-floor",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "read.c scroll dispatch -> do_stinking_cloud -> create_gas_cloud -> run_regions hero callback"
+              }
+            ]
+          },
+          {
+            "name": "Cached monster coughs, is blinded, or becomes angry inside a gas cloud",
+            "functions": [
+              "inside_gas_cloud"
+            ],
+            "recordings": [
+              "recordings/region.c/inside-gas-cloud-monster-independent-b36.session.json",
+              "recordings/region.c/inside-gas-cloud-peaceful-monster-independent-b36.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Cached monster dies in a gas cloud and returns true for cache removal",
+            "functions": [
+              "inside_gas_cloud"
+            ],
+            "recordings": [
+              "recordings/region.c/inside-gas-cloud-monster-death-independent-b36.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "7311475572cdadbc440bcac61cb0f98f42dfd481",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-detect-gold-food-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port gold and food detection source functions through scroll effects",
       "cFile": "detect.c",
       "sessions": [
@@ -100273,24 +100378,31 @@
       ],
       "selectionReason": "The accepted v9 evaluation still has first source-traced mismatches in read.c:seffect_gold_detection -> detect.c:gold_detect and read.c:seffect_food_detection -> detect.c:food_detect; investigations for both cases are complete. These adjacent C functions share the detect.c map, stale-mark, and consumed-return contracts and can be assigned to one worker.",
       "detail": "Implement complete detect.c:gold_detect and food_detect in C definition order, not just the selected floor-object paths: floor and monster inventories, stale map marks, no-detection and underfoot results, cursed/confused variants, temporary map presentation and restore, messages, Wisdom exercise, RNG, and input waits. Port complete read.c:seffect_gold_detection and seffect_food_detection wrappers and their seffects dispatch arms, preserving the consumed return that clears the scroll pointer; include spell alias when active. Reuse already ported trap_detect and other helpers only where source behavior matches. Verify the two admitted v9 cases and independent C recipes for uncovered entry branches.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "83eadf8bad622d06795bd8bcaa965a569607654f",
+      "openStanding": {
+        "sha": "83eadf8bad622d06795bd8bcaa965a569607654f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "83eadf8bad622d06795bd8bcaa965a569607654f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "gold_detect",
           "line": 335,
           "endLine": 478,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "food_detect",
           "line": 479,
           "endLine": 602,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -100322,12 +100434,152 @@
           "evaluationPath": "challenges/evaluations/20260928002536-v9.json",
           "evaluationCommit": "60d5bb5c1707444e58f1d1a9062147e290db19ab"
         }
+      },
+      "activeStanding": {
+        "sha": "83eadf8bad622d06795bd8bcaa965a569607654f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "gold_detect",
+            "implementation": "js/detect.js",
+            "symbol": "gold_detect",
+            "sourceReview": "Read nethack-c/upstream/src/detect.c gold_detect() lines 335-477 in full. The port preserves clear_stale_map initialization, monster inventory traversal and gold-golem handling, steed special state, floor-object order, no-gold message choice, underfoot-only return, map-object temporary coordinates, monster-carried-gold rnd(10), hero glyph preservation, Wisdom exercise, map browsing, redisplay, and the exact 1/0 return in C order. Direct helpers used here are source-backed: clear_stale_map, findgold, o_material, o_in, currency, money_cnt, hidden_gold, x_monnam/s_suffix, strange_feeling, map_object, exercise, and browse_map. The previous unsupported gold-detection refusal is removed. The cursed/confused read wrapper’s distinct trap-detection branch is wired and has its own matching recording; it does not substitute for this ordinary gold_detect branch.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_gold_detection",
+                "source": "read.c seffect_gold_detection() calls gold_detect(sobj) when neither Confusion nor sobj->cursed selects trap_detect()."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c seffects() dispatches SCR_GOLD_DETECTION to seffect_gold_detection(&sobj); the wrapper consumes the object iff its selected detector returns 1."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "gold-detection-scroll-maps-floor-gold",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c seffects() -> seffect_gold_detection(&sobj) -> detect.c gold_detect(sobj) -> browse_map(TER_DETECT|TER_OBJ, \"gold\")"
+              }
+            ],
+            "checkedAt": "83eadf8bad622d06795bd8bcaa965a569607654f"
+          },
+          {
+            "name": "food_detect",
+            "implementation": "js/detect.js",
+            "symbol": "food_detect",
+            "sourceReview": "Read nethack-c/upstream/src/detect.c food_detect() lines 479-601 in full. The port preserves confusion/cursed object-class selection, stale detection state, steed coordinate normalization, floor then monster inventory counts and early scan condition, no-result stale-map and blessed-edibility feedback, underfoot-only feedback, map-object order and temporary coordinates, nose feedback, Wisdom exercise, browse_map mode, redisplay, and the exact 1/0 result consumed by the read-effect wrapper. The prior food-detection refusal is removed.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_food_detection",
+                "source": "read.c seffect_food_detection() calls food_detect(sobj), then clears its local object pointer when the return is 1."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c seffects() dispatches SCR_FOOD_DETECTION and SPE_DETECT_FOOD to seffect_food_detection(&sobj)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c spelleffects() includes SPE_DETECT_FOOD among duplicate scroll effects, adjusts pseudo->blessed by skill, and calls seffects(pseudo); js/spell.js now includes the same switch arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/detect.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/detect-food-wizcast-c29-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "food-detection-scroll-smells-ration",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "read.c seffects() -> seffect_food_detection(&sobj) -> detect.c food_detect(sobj) -> browse_map(TER_DETECT|TER_OBJ)"
+              }
+            ],
+            "checkedAt": "83eadf8bad622d06795bd8bcaa965a569607654f"
+          }
+        ],
+        "entryPointReview": "The selected source range has ordinary gold and food detection entry points. Reading SCR_GOLD_DETECTION reaches read.c:seffects() -> seffect_gold_detection(&sobj) -> detect.c:gold_detect(sobj); its current v9 recording covers the map branch through the last boundary. Reading SCR_FOOD_DETECTION reaches seffect_food_detection() -> food_detect(); its v9 recording covers the scroll route, and an independently selected #wizcast recording covers spell.c:spelleffects() -> read.c:seffects() -> SPE_DETECT_FOOD. The C29 scope was expanded for those read/spell wrappers and for the cursed/confused gold branch, which calls trap_detect() rather than gold_detect(). That branch, including detect.c:display_trap_map(), sense_trap(), and browse_map() with the matching TER_DETECT map type, is independently recorded at recordings/read.c/cursed-gold-detection-trap-map-c29-independent.session.json. The previously blocked ordinary crystal-ball trap map now also matches at recordings/detect.c/crystal-ball-trap-map-c29-independent.session.json and exercises the uncurssed browse branch. The wider read.c:seffects(), spell.c:spelleffects(), and detect.c:detect_obj_traps() functions are not claimed whole; detect_obj_traps() still names its optional non-null findone callback as a void gap, and the C29 callers pass ft=NULL. No source caller for either selected detection function is build-excluded.",
+        "entryPoints": [
+          {
+            "name": "read gold-detection scroll",
+            "functions": [
+              "gold_detect"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "gold-detection-scroll-maps-floor-gold",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "read.c seffects() -> seffect_gold_detection() -> gold_detect()"
+              }
+            ]
+          },
+          {
+            "name": "read food-detection scroll",
+            "functions": [
+              "food_detect"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "food-detection-scroll-smells-ration",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "read.c seffects() -> seffect_food_detection() -> food_detect()"
+              }
+            ]
+          },
+          {
+            "name": "cast detect-food spell through #wizcast",
+            "functions": [
+              "food_detect"
+            ],
+            "recordings": [
+              "recordings/spell.c/detect-food-wizcast-c29-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "83eadf8bad622d06795bd8bcaa965a569607654f",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "port-potion-sleeping-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port the complete sleeping-potion effect and production quaff dispatch",
       "cFile": "potion.c",
       "sessions": [
@@ -100335,17 +100587,24 @@
       ],
       "selectionReason": "Current v9 evaluation 20260928010351 has one unmatched screen in sleeping-potion-falls-asleep; investigations/synthetic/v9/sleeping-potion-falls-asleep.json traces POT_SLEEPING to potion.c:peffect_sleeping, which JS currently refuses. This potion function and its timeout state contract are independent of active region.c and detect.c worker reservations. Manifest 00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594; C recording challenges/cases/v9/sleeping-potion-falls-asleep.session.json sha256 f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f.",
       "detail": "Translate both resistance/free-action and nonresistant sleep branches in C order, including monstseesu state, blessed/cursed duration RNG, timeout.c:fall_asleep, and peffects dispatch. Exercise independent variations with complete C recordings and source-pinned pure helper tests where needed.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+      "openStanding": {
+        "sha": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_sleeping",
           "line": 901,
           "endLine": 913,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -100364,6 +100623,579 @@
           "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
           "evaluationPath": "challenges/evaluations/20260928010351-v9.json",
           "evaluationCommit": "92337428e67cca2eea46bf6ddbf9f1412851dd43"
+        }
+      },
+      "activeStanding": {
+        "sha": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "sleeping-potion-falls-asleep",
+          "session": "synthetic/v9/sleeping-potion-falls-asleep",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+          "recordingPath": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+          "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+          "recipe": "challenges/cases/v9/sleeping-potion-falls-asleep.recipe.session.json",
+          "recipeSha256": "e8394282df272b9338f9efa0ad2f56240ed8a81757582cb08962c73994d436fb",
+          "replayInputSha256": "2074481b7fa0eb0c05fea72549426dc9af8f1fa778e2af6f1f956af2b1dddf76",
+          "evaluationPath": "challenges/evaluations/20260928023415-v9.json",
+          "evaluationCommit": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+          "evaluationArtifact": "challenges/evaluations/20260928023415-v9.json",
+          "evaluationUtc": "2026-09-28T02:34:53.782Z",
+          "remainingScreens": 1,
+          "recordedSteps": 33,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 33
+            },
+            "rng": {
+              "matched": 1952,
+              "total": 1952
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "e"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 25,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 1952,
+              "cCaller": null,
+              "jsEntry": "rn2(200)=157",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "e"
+              },
+              "cCursor": [
+                33,
+                0,
+                1
+              ],
+              "jsCursor": [
+                67,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/sleeping-potion-falls-asleep.json",
+            "result": {
+              "session": "synthetic/v9/sleeping-potion-falls-asleep",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "sleeping-potion-falls-asleep",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 33,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "sleeping-potion-falls-asleep",
+                "session": "synthetic/v9/sleeping-potion-falls-asleep",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+                "recordingPath": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+                "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+                "recipe": "challenges/cases/v9/sleeping-potion-falls-asleep.recipe.session.json",
+                "recipeSha256": "e8394282df272b9338f9efa0ad2f56240ed8a81757582cb08962c73994d436fb",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 33,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 1861,
+                    "total": 1952
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_sleeping()",
+                  "step": 32
+                },
+                "step": 32,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_sleeping",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_sleeping()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing the sleeping potion reaches potion.c:peffect_sleeping, but the JavaScript POT_SLEEPING dispatch throws an unported refusal. Port both resistance/free-action yawn and nonresistant sleep arms from source; the latter draws rn1 with blessed/cursed duration and calls timeout.c:fall_asleep to set multi-turn sleep.",
+              "source": {
+                "file": "potion.c",
+                "branch": "potion.c:peffect_sleeping (901-912) tests Sleep_resistance or Free_action first, marks the monster sleep resistance seen and prints a yawn when true. Otherwise it prints sudden sleep, clears that seen flag, draws rn1(10,25-12*bcsign(otmp)), negates the duration, and calls fall_asleep with wakeup message true.",
+                "functions": [
+                  "peffect_sleeping"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_SLEEPING dispatch invokes peffect_sleeping; js/potion.js currently throws UnsupportedQuaffError at the corresponding case.",
+                  "potion.c:dodrink -> dopotion -> peffects reaches the effect for an ordinary quaff; fountain.c:drinksink can also call dopotion on a generated non-water potion."
+                ],
+                "dependencies": [
+                  "timeout.c:fall_asleep is already ported in js/timeout.js; preserve its async state/output order and the bcsign duration formula.",
+                  "mondata.c:monstseesu and monstunseesu are already ported; apply the selected flag update before or after the message exactly as C."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 32/33 screens and reports the first stop at step 32: “unsupported hero command: an unported branch of this command: quaffing requires peffect_sleeping()”.",
+                "Upstream nethack-c/upstream/src/potion.c lines 901-912 defines the whole effect; js/potion.js POT_SLEEPING dispatch at lines 1450-1451 throws the current refusal.",
+                "The selected v9 case reaches the sleeping arm, but the source also requires the resistance/free-action branch and sink-generated entry point coverage."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_sleeping",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_sleeping",
+            "sourceReview": "Read all of potion.c:peffect_sleeping() (901-913) and the POT_SLEEPING arm in potion.c:peffects(). Preserved the Sleep_resistance || Free_action condition and the two source branches: the resistance branch calls monstseesu(M_SEEN_SLEEP) before You(\"yawn.\"); the normal branch emits the fall-asleep message, calls monstunseesu(M_SEEN_SLEEP), evaluates -rn1(10, 25 - 12 * bcsign(otmp)), then calls fall_asleep(..., TRUE). The existing JS monstseesu, monstunseesu, and fall_asleep ports were checked; their C return values are void/discarded and no substitute result is used. Replaced the POT_SLEEPING UnsupportedQuaffError with the source dispatch. Production command flow is cmd.c q -> potion.c:dodrink -> dopotion -> peffects -> peffect_sleeping.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects() POT_SLEEPING case calls peffect_sleeping(otmp)."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() invokes peffects(otmp) for the selected potion."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink() invokes dopotion() for the selected quaff."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c rhack dispatches the q row (cmd.c:1809) to potion.c:dodrink(); the JS command seam routes q through runQuaffCommand()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/sleeping-potion-cursed-independent-a36.session.json",
+              "recordings/potion.c/sleeping-potion-resistance-independent-a36.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "18c2156b8bca0c7f7d09dee7e054416b96da162b"
+          }
+        ],
+        "entryPointReview": "The active user entry is #quaff/q of POT_SLEEPING through cmd.c -> potion.c:dodrink -> dopotion -> peffects -> peffect_sleeping. The independent cursed-potion recording fully matches and reaches the normal branch with the cursed rn1 base. The independent SLEEP_RES recording fully matches and reaches the shared resistance/free-action branch, including monstseesu and the yawn. Source-pinned tests separately exercise both SLEEP_RES and Free_action conditions, assert no timeout RNG in either resistant condition, and verify the normal arm BUC-scaled duration and timeout fields. The selected v9 case now executes peffect_sleeping and matches all 1,952 C RNG calls; its sole final-screen mismatch is after the effect, at zero-based step 32: C shows “You suddenly fall asleep!--More--”, while JS appends “You hear water falling on coins.” and continues with 153 additional RNG calls. C reached the fountain sound draw in sounds.c:dosounds() (rn2(400)=0, rn2(3)=1); the JS output path is sounds.js:dosounds() -> hear() -> ttyPline, while C uses pline.c:You_hear(). This ambient sound/message-boundary discrepancy is a separate source-traced follow-up and is not attributed to peffect_sleeping. The independent recordings cover the active sleeping-potion entry branches.",
+        "entryPoints": [
+          {
+            "name": "Quaff a sleeping potion through q/#quaff",
+            "functions": [
+              "peffect_sleeping"
+            ],
+            "recordings": [
+              "recordings/potion.c/sleeping-potion-cursed-independent-a36.session.json",
+              "recordings/potion.c/sleeping-potion-resistance-independent-a36.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "sleeping-potion-falls-asleep",
+          "session": "synthetic/v9/sleeping-potion-falls-asleep",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+          "recordingPath": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+          "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+          "recipe": "challenges/cases/v9/sleeping-potion-falls-asleep.recipe.session.json",
+          "recipeSha256": "e8394282df272b9338f9efa0ad2f56240ed8a81757582cb08962c73994d436fb",
+          "replayInputSha256": "2074481b7fa0eb0c05fea72549426dc9af8f1fa778e2af6f1f956af2b1dddf76",
+          "evaluationPath": "challenges/evaluations/20260928023415-v9.json",
+          "evaluationCommit": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+          "evaluationArtifact": "challenges/evaluations/20260928023415-v9.json",
+          "evaluationUtc": "2026-09-28T02:34:53.782Z",
+          "remainingScreens": 1,
+          "recordedSteps": 33,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 33
+            },
+            "rng": {
+              "matched": 1952,
+              "total": 1952
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 33
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "e"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 25,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 1952,
+              "cCaller": null,
+              "jsEntry": "rn2(200)=157",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 32,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 32,
+                "key": "e"
+              },
+              "cCursor": [
+                33,
+                0,
+                1
+              ],
+              "jsCursor": [
+                67,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 32,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/sleeping-potion-falls-asleep.json",
+            "result": {
+              "session": "synthetic/v9/sleeping-potion-falls-asleep",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "sleeping-potion-falls-asleep",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+              "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+              "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "remainingScreens": 1,
+              "recordedSteps": 33,
+              "status": "complete",
+              "commit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "sleeping-potion-falls-asleep",
+                "session": "synthetic/v9/sleeping-potion-falls-asleep",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+                "recordingPath": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+                "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+                "recipe": "challenges/cases/v9/sleeping-potion-falls-asleep.recipe.session.json",
+                "recipeSha256": "e8394282df272b9338f9efa0ad2f56240ed8a81757582cb08962c73994d436fb",
+                "replayInputSha256": "e8a7428d883fb33542b59d993324d6e14197b8486a45162a9f5b2efd3e9ebd60",
+                "evaluationPath": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationCommit": "5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7",
+                "evaluationArtifact": "challenges/evaluations/20260927191056-v9.json",
+                "evaluationUtc": "2026-09-27T19:11:49.445Z",
+                "remainingScreens": 1,
+                "recordedSteps": 33,
+                "previousScreensMatched": 32,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 33
+                  },
+                  "rng": {
+                    "matched": 1861,
+                    "total": 1952
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 33
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_sleeping()",
+                  "step": 32
+                },
+                "step": 32,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_sleeping",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_sleeping()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing the sleeping potion reaches potion.c:peffect_sleeping, but the JavaScript POT_SLEEPING dispatch throws an unported refusal. Port both resistance/free-action yawn and nonresistant sleep arms from source; the latter draws rn1 with blessed/cursed duration and calls timeout.c:fall_asleep to set multi-turn sleep.",
+              "source": {
+                "file": "potion.c",
+                "branch": "potion.c:peffect_sleeping (901-912) tests Sleep_resistance or Free_action first, marks the monster sleep resistance seen and prints a yawn when true. Otherwise it prints sudden sleep, clears that seen flag, draws rn1(10,25-12*bcsign(otmp)), negates the duration, and calls fall_asleep with wakeup message true.",
+                "functions": [
+                  "peffect_sleeping"
+                ],
+                "callers": [
+                  "potion.c:peffects POT_SLEEPING dispatch invokes peffect_sleeping; js/potion.js currently throws UnsupportedQuaffError at the corresponding case.",
+                  "potion.c:dodrink -> dopotion -> peffects reaches the effect for an ordinary quaff; fountain.c:drinksink can also call dopotion on a generated non-water potion."
+                ],
+                "dependencies": [
+                  "timeout.c:fall_asleep is already ported in js/timeout.js; preserve its async state/output order and the bcsign duration formula.",
+                  "mondata.c:monstseesu and monstunseesu are already ported; apply the selected flag update before or after the message exactly as C."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260927191056-v9.json at 5b4486322ffa5eeb91cc37d01083ff20bbfe2ea7 measures 32/33 screens and reports the first stop at step 32: “unsupported hero command: an unported branch of this command: quaffing requires peffect_sleeping()”.",
+                "Upstream nethack-c/upstream/src/potion.c lines 901-912 defines the whole effect; js/potion.js POT_SLEEPING dispatch at lines 1450-1451 throws the current refusal.",
+                "The selected v9 case reaches the sleeping arm, but the source also requires the resistance/free-action branch and sink-generated entry point coverage."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "18c2156b8bca0c7f7d09dee7e054416b96da162b",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-dig-occupation-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete dig occupation across lateral and downward source branches",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v9/archeologist-pickaxe-finds-hidden-door"
+      ],
+      "selectionReason": "Current v9 evaluation 20260928015355 leaves one unmatched screen in archeologist-pickaxe-finds-hidden-door. investigations/synthetic/v9/archeologist-pickaxe-finds-hidden-door.json traces the first mismatch to dig.c:dig, where JS skips all lateral occupation progress. The complete dig function and its occupation return are independent of active detection and potion source reservations. Manifest 00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594; C recording challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json sha256 7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5.",
+      "detail": "Translate all of dig.c:dig, including lateral material/secret-door completion and existing downward partial branches, preserving effort, fumbling RNG, occupation return, terrain/vision, shop and trap effects. Wire the existing occupation caller and make independent strict C recordings for active entry points; retain named gaps only for discarded unported callees.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "dig",
+          "line": 300,
+          "endLine": 570,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 300,
+        "to": 570
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/archeologist-pickaxe-finds-hidden-door": {
+          "session": "synthetic/v9/archeologist-pickaxe-finds-hidden-door",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "archeologist-pickaxe-finds-hidden-door",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/archeologist-pickaxe-finds-hidden-door.session.json",
+          "recordingSha256": "7505e982c1063945de906b2b2d70b803848a41972c0694cc772b905062a8ced5",
+          "evaluationPath": "challenges/evaluations/20260928015355-v9.json",
+          "evaluationCommit": "7311475572cdadbc440bcac61cb0f98f42dfd481"
+        }
+      }
+    },
+    {
+      "id": "port-read-identify-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete identify-scroll and identify-spell effect branches",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v9/blessed-identify-scroll-identifies-pack"
+      ],
+      "selectionReason": "Current v9 evaluation 20260928021405 leaves two unmatched screens in blessed-identify-scroll-identifies-pack. investigations/synthetic/v9/blessed-identify-scroll-identifies-pack.json traces the first mismatch to the partial read.c:seffect_identify wrapper, which omits blessed identification count and invent.c:identify_pack behavior. It is independent of active dig.c and potion.c source contracts. Manifest 00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594; C recording challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json sha256 788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2.",
+      "detail": "Translate whole read.c:seffect_identify with C BUC/confusion/RNG order, inventory prompt/result path, scroll consumption and spell alias. Verify the existing invent.c:identify_pack callee and wire both production dispatches; make independent strict C recordings across active entry points.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_identify",
+          "line": 2055,
+          "endLine": 2101,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2055,
+        "to": 2101
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/blessed-identify-scroll-identifies-pack": {
+          "session": "synthetic/v9/blessed-identify-scroll-identifies-pack",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-identify-scroll-identifies-pack",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+          "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+          "evaluationPath": "challenges/evaluations/20260928021405-v9.json",
+          "evaluationCommit": "83eadf8bad622d06795bd8bcaa965a569607654f"
+        }
+      }
+    },
+    {
+      "id": "port-potion-gain-energy-synthetic-v9-20260927",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port the complete gain-energy potion effect and quaff dispatch",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v9/gain-energy-potion-restores-energy"
+      ],
+      "selectionReason": "The v9 gain-energy potion case is an independently assignable source-traced mismatch at the POT_GAIN_ENERGY dispatch; read.c identify and dig.c occupations are reserved by other workers. Investigation: investigations/synthetic/v9/gain-energy-potion-restores-energy.json.",
+      "detail": "Translate potion.c:peffect_gain_energy and its peffects dispatch in C order across blessed, ordinary, and cursed rolls, max/current/peak energy state, status refresh, and wisdom exercise. Cover active quaff entry paths with independent C recordings.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_gain_energy",
+          "line": 1224,
+          "endLine": 1259,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1224,
+        "to": 1259
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/gain-energy-potion-restores-energy": {
+          "session": "synthetic/v9/gain-energy-potion-restores-energy",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "gain-energy-potion-restores-energy",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/gain-energy-potion-restores-energy.session.json",
+          "recordingSha256": "b8b34f66e98b05d3691ad60ce73d294e9a678a96ad77bec6cb07df505c3fd8e8",
+          "evaluationPath": "challenges/evaluations/20260928023415-v9.json",
+          "evaluationCommit": "18c2156b8bca0c7f7d09dee7e054416b96da162b"
         }
       }
     }

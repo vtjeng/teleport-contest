@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent monster-entry witness for region.c:inside_gas_cloud: a poison-resistant Orc Wizard creates a nearby hostile troll with #wizgenesis, then clouds the hero square so C visits both callback arms without a hero death. The seed, date, role/race, and inputs were independently chosen for the callback behavior.",
+  "segments": [
+    {
+      "seed": 93657218,
+      "datetime": "20430905143218",
+      "nethackrc": "OPTIONS=name:CloudMonsterB36,role:Wizard,race:orc,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizgenesis\nhostile troll\n\u0017scroll of stinking cloud\nrp    .          ."
+    }
+  ]
+}

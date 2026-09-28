@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent death-return witness for region.c:inside_gas_cloud: a poison-resistant Orc Wizard creates a hostile newt and centers stinking cloud on hero, so C reaches the low-HP monster damage and kill paths while the hero coughs without lethal damage.",
+  "segments": [
+    {
+      "seed": 93657219,
+      "datetime": "20430906143218",
+      "nethackrc": "OPTIONS=name:CloudDeathB36,role:Wizard,race:orc,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizgenesis\nhostile newt\n\u0017scroll of stinking cloud\nro    .          ."
+    }
+  ]
+}

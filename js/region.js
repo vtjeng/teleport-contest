@@ -1,4 +1,4 @@
-// Active level regions and the harmless gas-cloud turn path.
+// Active level regions, callback dispatch, and gas-cloud turn effects.
 // C ref: region.c create_region(), add_region(), run_regions(),
 // in_out_region(), m_in_out_region(), and the gas-cloud helpers.
 
@@ -10,9 +10,14 @@ import {
     DB_MOAT,
     DB_UNDER,
     DRAWBRIDGE_UP,
+    EYE,
+    HALF_PHDAM,
     IS_LAVA,
     IS_POOL,
+    KILLED_BY_AN,
+    LUNG,
     MAGICAL_BREATHING,
+    M_SEEN_POISON,
     M_POISONGAS_OK,
     PLNMSG_ENVELOPED_IN_GAS,
     POISON_RES,
@@ -20,12 +25,34 @@ import {
     isok,
 } from './const.js';
 import { on_level } from './dungeon.js';
+import { Monnam } from './do_name.js';
+import { losehp } from './hack.js';
+import { dist2 } from './hacklib.js';
+import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
-import { breathless, nonliving } from './mondata.js';
-import { m_poisongas_ok } from './mon.js';
-import { PM_FOG_CLOUD } from './monsters.js';
-import { rn2 } from './rng.js';
+import {
+    haseyes,
+    is_silent,
+    monster_resists_element,
+    monstseesu,
+    monstunseesu,
+    breathless,
+    nonliving,
+} from './mondata.js';
+import {
+    killed,
+    m_poisongas_ok,
+    monkilled,
+    setmangry,
+    wake_nearto,
+} from './mon.js';
+import { AD_DRST, PM_FOG_CLOUD } from './monsters.js';
+import { make_blinded } from './potion.js';
+import { body_part } from './polyself.js';
+import { rn2, rnd } from './rng.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
+import { TOWEL } from './objects.js';
+import { note_unported } from './unported.js';
 
 const MAX_CLOUD_SIZE = 150;
 const INSIDE_GAS_CLOUD = 'inside_gas_cloud';
@@ -51,7 +78,7 @@ function normalizedRegionEnv(rawEnv = {}) {
     return {
         ...rawEnv,
         state: rawEnv.state ?? game,
-        random: rawEnv.random ?? { rn2 },
+        random: rawEnv.random ?? { rn2, rnd },
         callbacks: rawEnv.callbacks ?? {},
     };
 }
@@ -107,17 +134,6 @@ function regionCallback(callback, env) {
 
 function preflightCallback(callback, region, subject, env) {
     const implementation = regionCallback(callback, env);
-    if (implementation === inside_gas_cloud
-        && Math.trunc(region.arg ?? 0) >= 1) {
-        // The harmful branch owns poison resistance, blindness, combat,
-        // wakeup, anger, death, and several messages.  It is outside the
-        // fresh-first-turn boundary, so reject it before ttl or membership
-        // can change rather than partially approximating it.
-        throw new UnsupportedRegionCallbackError(
-            INSIDE_GAS_CLOUD,
-            ' with positive damage',
-        );
-    }
     if (implementation === expire_gas_cloud
         && Math.trunc(region.arg ?? 0) < 5) {
         preflightGasDissipation(region, env);
@@ -359,21 +375,92 @@ export function remove_region(region, state = game, rawEnv = {}) {
     return true;
 }
 
-// C ref: region.c inside_gas_cloud().  A harmless vapor region has no hero
-// or monster side effect.  Fog clouds nevertheless maintain its ttl in
-// cached monster-id order, even while sleeping.
-export function inside_gas_cloud(region, monster = null, rawEnv = {}) {
+// C ref: region.c inside_gas_cloud().  C passes NULL for the hero and a
+// struct monst pointer for a cached monster.  The callback's boolean is
+// consumed by run_regions() to remove monsters killed by the cloud.
+export async function inside_gas_cloud(region, monster = null, rawEnv = {}) {
     const env = normalizedRegionEnv(rawEnv);
-    const damage = Math.trunc(region.arg ?? 0);
-    if (damage >= 1) {
-        throw new UnsupportedRegionCallbackError(
-            INSIDE_GAS_CLOUD,
-            ' with positive damage',
-        );
-    }
+    const state = env.state;
+    let damage = Math.trunc(region.arg ?? 0);
     const occupant = monster ?? env.state.youmonst;
     if (region.ttl < 20 && occupant && isFogCloud(occupant, env.state))
         region.ttl += 5;
+    if (damage < 1) return false;
+
+    const message = typeof env.message === 'function'
+        ? env.message
+        : async (text) => ttyPline(text, state);
+    if (!monster) {
+        if (m_poisongas_ok(state.youmonst, state) === M_POISONGAS_OK)
+            return false;
+
+        if (!heroIsBlind(state)) {
+            const eyes = makeplural(body_part(EYE, state.youmonst));
+            await message(`Your ${eyes} sting.`, state, env);
+            await make_blinded(1, false, state, env);
+        }
+
+        const poisonResistance = state.u?.uprops?.[POISON_RES];
+        if (!(poisonResistance?.intrinsic || poisonResistance?.extrinsic)) {
+            const lungs = makeplural(body_part(LUNG, state.youmonst));
+            await message(`Something is burning your ${lungs}!`, state, env);
+            await message('You cough and spit blood!', state, env);
+            await wake_nearto(state.u.ux, state.u.uy, 2, env);
+
+            const halfPhysical = state.u?.uprops?.[HALF_PHDAM];
+            damage = env.random.rnd(damage) + 5;
+            if (halfPhysical?.intrinsic || halfPhysical?.extrinsic)
+                damage = Math.trunc((damage + 1) / 2);
+            const blindfold = state.ublindf;
+            if (blindfold?.otyp === TOWEL && blindfold.spe > 0)
+                damage = Math.trunc((damage + 1) / 2);
+            await losehp(damage, 'gas cloud', KILLED_BY_AN, state, env);
+            monstunseesu(M_SEEN_POISON, state);
+            return false;
+        }
+
+        await message('You cough!', state, env);
+        await wake_nearto(state.u.ux, state.u.uy, 2, env);
+        monstseesu(M_SEEN_POISON, state);
+        return false;
+    }
+
+    if (m_poisongas_ok(monster, state) !== M_POISONGAS_OK) {
+        if (!is_silent(monster.data)) {
+            if ((typeof env.canSee === 'function'
+                && env.canSee(monster.mx, monster.my, state, env))
+                || dist2(monster.mx, monster.my,
+                    state.u.ux, state.u.uy) < 8) {
+                await message(`${Monnam(monster, state, env)} coughs!`, state, env);
+            }
+            await wake_nearto(monster.mx, monster.my, 2, env);
+        }
+        if (region.heros_fault)
+            await setmangry(monster, true, env);
+        if (haseyes(monster.data) && monster.mcansee) {
+            monster.mblinded = 1;
+            monster.mcansee = 0;
+        }
+        if (monster_resists_element(monster, POISON_RES, state))
+            return false;
+        monster.mhp -= env.random.rnd(damage) + 5;
+        if (monster.mhp < 1) {
+            const recordUnportedKillBranch = (reason) => {
+                note_unported(`mon.c ${reason}`);
+                if (typeof env.unsupported === 'function')
+                    return env.unsupported(reason);
+            };
+            const killEnv = {
+                ...env,
+                unsupported: recordUnportedKillBranch,
+            };
+            if (region.heros_fault)
+                await killed(monster, state, killEnv);
+            else
+                await monkilled(monster, 'gas cloud', AD_DRST, state, killEnv);
+            if (monster.mhp < 1) return true;
+        }
+    }
     return false;
 }
 
@@ -454,9 +541,9 @@ function preflightRunRegions(env) {
     return plans;
 }
 
-// C ref: region.c run_regions().  Callback and visual-operation resolution is
-// an atomic JS preflight: an unsupported later branch cannot leave an earlier
-// region aged, a cached monster removed, or a gas message half-produced.
+// C ref: region.c run_regions(). Preflight callback identities and visual
+// operations before mutating region state; callback effects then run in C
+// order, including their awaited messages and monster-removal return.
 export async function run_regions(rawEnv = {}) {
     const env = normalizedRegionEnv(rawEnv);
     if (!Array.isArray(env.state.level?.regions))

@@ -260,7 +260,12 @@ import {
 } from './obj.js';
 import { adjalign, exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
-import { do_mapping } from './detect.js';
+import {
+    do_mapping,
+    food_detect,
+    gold_detect,
+    trap_detect,
+} from './detect.js';
 import { level_tele, scrolltele } from './teleport.js';
 import { Fire_resistance, lightdamage, resist } from './zap.js';
 import { discover_object } from './o_init.js';
@@ -2232,6 +2237,23 @@ export async function seffect_stinking_cloud(scroll, state = game) {
     await do_stinking_cloud(scroll, alreadyKnown, state);
 }
 
+// C ref: read.c seffect_gold_detection() (2035-2043). C selects trap
+// detection for confusion or a cursed scroll and otherwise selects gold;
+// each helper's 1 result means its strange-feeling path consumed `sobj`.
+async function seffect_gold_detection(scroll, state = game) {
+    const confused = propertyActive(CONFUSION, state);
+    const consumed = (confused || scroll.cursed)
+        ? await trap_detect(scroll, state)
+        : await gold_detect(scroll, state);
+    return Boolean(consumed);
+}
+
+// C ref: read.c seffect_food_detection() (2046-2052). The returned detection
+// result is consumed by `seffects` to keep its local object pointer contract.
+async function seffect_food_detection(scroll, state = game) {
+    return Boolean(await food_detect(scroll, state));
+}
+
 // C ref: read.c seffects() (2194-2290). Preserve the complete source switch,
 // its pre-dispatch Wisdom exercise, post-effect inventory refresh, and
 // `sobj ? 0 : 1` return. C's effect helpers are void and receive `&sobj`;
@@ -2307,11 +2329,11 @@ export async function seffects(scroll, state = game) {
         await seffect_teleportation(scroll, state);
         break;
     case SCR_GOLD_DETECTION:
-        note_unported('read.c seffect_gold_detection');
+        if (await seffect_gold_detection(scroll, state)) scroll = null;
         break;
     case SCR_FOOD_DETECTION:
     case SPE_DETECT_FOOD:
-        note_unported('read.c seffect_food_detection');
+        if (await seffect_food_detection(scroll, state)) scroll = null;
         break;
     case SCR_IDENTIFY:
     case SPE_IDENTIFY:
