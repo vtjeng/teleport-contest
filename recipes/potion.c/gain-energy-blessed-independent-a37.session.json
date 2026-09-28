@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A37 potion.c:peffect_gain_energy blessed-arm witness. Seed 938027101 and clock 20361027091142 were selected for this recording; a Wizard wishes for a blessed gain-energy potion and quaffs it through the ordinary command path.",
+  "segments": [
+    {
+      "seed": 938027101,
+      "datetime": "20361027091142",
+      "nethackrc": "OPTIONS=name:EnergyBlessedA37,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017blessed potion of gain energy\nqn"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A37 potion.c:peffect_gain_energy cursed-arm witness. Seed 938027103 and clock 20380621200553 were selected independently; a Wizard wishes for a cursed gain-energy potion and quaffs it through the ordinary command path.",
+  "segments": [
+    {
+      "seed": 938027103,
+      "datetime": "20380621200553",
+      "nethackrc": "OPTIONS=name:EnergyCursedA37,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017cursed potion of gain energy\nqn"
+    }
+  ]
+}

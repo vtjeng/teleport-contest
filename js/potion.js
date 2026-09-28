@@ -4,6 +4,7 @@
 //        make_confused() (89-104), self_invis_message() (471-478),
 //        peffect_booze() (771-792), peffect_confusion() (1014-1027),
 //        peffect_gain_ability() (1030-1051),
+//        peffect_gain_energy() (1224-1258),
 //        peffect_gain_level() (1083-1118),
 //        peffect_paralysis() (881-898),
 //        peffect_sleeping() (901-913),
@@ -20,7 +21,7 @@
 // getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
-// POT_GAIN_ABILITY, POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
+// POT_GAIN_ABILITY, POT_GAIN_ENERGY, POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
 // POT_GAIN_LEVEL, POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
 // peffect_see_invisible(), the ordinary POT_PARALYSIS and POT_SLEEPING arms,
 // POT_POLYMORPH,
@@ -1417,6 +1418,33 @@ async function peffect_gain_level(otmp, state = game) {
     if (otmp.blessed) u.uexp = rndexp(true, state);
 }
 
+// C ref: potion.c peffect_gain_energy() (1224-1258). The potion changes
+// current and maximum spell energy together; u.uenpeak tracks only a new
+// maximum, while both lower bounds are clamped after their source updates.
+async function peffect_gain_energy(otmp, state = game) {
+    const { u } = state;
+    if (otmp.cursed)
+        await ttyPline('You feel lackluster.', state);
+    else
+        await ttyPline('Magical energies course through your body.', state);
+
+    let amount = d(otmp.blessed ? 3 : !otmp.cursed ? 2 : 1, 6);
+    if (otmp.cursed) amount = -amount;
+
+    u.uenmax += amount;
+    if (u.uenmax > u.uenpeak)
+        u.uenpeak = u.uenmax;
+    else if (u.uenmax <= 0)
+        u.uenmax = 0;
+    u.uen += 3 * amount;
+    if (u.uen > u.uenmax)
+        u.uen = u.uenmax;
+    else if (u.uen <= 0)
+        u.uen = 0;
+    state.disp.botl = true;
+    await exercise(A_WIS, true, state);
+}
+
 // C ref: potion.c peffect_monster_detection() (914-954). Blessed detection
 // first refreshes HDetect_monsters, removes remembered invisible glyphs, and
 // redraws the map; swallowed/underwater heroes then fall through to the
@@ -1542,7 +1570,8 @@ export async function peffects(otmp, state = game, env = {}) {
         await peffect_levitation(otmp, state);
         break;
     case POT_GAIN_ENERGY:
-        throw new UnsupportedQuaffError('peffect_gain_energy()');
+        await peffect_gain_energy(otmp, state);
+        break;
     case POT_OIL:
         await peffect_oil(otmp, state);
         break;
