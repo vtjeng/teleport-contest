@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84421041,
+      "datetime": "20340612091739",
+      "nethackrc": "OPTIONS=name:RaceOffense,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " \u0017chaotic altar\n\u0017human corpse\n #offer\ny "
+    }
+  ],
+  "comment": "Blocked probe for pray.c:sacrifice_your_race's lawful-hero chaotic-altar branch. After the C-defined black-cloud altar destruction and priest call, pray.c:angrygods has active RNG/effects that remain unported, so this input is not matching evidence; priest.c:angry_priest is also an explicitly skipped void callee."
+}
