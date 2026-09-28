@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C29 spell.c:spelleffects(SPE_DETECT_FOOD) -> read.c:seffects -> detect.c:food_detect entry. A debug Wizard drops a wished ration off the hero square, then uses #wizcast to select detect food and accepts its food map cursor.",
+  "segments": [
+    {
+      "seed": 8729303,
+      "datetime": "20420707091200",
+      "nethackrc": "OPTIONS=name:C29Spell,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug\n",
+      "moves": " \u0017food ration\ndph#wizcast\nr."
+    }
+  ]
+}

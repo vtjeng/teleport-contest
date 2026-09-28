@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A36 potion.c:peffect_sleeping normal-arm witness. Seed 936271001, clock 20320409111327, Wizard role, and cursed potion were selected independently; the wished potion is quaffed through dodrink/dopotion/peffects to pin the cursed rn1 base.",
+  "segments": [
+    {
+      "seed": 936271001,
+      "datetime": "20320409111327",
+      "nethackrc": "OPTIONS=name:SleepCursedA36,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017cursed potion of sleeping\nqn"
+    }
+  ]
+}

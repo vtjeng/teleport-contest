@@ -8,8 +8,9 @@ import { runSegment } from '../js/jsmain.js';
 import { can_center_cloud, seffects } from '../js/read.js';
 import { G_NOCORPSE, PM_NEWT, PM_WIZARD } from '../js/monsters.js';
 import {
-    SCR_SCARE_MONSTER, SCR_TAMING, SCROLL_CLASS,
-    SPE_CAUSE_FEAR, SPE_CHARM_MONSTER,
+    SCR_FOOD_DETECTION, SCR_GOLD_DETECTION, SCR_SCARE_MONSTER,
+    SCR_TAMING, SCROLL_CLASS, SPBOOK_CLASS,
+    SPE_CAUSE_FEAR, SPE_CHARM_MONSTER, SPE_DETECT_FOOD,
 } from '../js/objects.js';
 import { spelleffects } from '../js/spell.js';
 
@@ -87,6 +88,86 @@ test('read.c seffect_taming handles an empty nearby-monster scan', async () => {
 
     assert.equal(game._pending_message, 'Nothing interesting happens.');
     assert.equal(game.gk.known, undefined);
+});
+
+async function emptyDetectionWorld(seed) {
+    await runSegment({
+        seed,
+        datetime: '20310908070605',
+        nethackrc: 'OPTIONS=name:Detect,role:Wizard,race:human,'
+            + 'gender:male,align:neutral\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n',
+        moves: '.',
+    });
+    game.level.objlist = null;
+    game.level.buriedobjlist = null;
+    game.level.monlist = null;
+    game.level.traps = [];
+    game.fmon = null;
+    game.invent = null;
+    game.flags.beginner = false;
+    game._pending_message = '';
+}
+
+test('read.c detection wrappers propagate their consumed-object result', async () => {
+    await emptyDetectionWorld(9876511);
+    const goldScroll = {
+        otyp: SCR_GOLD_DETECTION,
+        oclass: SCROLL_CLASS,
+        blessed: false,
+        cursed: false,
+        dknown: false,
+        quan: 20,
+        spe: 0,
+    };
+    assert.equal(await seffects(goldScroll, game), 1);
+    assert.equal(goldScroll.quan, 19);
+    assert.equal(game.gk.known, false);
+
+    await emptyDetectionWorld(9876513);
+    const foodScroll = {
+        otyp: SCR_FOOD_DETECTION,
+        oclass: SCROLL_CLASS,
+        blessed: false,
+        cursed: false,
+        dknown: false,
+        quan: 20,
+        spe: 0,
+    };
+    assert.equal(await seffects(foodScroll, game), 1);
+    assert.equal(foodScroll.quan, 19);
+    assert.equal(game.gk.known, false);
+
+    await emptyDetectionWorld(9876517);
+    const foodSpell = {
+        otyp: SPE_DETECT_FOOD,
+        oclass: SPBOOK_CLASS,
+        blessed: false,
+        cursed: false,
+        dknown: false,
+        quan: 20,
+        spe: 0,
+    };
+    assert.equal(await seffects(foodSpell, game), 1);
+    assert.equal(game.gk.known, false);
+});
+
+test('read.c cursed gold detection selects the trap detector and consumes its scroll', async () => {
+    await emptyDetectionWorld(9876519);
+    const goldScroll = {
+        otyp: SCR_GOLD_DETECTION,
+        oclass: SCROLL_CLASS,
+        blessed: false,
+        cursed: true,
+        dknown: false,
+        quan: 20,
+        spe: 0,
+    };
+
+    assert.equal(await seffects(goldScroll, game), 1);
+    assert.equal(goldScroll.quan, 19);
+    assert.equal(game.gk.known, undefined);
+    assert.match(game._pending_message, /stop itching/);
 });
 
 test('read.c can_center_cloud pins valid terrain, sight, and distu boundary', async () => {

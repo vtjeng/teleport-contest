@@ -4,8 +4,10 @@
 //        make_confused() (89-104), self_invis_message() (471-478),
 //        peffect_booze() (771-792), peffect_confusion() (1014-1027),
 //        peffect_gain_ability() (1030-1051),
+//        peffect_gain_energy() (1224-1258),
 //        peffect_gain_level() (1083-1118),
 //        peffect_paralysis() (881-898),
+//        peffect_sleeping() (901-913),
 //        peffect_speed() (1052-1070), peffect_oil() (1259-1294),
 //        speed_up() (2918-2928),
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
@@ -19,9 +21,10 @@
 // getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches 26 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
-// POT_GAIN_ABILITY, POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
+// POT_GAIN_ABILITY, POT_GAIN_ENERGY, POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
 // POT_GAIN_LEVEL, POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
-// peffect_see_invisible(), the ordinary POT_PARALYSIS arm, POT_POLYMORPH,
+// peffect_see_invisible(), the ordinary POT_PARALYSIS and POT_SLEEPING arms,
+// POT_POLYMORPH,
 // POT_INVISIBILITY (also SPE_INVISIBILITY),
 // are ported. Unported arms throw UnsupportedQuaffError.
 //
@@ -95,6 +98,7 @@ import {
     PLNMSG_OBJ_GLOWS,
     PROT_FROM_SHAPE_CHANGERS,
     SEE_INVIS,
+    M_SEEN_SLEEP,
     SLEEP_RES,
     STONED,
     STRANGLED,
@@ -169,10 +173,11 @@ import {
     find_delayed_killer,
 } from './end.js';
 import { fix_petrification } from './eat.js';
+import { monstseesu, monstunseesu } from './mondata.js';
 import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
-import { burn_away_slime } from './timeout.js';
+import { burn_away_slime, fall_asleep } from './timeout.js';
 import { Levitation, float_up, unconscious } from './trap.js';
 import {
     Can_rise_up, ceiling, depth, get_level, has_ceiling, ledger_no, on_level,
@@ -1212,6 +1217,23 @@ async function peffect_paralysis(otmp, state = game) {
     await exercise(A_DEX, false, state);
 }
 
+// C ref: potion.c peffect_sleeping() (901-913). A resistant hero yawns after
+// nearby monsters learn about the resistance; otherwise the hero falls asleep
+// after nearby monsters forget it. Keep the source's message, observation,
+// duration draw, and fall_asleep() order.
+async function peffect_sleeping(otmp, state = game, env = {}) {
+    if (Sleep_resistance(state) || Free_action(state)) {
+        monstseesu(M_SEEN_SLEEP, state);
+        await ttyPline('You yawn.', state);
+    } else {
+        await ttyPline('You suddenly fall asleep!', state);
+        monstunseesu(M_SEEN_SLEEP, state);
+        await fall_asleep(
+            -rn1(10, 25 - 12 * bcsign(otmp)), true, state, env,
+        );
+    }
+}
+
 // C ref: potion.c peffect_healing() (1119-1125).
 async function peffect_healing(otmp, state = game) {
     await ttyPline('You feel better.', state);
@@ -1396,6 +1418,33 @@ async function peffect_gain_level(otmp, state = game) {
     if (otmp.blessed) u.uexp = rndexp(true, state);
 }
 
+// C ref: potion.c peffect_gain_energy() (1224-1258). The potion changes
+// current and maximum spell energy together; u.uenpeak tracks only a new
+// maximum, while both lower bounds are clamped after their source updates.
+async function peffect_gain_energy(otmp, state = game) {
+    const { u } = state;
+    if (otmp.cursed)
+        await ttyPline('You feel lackluster.', state);
+    else
+        await ttyPline('Magical energies course through your body.', state);
+
+    let amount = d(otmp.blessed ? 3 : !otmp.cursed ? 2 : 1, 6);
+    if (otmp.cursed) amount = -amount;
+
+    u.uenmax += amount;
+    if (u.uenmax > u.uenpeak)
+        u.uenpeak = u.uenmax;
+    else if (u.uenmax <= 0)
+        u.uenmax = 0;
+    u.uen += 3 * amount;
+    if (u.uen > u.uenmax)
+        u.uen = u.uenmax;
+    else if (u.uen <= 0)
+        u.uen = 0;
+    state.disp.botl = true;
+    await exercise(A_WIS, true, state);
+}
+
 // C ref: potion.c peffect_monster_detection() (914-954). Blessed detection
 // first refreshes HDetect_monsters, removes remembered invisible glyphs, and
 // redraws the map; swallowed/underwater heroes then fall through to the
@@ -1478,7 +1527,8 @@ export async function peffects(otmp, state = game, env = {}) {
         await peffect_paralysis(otmp, state);
         break;
     case POT_SLEEPING:
-        throw new UnsupportedQuaffError('peffect_sleeping()');
+        await peffect_sleeping(otmp, state, env);
+        break;
     case POT_MONSTER_DETECTION:
     case SPE_DETECT_MONSTERS:
         if (await peffect_monster_detection(otmp, state)) return 1;
@@ -1520,7 +1570,8 @@ export async function peffects(otmp, state = game, env = {}) {
         await peffect_levitation(otmp, state);
         break;
     case POT_GAIN_ENERGY:
-        throw new UnsupportedQuaffError('peffect_gain_energy()');
+        await peffect_gain_energy(otmp, state);
+        break;
     case POT_OIL:
         await peffect_oil(otmp, state);
         break;
