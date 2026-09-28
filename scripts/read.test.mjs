@@ -15,6 +15,7 @@ import {
     charge_ok,
     recharge,
     seffect_identify,
+    seffect_amnesia,
     seffects,
 } from '../js/read.js';
 import { G_NOCORPSE, PM_NEWT, PM_WIZARD } from '../js/monsters.js';
@@ -24,6 +25,7 @@ import {
     SCR_IDENTIFY, SCR_TAMING, SCROLL_CLASS, SPBOOK_CLASS,
     SPE_CAUSE_FEAR, SPE_CHARM_MONSTER, SPE_DETECT_FOOD,
     SPE_IDENTIFY, BELL_OF_OPENING, MAGIC_LAMP, OIL_LAMP, PICK_AXE,
+    SPE_FORCE_BOLT, SPE_HEALING,
     RING_CLASS, RIN_ADORNMENT, RIN_CONFLICT, TOOL_CLASS, WAND_CLASS,
     WAN_FIRE, WEAPON_CLASS,
 } from '../js/objects.js';
@@ -33,6 +35,8 @@ import { mksobj, objectType } from '../js/obj.js';
 import { Ring_on, setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import { P_BARE_HANDED_COMBAT } from '../js/const.js';
+import { skillSlot } from '../js/startup_skills.js';
 
 async function replayGenocideRecipe(name, gender) {
     const recipe = JSON.parse(readFileSync(new URL(
@@ -572,3 +576,110 @@ test('read.c first-genocide Chronicle uses uhis() for class and species paths', 
         }
     }
 });
+
+test('read.c amnesia forgets spell retention, skill history, and monster memory',
+    async () => {
+        await emptyTamingWorld(32032611);
+        const state = game;
+        state.plname = 'Alice';
+        state.uball = {};
+        state.u.bc_felt = 3;
+        state.svs.spl_book[0] = {
+            sp_id: SPE_FORCE_BOLT, sp_lev: 1, sp_know: 100,
+        };
+        state.svs.spl_book[1] = {
+            sp_id: SPE_HEALING, sp_lev: 1, sp_know: 120,
+        };
+        state.context.spbook = { delay: -4, book: {}, o_id: 9 };
+
+        const ordinary = { meverseen: true };
+        const steed = { meverseen: true };
+        const stuck = { meverseen: true };
+        ordinary.nmon = steed;
+        steed.nmon = stuck;
+        stuck.nmon = null;
+        state.level.monlist = ordinary;
+        state.u.usteed = steed;
+        state.u.ustuck = stuck;
+        const migrating = { meverseen: true, nmon: null };
+        state.gm.migrating_mons = migrating;
+
+        const skill = skillSlot(P_BARE_HANDED_COMBAT, state);
+        skill.skill = 3;
+        skill.advance = 100;
+        state.u.skills_advanced = 1;
+        state.u.skill_record[0] = P_BARE_HANDED_COMBAT;
+        state.u.weapon_slots = 0;
+
+        const bounds = [];
+        const messages = [];
+        const values = [1, 0, 0, 0, 5, 1, 1];
+        let index = 0;
+        const random = {
+            rn2(bound) {
+                bounds.push(bound);
+                return values[index++];
+            },
+            rnd(bound) {
+                assert.equal(bound, 5);
+                return 1;
+            },
+            rnl() {
+                assert.fail('Luck reduction is not used when only one spell is lost');
+            },
+        };
+
+        await seffect_amnesia({ blessed: false }, state, {
+            random,
+            message: async (text) => messages.push(text),
+        });
+
+        assert.deepEqual(bounds, [3, 2, 2, 1, 60, 2, 2]);
+        assert.equal(state.gk.known, true);
+        assert.equal(state.context.spbook.delay, -4);
+        assert.equal(state.context.spbook.book, null);
+        assert.equal(state.context.spbook.o_id, 0);
+        assert.equal(state.svs.spl_book[0].sp_id, SPE_FORCE_BOLT);
+        assert.equal(state.svs.spl_book[0].sp_know, 0);
+        assert.equal(state.svs.spl_book[1].sp_id, SPE_HEALING);
+        assert.equal(state.svs.spl_book[1].sp_know, 120);
+        assert.equal(state.u.bc_felt, 0);
+        assert.equal(state.u.skills_advanced, 0);
+        assert.equal(skill.skill, 2);
+        assert.equal(skill.advance, 25);
+        assert.equal(state.u.weapon_slots, 1);
+        assert.equal(ordinary.meverseen, false);
+        assert.equal(steed.meverseen, true);
+        assert.equal(stuck.meverseen, true);
+        assert.equal(migrating.meverseen, false);
+        assert.deepEqual(messages, [
+            'You forget some of your training in bare handed combat.',
+            'Who was that Maud person anyway?',
+        ]);
+    });
+
+test('read.c blessed amnesia keeps spell retention but still drains skills',
+    async () => {
+        await emptyTamingWorld(32032612);
+        const state = game;
+        state.plname = 'Maudie';
+        state.svs.spl_book[0] = {
+            sp_id: SPE_FORCE_BOLT, sp_lev: 1, sp_know: 100,
+        };
+        state.context.spbook = { delay: -2, book: {}, o_id: 4 };
+        state.u.skills_advanced = 0;
+        const bounds = [];
+        await seffect_amnesia({ blessed: true }, state, {
+            random: {
+                rn2(bound) { bounds.push(bound); return 1; },
+                rnd(bound) { assert.equal(bound, 3); return 1; },
+                rnl() { assert.fail('blessed amnesia does not call losespells'); },
+            },
+            message: async () => {},
+        });
+        assert.deepEqual(bounds, [2]);
+        assert.equal(state.svs.spl_book[0].sp_know, 100);
+        assert.deepEqual(state.context.spbook, {
+            delay: -2, book: {}, o_id: 4,
+        });
+    });
