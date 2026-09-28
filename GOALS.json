@@ -101367,7 +101367,7 @@
     {
       "id": "port-read-identify-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete identify-scroll and identify-spell effect branches",
       "cFile": "read.c",
       "sessions": [
@@ -101375,8 +101375,12 @@
       ],
       "selectionReason": "Current v9 evaluation 20260928021405 leaves two unmatched screens in blessed-identify-scroll-identifies-pack. investigations/synthetic/v9/blessed-identify-scroll-identifies-pack.json traces the first mismatch to the partial read.c:seffect_identify wrapper, which omits blessed identification count and invent.c:identify_pack behavior. It is independent of active dig.c and potion.c source contracts. Manifest 00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594; C recording challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json sha256 788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2.",
       "detail": "Translate whole read.c:seffect_identify with C BUC/confusion/RNG order, inventory prompt/result path, scroll consumption and spell alias. Verify the existing invent.c:identify_pack callee and wire both production dispatches; make independent strict C recordings across active entry points.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "572ec87519aad01cc4f79a2858c94fed4211f2da",
+      "openStanding": {
+        "sha": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -101405,7 +101409,254 @@
           "evaluationPath": "challenges/evaluations/20260928021405-v9.json",
           "evaluationCommit": "83eadf8bad622d06795bd8bcaa965a569607654f"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "blessed-identify-scroll-identifies-pack",
+          "session": "synthetic/v9/blessed-identify-scroll-identifies-pack",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recording": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+          "recordingPath": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+          "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+          "recipe": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.recipe.session.json",
+          "recipeSha256": "e9bc808bf20aa788848418209aac39b8fb9efd304b07e67e317308a26d2e9e67",
+          "replayInputSha256": "ebef3189b3a3f7f5215b1e1e5b9e9fa1dac4f5ac310eb1f87368e4fb4dbf9e2e",
+          "evaluationPath": "challenges/evaluations/20260928034843-v9.json",
+          "evaluationCommit": "8dc5bff9d70c51ede13a0acbd66cb5d702e9671e",
+          "evaluationArtifact": "challenges/evaluations/20260928034843-v9.json",
+          "evaluationUtc": "2026-09-28T03:49:24.074Z",
+          "remainingScreens": 2,
+          "recordedSteps": 52,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 52
+            },
+            "rng": {
+              "matched": 2152,
+              "total": 2160
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 52
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "g"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2152,
+              "cEntry": "rn2(19)=6",
+              "cCaller": "exercise(attrib.c:509)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "g"
+              },
+              "stepIndex": 50
+            },
+            "cursor": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "g"
+              },
+              "cCursor": [
+                75,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 50,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v9/blessed-identify-scroll-identifies-pack.json",
+            "result": {
+              "session": "synthetic/v9/blessed-identify-scroll-identifies-pack",
+              "corpus": "synthetic",
+              "batch": "v9",
+              "caseId": "blessed-identify-scroll-identifies-pack",
+              "manifestPath": "challenges/manifests/v9.json",
+              "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+              "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+              "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+              "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "remainingScreens": 2,
+              "recordedSteps": 52,
+              "status": "complete",
+              "commit": "ed281da57eb1c879937da42b05f214e0640df9db",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v9",
+                "caseId": "blessed-identify-scroll-identifies-pack",
+                "session": "synthetic/v9/blessed-identify-scroll-identifies-pack",
+                "manifestPath": "challenges/manifests/v9.json",
+                "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+                "recording": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+                "recordingPath": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.session.json",
+                "recordingSha256": "788c914acfafe8bed7dc652d24b797b03359f16945e878fc0013e3c88c2377c2",
+                "recipe": "challenges/cases/v9/blessed-identify-scroll-identifies-pack.recipe.session.json",
+                "recipeSha256": "e9bc808bf20aa788848418209aac39b8fb9efd304b07e67e317308a26d2e9e67",
+                "replayInputSha256": "025d6fc2229f1dc818bc43ea765daa9db58c9a915f1f9f33c75e970db2ae5256",
+                "evaluationPath": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationCommit": "ed281da57eb1c879937da42b05f214e0640df9db",
+                "evaluationArtifact": "challenges/evaluations/20260927175933-v9.json",
+                "evaluationUtc": "2026-09-27T18:00:12.845Z",
+                "remainingScreens": 2,
+                "recordedSteps": 52,
+                "previousScreensMatched": 50,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 52
+                  },
+                  "rng": {
+                    "matched": 2152,
+                    "total": 2160
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 52
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "g"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2152,
+                    "cEntry": "rn2(19)=6",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "g"
+                    },
+                    "stepIndex": 50
+                  },
+                  "cursor": {
+                    "index": 50,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 50,
+                      "key": "g"
+                    },
+                    "cCursor": [
+                      75,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 50,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The blessed identify scroll reaches read.c:seffect_identify, but js/read.js:seffects supports only a narrow ordinary-scroll arm and records this blessed arm as unported. C consumes the scroll before item discovery, chooses an identification count from BUC and RNG, then calls invent.c:identify_pack. Port the complete read.c effect and production spell/scroll wiring so prompts, scroll removal, RNG, and inventory messages follow source order.",
+              "source": {
+                "file": "read.c",
+                "branch": "seffect_identify consumes a scroll before learnscrolltyp, prints the identification message based on Confusion, curse, and prior knowledge, and may return after identifying only itself. Otherwise it selects cval, with blessed or one-in-five uncursed RNG taking a second rn2(5), then calls identify_pack(cval,!already_known) if inventory remains; empty inventory emits a separate message. A spellbook caller skips scroll consumption.",
+                "functions": [
+                  "seffect_identify"
+                ],
+                "callers": [
+                  "read.c:seffects SCR_IDENTIFY and SPE_IDENTIFY arms dispatch seffect_identify after doread or spell.c:spelleffects; js/read.js:seffects currently covers a narrow ordinary-scroll arm and records note_unported(read.c seffect_identify) for this blessed case and the remaining arms."
+                ],
+                "dependencies": [
+                  "invent.c:identify_pack has a JavaScript counterpart in js/invent.js with automatic-all and menu selection branches; the C caller discards its result but awaits its messages and inventory state changes.",
+                  "read.c:learnscrolltyp, useup, and object discovery must run before the inventory prompt as C orders them. Check confusion, cursed-unknown, blessed, and spellbook paths in addition to the selected case."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved challenges/evaluations/20260927175933-v9.json leaves 2 of 52 screens unmatched, first at segment 0 step 50 when the blessed identify effect should alter the item prompt. The later exercise RNG difference follows the missing effect.",
+                "Fresh scan at b6e28d15 reports note_unported(read.c seffect_identify); the C recipe wishes a blessed identify scroll and pack items, then reads it.",
+                "Upstream nethack-c/upstream/src/read.c:seffect_identify lines 2055-2100 owns consumption, message, RNG, and identify_pack dispatch; js/read.js:seffects has only an ordinary-scroll subset. invent.c:identify_pack at 2711 has a current JS counterpart."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-potion-gain-energy-synthetic-v9-20260927",
