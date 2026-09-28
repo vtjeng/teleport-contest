@@ -14,6 +14,8 @@ import {
     BY_COOKIE,
     COLNO,
     CONFUSION,
+    DEAF,
+    UNCHANGING,
     DISP_BEAM,
     DISP_END,
     EXPL_FIERY,
@@ -23,6 +25,11 @@ import {
     IS_AIR,
     IS_OBSTRUCTED,
     KILLED_BY_AN,
+    KILLED_BY,
+    GENOCIDED,
+    POLY_REVERT,
+    POLYMORPH,
+    FAINTED,
     M_SEEN_FIRE,
     ECMD_CANCEL,
     ECMD_OK,
@@ -37,6 +44,8 @@ import {
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
     G_GONE,
+    G_EXTINCT,
+    G_GENOD,
     HALLUC,
     MALE,
     MM_FEMALE,
@@ -67,10 +76,19 @@ import {
     OBJ_AT,
     u_at,
     LL_CONDUCT,
+    LL_GENOCIDE,
     MAX_ERODE,
     OBJ_FREE,
+    Upolyd,
+    Ugender,
+    plur,
 } from './const.js';
 import {
+    PM_SAMURAI,
+    PM_NINJA,
+    LOW_PM,
+    G_NOCORPSE,
+    G_UNIQ,
     NON_PM,
     PM_ALIGNED_CLERIC,
     PM_ANGEL,
@@ -100,6 +118,9 @@ import {
     PM_YELLOW_LIGHT,
     PM_WATER_MOCCASIN,
     PM_XAN,
+    MS_GUARDIAN,
+    MS_LEADER,
+    MS_NEMESIS,
     S_EEL,
     S_MIMIC,
     S_WORM_TAIL,
@@ -128,6 +149,11 @@ import { getlin } from './windows.js';
 import {
     is_female,
     is_male,
+    is_demon,
+    is_human,
+    is_vampire,
+    is_vampshifter,
+    type_is_pname,
     can_chant,
     amorphous,
     is_whirly,
@@ -156,7 +182,10 @@ import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
 import {
     flash_mon, setmangry, wake_nearto, wakeup,
 } from './mon.js';
-import { MAXMCLASSES, S_goodpos } from './symbols.js';
+import {
+    MAXMCLASSES, S_goodpos,
+} from './symbols.js';
+import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_M } from './symbol_data.js';
 import {
     ALCHEMY_SMOCK,
     ARMOR_CLASS,
@@ -229,7 +258,7 @@ import {
     place_object,
     weight,
 } from './obj.js';
-import { exercise } from './attrib.js';
+import { adjalign, exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
 import { do_mapping } from './detect.js';
 import { level_tele, scrolltele } from './teleport.js';
@@ -237,7 +266,7 @@ import { Fire_resistance, lightdamage, resist } from './zap.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
 import { rn1, rn2, rne, rnl, rnd } from './rng.js';
-import { ttyPline } from './tty_message.js';
+import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
     cmap_to_glyph, map_invisible, newsym, tmp_at,
 } from './display.js';
@@ -273,7 +302,7 @@ import { closed_door, monflee, youHear } from './monmove.js';
 import {
     avoid_ceiling, ceiling, has_ceiling, on_level,
 } from './dungeon.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, verbalize } from './pline.js';
 import {
     an,
     simpleonames,
@@ -1608,9 +1637,8 @@ export function can_center_cloud(x, y, state = game) {
         && dist2(x, y, state.u.ux, state.u.uy) < 32;
 }
 
-// C ref: read.c display_stinking_cloud_positions() (1087-1111). The callback
-// is also used by do_stinking_cloud(); that separate caller remains behind
-// seffect_stinking_cloud's recorded source gap.
+// C ref: read.c display_stinking_cloud_positions() (1087-1111). Both
+// do_stinking_cloud() and blessed seffect_fire() install this getpos callback.
 export async function display_stinking_cloud_positions(onOff, state = game) {
     if (onOff) {
         const dist = 6;
@@ -1627,6 +1655,65 @@ export async function display_stinking_cloud_positions(onOff, state = game) {
     } else {
         await tmp_at(DISP_END, 0, state);
     }
+}
+
+// C ref: read.c do_stinking_cloud() (3082-3111).  Its getpos callbacks live
+// only for this target selection; getpos() writes the selected coord in place
+// and a negative result is the one cancellation branch that suppresses the
+// cloud entirely.
+export async function do_stinking_cloud(sobj, mentionStinking, state = game) {
+    await ttyPline(
+        `Where do you want to center the ${mentionStinking ? 'stinking ' : ''}cloud?`,
+        state,
+    );
+    const cc = { x: state.u.ux, y: state.u.uy };
+    state.getpos_hilitefunc = (onOff, callbackState = state) => (
+        display_stinking_cloud_positions(onOff, callbackState)
+    );
+    state.getpos_getvalid = (x, y, callbackState = state) => (
+        can_center_cloud(x, y, callbackState)
+    );
+    let getposResult;
+    try {
+        getposResult = await getpos(cc, true, 'the desired position', state);
+    } finally {
+        // C resets getpos_sethilite(NULL, NULL) at the end of getpos().
+        state.getpos_hilitefunc = null;
+        state.getpos_getvalid = null;
+    }
+
+    if (getposResult < 0) {
+        await ttyPline('Never mind.', state);
+        return;
+    }
+    if (!can_center_cloud(cc.x, cc.y, state)) {
+        if (propertyActive(HALLUC, state)) {
+            await ttyPline('Ugh... someone cut the cheese.', state);
+        } else {
+            await ttyPline(
+                `${sobj.oclass === SCROLL_CLASS
+                    ? 'The scroll crumbles with' : 'You smell'} a whiff of rotten eggs.`,
+                state,
+            );
+        }
+        return;
+    }
+
+    const cloudSign = bcsign(sobj);
+    await create_gas_cloud(
+        cc.x,
+        cc.y,
+        15 + 10 * cloudSign,
+        8 + 4 * cloudSign,
+        {
+            state,
+            random: { rn2 },
+            blockPoint: (x, y) => block_point(x, y, state),
+            canSee: (x, y) => cansee(x, y, state),
+            newsym: (x, y) => newsym(x, y, state),
+            message: ttyPline,
+        },
+    );
 }
 
 // C ref: read.c seffect_fire() (1850-1917). C passes the consumed scroll by
@@ -1727,6 +1814,424 @@ export async function seffect_fire(scroll, state = game) {
     );
 }
 
+// C ref: monflag.h G_GENO (200). The monster table keeps genocide eligibility
+// in `geno`; mvitals uses the separate G_GENOD flag from const.js.
+const G_GENO = 0x0020;
+
+async function youFeelDeadInside(state) {
+    let prefix = 'You feel';
+    if (Math.trunc(state.multi ?? 0) < 0) {
+        const { unconscious } = await import('./trap.js');
+        if (unconscious(state) || state.u?.uhs === FAINTED)
+            prefix = 'You dream that you feel';
+    }
+    const { udeadinside } = await import('./polyself.js');
+    await ttyPline(`${prefix} ${udeadinside(state)} inside.`, state);
+}
+
+const GENOCIDE_REALLY = 1;
+const GENOCIDE_PLAYER = 2;
+const GENOCIDE_ONTHRONE = 4;
+
+// C ref: read.c do_class_genocide() (2638-2820). The class parser fallback,
+// retry accounting, eligibility scan, and self-genocide order follow C. Its
+// mongone() and kill_genocided_monsters() calls discard void results and stay
+// named source gaps until those owning mon.c paths are ported.
+export async function do_class_genocide(state = game) {
+    let llDone = false;
+    let feelDead = false;
+    let gameover = false;
+    const mvitals = state.svm?.mvitals ?? state.mvitals;
+
+    for (let attempt = 0; ; ++attempt) {
+        if (attempt >= 5) {
+            await ttyPline(thats_enough_tries, state);
+            return;
+        }
+        let prompt = 'What class of monsters do you want to genocide?';
+        if (attempt > 0) {
+            prompt += ` [enter ${state.iflags?.cmdassist
+                ? 'the symbol or name representing a class, or ?'
+                : "'?' to see previous genocides"}]`;
+        }
+        const buf = mungspaces(await getlin(prompt, state) ?? '');
+        if (!buf) {
+            const suggestion = attempt + 1 < 5
+                ? "Type letter (or punctuation) or name used for a class of monsters or 'none'"
+                : 'No class of monsters specified';
+            await ttyPline(`${suggestion}.`, state);
+            continue;
+        }
+        if (buf[0] === '\x1b'
+            || ['none', "'none'", 'nothing']
+                .some((word) => buf.toLowerCase() === word)) {
+            livelog_printf(LL_GENOCIDE,
+                'declined to perform class genocide', state);
+            return;
+        }
+        if (buf === '?' || buf === "'?'") {
+            const { list_genocided } = await import('./insight.js');
+            await list_genocided('g', false, state);
+            --attempt;
+            continue;
+        }
+
+        let monsterClass = name_to_monclass(buf, null, { state });
+        if (!monsterClass) {
+            const mndx = name_to_monplus(buf, { state }).mnum;
+            if (mndx !== NON_PM)
+                monsterClass = state.mons[mndx].mlet;
+        }
+        let immuneCount = 0;
+        let goneCount = 0;
+        let goodCount = 0;
+        for (let i = LOW_PM; i < state.mons.length; ++i) {
+            const species = state.mons[i];
+            if (species.mlet !== monsterClass) continue;
+            if (!(species.geno & G_GENO)) ++immuneCount;
+            else if (mvitals[i].mvflags & G_GENOD) ++goneCount;
+            else ++goodCount;
+        }
+        const roleClass = state.mons[state.urole.mnum]?.mlet;
+        const raceClass = state.mons[state.urace.mnum]?.mlet;
+        if (!goodCount && monsterClass !== roleClass
+            && monsterClass !== raceClass) {
+            if (goneCount) {
+                await ttyPline('All such monsters are already nonexistent.', state);
+            } else if (immuneCount || monsterClass === S_invisible) {
+                await ttyPline("You aren't permitted to genocide such monsters.",
+                    state);
+            } else if (state.wizard && buf[0] === '*') {
+                let count = 0;
+                for (let monster = state.level?.monlist ?? state.fmon;
+                    monster;) {
+                    const next = monster.nmon;
+                    if (monster.mhp >= 1) {
+                        note_unported('mon.c mongone');
+                        ++count;
+                    }
+                    monster = next;
+                }
+                await ttyPline(`Eliminated ${count} monster${plur(count)}.`, state);
+                return;
+            } else {
+                await ttyPline(`That ${buf.length === 1 ? 'symbol' : 'response'} does not represent any monster.`, state);
+            }
+            continue;
+        }
+
+        for (let i = LOW_PM; i < state.mons.length; ++i) {
+            const species = state.mons[i];
+            if (species.mlet !== monsterClass) continue;
+            const name = makeplural(species.pmnames[NEUTRAL]);
+            if (i === state.urole.mnum || i === state.urace.mnum
+                || ((species.geno & G_GENO)
+                    && !(mvitals[i].mvflags & G_GENOD))) {
+                if (!llDone) {
+                    const { num_genocides } = await import('./insight.js');
+                    const already = num_genocides(state);
+                    const symbol = String.fromCharCode(
+                        DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + monsterClass],
+                    );
+                    if (!already) {
+                        const heroPossessive = state.flags?.female ? 'her' : 'his';
+                        livelog_printf(
+                            LL_CONDUCT | LL_GENOCIDE,
+                            `performed ${heroPossessive} first genocide (class ${symbol})`,
+                            state,
+                        );
+                    } else {
+                        livelog_printf(LL_GENOCIDE,
+                            `genocided class ${symbol}`, state);
+                    }
+                    llDone = true;
+                }
+                mvitals[i].mvflags |= G_GENOD | G_NOCORPSE;
+                note_unported('mon.c kill_genocided_monsters');
+                await update_inventory({ state });
+                await ttyPline(`Wiped out all ${name}.`, state);
+                if (Upolyd(state.u)
+                    && is_vampshifter(state.youmonst)
+                    && !is_vampire(state.youmonst?.data)
+                    && (i === state.u.umonnum
+                        || i === state.youmonst.cham)) {
+                    const { polyself } = await import('./polyself.js');
+                    await polyself(POLY_REVERT, state);
+                }
+                if (Upolyd(state.u) && i === state.u.umonnum) {
+                    state.u.mh = -1;
+                    if (propertyActive(UNCHANGING, state)) {
+                        if (!feelDead) {
+                            await ttyUrgentPline('You die.', state);
+                            feelDead = true;
+                        }
+                        gameover = true;
+                    } else {
+                        const { rehumanize } = await import('./polyself.js');
+                        await rehumanize(state);
+                    }
+                }
+                if (i === state.urole.mnum || i === state.urace.mnum) {
+                    state.u.uhp = -1;
+                    if (Upolyd(state.u)) {
+                        if (!feelDead) {
+                            await youFeelDeadInside(state);
+                            feelDead = true;
+                        }
+                    } else {
+                        if (!feelDead) {
+                            await ttyUrgentPline('You die.', state);
+                            feelDead = true;
+                        }
+                        gameover = true;
+                    }
+                }
+            } else if (mvitals[i].mvflags & G_GENOD) {
+                if (!gameover)
+                    await ttyPline(`${upstart(name)} are already nonexistent.`, state);
+            } else if (!gameover) {
+                const { quest_info } = await import('./questpgr.js');
+                if ((species.msound !== MS_LEADER
+                        || quest_info(MS_LEADER, state) === i)
+                    && (species.msound !== MS_NEMESIS
+                        || quest_info(MS_NEMESIS, state) === i)
+                    && (species.msound !== MS_GUARDIAN
+                        || quest_info(MS_GUARDIAN, state) === i)
+                    && (i !== PM_NINJA
+                        || state.urole.mnum === PM_SAMURAI)) {
+                    const named = type_is_pname(species);
+                    let unique = Boolean(species.geno & G_UNIQ);
+                    if (i === PM_HIGH_CLERIC) unique = false;
+                    await ttyPline(`You aren't permitted to genocide ${unique && !named ? 'the ' : ''}${unique || named ? species.pmnames[NEUTRAL] : name}.`, state);
+                }
+            }
+        }
+        if (gameover || state.u.uhp === -1) {
+            state.killer ??= { format: KILLED_BY_AN, name: '' };
+            state.killer.format = KILLED_BY_AN;
+            state.killer.name = 'scroll of genocide';
+            if (gameover) {
+                const { done } = await import('./end.js');
+                await done(GENOCIDED, state);
+            }
+        }
+        return;
+    }
+}
+
+// C ref: read.c do_genocide() (2826-3015). `how` is the source bitfield,
+// preserving the cursed free-pass and confusion/throne forced-genocide arms.
+export async function do_genocide(how, state = game) {
+    const really = Boolean(how & GENOCIDE_REALLY);
+    const player = Boolean(how & GENOCIDE_PLAYER);
+    const onThrone = Boolean(how & GENOCIDE_ONTHRONE);
+    const mvitals = state.svm?.mvitals ?? state.mvitals;
+    let killPlayer = 0;
+    let mndx;
+    let ptr;
+    let buf;
+    if (player) {
+        mndx = state.u.umonster;
+        ptr = state.mons[mndx];
+        buf = pmname(ptr, Ugender(state));
+        ++killPlayer;
+    } else {
+        buf = '';
+        for (let attempt = 0; ; ++attempt) {
+            if (attempt >= 5) {
+                if (!really && (ptr = rndmonst({ state }))) break;
+                await ttyPline(thats_enough_tries, state);
+                return;
+            }
+            let prompt = 'What type of monster do you want to genocide?';
+            if (attempt > 0) {
+                prompt += ` [enter ${state.iflags?.cmdassist
+                    ? 'the name of a type of monster, or ?'
+                    : "'?' to see previous genocides"}]`;
+            }
+            buf = mungspaces(await getlin(prompt, state) ?? '');
+            if (!buf) {
+                const suggestion = attempt + 1 < 5
+                    ? "Type the name of a type of monster or 'none'"
+                    : 'No type of monster specified';
+                await ttyPline(`${suggestion}.`, state);
+                continue;
+            }
+            if (buf[0] === '\x1b'
+                || ['none', "'none'", 'nothing']
+                    .some((word) => buf.toLowerCase() === word)) {
+                if (!really && (ptr = rndmonst({ state }))) break;
+                livelog_printf(LL_GENOCIDE,
+                    'declined to perform genocide', state);
+                return;
+            }
+            if (buf === '?' || buf === "'?'") {
+                const { list_genocided } = await import('./insight.js');
+                await list_genocided('g', false, state);
+                --attempt;
+                continue;
+            }
+
+            mndx = name_to_monplus(buf, { state }).mnum;
+            if (mndx === NON_PM || (mvitals[mndx].mvflags & G_GENOD)) {
+                await ttyPline(`Such creatures ${mndx === NON_PM
+                    ? 'do not' : 'no longer'} exist in this world.`, state);
+                continue;
+            }
+            ptr = state.mons[mndx];
+            if (Upolyd(state.u)
+                && is_vampshifter(state.youmonst)
+                && !is_vampire(state.youmonst?.data)
+                && (mndx === state.u.umonnum
+                    || mndx === state.youmonst.cham)) {
+                const { polyself } = await import('./polyself.js');
+                await polyself(POLY_REVERT, state);
+            }
+            if (mndx === state.urole.mnum || mndx === state.urace.mnum) {
+                ++killPlayer;
+                break;
+            }
+            if (is_human(ptr)) adjalign(-Math.sign(state.u.ualign.type), state);
+            if (is_demon(ptr)) adjalign(Math.sign(state.u.ualign.type), state);
+            if (!(ptr.geno & G_GENO)) {
+                const deafness = state.u?.uprops?.[DEAF];
+                const deaf = Boolean(deafness?.intrinsic || deafness?.extrinsic
+                    || state.u?.uroleplay?.deaf);
+                if (!deaf) {
+                    if (state.flags?.verbose)
+                        await ttyPline('A thunderous voice booms through the caverns:', state);
+                    await verbalize('No, mortal!  That will not be done.', state);
+                }
+                continue;
+            }
+            if (propertyActive(UNCHANGING, state)
+                && ptr === state.youmonst.data) ++killPlayer;
+            break;
+        }
+        mndx = ptr.pmidx;
+    }
+
+    let which = 'all ';
+    const realName = ptr.pmnames[NEUTRAL];
+    if (propertyActive(HALLUC, state)) {
+        if (Upolyd(state.u)) {
+            buf = pmname(state.youmonst.data,
+                state.flags?.female ? FEMALE : MALE);
+        } else {
+            buf = (state.flags?.female && state.urole.name.f)
+                ? state.urole.name.f : state.urole.name.m;
+            buf = buf[0].toLowerCase() + buf.slice(1);
+        }
+    } else {
+        buf = realName;
+        if ((ptr.geno & G_UNIQ) && ptr.pmidx !== PM_HIGH_CLERIC)
+            which = type_is_pname(ptr) ? '' : 'the ';
+    }
+
+    if (really) {
+        const { num_genocides } = await import('./insight.js');
+        if (!num_genocides(state)) {
+            const heroPossessive = state.flags?.female ? 'her' : 'his';
+            livelog_printf(
+                LL_CONDUCT | LL_GENOCIDE,
+                `performed ${heroPossessive} first genocide (${makeplural(realName)})`,
+                state,
+            );
+        } else {
+            livelog_printf(LL_GENOCIDE,
+                `genocided ${makeplural(realName)}`, state);
+        }
+        mvitals[mndx].mvflags |= G_GENOD | G_NOCORPSE;
+        await ttyPline(`Wiped out ${which}${which !== 'all '
+            ? buf : makeplural(buf)}.`, state);
+        if (killPlayer) {
+            state.u.uhp = -1;
+            if (player) {
+                state.killer ??= { format: KILLED_BY, name: '' };
+                state.killer.format = KILLED_BY;
+                state.killer.name = 'genocidal confusion';
+            } else if (onThrone) {
+                state.killer ??= { format: KILLED_BY_AN, name: '' };
+                state.killer.format = KILLED_BY_AN;
+                state.killer.name = 'imperious order';
+            } else {
+                state.killer ??= { format: KILLED_BY_AN, name: '' };
+                state.killer.format = KILLED_BY_AN;
+                state.killer.name = 'scroll of genocide';
+            }
+            if (Upolyd(state.u) && ptr !== state.youmonst.data) {
+                const { delayed_killer } = await import('./end.js');
+                delayed_killer(POLYMORPH, state.killer.format,
+                    state.killer.name, state);
+                await youFeelDeadInside(state);
+            } else {
+                const { done } = await import('./end.js');
+                await done(GENOCIDED, state);
+            }
+        } else if (ptr === state.youmonst.data) {
+            const { rehumanize } = await import('./polyself.js');
+            await rehumanize(state);
+        }
+        note_unported('mon.c kill_genocided_monsters');
+        await update_inventory({ state });
+    } else {
+        let count = 0;
+        const census = monster_census(false, { state });
+        if (!(ptr.geno & G_UNIQ)
+            && !(mvitals[mndx].mvflags & (G_GENOD | G_EXTINCT))) {
+            for (let i = rn1(3, 4); i > 0; --i) {
+                const monster = await makemon_runtime(
+                    ptr, state.u.ux, state.u.uy, NO_MINVENT | MM_NOMSG,
+                    { state },
+                );
+                if (!monster) break;
+                ++count;
+                if (mvitals[mndx].mvflags & G_EXTINCT) break;
+            }
+        }
+        if (count) {
+            count = monster_census(false, { state }) - census;
+            await ttyPline(`Sent in ${count > 1 ? 'some ' : ''}${count > 1
+                ? makeplural(buf) : an(buf)}.`, state);
+        } else {
+            await ttyPline('Nothing happens.', state);
+        }
+    }
+}
+
+// C ref: read.c seffect_genocide() (1722-1738). The helper never nulls the
+// caller's object pointer, so seffects() retains its normal consumption path.
+export async function seffect_genocide(scroll, state = game) {
+    const blessed = Boolean(scroll.blessed);
+    const cursed = Boolean(scroll.cursed);
+    const alreadyKnown = scroll.oclass === SPBOOK_CLASS
+        || objectType(scroll, state).oc_name_known;
+    if (!alreadyKnown)
+        await ttyPline('You have found a scroll of genocide!', state);
+    state.gk ??= {};
+    state.gk.known = true;
+    if (blessed) {
+        await do_class_genocide(state);
+    } else {
+        const how = Number(!cursed)
+            | (propertyActive(CONFUSION, state) ? 2 : 0);
+        await do_genocide(how, state);
+    }
+}
+
+// C ref: read.c seffect_stinking_cloud() (1991-2002). The wrapper only
+// identifies the scroll and marks the effect known; do_stinking_cloud() owns
+// target selection and cloud creation without consuming the scroll pointer.
+export async function seffect_stinking_cloud(scroll, state = game) {
+    const alreadyKnown = scroll.oclass === SPBOOK_CLASS
+        || objectType(scroll, state).oc_name_known;
+    if (!alreadyKnown)
+        await ttyPline('You have found a scroll of stinking cloud!', state);
+    state.gk ??= {};
+    state.gk.known = true;
+    await do_stinking_cloud(scroll, alreadyKnown, state);
+}
+
 // C ref: read.c seffects() (2194-2290). Preserve the complete source switch,
 // its pre-dispatch Wisdom exercise, post-effect inventory refresh, and
 // `sobj ? 0 : 1` return. C's effect helpers are void and receive `&sobj`;
@@ -1793,7 +2298,7 @@ export async function seffects(scroll, state = game) {
         await seffect_taming(scroll, state);
         break;
     case SCR_GENOCIDE:
-        note_unported('read.c seffect_genocide');
+        await seffect_genocide(scroll, state);
         break;
     case SCR_LIGHT:
         await seffect_light(scroll, state);
@@ -1850,7 +2355,7 @@ export async function seffects(scroll, state = game) {
             note_unported('read.c seffect_punishment');
         break;
     case SCR_STINKING_CLOUD:
-        note_unported('read.c seffect_stinking_cloud');
+        await seffect_stinking_cloud(scroll, state);
         break;
     default:
         note_unported('read.c seffects default');

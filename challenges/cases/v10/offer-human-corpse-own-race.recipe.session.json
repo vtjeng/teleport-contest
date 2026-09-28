@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for pray.c:offer_corpse -> your_race(ptr) -> sacrifice_your_race. Chaotic human Wizard offers a freshly wished human corpse on a chaotic altar and reaches the demon-summoning arm. The input dismisses the corpse-drop pager and confirms the sacrifice.",
+  "segments": [
+    {
+      "seed": 72916018,
+      "datetime": "20281027121500",
+      "nethackrc": "OPTIONS=name:V10OwnRace,role:Wizard,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017chaotic altar\n\u0017human corpse\n #offer\ny "
+    }
+  ]
+}

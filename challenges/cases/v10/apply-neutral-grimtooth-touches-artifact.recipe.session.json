@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first mission: neutral Wizard applies a wished chaotic Grimtooth; source reaches apply.c:doapply -> artifact.c:retouch_object -> touch_artifact before the apply switch. The independent C rerecord is byte-identical; local JS first stops at artifact apply handling.",
+  "segments": [
+    {
+      "seed": 86290183,
+      "datetime": "20411007111500",
+      "nethackrc": "OPTIONS=name:V10Grimtooth,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017Grimtooth\na*o"
+    }
+  ]
+}

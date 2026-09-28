@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48271934,
+      "datetime": "20281027090514",
+      "nethackrc": "OPTIONS=name:V10Ring,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017ring of levitation\nP?qol R "
+    }
+  ]
+}

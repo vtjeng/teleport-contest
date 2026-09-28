@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent blessed read.c:seffect_genocide route: a debug Wizard reads a blessed scroll and names newt, exercising do_class_genocide's species-name-to-class fallback without genociding the hero's race or role.",
+  "segments": [
+    {
+      "seed": 39027012,
+      "datetime": "20390927131418",
+      "nethackrc": "OPTIONS=name:B34GenocideB,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017blessed scroll of genocide\nro  newt\n"
+    }
+  ]
+}

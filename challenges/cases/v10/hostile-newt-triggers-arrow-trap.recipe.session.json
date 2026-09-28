@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent v10 candidate: hostile newt triggers a wished arrow trap through trap.c:dotrap -> trapeffect_arrow_trap monster branch -> thitm. The first setup failed on stairs; the second showed the newt west of hero and used h, which attacked it. This source-corrected final attempt steps east away from the west-side newt so it can enter the trap.",
+  "segments": [
+    {
+      "seed": 86290182,
+      "datetime": "20411006101500",
+      "nethackrc": "OPTIONS=name:V10ArrowNewt,role:Ranger,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " h\u0017arrow trap\n#wizgenesis\nhostile newt\nl....."
+    }
+  ]
+}
