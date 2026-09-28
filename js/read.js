@@ -16,6 +16,7 @@ import {
     COLNO,
     CONFUSION,
     INVIS,
+    SEE_INVIS,
     DEAF,
     UNCHANGING,
     DISP_BEAM,
@@ -946,8 +947,11 @@ export async function seffect_confuse_monster(sobj, state = game, env = {}) {
     const sblessed = Boolean(sobj.blessed);
     const scursed = Boolean(sobj.cursed);
     const confused = hconfusion !== 0;
+    // youprop.h: Invisible is Invis && !See_invisible.
+    const seeInvisible = state.u.uprops[SEE_INVIS];
     const altfeedback = propertyActive(BLINDED, state)
-        || propertyActive(INVIS, state);
+        || (propertyActive(INVIS, state)
+            && !seeInvisible?.intrinsic && !seeInvisible?.extrinsic);
     const hands = makeplural(body_part(HAND, state.youmonst));
 
     if (state.youmonst?.data?.mlet !== S_HUMAN || scursed) {
