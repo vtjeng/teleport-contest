@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent read.c recharge recipe: a debug Wizard wishes an uncursed adornment ring, selects it by inventory letter n and the left finger, then wishes and reads a blessed charging scroll and selects the worn ring. The seed/date/action history differs from the v9 wand case; retain the recording only after the C trace confirms recharge's Ring_off/recharge/Ring_on path.",
+  "segments": [
+    {
+      "seed": 73190547,
+      "datetime": "20380719142306",
+      "nethackrc": "OPTIONS=name:RingChargeC31,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017uncursed ring of adornment\nPnl\u0017blessed scroll of charging\nroc n"
+    }
+  ]
+}

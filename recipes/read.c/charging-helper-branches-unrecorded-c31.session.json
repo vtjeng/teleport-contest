@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "Unrecorded C31 branch plan only; this file is not a passing recipe/recording pair. It names read.c:stripspe (cursed charging), read.c:p_glow2 (colored glow), and read.c:p_glow3 (wand-of-wishing glow). The coordinator-owned B38 checkpoint prevented fresh C recording in this delivery, so these impure helpers remain explicitly unverified.",
+  "segments": [
+    {
+      "seed": 73190641,
+      "datetime": "20390410121731",
+      "nethackrc": "OPTIONS=name:StripChargeC31,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " .\u0017uncursed wand of fire\n\u0017cursed scroll of charging\nrq p"
+    },
+    {
+      "seed": 73190642,
+      "datetime": "20390411121731",
+      "nethackrc": "OPTIONS=name:GlowTwoC31,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " .\u0017uncursed magic marker (0:0)\n\u0017blessed scroll of charging\nrq p"
+    },
+    {
+      "seed": 73190643,
+      "datetime": "20390412121731",
+      "nethackrc": "OPTIONS=name:GlowThreeC31,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " .\u0017uncursed wand of wishing\n\u0017blessed scroll of charging\nrq p"
+    }
+  ]
+}

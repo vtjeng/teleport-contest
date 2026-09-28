@@ -943,7 +943,7 @@ export async function Ring_gone(obj, state = game) {
 // C ref: do_wear.c Ring_off() (1449-1452). Unlike Ring_gone(), ordinary
 // removal clears the worn slot with setworn() and applies the ring's off
 // effects through Ring_off_or_gone().
-async function Ring_off(obj, state = game) {
+export async function Ring_off(obj, state = game) {
     await Ring_off_or_gone(obj, false, state);
 }
 

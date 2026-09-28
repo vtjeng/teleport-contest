@@ -232,7 +232,7 @@ import { throwit } from './dothrow.js';
 import { P_MAX_SKILL, spell_skilltype } from './startup_skills.js';
 import { spelleffects } from './spell.js';
 import { seffects } from './read.js';
-import { charge_ok } from './read.js';
+import { charge_ok, recharge } from './read.js';
 import { healup, make_blinded } from './potion.js';
 import { dropx, maybe_lvltport_feedback, goto_level } from './do.js';
 import { select_menu } from './windows.js';
@@ -2351,14 +2351,17 @@ async function invoke_untrap(obj, state) {
 // C ref: artifact.c invoke_charge_obj() (1847-1864).
 async function invoke_charge_obj(obj, state) {
     const oart = get_artifact(obj, state);
+    const blessedEffect = Boolean(
+        obj.blessed
+        && (oart.role === state.urole?.mnum || oart.role === NON_PM),
+    );
     const otmp = await getobj('charge', charge_ok,
         GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state);
     if (!otmp) {
         obj.age = 0;
         return ECMD_CANCEL;
     }
-    // recharge() is in read.c, not yet ported; its return is discarded.
-    note_unported('read.c recharge');
+    await recharge(otmp, blessedEffect ? 1 : obj.cursed ? -1 : 0, state);
     update_inventory(state);
     return ECMD_TIME;
 }
