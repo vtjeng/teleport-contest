@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 49350817,
+      "datetime": "20341125081506",
+      "nethackrc": "OPTIONS=name:FieldRanger,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time\n",
+      "moves": " h\u0017anti-magic field\nlh."
+    }
+  ],
+  "_comment": "Independent C39 hero entry for trap.c:trapeffect_anti_magic. After clearing the startup welcome, this Valkyrie moves west onto floor, wishes an anti-magic field there, moves east, then steps west back onto it. The direction and action history differ from the admitted Healer recipe; C trace must confirm the wish lands off the upstairs square and the return move enters trapeffect_anti_magic."
+}
