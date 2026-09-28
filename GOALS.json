@@ -101367,7 +101367,7 @@
     {
       "id": "port-read-identify-synthetic-v9-20260927",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete identify-scroll and identify-spell effect branches",
       "cFile": "read.c",
       "sessions": [
@@ -101381,15 +101381,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8a92f8faba9bf438288fc394e610c10c2884c84a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_identify",
           "line": 2055,
           "endLine": 2101,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -101656,7 +101659,126 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_identify",
+            "implementation": "js/read.js",
+            "symbol": "seffect_identify",
+            "sourceReview": "Reviewed the complete upstream read.c:seffect_identify() body at lines 2055–2101. The port snapshots object type/class, BUC, confusion, and already-known state before effects. For scrolls it calls useup first, emits the confused/cursed-unknown or ordinary unknown self-identification message, learns SCR_IDENTIFY when unknown, and returns the consumed-scroll signal on C's early-return arms. Otherwise it follows the source inventory branch: cval starts at 1; an uncursed scroll draws rn2(5) before deciding whether to identify; blessed identification draws cval directly; the positive-Luck increment occurs only after cval==1 on the blessed path; identify_pack receives cval and !already_known. The empty-inventory scroll/spell messages retain C's different suffix. C30 ports this function without a remaining callee gap; read.c:seffects and spell.c:spelleffects are dispatchers only, not claimed whole-function ports.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects() SCR_IDENTIFY/SPE_IDENTIFY switch arm calls seffect_identify(&sobj) and returns the consumed-scroll state when the effect clears sobj."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread() selects a scroll and routes its effect through seffects(sobj)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects() routes SPE_IDENTIFY through seffects(pseudo), setting the pseudo object's blessed field at Skilled or Expert skill and freeing the pseudo object after the effect."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "docast",
+                "source": "spell.c:docast() selects a learned spell and calls spelleffects(spell, FALSE, FALSE)."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "dowizcast",
+                "source": "spell.c:dowizcast() selects a spell object from the wizard menu and calls spelleffects(i, FALSE, TRUE)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runReadCommand",
+                "source": "The read command dispatcher invokes doread(); this is the production command route into read.c:seffects and seffect_identify."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runWizCastCommand",
+                "source": "The #wizcast extended-command dispatcher invokes dowizcast(); spell.c:dowizcast then calls spelleffects and read.c:seffects."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runCastCommand",
+                "source": "cmd.c dispatch for the Z command invokes spell.js docast through runCastCommand; docast selects a learned spell and calls spelleffects(spell, FALSE, FALSE), which routes SPE_IDENTIFY to read.js seffects and seffect_identify."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/identify-cursed-scroll-c30-independent.session.json",
+              "recordings/spell.c/identify-wizcast-c30-independent.session.json",
+              "recordings/spell.c/identify-learned-docast-c30-correction.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-identify-scroll-identifies-pack",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 50,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_IDENTIFY) -> read.c:seffect_identify; the scroll is consumed and its blessed pack-identification branch runs."
+              }
+            ],
+            "checkedAt": "8a92f8faba9bf438288fc394e610c10c2884c84a"
+          }
+        ],
+        "entryPointReview": "The active scroll entry is the read command: cmd.c dispatches to doread(), which calls seffects(sobj); its SCR_IDENTIFY arm calls seffect_identify(&sobj). JS follows cmd.js runReadCommand -> read.js doread -> read.js seffects -> seffect_identify. The admitted v9 case exercises the blessed scroll branch through zero-based step 50, and the independent cursed-scroll recording covers the self-identification/early-return branch. The active spell entry is SPE_IDENTIFY through spell.c:spelleffects -> read.c:seffects -> seffect_identify. Both spell.c:docast (learned #cast) and spell.c:dowizcast (#wizcast) call spelleffects; the independent #wizcast C recording enters the same SPE_IDENTIFY effect-dispatch arm. JS routes these through spell.js spelleffects and read.js seffects. The wider read.c:seffects and spell.c:spelleffects functions remain partial outside the identify arms changed here; C30 claims only seffect_identify. The independent learned-cast recording recordings/spell.c/identify-learned-docast-c30-correction.session.json reaches spell.c:docast through the ordinary Z command, then spelleffects(SPE_IDENTIFY) -> read.c:seffects -> seffect_identify at the final selection boundary (zero-based step 85); the full 86-screen C/JS recording matches. This is separate runtime evidence from the #wizcast path, which calls dowizcast rather than docast.",
+        "entryPoints": [
+          {
+            "name": "Reading an identify scroll",
+            "functions": [
+              "seffect_identify"
+            ],
+            "recordings": [
+              "recordings/read.c/identify-cursed-scroll-c30-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "blessed-identify-scroll-identifies-pack",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 50,
+                "source": "cmd.c read command -> read.c:doread -> read.c:seffects(SCR_IDENTIFY) -> read.c:seffect_identify"
+              }
+            ]
+          },
+          {
+            "name": "Casting SPE_IDENTIFY through #wizcast",
+            "functions": [
+              "seffect_identify"
+            ],
+            "recordings": [
+              "recordings/spell.c/identify-wizcast-c30-independent.session.json"
+            ]
+          },
+          {
+            "name": "Casting learned SPE_IDENTIFY with Z (#cast)",
+            "functions": [
+              "seffect_identify"
+            ],
+            "recordings": [
+              "recordings/spell.c/identify-learned-docast-c30-correction.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8a92f8faba9bf438288fc394e610c10c2884c84a",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-potion-gain-energy-synthetic-v9-20260927",
