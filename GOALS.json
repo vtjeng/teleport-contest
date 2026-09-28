@@ -101678,6 +101678,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pline-you-hear-synthetic-v9-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port source-conditioned hearing messages and their active callers",
+      "cFile": "pline.c",
+      "sessions": [
+        "synthetic/v9/sleeping-potion-falls-asleep"
+      ],
+      "selectionReason": "The v9 sleeping-potion effect now matches all C RNG values, but its final fountain sound uses a short unconditional JavaScript prefix. The complete current investigation at investigations/synthetic/v9/sleeping-potion-falls-asleep.json traces the source owner to pline.c:You_hear and the Unaware dream prefix; dig.c and read.c are reserved by other workers.",
+      "detail": "Port all pline.c:You_hear gates and prefixes from source and wire active existing JavaScript sound callers through that function. Preserve the tty --More-- boundary arising from full message length and record independent hearing state variations; avoid a session-specific pause.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "You_hear",
+          "line": 436,
+          "endLine": 454,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 436,
+        "to": 454
+      },
+      "syntheticProvenance": {
+        "synthetic/v9/sleeping-potion-falls-asleep": {
+          "session": "synthetic/v9/sleeping-potion-falls-asleep",
+          "corpus": "synthetic",
+          "batch": "v9",
+          "caseId": "sleeping-potion-falls-asleep",
+          "manifestPath": "challenges/manifests/v9.json",
+          "manifestSha256": "00c148aac522e6343c8de0bd003db29771439f972a99cb18c772ebf2bc45a594",
+          "recordingPath": "challenges/cases/v9/sleeping-potion-falls-asleep.session.json",
+          "recordingSha256": "f82a3636cfc6f7b926fe8da5ba3259b04aa8793e1eb729df1c8e8a5c0e63154f",
+          "evaluationPath": "challenges/evaluations/20260928032810-v9.json",
+          "evaluationCommit": "b3559b21b4087eb86dad1a798fe621067c921f47"
+        }
+      }
     }
   ]
 }
