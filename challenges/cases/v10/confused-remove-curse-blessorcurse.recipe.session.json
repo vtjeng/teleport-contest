@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for read.c:seffect_remove_curse confused inventory traversal. The Wizard remains Confused after quaffing a wished confusion potion, then reads an uncursed scroll; dismiss both the scroll-disappearance and confused-mispronunciation pagers to reach the effect.",
+  "segments": [
+    {
+      "seed": 86172940,
+      "datetime": "20411004091500",
+      "nethackrc": "OPTIONS=name:V10Curse,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017cursed long sword\n\u0017potion of confusion\nqq\u0017uncursed scroll of remove curse\n rk  "
+    }
+  ]
+}

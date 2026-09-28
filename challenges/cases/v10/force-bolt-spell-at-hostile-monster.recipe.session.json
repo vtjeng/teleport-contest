@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for spell.c:dowizcast selecting Force Bolt and spelleffects(SPE_FORCE_BOLT) against a hostile newt. Wizard debug mode bypasses spell-study setup. The C creation screen shows the newt directly north of the hero, so the corrected direction key is k.",
+  "segments": [
+    {
+      "seed": 48271953,
+      "datetime": "20281027090533",
+      "nethackrc": "OPTIONS=name:V10Force,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": "\u0007hostile newt\n#wizcast\nkk"
+    }
+  ]
+}

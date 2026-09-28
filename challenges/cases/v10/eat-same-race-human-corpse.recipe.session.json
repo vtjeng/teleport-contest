@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for eat.c:eatcorpse -> cprefx -> maybe_cannibal. Human Barbarian confirms eating the freshly wished human corpse from the floor, reaching the own-race first-bite branch, distinct from altar sacrifice.",
+  "segments": [
+    {
+      "seed": 72918023,
+      "datetime": "20281027124200",
+      "nethackrc": "OPTIONS=name:V10Cannibal,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017human corpse\ney "
+    }
+  ]
+}

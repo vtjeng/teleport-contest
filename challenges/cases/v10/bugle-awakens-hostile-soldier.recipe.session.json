@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 mission: music.c:do_play_instrument(BUGLE) -> awaken_soldiers. Barbarian uses a wished bugle and creates a hostile soldier, then answers yes to the improvise prompt. This tests the mercenary readiness branch, not generic awakening by another instrument. The first C attempt stopped at the second music pager before the awaken_soldiers observation; this corrected recipe supplies separate spaces for the start, instrument, and mercenary messages.",
+  "segments": [
+    {
+      "seed": 48271937,
+      "datetime": "20281027090517",
+      "nethackrc": "OPTIONS=name:V10Bugle,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": ".\u0017uncursed bugle\n\u0007hostile soldier\naey  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for apply.c:use_whip’s levitating floor-object branch. Archeologist’s touchstone is dropped while #wizintrinsic levitation is active; the bullwhip is aimed downward at the touchstone that lands on the stairs beneath the hero. C reaches the wrap/rnl(6) snare check; this seed follows the source slip branch.",
+  "segments": [
+    {
+      "seed": 48271946,
+      "datetime": "20281027090526",
+      "nethackrc": "OPTIONS=name:V10WhipFloor,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": ".#wizintrinsic\n50q\n dg aa> "
+    }
+  ]
+}

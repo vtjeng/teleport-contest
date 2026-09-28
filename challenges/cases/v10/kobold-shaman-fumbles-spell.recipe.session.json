@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for the low-level hostile kobold shaman castmu fumble branch. Wizard genesis creates the adjacent hostile shaman; two forced waits reach choose_monster_spell and castmu, where C emits the air-crackles fumble message. The successful spell-effect branch is not reached.",
+  "segments": [
+    {
+      "seed": 48271958,
+      "datetime": "20281027090545",
+      "nethackrc": "OPTIONS=name:V10Shaman,role=Wizard,race=human,gender=female,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007hostile kobold shaman\nm.m."
+    }
+  ]
+}
