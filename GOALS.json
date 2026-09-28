@@ -106436,7 +106436,7 @@
     {
       "id": "port-read-confuse-monster-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port confuse-monster scroll and spell effects from source",
       "cFile": "read.c",
       "sessions": [
@@ -106450,15 +106450,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_confuse_monster",
           "line": 1399,
           "endLine": 1453,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -106726,7 +106729,112 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_confuse_monster",
+            "implementation": "js/read.js",
+            "symbol": "seffect_confuse_monster",
+            "sourceReview": "Read the full read.c:seffect_confuse_monster definition at 1399-1451 and compared every condition, output call, RNG draw, and mutation in source order. The first branch applies HConfusion + rnd(100) for nonhuman forms or cursed objects; the already-confused human branches distinguish blessed clearing from unblessed extension; otherwise the scroll-only base increment is 3, blessed and ordinary effects use their source RNG, and the umconf >= 40 adjustment occurs after the RNG draw. The JS keeps HConfusion (uprops[CONFUSION].intrinsic) separate from u.umconf, and evaluates Blind with its full property predicate and Invisible as Invis && !See_invisible per youprop.h. The integration correction at a86e43d7 adds that See_invisible condition and a source-pinned state test. read.c:seffects dispatches both SCR_CONFUSE_MONSTER and SPE_CONFUSE_MONSTER here; spell.c:spelleffects marks the pseudo-object blessed at Skilled and routes the duplicate through seffects. The existing make_confused callee returns void and its implementation is already ported; no consumed return or unported callee is skipped. The JS SCR/SPE switch arm and spell dispatch are wired to the same helper.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects, SCR_CONFUSE_MONSTER and SPE_CONFUSE_MONSTER cases at 2214-2216, dispatches the object to seffect_confuse_monster."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread at 635 calls seffects(scroll) after the scroll-use message and optional confused-word message; JS doread passes the selected scroll to seffects."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects, SPE_CONFUSE_MONSTER duplicate case at 1518 onward, sets pseudo->blessed for Skilled+ and calls seffects(pseudo), which dispatches to this helper."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runCastCommand",
+                "source": "cmd.c:docast at 820-827 calls spelleffects for the selected learned spell; the cast command row dispatches to the JS runCastCommand handler."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runWizCastCommand",
+                "source": "cmd.c:dowizcast at 785-813 calls spelleffects for the selected wizard spell; the WIZMODECMD extended-command row dispatches to the JS runWizCastCommand handler."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-confuse-monster.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/confuse-monster-cursed-scroll-c35-independent.session.json",
+              "recordings/spell.c/confuse-monster-wizcast-c35-independent.session.json",
+              "recordings/spell.c/confuse-monster-learned-docast-c35-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-confuse-monster-scroll",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 49,
+                "source": "cmd.c doread -> read.c:doread -> read.c:seffects(SCR_CONFUSE_MONSTER) -> read.c:seffect_confuse_monster"
+              }
+            ],
+            "checkedAt": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d"
+          }
+        ],
+        "entryPointReview": "The active scroll entry is cmd.c:doread -> read.c:doread -> read.c:seffects -> seffect_confuse_monster; the selected v8 read-confuse-monster-scroll case reaches the effect at segment 0, step 49, and the independent cursed scroll reaches read.c:seffect_confuse_monster at its effect step. The active learned-spell entry is cmd.c:docast -> spell.c:spelleffects -> read.c:seffects -> this helper; the independent ordinary #cast recording reaches the helper at step 89. The wizard-only entry is cmd.c:dowizcast -> spell.c:spelleffects -> read.c:seffects -> this helper; the independent #wizcast recording reaches it at step 11. All three command routes use the production JS command handler and spell/read dispatch. Cursed, learned #cast, and #wizcast independent recordings are fully strict-matched; the v8 range is strict-matched through step 49. Initial setup-only trials (wrong cursed-scroll inventory selector, wrong #wizcast spell selection, and incorrect learned-cast inventory/menu selectors) are retained only under .cache/C35-attempts and are excluded from the regression recordings/evidence.",
+        "entryPoints": [
+          {
+            "name": "Read a confusion scroll",
+            "functions": [
+              "seffect_confuse_monster"
+            ],
+            "recordings": [
+              "recordings/read.c/confuse-monster-cursed-scroll-c35-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-confuse-monster-scroll",
+                "segment": 0,
+                "fromStep": 49,
+                "throughStep": 49,
+                "source": "cmd.c doread -> read.c:doread -> read.c:seffects(SCR_CONFUSE_MONSTER) -> read.c:seffect_confuse_monster"
+              }
+            ]
+          },
+          {
+            "name": "Learned confuse-monster spell through #cast",
+            "functions": [
+              "seffect_confuse_monster"
+            ],
+            "recordings": [
+              "recordings/spell.c/confuse-monster-learned-docast-c35-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wizard spell through #wizcast",
+            "functions": [
+              "seffect_confuse_monster"
+            ],
+            "recordings": [
+              "recordings/spell.c/confuse-monster-wizcast-c35-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a86e43d774dae8d5a0176e61080d1262a2ed3a9d",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
