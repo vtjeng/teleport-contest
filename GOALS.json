@@ -105042,7 +105042,7 @@
     {
       "id": "port-sit-take-gold-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port throne take_gold with source-ordered inventory deletion and messages",
       "cFile": "sit.c",
       "sessions": [
@@ -105056,15 +105056,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "39b000fbed439e22068eae3411407a63033d43e6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "take_gold",
           "line": 14,
           "endLine": 38,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -105300,7 +105303,75 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "take_gold",
+            "implementation": "js/sit.js",
+            "symbol": "take_gold",
+            "sourceReview": "Compared complete sit.c:take_gold() (14-35). The loop saves otmp->nobj before any deletion, checks COIN_CLASS, sets lost_money before calling remove_worn_item(otmp,FALSE) and delobj(otmp), then prints the no-coins or lost-gold message and sets disp.botl only in the latter branch. JavaScript preserves that order while awaiting the existing void remove_worn_item helper and passing state, message, and random into delobj. invent.c:delobj_core() consumes zap.c:obj_resists(obj,0,0), including rn2(100) for each ordinary coin stack, before extraction. No consumed return-valued callee or active source gap remains.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:throne_sit_effect() case 5 calls take_gold() at lines 102-104."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit() dispatches a throne sit to throne_sit_effect() at line 558, whose effect-5 arm calls take_gold()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/sit-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-take-gold-independent-b41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "wizard-throne-effect-five-take-gold",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "cmd.c #sit dispatch -> sit.c:dosit -> sit.c:throne_sit_effect case 5 -> take_gold -> remove_worn_item -> delobj/delobj_core -> obj_resists"
+              }
+            ],
+            "checkedAt": "39b000fbed439e22068eae3411407a63033d43e6"
+          }
+        ],
+        "entryPointReview": "take_gold has one active production entry: sitting on a normal throne and selecting effect 5. sit.c:dosit() dispatches throne_sit_effect(), whose case 5 calls take_gold(); the JavaScript caller is throne_sit_effect() reached through dosit(). The admitted v10 case matches the full C take_gold call through segment 0 step 30, including inventory deletion and obj_resists' rn2(100). An independently designed female Wizard recipe reaches the same C source branch and strictly matches the complete recording. Focused tests cover both coin and empty-inventory branches and assert the required draw/message order. There are no inactive callers or blocked source dependencies.",
+        "entryPoints": [
+          {
+            "name": "Normal-throne effect 5",
+            "functions": [
+              "take_gold"
+            ],
+            "recordings": [
+              "recordings/sit.c/throne-take-gold-independent-b41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v10",
+                "caseId": "wizard-throne-effect-five-take-gold",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "sit.c:dosit -> throne_sit_effect case 5 -> take_gold"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "39b000fbed439e22068eae3411407a63033d43e6",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-invent-hold-another-object-synthetic-v10-20260928",
@@ -105355,6 +105426,49 @@
           "recordingSha256": "12aa5fd51946be86d83d5020e30cb999009ba86c18593743f429ff8f09f4e56e",
           "evaluationPath": "challenges/evaluations/20260928101733-v10.json",
           "evaluationCommit": "8115539ecb3dbe59a8accf08d9a80235d523b63f"
+        }
+      }
+    },
+    {
+      "id": "port-apply-flip-through-book-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port spellbook page-flipping and apply dispatch from source",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v10/apply-flips-through-blank-spellbook"
+      ],
+      "selectionReason": "v10/apply-flips-through-blank-spellbook remains unmatched at step 29 in current saved evaluation challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/apply-flips-through-blank-spellbook.json traces the refusal to apply.c:flip_through_book and doapply SPBOOK_CLASS. This independent source family does not overlap assigned invent/altar or potion work.",
+      "detail": "Implement all apply.c:flip_through_book branches and wire doapply SPBOOK_CLASS. Preserve underwater, Blind, Deaf, Hallucination, Book of the Dead, blank, novel, and faded-book behavior, discovery, messages, and source order; create an independently recorded C witness.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "flip_through_book",
+          "line": 4473,
+          "endLine": 4526,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4473,
+        "to": 4526
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/apply-flips-through-blank-spellbook": {
+          "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-flips-through-blank-spellbook",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+          "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+          "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
+          "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
         }
       }
     }
