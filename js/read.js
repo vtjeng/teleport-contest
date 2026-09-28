@@ -10,6 +10,7 @@
 
 import {
     A_WIS,
+    ALL_SPELLS,
     BLINDED,
     BY_COOKIE,
     COLNO,
@@ -37,7 +38,10 @@ import {
     FEMALE,
     CORR,
     COST_DEGRD,
+    COST_DECHNT,
+    COST_UNCHRG,
     PLNMSG_TOWER_OF_FLAME,
+    GETOBJ_ALLOWCNT,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE,
@@ -63,6 +67,11 @@ import {
     LS_OBJECT,
     thats_enough_tries,
     SPE_LIM,
+    HALF_PHDAM,
+    A_STR,
+    LEFT_RING,
+    RIGHT_RING,
+    nothing_happens,
     STOMACH,
     W_BALL,
     W_CHAIN,
@@ -194,6 +203,7 @@ import {
     BRASS_LANTERN,
     CHAIN_CLASS,
     CAN_OF_GREASE,
+    BELL_OF_OPENING,
     CANDY_BAR,
     COIN_CLASS,
     CORNUTHAUM,
@@ -205,6 +215,16 @@ import {
     MAGIC_LAMP,
     OIL_LAMP,
     RING_CLASS,
+    CRYSTAL_BALL,
+    HORN_OF_PLENTY,
+    BAG_OF_TRICKS,
+    TINNING_KIT,
+    EXPENSIVE_CAMERA,
+    MAGIC_FLUTE,
+    MAGIC_HARP,
+    FROST_HORN,
+    FIRE_HORN,
+    DRUM_OF_EARTHQUAKE,
     SCR_AMNESIA,
     SCR_BLANK_PAPER,
     SCR_CHARGING,
@@ -226,6 +246,17 @@ import {
     SCR_ENCHANT_WEAPON,
     TOOL_CLASS,
     WAND_CLASS,
+    WAN_WISHING,
+    WAN_NOTHING,
+    WAN_CANCELLATION,
+    WAN_DEATH,
+    WAN_POLYMORPH,
+    WAN_UNDEAD_TURNING,
+    WAN_COLD,
+    WAN_FIRE,
+    WAN_LIGHTNING,
+    WAN_MAGIC_MISSILE,
+    NODIR,
     SCR_IDENTIFY,
     SCR_LIGHT,
     SCR_MAGIC_MAPPING,
@@ -251,6 +282,9 @@ import {
     greatest_erosion,
     is_flammable,
     is_weptool,
+    bless,
+    curse,
+    uncurse,
     costly_alteration,
     mkobj,
     mksobj,
@@ -270,7 +304,7 @@ import { level_tele, scrolltele } from './teleport.js';
 import { Fire_resistance, lightdamage, resist } from './zap.js';
 import { discover_object } from './o_init.js';
 import { more_experienced } from './exper.js';
-import { rn1, rn2, rne, rnl, rnd } from './rng.js';
+import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
     cmap_to_glyph, map_invisible, newsym, tmp_at,
@@ -279,8 +313,16 @@ import { flooreffects, trycall } from './do.js';
 import { y_n } from './cmd.js';
 import {
     study_book,
+    losespells,
 } from './spell.js';
-import { destroy_arm, some_armor, setwornEnv } from './do_wear.js';
+import {
+    Ring_gone,
+    Ring_off,
+    Ring_on,
+    destroy_arm,
+    some_armor,
+    setwornEnv,
+} from './do_wear.js';
 import { setworn, which_armor } from './worn.js';
 import { chwepon } from './wield.js';
 import {
@@ -298,7 +340,7 @@ import {
 import { canSpotMonster } from './startup_a11y.js';
 import { m_at } from './monst.js';
 import { hard_helmet } from './do_wear.js';
-import { dmgval } from './weapon.js';
+import { dmgval, drain_weapon_skill } from './weapon.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { body_part, mbodypart } from './polyself.js';
 // read.js -> monmove.js -> muse.js -> read.js is a function-body-only cycle:
@@ -314,6 +356,8 @@ import {
     singular,
     suit_simple_name,
     Yname2,
+    Tobjnam,
+    otense,
     donameFresh,
     The,
     erosion_matters,
@@ -321,13 +365,15 @@ import {
     Yobjnam2,
     xnameFresh,
 } from './objnam.js';
-import { shk_your } from './shk.js';
+import { alter_cost, shk_your } from './shk.js';
 import { pmname } from './do_name.js';
 import { outrumor } from './random_text.js';
 import { note_unported } from './unported.js';
 import { getpos } from './getpos.js';
 import { explode } from './explode.js';
 import { create_gas_cloud, valid_cloud_pos } from './region.js';
+import { end_burn } from './timeout.js';
+import { encumber_msg } from './pickup.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
 // source-ordered doread() and seffects() dispatches use note_unported() for
@@ -501,6 +547,52 @@ export function read_ok(obj) {
     return GETOBJ_DOWNPLAY;
 }
 
+// C ref: read.c cap_spe() (80-86). Keep rechargeable charges within the
+// signed source limit after an effect has finished.
+export function cap_spe(obj) {
+    if (obj && Math.abs(obj.spe) > SPE_LIM)
+        obj.spe = Math.sign(obj.spe) * SPE_LIM;
+}
+
+// C ref: read.c stripspe() (652-664). Message and shop bookkeeping precede
+// the charge/age mutation, as in the source.
+async function stripspe(obj, state = game) {
+    if (obj.blessed || obj.spe <= 0) {
+        await ttyPline(nothing_happens, state);
+    } else {
+        await ttyPline(`${Yobjnam2(obj, 'vibrate', state)} briefly.`, state);
+        sourceCostlyAlteration(obj, COST_UNCHRG, state);
+        obj.spe = 0;
+        if (obj.otyp === OIL_LAMP || obj.otyp === BRASS_LANTERN)
+            obj.age = 0;
+    }
+}
+
+function heroIsBlind(state) {
+    return propertyActive(BLINDED, state);
+}
+
+// C refs: read.c p_glow1/2/3() (667-685). Blindness changes both the verb and
+// whether the color formatter is called, which can affect hallucination RNG.
+async function p_glow1(obj, state = game) {
+    const verb = heroIsBlind(state) ? 'vibrate' : 'glow';
+    await ttyPline(`${Yobjnam2(obj, verb, state)} briefly.`, state);
+}
+
+async function p_glow2(obj, color, state = game) {
+    const blind = heroIsBlind(state);
+    const verb = blind ? 'vibrate' : 'glow';
+    const suffix = blind ? '' : ` ${hcolor(color, state)}`;
+    await ttyPline(`${Yobjnam2(obj, verb, state)}${suffix} for a moment.`, state);
+}
+
+async function p_glow3(obj, color, state = game) {
+    const blind = heroIsBlind(state);
+    const verb = blind ? 'vibrate' : 'glow';
+    const suffix = blind ? '' : ` ${hcolor(color, state)}`;
+    await ttyPline(`${Yobjnam2(obj, verb, state)} feebly${suffix} for a moment.`, state);
+}
+
 // C ref: read.c charge_ok() (689-724). Filter for getobj() when choosing an
 // object to recharge: wands are suggested, identified chargeable rings and
 // tools are suggested, and everything else is excluded but selectable.
@@ -523,6 +615,307 @@ export function charge_ok(obj) {
         return GETOBJ_EXCLUDE;
     }
     return GETOBJ_EXCLUDE_SELECTABLE;
+}
+
+function maybeHalfPhysical(damage, state) {
+    const half = state.u?.uprops?.[HALF_PHDAM];
+    return half?.intrinsic || half?.extrinsic
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+// C ref: read.c recharge() (729-1008). Keep object class order, short-circuit
+// tests, mutations, messages, and random draws in source order. Side-effect
+// helpers whose C results are discarded remain named gaps where their JS
+// owner is not yet available.
+export async function recharge(obj, curseBless, state = game) {
+    let n;
+    const isCursed = curseBless < 0;
+    const isBlessed = curseBless > 0;
+
+    if (obj.oclass === WAND_CLASS) {
+        const type = objectType(obj, state);
+        const limit = obj.otyp === WAN_WISHING ? 1
+            : type.oc_dir !== NODIR ? 8 : 15;
+
+        if (obj.spe === -1) obj.spe = 0;
+        n = Math.trunc(obj.recharged ?? 0);
+        if (n > 0 && (obj.otyp === WAN_WISHING
+            || n * n * n > rn2(7 * 7 * 7))) {
+            await wand_explode(obj, rnd(limit), state);
+            return;
+        }
+        obj.recharged = n + 1;
+        if (isCursed) {
+            await stripspe(obj, state);
+        } else {
+            n = limit === 1 ? 1 : rn1(5, limit + 1 - 5);
+            if (!isBlessed) n = rnd(n);
+            if (obj.spe < n) obj.spe = n;
+            else obj.spe++;
+            if (obj.otyp === WAN_WISHING && obj.spe > 3) {
+                await wand_explode(obj, 1, state);
+                return;
+            }
+            if (limit === 1) await p_glow3(obj, 'blue', state);
+            else if (obj.spe >= limit) await p_glow2(obj, 'blue', state);
+            else await p_glow1(obj, state);
+        }
+    } else if (obj.oclass === RING_CLASS
+        && objectType(obj, state).oc_charged) {
+        // C chooses the adjustment before testing for destruction.
+        const adjustment = isBlessed ? rnd(3)
+            : isCursed ? -rnd(2) : 1;
+        const isOn = obj === state.uleft || obj === state.uright;
+        let explodes = obj.spe > rn2(7);
+        if (!explodes) explodes = obj.spe <= -5;
+
+        if (explodes) {
+            await ttyPline(
+                `${Yobjnam2(obj, 'pulsate', state)} momentarily, then `
+                + `${otense(obj, 'explode')}!`, state,
+            );
+            if (isOn) await Ring_gone(obj, state);
+            n = rnd(3 * Math.abs(obj.spe));
+            useup(obj, { state });
+            await losehp(
+                maybeHalfPhysical(n, state), 'exploding ring',
+                KILLED_BY_AN, state,
+            );
+        } else {
+            const mask = isOn
+                ? obj === state.uleft ? LEFT_RING : RIGHT_RING
+                : 0;
+            await ttyPline(
+                `${Yname2(obj, state)} spins `
+                + `${adjustment < 0 ? 'counter' : ''}clockwise for a moment.`,
+                state,
+            );
+            if (adjustment < 0)
+                sourceCostlyAlteration(obj, COST_DECHNT, state);
+            if (isOn) await Ring_off(obj, state);
+            obj.spe += adjustment;
+            if (isOn) {
+                setworn(obj, mask, setwornEnv(state));
+                await Ring_on(obj, state);
+            }
+            if (adjustment > 0 && obj.unpaid)
+                alter_cost(obj, 0, state);
+        }
+    } else if (obj.oclass === TOOL_CLASS) {
+        const rechrg = Math.trunc(obj.recharged ?? 0);
+        if (objectType(obj, state).oc_charged && rechrg < 7)
+            obj.recharged = rechrg + 1;
+
+        switch (obj.otyp) {
+        case BELL_OF_OPENING:
+            if (isCursed) await stripspe(obj, state);
+            else if (isBlessed) obj.spe += rnd(3);
+            else obj.spe++;
+            if (obj.spe > 5) obj.spe = 5;
+            break;
+        case MAGIC_MARKER:
+        case TINNING_KIT:
+        case EXPENSIVE_CAMERA:
+            if (isCursed) {
+                await stripspe(obj, state);
+            } else if (rechrg && obj.otyp === MAGIC_MARKER) {
+                obj.recharged = 1;
+                if (obj.spe < 3)
+                    await ttyPline('Your marker seems permanently dried out.', state);
+                else
+                    await ttyPline(nothing_happens, state);
+            } else if (isBlessed) {
+                n = rn1(16, 15);
+                if (obj.spe + n <= 50) obj.spe = 50;
+                else if (obj.spe + n <= 75) obj.spe = 75;
+                else if (obj.spe + n > 127) obj.spe = 127;
+                else obj.spe += n;
+                await p_glow2(obj, 'blue', state);
+            } else {
+                n = rn1(11, 10);
+                if (obj.spe + n <= 50) obj.spe = 50;
+                else if (obj.spe + n > SPE_LIM) obj.spe = SPE_LIM;
+                else obj.spe += n;
+                await p_glow2(obj, 'white', state);
+            }
+            break;
+        case OIL_LAMP:
+        case BRASS_LANTERN:
+            if (isCursed) {
+                await stripspe(obj, state);
+                if (obj.lamplit) {
+                    if (!heroIsBlind(state))
+                        await ttyPline(`${Tobjnam(obj, 'go', state)} out!`, state);
+                    end_burn(obj, true, { state });
+                }
+            } else if (isBlessed) {
+                obj.spe = 1;
+                obj.age = 1500;
+                await p_glow2(obj, 'blue', state);
+            } else {
+                obj.spe = 1;
+                obj.age += 750;
+                if (obj.age > 1500) obj.age = 1500;
+                await p_glow1(obj, state);
+            }
+            break;
+        case CRYSTAL_BALL:
+            if (obj.spe === -1) obj.spe = 0;
+            if (isCursed) {
+                if (!obj.cursed) {
+                    await p_glow2(obj, 'black', state);
+                    curse(obj, { state });
+                } else {
+                    await ttyPline(`${Yobjnam2(obj, 'vibrate', state)} briefly.`, state);
+                }
+                if (obj.spe > 0)
+                    sourceCostlyAlteration(obj, COST_UNCHRG, state);
+                obj.spe = 0;
+            } else if (isBlessed) {
+                obj.spe = 7;
+                await p_glow2(obj, obj.blessed ? 'blue' : 'light blue', state);
+                if (!obj.blessed) bless(obj, { state });
+            } else if (obj.spe < 7 || obj.cursed) {
+                n = rnd(2);
+                obj.spe = Math.min(obj.spe + n, 7);
+                if (!obj.cursed) {
+                    await p_glow1(obj, state);
+                } else {
+                    await p_glow2(obj, 'amber', state);
+                    await uncurse(obj, { state });
+                }
+            } else {
+                await ttyPline(nothing_happens, state);
+            }
+            break;
+        case HORN_OF_PLENTY:
+        case BAG_OF_TRICKS:
+        case CAN_OF_GREASE:
+            if (isCursed) {
+                await stripspe(obj, state);
+            } else if (isBlessed) {
+                obj.spe += obj.spe <= 10 ? rn1(10, 6) : rn1(5, 6);
+                if (obj.spe > 50) obj.spe = 50;
+                await p_glow2(obj, 'blue', state);
+            } else {
+                obj.spe += rn1(5, 2);
+                if (obj.spe > 50) obj.spe = 50;
+                await p_glow1(obj, state);
+            }
+            break;
+        case MAGIC_FLUTE:
+        case MAGIC_HARP:
+        case FROST_HORN:
+        case FIRE_HORN:
+        case DRUM_OF_EARTHQUAKE:
+            if (isCursed) {
+                await stripspe(obj, state);
+            } else if (isBlessed) {
+                obj.spe += d(2, 4);
+                if (obj.spe > 20) obj.spe = 20;
+                await p_glow2(obj, 'blue', state);
+            } else {
+                obj.spe += rnd(4);
+                if (obj.spe > 20) obj.spe = 20;
+                await p_glow1(obj, state);
+            }
+            break;
+        default:
+            await ttyPline('You have a feeling of loss.', state);
+            break;
+        }
+    } else {
+        await ttyPline('You have a feeling of loss.', state);
+    }
+
+    cap_spe(obj);
+}
+
+// C ref: read.c seffect_charging() (1788-1827). The boolean is the JS form of
+// C's `struct obj **` consumption channel used by seffects().
+export async function seffect_charging(scroll, state = game) {
+    const otyp = scroll.otyp;
+    const blessed = Boolean(scroll.blessed);
+    const cursed = Boolean(scroll.cursed);
+    const confused = propertyActive(CONFUSION, state);
+    const alreadyKnown = scroll.oclass === SPBOOK_CLASS
+        || objectType(otyp, state).oc_name_known;
+
+    if (confused) {
+        if (cursed) {
+            await ttyPline('You feel discharged.', state);
+            state.u.uen = 0;
+        } else {
+            await ttyPline('You feel charged up!', state);
+            state.u.uen += d(blessed ? 6 : 4, 4);
+            if (state.u.uen > state.u.uenmax)
+                state.u.uenmax = state.u.uen;
+            else
+                state.u.uen = state.u.uenmax;
+        }
+        state.disp ??= {};
+        state.disp.botl = true;
+        return false;
+    }
+
+    if (!alreadyKnown) {
+        await ttyPline('This is a charging scroll.', state);
+        learnscroll(scroll, state);
+    }
+    useup(scroll, { state });
+    const target = await getobj(
+        'charge', charge_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
+    );
+    if (target)
+        await recharge(target, cursed ? -1 : blessed ? 1 : 0, state);
+    return true;
+}
+
+// C ref: read.c wand_explode() (2414-2456). The object is consumed after the
+// fatal-damage check just as C orders it; exercise() owns its trailing
+// encumbrance callback for Strength.
+export async function wand_explode(obj, charge, state = game) {
+    const expl = !charge ? 'suddenly' : 'vibrates violently and';
+    let n;
+    let sides;
+    if (!charge) charge = 2;
+    n = obj.spe + charge;
+    if (n < 2) n = 2;
+    switch (obj.otyp) {
+    case WAN_WISHING:
+        sides = 12;
+        break;
+    case WAN_CANCELLATION:
+    case WAN_DEATH:
+    case WAN_POLYMORPH:
+    case WAN_UNDEAD_TURNING:
+        sides = 10;
+        break;
+    case WAN_COLD:
+    case WAN_FIRE:
+    case WAN_LIGHTNING:
+    case WAN_MAGIC_MISSILE:
+        sides = 8;
+        break;
+    case WAN_NOTHING:
+        sides = 4;
+        break;
+    default:
+        sides = 6;
+        break;
+    }
+    const damage = d(n, sides);
+    obj.in_use = true;
+    await ttyPline(`${Yname2(obj, state)} ${expl} explodes!`, state);
+    await losehp(
+        maybeHalfPhysical(damage, state), 'exploding wand',
+        KILLED_BY_AN, state,
+    );
+    useup(obj, { state });
+    await exercise(
+        A_STR, false, state, { rn2 },
+        { encumberMessage: encumber_msg },
+    );
 }
 
 function propertyActive(property, state) {
@@ -2277,14 +2670,68 @@ async function seffect_food_detection(scroll, state = game) {
     return Boolean(await food_detect(scroll, state));
 }
 
+// C ref: read.c forget() and seffect_amnesia(). Amnesia clears only the
+// remembered ball/chain contact and monster recognition specified by C;
+// blessed scrolls retain spell knowledge but still drain weapon training.
+async function forget(howmuch, state, random, message) {
+    if (state.uball) state.u.bc_felt = 0;
+
+    if (howmuch & ALL_SPELLS)
+        await losespells(state, { random });
+
+    await drain_weapon_skill(random.rnd(howmuch ? 5 : 3), state, {
+        random,
+        message,
+    });
+
+    for (let monster = state.level?.monlist ?? state.fmon;
+        monster; monster = monster.nmon) {
+        if (monster !== state.u.usteed && monster !== state.u.ustuck)
+            monster.meverseen = false;
+    }
+    for (let monster = state.gm?.migrating_mons;
+        monster; monster = monster.nmon)
+        monster.meverseen = false;
+}
+
+export async function seffect_amnesia(
+    scroll,
+    state = game,
+    { random = { rn2, rnd, rnl }, message = ttyPline } = {},
+) {
+    const blessed = Boolean(scroll.blessed);
+    state.gk ??= {};
+    state.gk.known = true;
+    await forget(blessed ? 0 : ALL_SPELLS, state, random, message);
+
+    if (propertyActive(HALLUC, state)) {
+        await message(
+            'Your mind releases itself from mundane concerns.', state,
+        );
+    } else if (String(state.plname ?? '').slice(0, 4).toLowerCase() === 'maud') {
+        await message(
+            'As your mind turns inward on itself, you forget everything else.',
+            state,
+        );
+    } else if (random.rn2(2)) {
+        await message('Who was that Maud person anyway?', state);
+    } else {
+        await message(
+            'Thinking of Maud you forget everything else.', state,
+        );
+    }
+    await exercise(A_WIS, false, state, random);
+}
+
 // C ref: read.c seffects() (2194-2290). Preserve the complete source switch,
 // its pre-dispatch Wisdom exercise, post-effect inventory refresh, and
 // `sobj ? 0 : 1` return. C's effect helpers are void and receive `&sobj`;
 // helpers not yet ported are explicit gaps rather than command refusals.
-export async function seffects(scroll, state = game) {
+export async function seffects(scroll, state = game, env = {}) {
     state.gk ??= {};
+    const random = env.random ?? { rn2, rnd, rnl };
     if (objectType(scroll, state).oc_magic)
-        await exercise(A_WIS, true, state, { rn2 });
+        await exercise(A_WIS, true, state, random);
 
     const confused = propertyActive(CONFUSION, state);
     switch (scroll.otyp) {
@@ -2363,7 +2810,7 @@ export async function seffects(scroll, state = game) {
         if (await seffect_identify(scroll, state)) scroll = null;
         break;
     case SCR_CHARGING:
-        note_unported('read.c seffect_charging');
+        if (await seffect_charging(scroll, state)) scroll = null;
         break;
     case SCR_MAGIC_MAPPING:
     case SPE_MAGIC_MAPPING:
@@ -2375,7 +2822,7 @@ export async function seffects(scroll, state = game) {
         }
         break;
     case SCR_AMNESIA:
-        note_unported('read.c seffect_amnesia');
+        await seffect_amnesia(scroll, state, { random });
         break;
     case SCR_FIRE:
         await seffect_fire(scroll, state);
@@ -2457,8 +2904,8 @@ export async function seffect_enchant_weapon(scroll, state = game) {
                 : sblessed ? rnd(3 - Math.trunc(uwep.spe / 3))
                     : 1;
     const consumed = !(await chwepon(sobj, s, state));
-    if (state.uwep && Math.abs(state.uwep.spe) > SPE_LIM)
-        state.uwep.spe = Math.sign(state.uwep.spe) * SPE_LIM;
+    if (state.uwep)
+        cap_spe(state.uwep);
     return consumed;
 }
 

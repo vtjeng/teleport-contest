@@ -114,7 +114,7 @@ import {
     UNICORN_HORN,
     objects_globals_init,
 } from '../js/objects.js';
-import { skillSlot } from '../js/startup_skills.js';
+import { P_ADVANCE, P_SKILL, skillSlot } from '../js/startup_skills.js';
 import {
     abon,
     can_touch_safely,
@@ -137,6 +137,7 @@ import {
     weapon_descr,
     autoreturn_weapon,
     weapon_hit_bonus,
+    drain_weapon_skill,
 } from '../js/weapon.js';
 import { mwelded } from '../js/wield.js';
 import { which_armor } from '../js/worn.js';
@@ -2003,3 +2004,37 @@ test('autoreturn_weapon returns null for a non-returning weapon', () => {
     // DAGGER is a throwing weapon but not tethered: the table has no entry.
     assert.equal(autoreturn_weapon({ otyp: DAGGER }), null);
 });
+
+test('weapon.c drain_weapon_skill removes history and restores partial practice',
+    async () => {
+        const state = heroState();
+        const skill = P_BARE_HANDED_COMBAT;
+        const slot = skillSlot(skill, state);
+        slot.skill = 3;
+        slot.advance = 100;
+        state.u.skills_advanced = 1;
+        state.u.skill_record ??= new Array(60).fill(0);
+        state.u.skill_record[0] = skill;
+        state.u.weapon_slots = 0;
+        const bounds = [];
+        const messages = [];
+
+        await drain_weapon_skill(1, state, {
+            random: {
+                rn2(bound) {
+                    bounds.push(bound);
+                    return bound === 1 ? 0 : 5;
+                },
+            },
+            message: async (text) => messages.push(text),
+        });
+
+        assert.deepEqual(bounds, [1, 60]);
+        assert.equal(state.u.skills_advanced, 0);
+        assert.equal(P_SKILL(skill, state), 2);
+        assert.equal(P_ADVANCE(skill, state), 25);
+        assert.equal(state.u.weapon_slots, 1);
+        assert.deepEqual(messages, [
+            'You forget some of your training in bare handed combat.',
+        ]);
+    });

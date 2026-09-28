@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent read.c recharge/wand_explode witness: pre-recharge a wished wand of wishing with an explicit nonzero recharged count, then read a charging scroll and select it. C guarantees that a wand of wishing with a prior recharge explodes before normal charge adjustment; a worn life-saving amulet lets wand_explode finish the damage path. Keep a persisted recording only after the C trace reaches recharge -> wand_explode and strict replay matches.",
+  "segments": [
+    {
+      "seed": 73190589,
+      "datetime": "20381123135428",
+      "nethackrc": "OPTIONS=name:WandOverloadC31,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " .\u0017amulet of life saving\nWn\u0017uncursed wand of wishing (1:0)\n\u0017uncursed scroll of charging\nrq p"
+    }
+  ]
+}

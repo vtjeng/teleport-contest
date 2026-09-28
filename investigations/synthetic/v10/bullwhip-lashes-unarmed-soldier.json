@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v10/bullwhip-lashes-unarmed-soldier",
+  "remainingScreens": 24,
+  "recordedSteps": 24,
+  "corpus": "synthetic",
+  "batch": "v10",
+  "caseId": "bullwhip-lashes-unarmed-soldier",
+  "manifestPath": "challenges/manifests/v10.json",
+  "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+  "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
+  "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+  "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+  "status": "complete",
+  "commit": "395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v10",
+    "caseId": "bullwhip-lashes-unarmed-soldier",
+    "session": "synthetic/v10/bullwhip-lashes-unarmed-soldier",
+    "manifestPath": "challenges/manifests/v10.json",
+    "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+    "recording": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+    "recordingPath": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json",
+    "recordingSha256": "7fcb7db8710fb95f447188fbb1bba2d7a8e6621b32a1d147e38d085e17feffa7",
+    "recipe": "challenges/cases/v10/bullwhip-lashes-unarmed-soldier.recipe.session.json",
+    "recipeSha256": "99bd6c857db81793a14db9a36e71b2a8d937f86c0f95345935eba3c65e64d007",
+    "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+    "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+    "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+    "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+    "evaluationUtc": "2026-09-28T08:31:23.355Z",
+    "remainingScreens": 24,
+    "recordedSteps": 24,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": "do_attack requires unsupported",
+    "metrics": {
+      "screens": {
+        "matched": 0,
+        "total": 24
+      },
+      "rng": {
+        "matched": 0,
+        "total": 3072
+      },
+      "cursors": {
+        "matched": 0,
+        "total": 24
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "Replay error: do_attack requires unsupported",
+      "step": null
+    },
+    "step": null,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "Replay error: do_attack requires unsupported",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The C case reaches the ordinary unarmed-target branch of apply.c:use_whip: a proficient Archeologist lashes a visible hostile soldier with no MON_WEP, and use_whip consumes the action through force_attack -> do_attack -> hitum. The JS replay stops before that behavior because uhitm.js:do_attack eagerly requires an unsupported callback; apply.js:use_whip calls force_attack without an operation environment. After removing that premature refusal, the active branch also needs its real capacity and overexertion operations wired. The intended bullwhip disarm branch is not reached.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "In apply.c:use_whip, a visible adjacent monster has MON_WEP == NULL; the hero is a proficient Archeologist (no fumbling or confusion), the target is hostile, and ordinary human melee proceeds through do_attack to hitum. force_attack temporarily sets forcefight for the hostile and returns do_attack result; use_whip returns ECMD_TIME when that result is true.",
+    "functions": [
+      "force_attack",
+      "do_attack"
+    ],
+    "callers": [
+      "cmd.c: command table maps the apply command a to doapply (line 1678)",
+      "apply.c:doapply selects BULLWHIP and dispatches to use_whip (4214-4232, 4265-4267)",
+      "apply.c:use_whip calls force_attack(mtmp, FALSE) in its no-MON_WEP branch (3245-3261)"
+    ],
+    "dependencies": [
+      "apply.c:use_whip requires wielded bullwhip, a direction, a visible adjacent target, proficiency, and the no-MON_WEP branch; its disarm branch is not reached.",
+      "uhitm.c:do_attack calls attack_checks, check_capacity, overexertion, exercise, u_wipe_engr, and hitum for the active human hostile path (515-582). The JS use_whip caller currently passes no env to force_attack, while do_attack requires checkCapacity and overexertion operations after its eager unsupported callback.",
+      "Other do_attack branches need their own C behavior and dependencies: safe peaceful/tame refusal (462-510), polymorph/noattacks and hmonas (524-529, 565-568), two-weapon teardown (536-537), and leprechaun evasion through m_move (555-563). This case does not evidence those branches."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "nethack-c/upstream/src/cmd.c:1678 maps command a to doapply. nethack-c/upstream/src/apply.c:4214-4232 selects and validates the object, and 4265-4267 dispatches BULLWHIP to use_whip.",
+    "nethack-c/upstream/src/apply.c:2955-3003 defines use_whip setup and proficiency: Archeologist adds one proficiency level; DEX below 6, DEX at least 14, and Fumbling adjust it. The recorded fresh Archeologist has no Fumbling and is proficient; the adjacent hostile soldier is visible and has no MON_WEP.",
+    "nethack-c/upstream/src/apply.c:3127-3151 selects MON_WEP only for a visible known monster. With MON_WEP null, 3245-3258 emits the flick line and invokes force_attack; a true return immediately consumes the turn. The C recording challenges/cases/v10/bullwhip-lashes-unarmed-soldier.session.json at segment 0, zero-based step 23, key l, shows “You flick your bullwhip towards the soldier.  You lash the soldier.” and hitum RNG (rnd(20)=5); this is the lash/attack branch, not the intended disarm branch.",
+    "nethack-c/upstream/src/uhitm.c:432-443 sets forcefight for a hostile before calling do_attack and restores the prior value. Lines 448-583 show the ordinary attack path: after attack_checks and capacity/overexertion checks, a human hero reaches hitum and returns TRUE, which use_whip consumes.",
+    "At examined commit 395a168f14e2b9cdbcd5026f4597ce3b2f51c4bb, js/apply.js:817-831 calls force_attack(monster, false, state) at line 826 without env. js/uhitm.js:1160-1171 forwards its default empty env to do_attack. js/uhitm.js:1034-1039 throws “do_attack requires unsupported” at the eager require before checking the C branch; the evaluator records zero JS screens/RNG against C 24 screens and 3072 RNG. The exact command log is /tmp/teleport-loop-worker-c-20260925/.cache/C28-js-comparisons/bullwhip-lashes-unarmed-soldier.log.",
+    "The active branch has further unresolved production wiring: js/uhitm.js:1084-1090 requires checkCapacity and overexertion operations, and apply.js currently supplies neither through force_attack. The implementation scope should make the ordinary hostile path source-complete and correctly wire its production caller before claiming the function; preserve unsupported refusals only at genuinely unported source branches."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent potion.c:peffect_hallucination witness through fountain.c:drinksink. A documented local JS seed sweep over 94271043–94271342 selected 94271093 because this source path creates a hallucination potion; C recording and strict replay are independent validation. The Wizard wishes for a sink and drinks from it.",
+  "segments": [
+    {
+      "seed": 94271093,
+      "datetime": "20420927101010",
+      "nethackrc": "OPTIONS=name:HallSinkB38,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017sink\nqy "
+    }
+  ]
+}

@@ -69,10 +69,10 @@ import {
 } from './objects.js';
 import { canSeeMonster, heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { Fire_resistance, inventory_resistance_check } from './zap.js';
 import { Ring_gone } from './do_wear.js';
 import { setnotworn } from './worn.js';
+import { recharge } from './read.js';
 
 // Thrown where the destruction path reaches an arm this port has not ported.
 export class UnsupportedItemDestructionError extends Error {
@@ -216,9 +216,8 @@ function destroyedItemName(u_carry, carrier, obj, cnt, quan, state) {
 // this function, and the return value is unused, whereas monsters return the
 // damage to their caller to be taken off later."
 //
-// The three source damage cases are ported. The one discarded recharge() call
-// in the hero's charged-ring arm remains an explicit gap because read.c owns
-// that operation; monster carriers never call recharge() in C.
+// The three source damage cases and the hero's charged-ring recharge arm are
+// ported. Monster carriers never call recharge() in C.
 async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
     const { state, random } = env;
     const message = env.message
@@ -231,6 +230,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
     let dmg = 0;
     let dindx = 0;
     let quan = 0;
+    let chargeIt = false;
 
     /* external worn item protects inventory? */
     if (u_carry && inventory_resistance_check(dmgtyp, state, random))
@@ -311,9 +311,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 skip = 1;
             } else if (objectType(obj, state).oc_charged
                        && random.rn2(3)) {
-                if (u_carry)
-                    note_unported('read.c recharge');
-                skip = 1;
+                chargeIt = true;
             } else {
                 dindx = 5;
                 dmg = 0;
@@ -332,6 +330,13 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
         throw new UnsupportedItemDestructionError(
             `maybe_destroy_item with unexpected dmgtyp ${dmgtyp}`,
         );
+    }
+
+    if (chargeIt) {
+        // C only calls read.c:recharge() for the hero; monster-carried charged
+        // rings still take the same early return without a recharge call.
+        if (u_carry) await recharge(obj, 0, state);
+        return dmg;
     }
 
     if (!skip) {

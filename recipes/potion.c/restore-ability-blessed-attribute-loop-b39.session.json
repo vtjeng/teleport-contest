@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent blessed potion.c:peffect_restore_ability witness for the full attribute loop. The debug Monk raises to level 5, loses down to level 2, then quaffs the blessed potion. C wiz_level_change resets u.ulevelmax to the current level after lowering, so this recipe does not enter potion.c's potion-only pluslvl(FALSE) lost-level branch; that branch remains explicitly uncovered.",
+  "segments": [
+    {
+      "seed": 3939092,
+      "datetime": "20420927170500",
+      "nethackrc": "OPTIONS=name:RestoreLevelsB39,role:Monk,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": ".#levelchange\n5\n     #levelchange\n2\n               \u0017blessed potion of restore ability\nqj"
+    }
+  ]
+}

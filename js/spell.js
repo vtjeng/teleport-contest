@@ -126,7 +126,7 @@ import {
     SPE_NOVEL,
     LENSES,
 } from './objects.js';
-import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
 import { ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import {
@@ -217,6 +217,46 @@ export function spellid(spell, state = game) {
 // C ref: spell.h spellknow(). Turns of retention left for slot `spell`.
 export function spellknow(spell, state = game) {
     return state.svs?.spl_book?.[spell]?.sp_know ?? 0;
+}
+
+// C ref: spell.c losespells(). The spell IDs stay in their original slots;
+// only retention is cleared, while an interrupted study context is discarded.
+export async function losespells(
+    state = game,
+    { random = { rn2, rnd, rnl } } = {},
+) {
+    if (typeof random.rn2 !== 'function'
+        || typeof random.rnd !== 'function'
+        || typeof random.rnl !== 'function') {
+        throw new TypeError('spell forgetting requires rn2, rnd, and rnl');
+    }
+
+    state.context ??= {};
+    state.context.spbook ??= { delay: 0, book: null, o_id: 0 };
+    state.context.spbook.book = null;
+    state.context.spbook.o_id = 0;
+
+    let count = 0;
+    for (; count < MAXSPELL; ++count) {
+        if (spellid(count, state) === NO_SPELL) break;
+    }
+
+    let toForget = random.rn2(count + 1);
+    if (spellPropertyActive(CONFUSION, state)) {
+        const confusedRoll = random.rn2(count + 1);
+        if (confusedRoll > toForget) toForget = confusedRoll;
+    }
+    if (toForget > 1 && random.rnl(7) === 0)
+        toForget = random.rnd(toForget);
+
+    for (let index = 0; toForget > 0; ++index) {
+        if (random.rn2(count - index) < toForget) {
+            const spell = state.svs.spl_book[index];
+            spell.sp_know = 0;
+            await exercise(A_WIS, false, state, random);
+            --toForget;
+        }
+    }
 }
 
 function spellStudyDelay(type) {
