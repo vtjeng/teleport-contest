@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v11 case for zap.c:zapnodir(WAN_STASIS). A fresh Wizard wishes for a wand of stasis, then selects it with #zap; C's NODIR dispatch reaches this distinct switch arm. C updates svl.level.flags.stasis_until with rn1(21, 10), preventing teleportation during the duration. Include a nearby monster and a short wait only if needed to make the level effect observable. Keep only after a source-reaching C record, independent byte-identical rerecord, and comparison to the earlier wand cases.",
+  "segments": [
+    {
+      "seed": 71844123,
+      "datetime": "20421208091508",
+      "nethackrc": "OPTIONS=name:V11StasisWand,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of stasis\nzo"
+    }
+  ]
+}

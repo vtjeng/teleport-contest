@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v11 route to do_wear.c:Amulet_on for a strangulation amulet. The Wizard leaves the upstairs tile, wishes an amulet, wears it, then advances one turn to observe the constriction timeout.",
+  "segments": [
+    {
+      "seed": 71844011,
+      "datetime": "20421009091508",
+      "nethackrc": "OPTIONS=name:V11Choke,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".h\u0017amulet of strangulation\nPo"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v11 hero movement-triggered fire trap on ordinary floor. The wizard leaves the upstairs square, wishes a fire trap onto the adjacent tile, steps off, then returns to trigger it. C reports the tower of flame and cloak smouldering.",
+  "segments": [
+    {
+      "seed": 71844012,
+      "datetime": "20421010091508",
+      "nethackrc": "OPTIONS=name:V11FireTrap,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".h\u0017fire trap\nlhs"
+    }
+  ]
+}

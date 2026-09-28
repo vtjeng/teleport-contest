@@ -107721,7 +107721,7 @@
     {
       "id": "port-read-enchant-armor-synthetic-v8-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port enchant-armor scroll effect from source",
       "cFile": "read.c",
       "sessions": [
@@ -107742,8 +107742,8 @@
           "name": "seffect_enchant_armor",
           "line": 1115,
           "endLine": 1293,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -108013,12 +108013,82 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_enchant_armor",
+            "implementation": "js/read.js",
+            "symbol": "seffect_enchant_armor",
+            "sourceReview": "Read the whole read.c:seffect_enchant_armor definition (1115-1293) and seffects caller. Ported source order for the no-armor strange_feeling/consumed-pointer path; confused erosion-proof path; special-armor and same-color guards; pre-enchantment evaporation rn2; negative-s overflow clamp and signed enchantment-power calculation; blessed bonus and rnd; scale-to-mail conversion with blessing, uncurse, and light order; ordinary message, shop-cost call, BUC mutation, cap_spe, adj_abon call, and final over-enchantment warning. The SCR_ENCHANT_ARMOR dispatcher now passes the scroll pointer through the helper's consumed boolean so doread only uses up a still-live scroll. C discards costly_alteration results; its shop effects remain explicit note_unported('shk.c costly_alteration') gaps. The required mkobj.c:bless helper is covered as supplemental source evidence. The do_wear.c:adj_abon helper is also documented as a supplemental dependency, with its unverified Helm of Brilliance runtime branch and blocked recipe detailed in supplementalSources.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:doread dispatches scrolls through seffects; read.c:seffects calls seffect_enchant_armor for SCR_ENCHANT_ARMOR and propagates the possibly consumed struct obj ** scroll pointer."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-enchant-armor.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/enchant-armor-valkyrie-independent-c37.session.json",
+              "recordings/read.c/enchant-armor-blessed-buc-c37.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect-setup-miss-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_enchant_armor"
+              }
+            ],
+            "checkedAt": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
+          }
+        ],
+        "entryPointReview": "The active production entry is the 'r' read command through read.c:doread -> read.c:seffects -> read.c:seffect_enchant_armor; JS read.js keeps the consumed-scroll result at the same dispatcher boundary. The selected admitted v8 case reaches the effect at segment 0 step 20, and two independently selected, fully matching C recordings reach the normal and blessed worn-shield paths (their enchantment draws are at step 37 and step 36 respectively). The blessed case also invokes mkobj.c:bless on a carried, initially unblessed shield. The complete do_wear.c:adj_abon helper is source-pinned and its direct state changes are tested, but an independent Helm of Brilliance production witness remains blocked: after dismissing the welcome pager, the equip turn causes C monmove.c:distfleeck rn2(5) draws before the scroll, while JS has no matching calls. The blocked recipe is named below and is not in recordings/. Separately, js/read.js exports its existing litroom body unchanged under the authorized C37 scope event so B45 can wire read.c:litroom; C37 does not claim litroom source completion or runtime coverage.",
+        "entryPoints": [
+          {
+            "name": "Read an enchant-armor scroll through the production read command",
+            "functions": [
+              "seffect_enchant_armor"
+            ],
+            "recordings": [
+              "recordings/read.c/enchant-armor-valkyrie-independent-c37.session.json",
+              "recordings/read.c/enchant-armor-blessed-buc-c37.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v8",
+                "caseId": "read-fire-scroll-effect-setup-miss-attempt1",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_enchant_armor"
+              }
+            ]
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "d8207c5c6028852458dab58e90e8bda34fddb0c4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The read.c enchant-armor effect and two independent shield entry recordings match, but the Helm of Brilliance adj_abon production witness in recipes/read.c/enchant-armor-helm-abon-seed-9385141-c37.session.json diverges first at monmove.c:distfleeck during equipment before the scroll. Resume after that source behavior matches, then record the Helm path and close."
     },
     {
       "id": "port-apply-break-wand-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port wand-breaking apply behavior from source",
       "cFile": "apply.c",
       "sessions": [
@@ -108026,8 +108096,12 @@
       ],
       "selectionReason": "The current v10 apply-breaks-exhausted-wand-of-nothing case first stops at step 26 on js/apply.js do_break_wand refusal; investigation investigations/synthetic/v10/apply-breaks-exhausted-wand-of-nothing.json traces the apply.c WAND_CLASS doapply caller. B45 owns the contiguous discard_broken_wand through do_break_wand helper family, independent of C37 read/do_wear/mkobj and A42 v11 preparation. The larger bullwhip hitfloor case has separate dothrow/drop caller scope and remains queued.",
       "detail": "Port apply.c:discard_broken_wand, broken_wand_explode, maybe_dunk_boulders, do_break_wand in source order and wire doapply WAND_CLASS. Preserve hands/strength/confirmation, object removal, consumed zap.c:zappable and zapyourself returns, last-charge and fragile wand branches, per-type effects and RNG. Port consumed missing callees in task; record only truly discarded void gaps at their C sites. Use independent C wand variations and preserve every admitted match.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c3648055d8b9b54ee233e0c6c336719cf1c8e0cc",
+      "openStanding": {
+        "sha": "847d6a5cf3c0a81da63f3877b7b2bb04cee83185",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -108035,29 +108109,29 @@
           "name": "discard_broken_wand",
           "line": 3876,
           "endLine": 3887,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "broken_wand_explode",
           "line": 3888,
           "endLine": 3896,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "maybe_dunk_boulders",
           "line": 3897,
           "endLine": 3908,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "do_break_wand",
           "line": 3909,
           "endLine": 4150,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -108076,6 +108150,407 @@
           "recordingSha256": "5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90",
           "evaluationPath": "challenges/evaluations/20260928162841-v10.json",
           "evaluationCommit": "22052f52aabe0e04fb194d8f1f243d996c0603d2"
+        }
+      },
+      "activeStanding": {
+        "sha": "847d6a5cf3c0a81da63f3877b7b2bb04cee83185",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-breaks-exhausted-wand-of-nothing",
+          "session": "synthetic/v10/apply-breaks-exhausted-wand-of-nothing",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+          "recordingPath": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+          "recordingSha256": "5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90",
+          "recipe": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.recipe.session.json",
+          "recipeSha256": "5fdf51caadc6688e0962eb5f834bb7699f0bd6b3d4e61d7511b7578de1987299",
+          "replayInputSha256": "bfff709002c0d18293bf18cdd8b7e23bb96fe1af48ae91d1819060c819dabfec",
+          "evaluationPath": "challenges/evaluations/20260928181249-v10.json",
+          "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4",
+          "evaluationArtifact": "challenges/evaluations/20260928181249-v10.json",
+          "evaluationUtc": "2026-09-28T18:12:52.468Z",
+          "remainingScreens": 2,
+          "recordedSteps": 28,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 28
+            },
+            "rng": {
+              "matched": 2681,
+              "total": 2682
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 28
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires do_break_wand()",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "do_break_wand",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires do_break_wand()",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/apply-breaks-exhausted-wand-of-nothing.json",
+            "result": {
+              "session": "synthetic/v10/apply-breaks-exhausted-wand-of-nothing",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "apply-breaks-exhausted-wand-of-nothing",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 2,
+              "recordedSteps": 28,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "apply-breaks-exhausted-wand-of-nothing",
+                "session": "synthetic/v10/apply-breaks-exhausted-wand-of-nothing",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+                "recordingPath": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json",
+                "recordingSha256": "5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90",
+                "recipe": "challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.recipe.session.json",
+                "recipeSha256": "5fdf51caadc6688e0962eb5f834bb7699f0bd6b3d4e61d7511b7578de1987299",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 2,
+                "recordedSteps": 28,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 26,
+                    "total": 28
+                  },
+                  "rng": {
+                    "matched": 2681,
+                    "total": 2682
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 28
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires do_break_wand()",
+                  "step": 26
+                },
+                "step": 26,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "do_break_wand",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires do_break_wand()",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a worn-out wand of nothing reaches the explicit js/apply.js refusal for do_break_wand after 26 matching screens. C apply.c:do_break_wand checks hands, strength and confirmation, removes the wand, then calls zap.c:zappable. For a zero-charge wand, zappable may wrest a final charge; this recording reaches that positive arm and then WAN_NOTHING prints the harmless break result. The missing owner is the whole apply.c:do_break_wand and its doapply dispatch, including its other wand effects and source-ordered consumed dependencies.",
+              "source": {
+                "file": "apply.c",
+                "branch": "When a Barbarian applies a zero-charge WAN_NOTHING, doapply calls do_break_wand; with hands, a free hand, strength at least ten for the nonfragile wand, and affirmative confirmation, the function removes the wand, calls zappable, restores a successful spent charge, grants rnd(3) if a last wrest returned it to zero, then the WAN_NOTHING switch arm prints that nothing else happens and discards the broken wand. The full function also covers unsuccessful zappable, fragile wand, other wand types, explosions, adjacent targets, objects, hero effects and shop consequences.",
+                "functions": [
+                  "do_break_wand"
+                ],
+                "callers": [
+                  "apply.c:doapply dispatches WAND_CLASS to do_break_wand (4235); js/apply.js:doapply at the WAND_CLASS branch currently throws UnsupportedApplyError."
+                ],
+                "dependencies": [
+                  "zap.c:zappable is already ported and its Boolean result and RNG call order must be consumed; the queue annotation names zappable only because the selected C path reaches it.",
+                  "apply.c:discard_broken_wand and broken_wand_explode, explode.c:explode, zap.c:bhitm/bhito/zapyourself and makemon.c:makemon are source callees for other wand types; port consumed returns or record discarded void gaps under the source-port rules.",
+                  "The do_break_wand body frees and unwields the object before the effect, with shop billing and confirmation branches that must retain their order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 26/28 screens and stops at step 26 on the explicit do_break_wand refusal; the immutable C recording challenges/cases/v10/apply-breaks-exhausted-wand-of-nothing.session.json has SHA-256 5333827da7e18b744dabf86bcadaa08e8788fff608c5c33a4e49ab3e12551e90.",
+                "Upstream nethack-c/upstream/src/apply.c:3909-4147 defines the complete do_break_wand function; 3954-3988 calls zappable and handles WAN_NOTHING after restoring the charge. nethack-c/upstream/src/zap.c:2514-2528 defines zappable, already present in js/zap.js:1113.",
+                "js/apply.js:3467-3469 currently refuses every WAND_CLASS application before entering the source function, so a source port must wire that caller. The recipe independently wishes a zero-charge wand of nothing, applies it, and confirms the break."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "discard_broken_wand",
+            "implementation": "js/apply.js",
+            "symbol": "discard_broken_wand",
+            "sourceReview": "Read apply.c:discard_broken_wand() (3880-3890) in full. Clear gc.current_wand, delete that object from inventory, and clear multi-turn state in C order. The JS current_wand field is the single home for C gc.current_wand.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "do_break_wand",
+                "source": "apply.c:do_break_wand() calls discard_broken_wand() at no-charge/no-effect exits, after WAN_OPENING release, and after the shared explosion tail"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-charged-wand-of-nothing-independent-b45.session.json",
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "checkedAt": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
+          },
+          {
+            "name": "broken_wand_explode",
+            "implementation": "js/apply.js",
+            "symbol": "broken_wand_explode",
+            "sourceReview": "Read apply.c:broken_wand_explode() (3892-3900) in full. It calls explode() with the hero square, negative wand type, damage, WAND_CLASS, and the source explosion type; then discovers the wand and discards it. The WAN_LIGHT recording checks the magical explosion and post-explosion callback order.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "do_break_wand",
+                "source": "apply.c:do_break_wand() calls broken_wand_explode() for WAN_DEATH, WAN_LIGHTNING, WAN_FIRE, WAN_COLD, and WAN_MAGIC_MISSILE"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "checkedAt": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
+          },
+          {
+            "name": "do_break_wand",
+            "implementation": "js/apply.js",
+            "symbol": "do_break_wand",
+            "sourceReview": "Read apply.c:do_break_wand() (3913-4147) in full. Preserve the hand/strength/confirmation gates, object removal and current_wand lifecycle, zappable() return handling and charge restoration, type switch and fallthrough, the eight-neighbor-plus-hero order, explosion and target effects, zapwrapup(), shop handling, litroom(TRUE,obj), and final discard. WAN_LIGHT now calls the accepted C37 port read.c:litroom(true,obj,state) after zapwrapup and shop handling. C-discarded void gaps remain source-named: dig.c:liquid_flow, dig.c:digactualhole, shk.c:pay_for_damage, plus mhitu.c:expels(TRUE) through the existing zap.c:release_hold swallowed branch. The WAN_DIGGING active route remains unverified because strict JS replay stops at dig.c:digactualhole before the helper tail.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() dispatches WAND_CLASS objects to do_break_wand()"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-break-wand.test.mjs",
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-charged-wand-of-nothing-independent-b45.session.json",
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "checkedAt": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
+          }
+        ],
+        "entryPointReview": "The main active production entry is the hero #apply command: apply.c:doapply() dispatches a WAND_CLASS object to apply.c:do_break_wand(). Strict independent records cover a charged WAN_NOTHING and WAN_LIGHT through the command and their source callbacks; the light record also covers broken_wand_explode(), explode(), the corrected shield glyph mapping, and the C37 litroom() call. Other wand type arms are source-ordered in do_break_wand(), but their individual branches are not claimed by those two recordings. A second active caller is trap.c:trapeffect_landmine() -> trap.c:blow_up_landmine() -> apply.c:maybe_dunk_boulders(); the existing hero and monster landmine recordings exercise its ordinary pit/ROOM path. The active WAN_DIGGING route is not replay-verified: its C trace reaches the wand loop while JS skips the unported void dig.c:digactualhole(), so recipes/apply.c/broken-wand-of-digging-maybe-dunk-independent-b45.session.json is blocked. The positive boulder/pool branch is likewise not passing evidence: its cache-only C trace reaches boulder_hits_pool(), but JS diverges earlier in zap.c:makewish() while wishing the pool; the attempt is kept only in .cache/B45-attempts. The bounded liquid landmine C setup only produced a dropped boulder and a pool, never a mine; its cache-only trace is not evidence. If that route is reached, trap.c:blow_up_landmine() calls the unported void dig.c:liquid_flow() before maybe_dunk_boulders(). The B45 doapply caller still has a separate artifact preflight gap: apply.c:doapply() calls retouch_object() before WAND_CLASS dispatch, and the Grimtooth artifact route can stop there. Do not claim that artifact route as B45 behavior. zap.c:release_hold() is used for WAN_OPENING; its swallowed expels(TRUE) void gap remains source-named. No blocked or cache-only setup is counted as a passing recording.",
+        "entryPoints": [
+          {
+            "name": "Hero applies a charged WAN_NOTHING through doapply WAND_CLASS dispatch",
+            "functions": [
+              "do_break_wand",
+              "discard_broken_wand"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-charged-wand-of-nothing-independent-b45.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero breaks WAN_LIGHT through doapply WAND_CLASS dispatch and lights the room",
+            "functions": [
+              "do_break_wand",
+              "broken_wand_explode",
+              "discard_broken_wand"
+            ],
+            "recordings": [
+              "recordings/apply.c/broken-light-wand-independent-b45.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero or monster triggers a landmine on ordinary pit/ROOM terrain",
+            "functions": [
+              "maybe_dunk_boulders"
+            ],
+            "recordings": [
+              "recordings/trap.c/landmine-hero-fresh.session.json",
+              "recordings/trap.c/landmine-monster-fresh.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero breaks WAN_DIGGING through the maybe_dunk_boulders tail",
+            "functions": [
+              "do_break_wand",
+              "maybe_dunk_boulders"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hero or monster triggers a landmine whose resulting liquid pit contains a boulder",
+            "functions": [
+              "maybe_dunk_boulders"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Three of four selected apply.c functions have verified caller evidence; maybe_dunk_boulders still lacks a strict positive liquid-and-boulder recording. WAN_DIGGING reaches the named dig.c:digactualhole void gap before its helper tail; a pool setup diverges earlier in zap.c:makewish, and liquid landmine setup has not reached a mine (dig.c:liquid_flow remains a void gap). Keep the blocked recipes and return when those source routes are reachable."
+    },
+    {
+      "id": "port-read-remove-curse-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete remove-curse effect and runtime blessorcurse behavior",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v10/confused-remove-curse-blessorcurse"
+      ],
+      "selectionReason": "Current v10 confused remove-curse case is source-traced and has two unmatched screens; read.c:seffect_remove_curse and mkobj.c:blessorcurse are unreserved.",
+      "detail": "At step 80 uncursed confused SCR_REMOVE_CURSE enters missing inventory traversal; C then calls mkobj.c:blessorcurse with rn2(2), while JavaScript diverges. Port whole effect, runtime BUC helper and source callers without case-specific logic.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_remove_curse",
+          "line": 1489,
+          "endLine": 1607,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1489,
+        "to": 1607
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/confused-remove-curse-blessorcurse": {
+          "session": "synthetic/v10/confused-remove-curse-blessorcurse",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "confused-remove-curse-blessorcurse",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/confused-remove-curse-blessorcurse.session.json",
+          "recordingSha256": "9cb45869824984538232543de4eaefe08fc54fa66f0c7367d0a24d1b7208eb03",
+          "evaluationPath": "challenges/evaluations/20260928181249-v10.json",
+          "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
+        }
+      }
+    },
+    {
+      "id": "port-dothrow-hitfloor-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port dothrow.c hitfloor and unreachable-floor drop caller",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v10/bullwhip-snags-floor-object-while-floating"
+      ],
+      "selectionReason": "Current v10 floating bullwhip case stops at the source-traced dothrow.c:hitfloor gap with six unmatched screens; its source and callers are unreserved.",
+      "detail": "At step 22 do.c:drop frees a touchstone above unreachable floor and calls hitfloor; JavaScript refuses before that branch. Port whole hitfloor source order and wire active callers, including the Boolean hero_breaks and ship_object dependencies; use independent source-reaching recordings.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "hitfloor",
+          "line": 606,
+          "endLine": 655,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 606,
+        "to": 655
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/bullwhip-snags-floor-object-while-floating": {
+          "session": "synthetic/v10/bullwhip-snags-floor-object-while-floating",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "bullwhip-snags-floor-object-while-floating",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/bullwhip-snags-floor-object-while-floating.session.json",
+          "recordingSha256": "c71b4f263a4927575c62d688896ad98dd979c7a1d8a006fb0973dbbb03b4de43",
+          "evaluationPath": "challenges/evaluations/20260928181249-v10.json",
+          "evaluationCommit": "d8207c5c6028852458dab58e90e8bda34fddb0c4"
+        }
+      }
+    },
+    {
+      "id": "div-apply-doapply-artifact-retouch-v10-20260928",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Wire doapply artifact retouch preflight and consumed return",
+      "cFile": "apply.c",
+      "sessions": [],
+      "selectionReason": "After B45 resolved the wand case, v10 Grimtooth remains source-traced at doapply artifact preflight; the same worker can repair the shared apply caller without overlapping A43 or C38.",
+      "detail": "C doapply calls retouch_object(&obj,FALSE) for every selected object before class dispatch and consumes both its Boolean and possibly updated pointer. JavaScript refuses artifacts before that call. Reuse the existing source-ported artifact helper across all artifact objects, preserving blast RNG and source order.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "doapply",
+      "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+      "step": 15,
+      "syntheticProvenance": {
+        "synthetic/v10/apply-neutral-grimtooth-touches-artifact": {
+          "session": "synthetic/v10/apply-neutral-grimtooth-touches-artifact",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-neutral-grimtooth-touches-artifact",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/apply-neutral-grimtooth-touches-artifact.session.json",
+          "recordingSha256": "9856f04cbc5c27a13ac0ca83cdcf1920101252ff1ef0ee6524a965777ad09aa3",
+          "evaluationPath": "challenges/evaluations/20260928193155-v10.json",
+          "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de"
         }
       }
     }

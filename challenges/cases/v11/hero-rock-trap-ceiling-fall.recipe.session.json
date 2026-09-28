@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v11 hero falling-rock-trap mission. The Wizard leaves the upstairs square, wishes a falling rock trap on ordinary floor using C terrain naming, steps off and back onto it, then observes the impact.",
+  "segments": [
+    {
+      "seed": 71844014,
+      "datetime": "20421012091508",
+      "nethackrc": "OPTIONS=name:V11Rock,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": ".h\u0017falling rock trap\nlh."
+    }
+  ]
+}

@@ -421,6 +421,46 @@ test('synthetic batch histories and duplicate case IDs remain separate in the da
     assert.equal(rendered.get('progressMinimap').style.height, '152px');
 });
 
+test('batch picker defaults to unresolved cases and fits each percent axis', () => {
+    const data = sourceDashboardData();
+    const result = (matched, total) => ({ passed: true, screens: { matched, total },
+        rng: { matched: total, total }, cursors: { matched: total, total } });
+    data.challenges.batches = ['v1', 'v2'].map(batch => ({ batch, status: 'measured' }));
+    data.challenges.cases = [
+        { batch: 'v1', id: 'done', current: result(100, 100) },
+        { batch: 'v2', id: 'open', current: result(45, 100) },
+    ];
+    data.scoreHistory = [data.scoreHistory[0], ...[
+        { batch: 'v1', scores: [80, 100] }, { batch: 'v2', scores: [40, 45] },
+    ].map(({ batch, scores }) => ({
+        id: 'syntheticHoldout-' + batch, title: 'Synthetic local holdout · ' + batch,
+        points: scores.map((screens, index) => ({
+            utc: `2026-01-0${index + 1}T00:00:00Z`, screens, screensTotal: 100,
+        })),
+    }))];
+    const rendered = renderDashboard(data);
+    assert.equal(rendered.get('challengePlot1').hidden, true);
+    assert.equal(rendered.get('challengePlot2').hidden, false);
+    assert.equal(rendered.get('historyBatchSummary').textContent, 'Batches · 1 of 2 shown');
+    assert.match(rendered.get('historyBatchOptions').innerHTML, /v1<\/span><small>Resolved/u);
+    assert.match(rendered.get('historyBatchOptions').innerHTML, /v2<\/span><small>Unresolved/u);
+    assert.equal(rendered.get('progressMinimap').style.height, '108px');
+    assert.doesNotMatch(rendered.get('progressReadout').innerHTML, /· v1/u);
+    rendered.get('historyBatchOptions').listeners.change[0]({
+        target: { dataset: { series: 'syntheticHoldout-v1' }, checked: true },
+    });
+    assert.equal(rendered.get('challengePlot1').hidden, false);
+    assert.equal(rendered.get('progressMinimap').style.height, '152px');
+    assert.match(rendered.get('progressReadout').innerHTML, /· v1/u);
+    rendered.get('progressMode-percent').listeners.click[0]();
+    const v1Labels = rendered.get('challengeChart').ops.filter(([op]) => op === 'fillText')
+        .map(([, value]) => value);
+    const v2Labels = rendered.get('challengeChart2').ops.filter(([op]) => op === 'fillText')
+        .map(([, value]) => value);
+    assert.ok(v1Labels.includes('78%'), 'the first batch keeps its own admission range');
+    assert.ok(v2Labels.includes('35%'), 'the second batch keeps its own admission range');
+});
+
 test('healthy batch measurements do not repeat above the challenge cases', () => {
     const data = sourceDashboardData();
     data.challenges.batches = [
