@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 53092831,
+      "datetime": "20310928104420",
+      "nethackrc": "OPTIONS=name:C35Curse,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017cursed scroll of confuse monster\n re "
+    }
+  ],
+  "comment": "Independent source branch: a debug Valkyrie wishes for a cursed confusion scroll, reads it, and acknowledges the output. C must enter read.c:seffects(SCR_CONFUSE_MONSTER) -> seffect_confuse_monster's cursed temporary-HConfusion arm. This differs from the selected v8 uncursed Wizard scroll setup."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent debug-wish route for apply.c:doapply -> flip_through_book(SPE_BOOK_OF_THE_DEAD), covering the Deaf+Blind You_feel branch with a different Wizard setup and action history from the v10 blank-paper case.",
+  "segments": [
+    {
+      "seed": 71035026,
+      "datetime": "20281029111526",
+      "nethackrc": "OPTIONS=name:C34DeadBook,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,blind,deaf,time,showexp\n",
+      "moves": ".\u0017spellbook of the Book of the Dead\nao "
+    }
+  ]
+}

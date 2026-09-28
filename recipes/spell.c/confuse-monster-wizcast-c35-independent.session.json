@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 53092832,
+      "datetime": "20310928111932",
+      "nethackrc": "OPTIONS=name:C35Spell,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizcast\nl"
+    }
+  ],
+  "comment": "Independent spell entry attempt: a debug Priest opens #wizcast and selects the source menu's confuse-monster entry. Verify spell.c:dowizcast -> spelleffects(SPE_CONFUSE_MONSTER) -> read.c:seffects -> seffect_confuse_monster in the C trace before retaining its recording."
+}

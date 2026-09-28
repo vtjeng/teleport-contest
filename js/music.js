@@ -15,19 +15,21 @@ import { losehp } from './hack.js';
 import { dist2, highc, mungspaces } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { consume_obj_charge } from './invent.js';
-import { can_blow, mindless, unique_corpstat } from './mondata.js';
+import { can_blow, is_mercenary, mindless, unique_corpstat } from './mondata.js';
 import { monflee, monfleeMessage, onscary, youHear } from './monmove.js';
+import { Monnam } from './do_name.js';
 import { discover_object } from './o_init.js';
 import { an, the, thesimpleoname, Tobjnam, xnameFresh, yname, Yname2 } from './objnam.js';
 import {
     BUGLE, DRUM_OF_EARTHQUAKE, FIRE_HORN, FROST_HORN, LEATHER_DRUM,
     MAGIC_FLUTE, MAGIC_HARP, TOOL_CLASS, TOOLED_HORN, WOODEN_FLUTE, WOODEN_HARP,
 } from './objects.js';
+import { PM_GUARD } from './monsters.js';
 import { incr_itimeout } from './potion.js';
 import { create_gas_cloud } from './region.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
-import { ttyPline } from './tty_message.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { block_point, cansee, canseemon, does_block, unblock_point } from './vision.js';
 import { getlin } from './windows.js';
@@ -81,6 +83,41 @@ export async function awaken_monsters(distance, state = game, env = {}) {
         const dist = dist2(mon.mx, mon.my, state.u.ux, state.u.uy);
         if (dist < distance)
             await awaken_scare(mon, dist < Math.trunc(distance / 3), state, env);
+    }
+}
+
+// C ref: music.c awaken_soldiers() (162-198). Mercenaries (except guards)
+// are awakened across the level; other monsters use the bugler's C-squared
+// distance and the existing awaken_scare() source behavior.
+export async function awaken_soldiers(bugler, state = game, env = {}) {
+    const distance = (bugler === state.youmonst
+        ? state.u.ulevel
+        : bugler.data.mlevel) * 30;
+    const message = env.message ?? ttyPline;
+    const norep = env.norep ?? ttyNorep;
+    const canSeeMonster = env.canSeeMonster
+        ?? (monster => canseemon(monster, state));
+
+    for (let mon = state.level.monlist; mon; mon = mon.nmon) {
+        if (mon.mhp < 1) continue;
+        if (is_mercenary(mon.data) && mon.data.pmidx !== PM_GUARD) {
+            if (!mon.mtame) mon.mpeaceful = false;
+            mon.msleeping = 0;
+            mon.mfrozen = 0;
+            mon.mcanmove = 1;
+            mon.mstrategy &= ~STRAT_WAITMASK;
+            if (canSeeMonster(mon)) {
+                await message(`${Monnam(mon, state)} is now ready for battle!`, state);
+            } else if (!Deaf(state)) {
+                await norep('You hear the rattle of battle gear being readied.', state);
+            }
+        } else {
+            const distm = bugler === state.youmonst
+                ? dist2(mon.mx, mon.my, state.u.ux, state.u.uy)
+                : dist2(bugler.mx, bugler.my, mon.mx, mon.my);
+            if (distm < distance)
+                await awaken_scare(mon, distm < Math.trunc(distance / 3), state, env);
+        }
     }
 }
 
@@ -220,7 +257,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         await message(!Deaf(state)
             ? `You extract a loud${same ? ', familiar' : ''} noise from ${yname(instr, state)}.`
             : 'You blow into the bugle.', state);
-        note_unported('music.c awaken_soldiers');
+        await awaken_soldiers(state.youmonst, state, { ...env, message, random });
         await exercise(A_WIS, false, state, random);
         break;
     case MAGIC_HARP:

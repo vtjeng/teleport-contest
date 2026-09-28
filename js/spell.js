@@ -92,6 +92,7 @@ import {
     SPE_CURE_BLINDNESS,
     SPE_CURE_SICKNESS,
     SPE_CHARM_MONSTER,
+    SPE_CONFUSE_MONSTER,
     SPE_CREATE_MONSTER,
     SPE_DETECT_FOOD,
     SPE_DETECT_MONSTERS,
@@ -1428,6 +1429,7 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     // granting the blessed-scroll equivalent at Skilled or Expert skill.
     case SPE_CAUSE_FEAR:
     case SPE_CHARM_MONSTER:
+    case SPE_CONFUSE_MONSTER:
     case SPE_DETECT_FOOD:
     case SPE_IDENTIFY:
     case SPE_CREATE_MONSTER:
