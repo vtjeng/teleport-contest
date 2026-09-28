@@ -1,0 +1,86 @@
+{
+  "session": "synthetic/v11/hostile-monster-picks-up-floor-weapon",
+  "corpus": "synthetic",
+  "batch": "v11",
+  "caseId": "hostile-monster-picks-up-floor-weapon",
+  "manifestPath": "challenges/manifests/v11.json",
+  "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+  "recordingSha256": "b221c25af4f45b5fdc66e67c39ff39b428fed2b9bc114dfd3d340756bdaa3bc5",
+  "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+  "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+  "remainingScreens": 2,
+  "recordedSteps": 41,
+  "status": "complete",
+  "commit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v11",
+    "caseId": "hostile-monster-picks-up-floor-weapon",
+    "session": "synthetic/v11/hostile-monster-picks-up-floor-weapon",
+    "manifestPath": "challenges/manifests/v11.json",
+    "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+    "recording": "challenges/cases/v11/hostile-monster-picks-up-floor-weapon.session.json",
+    "recordingPath": "challenges/cases/v11/hostile-monster-picks-up-floor-weapon.session.json",
+    "recordingSha256": "b221c25af4f45b5fdc66e67c39ff39b428fed2b9bc114dfd3d340756bdaa3bc5",
+    "recipe": "challenges/cases/v11/hostile-monster-picks-up-floor-weapon.recipe.session.json",
+    "recipeSha256": "f7e047734fd3b8ac5476d6fc1abbfa3de9ace4a347bf9d1b9681369ce1423a92",
+    "replayInputSha256": "2e33ace5cff6a02a8c669dbcb3ad29e8998091f6f849401f4980d1c4eae6dd6b",
+    "evaluationPath": "challenges/evaluations/20260928193155-v11.json",
+    "evaluationCommit": "25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de",
+    "evaluationArtifact": "challenges/evaluations/20260928193155-v11.json",
+    "evaluationUtc": "2026-09-28T19:32:13.573Z",
+    "remainingScreens": 2,
+    "recordedSteps": 41,
+    "previousScreensMatched": 39,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 39,
+        "total": 41
+      },
+      "rng": {
+        "matched": 2873,
+        "total": 2892
+      },
+      "cursors": {
+        "matched": 39,
+        "total": 41
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 380",
+      "step": 39
+    },
+    "step": 39,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "bhitm",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 380",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first mismatch is a refused SPE_SLOW_MONSTER immediate hit in zap.c:bhitm. C calls resist(), then mon_adjust_speed(mtmp, -1, otmp) and check_gear_next_turn() when the target fails resistance, before the shared bhitm wake/learning tail. Port this source branch and preserve its draw and message order for both independently recorded v11 histories.",
+  "source": {
+    "file": "zap.c",
+    "branch": "zap.c:bhitm WAN_SLOW_MONSTER/SPE_SLOW_MONSTER cases (around lines 217-229): resist(mtmp, otmp->oclass, 0, NOTELL), possible mimic reveal, mon_adjust_speed(-1), check_gear_next_turn(), engulfing whirly expulsion, then common tail.",
+    "functions": [
+      "bhitm"
+    ],
+    "callers": [
+      "zap.c:weffects and zap.c:dozap or spell.c:spelleffects route an immediate hit through bhitm; js/zap.js:bhitm refuses type 380 before resist()."
+    ],
+    "dependencies": [
+      "zap.c:resist already has a JavaScript port; inspect mon_adjust_speed and check_gear_next_turn source contracts before wiring the branch."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 39/41 screens and stops at zero-based step 39 with unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 380. Immutable C recording SHA-256 b221c25af4f45b5fdc66e67c39ff39b428fed2b9bc114dfd3d340756bdaa3bc5.",
+    "Upstream nethack-c/upstream/src/zap.c:217-229 defines the slow-monster effect; js/zap.js:3149-3156 refuses this immediate effect type before source behavior.",
+    "The two v11 recordings have distinct prior action histories, but share this first C branch; keep both as separate regression cases while assigning one source family."
+  ]
+}
