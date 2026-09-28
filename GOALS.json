@@ -109199,6 +109199,52 @@
           "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
         }
       }
+    },
+    {
+      "id": "div-zap-bhitm-slow-monster-synthetic-v11-20260928",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Implement immediate slow-monster hit and speed adjustment",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v11/slow-monster-spell-changes-target-speed",
+        "synthetic/v11/hostile-monster-picks-up-floor-weapon"
+      ],
+      "selectionReason": "Both distinct v11 histories stop at the same zap.c:bhitm slow-monster branch; source trace in investigations/synthetic/v11/slow-monster-spell-changes-target-speed.json and hostile-monster-picks-up-floor-weapon.json groups them for one worker after B47 releases js/zap.js.",
+      "detail": "zap.c:bhitm slow-monster cases call resist(), reveal a mimic if applicable, adjust speed through mon.c:mon_adjust_speed, schedule gear check, and continue the shared wake/learning tail. js/zap.js refuses the immediate effect type before these calls; preserve C RNG, message, state, and return order for both action histories.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "bhitm",
+      "session": "synthetic/v11/slow-monster-spell-changes-target-speed",
+      "step": 26,
+      "syntheticProvenance": {
+        "synthetic/v11/slow-monster-spell-changes-target-speed": {
+          "session": "synthetic/v11/slow-monster-spell-changes-target-speed",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "slow-monster-spell-changes-target-speed",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/slow-monster-spell-changes-target-speed.session.json",
+          "recordingSha256": "526fdb6d28ae6f2ff3fd1f9d0ebb7c0ab54e18eca1c0a40876c0dd90aa9fd54e",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        },
+        "synthetic/v11/hostile-monster-picks-up-floor-weapon": {
+          "session": "synthetic/v11/hostile-monster-picks-up-floor-weapon",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hostile-monster-picks-up-floor-weapon",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hostile-monster-picks-up-floor-weapon.session.json",
+          "recordingSha256": "b221c25af4f45b5fdc66e67c39ff39b428fed2b9bc114dfd3d340756bdaa3bc5",
+          "evaluationPath": "challenges/evaluations/20260928211543-v11.json",
+          "evaluationCommit": "759b985c4bdf4978863b5d44a45a63bd0db7e61d"
+        }
+      }
     }
   ]
 }
