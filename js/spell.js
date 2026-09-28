@@ -92,6 +92,7 @@ import {
     SPE_CURE_BLINDNESS,
     SPE_CURE_SICKNESS,
     SPE_CHARM_MONSTER,
+    SPE_CREATE_MONSTER,
     SPE_DETECT_FOOD,
     SPE_DETECT_MONSTERS,
     SPE_DETECT_TREASURE,
@@ -1331,6 +1332,7 @@ function Maybe_Half_Phys(dmg, state) {
 // the source-wired scroll-duplicate effects.
 export async function spelleffects(spell_otyp, atme, force, state = game,
     env = {}) {
+    const random = randomSource(env);
     const spell = force ? spell_otyp : spell_idx(spell_otyp, state);
     let energy = 0;
     let res = ECMD_OK;
@@ -1345,7 +1347,7 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     state.u.uen -= energy;
     state.disp = state.disp || {};
     state.disp.botl = true;
-    await exercise(A_WIS, true, state);
+    await exercise(A_WIS, true, state, random);
 
     // pseudo is a temporary "false" object containing the spell stats.
     const pseudo = mksobj(
@@ -1428,9 +1430,10 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     case SPE_CHARM_MONSTER:
     case SPE_DETECT_FOOD:
     case SPE_IDENTIFY:
+    case SPE_CREATE_MONSTER:
         if (role_skill >= P_SKILLED)
             pseudo.blessed = 1;
-        await seffects(pseudo, state);
+        await seffects(pseudo, state, env);
         break;
 
     // Potion-duplicate spells.

@@ -20,10 +20,10 @@ import {
 } from '../js/read.js';
 import { G_NOCORPSE, PM_NEWT, PM_WIZARD } from '../js/monsters.js';
 import {
-    MAGIC_MARKER, SCR_CHARGING, SCR_FOOD_DETECTION,
+    MAGIC_MARKER, SCR_CHARGING, SCR_CREATE_MONSTER, SCR_FOOD_DETECTION,
     SCR_GOLD_DETECTION, SCR_SCARE_MONSTER,
     SCR_IDENTIFY, SCR_TAMING, SCROLL_CLASS, SPBOOK_CLASS,
-    SPE_CAUSE_FEAR, SPE_CHARM_MONSTER, SPE_DETECT_FOOD,
+    SPE_CAUSE_FEAR, SPE_CHARM_MONSTER, SPE_CREATE_MONSTER, SPE_DETECT_FOOD,
     SPE_IDENTIFY, BELL_OF_OPENING, MAGIC_LAMP, OIL_LAMP, PICK_AXE,
     SPE_FORCE_BOLT, SPE_HEALING,
     RING_CLASS, RIN_ADORNMENT, RIN_CONFLICT, TOOL_CLASS, WAND_CLASS,
@@ -35,7 +35,7 @@ import { mksobj, objectType } from '../js/obj.js';
 import { Ring_on, setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
-import { P_BARE_HANDED_COMBAT } from '../js/const.js';
+import { P_BARE_HANDED_COMBAT, P_CLERIC_SPELL, P_SKILLED } from '../js/const.js';
 import { skillSlot } from '../js/startup_skills.js';
 
 async function replayGenocideRecipe(name, gender) {
@@ -99,6 +99,76 @@ function scareScroll(otyp = SCR_SCARE_MONSTER, cursed = false) {
         quan: 1,
     };
 }
+
+test('read.c create-monster count preserves blessed/cursed RNG order', async () => {
+    await emptyTamingWorld(8080050);
+    game.iflags.debug_mongen = true; // makemon.c returns null before selection.
+    const calls = [];
+    const random = {
+        rn2(bound) { calls.push(['rn2', bound]); return bound === 19 ? 0 : 1; },
+        rnd(bound) { calls.push(['rnd', bound]); return 1; },
+    };
+
+    await seffects({
+        otyp: SCR_CREATE_MONSTER,
+        oclass: SCROLL_CLASS,
+        blessed: false,
+        cursed: false,
+        quan: 1,
+    }, game, { random });
+    // exercise(A_WIS) is first, then seffect_create_monster's short-circuited
+    // rn2(73); a nonzero result skips rnd(4). No monster is created in this
+    // C debug_mongen path, so the visibility result does not identify scroll.
+    assert.deepEqual(calls, [['rn2', 19], ['rn2', 73]]);
+    assert.equal(game.gk.known, undefined);
+
+    calls.length = 0;
+    await seffects({
+        otyp: SCR_CREATE_MONSTER,
+        oclass: SCROLL_CLASS,
+        blessed: true,
+        cursed: false,
+        quan: 1,
+    }, game, { random });
+    assert.deepEqual(calls, [['rn2', 19]]);
+    assert.equal(game.gk.known, undefined);
+
+    calls.length = 0;
+    await seffects({
+        otyp: SCR_CREATE_MONSTER,
+        oclass: SCROLL_CLASS,
+        blessed: false,
+        cursed: true,
+        quan: 1,
+    }, game, { random });
+    // Cursed adds twelve monsters but does not short-circuit the independent
+    // blessed-or-rn2(73) count term.
+    assert.deepEqual(calls, [['rn2', 19], ['rn2', 73]]);
+    assert.equal(game.gk.known, undefined);
+});
+
+test('spell.c create-monster keeps caller RNG through the duplicate effect', async () => {
+    await emptyTamingWorld(8080051);
+    game.iflags.debug_mongen = true;
+    const calls = [];
+    const random = {
+        d() { assert.fail('this no-creation source branch makes no dice roll'); },
+        rn1() { assert.fail('this source branch skips rn1'); },
+        rn2(bound) { calls.push(bound); return 1; },
+        rnd() { assert.fail('blessed spell skips rnd(4)'); },
+        rne() { assert.fail('this source branch skips rne'); },
+        rnz() { assert.fail('this source branch skips rnz'); },
+    };
+
+    skillSlot(P_CLERIC_SPELL, game).skill = P_SKILLED;
+    await spelleffects(SPE_CREATE_MONSTER, true, true, game, { random });
+
+    // C applies the skilled scroll-equivalent blessing before seffects(), so
+    // the effect skips both random count calls. Its two Wisdom exercises use
+    // the caller's injected stream, followed by the no-creation return.
+    assert.deepEqual(calls, [19, 19]);
+    assert.equal(game.gk.known, undefined);
+});
 
 test('read.c seffect_taming handles an empty nearby-monster scan', async () => {
     await emptyTamingWorld(8080051);

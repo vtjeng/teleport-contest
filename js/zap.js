@@ -297,7 +297,7 @@ import {
     show_transient_light,
     transient_light_cleanup,
 } from './light.js';
-import { monhp_per_lvl, newmcorpsenm } from './makemon.js';
+import { create_critters, monhp_per_lvl, newmcorpsenm } from './makemon.js';
 import {
     makemon_revival,
     makemon_runtime,
@@ -494,6 +494,7 @@ import {
     CHEST,
     TIN,
     WAN_SECRET_DOOR_DETECTION,
+    WAN_CREATE_MONSTER,
     WAN_SLEEP,
     WAN_TELEPORTATION,
     POT_OIL,
@@ -5180,13 +5181,21 @@ export async function ubreatheu(
         state.u.ux, state.u.uy, state, random);
 }
 
-// C ref: zap.c zapnodir() (2539-2596), restricted to the wand of secret door
-// detection. Its findit() call is observable even when it finds nothing, so a
-// seen wand goes through the shared discovery tail. Every other NODIR object
-// retains the previous fail-closed boundary.
-export async function zapnodir(obj, state = game) {
+// C ref: zap.c zapnodir() (2539-2596), covering create-monster and
+// secret-door-detection wands. create_critters()' visibility result controls
+// discovery; findit() remains observable even when no door is found.
+export async function zapnodir(obj, state = game,
+    random = { rn1, rn2 }) {
     let known = false;
     switch (obj.otyp) {
+    case WAN_CREATE_MONSTER:
+        if (await create_critters(
+            random.rn2(23) ? 1 : random.rn1(7, 2),
+            null, false, state, { random },
+        )) {
+            known = Boolean(obj.dknown);
+        }
+        break;
     case WAN_SECRET_DOOR_DETECTION:
         known = Boolean(obj.dknown);
         await findit(state);
@@ -5579,7 +5588,7 @@ export async function weffects(
         }
         await zapwrapup(state);
     } else if (oc_dir === NODIR) {
-        await zapnodir(obj, state);
+        await zapnodir(obj, state, random);
     } else {
         /* neither immediate nor directionless */
 
