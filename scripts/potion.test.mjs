@@ -2797,11 +2797,117 @@ test('cursed invisibility preserves its source-owned aggravate gap', async () =>
 });
 
 // ---------------------------------------------------------------------------
-// peffect_see_invisible: fruit-juice arm
-// C ref: potion.c peffect_see_invisible() (841-880). Fruit juice shares the
-// taste and identification preamble with see-invisible potions, then adds
-// nutrition according to dilution and beatitude before calling newuhs(FALSE).
+// peffect_see_invisible
+// C ref: potion.c peffect_see_invisible() (841-880).
 // ---------------------------------------------------------------------------
+
+test('see-invisible potion uses C visibility and intrinsic chance predicates',
+    async () => {
+        const source = potionSource();
+        assert.ok(source.includes('int msg = Invisible && !Blind;'));
+        assert.ok(source.includes(
+            'int permchance = 10 - (HInvis ? 3 : 0) - (HSee_invisible ? 6 : 0);',
+        ));
+        const youprop = readFileSync(
+            new URL('../nethack-c/upstream/include/youprop.h', import.meta.url),
+            'utf8',
+        );
+        assert.ok(youprop.includes('#define See_invisible (HSee_invisible || ESee_invisible)'));
+        assert.ok(youprop.includes('#define Invisible (Invis && !See_invisible)'));
+
+        await startedGame(771012, 'SeeInvisibleExtrinsicRing', 'Wizard');
+        const invisibility = game.u.uprops[INVIS];
+        invisibility.intrinsic = FROMOUTSIDE;
+        invisibility.extrinsic = 0;
+        invisibility.blocked = 0;
+        const seeInvisible = game.u.uprops[SEE_INVIS];
+        seeInvisible.intrinsic = 0;
+        seeInvisible.extrinsic = W_RINGL;
+        seeInvisible.blocked = 0;
+        const blindness = game.u.uprops[BLINDED];
+        blindness.intrinsic = 0;
+        blindness.extrinsic = 0;
+        blindness.blocked = 0;
+
+        const potion = vaporPotion(POT_SEE_INVISIBLE);
+        potion.blessed = true;
+        game.gp.potion_unkn = 0;
+        const messages = [];
+        enableRngLog();
+
+        await peffects(potion, game, {
+            message: async (line) => messages.push(line),
+        });
+
+        assert.match(
+            getRngLog().find((call) => call.startsWith('rn2(')) ?? '',
+            /^rn2\(7\)=\d+$/u,
+            'C subtracts for HInvis but not the extrinsic ESee_invisible ring',
+        );
+        assert.ok(!messages.includes(
+            'You can see through yourself, but you are visible!'),
+            'C Invisible is false while See_invisible is active');
+        assert.equal(game.gp.potion_unkn, 1,
+            'the suppressed self-visibility message does not decrement the counter');
+
+        seeInvisible.intrinsic = FROMOUTSIDE;
+        seeInvisible.extrinsic = 0;
+        game.gp.potion_unkn = 0;
+        enableRngLog();
+        await peffects(potion, game, {
+            message: async () => {},
+        });
+        assert.match(
+            getRngLog().find((call) => call.startsWith('rn2(')) ?? '',
+            /^rn2\(1\)=0$/u,
+            'intrinsic HSee_invisible contributes the source 6-point reduction',
+        );
+    });
+
+test('see-invisible self message follows the C Blind macro', async () => {
+    const youprop = readFileSync(
+        new URL('../nethack-c/upstream/include/youprop.h', import.meta.url),
+        'utf8',
+    );
+    assert.ok(youprop.includes(
+        '#define Blind ((HBlinded || EBlinded) && !BBlinded)',
+    ));
+
+    await startedGame(771015, 'SeeInvisibleBlindness', 'Wizard');
+    game.u.uprops[INVIS].intrinsic = FROMOUTSIDE;
+    game.u.uprops[INVIS].extrinsic = 0;
+    game.u.uprops[INVIS].blocked = 0;
+    game.u.uprops[SEE_INVIS].intrinsic = 0;
+    game.u.uprops[SEE_INVIS].extrinsic = 0;
+    const blindness = game.u.uprops[BLINDED];
+    const potion = vaporPotion(POT_SEE_INVISIBLE);
+
+    for (const entry of [
+        { name: 'blind', intrinsic: FROMOUTSIDE, blocked: 0, saysVisible: false },
+        { name: 'blindness blocked', intrinsic: FROMOUTSIDE,
+            blocked: FROMOUTSIDE, saysVisible: true },
+    ]) {
+        blindness.intrinsic = entry.intrinsic;
+        blindness.extrinsic = 0;
+        blindness.blocked = entry.blocked;
+        game.u.uprops[SEE_INVIS].intrinsic = 0;
+        game.u.uprops[SEE_INVIS].extrinsic = 0;
+        game.gp.potion_unkn = 0;
+        const messages = [];
+
+        await peffects(potion, game, {
+            message: async (line) => messages.push(line),
+        });
+
+        assert.equal(
+            messages.includes('You can see through yourself, but you are visible!'),
+            entry.saysVisible,
+            entry.name,
+        );
+        assert.equal(game.gp.potion_unkn, entry.saysVisible ? 0 : 1,
+            `${entry.name} follows the source message counter update`);
+    }
+});
 
 test('fruit juice taste, identification, and nutrition follow its BUC state',
     async () => {
