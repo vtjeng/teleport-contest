@@ -138,6 +138,7 @@ import { can_carry } from './moncarry.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
 import { makemon, mongone } from './makemon_create.js';
 import { grow_up, rndmonst, set_malign } from './makemon.js';
+import { awaken_soldiers } from './music.js';
 import { m_next2u } from './mhitu.js';
 import { paralyze_monst } from './mhitm.js';
 import {
@@ -760,7 +761,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             const heard = youHear('a bugle playing reveille!', state);
             if (heard) await ttyPline(heard, state);
         }
-        note_unported('music.c awaken_soldiers');
+        await awaken_soldiers(mtmp, state, env);
         return 2;
     }
     case 'teleportation wand': {
