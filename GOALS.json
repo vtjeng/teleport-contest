@@ -107119,6 +107119,49 @@
           "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393"
         }
       }
+    },
+    {
+      "id": "port-pray-sacrifice-your-race-synthetic-v10-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port own-race corpse sacrifice from source",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v10/offer-human-corpse-own-race"
+      ],
+      "selectionReason": "Current v10 case offer-human-corpse-own-race stops at step 39 when pray.c:offer_corpse skips sacrifice_your_race; C calls dlord after altar branching. Investigation investigations/synthetic/v10/offer-human-corpse-own-race.json corrects the saved queue stale minion.c owner; B44 owns whole sacrifice_your_race and offer_corpse wiring, with no C36 apply overlap.",
+      "detail": "Port pray.c:sacrifice_your_race in source order through altar transformation, dlord and return-valued makemon summon, alignment/luck consequences, corpse consumption. Review makemon.c:makemon runtime admission for the returned demon path and expand source-based scope if required. Existing void desecrate_altar and angry_priest gaps may remain named where their results are discarded. Preserve every admitted match.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "sacrifice_your_race",
+          "line": 1698,
+          "endLine": 1780,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1698,
+        "to": 1780
+      },
+      "syntheticProvenance": {
+        "synthetic/v10/offer-human-corpse-own-race": {
+          "session": "synthetic/v10/offer-human-corpse-own-race",
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "offer-human-corpse-own-race",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recordingPath": "challenges/cases/v10/offer-human-corpse-own-race.session.json",
+          "recordingSha256": "33e678286303574408531a137d5ba4d404e85bab0912dbd35c1aa3a2c93fe296",
+          "evaluationPath": "challenges/evaluations/20260928145605-v10.json",
+          "evaluationCommit": "58639035d0e7ada6a49be353c938613f4266f393"
+        }
+      }
     }
   ]
 }
