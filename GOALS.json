@@ -102065,7 +102065,7 @@
     {
       "id": "port-pline-you-hear-synthetic-v9-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port source-conditioned hearing messages and their active callers",
       "cFile": "pline.c",
       "sessions": [
@@ -102073,8 +102073,12 @@
       ],
       "selectionReason": "The v9 sleeping-potion effect now matches all C RNG values, but its final fountain sound uses a short unconditional JavaScript prefix. The complete current investigation at investigations/synthetic/v9/sleeping-potion-falls-asleep.json traces the source owner to pline.c:You_hear and the Unaware dream prefix; dig.c and read.c are reserved by other workers.",
       "detail": "Port all pline.c:You_hear gates and prefixes from source and wire active existing JavaScript sound callers through that function. Preserve the tty --More-- boundary arising from full message length and record independent hearing state variations; avoid a session-specific pause.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+      "openStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -102103,7 +102107,124 @@
           "evaluationPath": "challenges/evaluations/20260928032810-v9.json",
           "evaluationCommit": "b3559b21b4087eb86dad1a798fe621067c921f47"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [],
+      "evidence": {
+        "functions": [
+          {
+            "name": "You_hear",
+            "implementation": "js/pline.js",
+            "symbol": "youHear",
+            "sourceReview": "Read all of pline.c:You_hear() (436-454). Preserved the early return when (Deaf && !Unaware) || !flags.acoustics, followed by the Underwater, Unaware, and ordinary prefixes in C order. `heroDeaf` maps HDeaf/EDeaf and roleplay deafness; `heroUnaware` maps gm.multi < 0 && (unconscious() || is_fainted()). The helper returns null or the source-composed line so the production caller writes it through its normal pline callback and preserves the existing input boundary. Moved the implementation from monmove.js to pline.js and retained the monmove.js export for existing callers. Removed the duplicate magicTrapHear composition and routed trap-effects callers through the canonical helper. Source-backed callers added or corrected: trap.c:domagictrap fates 11 and 14, trap.c:launch_obj fallback, trap.c:trapeffect_arrow_trap hero wear-out, and trap.c:trapeffect_dart_trap hero misfire. Arrow/dart keep rn2(15), You_hear output, deltrap, newsym, and Trap_Is_Gone in source order; their independent C entry recordings are not yet available and remain explicit runtime gaps. Other existing JS callers retain their monmove.js import surface.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_scare_monster",
+                "source": "read.c:seffect_scare_monster() calls You_hear() for a scare scroll or when no non-pet monster is counted; the independent scare-scroll recording reaches this call."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "hear",
+                "source": "sounds.c:dosounds() and its sound-category helpers call You_hear/You_hear1; the selected sleeping-potion case reaches the ambient fountain message through this helper."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "domagictrap",
+                "source": "trap.c:domagictrap() emits You_hear() for low-hum and howling fates; the local duplicate composer is removed and the canonical helper now handles Deaf, acoustics, Underwater, and Unaware."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "launch_obj",
+                "source": "trap.c:launch_obj() uses You_hear() when its target cannot be seen; its fallback now uses the canonical helper."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_arrow_trap",
+                "source": "trap.c:trapeffect_arrow_trap() hero wear-out branch calls You_hear(\"a loud click!\") before deltrap(), newsym(), and Trap_Is_Gone."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_dart_trap",
+                "source": "trap.c:trapeffect_dart_trap() hero misfire branch calls You_hear(\"a soft click.\") before deltrap(), newsym(), and Trap_Is_Gone."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pline.test.mjs",
+              "scripts/hero-magic-trap.test.mjs",
+              "scripts/hero-dart-trap.test.mjs",
+              "scripts/sounds.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pline.c/you-hear-scare-scroll-independent-a38.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sleeping-potion-falls-asleep",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "potion.c:peffect_sleeping -> timeout.c:fall_asleep -> allmain.c:moveloop_core -> sounds.c:dosounds -> pline.c:You_hear"
+              }
+            ],
+            "checkedAt": "0ad1813eb7d516bad03ecf020442a374ae6e8d11"
+          }
+        ],
+        "entryPointReview": "The selected active entry is the v9 sleeping-potion turn, whose ambient fountain output executes sounds.c:dosounds -> pline.c:You_hear and matches through zero-based step 32. An independent Wizard scare-scroll recipe also reaches read.c:seffect_scare_monster -> You_hear and strictly matches all 38 steps. Existing call sites that import youHear from monmove.js retain that public import path, now re-exporting the canonical pline.js implementation. The A38 scope also corrects trap.c callers: domagictrap fates 11/14 and launch_obj use the shared Deaf/acoustics/Underwater/Unaware behavior; direct tests cover the low-hum/howling prefix and caller order. However, those trap caller paths do not yet have matching independent C recordings. The hero arrow-trap wear-out and dart-trap misfire branches are source-wired and directly tested for rn2(15), message-before-removal, and Trap_Is_Gone, but have no matching C recordings in this packet. These trap entry paths remain uncovered runtime evidence and must not be counted as recorded completion. The task's source function itself is exercised by both the selected synthetic range and the independent scare-scroll recording.",
+        "entryPoints": [
+          {
+            "name": "Ambient sounds after the sleeping-potion turn",
+            "functions": [
+              "You_hear"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v9",
+                "caseId": "sleeping-potion-falls-asleep",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 32,
+                "source": "potion.c:peffect_sleeping -> timeout.c:fall_asleep -> allmain.c:moveloop_core -> sounds.c:dosounds -> pline.c:You_hear"
+              }
+            ]
+          },
+          {
+            "name": "Read a scare-monster scroll that emits sound feedback",
+            "functions": [
+              "You_hear"
+            ],
+            "recordings": [
+              "recordings/pline.c/you-hear-scare-scroll-independent-a38.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Trap sound callers: magic-trap fates, launch object, arrow wear-out, and dart misfire",
+            "functions": [
+              "You_hear"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "0ad1813eb7d516bad03ecf020442a374ae6e8d11",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "You_hear source function and ambient/read callers match, but active trap.c caller entry points (domagictrap sound fates, launch_obj fallback, arrow wear-out, and dart misfire) still lack independent strictly matching C recordings; resume when source-reaching trap recipes can verify those paths."
     },
     {
       "id": "port-read-charging-synthetic-v9-20260928",
