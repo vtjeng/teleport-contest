@@ -30,6 +30,7 @@ import {
     FACE,
     HALLUC,
     HALLUC_RES,
+    FUMBLING,
     HMON_APPLIED,
     HMON_MELEE,
     HMON_KICKED,
@@ -57,9 +58,12 @@ import {
     P_KNIFE,
     P_LANCE,
     P_NONE,
+    P_ISRESTRICTED,
+    P_TWO_WEAPON_COMBAT,
     POTHIT_HERO_BASH,
     POTHIT_HERO_THROW,
     P_SKILLED,
+    P_UNSKILLED,
     P_WHIP,
     POISON_RES,
     STONE_RES,
@@ -141,7 +145,7 @@ import { game } from './gstate.js';
 import { doorless_door, test_move } from './hack.js';
 import { dist2, ing_suffix, s_suffix, sgn } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
-import { will_hurtle } from './dothrow.js';
+import { mhurtle, will_hurtle } from './dothrow.js';
 // js/mhitu.js imports mhitm_adtyping() and mhitm_knockback() from this file,
 // so this edge closes an import cycle, exactly as mhitu.c and uhitm.c call
 // into each other. Both bindings are hoisted function declarations, which an
@@ -329,6 +333,7 @@ import {
     otense,
     simpleonames,
     The,
+    Yname2,
     vtense,
     yname,
     Yobjnam2,
@@ -400,12 +405,13 @@ import {
     mwepgone,
     possibly_unwield,
 } from './weapon.js';
-import { can_twoweapon, cantwield } from './wield.js';
+import { can_twoweapon, cantwield, uwepgone } from './wield.js';
 import {
     bimanual,
     extract_from_minvent,
     find_mac,
     is_pole,
+    set_twoweap,
     setuwep,
     which_armor,
 } from './worn.js';
@@ -1552,7 +1558,7 @@ function shade_aware(obj, state) {
 //             Yobjnam2() and m_useupall(); C reaches it only for a hero at
 //             P_SKILLED or better swinging a two-handed weapon (or a
 //             Samurai's katana) at a monster that is wielding something.
-//   1043-1049 joust(), for a lance used from a saddle.
+//   1043-1049 joust(), whose consumed result selects the mounted-lance tail.
 //   1050-1063 the HMON_THROWN ammunition bonuses. hmon() admits only
 //             HMON_MELEE, so `thrown` is 0 here and both tests fail.
 //   1065-1066 permapoisoned(), which only Grimtooth satisfies; the poison
@@ -1655,11 +1661,8 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
         hmd.lightobj = true;
     if (state.u.usteed && !hmd.thrown && hmd.dmg > 0
         && weapon_type(obj, state) === P_LANCE && mon !== state.u.ustuck) {
-        // joust()'s knockback and lance break are a discarded side effect in
-        // this source slice. Keep the hit's damage and mark the source call
-        // without replacing it with a refusal.
-        note_unported('steed.c joust');
-        hmd.jousting = 1;
+        hmd.jousting = joust(mon, obj, state, random, env);
+        if (hmd.jousting) hmd.train_weapon_skill = true;
     }
     if (hmd.thrown === HMON_THROWN
         && (is_ammo(obj, state) || is_missile(obj, state))) {
@@ -2207,11 +2210,44 @@ async function hmon_hitmon_poison(hmd, mon, obj, state, env, random) {
     }
 }
 
-// C ref: uhitm.c mhurtle_to_doom() (1942-1957). Preserve the pending-damage
-// guard, cached species update and death result around the discarded hurtle.
-function mhurtle_to_doom(mon, damage, hmd) {
+// C ref: uhitm.c joust() (2098-2133). The -1/0/1 result selects the mounted
+// lance branch in hmon_hitmon_weapon_melee(); its RNG order is observable.
+function joust(mon, obj, state, random, env) {
+    if (state.u?.uprops?.[FUMBLING]?.intrinsic
+        || state.u?.uprops?.[FUMBLING]?.extrinsic
+        || state.u?.uprops?.[STUNNED]?.intrinsic)
+        return 0;
+    if (obj !== state.uwep
+        && (obj !== state.uswapwep || !state.u.twoweap))
+        return 0;
+    if (state.u.utrap) return 0;
+
+    let skillRating = P_SKILL(weapon_type(obj, state), state);
+    if (state.u.twoweap) {
+        const twoWeaponSkill = P_SKILL(P_TWO_WEAPON_COMBAT, state);
+        if (twoWeaponSkill < skillRating) skillRating = twoWeaponSkill;
+    }
+    if (skillRating === P_ISRESTRICTED) skillRating = P_UNSKILLED;
+
+    const joustDieroll = random.rn2(5);
+    if (joustDieroll < skillRating) {
+        if (joustDieroll === 0 && random.rnl(50) === 49
+            && !unsolid(mon.data, state)
+            && !obj_resists(obj, 0, 100, { ...env, state, random }))
+            return -1;
+        return 1;
+    }
+    return 0;
+}
+
+// C ref: uhitm.c mhurtle_to_doom() (1942-1957). Its return controls whether
+// the caller skips later damage; the monster's cached species pointer is
+// refreshed after mhurtle because a trap may polymorph or revert it.
+async function mhurtle_to_doom(mon, damage, hmd, state, env, random) {
     if (damage < mon.mhp) {
-        note_unported('dothrow.c mhurtle');
+        await mhurtle(mon, state.u.dx, state.u.dy, 1, {
+            ...env, state, random,
+        });
         hmd.mdat = mon.data;
         if (mon.mhp < 1) return true;
     }
@@ -2229,10 +2265,42 @@ async function hmon_hitmon_stagger(hmd, mon, state, env, random) {
                 state,
             );
         }
-        if (mhurtle_to_doom(mon, hmd.dmg, hmd))
+        if (await mhurtle_to_doom(
+            mon, hmd.dmg, hmd, state, env, random,
+        ))
             hmd.already_killed = true;
         hmd.hittxt = true;
     }
+}
+
+// C ref: uhitm.c hmon_hitmon_jousting() (1540-1567). Joust damage and
+// feedback precede the optional lance break; mhurtle_to_doom's consumed
+// result then controls the later damage path in hmon_hitmon().
+async function hmon_hitmon_jousting(hmd, mon, obj, state, env, random) {
+    hmd.dmg += random.d(2, obj === state.uwep ? 10 : 2);
+    await (env.message ?? ttyPline)(
+        `You joust ${mon_nam(mon, state)}${canseemon(mon, state)
+            ? exclam(hmd.dmg) : '.'}`,
+        state,
+    );
+    if ((state.u.uconduct?.weaphit ?? 0) <= 1)
+        first_weapon_hit(obj, state);
+
+    if (hmd.jousting < 0) {
+        set_twoweap(false, state);
+        if (obj === state.uwep)
+            uwepgone({ ...env, state });
+        await (env.message ?? ttyPline)(
+            `${Yname2(obj, state)} shatters on impact!`, state,
+        );
+        await useup(obj, { ...env, state });
+        obj = null;
+    }
+    if (await mhurtle_to_doom(
+        mon, hmd.dmg, hmd, state, env, random,
+    ))
+        hmd.already_killed = true;
+    hmd.hittxt = true;
 }
 
 // C ref: uhitm.c hmon_hitmon_pet() (1587-1601). Hitting a pet costs tameness
@@ -2342,8 +2410,8 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
 // These source calls stop or annotate the common path:
 //
 //   1821-1822 shade_miss() feedback, for a shade that took no damage.
-//   1826      hmon_hitmon_jousting(), a discarded helper whose movement
-//             dependency remains unported.
+//   1826      hmon_hitmon_jousting(), which can move a mounted target through
+//             the return-valued mhurtle_to_doom() helper.
 //   1874-1877 hmon_hitmon_msg_silver() and hmon_hitmon_msg_lightobj(), the
 //             two "sears" messages a silver or Sunsword hit adds.
 //   1898-1907 the poison messages and xkilled(); hmon_hitmon_poison() sets
@@ -2370,7 +2438,7 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
 // The `!Upolyd` term is retained in both arms; polymorphed heroes use a
 // different attack path and must not enter these human-hero reactions.
 async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
-    const random = env.random ?? { d, rn1, rn2, rnd };
+    const random = env.random ?? { d, rn1, rn2, rnl, rnd };
     const hmd = {
         dmg: 0,
         thrown,
@@ -2443,9 +2511,9 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     }
 
     if (hmd.jousting) {
-        // hmon_hitmon_jousting() is a discarded void helper whose
-        // mhurtle_to_doom() return dependency remains outside this slice.
-        note_unported('uhitm.c hmon_hitmon_jousting');
+        await hmon_hitmon_jousting(
+            hmd, mon, obj, state, env, random,
+        );
     } else if (hmd.unarmed && hmd.dmg > 1 && !thrown && !obj
                && !Upolyd(state.u)) {
         await hmon_hitmon_stagger(hmd, mon, state, env, random);
@@ -3782,7 +3850,7 @@ export async function mhitm_knockback(
 ) {
     const flags = hitflags ?? { value: 0 };
     const rng = random ?? env?.random ?? { rn2 };
-    rng.rn2(3); /* knockdistance: 67%: 1 step, 33%: 2 steps */
+    const knockdistance = rng.rn2(3) ? 1 : 2;
     let chance = 6; /* 1/6 chance of attack knocking back a monster */
     const u_agr = (magr === state.youmonst);
     let u_def = (mdef === state.youmonst);
@@ -3914,7 +3982,9 @@ export async function mhitm_knockback(
             note_unported('potion.c make_stunned');
         }
     } else {
-        note_unported('dothrow.c mhurtle');
+        await mhurtle(mdef, dx, dy, knockdistance, {
+            ...env, state, random: rng,
+        });
         if (!u_agr) flags.value |= M_ATTK_HIT;
         if (mdef.mhp < 1) {
             if (!was_u) flags.value |= M_ATTK_DEF_DIED;

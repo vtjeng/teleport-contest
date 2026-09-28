@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent hero-entry witness for region.c:inside_gas_cloud: read a wished-for stinking-cloud scroll and target the hero square, then record its first poisonous turn. The seed, clock, character, and input were selected for this callback path.",
+  "segments": [
+    {
+      "seed": 91826041,
+      "datetime": "20430722112630",
+      "nethackrc": "OPTIONS=name:CloudHeroB36,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " \u0017scroll of stinking cloud\nro    ."
+    }
+  ]
+}

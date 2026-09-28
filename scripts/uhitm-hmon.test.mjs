@@ -35,6 +35,7 @@ import {
     P_BASIC,
     P_KNIFE,
     P_BARE_HANDED_COMBAT,
+    P_LANCE,
     P_SKILLED,
     ROWNO,
 } from '../js/const.js';
@@ -44,7 +45,7 @@ import {
 } from '../js/artifacts.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { newMonster } from '../js/monst.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     AD_PHYS,
     AT_CLAW,
@@ -208,6 +209,7 @@ function hitEnv({ rolls = [], fallback = 1, ...overrides } = {}) {
             d: (n, x) => next(`d(${n},${x})`),
             rn1: (x, from) => next(`rn1(${x},${from})`) + from,
             rn2: (bound) => next(`rn2(${bound})`),
+            rnl: (bound) => next(`rnl(${bound})`),
             rnd: (bound) => next(`rnd(${bound})`),
             rne: (bound) => next(`rne(${bound})`),
             rnz: (bound) => next(`rnz(${bound})`),
@@ -258,6 +260,7 @@ test('a singleton wielded potion uses the canonical unwield hooks', async () => 
         mcansee: 1,
         mblinded: 0,
     });
+
     // The evaporate line makes the potion's appearance known, so C reaches
     // trycall() after potionbreathe() and waits for a line of input.
     for (const key of [' ', 'x', '\n'])
@@ -273,6 +276,58 @@ test('a singleton wielded potion uses the canonical unwield hooks', async () => 
     assert.equal(mon.mblinded > 0, true);
     assert.ok(mon.mhp < 30);
 });
+
+test('mounted lance hit consumes joust result and runs the full hurtle helper',
+    async () => {
+        const start = UHITM_SOURCE.indexOf('joust(struct monst *mon');
+        const end = UHITM_SOURCE.indexOf('/* send in a demon pet', start);
+        const cJoust = UHITM_SOURCE.slice(start, end);
+        assert.match(cJoust, /if \(Fumbling \|\| Stunned\)/u);
+        assert.match(cJoust, /joust_dieroll = rn2\(5\)/u);
+        assert.match(cJoust,
+            /joust_dieroll == 0 && rnl\(50\) == \(50 - 1\)[\s\S]*?return -1/u);
+        assert.match(UHITM_SOURCE,
+            /hmd->jousting = joust\(mon, obj\);[\s\S]*?hmon_hitmon_jousting\(&hmd, mon, obj\)/u);
+
+        await hero({ role: 'Knight' });
+        const lance = mksobj(LANCE, false, false, { state: game });
+        addinv(lance, { state: game });
+        setuwep(lance, setwornEnv(game));
+        game.u.usteed ??= newMonster({
+            data: game.mons[PM_LITTLE_DOG],
+            m_id: 500,
+            mhp: 12,
+            mhpmax: 12,
+            mcanmove: true,
+            mcansee: true,
+        });
+        game.u.dx = 1;
+        game.u.dy = 0;
+        game.level.regions = [];
+
+        const mon = target(PM_NEWT, { mhp: 50, mhpmax: 50 });
+        mon.mx = game.u.ux + 3;
+        while (mon.mx < 76 && m_at(mon.mx, mon.my, game)) mon.mx++;
+        const startX = mon.mx;
+        place_monster(mon, mon.mx, mon.my, game);
+        skillSlot(P_LANCE, game).skill = P_BASIC;
+        const env = hitEnv({ rolls: [1, 0, 0, 1, 1] });
+        env.random.d = (count, sides) => {
+            let total = 0;
+            for (let die = 0; die < count; die++)
+                total += env.random.rnd(sides);
+            return total;
+        };
+
+        await hmon(mon, lance, HMON_MELEE, 10, game, env);
+        assert.deepEqual(env.bounds.slice(0, 5), [
+            'rnd(6)', 'rn2(5)', 'rnl(50)', 'rnd(10)', 'rnd(10)',
+        ]);
+        assert.ok(env.lines.some(line => line.includes('You joust')));
+        assert.equal(mon.mx, startX + 1);
+        assert.equal(mon.movement, 0);
+        assert.equal(mon.mstun, 1);
+    });
 
 // uhitm.c:826-833. A temple priest's god strikes back through ghod_hitsu(),
 // behind an rn2(2) that only a priest target draws. That consequence remains
@@ -423,7 +478,8 @@ test('the stagger and knockback arms divide by hand and by damage',
         assert.deepEqual(minimal.bounds, ['rnd(2)']);
 
         // A roll below Skilled reaches the source message and suppresses
-        // the ordinary hit line even while mhurtle remains a named gap.
+        // the ordinary hit line. Its monster movement is supplied by the
+        // separate dothrow.c mhurtle() port.
         skillSlot(P_BARE_HANDED_COMBAT, game).skill = P_SKILLED;
         const struck = hitEnv({ rolls: [2, 1] });
         await hmon(target(), null, HMON_MELEE, 10, game, struck);
@@ -459,9 +515,9 @@ test('a fatal blow never reaches mhitm_knockback', async () => {
     assert.deepEqual(env.bounds, ['rnd(3)', 'rn2(6)', 'rn2(2)']);
 });
 
-// uhitm.c mhitm_knockback() (5245-5372). Its guard chain runs after the two
-// draws; the size test at 5324-5326 is the last one this port answers, and
-// everything past it stops.
+// uhitm.c mhitm_knockback() (5245-5420). These cases pin its initial guard
+// chain and hitflags contract; separate caller recordings cover accepted
+// knockback movement through dothrow.c mhurtle().
 test('mhitm_knockback returns its source hitflags contract',
     async () => {
         await hero();
@@ -484,8 +540,8 @@ test('mhitm_knockback returns its source hitflags contract',
         assert.deepEqual(goblin.bounds, ['rnd(3)', 'rn2(3)', 'rn2(6)']);
 
         // A grid bug is MZ_TINY, so `2 > 0 + 1` holds and the source arm is
-        // accepted. The movement helper is a discarded void dependency, but
-        // the boolean and hitflags contract remain visible to the caller.
+        // accepted. C discards the helper's result, but the port still runs
+        // its movement and trap side effects before returning.
         const tiny = hitEnv({ rolls: [3, 1, 0] });
         assert.equal(
             await hmon(target(PM_GRID_BUG), game.uwep, HMON_MELEE, 10, game,

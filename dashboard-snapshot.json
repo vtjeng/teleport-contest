@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-28T00:48:46.593Z",
+  "capturedAt": "2026-09-28T02:21:57.075Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -6326,12 +6326,175 @@
         "type": "accepted",
         "at": "2026-09-28T00:48:38.759Z",
         "task": "C28"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C28-87ccba27-20260927",
+        "type": "published",
+        "at": "2026-09-28T00:50:53.894Z",
+        "task": "C28",
+        "commit": "87ccba27009e38dbc588a7ea65ca687e896cc954"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A35-92337428-20260927",
+        "type": "integrating",
+        "at": "2026-09-28T00:55:43.195Z",
+        "task": "A35",
+        "integration": "92337428e67cca2eea46bf6ddbf9f1412851dd43"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C29-20260928",
+        "type": "assign",
+        "at": "2026-09-28T00:55:51.442Z",
+        "task": "C29",
+        "worker": "C",
+        "goal": "port-detect-gold-food-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A35-validated-92337428",
+        "type": "validated",
+        "at": "2026-09-28T01:11:53.551Z",
+        "task": "A35",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A35-accepted-92337428",
+        "type": "accepted",
+        "at": "2026-09-28T01:12:09.705Z",
+        "task": "A35"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A35-published-c9f71c18",
+        "type": "published",
+        "at": "2026-09-28T01:14:26.073Z",
+        "task": "A35",
+        "commit": "c9f71c18f2b23b955fe49987a70a5b777f6f8a2e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A36-assign-dd245657",
+        "type": "assign",
+        "at": "2026-09-28T01:19:13.799Z",
+        "task": "A36",
+        "worker": "A",
+        "goal": "port-potion-sleeping-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3dce837b0d2af054972b6045aaed7af76a12158f",
+        "type": "ready",
+        "at": "2026-09-28T01:43:41.620Z",
+        "task": "B36",
+        "delivery": "3dce837b0d2af054972b6045aaed7af76a12158f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B36-received-3dce837b",
+        "type": "received",
+        "at": "2026-09-28T01:45:19.262Z",
+        "task": "B36",
+        "delivery": "3dce837b0d2af054972b6045aaed7af76a12158f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B36-integrating-73114755",
+        "type": "integrating",
+        "at": "2026-09-28T01:46:36.947Z",
+        "task": "B36",
+        "integration": "7311475572cdadbc440bcac61cb0f98f42dfd481"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4482da687be65c1eb22e42ba53b554b82a8eaf19",
+        "type": "ready",
+        "at": "2026-09-28T01:51:50.719Z",
+        "task": "C29",
+        "delivery": "4482da687be65c1eb22e42ba53b554b82a8eaf19"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-4fc55ed2475ed7ad9d31e536bf6cc7287d2f0e13",
+        "type": "ready",
+        "at": "2026-09-28T01:56:50.357Z",
+        "task": "A36",
+        "delivery": "4fc55ed2475ed7ad9d31e536bf6cc7287d2f0e13"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B36-validated-73114755",
+        "type": "validated",
+        "at": "2026-09-28T02:01:15.046Z",
+        "task": "B36",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B36-accepted-73114755",
+        "type": "accepted",
+        "at": "2026-09-28T02:01:46.546Z",
+        "task": "B36"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B36-published-11ec0467",
+        "type": "published",
+        "at": "2026-09-28T02:04:52.163Z",
+        "task": "B36",
+        "commit": "11ec0467ac5ef55540eb39b1ad1eeea14d7edb97"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B37-assign-922a37aa",
+        "type": "assign",
+        "at": "2026-09-28T02:06:34.113Z",
+        "task": "B37",
+        "worker": "B",
+        "goal": "port-dig-occupation-synthetic-v9-20260927",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C29-received-4482da68",
+        "type": "received",
+        "at": "2026-09-28T02:07:11.144Z",
+        "task": "C29",
+        "delivery": "4482da687be65c1eb22e42ba53b554b82a8eaf19"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C29-integrating-83eadf8b",
+        "type": "integrating",
+        "at": "2026-09-28T02:07:51.714Z",
+        "task": "C29",
+        "integration": "83eadf8bad622d06795bd8bcaa965a569607654f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C29-validated-83eadf8b",
+        "type": "validated",
+        "at": "2026-09-28T02:21:17.521Z",
+        "task": "C29",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C29-accepted-83eadf8b",
+        "type": "accepted",
+        "at": "2026-09-28T02:21:38.502Z",
+        "task": "C29"
       }
     ]
   },
   "development": {
-    "executionCommit": "53cc6b92add1297a9b69eb64121a2858312f81a2",
-    "measuredAt": "2026-09-28T00:47:58.925Z",
+    "executionCommit": "83eadf8bad622d06795bd8bcaa965a569607654f",
+    "measuredAt": "2026-09-28T02:13:36.830Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

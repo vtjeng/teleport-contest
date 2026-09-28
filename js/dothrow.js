@@ -3,7 +3,7 @@
 // C refs: src/dothrow.c multishot_class_bonus(), throw_obj(), ok_to_throw(),
 // throw_ok(), dothrow(), find_launcher(), dofire(), throwing_weapon(),
 // throwit(), throwit_return(), throwit_mon_hit(), breaktest(), walk_path(),
-// hurtle_jump() and hurtle_step().
+// hurtle_jump(), hurtle_step(), mhurtle_step() and mhurtle().
 //
 // dothrow() is three calls: ok_to_throw() asks whether the hero can throw at
 // all, getobj() runs the prompt over throw_ok()'s per-object classification,
@@ -30,6 +30,7 @@
 
 import {
     ARTICLE_A,
+    ARTICLE_YOUR,
     A_ORIGINAL,
     ACCFOOD,
     A_CON,
@@ -58,6 +59,7 @@ import {
     ECMD_TIME,
     EF_DESTROY,
     EF_VERBOSE,
+    EXACT_NAME,
     ERODE_CRACK,
     ER_DESTROYED,
     EYE,
@@ -80,6 +82,7 @@ import {
     IS_DOOR,
     IS_OBSTRUCTED,
     IS_TREE,
+    IS_WATERWALL,
     Is_airlevel,
     Is_waterlevel,
     KILLED_BY,
@@ -106,8 +109,10 @@ import {
     WT_TO_DMG,
     TIMEOUT,
     SUPPRESS_SADDLE,
+    SUPPRESS_NAME,
     is_hole,
     is_pit,
+    u_at,
     has_mgivenname,
     isok,
     ismnum,
@@ -142,6 +147,11 @@ import {
     HMON_THROWN,
     M_AP_MONSTER,
     M_AP_TYPE,
+    HURTLING,
+    FORCEBUNGLE,
+    Trap_Caught_Mon,
+    Trap_Killed_Mon,
+    Trap_Moved_Mon,
     MM_IGNORELAVA,
     MM_IGNOREWATER,
     OBJ_MINVENT,
@@ -186,6 +196,7 @@ import {
     inv_weight,
     losehp,
     may_passwall,
+    NODIAG,
     nh_delay_output,
     switch_terrain,
     weight_cap,
@@ -223,11 +234,14 @@ import {
     can_blnd,
     hates_silver,
     mon_hates_blessings,
+    monsndx,
     passes_rocks,
     poly_when_stoned,
     your_race,
 } from './mondata.js';
-import { closed_door, monnear, youHear } from './monmove.js';
+import {
+    closed_door, m_in_air, monnear, set_apparxy, youHear,
+} from './monmove.js';
 import { dogfood } from './dogfood.js';
 import { tamedog } from './dog.js';
 import {
@@ -368,6 +382,7 @@ import {
     xnameFresh,
 } from './objnam.js';
 import {
+    a_monnam,
     Monnam,
     mon_nam,
     pmname,
@@ -379,7 +394,7 @@ import { encumber_msg } from './pickup.js';
 import { verbalize } from './pline.js';
 import { body_part, polymon } from './polyself.js';
 import { makeplural } from './fruit.js';
-import { d, rn1, rn2, rnl, rnd } from './rng.js';
+import { d, rn1, rn2, rnl, rnd, rne } from './rng.js';
 import {
     autoreturn_weapon, dmgval, hitval, skill_name, weapon_descr,
     weapon_hit_bonus,
@@ -401,18 +416,19 @@ import { doquiver_core, welded } from './wield.js';
 import { could_pole_mon, use_pole, use_whip } from './apply.js';
 import {
     find_mac, is_pole, set_twoweap, setuqwep, setuswapwep, setuwep,
+    which_armor,
 } from './worn.js';
 import { bhit, boomhit, hit, miss } from './zap.js';
 import { hmon } from './uhitm.js';
-import { m_at } from './monst.js';
-import { setmangry, wake_nearto, wakeup } from './mon.js';
+import { m_at, place_monster, remove_monster } from './monst.js';
+import { minliquid, setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj, remove_worn_item } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { align_gname } from './pray.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
-import { in_out_region } from './region.js';
+import { in_out_region, m_in_out_region } from './region.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import {
     costly_spot,
@@ -421,7 +437,7 @@ import {
     stolen_value,
 } from './shk.js';
 import { erode_obj } from './trap_erode_obj.js';
-import { dotrap } from './trap_effects.js';
+import { dotrap, mintrap } from './trap_effects.js';
 import { Punished } from './steed.js';
 import { move_bc, drag_ball } from './ball.js';
 import { note_unported } from './unported.js';
@@ -590,6 +606,192 @@ export function will_hurtle(mon, x, y, state = game, env = {}) {
         MM_IGNOREWATER | MM_IGNORELAVA,
         { ...env, state },
     );
+}
+
+// trap.c mintrap() receives these operations from its production callers.
+// Keep mhurtle's ordinary effects executable with its source owner defaults,
+// while preserving a named refusal if mintrap reaches a still-unported arm.
+function mhurtleTrapEnvironment(rawEnv, state) {
+    return {
+        ...rawEnv,
+        state,
+        random: {
+            d, rn1, rn2, rnd, rne, rnl,
+            ...(rawEnv.random ?? {}),
+        },
+        mInAir: rawEnv.mInAir ?? m_in_air,
+        heroDeaf: rawEnv.heroDeaf ?? Deaf,
+        youHear: rawEnv.youHear ?? youHear,
+        message: rawEnv.message
+            ?? ((line, target) => ttyPline(line, target ?? state)),
+        redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y)),
+        unsupported: rawEnv.unsupported ?? ((reason) => {
+            throw new Error(`trap.c mintrap cannot run ${reason}`);
+        }),
+    };
+}
+
+// C ref: dothrow.c mhurtle_step() (992-1074). This is the monster callback
+// consumed by walk_path(): its boolean decides whether the path advances to
+// the next cell. mintrap()'s Trap_* result is consumed exactly as in C; the
+// petrification helpers are void and retain named gaps at their call sites.
+export async function mhurtle_step(arg, x, y) {
+    const { monster, state = game, env = {} } = arg ?? {};
+    if (!monster || !state.level)
+        throw new TypeError('mhurtle_step requires a monster and level');
+    if (!isok(x, y)) return false;
+
+    if (will_hurtle(monster, x, y, state, env)
+        && await m_in_out_region(monster, x, y, { ...env, state })) {
+        if (monster !== state.u?.usteed) {
+            const oldX = monster.mx;
+            const oldY = monster.my;
+            remove_monster(oldX, oldY, state);
+            newsym(oldX, oldY);
+            place_monster(monster, x, y, state);
+            newsym(monster.mx, monster.my);
+        } else {
+            state.u.ux0 = state.u.ux;
+            state.u.uy0 = state.u.uy;
+            u_on_newpos(x, y, state);
+            newsym(state.u.ux0, state.u.uy0);
+            vision_recalc(0, { state });
+        }
+        await flush_screen(1);
+        await nh_delay_output(state);
+        set_apparxy(monster, { ...env, state, random: env.random });
+        if (IS_WATERWALL(state.level.at(x, y).typ)) return false;
+        const result = await mintrap(
+            monster, HURTLING, mhurtleTrapEnvironment(env, state),
+        );
+        if (result === Trap_Killed_Mon || result === Trap_Caught_Mon
+            || result === Trap_Moved_Mon) {
+            return false;
+        }
+        return true;
+    }
+
+    const otherMonster = m_at(x, y, state);
+    if (otherMonster && otherMonster !== monster) {
+        if (canseemon(monster, state) || canseemon(otherMonster, state)) {
+            await ttyPline(
+                `${Monnam(monster, state, env)} bumps into `
+                    + `${a_monnam(otherMonster, env)}.`,
+                state,
+            );
+        }
+        await wakeup(otherMonster, !state.context?.mon_moving, {
+            ...env, state,
+        });
+        if (touch_petrifies(otherMonster.data)
+            && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
+            note_unported('trap.c minstapetrify');
+            newsym(monster.mx, monster.my);
+        }
+        if (touch_petrifies(monster.data)
+            && !which_armor(otherMonster, W_ARMU | W_ARM | W_ARMC, state)) {
+            note_unported('trap.c minstapetrify');
+            newsym(otherMonster.mx, otherMonster.my);
+        }
+    } else if (u_at(x, y, state)) {
+        await ttyPline(
+            `${Some_Monnam(monster, state, env)} bumps into you.`,
+            state,
+        );
+        const { stop_occupation } = await import('./allmain.js');
+        await stop_occupation(state, {
+            ...env,
+            message: env.message
+                ?? ((line, target) => ttyPline(line, target ?? state)),
+        });
+        if (Upolyd(state.u) && touch_petrifies(state.youmonst.data)
+            && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
+            note_unported('trap.c minstapetrify');
+            newsym(monster.mx, monster.my);
+        }
+        if (touch_petrifies(monster.data)
+            && !(state.uarmu || state.uarm || state.uarmc)) {
+            state.svk ??= {};
+            state.svk.killer ??= {};
+            const article = monster.mtame ? ARTICLE_YOUR : ARTICLE_A;
+            const name = x_monnam(
+                monster,
+                article,
+                'hurtling',
+                EXACT_NAME | SUPPRESS_NAME,
+                false,
+                state,
+                env,
+            );
+            state.svk.killer.name = `being hit by ${name}`;
+            note_unported('trap.c instapetrify');
+            newsym(state.u.ux, state.u.uy);
+        }
+    }
+    return false;
+}
+
+// C ref: dothrow.c mhurtle() (1130-1178). The final walk_path result,
+// mintrap(FORCEBUNGLE), and minliquid results are discarded by C; calls to
+// those source owners still run in order because their state/output effects
+// are observable before the helper returns.
+export async function mhurtle(monster, dx, dy, range, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = { ...rawEnv, state };
+    const random = rawEnv.random;
+
+    await wakeup(monster, !state.context?.mon_moving, { ...env, random });
+    monster.movement = 0;
+    monster.mstun = 1;
+
+    if (monster.data.msize >= MZ_HUGE || monster === state.u?.ustuck
+        || monster.mtrapped) {
+        if (canseemon(monster, state))
+            await ttyPline(`${Monnam(monster, state, env)} doesn't budge!`,
+                state);
+        return;
+    }
+
+    dx = sgn(dx);
+    dy = sgn(dy);
+    if (!range || (!dx && !dy)) return;
+    if (dx && dy && NODIAG(monsndx(monster.data))) return;
+
+    if (monster.mundetected) {
+        monster.mundetected = 0;
+        newsym(monster.mx, monster.my);
+    }
+    if (M_AP_TYPE(monster)) seemimic(monster, state);
+
+    const source = { x: monster.mx, y: monster.my };
+    const destination = {
+        x: monster.mx + dx * range,
+        y: monster.my + dy * range,
+    };
+    const movementEnv = {
+        ...env,
+        state,
+        random: {
+            d, rn1, rn2, rnd, rne, rnl,
+            ...(random ?? {}),
+        },
+    };
+    await walk_path(source, destination, mhurtle_step, {
+        monster,
+        state,
+        env: movementEnv,
+    });
+    if (monster.mhp >= 1) {
+        if (t_at(monster.mx, monster.my, state)) {
+            await mintrap(
+                monster,
+                FORCEBUNGLE,
+                mhurtleTrapEnvironment(movementEnv, state),
+            );
+        } else {
+            await minliquid(monster, movementEnv);
+        }
+    }
 }
 
 // C ref: dothrow.c hurtle_step() (773-972). This is the movement callback for

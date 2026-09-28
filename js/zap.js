@@ -119,6 +119,7 @@ import {
     Is_waterlevel,
     LAVAWALL,
     M_AP_MONSTER,
+    M_AP_FURNITURE,
     M_AP_NOTHING,
     M_AP_OBJECT,
     M_AP_TYPE,
@@ -377,6 +378,7 @@ import {
     NUMMONS,
     S_EEL,
     S_MIMIC,
+    MZ_MEDIUM,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
@@ -489,6 +491,7 @@ import {
     FIRE_HORN,
     MUMMY_WRAPPING,
     LARGE_BOX,
+    CHEST,
     TIN,
     WAN_SECRET_DOOR_DETECTION,
     WAN_SLEEP,
@@ -602,7 +605,9 @@ import {
 } from './shk.js';
 import { Shknam, shkname } from './shknam.js';
 import { canSpotMonster, messageAt } from './startup_a11y.js';
-import { S_digbeam, S_flashbeam } from './symbols.js';
+import {
+    S_digbeam, S_flashbeam, S_hcdoor, S_vodoor,
+} from './symbols.js';
 import { closed_door, dissolve_bars, m_in_air, youHear } from './monmove.js';
 import { stairway_at } from './stairs.js';
 import { is_ice } from './terrain.js';
@@ -616,7 +621,7 @@ import {
     reset_utrap, set_utrap, t_at,
 } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
-import { flash_hits_mon, shade_miss } from './uhitm.js';
+import { flash_hits_mon, m_is_steadfast, shade_miss } from './uhitm.js';
 import { enexto, tele } from './teleport.js';
 import {
     block_point, cansee, canseemon, couldsee, does_block,
@@ -652,7 +657,7 @@ import { livelog_printf } from './pline.js';
 import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
 import { boxlock, picking_at, reset_pick } from './lock.js';
-import { breaks, breakobj, hero_breaks } from './dothrow.js';
+import { breaks, breakobj, hero_breaks, mhurtle } from './dothrow.js';
 
 // Thrown where zap.c reaches a wand effect this port has not ported.
 export class UnsupportedZapError extends Error {
@@ -3122,8 +3127,8 @@ export async function bhito(obj, wand, state = game,
 
 // C ref: zap.c bhitm() (160-610). The immediate polymorph callback uses the
 // same monster selector as mon.c and awaits its result because newcham may
-// prompt or run floor effects. Force Bolt and striking have their own hit and
-// resistance path; remaining callback effects retain named refusals.
+// prompt or run floor effects. Force Bolt and SPE_KNOCK have their source
+// effect paths; remaining callback effects retain named refusals.
 export async function bhitm(monster, wand, state = game,
     random = { d, rn2, rnd }, rawEnv = {}) {
     // bhit() consumes the callback's return value while walking the ray.
@@ -3132,6 +3137,8 @@ export async function bhitm(monster, wand, state = game,
     state.gn.notonhead = monster.mx !== hitpos.x || monster.my !== hitpos.y;
     let learn_it = false;
     let reveal_invis = false;
+    let wake = true;
+    let ret = 0;
     const otyp = wand.otyp;
     const forceBolt = otyp === WAN_STRIKING || otyp === SPE_FORCE_BOLT;
     const disguised_mimic = monster.data?.mlet === S_MIMIC
@@ -3144,7 +3151,7 @@ export async function bhitm(monster, wand, state = game,
             reveal_invis = true;
         }
     } else if (!forceBolt && otyp !== WAN_POLYMORPH
-        && otyp !== SPE_POLYMORPH) {
+        && otyp !== SPE_POLYMORPH && otyp !== SPE_KNOCK) {
         throw new UnsupportedZapError(
             `bhitm() for immediate effect type ${otyp}`,
         );
@@ -3174,6 +3181,61 @@ export async function bhitm(monster, wand, state = game,
             if (!disguised_mimic)
                 await miss(zap_type_text, monster, state, rawEnv);
             learn_it = false;
+        }
+    } else if (otyp === SPE_KNOCK) {
+        const appearanceType = M_AP_TYPE(monster);
+        const boxOrDoor = (appearanceType === M_AP_OBJECT
+            && (monster.mappearance === CHEST
+                || monster.mappearance === LARGE_BOX))
+            || (appearanceType === M_AP_FURNITURE
+                && monster.mappearance >= S_vodoor
+                && monster.mappearance <= S_hcdoor);
+        if (disguised_mimic && boxOrDoor) seemimic(monster, state);
+        wake = false;
+        if (monster === state.u?.ustuck) {
+            await release_hold(state);
+            learn_it = true;
+        } else {
+            const holding = await openholdingtrap(monster, state);
+            if (holding.noticed) learn_it = true;
+            if (!holding.result) {
+                const falling = await openfallingtrap(monster, true, state);
+                if (falling.noticed) learn_it = true;
+                if (!falling.result) {
+                    wake = true;
+                    ret = 1;
+                    if (monster.data.msize < MZ_MEDIUM
+                        && !m_is_steadfast(monster, state)) {
+                        if (canseemon(monster, state)) {
+                            await ttyPline(
+                                `${Monnam(monster, state, rawEnv)}`
+                                    + ' is knocked back!',
+                                state,
+                            );
+                        }
+                        await mhurtle(
+                            monster,
+                            monster.mx - state.u.ux,
+                            monster.my - state.u.uy,
+                            random.rnd(2),
+                            { ...rawEnv, state, random },
+                        );
+                    } else if (canseemon(monster, state)) {
+                        await ttyPline(
+                            `${Monnam(monster, state, rawEnv)}`
+                                + " doesn't budge.",
+                            state,
+                        );
+                    }
+                    if (monster.mhp >= 1) {
+                        await wakeup(monster, !mindless(monster.data), {
+                            ...rawEnv, state, random,
+                        });
+                        const { abuse_dog } = await import('./dog.js');
+                        await abuse_dog(monster, state, random);
+                    }
+                }
+            }
         }
     } else if (monster.data === state.mons?.[PM_LONG_WORM]
         && has_mcorpsenm(monster)) {
@@ -3243,7 +3305,7 @@ export async function bhitm(monster, wand, state = game,
             state.context.bypasses = true;
         }
     }
-    if (monster.mhp >= 1) {
+    if (wake && monster.mhp >= 1) {
         await wakeup(monster, !mindless(monster.data), {
             ...rawEnv, state, random,
         });
@@ -3254,7 +3316,7 @@ export async function bhitm(monster, wand, state = game,
         && !canSpotMonster(monster, state))
         map_invisible(hitpos.x, hitpos.y, state);
     if (learn_it) learnwand(wand, state);
-    return 0;
+    return ret;
 }
 
 // C ref: zap.c bhitpile() (2428-2537).  Every floor callback receives the
