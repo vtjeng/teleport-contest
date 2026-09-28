@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 replacement. Reached source branch: potion.c:peffect_gain_level cursed branch -> Can_rise_up -> goto_level(D:1). C state/action history: Fresh debug Wizard on ordinary D:2, no Amulet and no transition blocker; cursed potion of gain level. Dismiss startup; use #levelchange to D:2; wish one cursed gain-level potion; quaff, dismiss “You rise up” and the potion naming prompt.",
+  "segments": [
+    {
+      "seed": 48271981,
+      "datetime": "20281027090641",
+      "nethackrc": "OPTIONS=name:V10CursedRise,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u00162\n \u0017cursed potion of gain level\nqo \u001b"
+    }
+  ]
+}

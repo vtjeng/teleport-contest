@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 replacement. Reached source branch: read.c:seffect_fire blessed non-confused branch -> getpos center -> explode. C state/action history: Debug Wizard at level 10 with tips disabled, blessed fire scroll and adjacent hostile newt; not confused or underwater; hero/current map tile chosen as explosion center. Dismiss startup; use #levelchange 10 to survive debug setup; wizard-create hostile newt; wish blessed scroll of fire; read inventory scroll n; clear both pagers; accept hero tile with getpos “.”; dismiss explosion result.",
+  "segments": [
+    {
+      "seed": 48271983,
+      "datetime": "20281027090643",
+      "nethackrc": "OPTIONS=name:V10FireScroll,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!tips\n",
+      "moves": " #levelchange\n10\n          \u0007hostile newt\n \u0017blessed scroll of fire\nrn  . "
+    }
+  ]
+}

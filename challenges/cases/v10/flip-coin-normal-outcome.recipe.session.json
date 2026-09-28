@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first frozen mission flip-coin-normal-outcome; corrected only from C setup miss: source represents coin class as GOLD_PIECE/gold piece.",
+  "segments": [
+    {
+      "seed": 86290173,
+      "datetime": "20411003091500",
+      "nethackrc": "OPTIONS=name:V10Coin,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017gold piece\na*$"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 lawful Knight fountain dip. #levelchange to 5 produces and dismisses three level-up pagers; #wizwish creates the fountain and long sword; inventory screen identifies the wished sword as i; select it and confirm the fountain dip.",
+  "segments": [
+    {
+      "seed": 48271960,
+      "datetime": "20281027090620",
+      "nethackrc": "OPTIONS=name:V10Dip,role=Knight,race=human,gender=female,align=lawful,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " #levelchange\n5\n   \u0017fountain\n\u0017long sword\n#dip\n?iy"
+    }
+  ]
+}

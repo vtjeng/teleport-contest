@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 replacement. Reached source branch: steed.c:use_saddle -> can_saddle(newt)==false. C state/action history: Debug Wizard has a visible tame newt directly south, no saddle on it, and a wished saddle in inventory; hero has hands and is not swallowed or underwater. Dismiss character/startup; wizard-create “tame newt”; wish saddle; apply inventory saddle (o) and target south (j).",
+  "segments": [
+    {
+      "seed": 48271982,
+      "datetime": "20281027090642",
+      "nethackrc": "OPTIONS=name:V10SaddleRefusal,role:Wizard,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0007tame newt\n \u0017saddle\naoj"
+    }
+  ]
+}

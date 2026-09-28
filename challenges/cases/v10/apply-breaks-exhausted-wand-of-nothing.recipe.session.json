@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for apply.c:doapply -> do_break_wand(WAN_NOTHING). Debug Barbarian has the strength and free hand required. The independent recording reaches the positive zappable path (rn2(121)=25), then the WAN_NOTHING effect prints the break message without an explosion.",
+  "segments": [
+    {
+      "seed": 71035042,
+      "datetime": "20281027114320",
+      "nethackrc": "OPTIONS=name:V10BreakWand,role:Barbarian,race:human,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": ".\u0017wand of nothing (0:0)\naey"
+    }
+  ]
+}

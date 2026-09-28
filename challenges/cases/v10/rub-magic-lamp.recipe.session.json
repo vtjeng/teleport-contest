@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 mission for apply.c:dorub(MAGIC_LAMP). Wish a lamp with source-parsed spe=1/recharge=0 (`magic lamp (0:1)`), inspect the inventory menu, select the actual lamp letter, and rub it. The random outcome is left to the independent seed.",
+  "segments": [
+    {
+      "seed": 48271938,
+      "datetime": "20281027090518",
+      "nethackrc": "OPTIONS=name:V10RubLamp,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": ".\u0017magic lamp (0:1)\n#rub\n?qo"
+    }
+  ]
+}

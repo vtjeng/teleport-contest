@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v10 case for sit.c:throne_sit_effect case 5 -> take_gold. A neutral debug Wizard carries two wished gold pieces on an ordinary throne; after dismissing the throne pager, selects effect 5 at the Wizard prompt and loses the coin stack.",
+  "segments": [
+    {
+      "seed": 72010041,
+      "datetime": "20281027115900",
+      "nethackrc": "OPTIONS=name:V10TakeGold,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none\n",
+      "moves": " \u0017throne\n\u0017gold pieces\n#sit\n 5\n"
+    }
+  ]
+}

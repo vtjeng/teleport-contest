@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first frozen mission for dogmove.c:dog_move -> dog_eat. Barbarian role does not impose a fixed pet, so pettype:dog selects PM_LITTLE_DOG.",
+  "segments": [
+    {
+      "seed": 86290174,
+      "datetime": "20411005091500",
+      "nethackrc": "OPTIONS=name:V10PetFood,role:Barbarian,race:human,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:dog\n",
+      "moves": " \u0017tripe ration\nde l"
+    }
+  ]
+}
