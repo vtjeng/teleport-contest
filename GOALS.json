@@ -105915,7 +105915,7 @@
     {
       "id": "port-apply-flip-through-book-synthetic-v10-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port spellbook page-flipping and apply dispatch from source",
       "cFile": "apply.c",
       "sessions": [
@@ -105923,8 +105923,12 @@
       ],
       "selectionReason": "v10/apply-flips-through-blank-spellbook remains unmatched at step 29 in current saved evaluation challenges/evaluations/20260928113626-v10.json; investigations/synthetic/v10/apply-flips-through-blank-spellbook.json traces the refusal to apply.c:flip_through_book and doapply SPBOOK_CLASS. This independent source family does not overlap assigned invent/altar or potion work.",
       "detail": "Implement all apply.c:flip_through_book branches and wire doapply SPBOOK_CLASS. Preserve underwater, Blind, Deaf, Hallucination, Book of the Dead, blank, novel, and faded-book behavior, discovery, messages, and source order; create an independently recorded C witness.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "c7505ea7566f5715a1312c53b97dfdd62fc75eb7",
+      "openStanding": {
+        "sha": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -105953,7 +105957,157 @@
           "evaluationPath": "challenges/evaluations/20260928113626-v10.json",
           "evaluationCommit": "39b000fbed439e22068eae3411407a63033d43e6"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v10",
+          "caseId": "apply-flips-through-blank-spellbook",
+          "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+          "manifestPath": "challenges/manifests/v10.json",
+          "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+          "recording": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+          "recordingPath": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+          "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+          "recipe": "challenges/cases/v10/apply-flips-through-blank-spellbook.recipe.session.json",
+          "recipeSha256": "782faf86bbe11596ef057aa18c5e9cbf6f6b28eb27c14c4b3c477144032fdfd7",
+          "replayInputSha256": "491e1fd65f444f07e832b0c7b744ada54c3ed901093926ca98c876885943fc69",
+          "evaluationPath": "challenges/evaluations/20260928123006-v10.json",
+          "evaluationCommit": "274dde9402ee1acf3e8e73dee280ca3f0e4ed279",
+          "evaluationArtifact": "challenges/evaluations/20260928123006-v10.json",
+          "evaluationUtc": "2026-09-28T12:30:10.132Z",
+          "remainingScreens": 2,
+          "recordedSteps": 31,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2326,
+              "total": 2334
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_through_book()",
+            "step": 29
+          },
+          "step": 29,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "flip_through_book",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_through_book()",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v10/apply-flips-through-blank-spellbook.json",
+            "result": {
+              "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+              "corpus": "synthetic",
+              "batch": "v10",
+              "caseId": "apply-flips-through-blank-spellbook",
+              "manifestPath": "challenges/manifests/v10.json",
+              "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+              "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+              "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+              "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+              "remainingScreens": 2,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "40fbeba4dfd7e57992b8fbb5f914cb6b442483a8",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v10",
+                "caseId": "apply-flips-through-blank-spellbook",
+                "session": "synthetic/v10/apply-flips-through-blank-spellbook",
+                "manifestPath": "challenges/manifests/v10.json",
+                "manifestSha256": "79c7c030ef380f5d24f6bcdbae0a59cce143306a35f7edee4355a3e01964cb57",
+                "recording": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+                "recordingPath": "challenges/cases/v10/apply-flips-through-blank-spellbook.session.json",
+                "recordingSha256": "68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9",
+                "recipe": "challenges/cases/v10/apply-flips-through-blank-spellbook.recipe.session.json",
+                "recipeSha256": "782faf86bbe11596ef057aa18c5e9cbf6f6b28eb27c14c4b3c477144032fdfd7",
+                "replayInputSha256": "4a5336fbd6fd717e38ac925cbd3401e34863ec5cb30b5a74b5086d5267748022",
+                "evaluationPath": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationCommit": "d739756c29e8e3afb6e2bf95c325f019693b4160",
+                "evaluationArtifact": "challenges/evaluations/20260928083103-v10.json",
+                "evaluationUtc": "2026-09-28T08:31:23.355Z",
+                "remainingScreens": 2,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2326,
+                    "total": 2334
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_through_book()",
+                  "step": 29
+                },
+                "step": 29,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "flip_through_book",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires flip_through_book()",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a blank spellbook matches C through item selection, then JavaScript refuses the entire flip_through_book call. C apply.c:flip_through_book describes flipping pages, reports an empty book when sighted, and makes that book type known. Its other source branches handle underwater, blindness, hallucination, the Book of the Dead, a novel, and spellbook ink fading. The missing owner is this whole function and the doapply spellbook dispatch.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For a sighted, nonhallucinating Wizard above water applying SPE_BLANK_PAPER, doapply calls flip_through_book, which prints the page-flipping message, then the blank-book message, calls makeknown for the type, and returns ECMD_TIME. Underwater returns ECMD_OK before flipping; the entire function also handles Book of the Dead sensory messages, blind pages, hallucination, novels, and studied-book fadeness.",
+                "functions": [
+                  "flip_through_book"
+                ],
+                "callers": [
+                  "apply.c:doapply selects SPBOOK_CLASS and returns flip_through_book(obj) at lines 4237-4238; js/apply.js:doapply currently throws UnsupportedApplyError for that class."
+                ],
+                "dependencies": [
+                  "objnam.c:thesimpleoname supplies the printed item name; preserve its existing display semantics.",
+                  "o_init.c:makeknown changes object-type discovery in the blank-paper arm; use the ported canonical discovery helper.",
+                  "pline.c:You_hear, You_see, You_feel and hcolor affect Book of the Dead sensory messages; message behavior remains source-conditioned by Deaf, Blind and Hallucination."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved v10 evaluation challenges/evaluations/20260928083103-v10.json matches 29/31 screens, then stops at step 29 with the explicit flip_through_book refusal; the C recording SHA-256 is 68b46a5606e5efc2de2fb61fae7a9f17d82b23f1aafaf1e2fa93124b9ba119f9.",
+                "Upstream nethack-c/upstream/src/apply.c:4473-4520 defines the complete flip_through_book source function and its source-conditioned sensory/discovery branches. Upstream apply.c:4237-4238 wires it to SPBOOK_CLASS.",
+                "js/apply.js:3469-3471 throws for SPBOOK_CLASS before the source function is reached. The independent recipe wishes blank paper and applies it as a normal Wizard."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-potion-see-invisible-synthetic-v10-20260928",
