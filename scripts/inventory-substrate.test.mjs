@@ -3541,19 +3541,30 @@ test('buried-corpse impact preflight pins every coordinate boundary', () => {
     }
 });
 
-test('dropz refuses container impact before placing or announcing the object',
+test('dropz places an impact drop before the source redraw and encumbrance',
     async () => {
         const { hooks, lines, obj, state } = ordinaryDropFixture();
         obj.where = OBJ_FREE;
         state.invent = null;
+        const events = [];
+        hooks.newsym = (x, y) => {
+            events.push(['newsym', x, y, obj.where,
+                state.level.objects[10][5] === obj]);
+        };
+        hooks.encumberMessage = () => {
+            events.push(['encumber', obj.where,
+                state.level.objects[10][5] === obj]);
+        };
 
-        await assert.rejects(
-            dropz(obj, true, { state, hooks }),
-            /container impact/u,
-        );
-        assert.equal(obj.where, OBJ_FREE);
-        assert.equal(state.level.objects[10][5], null);
+        await dropz(obj, true, { state, hooks });
+
+        assert.equal(obj.where, OBJ_FLOOR);
+        assert.equal(state.level.objects[10][5], obj);
         assert.deepEqual(lines, []);
+        assert.deepEqual(events, [
+            ['newsym', 10, 5, OBJ_FLOOR, true],
+            ['encumber', OBJ_FLOOR, true],
+        ]);
     });
 
 test('a heavy hold reaches drop admission after addinv and its message',

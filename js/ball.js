@@ -225,9 +225,8 @@ async function litter(state) {
             );
             setnotworn(obj, { state });
             freeinv(obj, { state });
-            // do.c hitfloor() is outside this span; dropping the object on
-            // the destination floor would change its ownership incorrectly.
-            note_unported('do.c hitfloor');
+            const { hitfloor } = await import('./dothrow.js');
+            await hitfloor(obj, false, state);
         }
         obj = next;
     }

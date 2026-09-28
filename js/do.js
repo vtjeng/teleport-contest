@@ -37,6 +37,7 @@ import {
     GETOBJ_PROMPT,
     G_GENOD,
     HAND,
+    Has_contents,
     HALF_PHDAM,
     IS_ALTAR,
     IS_WATERWALL,
@@ -54,7 +55,11 @@ import {
     LEVITATION,
     LFILE_EXISTS,
     LOST_DROPPED,
+    LOW_PM,
     MAGIC_PORTAL,
+    NON_PM,
+    NC_SHOW_MSG,
+    NO_NC_FLAGS,
     OBJ_INVENT,
     OBJ_FLOOR,
     OBJ_FREE,
@@ -65,6 +70,7 @@ import {
     ROGUESET,
     ROWNO,
     SLT_ENCUMBER,
+    STOMACH,
     STAIRS,
     TIMEOUT,
     TT_BURIEDBALL,
@@ -86,6 +92,9 @@ import {
     W_ACCESSORY,
     W_ARMOR,
     W_SADDLE,
+    W_ART,
+    W_ARTI,
+    I_SPECIAL,
     SINK,
     HALLUC,
     HALLUC_RES,
@@ -115,6 +124,7 @@ import {
     docrt,
     flush_screen,
     map_background,
+    map_object,
     newsym,
     reglyph_darkroom,
 } from './display.js';
@@ -159,7 +169,7 @@ import { more_experienced, newexplevel } from './exper.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
 import { livelog_printf } from './pline.js';
-import { dist2, upstart } from './hacklib.js';
+import { dist2, s_suffix, upstart } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import {
     losehp,
@@ -189,11 +199,14 @@ import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
 import { makemon } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
-import { m_into_limbo, mondied, set_ustuck } from './mon.js';
+import {
+    healmon, m_into_limbo, mondied, newcham, pm_to_cham, set_ustuck,
+} from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
 import {
-    is_whirly, olfaction, passes_walls, sticks, throws_rocks,
+    dmgtype, is_whirly, olfaction, passes_walls, sticks, touch_petrifies,
+    throws_rocks,
 } from './mondata.js';
 import { m_in_air, youHear } from './monmove.js';
 import {
@@ -203,8 +216,12 @@ import {
     PM_FAMINE,
     PM_PESTILENCE,
     PM_CROESUS,
+    PM_GREEN_SLIME,
+    PM_NURSE,
     PM_ROGUE,
     PM_TOURIST,
+    PM_WRAITH,
+    AD_POLY,
 } from './monsters.js';
 import {
     is_pick, obj_meld, obj_nexto_xy, objectType, place_object,
@@ -213,16 +230,24 @@ import {
 import { oinit } from './o_init.js';
 import {
     The, Tobjnam, Doname2, an, corpse_xname, donameFresh, is_plural, otense,
+    yobjnam,
     the, vtense,
     xnameFresh, yname,
 } from './objnam.js';
 import {
     COIN_CLASS,
     BOULDER,
+    BAG_OF_HOLDING,
+    BAG_OF_TRICKS,
     CORPSE,
+    ENORMOUS_MEATBALL,
+    GLOB_OF_GREEN_SLIME,
+    LARGE_BOX,
     LEASH,
     LOADSTONE,
+    MEATBALL,
     MEAT_RING,
+    MEAT_STICK,
     POT_OIL,
     POTION_CLASS,
     RIN_ADORNMENT,
@@ -255,7 +280,7 @@ import {
     RIN_WARNING,
     RIN_FIRE_RESISTANCE,
 } from './objects.js';
-import { body_part } from './polyself.js';
+import { body_part, mbodypart } from './polyself.js';
 import { incr_itimeout, make_blinded, set_itimeout } from './potion.js';
 import {
     encumber_msg,
@@ -1375,8 +1400,9 @@ export async function canletgo(obj, word, state = game) {
     return true;
 }
 
-// C ref: do.c drop() (713-780), staticfn. The sink arm delegates to
-// dosinkring(); remaining unsupported conditions are kept at their C branch.
+// C ref: do.c drop() (713-780), staticfn. The sink and unreachable-floor
+// arms preserve their source order; unsupported conditions remain at their
+// own C branches.
 //
 // C's altar arm suppresses the ordinary drop message, then delegates to
 // dropx(), which calls doaltarobj() before placing the object.
@@ -1417,10 +1443,21 @@ async function drop(obj, state = game) {
     }
 
     if (state.u.uswallow) {
-        // do.c:736-751, the engulfer's barrier: the message needs
-        // do_name.c mon_nam() and mondata.c digests(), and dropz() then puts
-        // the object into the engulfer's inventory through mpickobj().
-        throw new UnsupportedDropError('a swallowed hero');
+        // do.c:736-751. A swallowed drop goes through the same hitfloor()
+        // landing helper below, where dropz() either feeds the engulfer or
+        // transfers the object to its inventory.
+        if (state.flags?.verbose) {
+            const holder = state.u.ustuck;
+            let holderName = mon_nam(holder, state);
+            if (holder.data?.mattk?.some((attack) =>
+                attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST)) {
+                holderName = `${s_suffix(holderName)} `
+                    + `${mbodypart(holder, STOMACH)}`;
+            }
+            const objectName = obj.unpaid
+                ? yobjnam(obj, null, state) : donameFresh(obj, state);
+            await ttyPline(`You drop ${objectName} into ${holderName}.`, state);
+        }
     } else {
         const here = state.level.at(state.u.ux, state.u.uy);
         if ((obj.oclass === RING_CLASS || obj.otyp === MEAT_RING)
@@ -1432,10 +1469,27 @@ async function drop(obj, state = game) {
         }
         if (!can_reach_floor(true, state)) {
             // do.c:758-773, the levitating or trapped hero: finesse_ahriman(),
-            // hitfloor() and float_down() are all unported.
-            throw new UnsupportedDropError(
-                'hitfloor() from an unreachable floor',
-            );
+            // hitfloor() and float_down() retain C's order around freeinv().
+            const { finesse_ahriman } = await import('./artifacts.js');
+            const levhack = finesse_ahriman(obj, state);
+            if (levhack) {
+                const levitation = state.u.uprops[LEVITATION];
+                levitation.extrinsic = W_ART;
+            }
+            if (state.flags.verbose)
+                await ttyPline(`You drop ${donameFresh(obj, state)}.`, state);
+            freeinv(obj, { state });
+            const { hitfloor } = await import('./dothrow.js');
+            await hitfloor(obj, true, state);
+            if (levhack) {
+                const { float_down } = await import('./trap.js');
+                await float_down(
+                    I_SPECIAL | TIMEOUT,
+                    W_ARTI | W_ART,
+                    state,
+                );
+            }
+            return ECMD_TIME;
         }
         if (!IS_ALTAR(here.typ) && state.flags.verbose)
             await ttyPline(`You drop ${donameFresh(obj, state)}.`, state);
@@ -1445,12 +1499,13 @@ async function drop(obj, state = game) {
     return ECMD_TIME;
 }
 
-// The sink arm is source-owned above; the unreachable-floor arm at do.c:758-773
-// still refuses because hitfloor() and float_down() are unported. The object
-// exposes its selected arms for source-pinned tests without changing dispatch.
+// The object exposes its selected arms for source-pinned tests without
+// changing dispatch.
 export const _dropInternals = Object.freeze({
     drop,
     dosinkring,
+    engulfer_digests_food,
+    engulfer_polyfood,
     heroHallucinating,
     teleport_sink,
 });
@@ -1654,8 +1709,14 @@ export async function doaltarobj(obj, state = game) {
 // C ref: do.c dropx() (785-797). Shipping precedes the altar effect, which
 // precedes the ordinary dropy() tail, as in the source.
 export async function dropx(obj, env = {}, prepared = null) {
-    const admission = prepared ?? preflight_dropx(obj, env);
-    const normalized = consumeDropAdmission(obj, env, admission);
+    const normalizedInput = dropEnv(env);
+    if (normalizedInput.state.u?.uswallow) {
+        freeinv(obj, normalizedInput);
+        await dropz(obj, false, normalizedInput);
+        return;
+    }
+    const admission = prepared ?? preflight_dropx(obj, normalizedInput);
+    const normalized = consumeDropAdmission(obj, normalizedInput, admission);
     freeinv(obj, normalized);
     const { ux, uy } = normalized.state.u;
     if (await ship_object(obj, ux, uy, false, normalized)) return;
@@ -1671,16 +1732,21 @@ export async function dropy(obj, env = {}) {
     await dropz(obj, false, env);
 }
 
-async function dropzAdmitted(obj, normalized) {
+async function dropzAdmitted(obj, normalized, withImpact = false) {
     if (obj.where !== OBJ_FREE)
         throw new Error('dropz requires a free object');
-    if (await flooreffects(obj, normalized.state.u.ux, normalized.state.u.uy,
-                     'drop', {
-                         state: normalized.state,
-                         unsupported: (reason) => {
-                             throw new UnsupportedDropError(reason);
-                         },
-                     })) {
+    if (await flooreffects(
+        obj,
+        normalized.state.u.ux,
+        normalized.state.u.uy,
+        'drop',
+        {
+            ...normalized,
+            unsupported: (reason) => {
+                throw new UnsupportedDropError(reason);
+            },
+        },
+    )) {
         return;
     }
     place_object(
@@ -1689,7 +1755,37 @@ async function dropzAdmitted(obj, normalized) {
         normalized.state.u.uy,
         normalized,
     );
+    if (withImpact) {
+        // dokick.c:container_impact_dmg() is void. Its full inventory-loss,
+        // luck, sound, and shop branches remain unported; the source guard
+        // makes the helper inert for ordinary non-container objects.
+        const isContainer = obj.otyp >= LARGE_BOX
+            && obj.otyp <= BAG_OF_TRICKS
+            && obj.otyp !== BAG_OF_HOLDING
+            && obj.otyp !== BAG_OF_TRICKS;
+        if (isContainer && Has_contents(obj))
+            note_unported('dokick.c container_impact_dmg');
+
+        // hack.c:impact_disturbs_zombies() is already implemented with the
+        // dothrow landing helpers. C calls it after container impact and
+        // before ball/shop handling and stackobj().
+        const { impact_disturbs_zombies } = await import('./dothrow.js');
+        impact_disturbs_zombies(obj, true, normalized.state);
+        if (obj === normalized.state.uball) {
+            // ball.c:drop_ball() owns punishment-chain relocation and trap
+            // release; its result is void and this caller skips only that gap.
+            note_unported('ball.c drop_ball');
+        } else if (normalized.state.level?.flags?.has_shop) {
+            // shk.c:sellobj() is void; shop billing is deliberately not
+            // approximated here.
+            note_unported('shk.c sellobj');
+        }
+    }
     stackobj(obj, normalized);
+    if (withImpact && heroIsBlind(normalized.state)
+        && Levitation(normalized.state)) {
+        map_object(obj, 0, normalized.state);
+    }
     requiredDropHook(normalized, 'newsym')(
         normalized.state.u.ux,
         normalized.state.u.uy,
@@ -1698,24 +1794,107 @@ async function dropzAdmitted(obj, normalized) {
     await requiredDropHook(normalized, 'encumberMessage')(normalized.state);
 }
 
-// C ref: do.c dropz() (806-842), source-inert shopless ground and with_impact
-// FALSE. Its three equipment clears at 809-814 are inert here: preflight_dropx()
-// refuses an object still in any of those slots, and do.c drop() has run the
-// same three calls before reaching this point. So are drop_ball(), sellobj()
-// and the blind-levitation map_object(), each refused by the admission above.
-// stackobj() can merge, which is why the admission checks what a merge would
-// ask for. ROOM, CORR, a doorway, and an up stairway therefore share the
-// source calls from place_object() through newsym().
+// C ref: do.c dropz() (806-842). Ordinary drops retain the admitted source
+// tail; hitfloor() uses with_impact and preserves its impact call order.
 export async function dropz(obj, with_impact, env = {}) {
     const normalized = dropEnv(env);
     const { state } = normalized;
-    if (with_impact)
-        throw new UnsupportedDropError('container impact');
     if (obj.where !== OBJ_FREE)
         throw new Error('dropz requires a free object');
+    if (obj === state.uwep) setuwep(null, { state });
+    if (obj === state.uquiver) setuqwep(null, { state });
+    if (obj === state.uswapwep) setuswapwep(null, { state });
+    if (state.u?.uswallow) {
+        if (obj !== state.uball) {
+            if (obj.unpaid) {
+                const { stolen_value } = await import('./shk.js');
+                await stolen_value(
+                    obj, state.u.ux, state.u.uy, true, false, state,
+                );
+            }
+            if (!await engulfer_digests_food(obj, state)) {
+                const { mpickobj } = await import('./steal.js');
+                mpickobj(state.u.ustuck, obj, { state });
+            }
+        }
+        await encumber_msg(state);
+        return;
+    }
+    if (with_impact) {
+        // hitfloor() reaches dropz() after its caller detached the object. It
+        // is not the inventory drop preflight: levitation, a visible pit edge
+        // and other unreachable-floor states are exactly why hitfloor runs.
+        const defaults = dropCommandEnv(state);
+        const impactEnv = dropEnv({
+            ...normalized,
+            hooks: { ...defaults.hooks, ...normalized.hooks },
+        });
+        await dropzAdmitted(obj, impactEnv, true);
+        return;
+    }
     // Recheck the post-freeinv state without requiring inventory ownership.
     preflight_dropx(obj, normalized);
     await dropzAdmitted(obj, normalized);
+}
+
+// C ref: do.c engulfer_digests_food() (849-881). polyfood() is the obj.h
+// predicate over corpse species: a shape changer or AD_POLY corpse can cause
+// its swallowing monster to polymorph when digested.
+function engulfer_polyfood(obj, state) {
+    if (obj.otyp !== CORPSE || obj.corpsenm < LOW_PM)
+        return false;
+    const species = state.mons?.[obj.corpsenm];
+    return pm_to_cham(obj.corpsenm, state) !== NON_PM
+        || dmgtype(species, AD_POLY);
+}
+
+async function engulfer_digests_food(obj, state = game) {
+    const swallower = state.u?.ustuck;
+    const digests = swallower?.data?.mattk?.some((attack) =>
+        attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST);
+    if (!digests
+        || !(obj.otyp === CORPSE || obj.globby
+            || obj.otyp === MEATBALL || obj.otyp === ENORMOUS_MEATBALL
+            || obj.otyp === MEAT_RING || obj.otyp === MEAT_STICK)) {
+        return false;
+    }
+
+    let couldPetrify = false;
+    let couldPoly = false;
+    let couldSlime = false;
+    let couldGrow = false;
+    let couldHeal = false;
+    if (obj.otyp === CORPSE) {
+        const species = state.mons?.[obj.corpsenm];
+        couldPetrify = touch_petrifies(species);
+        couldPoly = engulfer_polyfood(obj, state);
+        couldGrow = obj.corpsenm === PM_WRAITH;
+        couldHeal = obj.corpsenm === PM_NURSE;
+    } else if (obj.otyp === GLOB_OF_GREEN_SLIME) {
+        couldSlime = true;
+    }
+
+    await ttyPline(`${Tobjnam(obj, 'are', state)} instantly digested!`, state);
+    if (couldPoly || couldSlime) {
+        await newcham(
+            swallower,
+            couldSlime ? state.mons[PM_GREEN_SLIME] : null,
+            { state, ncflags: couldSlime ? NC_SHOW_MSG : NO_NC_FLAGS },
+        );
+    } else if (couldPetrify) {
+        note_unported('trap.c minstapetrify');
+    } else if (couldGrow) {
+        // makemon.c:grow_up() is a void-discarded effect here, but its JS
+        // implementation still refuses several source branches.
+        note_unported('makemon.c grow_up');
+    } else if (couldHeal) {
+        healmon(swallower, swallower.mhpmax, 0);
+        // C's source call is mcureblindness(mon, FALSE); it is void and the
+        // monster blindness helper is not yet ported.
+        note_unported('mon.c mcureblindness');
+    }
+    delobj(obj, { state });
+    return true;
 }
 
 // C ref: do.c u_stuck_cannot_go() (1109-1128). digests() is the

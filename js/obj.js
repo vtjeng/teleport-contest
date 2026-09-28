@@ -3364,8 +3364,8 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
             // assumes this is taking place at hero's location
             if (!can_reach_floor(true, state)) {
                 // C: hitfloor(obj, TRUE) -- does altar check, message, drop.
-                // hitfloor() is in do.c and not yet ported.
-                note_unported('do.c hitfloor');
+                const { hitfloor } = await import('./dothrow.js');
+                await hitfloor(obj, true, state, env);
             } else {
                 if (IS_ALTAR(state.level.at(u.ux, u.uy).typ)) {
                     // C: doaltarobj(obj) -- does its own drop message.
