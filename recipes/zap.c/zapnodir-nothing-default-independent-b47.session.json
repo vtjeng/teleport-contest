@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Wizard #zap route probing the source default when o_init.c randomizes WAN_NOTHING to NODIR; the effect must remain the zap.c:zapnodir default no-op.",
+  "segments": [
+    {
+      "seed": 61049377,
+      "datetime": "20330119131724",
+      "nethackrc": "OPTIONS=name:B47Nothing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of nothing\nzo "
+    }
+  ]
+}

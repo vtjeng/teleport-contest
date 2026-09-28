@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent debug Wizard #wizcast route to zap.c:zapnodir(SPE_DETECT_UNSEEN). The spell is on the second page of the spell menu (c), and Escape closes the command loop after the source effect.",
+  "segments": [
+    {
+      "seed": 83047212,
+      "datetime": "20330115120516",
+      "nethackrc": "OPTIONS=name:B47DetectSpell,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizcast\n>c\u001b"
+    }
+  ]
+}

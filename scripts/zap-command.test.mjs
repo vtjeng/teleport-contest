@@ -15,6 +15,7 @@ import {
     ROOMOFFSET,
     SDOOR,
     SLEEP_RES,
+    TOPLINE_EMPTY,
     W_ARMH,
 } from '../js/const.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
@@ -44,6 +45,7 @@ import { check_unpaid, UnsupportedShopError } from '../js/shk.js';
 import { m_canseeu } from '../js/vision.js';
 import {
     dozap,
+    do_enlightenment_effect,
     obj_shudders,
     obj_unpolyable,
     UnsupportedZapError,
@@ -507,12 +509,11 @@ test('an aimed zap reaches the ray and stops in zhitu', async () => {
     assert.equal(WAN_SLEEP, 432);
 });
 
-test('a NODIR wand is never asked which way to point', async () => {
+test('a NODIR wand reaches its effect without a direction prompt', async () => {
     // zap.c:2644 sets need_dir from objects[].oc_dir, and the two arms at 2653
-    // and 2657 both test it: for a wand C aims nowhere there is no direction
-    // prompt and no self-zap, and the command falls through to weffects().
-    // Only the wand letter is queued, so a direction prompt that opened would
-    // have no key to read and would fail this case rather than pass it.
+    // and 2657 both test it. For a wand C aims nowhere there is no direction
+    // prompt or self-zap; weffects() dispatches to zapnodir() and this light
+    // wand reaches litroom().
     await heroCarryingWand({ otyp: WAN_LIGHT, spe: 4 });
     // The wand of sleep every other case zaps is RAY, which is what makes the
     // same keys open a direction prompt above.
@@ -521,16 +522,45 @@ test('a NODIR wand is never asked which way to point', async () => {
     typeAtPrompts(HEALER_WAND);
     initRng(49);
     enableRngLog();
-    await assert.rejects(
-        () => dozap(game),
-        /zapnodir\(\) for a directionless wand/u,
-    );
-    // zappable() spent the charge on the way past and drew nothing for it.
-    // weffects()'s exercise(A_WIS, TRUE) precedes the zapnodir() arm, so the
-    // one draw the log carries is attrib.c's.
+    assert.equal(await dozap(game), ECMD_TIME);
+    assert.match(pendingTopLine(), /lit field surrounds you/u);
+    // dozap() exercises Strength after zapping, then weffects() exercises
+    // Wisdom before the source zapnodir() light arm. No direction prompt
+    // consumed another key.
     assert.equal(carriedWand().spe, 3);
-    assert.deepEqual(getRngLog(), ['rn2(19)=3']);
+    assert.deepEqual(getRngLog(), ['rn2(19)=3', 'rn2(19)=16']);
 });
+
+test('polymorphed enlightenment records its void insight gap and continues',
+    async () => {
+        const zapC = readFileSync(
+            new URL('../nethack-c/upstream/src/zap.c', import.meta.url),
+            'utf8',
+        );
+        const helperStart = zapC.indexOf('do_enlightenment_effect(void)');
+        const helperEnd = zapC.indexOf('\n}', helperStart);
+        const helper = zapC.slice(helperStart, helperEnd);
+        assert.match(helper,
+            /enlightenment\(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS\);\s*pline_The\("feeling subsides\."\);\s*exercise\(A_WIS, TRUE\);/u);
+
+        await runSegment({
+            ...segmentFor(`${ZAP_KEY}${ESCAPE_KEY}`),
+            moves: '.',
+        });
+        game.u.umonnum = game.u.umonster + 1;
+        game.nhDisplay.toplin = TOPLINE_EMPTY;
+        game._pending_message = null;
+        game.unported = new Set();
+        typeAtPrompts(' ');
+        const draws = [];
+        await do_enlightenment_effect(game, {
+            rn2(bound) { draws.push(bound); return 0; },
+        });
+
+        assert.deepEqual([...game.unported], ['insight.c enlightenment']);
+        assert.match(game._pending_message, /The feeling subsides\./u);
+        assert.deepEqual(draws, [19]);
+    });
 
 test('zap.c zapnodir uses create_critters return and source count draws', async () => {
     const wand = await heroCarryingWand({
@@ -1107,10 +1137,10 @@ test('every remaining zap refusal names an unported zap.c function',
             'bhito', 'bhitm',
             // zhitu(): the still-unported hero damage branches.
             'zhitu', 'zhitu',
-            // zapnodir() handles create-monster and secret-door-detection
-            // wands; weffects() sends IMMEDIATE objects through bhit(). Its
-            // remaining refusal is the unexpected directional object default.
-            'zapnodir', 'ubuzz', 'weffects',
+            // zapnodir() now covers its whole NODIR switch, including the
+            // C default no-op; weffects() still refuses unexpected directed
+            // objects after its NODIR and ray cases.
+            'ubuzz', 'weffects',
         ],
     );
 });
