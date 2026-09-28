@@ -74,7 +74,7 @@
       "zap.c:dozap sends a charged NODIR wand through zap.c:weffects to zap.c:zapnodir; js/zap.js:zapnodir currently supports only WAN_CREATE_MONSTER and WAN_SECRET_DOOR_DETECTION."
     ],
     "dependencies": [
-      "zap.c:makewish already exists in js/zap.js; use its production path only after the source Luck gate.",
+      "zap.c:makewish has a JavaScript production path, but a separate upward-boulder C probe reaches zap.c:makewish and diverges at the wish-finalization newline: C consumes rn2(100) where JS has no corresponding draw or screen. The v11 WAN_WISHING path may expose that later source defect after zapnodir is implemented.",
       "The C case has a later 14-screen tail; once the initial refusal is removed, re-evaluate the entire session for additional source defects."
     ]
   },
@@ -82,6 +82,7 @@
   "evidence": [
     "Current saved v11 evaluation challenges/evaluations/20260928193155-v11.json at 25d85b45c96aa0f05ae7e9dcc1dc6ea286fa13de matches 21/35 screens and stops at zero-based step 21: unsupported hero command: an unported branch of this command: zapping a wand requires zapnodir() for a directionless wand. Immutable C recording SHA-256 fe9ecc7ad6c5594b63750b92be8bd751b854443651f2d011a96636051d758474.",
     "Upstream nethack-c/upstream/src/zap.c:2524-2600 defines do_enlightenment_effect and the complete zapnodir switch; js/zap.js:5181-5206 refuses the selected directionless wand before its source effect.",
-    "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases."
+    "The v11 prepared manifest records an independent patched-C rerecord and compares this source branch, state and action history with all v10 cases and unresolved older cases.",
+    "The independent upward-boulder setup probe for A43 first diverged at zap.c:makewish before dothrow.c:hitfloor, so makewish cannot be assumed fully matched merely because it exists in js/zap.js."
   ]
 }
