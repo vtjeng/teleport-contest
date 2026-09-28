@@ -18,7 +18,7 @@ const selectedRecording = JSON.parse(readFileSync(new URL(
     import.meta.url,
 ), 'utf8'));
 const independentRecording = JSON.parse(readFileSync(new URL(
-    '../recordings/apply.c/grimtooth-touch-artifact-nonzero-roll.session.json',
+    '../recordings/apply.c/doapply-retouch-accepted-object.session.json',
     import.meta.url,
 ), 'utf8'));
 
@@ -31,12 +31,12 @@ test('apply.c:doapply retouches a selected artifact before dispatch', async () =
     assert.equal(result.passed, true, JSON.stringify(result));
 });
 
-test('doapply continues after retouch_object accepts an artifact',
+test('doapply continues after retouch_object accepts an object',
     async () => {
-        // Independent C recording reaches doapply with Grimtooth. The chaotic
-        // hero's initial negative alignment record makes touch_artifact take
-        // its rn2(4) refusal check; this seed gets a nonzero result, so C
-        // accepts the artifact and continues into ordinary class dispatch.
+        // The independent C inventory screen assigns the wished-for dagger
+        // to `n`, and the final "Sorry, I don't know how to use that." screen
+        // shows that doapply passed retouch_object() into its default arm.
+        // The selected v10 recording separately reaches the artifact refusal.
         const js = await runJsSession(independentRecording, process.cwd());
         const result = compareSessionOutputs(independentRecording, js);
         assert.equal(result.passed, true, JSON.stringify(result));
