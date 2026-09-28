@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked B38 attempt for the active end.c:fuzzer_savelife -> peffects(POT_WATER) entry. This source-directed recipe reaches the debug fuzzer after removing the newt and attempting to eat a human werewolf corpse, then answering its confirmation. The corpse was not fully consumed: C printed `You stop eating the werewolf corpse.` and status changed to Satiated at step 48, so eat.c:done_eating/cpostfx did not establish lycanthropy. C then produced 12 deaths reaching fuzzer_savelife(end.c:959); its outer rn2(10) results were 2, 7, 6, 7, 4, 6, 5, 7, 4, 1, 9, and 7, so the source's temporary-remedy block was never entered and no peffects(POT_WATER) call occurred. JavaScript end.js:fuzzer_savelife also still names potion.c:peffects as unported at this caller. The C output is retained cache-only under .cache/B38-attempts; this recipe and attempt are not matching runtime evidence.",
+  "segments": [
+    {
+      "seed": 94271378,
+      "datetime": "20420927111214",
+      "nethackrc": "OPTIONS=name:FuzzerWaterB38,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup,!tips\n",
+      "moves": "#wizkill\n kkkkllll. \u0017human werewolf corpse\ney                              #debugfuzzer\n  yes\nn........................................................................................................................"
+    }
+  ]
+}

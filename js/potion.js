@@ -20,22 +20,24 @@
 // branch still names the void ghost_from_bottle() gap; the common path calls
 // getobj() -> dopotion() -> peffects().
 //
-// peffects() dispatches 26 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
+// peffects() dispatches 28 potion types; POT_ACID, POT_BOOZE, POT_CONFUSION,
 // POT_GAIN_ABILITY, POT_GAIN_ENERGY, POT_SICKNESS, POT_SPEED (with spell alias SPE_HASTE_SELF), POT_BLINDNESS,
 // POT_GAIN_LEVEL, POT_HEALING, POT_EXTRA_HEALING, POT_OIL, the POT_FRUIT_JUICE arm of
 // peffect_see_invisible(), the ordinary POT_PARALYSIS and POT_SLEEPING arms,
 // POT_POLYMORPH,
-// POT_INVISIBILITY (also SPE_INVISIBILITY),
-// are ported. Unported arms throw UnsupportedQuaffError.
+// POT_INVISIBILITY (also SPE_INVISIBILITY), POT_HALLUCINATION, POT_WATER,
+// are ported. Remaining unported arms throw UnsupportedQuaffError.
 //
 // toggle_blindness() is called by Blindf_on() and Blindf_off() when blindness
 // status changes. It forces a full vision rebuild and updates monster display.
 
 import {
+    A_CHAOTIC,
     ACID_RES,
     ANTIMAGIC,
     A_CON,
     A_DEX,
+    A_LAWFUL,
     A_STR,
     A_MAX,
     A_WIS,
@@ -51,6 +53,7 @@ import {
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    ENL_GAMEINPROGRESS,
     COST_UNBLSS,
     COST_UNCURS,
     ER_NOTHING,
@@ -88,10 +91,13 @@ import {
     HEAD,
     LEG,
     MM_NOMSG,
+    MAGICENLIGHTENMENT,
+    NEUTRAL,
     POISON_RES,
     POLY_CONTROLLED,
     POLY_LOW_CTRL,
     POLY_NOFLAGS,
+    PICK_NONE,
     NOTELL,
     POTHIT_HERO_THROW,
     POTHIT_OTHER_THROW,
@@ -114,6 +120,7 @@ import {
     WOUNDED_LEGS,
     W_SADDLE,
     W_WEP,
+    ismnum,
 } from './const.js';
 import { acurr, adjattrib, exercise, poisontell } from './attrib.js';
 import { Sting_effects } from './artifacts.js';
@@ -126,6 +133,7 @@ import {
     Monnam,
     capitalizedMonsterName,
     hcolor,
+    hliquid,
     mon_nam,
     x_monnam,
 } from './do_name.js';
@@ -229,7 +237,7 @@ import {
     MUMMY_WRAPPING,
     SPBOOK_CLASS,
 } from './objects.js';
-import { ttyPline } from './tty_message.js';
+import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import {
     GLYPH_INVISIBLE, map_invisible, map_invisible_planning, unmap_object,
@@ -758,6 +766,146 @@ export async function make_hallucinated(
     return true;
 }
 
+// C ref: potion.c peffect_hallucination() (696-713). The one shared gp state
+// belongs to potion.c: peffects() also reaches it directly from spell.c, where
+// dopotion() has not performed its per-quaff counter reset.
+async function peffect_hallucination(otmp, state = game, rawEnv = {}) {
+    state.gp ??= {};
+    state.gp.potion_nothing ??= 0;
+    state.gp.potion_unkn ??= 0;
+    const { message, random } = potionEffectEnvironment(rawEnv);
+
+    const hallucination = state.u.uprops[HALLUC];
+    const resistance = state.u.uprops[HALLUC_RES];
+    if (resistance.intrinsic || resistance.extrinsic) {
+        state.gp.potion_nothing++;
+        return;
+    } else if (Hallucination(state)) {
+        state.gp.potion_nothing++;
+    }
+
+    await make_hallucinated(
+        itimeout_incr(
+            hallucination.intrinsic,
+            random.rn1(200, 600 - 300 * bcsign(otmp)),
+        ),
+        true,
+        0,
+        state,
+        { ...rawEnv, message },
+    );
+
+    // C's || short-circuit is source-significant: blessed doses draw rn2(3)
+    // first; only a failed blessed check (or an uncursed dose) draws rn2(6).
+    if ((otmp.blessed && !random.rn2(3))
+        || (!otmp.cursed && !random.rn2(6))) {
+        await message('You perceive yourself...', state);
+        await displayPendingTtyMessageWindow(state);
+        const { enlightenment } = await import('./insight.js');
+        const { select_menu } = await import('./windows.js');
+        const lines = await enlightenment(
+            MAGICENLIGHTENMENT,
+            ENL_GAMEINPROGRESS,
+            state,
+        );
+        await select_menu(state, {
+            lines,
+            how: PICK_NONE,
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        });
+        await message('Your awareness re-normalizes.', state);
+        await exercise(A_WIS, true, state, random, {
+            encumberMessage: rawEnv.encumberMessage ?? encumber_msg,
+        });
+    }
+}
+
+// C ref: potion.c peffect_water() (717-767). Calls to make_sick() and the
+// were.c lycanthropy mutators are void in C, so those unported callees are
+// explicitly recorded and skipped; no placeholder state mutation stands in
+// for them.
+async function peffect_water(otmp, state = game, rawEnv = {}) {
+    state.gp ??= {};
+    state.gp.potion_nothing ??= 0;
+    state.gp.potion_unkn ??= 0;
+    const { message, random, encumberMessage } =
+        potionEffectEnvironment(rawEnv);
+    const u = state.u;
+
+    if (!otmp.blessed && !otmp.cursed) {
+        await message(`This tastes like ${hliquid('water', { state })}.`, state);
+        u.uhunger += random.rnd(10);
+        const { newuhs } = await import('./eat.js');
+        await newuhs(false, state, {
+            ...rawEnv,
+            message,
+            endRunning: rawEnv.endRunning
+                ?? ((currentState) => endRunning(currentState)),
+            statusRefresh: rawEnv.statusRefresh ?? (() => bot()),
+        });
+        return;
+    }
+
+    state.gp.potion_unkn++;
+    const hatesBlessings = mon_hates_blessings(state.youmonst);
+    if (hatesBlessings || u.ualign.type === A_CHAOTIC) {
+        if (otmp.blessed) {
+            await message(`This burns like ${hliquid('acid', { state })}!`, state);
+            await exercise(A_CON, false, state, random, { encumberMessage });
+            if (ismnum(u.ulycn)) {
+                await message(
+                    `Your affinity to ${makeplural(
+                        state.mons[u.ulycn].pmnames[NEUTRAL],
+                    )} disappears!`,
+                    state,
+                );
+                if (state.youmonst.data === state.mons[u.ulycn])
+                    note_unported('were.c you_unwere');
+                note_unported('were.c set_ulycn');
+            }
+            const damage = Maybe_Half_Phys(random.d(2, 6), state);
+            await losehp(
+                damage,
+                'potion of holy water',
+                KILLED_BY_AN,
+                state,
+                rawEnv,
+            );
+        } else if (otmp.cursed) {
+            await message('You feel quite proud of yourself.', state);
+            await healup(random.d(2, 6), 0, 0, 0, state);
+            if (ismnum(u.ulycn) && !Upolyd(u))
+                note_unported('were.c you_were');
+            await exercise(A_CON, true, state, random, { encumberMessage });
+        }
+    } else if (otmp.blessed) {
+        await message('You feel full of awe.', state);
+        note_unported('potion.c make_sick');
+        await exercise(A_WIS, true, state, random, { encumberMessage });
+        await exercise(A_CON, true, state, random, { encumberMessage });
+        if (ismnum(u.ulycn))
+            note_unported('were.c you_unwere');
+    } else {
+        if (u.ualign.type === A_LAWFUL) {
+            await message(`This burns like ${hliquid('acid', { state })}!`, state);
+            const damage = Maybe_Half_Phys(random.d(2, 6), state);
+            await losehp(
+                damage,
+                'potion of unholy water',
+                KILLED_BY_AN,
+                state,
+                rawEnv,
+            );
+        } else {
+            await message('You feel full of dread.', state);
+        }
+        if (ismnum(u.ulycn) && !Upolyd(u))
+            note_unported('were.c you_were');
+        await exercise(A_CON, false, state, random, { encumberMessage });
+    }
+}
+
 // C ref: potion.c peffect_booze() (771-792).
 async function peffect_booze(otmp, state = game) {
     state.gp.potion_unkn++;
@@ -949,7 +1097,7 @@ function potionEffectEnvironment(env = {}) {
         ...env,
         message: env.message ?? ttyPline,
         encumberMessage: env.encumberMessage ?? encumber_msg,
-        random: { rn1, rn2, rnd, ...env.random },
+        random: { d, rn1, rn2, rnd, ...env.random },
     };
 }
 
@@ -1506,9 +1654,13 @@ export async function peffects(otmp, state = game, env = {}) {
     case SPE_RESTORE_ABILITY:
         throw new UnsupportedQuaffError('peffect_restore_ability()');
     case POT_HALLUCINATION:
-        throw new UnsupportedQuaffError('peffect_hallucination()');
+        await peffect_hallucination(
+            otmp, state, potionEffectEnvironment(env),
+        );
+        break;
     case POT_WATER:
-        throw new UnsupportedQuaffError('peffect_water()');
+        await peffect_water(otmp, state, potionEffectEnvironment(env));
+        break;
     case POT_BOOZE:
         await peffect_booze(otmp, state);
         break;
