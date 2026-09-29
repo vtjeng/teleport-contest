@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T02:39:38.134Z",
+  "capturedAt": "2026-09-29T03:07:51.835Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -8496,12 +8496,97 @@
         "type": "accepted",
         "at": "2026-09-29T02:39:27.589Z",
         "task": "C43"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C43-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T02:42:05.767Z",
+        "task": "C43",
+        "commit": "52472675a220698ff81848d5f734e77217a60256"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b9c036800b58902bc6363f33f4849c09198ea560",
+        "type": "ready",
+        "at": "2026-09-29T02:44:04.430Z",
+        "task": "A44-v12-prep",
+        "delivery": "b9c036800b58902bc6363f33f4849c09198ea560"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B51-statue-20260929",
+        "type": "assign",
+        "at": "2026-09-29T02:47:11.084Z",
+        "task": "B51",
+        "worker": "B",
+        "goal": "port-trap-mk-trap-statue-synthetic-v11-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C44-rock-20260929",
+        "type": "assign",
+        "at": "2026-09-29T02:47:32.024Z",
+        "task": "C44",
+        "worker": "C",
+        "goal": "port-trap-trapeffect-rocktrap-synthetic-v11-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A44-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T02:48:05.901Z",
+        "task": "A44-v12-prep",
+        "delivery": "b9c036800b58902bc6363f33f4849c09198ea560"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A44-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T02:50:31.766Z",
+        "task": "A44-v12-prep",
+        "integration": "266946af0d3921204561e3c2312fdfa12bbb1c21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A44-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T03:01:02.678Z",
+        "task": "A44-v12-prep",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A44-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T03:01:20.293Z",
+        "task": "A44-v12-prep"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A44-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T03:02:24.137Z",
+        "task": "A44-v12-prep",
+        "commit": "266946af0d3921204561e3c2312fdfa12bbb1c21"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A45-shieldeff-20260929",
+        "type": "assign",
+        "at": "2026-09-29T03:03:46.836Z",
+        "task": "A45",
+        "worker": "A",
+        "goal": "port-display-shieldeff-synthetic-v11-20260929",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "c64c3fa1121e1a2ad5dad3a8ea4bf9c49df51586",
-    "measuredAt": "2026-09-29T02:30:44.005Z",
+    "executionCommit": "266946af0d3921204561e3c2312fdfa12bbb1c21",
+    "measuredAt": "2026-09-29T03:00:41.517Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
