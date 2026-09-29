@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C50 source-complete carried-target route. A wished empty unlocked chest and charged horn are selected through #tip; the final enter accepts the chest in pickup.c:tipcontainer_gettarget so hornoplenty receives a non-null targetbox.",
+  "segments": [
+    {
+      "seed": 91628519,
+      "datetime": "20461112145719",
+      "nethackrc": "OPTIONS=name:C50BoxTip,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "  #wizwish\nempty unlocked chest\n#wizwish\nuncursed horn of plenty\n#tip\non\n"
+    }
+  ]
+}

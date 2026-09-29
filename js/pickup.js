@@ -169,13 +169,14 @@ import {
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
-    carried, hasContents, hornoplenty, isBox, isCandle, isContainer, obj_no_longer_held,
+    carried, hasContents, isBox, isCandle, isContainer, obj_no_longer_held,
     remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
 } from './obj.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { get_obj_location } from './light.js';
 import { bagotricks, set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
+import { hornoplenty } from './mkobj_hornoplenty.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { regex_match } from './posixregex.js';

@@ -294,10 +294,10 @@ import { mon_reflects } from './muse.js';
 import { get_mtraits } from './corpstat.js';
 import { discover_object, objdescr_is, observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
+import { hornoplenty } from './mkobj_hornoplenty.js';
 import {
     costly_alteration,
     bill_dummy_object,
-    hornoplenty,
     init_dummyobj,
     is_axe,
     is_boots,
