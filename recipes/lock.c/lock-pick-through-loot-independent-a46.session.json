@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61243987,
+      "datetime": "20491216084327",
+      "nethackrc": "OPTIONS=name:LootA46,role:Rogue,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizwish\nlarge box\n di#loot\n y  "
+    }
+  ],
+  "_comment": "Independent pickup.c:do_loot_cont -> lock.c:pick_lock -> picklock occupation witness. A Rogue already carries a lock pick; the debug wish creates a floor box, then #loot autounlocks it using the default apply-key option. Seed and clock were independently selected for this A46 caller check. The input dismisses the wish pager before dropping the box and invoking #loot."
+}

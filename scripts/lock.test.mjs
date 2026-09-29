@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -37,12 +38,22 @@ import { PM_ROGUE, PM_WIZARD } from '../js/monsters.js';
 import {
     CREDIT_CARD,
     LOCK_PICK,
+    LARGE_BOX,
     SKELETON_KEY,
     SPE_KNOCK,
     WAN_LOCKING,
     WAN_OPENING,
     WAND_CLASS,
 } from '../js/objects.js';
+
+const PICKLOCK_OCCUPATION_RECIPE = JSON.parse(readFileSync(new URL(
+    '../recipes/lock.c/lock-pick-opens-trapped-chest-independent-a46.session.json',
+    import.meta.url,
+), 'utf8'));
+const PICKLOCK_LOOT_RECIPE = JSON.parse(readFileSync(new URL(
+    '../recipes/lock.c/lock-pick-through-loot-independent-a46.session.json',
+    import.meta.url,
+), 'utf8'));
 
 // Seed 9400016 puts a plain closed door one square west of a Valkyrie's
 // starting position, which is the state hack.c test_move()'s autoopen arm
@@ -741,4 +752,55 @@ test('picking_at follows the canonical gx.xlock door pointer without mutation',
     assert.equal(picking_at(x, y, uninitialized), false);
     assert.equal(Object.hasOwn(uninitialized, 'xlock'), false,
         'the pure query does not initialize gx.xlock');
+});
+
+test('picklock completes the lock toggle and trapped-chest callback', async () => {
+    // lock.c:98-160. The independent C recipe enters pick_lock through
+    // doapply, gets a successful occupation roll, toggles the chest lock,
+    // then dismisses chest_trap's message so picklock can exercise Dexterity
+    // and reset gx.xlock.usedtime while retaining the box pointer.
+    const [segment] = PICKLOCK_OCCUPATION_RECIPE.segments;
+    assert.equal(Object.hasOwn(segment, 'steps'), false,
+        'the test replays the input recipe, not a stored result');
+
+    await runSegment(segment);
+
+    const top = game.nhDisplay.grid[0]
+        .map(({ ch }) => ch)
+        .join('')
+        .trimEnd();
+    assert.equal(top, 'But luckily the explosive charge is a dud!');
+    assert.equal(game.xlock.usedtime, 0,
+        'picklock resets its occupation counter after the trap callback');
+    assert.ok(game.xlock.box,
+        'C retains the current box pointer after the occupation returns');
+    assert.equal(game.xlock.box.olocked, 0,
+        'the success branch toggles the chest lock before firing its trap');
+    assert.equal(game.xlock.box.lknown, 1,
+        'the success branch records lock knowledge');
+    assert.equal(game.xlock.box.otrapped, 0,
+        'chest_trap clears its one-shot trap before resolving its outcome');
+    assert.equal(game.xlock.box.tknown, 1,
+        'chest_trap marks the resolved trap known before returning');
+});
+
+test('#loot autounlock enters the same picklock occupation callback', async () => {
+    // pickup.c:2128-2135 calls pick_lock() after the locked floor container
+    // prompt. The independent C recording reaches picklock(lock.c:98) and
+    // exercises the occupation through this production command path.
+    const [segment] = PICKLOCK_LOOT_RECIPE.segments;
+    assert.equal(Object.hasOwn(segment, 'steps'), false,
+        'the test replays input only');
+
+    await runSegment(segment);
+
+    const { ux, uy } = game.u;
+    const box = game.level.objects[ux][uy];
+    assert.equal(box?.otyp, LARGE_BOX, 'the wished box remains on the floor');
+    assert.equal(box.olocked, 0, 'picklock unlocks the box');
+    assert.equal(box.lknown, 1, 'the successful pick records lock knowledge');
+    assert.equal(game.xlock.box, box,
+        'picklock retains the box pointer as C does');
+    assert.equal(game.xlock.usedtime, 0,
+        'the callback clears the occupation counter');
 });
