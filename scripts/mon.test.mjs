@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    MAX_NUM_WORMS,
     COLNO,
     CONFLICT,
     DETECT_MONSTERS,
@@ -80,6 +81,7 @@ import {
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
+import { initworm } from '../js/worm.js';
 import { init_objects } from '../js/o_init.js';
 import { mksobj_at, newObject } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -101,6 +103,13 @@ import {
 const MON_C = readFileSync(
     new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
 );
+const MAKEMON_C = readFileSync(
+    new URL('../nethack-c/upstream/src/makemon.c', import.meta.url), 'utf8',
+);
+const WORM_C = readFileSync(
+    new URL('../nethack-c/upstream/src/worm.c', import.meta.url), 'utf8',
+);
+const MON_JS = readFileSync(new URL('../js/mon.js', import.meta.url), 'utf8');
 
 function monster(mmove, mspeed = 0) {
     return { data: { mmove }, mspeed };
@@ -885,6 +894,158 @@ test('mon.c newcham uses apply.c leashable after changing a pet form', async () 
         'the C-discarded m_unleash return remains a named state gap');
     assert.ok(game.unported.has('apply.c m_unleash'));
 });
+
+test('newcham clears wormno before the worm tail redraws and releases its slot',
+    async () => {
+        const cNewchamStart = MON_C.indexOf(
+            'newcham(\n    struct monst *mtmp,',
+        );
+        const cNewchamEnd = MON_C.indexOf(
+            '\n/* sometimes an egg will be special */', cNewchamStart,
+        );
+        assert.ok(cNewchamStart >= 0 && cNewchamEnd > cNewchamStart);
+        const cNewcham = MON_C.slice(cNewchamStart, cNewchamEnd);
+        const genderDraw = cNewcham.indexOf(
+            'mgender_from_permonst(mtmp, mdat);',
+        );
+        const hpRoll = cNewcham.indexOf('newmonhp(mtmp, monsndx(mdat));');
+        assert.ok(genderDraw >= 0 && genderDraw < hpRoll,
+            'newcham sets target gender before its new-HP roll');
+        const cNewmonhpStart = MAKEMON_C.indexOf(
+            'newmonhp(struct monst *mon, int mndx)',
+        );
+        const cNewmonhpEnd = MAKEMON_C.indexOf(
+            '\nstatic const struct mextra zeromextra', cNewmonhpStart,
+        );
+        assert.ok(cNewmonhpStart >= 0 && cNewmonhpEnd > cNewmonhpStart);
+        const cNewmonhp = MAKEMON_C.slice(cNewmonhpStart, cNewmonhpEnd);
+        const lowLevelRoll = cNewmonhp.indexOf('else if (!mon->m_lev)');
+        const lowLevelRng = cNewmonhp.indexOf(
+            'mon->mhpmax = mon->mhp = rnd(4)', lowLevelRoll,
+        );
+        assert.ok(lowLevelRoll >= 0 && lowLevelRng > lowLevelRoll);
+        assert.match(MON_C,
+            /if \(!rn2\(10\) && !\(is_vampire\(mdat\) \|\| is_vampshifter\(mtmp\)\)\)/u);
+        const cWormgoneStart = WORM_C.indexOf(
+            'wormgone(struct monst *worm)',
+        );
+        const cWormgoneEnd = WORM_C.indexOf(
+            '\n/*\n *  wormhitu()', cWormgoneStart,
+        );
+        assert.ok(cWormgoneStart >= 0 && cWormgoneEnd > cWormgoneStart);
+        const cWormgone = WORM_C.slice(cWormgoneStart, cWormgoneEnd);
+        const cMorphWorm = cNewcham.slice(cNewcham.indexOf('if (mtmp->wormno)'));
+        assert.ok(cMorphWorm.indexOf('wormgone(mtmp)')
+            < cMorphWorm.indexOf('place_monster(mtmp, mx, my)'));
+        assert.doesNotMatch(cMorphWorm, /remove_worm\s*\(/u);
+        assert.ok(cWormgone.indexOf('worm->wormno = 0')
+            < cWormgone.indexOf('toss_wsegs(wtails[wnum], TRUE)'));
+        assert.ok(cWormgone.indexOf('toss_wsegs(wtails[wnum], TRUE)')
+            < cWormgone.indexOf('wgrowtime[wnum] = 0L'));
+
+        const jsWormArmStart = MON_JS.indexOf('if (monster.wormno) {');
+        const jsWormArmEnd = MON_JS.indexOf(
+            'if (M_AP_TYPE(monster)', jsWormArmStart,
+        );
+        assert.ok(jsWormArmStart >= 0 && jsWormArmEnd > jsWormArmStart);
+        const jsWormArm = MON_JS.slice(jsWormArmStart, jsWormArmEnd);
+        assert.match(jsWormArm, /wormgone\(monster,/u);
+        assert.doesNotMatch(jsWormArm, /remove_worm\s*\(/u);
+        assert.ok(jsWormArm.indexOf('wormgone(monster,')
+            < jsWormArm.indexOf('place_monster(monster, mx, my, state)'));
+
+        // The interior D:1 context keeps this explicit-form polymorph outside
+        // endgame and map-edge branches.
+        const state = {
+            level: new GameMap(),
+            u: {
+                ux: 5,
+                uy: 5,
+                uz: { dnum: 0, dlevel: 1 },
+                uprops: [],
+            },
+            dungeons: [{
+                depth_start: 1,
+                ledger_start: 0,
+                num_dunlevs: 29,
+                entry_lev: 0,
+                flags: { hellish: false },
+            }],
+            in_mklev: true,
+        };
+        monst_globals_init(state);
+        reset_mvitals(state);
+        state.youmonst = { data: state.mons[PM_HUMAN] };
+        state.level.worms = Array(MAX_NUM_WORMS).fill(null);
+        const worm = newMonster({
+            data: state.mons[PM_LONG_WORM],
+            mnum: PM_LONG_WORM,
+            cham: PM_CHAMELEON,
+            mhp: 18, // Full, nonzero HP keeps the morph ratio exactly one.
+            mhpmax: 18,
+            mcanmove: true,
+            mx: 4, // Interior head square, one cell east of the visible tail.
+            my: 4,
+            wormno: 1, // C reserves slot zero; slot one is the first worm.
+        });
+        initworm(worm, 1, { state });
+        const record = state.level.worms[1];
+        record.segments[0] = { x: 3, y: 4 }; // One visible square west of its head.
+        record.growtime = 17; // This sentinel survives until after toss/redraw.
+        place_monster(worm, worm.mx, worm.my, state);
+        state.level.monsters[3][4] = worm;
+
+        const tailRedraws = [];
+        const randomCalls = [];
+        const changed = await newcham(worm, state.mons[PM_SEWER_RAT], {
+            state,
+            random: {
+                rn2: (bound) => {
+                    randomCalls.push(['rn2', bound, 0]);
+                    return 0;
+                },
+                rnd: (bound) => {
+                    randomCalls.push(['rnd', bound, 1]);
+                    return 1;
+                },
+                rn1: () => assert.fail('newcham called unexpected rn1'),
+                rne: () => assert.fail('newcham called unexpected rne'),
+                d: () => assert.fail('newcham called unexpected d'),
+            },
+            canSpotMonster: () => false,
+            message: () => {},
+            hooks: {
+                newsym: (x, y) => {
+                    if (x === 3 && y === 4) {
+                        tailRedraws.push({
+                            wormno: worm.wormno,
+                            slot: state.level.worms[1],
+                            growtime: record.growtime,
+                            occupant: state.level.monsters[3][4],
+                        });
+                    }
+                },
+            },
+        });
+
+        assert.equal(changed, true);
+        assert.deepEqual(randomCalls, [
+            ['rn2', 10, 0], // mon.c:mgender_from_permonst() gender roll.
+            ['rnd', 4, 1], // makemon.c:newmonhp() level-zero hit-point roll.
+        ]);
+        assert.equal(worm.m_lev, 0,
+            'the sewer rat takes newmonhp()’s source level-zero branch');
+        assert.deepEqual(tailRedraws, [{
+            wormno: 0, // wormgone() clears it before toss_wsegs() redraws.
+            slot: record,
+            growtime: 17, // C resets this slot clock only after the tail toss.
+            occupant: null, // toss_wsegs() removed tail occupancy first.
+        }]);
+        assert.equal(state.level.worms[1], null);
+        assert.equal(record.growtime, 0);
+        assert.equal(state.level.monsters[4][4], worm, // Original head square.
+            'newcham replaces the worm head after wormgone removes it');
+    });
 
 // C refs: mon.c decide_to_shapeshift() (4872-4937),
 // select_newcham_form() (5157-5225), and newcham() (5278-5534). A natural

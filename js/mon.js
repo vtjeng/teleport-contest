@@ -2803,8 +2803,14 @@ function* apply_newcham_steps(
     if (monster.wormno) {
         const mx = monster.mx;
         const my = monster.my;
-        remove_worm(monster, normalized);
-        wormgone(monster, { state });
+        // C mon.c:newcham() calls wormgone() directly. It clears wormno before
+        // toss_wsegs() removes and redraws the tail, so redraw observers see
+        // the released head state while the old slot is still being freed.
+        wormgone(monster, {
+            ...normalized,
+            state,
+            newsym: (x, y) => shapeRedraw(x, y, normalized),
+        });
         place_monster(monster, mx, my, state);
     }
     if (M_AP_TYPE(monster) && target.mlet !== S_MIMIC)
