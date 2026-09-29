@@ -17548,5 +17548,45 @@
       }
     },
     "recordedAt": "2026-09-27T04:08:54.716Z"
+  },
+  {
+    "kind": "review",
+    "head": "52db3b9f54547102e14a1b1872299a48baaabba4",
+    "auditedRange": "b6e1f0cfcf2f07101acc830f077bdbfc0e8b4b1b..52db3b9f54547102e14a1b1872299a48baaabba4",
+    "level": "full",
+    "areas": [
+      "objects",
+      "monsters"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 1 raw, 1 deduplicated, 1 confirmed, 1 applied, 0 deferred, 0 rejected, 0 unverified. Independent source review found no production defect. The confirmed test finding was fixed at 52db3b9f and reverified by the adjudicator; focused tests, lint, all-batch loss audit, and checkpoint passed. Optional concurrency finder ran for the awaited encumbrance continuation; performance trigger did not apply.",
+    "auditMetrics": {
+      "wallTimeSeconds": 420,
+      "counts": {
+        "raw": 1,
+        "deduplicated": 1,
+        "confirmed": 1,
+        "applied": 1,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 1,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "Reviewed makemon.c:makemon runtime named creation and dothrow.c:thitmonst exercise caller seam. The independent makemon.c runtime-named-long-worm-a50 recording executes creation; source-pinned wizard-genesis and dothrow-thitmonst tests execute the changed branches. The selected v13 worm case executes thitmonst after its earlier display mismatch.",
+        "sourceReview": "Compared changed makemon preflight, relocation, worm-tail gate, and thitmonst STR/DEX exercise call ordering and RNG against upstream makemon.c, read.c, worm.c, dothrow.c, attrib.c, and pickup.c. The existing worm.c cutworm note_unported is a later separate gap; the existing makemon preflight unsupported guards outside the named creation shape remain deliberate partial-port boundaries. The review found no other changed-branch note_unported or UnsupportedError path.",
+        "completeness": "No note_unported return value in the reviewed branches is used as data; the changed named creation and exercise caller branches preserve source-owned state, random draws, messages, and awaited completion."
+      }
+    },
+    "recordedAt": "2026-09-29T16:28:06.169Z"
   }
 ]

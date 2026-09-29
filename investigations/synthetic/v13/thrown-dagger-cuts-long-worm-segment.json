@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v13.json",
   "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
   "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
-  "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
-  "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+  "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
   "remainingScreens": 23,
   "recordedSteps": 42,
   "status": "complete",
-  "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "commit": "52db3b9f54547102e14a1b1872299a48baaabba4",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v13",
@@ -24,14 +24,14 @@
     "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
     "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
     "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
-    "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
-    "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
-    "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
-    "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
-    "evaluationUtc": "2026-09-29T14:13:52.803Z",
+    "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
+    "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+    "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+    "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
+    "evaluationUtc": "2026-09-29T16:10:43.240Z",
     "remainingScreens": 23,
     "recordedSteps": 42,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 0,
     "regression": false,
     "passed": false,
     "error": null,
@@ -41,52 +41,81 @@
         "total": 42
       },
       "rng": {
-        "matched": 3721,
+        "matched": 3819,
         "total": 3826
       },
       "cursors": {
-        "matched": 19,
+        "matched": 42,
         "total": 42
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 114",
-      "step": 19
+      "screen": {
+        "index": 19,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 19,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 15,
+        "column": 30,
+        "cCell": {
+          "ch": "~",
+          "color": 3,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "w",
+          "color": 3,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 3813,
+        "cEntry": "rnd(20)=15",
+        "cCaller": "cutworm(worm.c:388)",
+        "jsEntry": "rn2(19)=6",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 41,
+          "key": "j"
+        },
+        "stepIndex": 41
+      },
+      "cursor": null
     },
     "step": 19,
-    "kind": "stop",
-    "sourceFile": "makemon.c",
-    "function": "makemon",
-    "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 114",
-    "cFile": "makemon.c",
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "At segment 0, zero-based step 19, #wizgenesis asks C makemon.c:makemon to create named monster 114 (a long worm) on the hero square. C enters the ordinary runtime relocation and worm initialization path. JavaScript stops first in its initial-level species preflight because PM_LONG_WORM is absent from assertSupportedSpecies’ named-species allowlist, before the translated makemon body can reach that C behavior.",
+  "summary": "At zero-based step 19, a newly created long worm has a visible tail tile. C display.c:newsym passes is_worm_tail to display_monster, which draws PM_LONG_WORM_TAIL (~) there; JavaScript draws the long-worm head glyph (w). Runtime named creation now proceeds through makemon. A separate later RNG gap at step 41 remains worm.c:cutworm when the thrown dagger strikes a segment.",
   "source": {
-    "file": "makemon.c",
-    "branch": "For an explicit runtime creation request at (u.ux,u.uy), when !gi.in_mklev and mdat is PM_LONG_WORM, makemon relocates the hero-square request through enexto_core (retrying without GP_CHECKSCARY only if needed), then creates the monster. At the PM_LONG_WORM tail arm it consumes a worm slot, initializes the worm with allowtail ? rn2(5) : 0, and calls place_worm_tail_randomly only when count_wsegs is nonzero. C has no corresponding species allowlist; JavaScript currently refuses the named create-particular species before these branches.",
+    "file": "display.c",
     "functions": [
-      "makemon"
+      "newsym",
+      "display_monster"
     ],
+    "branch": "For a visible long-worm segment at (x,y) different from the monster head (mx,my), newsym sets worm_tail and calls display_monster; its ordinary, pet, and detected arms choose PM_LONG_WORM_TAIL instead of the head monster glyph. The partial JavaScript newsym/display_monster path currently treats the segment as the head.",
     "callers": [
-      "C: wizcmds.c:wiz_genesis (203-210) calls read.c:create_particular (3372-3408), which reaches read.c:create_particular_creation (3252-3371) and calls makemon(whichpm,u.ux,u.uy,mmflags) at 3315; JS: js/wizcmds.js:wiz_genesis -> js/read.js:create_particular -> create_particular_creation -> makemon_runtime.",
-      "The selected recording uses #wizgenesis with the named hostile long worm; create_particular_creation consumes the returned monster pointer, stops the named-species loop on NULL, and otherwise continues with hostility/visibility/saddle handling."
+      "C: makemon.c:makemon initializes and places long-worm tail segments, then display.c:newsym redraws the affected tiles; later movement and sensing also call newsym. JS: js/makemon_create.js:place_worm_tail_randomly calls js/display.js:newsym, which resolves the segment monster and renders its glyph."
     ],
     "dependencies": [
-      "teleport.c:enexto_core (Boolean result plus output coordinates); the first C-only draw at the mismatch is rn2(8) from collect_coords at teleport.c:700, reached by makemon.c:1180-1182.",
-      "makemon.c:propagate (return is explicitly discarded at makemon.c:1233, but birth-state side effects still occur) and makemon.c:newmonhp (initializes hit points and consumes source RNG).",
-      "worm.c:get_wormno (returned slot number gates the entire long-worm tail branch); worm.c:initworm (void, initializes the segment chain); worm.c:count_wsegs (returned count gates tail placement); worm.c:place_worm_tail_randomly (void, places/truncates segments and redraws).",
-      "trap.c:rnd_nextto_goodpos is the consumed Boolean/output-coordinate helper called by worm.c:place_worm_tail_randomly for each segment placement; its false return truncates the remaining tail."
+      "worm.c segment-to-monster lookup and head coordinates identify whether the tile is a tail; preserve the C glyph choice for visible, tame, and detected arms and their display RNG order.",
+      "The later step-41 gap is worm.c:cutworm after dothrow.c:thitmonst strikes the segment; it remains a separate source task and must not be hidden by display changes."
     ]
   },
-  "goalKind": "divergence-fix",
+  "goalKind": "file-port",
   "evidence": [
-    "The exact v13 evaluation challenges/evaluations/20260929141337-v13.json at 35deeae3b45298577e919836bfad5c2da681ab6b reports 19/42 screens and cursors and 3721/3826 RNG calls. The first mismatch is the stop at zero-based segment 0 step 19 on newline: “unsupported initial-level monster creation: makemon() monster 114”; the first C-only RNG call is rn2(8)=7 @ collect_coords(teleport.c:700).",
-    "Upstream makemon.c:1157-1185 records byyou from the requested coordinates and, outside level generation, invokes enexto_core before construction. Lines 1405-1408 show the PM_LONG_WORM path: get_wormno return, initworm with the conditional rn2(5), then the count_wsegs return gates place_worm_tail_randomly.",
-    "The production source entry is wizcmds.c:wiz_genesis -> read.c:create_particular -> create_particular_creation -> makemon at read.c:3315. JavaScript preserves this route in js/wizcmds.js:wiz_genesis, js/read.js:create_particular_creation (3609-3612), and js/makemon_create.js:makemon_runtime.",
-    "The JavaScript refusal is in js/makemon_create.js:assertSupportedSpecies, called by preflightCreation at 1671. PM_LONG_WORM is absent from INITIAL_LEVEL_MONSTERS and the explicit create-particular exceptions, even though makemon translation already has a PM_LONG_WORM initialization branch (js/makemon_create.js:3322-3328). The first mismatch therefore precedes worm initialization: permit this source-supported runtime named-creation path, then verify the entire relocation and tail result against C.",
-    "The source inspection was confirmed in the clean merged A2 worktree at 8e51315368f217b55a83e02cc385b5fb25d2c7b3; the recorded v13 comparison and original queue provenance remain at evaluation commit 35deeae3b45298577e919836bfad5c2da681ab6b. The later dagger action reaches dothrow.c:thitmonst and worm.c:cutworm at step 41, so cutworm is downstream of and outside this first-mismatch scope."
+    "The current saved v13 evaluation challenges/evaluations/20260929161024-v13.json at f74689ea reports 19/42 screens, 42/42 cursors, and 3819/3826 RNG for the immutable case. At segment 0 step 19, C row 15 column 30 is ~ while JS is w; no runner error remains. The audit-fix descendant changed only a source-pinned test, so this replay input digest is current.",
+    "Upstream display.c:500 defines is_worm_tail(mon) as a segment location different from mon->mx,my. display.c:1027 calls display_monster with that value, and display_monster:590-615 selects PM_LONG_WORM_TAIL in the pet, detected, and ordinary glyph branches. js/display.js near newsym still documents that worm_tail is always false and draws the monster glyph at the segment.",
+    "A50 corrected read.c:create_particular_creation -> makemon.c:makemon and independently recorded the named-long-worm path at recordings/makemon.c/runtime-named-long-worm-a50.session.json. The selected v13 replay now proceeds beyond creation. At step 41, the remaining RNG divergence reaches existing note_unported(\"worm.c cutworm\") in js/dothrow.js, a separate later defect."
   ]
 }
