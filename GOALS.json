@@ -111115,7 +111115,7 @@
     {
       "id": "port-trap-domagictrap-fates-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete every trap.c domagictrap fate and its production callers",
       "cFile": "trap.c",
       "sessions": [
@@ -111129,15 +111129,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c64c3fa1121e1a2ad5dad3a8ea4bf9c49df51586",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "domagictrap",
           "line": 4317,
           "endLine": 4454,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -111309,7 +111312,72 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "domagictrap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "domagictrap",
+            "sourceReview": "Read all of trap.c:domagictrap() (4317-4451) in source order. The port preserves rnd(20) and the fate switch; fate<10 uses rnd(4), resists_blnd, make_blinded/rn1 and vision feedback, Deaf-specific You_hear/You_feel timing and botl updates, creates the selected number of monsters with makemon before wake_nearto, and preserves the discarded makemon return. Fates 10-18 retain their existing source-ordered behavior; fate 19 applies adjattrib(A_CHA,1,FALSE), then scans i=-1..1 and j=-1..1, checks isok/m_at and invokes tamedog with the source arguments while discarding its return; fate 20 builds the pseudo SPE_REMOVE_CURSE object, clears/restores HConfusion around seffects, and keeps that result discarded. Calls to makemon, adjattrib, tamedog, and seffects are awaited for their observable effects while their C-discarded return values are not used. Soundeffect is silent in the patched tty recorder build; other effects and waits follow the C source. All branches of this whole function are implemented; the separate 1/30 explosion refusal belongs to caller trapeffect_magic_trap and is outside this source unit.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_magic_trap",
+                "source": "trap.c:dotrap dispatches to trapeffect_selector, which calls trapeffect_magic_trap; its hero arm calls domagictrap after the rn2(30) explosion check is nonzero (trap.c:2293-2312)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-magic-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/magic-trap-under-ten-independent.session.json",
+              "recordings/trap.c/magic-trap-fate19-adjacent-rat-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-magic-trap-summons-monsters",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_magic_trap(hero arm) -> trap.c:domagictrap; segment reaches fate 19."
+              }
+            ],
+            "checkedAt": "c64c3fa1121e1a2ad5dad3a8ea4bf9c49df51586"
+          }
+        ],
+        "entryPointReview": "The active production entry point is the hero stepping onto a floor MAGIC_TRAP and taking the non-explosion branch: hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_magic_trap -> domagictrap. The independent fate<10 recording reaches blindness/deafness and monster creation; the independent fate19 recording reaches charisma increase and an adjacent hostile rat becoming peaceful/tame; admitted v11 hero-magic-trap-summons-monsters segment 0 matches through step 16 and exercises fate19. The other fates in domagictrap remain source-complete from the existing implementation. The caller’s separate 1/30 explosion arm is not part of domagictrap and remains outside this task.",
+        "entryPoints": [
+          {
+            "name": "Hero triggers a floor magic trap on the non-explosion branch",
+            "functions": [
+              "domagictrap"
+            ],
+            "recordings": [
+              "recordings/trap.c/magic-trap-under-ten-independent.session.json",
+              "recordings/trap.c/magic-trap-fate19-adjacent-rat-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-magic-trap-summons-monsters",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 16,
+                "source": "trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_magic_trap(hero arm) -> trap.c:domagictrap"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c64c3fa1121e1a2ad5dad3a8ea4bf9c49df51586",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-display-shieldeff-synthetic-v11-20260929",

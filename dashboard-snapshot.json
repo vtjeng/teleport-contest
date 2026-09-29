@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T01:37:50.541Z",
+  "capturedAt": "2026-09-29T02:39:38.134Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -8415,12 +8415,93 @@
         "type": "accepted",
         "at": "2026-09-29T01:37:41.172Z",
         "task": "B49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B49-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T01:39:51.395Z",
+        "task": "B49",
+        "commit": "d20f57f277f3c6c6b874c558664d28be8cf1de41"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C42-park-classification-20260929",
+        "type": "park",
+        "at": "2026-09-29T01:41:57.370Z",
+        "task": "C42"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C43-20260929",
+        "type": "assign",
+        "at": "2026-09-29T01:42:14.231Z",
+        "task": "C43",
+        "worker": "C",
+        "goal": "port-trap-domagictrap-fates-synthetic-v11-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B50-20260929",
+        "type": "assign",
+        "at": "2026-09-29T01:44:29.601Z",
+        "task": "B50",
+        "worker": "B",
+        "goal": "port-lock-doorlock-synthetic-v11-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-70c2fae825ec1ee16dbd2f08f018a72f3f1ada87",
+        "type": "ready",
+        "at": "2026-09-29T02:22:03.171Z",
+        "task": "C43",
+        "delivery": "70c2fae825ec1ee16dbd2f08f018a72f3f1ada87"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C43-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T02:22:49.353Z",
+        "task": "C43",
+        "delivery": "70c2fae825ec1ee16dbd2f08f018a72f3f1ada87"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C43-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T02:24:43.266Z",
+        "task": "C43",
+        "integration": "c64c3fa1121e1a2ad5dad3a8ea4bf9c49df51586"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B50-park-20260929",
+        "type": "park",
+        "at": "2026-09-29T02:34:30.985Z",
+        "task": "B50"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C43-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T02:39:26.746Z",
+        "task": "C43",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C43-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T02:39:27.589Z",
+        "task": "C43"
       }
     ]
   },
   "development": {
-    "executionCommit": "a149eb3605fe68acf848e20f8255850d22e83a3d",
-    "measuredAt": "2026-09-29T01:33:24.017Z",
+    "executionCommit": "c64c3fa1121e1a2ad5dad3a8ea4bf9c49df51586",
+    "measuredAt": "2026-09-29T02:30:44.005Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
