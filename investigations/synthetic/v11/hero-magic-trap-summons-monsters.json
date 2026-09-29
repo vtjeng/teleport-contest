@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v11/hero-magic-trap-summons-monsters",
+  "corpus": "synthetic",
+  "batch": "v11",
+  "caseId": "hero-magic-trap-summons-monsters",
+  "manifestPath": "challenges/manifests/v11.json",
+  "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+  "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
+  "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+  "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+  "remainingScreens": 1,
+  "recordedSteps": 17,
+  "status": "complete",
+  "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v11",
+    "caseId": "hero-magic-trap-summons-monsters",
+    "session": "synthetic/v11/hero-magic-trap-summons-monsters",
+    "manifestPath": "challenges/manifests/v11.json",
+    "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+    "recording": "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+    "recordingPath": "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+    "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
+    "recipe": "challenges/cases/v11/hero-magic-trap-summons-monsters.recipe.session.json",
+    "recipeSha256": "e31916913b95dc4a954960374a2d53142f3b9d3aca013d651f036083655a3394",
+    "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+    "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+    "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+    "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+    "evaluationUtc": "2026-09-28T23:47:35.564Z",
+    "remainingScreens": 1,
+    "recordedSteps": 17,
+    "previousScreensMatched": 16,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 16,
+        "total": 17
+      },
+      "rng": {
+        "matched": 2700,
+        "total": 2703
+      },
+      "cursors": {
+        "matched": 16,
+        "total": 17
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: magic trap tame monsters",
+      "step": 16
+    },
+    "step": 16,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero move: magic trap tame monsters",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The hero steps onto a magic trap and C trap.c:domagictrap draws fate below 10, blinds and deafens the hero, creates nearby monsters, then wakes them. JavaScript reaches the partial domagictrap function but refuses that branch. Port the complete function with its return-valued dependencies and preserve every existing fate arm.",
+  "source": {
+    "file": "trap.c",
+    "branch": "trap.c:trapeffect_magic_trap hero arm (2294-2321) draws the 1/30 explosion check and otherwise calls domagictrap (4317-4451). For fate below 10, domagictrap draws rnd(4), applies blindness and deafness with source-specific rn1 ranges, creates cnt monsters with makemon, and wakes nearby monsters only after creation.",
+    "functions": [
+      "domagictrap",
+      "trapeffect_magic_trap"
+    ],
+    "callers": [
+      "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_magic_trap(hero) -> domagictrap; js/trap_effects.js:domagictrap currently refuses fate below 10.",
+      "Other domagictrap fates remain production paths: fate 12 calls dofiretrap(NULL), currently being wired by C41, and fate 19 tames nearby monsters. Preserve the shared function across every fate."
+    ],
+    "dependencies": [
+      "Use resists_blnd, make_blinded, incr_itimeout for HDeaf, and source message gates; verify return values and exact random-draw order around rnd(4), rn1(5,10) or blindness resistance, and rn1(20,30) or rn1(5,15).",
+      "makemon return is discarded in C, but each call creates state and consumes RNG; wire existing production makemon where available. Wake_nearto follows all creations, not each one.",
+      "C41 already reserves trap.c:domagictrap to wire fate 12. Defer the separate whole-function completion until its task ends, then reuse that worker or coordinate scope explicitly; do not overlap edits to js/trap_effects.js."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 has 1 unmatched screen and stops at zero-based step 16 with 'unsupported hero move: magic trap tame monsters'. The immutable C recording challenges/cases/v11/hero-magic-trap-summons-monsters.session.json has SHA-256 73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052.",
+    "Upstream trap.c:2294-2321 and :4317-4451 define the caller and whole effect. js/trap_effects.js:1582-1690 states and enforces the fate-below-10 refusal."
+  ]
+}
