@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T14:33:57.417Z",
+  "capturedAt": "2026-09-29T15:18:23.733Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9462,12 +9462,81 @@
         "at": "2026-09-29T14:22:24.151Z",
         "task": "C47",
         "commit": "3eb023fcb8b993ef132ef11b206962e6255f9874"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B55-grapple-family-v13-20260929",
+        "type": "assign",
+        "at": "2026-09-29T14:42:09.352Z",
+        "task": "B55",
+        "worker": "B",
+        "goal": "port-apply-grapple-family-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C48-timeout-cleanup-burn-light-source-20260929",
+        "type": "assign",
+        "at": "2026-09-29T14:42:40.001Z",
+        "task": "C48",
+        "worker": "C",
+        "goal": "div-timeout-cleanup-burn-light-source-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A50-makemon-runtime-named-creation-v13-20260929",
+        "type": "assign",
+        "at": "2026-09-29T14:46:24.182Z",
+        "task": "A50",
+        "worker": "A2",
+        "goal": "div-makemon-runtime-named-creation-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6dd1286b8f508c4277cf3a814b5aa8179c3b7092",
+        "type": "ready",
+        "at": "2026-09-29T15:01:13.752Z",
+        "task": "C48",
+        "delivery": "6dd1286b8f508c4277cf3a814b5aa8179c3b7092"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C48-6dd1286b",
+        "type": "received",
+        "at": "2026-09-29T15:02:16.494Z",
+        "task": "C48",
+        "delivery": "6dd1286b8f508c4277cf3a814b5aa8179c3b7092"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-C48-a15ccc81",
+        "type": "integrating",
+        "at": "2026-09-29T15:04:58.800Z",
+        "task": "C48",
+        "integration": "a15ccc8186107d725e21d41b73d4c0892c82eca5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-C48-a15ccc81",
+        "type": "validated",
+        "at": "2026-09-29T15:12:07.676Z",
+        "task": "C48",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-C48-a15ccc81",
+        "type": "accepted",
+        "at": "2026-09-29T15:17:52.013Z",
+        "task": "C48"
       }
     ]
   },
   "development": {
-    "executionCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
-    "measuredAt": "2026-09-29T14:19:05.338Z",
+    "executionCommit": "a15ccc8186107d725e21d41b73d4c0892c82eca5",
+    "measuredAt": "2026-09-29T15:11:22.776Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

@@ -1,0 +1,90 @@
+{
+  "session": "synthetic/v13/empty-candelabrum-no-candles",
+  "corpus": "synthetic",
+  "batch": "v13",
+  "caseId": "empty-candelabrum-no-candles",
+  "manifestPath": "challenges/manifests/v13.json",
+  "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+  "recordingSha256": "908560d51b03dad77ab684349353c3c6bd2057e6b90f131e6cd651a5fc2b75b3",
+  "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+  "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "remainingScreens": 1,
+  "recordedSteps": 39,
+  "status": "complete",
+  "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v13",
+    "caseId": "empty-candelabrum-no-candles",
+    "session": "synthetic/v13/empty-candelabrum-no-candles",
+    "manifestPath": "challenges/manifests/v13.json",
+    "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+    "recording": "challenges/cases/v13/empty-candelabrum-no-candles.session.json",
+    "recordingPath": "challenges/cases/v13/empty-candelabrum-no-candles.session.json",
+    "recordingSha256": "908560d51b03dad77ab684349353c3c6bd2057e6b90f131e6cd651a5fc2b75b3",
+    "recipe": "challenges/cases/v13/empty-candelabrum-no-candles.recipe.session.json",
+    "recipeSha256": "dc023a8acbe0738ba0d25e369dd51d4fcbf123417f594fec00e8cea4a8624cea",
+    "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+    "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+    "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationUtc": "2026-09-29T14:13:52.803Z",
+    "remainingScreens": 1,
+    "recordedSteps": 39,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 38,
+        "total": 39
+      },
+      "rng": {
+        "matched": 2386,
+        "total": 2395
+      },
+      "cursors": {
+        "matched": 38,
+        "total": 39
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 262",
+      "step": 38
+    },
+    "step": 38,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 262",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Applying an empty candelabrum reaches an unported doapply arm. C use_candelabrum reports that it has no candles and, when the inventory contains a candle, adds a source-specific attachment tip. The complete function also owns extinguishing, underwater/cursed refusals, invocation fuel behavior, and lighting.",
+  "source": {
+    "file": "apply.c",
+    "branch": "For a CANDELABRUM_OF_INVOCATION with spe<=0 and lamplit false, use_candelabrum prints the no-candles message, scans inventory for Is_candle, optionally prints the apply-candles tip, and returns without a turn-specific RNG call. Other branches snuff a lit candelabrum via end_burn, refuse underwater or cursed/swallowed lighting, adjust age outside invocation position, mark known at invocation, and call begin_burn.",
+    "functions": [
+      "use_candelabrum",
+      "doapply (CANDELABRUM_OF_INVOCATION arm)"
+    ],
+    "callers": [
+      "apply.c:doapply(CANDELABRUM_OF_INVOCATION) calls use_candelabrum; js/apply.js:doapply currently includes the type in its named unported arms.",
+      "apply.c:use_candle can attach candles to a carried candelabrum; source state written there determines use_candelabrum’s spe and age branches."
+    ],
+    "dependencies": [
+      "Is_candle is a consumed object-type predicate for the inventory-tip branch; walk inventory in source order.",
+      "timeout.c:end_burn and begin_burn own timer/light state for lit and lighting branches, including consumed outcomes where used.",
+      "invocation_pos, On_stairs, Underwater, Blind, and u.uswallow select output, knowledge, and fuel behavior; preserve integer age rounding (age+1)/2 and source message order."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 38/39 screens and cursors and first stop at zero-based segment 0 step 38 in the doapply object-type-262 arm. The immutable recording is challenges/cases/v13/empty-candelabrum-no-candles.session.json.",
+    "The C recording’s final selected input n displays “This candelabrum has no candles.” It records no use_candelabrum RNG call. This establishes the empty branch, while other active branches still need independent runtime evidence.",
+    "Upstream nethack-c/upstream/src/apply.c:1319-1381 defines the complete use_candelabrum branches in source order; lines 1328-1339 scan inventory for a candle on the empty path, and lines 4337-4338 wire doapply. JavaScript js/apply.js has CANDELABRUM_OF_INVOCATION only in the named unported arms."
+  ]
+}
