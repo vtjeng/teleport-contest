@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v13/horn-of-plenty-generates-food",
+  "corpus": "synthetic",
+  "batch": "v13",
+  "caseId": "horn-of-plenty-generates-food",
+  "manifestPath": "challenges/manifests/v13.json",
+  "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+  "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+  "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+  "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "remainingScreens": 1,
+  "recordedSteps": 29,
+  "status": "complete",
+  "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v13",
+    "caseId": "horn-of-plenty-generates-food",
+    "session": "synthetic/v13/horn-of-plenty-generates-food",
+    "manifestPath": "challenges/manifests/v13.json",
+    "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+    "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+    "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+    "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+    "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+    "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+    "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+    "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+    "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationUtc": "2026-09-29T14:13:52.803Z",
+    "remainingScreens": 1,
+    "recordedSteps": 29,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 28,
+        "total": 29
+      },
+      "rng": {
+        "matched": 4197,
+        "total": 4203
+      },
+      "cursors": {
+        "matched": 28,
+        "total": 29
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+      "step": 28
+    },
+    "step": 28,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A charged horn creates food and reaches mkobj.c:hornoplenty’s non-tipping inventory path. JavaScript stops after adding the food because its hold_another_object call has no encumberMessage callback; C continues through invent.c:hold_another_object to pickup.c:encumber_msg. The v13 manifest’s pickup.c:hold_another_object label is a file-name error; the source call chain here is authoritative.",
+  "source": {
+    "file": "mkobj.c",
+    "branch": "For a charged, applied horn of plenty with tipping false, hornoplenty consumes a charge, creates food, prints its spill message, and passes the generated object to invent.c:hold_another_object. Once the object remains in inventory, that function calls pickup.c:encumber_msg before returning to hornoplenty.",
+    "functions": [
+      "hornoplenty"
+    ],
+    "callers": [
+      "apply.c:doapply(HORN_OF_PLENTY) -> mkobj.c:hornoplenty; js/apply.js:doapply calls js/obj.js:hornoplenty with only {state}.",
+      "mkobj.c:hornoplenty -> invent.c:hold_another_object; js/obj.js:hornoplenty forwards the unaugmented env to js/invent.js:hold_another_object."
+    ],
+    "dependencies": [
+      "invent.c:hold_another_object is implemented in js/invent.js but currently demands hooks.encumberMessage at its successful-inventory tail; the source calls the linked pickup.c function directly.",
+      "pickup.c:encumber_msg is implemented and already imported in js/obj.js. Wire the C callback generally for hornoplenty’s non-tipping path and preserve the complete source branch, including the generated-object return and PRNG order.",
+      "A matching horn witness can complete one previously unevidenced active caller in parked goal port-invent-hold-another-object-synthetic-v10-20260928."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b matches 28/29 screens and stops at zero-based step 28 with UnsupportedHeroCommandBoundaryError: encumberMessage unavailable for generated tripe otyp 264.",
+    "Upstream mkobj.c:hornoplenty (2847-2936) calls invent.c:hold_another_object (1208-1311) on its non-tipping generated-object branch; the latter calls pickup.c:encumber_msg (1978 onward) once the object stays in inventory. The v13 prepared manifest attributes hold_another_object to pickup.c, which is a source-file label error and is corrected here without changing the frozen recording.",
+    "js/apply.js:doapply calls js/obj.js:hornoplenty with {state}; js/obj.js forwards that env unchanged to js/invent.js:hold_another_object, which calls requiredHook(encumberMessage) and refuses. js/obj.js already imports js/pickup.js:encumber_msg for its target-box path, so the missing production connection is in this caller route rather than a new C effect."
+  ]
+}

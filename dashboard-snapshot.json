@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T14:20:46.564Z",
+  "capturedAt": "2026-09-29T14:33:57.417Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9454,6 +9454,14 @@
         "type": "accepted",
         "at": "2026-09-29T14:12:40.886Z",
         "task": "C47"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-C47-3eb023fc",
+        "type": "published",
+        "at": "2026-09-29T14:22:24.151Z",
+        "task": "C47",
+        "commit": "3eb023fcb8b993ef132ef11b206962e6255f9874"
       }
     ]
   },
