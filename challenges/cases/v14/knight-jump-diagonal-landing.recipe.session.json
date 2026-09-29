@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for apply.c:dojump/jump. An on-foot Knight uses its legal L-shaped physical trajectory after dismissing the command pager to land northwest of the starting square; this differs from v13's mounted joust and from the prior jump recipe directions, while exercising the source Knight distance gate and landing walk.",
+  "segments": [
+    {
+      "seed": 62037189,
+      "datetime": "20420412103000",
+      "nethackrc": "OPTIONS=name:V14KnightJump,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#jump\n  $hhk."
+    }
+  ]
+}

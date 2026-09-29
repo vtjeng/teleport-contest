@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Corrected C-first candidate for read.c:seffect_genocide. The prior selected name “zombie” was rejected; C identified the created adjacent species as a gnome zombie. The new recipe chooses that exact species and observes the genocide state update and monster removal.",
+  "segments": [
+    {
+      "seed": 54879132,
+      "datetime": "20470115121000",
+      "nethackrc": "OPTIONS=name:V14ScrollGeno,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#wizgenesis\nhostile zombie\n#wizwish\nscroll of genocide\nro  gnome zombie\n "
+    }
+  ]
+}

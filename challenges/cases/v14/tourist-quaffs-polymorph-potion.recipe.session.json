@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for potion.c:peffect_polymorph. A human Tourist quaffs an uncursed potion and follows the source polyself transformation branch; this exercises the potion path rather than a wand zap. C observed the wished item at inventory slot p; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 75199203,
+      "datetime": "20401206181500",
+      "nethackrc": "OPTIONS=name:V14PolyPotion,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\npotion of polymorph\nqp "
+    }
+  ]
+}

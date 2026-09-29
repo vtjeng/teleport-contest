@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for read.c:seffect_taming. A lawful Knight creates a visible hostile dog and reads an uncursed taming scroll; C should report the neighborhood friendlier and change the dog disposition.",
+  "segments": [
+    {
+      "seed": 91820462,
+      "datetime": "20540108152000",
+      "nethackrc": "OPTIONS=name:V14TamingDog,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizgenesis\n hostile dog\n#wizwish\nscroll of taming\nri  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first trap.c:dountrap -> untrap -> disarm_holdingtrap case. The Wizard moves off the upstairs, applies an uncursed disarmed beartrap to set a known floor bear trap, remains untrapped on that square, and uses #untrap in direction . to disarm it. v6 beartrap histories wish a trap or sit on/trigger one; this action instead disarms a known empty floor bear trap.",
+  "segments": [
+    {
+      "seed": 98761012,
+      "datetime": "20571205114500",
+      "nethackrc": "OPTIONS=name:V14Untrap,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "l#wizwish\nuncursed beartrap\nao#untrap\n."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for potion.c:peffect_sickness. A high-HP human Barbarian quaffs a wished uncursed sickness potion; the C trace should show contaminant selection, attribute or hit-point loss, and constitution exercise. C observed the wished item at inventory slot e; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 79210465,
+      "datetime": "20580323094500",
+      "nethackrc": "OPTIONS=name:V14SickPotion,role:Barbarian,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\npotion of sickness\nqe "
+    }
+  ]
+}

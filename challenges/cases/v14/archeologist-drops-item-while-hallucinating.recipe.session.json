@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for do.c:dropx hallucinated display. An Archeologist drinks a wished hallucination potion, then opens inventory so C evidence can select a starting item to drop while object names are hallucinated. C assigned the potion to slot i and the starting food rations to slot d; the corrected sequence quaffs i, clears the effect pager, then drops d.",
+  "segments": [
+    {
+      "seed": 94723150,
+      "datetime": "20531102142500",
+      "nethackrc": "OPTIONS=name:V14HallucinDrop,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\npotion of hallucination\nqi  dd"
+    }
+  ]
+}
