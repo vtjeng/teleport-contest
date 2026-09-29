@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 53419022,
+      "datetime": "20461015090000",
+      "nethackrc": "OPTIONS=name:LeashAttachDetachB56,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0007tame dog\n\u0017leash\nannann"
+    }
+  ],
+  "_comment": "C reaches apply.c:use_leash_core attach and detach, but the following turn requires the out-of-scope dogmove.c:dog_move non-starting-pet action; retain as a blocked recipe, not a passing recording. Seed, date, role and pet state differ from the admitted synthetic setup."
+}

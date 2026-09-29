@@ -828,7 +828,8 @@ export function keepdogs(pets_only, rawEnv = {}) {
             );
         } else if (mtmp.mleashed) {
             // "%s leash goes slack." and m_unleash() at dog.c:879-882. Nothing
-            // in the port sets mleashed; see js/apply_next_to_u.js.
+            // in this keepdogs() branch ports m_unleash()'s state and feedback;
+            // apply.c:use_leash() can now establish mleashed in play.
             throw new UnsupportedHeroMoveBoundaryError(
                 'keepdogs() leaving a leashed monster behind',
             );
@@ -1079,9 +1080,8 @@ function Conflict(state) {
  * a pet in the middle of migrating has mx == 0 and stays silent.
  *
  * A pet whose tameness reaches 0 while leashed calls m_unleash(), and a long
- * worm that loses its tameness calls redraw_worm(). Neither is ported, and
- * neither can be reached today: no ported writer sets mleashed to true (see
- * js/apply_next_to_u.js), so both arms are refused rather than left silent.
+ * worm that loses its tameness calls redraw_worm(). Neither callee is ported;
+ * apply.c:use_leash() can now establish mleashed, so the first gap is active.
  *
  * `random` is the injection seam for the complaint draw and for the
  * hallucination draw inside yelp() and growl(); the game passes nothing and

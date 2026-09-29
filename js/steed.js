@@ -550,8 +550,9 @@ export async function mount_steed(mtmp, force, state = game) {
             state,
         );
         if (mtmp.mleashed) {
-            // m_unleash() is unported, and so is every writer of mleashed:
-            // apply.c use_leash() is the only one, and #apply is not ported.
+            // m_unleash() is unported. apply.c:use_leash() and mon.c:newcham()
+            // now own the leash pair; this untaming cleanup still needs the
+            // source's feedback and inventory update behavior.
             throw new UnsupportedSteedError(
                 'mount_steed() unleashing an untamed steed',
             );

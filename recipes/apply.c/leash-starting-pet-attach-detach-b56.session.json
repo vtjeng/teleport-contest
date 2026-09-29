@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61043987,
+      "datetime": "20461104090000",
+      "nethackrc": "OPTIONS=name:StartingLeashDetachB56,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup\n",
+      "moves": "\u0017leash\nambamb"
+    }
+  ],
+  "_comment": "Independent C recipe for apply.c:use_leash_core attach followed by successful detach of the ordinary Healer starting dog; the C menu placed the wished leash at letter m."
+}

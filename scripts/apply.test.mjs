@@ -31,13 +31,22 @@ import {
     grapple_menu_choice_to_hit,
     grapple_range,
     grapple_target_menu_items,
+    leashable,
+    number_leashed,
     touchstone_ok,
     use_towel,
 } from '../js/apply.js';
 import { c_obj_colors } from '../js/do_name.js';
 import { game, resetGame } from '../js/gstate.js';
 import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
-import { M1_HUMANOID, NON_PM } from '../js/monsters.js';
+import {
+    M1_HUMANOID,
+    M1_NOLIMBS,
+    M1_NOHEAD,
+    M1_UNSOLID,
+    NON_PM,
+    PM_LONG_WORM,
+} from '../js/monsters.js';
 import { heroIsBlind } from '../js/startup_a11y.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -45,12 +54,17 @@ import {
     BLINDFOLD,
     GEM_CLASS,
     GRAPPLING_HOOK,
+    LEASH,
     RING_CLASS,
     TOWEL,
     TOOL_CLASS,
     objects_globals_init,
     RUBY,
 } from '../js/objects.js';
+
+const APPLY_C = readFileSync(
+    new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
+);
 
 function stateAtCharisma(charisma, female = false) {
     const state = resetGame();
@@ -84,6 +98,85 @@ test('beautiful() uses poly_gender only in the two gendered ranges', () => {
     assert.equal(beautiful(stateAtCharisma(16, true)), 'beautiful');
     assert.equal(beautiful(stateAtCharisma(19, true)), 'splendorous');
     assert.equal(FEMALE, 1);
+});
+
+test('number_leashed counts only active inventory leash objects', () => {
+    const inactive = { otyp: LEASH, leashmon: 0, nobj: null };
+    const other = { otyp: 99, leashmon: 14, nobj: inactive };
+    const active = { otyp: LEASH, leashmon: 14, nobj: other };
+    const second = { otyp: LEASH, leashmon: 27, nobj: active };
+    assert.equal(number_leashed({ invent: second }), 2);
+    assert.equal(number_leashed({ invent: inactive }), 0);
+});
+
+test('leashable follows apply.c species and anatomy checks', () => {
+    const ordinary = { mnum: 1, data: { mflags1: 0 } };
+    const longWorm = { mnum: PM_LONG_WORM, data: { mflags1: 0 } };
+    const unsolidForm = { mnum: 2, data: { mflags1: M1_UNSOLID } };
+    const limblessHeaded = { mnum: 3, data: { mflags1: M1_NOLIMBS } };
+    const limblessHeadless = {
+        mnum: 4, data: { mflags1: M1_NOLIMBS | M1_NOHEAD },
+    };
+
+    assert.equal(leashable(ordinary), true);
+    assert.equal(leashable(longWorm), false);
+    assert.equal(leashable(unsolidForm), false);
+    assert.equal(leashable(limblessHeaded), true);
+    assert.equal(leashable(limblessHeadless), false);
+});
+
+test('apply.c use_leash_core marks a cursed leash known before the pet-turn boundary',
+    async () => {
+    assert.match(APPLY_C,
+        /else if \(obj->cursed\) \{\s*pline_The\("leash would not come off!"\);\s*set_bknown\(obj, 1\);\s*\}/);
+
+    const recipe = JSON.parse(readFileSync(
+        new URL('../recipes/apply.c/leash-starting-pet-cursed-refusal-b56.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    let boundary = null;
+    await runSegment(recipe.segments[0], {
+        onBoundary: (error) => { boundary = error; },
+    });
+
+    assert.equal(game._ttyToplines, 'The leash would not come off!');
+    let leash = game.invent;
+    while (leash && leash.otyp !== LEASH) leash = leash.nobj;
+    assert.ok(leash, 'the cursed leash remains in the hero inventory');
+    assert.equal(leash.cursed, true);
+    assert.equal(leash.bknown, true);
+    assert.ok(leash.leashmon > 0, 'the refusal leaves the leash attached');
+    assert.equal(boundary?.message,
+        'simple monster action requires special starting-pet state');
+});
+
+test('apply.c use_leash strictly replays its independent attach and detach recording',
+    async () => {
+    const recording = JSON.parse(readFileSync(
+        new URL('../recordings/apply.c/leash-starting-pet-attach-detach-b56.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    const cScreens = recording.segments[0].steps.map((step) => step.screen ?? '')
+        .join('\n');
+    assert.match(cScreens, /You slip the leash around your little dog\./);
+    assert.match(cScreens, /You remove the leash from your little dog\./);
+
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
+});
+
+test('apply.c use_leash matches the admitted v13 pet-leash case', async () => {
+    const recording = JSON.parse(readFileSync(
+        new URL('../challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
 });
 
 function grappleState(skill) {
