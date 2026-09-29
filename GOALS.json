@@ -118056,6 +118056,278 @@
         "rng": 792838
       },
       "parkedReason": "Primary doapply leash attach and detach entry matches the independent C recording and admitted v13 steps 0-20. Whole-source completion remains unverified for the active mon.c:newcham leashable entry (apply.c:m_unleash gap), downward mounted-steed leash entry, and cursed-removal continuation blocked by dogmove.c:dog_move. Preserve the committed cursed and wizard-created-pet blocked recipes; resume when those source entries have matching runtime evidence."
+    },
+    {
+      "id": "fix-hack-losehp-planning-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Keep planned lethal gas damage off the live terminal",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "Source-traced terminal planning defect in implemented losehp behavior",
+      "detail": "synthetic/v13/hostile-orc-exposed-to-poison-gas, segment 0, step 69: screen and cursor mismatch with RNG 2940/2940 matching. C allmain.c moveloop_core reaches region.c run_regions and inside_gas_cloud, then hack.c losehp (4255-4292). The cloned elapsed-turn planner failed to forward planning, allowing urgent_pline and done to write the live terminal before replay. Preserve source HP and killer updates, hand off lethal planning before terminal operations, isolate the cloned killer record, and stop live region continuations only after finalized death; wizard and life-saving recovery continue. JavaScript owners: hack.js losehp, allmain.js regionEffectEnv/elapsed-turn tail, region.js callbacks, unported_monster_actions.js planningState and preflight catches.",
+      "openedAt": "202fc10e007b6ea7047aebf665adeb39d845e6c4",
+      "openStanding": {
+        "sha": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "losehp",
+      "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+      "step": 69,
+      "syntheticProvenance": {
+        "synthetic/v13/hostile-orc-exposed-to-poison-gas": {
+          "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "hostile-orc-exposed-to-poison-gas",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+          "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+          "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6"
+        }
+      },
+      "activeStanding": {
+        "sha": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "hostile-orc-exposed-to-poison-gas",
+          "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+          "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+          "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+          "recipe": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.recipe.session.json",
+          "recipeSha256": "86806a32069a698c8e2d98b28ea2a369a5976bf1bfe7bc4b0c9cecdbfc2d66db",
+          "replayInputSha256": "3cfc883da64f56b3faccd4e650d2d5b13852052d3c4d6dc55ed062e4fa7b83e1",
+          "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+          "evaluationArtifact": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationUtc": "2026-09-29T20:18:19.894Z",
+          "remainingScreens": 1,
+          "recordedSteps": 70,
+          "previousScreensMatched": 69,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 69,
+              "total": 70
+            },
+            "rng": {
+              "matched": 2940,
+              "total": 2940
+            },
+            "cursors": {
+              "matched": 69,
+              "total": 70
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 69,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 69,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 18,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 69,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 69,
+                "key": "."
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                26,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 69,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/hostile-orc-exposed-to-poison-gas.json",
+            "result": {
+              "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "hostile-orc-exposed-to-poison-gas",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+              "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+              "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+              "remainingScreens": 1,
+              "recordedSteps": 70,
+              "status": "complete",
+              "commit": "52db3b9f54547102e14a1b1872299a48baaabba4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "hostile-orc-exposed-to-poison-gas",
+                "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+                "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+                "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+                "recipe": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.recipe.session.json",
+                "recipeSha256": "86806a32069a698c8e2d98b28ea2a369a5976bf1bfe7bc4b0c9cecdbfc2d66db",
+                "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
+                "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+                "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationUtc": "2026-09-29T16:10:43.240Z",
+                "remainingScreens": 1,
+                "recordedSteps": 70,
+                "previousScreensMatched": 69,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 69,
+                    "total": 70
+                  },
+                  "rng": {
+                    "matched": 2940,
+                    "total": 2940
+                  },
+                  "cursors": {
+                    "matched": 69,
+                    "total": 70
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 69,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 69,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 18,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 69,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 69,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      26,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 69,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 69 blindness expires while the hero remains in fatal poison gas. C allmain.c runs nh_timeout, then run_regions and combines sight recovery with gas-cloud messages before the --More-- prompt. JavaScript dry-runs the region callback on a cloned state; hack.c:losehp still writes a live death prompt from that speculative pass, forcing --More-- before the live gas messages.",
+              "source": {
+                "file": "hack.c",
+                "functions": [
+                  "losehp"
+                ],
+                "branch": "When region.c:inside_gas_cloud applies damage that is fatal for the hero, the JavaScript elapsed-turn preflight clone reaches losehp. Its live ttyUrgentPline/done effects escape the clone before allmain.c reaches the real run_regions call. C has no speculative callback and emits the region messages in source order.",
+                "callers": [
+                  "C: allmain.c:moveloop_core calls nh_timeout then run_regions; region.c:inside_gas_cloud emits stinging/burning-lung messages and calls hack.c:losehp for hero gas damage.",
+                  "JS: js/unported_monster_actions.js:preflightElapsedTurnTail clones elapsed-turn state and reaches js/allmain.js:finishElapsedTurnAfterTimeout -> js/region.js:inside_gas_cloud -> js/hack.js:losehp before the live callback."
+                ],
+                "dependencies": [
+                  "The preflight fatal-damage result must be a read-only planning signal; all live tty output, gameover handling, and input prompts remain in the later source-ordered region path.",
+                  "Audit other preflight callers of losehp to preserve their existing fatal-damage and continuation behavior; do not special-case gas, this case, or its seed."
+                ]
+              },
+              "evidence": [
+                "The current saved v13 evaluation challenges/evaluations/20260929161024-v13.json reports 69/70 screens and cursors and 2940/2940 RNG for this immutable case; the first mismatch remains segment 0 step 69. C top line contains \"You can see again.  Your eyes sting.  Something is burning your lungs!--More--\" while JS has \"You can see again.--More--\".",
+                "Upstream allmain.c:moveloop_core orders nh_timeout before run_regions. region.c:inside_gas_cloud prints the eye and lung messages before its damage call. JS preserves that order in the live path, but unported_monster_actions.js preflightElapsedTurnTail speculatively invokes the cloned region path.",
+                "Read-only extra-key replay after the immutable input shows JS next printing \"You die...--More--\", then \"Die? [yn] (n)\". A further key exposes the stack js/hack.js:losehp -> js/region.js:inside_gas_cloud -> js/allmain.js:finishElapsedTurnAfterTimeout -> js/unported_monster_actions.js:preflightElapsedTurnTail. At HP 4/12, gas damage rnd(dam)+5 is certainly fatal, so the clone reaches losehp and leaks its terminal effects."
+              ],
+              "goalKind": "divergence-fix"
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

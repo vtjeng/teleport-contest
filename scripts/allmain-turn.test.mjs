@@ -1274,6 +1274,91 @@ test('wizard recovery from fatal gas continues the elapsed-turn tail',
         assert.equal(game.program_state.gameover ?? false, false);
     });
 
+test('planned fatal polymorph gas rehumanizes and completes the live turn',
+    async () => {
+        // Independent startup inputs give a poison-susceptible jackal form
+        // without borrowing a recorded session's character or commands.
+        await runSegment(firstTurnInput({
+            seed: 37029143, datetime: '20430619121933', name: 'GasForm',
+            role: 'Healer', race: 'human', gender: 'female', align: 'neutral',
+            command: '', options: ',pettype:none,!debug_mongen,!acoustics',
+        }));
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.head_engr = null;
+        game.invent = null;
+        for (const slot of ['uwep', 'uswapwep', 'uquiver', 'uarm', 'uarmc',
+            'uarmh', 'uarmf', 'uarmg', 'uarms', 'uarmu', 'uleft', 'uright'])
+            game[slot] = null;
+        game.u.macurr = { a: [...game.u.acurr.a] };
+        game.u.mamax = { a: [...game.u.amax.a] };
+        game.u.mfemale = game.flags.female;
+        // monst.c gives jackals NORMAL_SPEED; slight encumbrance below
+        // reduces the first movement grant to nine before gas reversion.
+        game.u.umonnum = PM_JACKAL;
+        set_uasmon(game);
+        // One monster HP makes every rnd(10) cloud hit lethal to that form.
+        // One hundred human HP also survives the next rnd(10) cloud hit
+        // after polyself.c rehumanize() returns alive. Keep
+        // the polymorph timeout beyond this allocation so gas causes reversion.
+        game.u.mh = game.u.mhmax = 1;
+        game.u.uhp = game.u.uhpmax = 100;
+        game.u.mtimedone = 20;
+        game.u.uprops[POISON_RES] = {
+            intrinsic: 0, extrinsic: 0, blocked: 0,
+        };
+        // A single unit above the form's capacity selects the full planning
+        // path instead of the unencumbered random-monster-only shortcut. The
+        // human form has greater capacity, so its next grant completes the
+        // second allocation. Empty equipment keeps rehumanization ordinary.
+        game.invent = {
+            oclass: TOOL_CLASS, otyp: SACK,
+            owt: weight_cap(game) + 1, nobj: null,
+        };
+        assert.equal(near_capacity(game), SLT_ENCUMBER,
+            'the caller must plan beyond the random-monster shortcut');
+        const region = create_region([{
+            lx: game.u.ux, ly: game.u.uy, hx: game.u.ux, hy: game.u.uy,
+        }]);
+        region.inside_f = 'inside_gas_cloud';
+        region.hero_inside = true;
+        region.arg = 10; // Source gas damage is rnd(region.arg).
+        region.ttl = 5; // Keep the cloud active through both allocations.
+        game.level.regions = [region];
+        game.u.umovement = NORMAL_SPEED;
+        game.context.move = 1;
+        game.go.oldcap = SLT_ENCUMBER;
+        game.u.ublesscnt = 5; // The post-region tail decrements per allocation.
+        game.context.seer_turn = 100000; // Suppress unrelated periodic work.
+        game.context.next_attrib_check = 100000;
+        clearTtyMessageWindow(game);
+
+        const movesBefore = game.moves;
+        const plan = await preflightSimpleMonsterActions(game, {
+            advanceRound: (planned, random) =>
+                finishElapsedTurn(planned, random, { planning: true }),
+        });
+        assert.equal(plan.heroDeath?.killerName, 'gas cloud',
+            'lethal clone damage hands off at the source gas callback');
+        assert.equal(game.u.mh, 1, 'planning leaves the live form alive');
+        assert.equal(region.ttl, 5, 'planning leaves the live region intact');
+        // Spaces dismiss the gas/reversion messages and supply the next wait
+        // command after moveloop_core has completed both elapsed allocations.
+        for (let index = 0; index < 8; ++index)
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await moveloop_core();
+
+        assert.equal(game.u.umonnum, game.u.umonster,
+            'live losehp runs actual rehumanize');
+        assert.equal(game.u.mtimedone, 0, 'polyman clears the old form timeout');
+        assert.ok(game.u.uhp > 0, 'the human form survives');
+        assert.equal(game.program_state.gameover ?? false, false);
+        assert.equal(game.moves, movesBefore + 2, 'both allocations complete');
+        assert.equal(region.ttl, 3, 'the live region runs per allocation');
+        assert.equal(game.u.ublesscnt, 3,
+            'the caller continues past recovered region damage');
+    });
+
 test('fatal gas skips poison-belief updates after final gameover',
     async () => {
         // This independent seed and date give a reproducible non-wizard death

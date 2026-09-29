@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T20:22:23.150Z",
+  "capturedAt": "2026-09-29T21:33:22.382Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9901,12 +9901,69 @@
         "type": "accepted",
         "at": "2026-09-29T20:22:22.654Z",
         "task": "A51"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A51-202fc10e-20260929",
+        "type": "published",
+        "at": "2026-09-29T20:22:54.672Z",
+        "task": "A51",
+        "commit": "202fc10e007b6ea7047aebf665adeb39d845e6c4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9b4d057f02333be3719d0c3ceae5238a712af120",
+        "type": "ready",
+        "at": "2026-09-29T20:45:44.968Z",
+        "task": "B57",
+        "delivery": "9b4d057f02333be3719d0c3ceae5238a712af120"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B57-9b4d057f-20260929",
+        "type": "received",
+        "at": "2026-09-29T20:46:24.634Z",
+        "task": "B57",
+        "delivery": "9b4d057f02333be3719d0c3ceae5238a712af120"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B57-8667be7c-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T20:48:03.005Z",
+        "task": "B57",
+        "integration": "8667be7c87313737e310aa0bdb4f0709d3a77dac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B58-hornoplenty-encumber-20260929",
+        "type": "assign",
+        "at": "2026-09-29T20:56:28.235Z",
+        "task": "B58",
+        "worker": "B",
+        "goal": "fix-mkobj-hornoplenty-encumber-message-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B57-8667be7c-pass-20260929",
+        "type": "validated",
+        "at": "2026-09-29T20:59:38.472Z",
+        "task": "B57",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B57-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T21:33:17.199Z",
+        "task": "B57"
       }
     ]
   },
   "development": {
-    "executionCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
-    "measuredAt": "2026-09-29T20:16:04.361Z",
+    "executionCommit": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+    "measuredAt": "2026-09-29T21:30:11.015Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
