@@ -76,9 +76,9 @@
     ],
     "dependencies": [
       "js/trap_effects.js already contains steedintrap and js/polyself.js exports polyself; replace the ordinary hero arm note_unported calls with source-ordered production calls and await their effects. The C discards both return values.",
-      "The Antimagic or Unchanging branch calls display.c:shieldeff and retains the trap; a separate v11 teleport investigation scopes that display helper. Preserve an exact void gap until it is ported.",
+      "The Antimagic or Unchanging branch calls display.c:shieldeff and retains the trap. A45 is porting shieldeff and reserves its active trapeffect_poly_trap caller; coordinate after A45 acceptance.",
       "The iron-shoes branch uses zap.c:poly_obj, update_inventory, and invent.c:prinv; verify existing partial code against C and remove placeholders when their source operations exist.",
-      "Shares js/trap_effects.js with assigned C41 fire-trap port; defer implementation until that reservation is released."
+      "C44 rock-trap work and its trap_effects.js reservation are accepted; the remaining active reservation is A45 shieldeff caller wiring, not the old C41 fire-trap task."
     ]
   },
   "goalKind": "file-port",

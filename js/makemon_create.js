@@ -1365,6 +1365,13 @@ function isRuntimeExplicitRandomCall(ptr, x, y, mmflags, state) {
 function preflightCreation(ptr, x, y, mmflags, normalized) {
     const { state } = normalized;
     const randomCoordinates = x === 0 && y === 0;
+    // trap.c mk_trap_statue() and sp_lev.c create_object() explicitly create
+    // temporary inventory donors at random locations. The source call has the
+    // same arguments during level creation and ordinary-play statue wishes.
+    const statueInventoryCall = normalized._statueInventoryCreation === true
+        && Boolean(ptr)
+        && randomCoordinates
+        && mmflags === (MM_NOCOUNTBIRTH | MM_NOMSG);
     if (!Number.isInteger(mmflags) || mmflags < 0)
         throw new TypeError('makemon flags must be a nonnegative integer');
     if (mmflags & ~SUPPORTED_FLAGS) {
@@ -1424,7 +1431,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'unsupported tutorial monster creation',
         );
     }
-    if (randomCoordinates && !state.in_mklev && !runtimeRandomCall) {
+    if (randomCoordinates && !state.in_mklev && !runtimeRandomCall
+        && !statueInventoryCall) {
         throw new UnsupportedMonsterCreationError(
             'random coordinates outside mklev',
         );
@@ -1550,6 +1558,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || figurineAnimationCall || explicitInventorylessHeroCall
         || explicitCoordinateRuntimeCall
         || cloneuCall || minionSummonCall
+        || (!state.in_mklev && statueInventoryCall)
         || nastyCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
@@ -1573,15 +1582,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // extension is copied before replmon(), rather than treating it as a
         // fresh shkinit() creation.
         || (revivalCall && ptr?.pmidx === PM_SHOPKEEPER);
-    // trap.c mk_trap_statue() and sp_lev.c create_object() explicitly create
-    // temporary inventory donors at random locations. Their rndmonnum_adj()
-    // reservoirs can extend beyond the ordinary main-dungeon mklev allowlist;
-    // the shared caller marker admits only that exact source call shape.
-    const statueInventoryCall = state.in_mklev
-        && normalized._statueInventoryCreation === true
-        && Boolean(ptr)
-        && randomCoordinates
-        && mmflags === (MM_NOCOUNTBIRTH | MM_NOMSG);
     if ((mmflags & MM_ESHK) && !shopkeeperCall) {
         throw new UnsupportedMonsterCreationError(
             'shopkeeper extension outside shkinit',

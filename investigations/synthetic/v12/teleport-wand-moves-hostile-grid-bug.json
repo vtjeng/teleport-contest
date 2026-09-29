@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
+  "corpus": "synthetic",
+  "batch": "v12",
+  "caseId": "teleport-wand-moves-hostile-grid-bug",
+  "manifestPath": "challenges/manifests/v12.json",
+  "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+  "recordingSha256": "6f604845ff5fd8ed29cb0fc3fce2c31880fb7fdb4a11818de0582ec28381e7f6",
+  "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+  "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+  "remainingScreens": 1,
+  "recordedSteps": 57,
+  "status": "complete",
+  "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v12",
+    "caseId": "teleport-wand-moves-hostile-grid-bug",
+    "session": "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
+    "manifestPath": "challenges/manifests/v12.json",
+    "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+    "recording": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.session.json",
+    "recordingPath": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.session.json",
+    "recordingSha256": "6f604845ff5fd8ed29cb0fc3fce2c31880fb7fdb4a11818de0582ec28381e7f6",
+    "recipe": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.recipe.session.json",
+    "recipeSha256": "0edde60dad1b102f4eb45149fd0ce5e2d04bd4c67e1f5dd5d2be06827470baf8",
+    "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+    "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+    "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationUtc": "2026-09-29T03:34:04.588Z",
+    "remainingScreens": 1,
+    "recordedSteps": 57,
+    "previousScreensMatched": 56,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 56,
+        "total": 57
+      },
+      "rng": {
+        "matched": 2692,
+        "total": 2699
+      },
+      "cursors": {
+        "matched": 56,
+        "total": 57
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 424",
+      "step": 56
+    },
+    "step": 56,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "bhitm",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 424",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "WAN_TELEPORTATION reveals a disguised mimic if needed, uses the return of u_teleport_mon to decide invisible-map behavior, learns based on canspotmon, then follows the common tail. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+  "source": {
+    "file": "zap.c",
+    "branch": "WAN_TELEPORTATION reveals a disguised mimic if needed, uses the return of u_teleport_mon to decide invisible-map behavior, learns based on canspotmon, then follows the common tail.",
+    "functions": [
+      "bhitm"
+    ],
+    "callers": [
+      "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+      "js/zap.js:bhit -> bhitm"
+    ],
+    "dependencies": [
+      "teleport.c:u_teleport_mon return value is required by zap.c:bhitm and must be ported with its production caller"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+    "zap.c:341-346 consumes !u_teleport_mon(mtmp,TRUE). There is no JavaScript u_teleport_mon implementation; its return-valued teleport.c callee is a required dependency for this arm.",
+    "The independently recorded v12 teleport-wand-moves-hostile-grid-bug case first stops at zero-based step 56: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 424. It has 1 remaining screen(s) of 57 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+    "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+  ]
+}

@@ -1255,6 +1255,9 @@ export async function read_engr_at(
     { pline, canReachFloor } = {},
 ) {
     const engraving = engr_at(x, y, state);
+    // C obtains `eloc` from dungeon.c:surface() before inspecting the
+    // engraving type. This matters for HEADSTONE text on grave terrain.
+    const surfaceName = surface(x, y, state);
     const text = engraving?.engr_txt?.[0] ?? '';
     if (!text) return false;
     if (typeof pline !== 'function')
@@ -1262,7 +1265,6 @@ export async function read_engr_at(
 
     const blind = propertyActiveUnblocked(state.u, BLINDED);
     const onIce = state.level?.at(x, y)?.typ === ICE;
-    const surface = onIce ? 'ice' : 'floor';
     const tactileFloor = () => {
         if (!blind) return true;
         if (typeof canReachFloor !== 'function') {
@@ -1287,14 +1289,14 @@ export async function read_engr_at(
     case HEADSTONE:
         if (tactileFloor()) {
             sensed = true;
-            await pline(`Something is engraved here on the ${surface}.`, state);
+            await pline(`Something is engraved here on the ${surfaceName}.`, state);
         }
         break;
     case BURN:
         if (tactileFloor()) {
             sensed = true;
             await pline(
-                `Some text has been ${onIce ? 'melted' : 'burned'} into the ${surface} here.`,
+                `Some text has been ${onIce ? 'melted' : 'burned'} into the ${surfaceName} here.`,
                 state,
             );
         }
@@ -1302,7 +1304,7 @@ export async function read_engr_at(
     case MARK:
         if (!blind) {
             sensed = true;
-            await pline(`There's some graffiti on the ${surface} here.`, state);
+            await pline(`There's some graffiti on the ${surfaceName} here.`, state);
         }
         break;
     case ENGR_BLOOD:

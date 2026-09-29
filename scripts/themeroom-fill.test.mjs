@@ -27,6 +27,7 @@ import {
     MKTRAP_NOSPIDERONWEB,
     M_AP_OBJECT,
     M_AP_FURNITURE,
+    MON_DETACH,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_DELETED,
@@ -69,7 +70,7 @@ import { light_globals_init } from '../js/light.js';
 import { dmonsfree } from '../js/makemon_create.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj, weight } from '../js/obj.js';
 import {
     initialize_themeroom_postprocess_branch,
     run_themeroom_fill,
@@ -2725,6 +2726,41 @@ test('Statuary composes floor statues with living statue traps', () => {
     assert.equal(level.monlist, null);
     assert.equal(state.iflags.purge_monsters, 0);
     assert.deepEqual(detached.map((monster) => monster.nmon), [null, null, null]);
+});
+
+test('Statuary awaits each runtime statue-trap donor before returning', async () => {
+    const { level, room, state } = statuaryGenerationFixture();
+    state.in_mklev = false;
+    state.u.ux = 3;
+    state.u.uy = 3;
+    let draw = 0;
+    const random = {
+        d(number, sides) { return number * sides; },
+        rn1(bound, base) { return base + (draw++ % bound); },
+        rn2(bound) { return draw++ % bound; },
+        rnd(bound) { return 1 + (draw++ % bound); },
+        rne() { return 1; },
+        rnz(value) { return value; },
+    };
+    const fill = fillById('statuary');
+    const result = run_themeroom_fill(fill, room, 1, {
+        state,
+        random,
+        _specialRoomFill: true,
+        hooks: { createObject: () => ({}) },
+    });
+
+    assert.equal(typeof result?.then, 'function');
+    await result;
+    assert.equal(level.traps.length, 1);
+    const trap = level.traps[0];
+    assert.equal(trap.ttyp, STATUE_TRAP);
+    const statue = floorPile(level, trap.tx, trap.ty)
+        .find((obj) => obj.otyp === STATUE);
+    assert.ok(statue, 'the runtime Statuary trap creates its statue');
+    assert.equal(statue.owt, weight(statue, { state }));
+    assert.equal(state.level.monlist?.mhp, 0);
+    assert.equal(state.level.monlist?.mstate & MON_DETACH, MON_DETACH);
 });
 
 test('Spider nest puts a giant spider on each web the source asks for', () => {

@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v12/cancellation-wand-neutralizes-floor-potion",
+  "corpus": "synthetic",
+  "batch": "v12",
+  "caseId": "cancellation-wand-neutralizes-floor-potion",
+  "manifestPath": "challenges/manifests/v12.json",
+  "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+  "recordingSha256": "9d474a73454fc403b4eb33687f4aed3626cbef6f410138ea7cd6e7faf9a78f89",
+  "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+  "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+  "remainingScreens": 5,
+  "recordedSteps": 53,
+  "status": "complete",
+  "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v12",
+    "caseId": "cancellation-wand-neutralizes-floor-potion",
+    "session": "synthetic/v12/cancellation-wand-neutralizes-floor-potion",
+    "manifestPath": "challenges/manifests/v12.json",
+    "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+    "recording": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.session.json",
+    "recordingPath": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.session.json",
+    "recordingSha256": "9d474a73454fc403b4eb33687f4aed3626cbef6f410138ea7cd6e7faf9a78f89",
+    "recipe": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.recipe.session.json",
+    "recipeSha256": "c90f2c9e414a08bb43f8a762426d4882e0b2414844b01f1a04a1a2e204af2a84",
+    "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+    "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+    "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationUtc": "2026-09-29T03:34:04.588Z",
+    "remainingScreens": 5,
+    "recordedSteps": 53,
+    "previousScreensMatched": 48,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 48,
+        "total": 53
+      },
+      "rng": {
+        "matched": 2300,
+        "total": 2317
+      },
+      "cursors": {
+        "matched": 48,
+        "total": 53
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 423",
+      "step": 48
+    },
+    "step": 48,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "bhito",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 423",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A downward cancellation wand reaches a floor potion through zap_updown -> bhitpile -> zap.c:bhito. The C WAN_CANCELLATION arm calls cancel_item, redraws the object and returns the default affected result; js/zap.js refuses this immediate effect before it can change the potion or continue the callback.",
+  "source": {
+    "file": "zap.c",
+    "branch": "bhito: floor object differs from the wand and is not bypassed; WAN_CANCELLATION selects cancel_item(obj), then newsym(obj position), then returns res=1 without learnwand.",
+    "functions": [
+      "bhito",
+      "cancel_item"
+    ],
+    "callers": [
+      "zap.c:zap_updown -> zap.c:bhitpile -> zap.c:bhito for downward wand zaps",
+      "js/zap.js:zap_updown -> bhitpile -> bhito"
+    ],
+    "dependencies": [
+      "zap.c:cancel_item at line 1239 is not implemented in JS; the callback can only match the object mutation after this void callee is ported",
+      "display.c:newsym and zap.c:bhitpile are present"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C zap.c:2119-2173 handles identity, bypass, floor-location and ball/chain guards before its effect switch. The WAN_CANCELLATION arm at 2313-2317 calls cancel_item(obj) and newsym(obj->ox,obj->oy); learn_it stays false and the callback returns res=1 at 2424-2426.",
+    "C zap.c:1239 defines cancel_item. JS js/zap.js:2999-3089 has only striking, opening/locking and polymorph/stone-to-flesh arms; for this wand type it throws UnsupportedZapError before the floor object changes. cancel_item has no JS implementation.",
+    "C zap.c:3392-3399 passes bhito to bhitpile on a downward zap. JS js/zap.js:3392 reaches bhito through bhitpile. The v12 independently recorded C case stops at zero-based step 48 with 48 of 53 screens matched and 5 remaining (challenges/evaluations/20260929033350-v12.json)."
+  ]
+}

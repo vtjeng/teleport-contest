@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v12/undead-turning-wand-stuns-zombie",
+  "corpus": "synthetic",
+  "batch": "v12",
+  "caseId": "undead-turning-wand-stuns-zombie",
+  "manifestPath": "challenges/manifests/v12.json",
+  "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+  "recordingSha256": "9b5d9776ee469952e70f019c2713c6c7a20ab3b6fbd97898bc48421e6a4f136c",
+  "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+  "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+  "remainingScreens": 1,
+  "recordedSteps": 57,
+  "status": "complete",
+  "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v12",
+    "caseId": "undead-turning-wand-stuns-zombie",
+    "session": "synthetic/v12/undead-turning-wand-stuns-zombie",
+    "manifestPath": "challenges/manifests/v12.json",
+    "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+    "recording": "challenges/cases/v12/undead-turning-wand-stuns-zombie.session.json",
+    "recordingPath": "challenges/cases/v12/undead-turning-wand-stuns-zombie.session.json",
+    "recordingSha256": "9b5d9776ee469952e70f019c2713c6c7a20ab3b6fbd97898bc48421e6a4f136c",
+    "recipe": "challenges/cases/v12/undead-turning-wand-stuns-zombie.recipe.session.json",
+    "recipeSha256": "2965fff3c6a77d58542703b830d0bef0d56e6a87eb111a7b35c02b0b1cbc4b10",
+    "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+    "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+    "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationUtc": "2026-09-29T03:34:04.588Z",
+    "remainingScreens": 1,
+    "recordedSteps": 57,
+    "previousScreensMatched": 56,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 56,
+        "total": 57
+      },
+      "rng": {
+        "matched": 4226,
+        "total": 4237
+      },
+      "cursors": {
+        "matched": 56,
+        "total": 57
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 421",
+      "step": 56
+    },
+    "step": 56,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "bhitm",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 421",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "WAN_UNDEAD_TURNING first asks unturn_dead whether a carried corpse revives; against an undead target it then rolls damage, marks bypasses, calls resist, and may make the survivor flee. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+  "source": {
+    "file": "zap.c",
+    "branch": "WAN_UNDEAD_TURNING first asks unturn_dead whether a carried corpse revives; against an undead target it then rolls damage, marks bypasses, calls resist, and may make the survivor flee.",
+    "functions": [
+      "bhitm"
+    ],
+    "callers": [
+      "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+      "js/zap.js:bhit -> bhitm"
+    ],
+    "dependencies": [
+      "zap.c:unturn_dead return value is required by zap.c:bhitm and must be ported",
+      "zap.c:resist and mon.c:monflee are downstream branches to audit"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+    "zap.c:245-267 consumes unturn_dead(mtmp) before undead damage and wake decisions. js/zap.js marks unturn_dead unported in another caller; its return-valued callee must be ported for this arm.",
+    "The independently recorded v12 undead-turning-wand-stuns-zombie case first stops at zero-based step 56: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 421. It has 1 remaining screen(s) of 57 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+    "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+  ]
+}

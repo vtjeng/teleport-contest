@@ -329,7 +329,7 @@ function createTrap(type, flags, x, y, env) {
 function createRoomTrap(type, flags, packedCoordinate, room, env) {
     const absolute = { x: -1, y: -1 };
     get_free_room_loc(absolute, room, packedCoordinate, env);
-    createTrap(type, flags, absolute.x, absolute.y, env);
+    return createTrap(type, flags, absolute.x, absolute.y, env);
 }
 
 // C ref: nhlib.lua d(). Its math.random(1, sides) consumes one injected core
@@ -1221,15 +1221,14 @@ function fillStatuary(room, _difficulty, env) {
         () => createObject({ id: STATUE }, room, env),
         () => {
             const trapCount = rollLuaDice(1, 3, env.random);
-            for (let index = 0; index < trapCount; ++index) {
+            return sequenceThemeroomSteps(trapCount, () =>
                 createRoomTrap(
                     STATUE_TRAP,
                     MKTRAP_MAZEFLAG,
                     SP_COORD_IS_RANDOM,
                     room,
                     env,
-                );
-            }
+                ));
         },
     );
 }

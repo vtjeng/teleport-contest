@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug",
+  "corpus": "synthetic",
+  "batch": "v12",
+  "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+  "manifestPath": "challenges/manifests/v12.json",
+  "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+  "recordingSha256": "a3272f7ed7d8e41e692334e0ad5903cde06a8e19e2cb5342b0d9648c11779308",
+  "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+  "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+  "remainingScreens": 1,
+  "recordedSteps": 58,
+  "status": "complete",
+  "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v12",
+    "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+    "session": "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug",
+    "manifestPath": "challenges/manifests/v12.json",
+    "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+    "recording": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.session.json",
+    "recordingPath": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.session.json",
+    "recordingSha256": "a3272f7ed7d8e41e692334e0ad5903cde06a8e19e2cb5342b0d9648c11779308",
+    "recipe": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.recipe.session.json",
+    "recipeSha256": "f505c8b2671380ee11e154e6ef9b0b8f7a4139aea727a27d6543cdf2c0ab0dcf",
+    "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+    "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+    "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationUtc": "2026-09-29T03:34:04.588Z",
+    "remainingScreens": 1,
+    "recordedSteps": 58,
+    "previousScreensMatched": 57,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 57,
+        "total": 58
+      },
+      "rng": {
+        "matched": 2763,
+        "total": 2768
+      },
+      "cursors": {
+        "matched": 57,
+        "total": 58
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 418",
+      "step": 57
+    },
+    "step": 57,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "bhitm",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 418",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "WAN_MAKE_INVISIBLE saves prior visibility and name, calls mon_set_minvis, then chooses the transparent or vanishes message using before/after sight before the common tail. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+  "source": {
+    "file": "zap.c",
+    "branch": "WAN_MAKE_INVISIBLE saves prior visibility and name, calls mon_set_minvis, then chooses the transparent or vanishes message using before/after sight before the common tail.",
+    "functions": [
+      "bhitm"
+    ],
+    "callers": [
+      "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+      "js/zap.js:bhit -> bhitm"
+    ],
+    "dependencies": [
+      "worn.c:mon_set_minvis is ported; preserve its message and visibility state contract"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+    "zap.c:347-367 orders name formatting before mon_set_minvis and compares oldinvis/couldsee with knowninvisible/canseemon. js/worn.js has mon_set_minvis, but bhitm refuses this wand.",
+    "The independently recorded v12 make-invisible-wand-hides-hostile-grid-bug case first stops at zero-based step 57: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 418. It has 1 remaining screen(s) of 58 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+    "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+  ]
+}

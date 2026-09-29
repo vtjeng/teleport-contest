@@ -111709,7 +111709,7 @@
     {
       "id": "port-trap-mk-trap-statue-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port statue-trap creation for every trap creator",
       "cFile": "trap.c",
       "sessions": [
@@ -111717,17 +111717,24 @@
       ],
       "selectionReason": "v11 hero-statue-trap-animates-statue first diverges at step 35 during trap.c:maketrap STATUE_TRAP creation: the existing level-only mk_trap_statue hook is skipped by the wizard wish caller. Port the whole helper and wire maketrap for all callers; the later activation path is a separate source task if still unmatched.",
       "detail": "See investigations/synthetic/v11/hero-statue-trap-animates-statue.json; C trap.c:390-418, 508-509 and objnam.c:3573. Preserve generated monster/statue inventory transfer, placement and RNG order. The observed rndmonst_adj discrepancy follows missing helper invocation, not a seed-specific random fix.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "19413bceae818ef6f99b90690305b070fd86f336",
+      "openStanding": {
+        "sha": "cd144c8466c0673e0a6804f830800623c8b9a139",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mk_trap_statue",
           "line": 390,
           "endLine": 417,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -111747,6 +111754,1051 @@
           "evaluationPath": "challenges/evaluations/20260929023139-v11.json",
           "evaluationCommit": "c64c3fa1121e1a2ad5dad3a8ea4bf9c49df51586"
         }
+      },
+      "activeStanding": {
+        "sha": "cd144c8466c0673e0a6804f830800623c8b9a139",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-statue-trap-animates-statue",
+          "session": "synthetic/v11/hero-statue-trap-animates-statue",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingPath": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+          "recipe": "challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json",
+          "recipeSha256": "676e93c84bc911489e707abbf9a80a1e53d46dfd99c12b8f848e04625d12964d",
+          "replayInputSha256": "179a68b02a749abceba90b4059df5d1a341422603e9ebed71fa68753e076437f",
+          "evaluationPath": "challenges/evaluations/20260929033350-v11.json",
+          "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+          "evaluationArtifact": "challenges/evaluations/20260929033350-v11.json",
+          "evaluationUtc": "2026-09-29T03:33:59.894Z",
+          "remainingScreens": 3,
+          "recordedSteps": 39,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2240,
+              "total": 2433
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 36,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 16,
+              "column": 27,
+              "cCell": {
+                "ch": "f",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ":",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2240,
+              "cEntry": "rn2(3)=0",
+              "cCaller": "rndmonst_adj(makemon.c:1716)",
+              "jsEntry": "rn2(5)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 35,
+                "key": "\n"
+              },
+              "stepIndex": 35
+            },
+            "cursor": null
+          },
+          "step": 35,
+          "kind": "rng",
+          "sourceFile": "makemon.c",
+          "function": "rndmonst_adj",
+          "message": null,
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": 1716,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/hero-statue-trap-animates-statue.json",
+            "result": {
+              "session": "synthetic/v11/hero-statue-trap-animates-statue",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "hero-statue-trap-animates-statue",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+              "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+              "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "remainingScreens": 3,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "hero-statue-trap-animates-statue",
+                "session": "synthetic/v11/hero-statue-trap-animates-statue",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+                "recordingPath": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+                "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+                "recipe": "challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json",
+                "recipeSha256": "676e93c84bc911489e707abbf9a80a1e53d46dfd99c12b8f848e04625d12964d",
+                "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+                "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+                "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationUtc": "2026-09-28T23:47:35.564Z",
+                "remainingScreens": 3,
+                "recordedSteps": 39,
+                "previousScreensMatched": 36,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2240,
+                    "total": 2433
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 36,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 16,
+                    "column": 27,
+                    "cCell": {
+                      "ch": "f",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ":",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2240,
+                    "cEntry": "rn2(3)=0",
+                    "cCaller": "rndmonst_adj(makemon.c:1716)",
+                    "jsEntry": "rn2(5)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 35,
+                      "key": "\n"
+                    },
+                    "stepIndex": 35
+                  },
+                  "cursor": null
+                },
+                "step": 35,
+                "kind": "rng",
+                "sourceFile": "makemon.c",
+                "function": "rndmonst_adj",
+                "message": null,
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": 1716
+              },
+              "summary": "The wizard wishes for a statue trap. C trap.c:maketrap calls mk_trap_statue and immediately creates a random living statue with its generated contents. The JavaScript wizard-wish caller reaches maketrap without the level-generation hook and skips that helper. Later, the hero activation arm is still refused before calling the already ported activate_statue_trap.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c:maketrap STATUE_TRAP arm (508-509) calls mk_trap_statue (390-418) for every creator, including objnam.c:readobjnam wizard trap wishes (3573). The C replay first differs on the source rndmonst_adj choice at zero-based step 35, then shows the created statue. Hero entry later follows trapeffect_statue_trap (2279-2292) and activate_statue_trap (908-932).",
+                "functions": [
+                  "mk_trap_statue",
+                  "maketrap",
+                  "trapeffect_statue_trap",
+                  "activate_statue_trap"
+                ],
+                "callers": [
+                  "objnam.c:readobjnam wizard trap wish calls trap.c:maketrap; js/objnam_readobjnam.js calls js/trap.js:maketrap without makeTrapStatue capability.",
+                  "trap.c:maketrap directly calls mk_trap_statue on STATUE_TRAP; js/trap.js currently calls the helper only when a caller supplies a hook from js/mktrap.js, otherwise records note_unported.",
+                  "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_statue_trap(hero) -> activate_statue_trap; js/trap_effects.js preflight and hero arm refuse this path although activate_statue_trap exists in js/trap.js."
+                ],
+                "dependencies": [
+                  "Existing js/mktrap.js:mk_trap_statue covers much of source trap.c:mk_trap_statue but is local to level creation; make the source helper callable from trap.c:maketrap for every trap creator and preserve its monster-inventory transfer and RNG order.",
+                  "mk_trap_statue consumes rndmonnum_adj, mkcorpstat, makemon, add_to_container, and weight results; confirm each source return and side effect. The C creates an additional statue even when one was wished and dropped on the same square.",
+                  "trapeffect_statue_trap discards activate_statue_trap return and returns Trap_Effect_Finished; the existing js/trap.js:activate_statue_trap consumes animate_statue result and must retain pile order and uniqueness retry.",
+                  "This source family shares js/trap.js and js/trap_effects.js with the separately assigned fire-trap port, so defer implementation until that worker scope is released."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 has 3 unmatched screens. The first RNG divergence is C rn2(3)=0 in makemon.c:rndmonst_adj at step 35, while JS draws rn2(5); the following screen has a C monster where JS still shows a statue.",
+                "Independent C recording challenges/cases/v11/hero-statue-trap-animates-statue.session.json has SHA-256 a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91; recipe challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json wishes and drops a newt statue, wishes a statue trap, then returns to activate it.",
+                "Upstream trap.c:390-418, :508-509, :908-932, :2279-2292 and objnam.c:3573 establish the missing creation and activation paths. js/mktrap.js:416 has a level-only mk_trap_statue helper, js/trap.js:877 skips it without a hook, and js/trap_effects.js:3453 refuses the hero arm."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mk_trap_statue",
+            "implementation": "js/trap.js",
+            "symbol": "mk_trap_statue",
+            "sourceReview": "Read trap.c:mk_trap_statue() (390-417) in full and traced its STATUE_TRAP caller in trap.c:maketrap(). Preserved the do/while evaluation order and ten-attempt co-aligned-unicorn rejection, created the statue with mkcorpstat(CORPSTAT_NONE), then made the donor with makemon(&mons[statue->corpsenm], 0, 0, MM_NOCOUNTBIRTH|MM_NOMSG). On a donor, transferred minvent in source list order after clearing owornmask, extracted each object, added it to the statue, recalculated statue weight, then detached the donor with mongone. Runtime and special-level callers now await the donor completion before linking/returning the trap; level-generation creation remains synchronous. All consumed callees are implemented; no source-named gap substitutes for this function.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "maketrap",
+                "source": "trap.c:maketrap() calls mk_trap_statue(x,y) in the STATUE_TRAP switch arm before linking the trap into ftrap."
+              },
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "apply_wizterrainwish",
+                "source": "objnam.c:wizterrainwish() creates an explicitly wished statue trap with maketrap(); JavaScript awaits the async runtime donor before reporting the created trap."
+              },
+              {
+                "path": "js/mktrap.js",
+                "symbol": "mktrap",
+                "source": "mklev.c:mktrap() chooses a random trap with traptype_rnd(), calls maketrap(), and the D:8 witness selects STATUE_TRAP."
+              },
+              {
+                "path": "js/themeroom_fill.js",
+                "symbol": "fillStatuary",
+                "source": "dat/themerms.lua Statuary invokes des.trap(\"statue\"); sp_lev.c:create_trap() passes the type and coordinate to mklev.c:mktrap(), which then reaches trap.c:maketrap() and mk_trap_statue(). JavaScript fillStatuary awaits the createRoomTrap -> createTrap -> mktrap path in source order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-generation.test.mjs",
+              "scripts/mktrap-orchestration.test.mjs",
+              "scripts/themeroom-fill.test.mjs",
+              "scripts/objnam-wizterrainwish.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/wizard-statue-trap-runtime-independent.session.json",
+              "recordings/trap.c/statuary-fill-runtime-independent.session.json",
+              "recordings/trap.c/wizard-level8-statue-selector-independent.session.json",
+              "recordings/Arc-loca.lua/arc-loca-level-teleport.session.json",
+              "recordings/Wiz-loca.lua/wizard-locate.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-statue-trap-animates-statue",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "cmd.c apply/wish dispatch -> objnam.c:wizterrainwish() -> trap.c:maketrap(STATUE_TRAP) -> trap.c:mk_trap_statue()"
+              }
+            ],
+            "checkedAt": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42"
+          }
+        ],
+        "entryPointReview": "B51 covers the common trap.c:maketrap(STATUE_TRAP) creation branch and five production routes. (1) Wizard #wish reaches objnam.c:wizterrainwish() and maketrap(); its independent recording strictly matches 2,473 RNG calls and 17 screen/cursor boundaries. (2) Ordinary D:8 generation reaches mklev.c:mktrap(); the independent D:8 recording’s level-generation boundary includes rnd(25)=19 @ traptype_rnd(mklev.c:1941), selecting STATUE_TRAP, followed by somex/somey and the mk_trap_statue rndmonst_adj sequence; strict replay matches 4,980 RNG calls and five screen/cursor boundaries. (3) The natural dat/themerms.lua Statuary room calls des.trap(\"statue\"); seed 133 produces room selections default x5, t-shaped-rot-2, then fill statuary, then default x2, without a debug environment override. The independent level-generation recording strictly matches 3,372 RNG calls and two boundaries. (4) dat/Arc-loca.lua:107-109 and (5) dat/Wiz-loca.lua:115-116 each call des.trap(\"statue\") in their special-level programs. Existing Arc-loca and Wiz-loca level-teleport recordings reach the selected quest-locate load at segment 0 step 44 and segment 0 step 41 respectively. Replaying the complete saved recordings against current B51 code matched all 45/45 and 42/42 boundaries with no divergence; each path runs mklev.c:makelevel -> mkmaze.c:makemaz/load_special -> sp_lev.c:create_trap -> mklev.c:mktrap -> trap.c:maketrap(STATUE_TRAP) -> trap.c:mk_trap_statue(). The admitted v11 hero-wish case also matches through segment 0 steps 35-36 for the creation chain; the subsequent hero activation is outside this creation task.",
+        "entryPoints": [
+          {
+            "name": "Wizard wishes a statue trap through wizterrainwish",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/trap.c/wizard-statue-trap-runtime-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-statue-trap-animates-statue",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "objnam.c:wizterrainwish() -> trap.c:maketrap(STATUE_TRAP) -> trap.c:mk_trap_statue()"
+              }
+            ]
+          },
+          {
+            "name": "Ordinary D:8 level generation selects a statue trap through mklev.c:mktrap",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/trap.c/wizard-level8-statue-selector-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Natural Statuary special-room generation creates statue traps",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/trap.c/statuary-fill-runtime-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Arc-loca special level creates its explicit statue traps",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/Arc-loca.lua/arc-loca-level-teleport.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wiz-loca special level creates its explicit statue traps",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/Wiz-loca.lua/wizard-locate.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-statue-trap-animates-statue",
+          "session": "synthetic/v11/hero-statue-trap-animates-statue",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingPath": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+          "recipe": "challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json",
+          "recipeSha256": "676e93c84bc911489e707abbf9a80a1e53d46dfd99c12b8f848e04625d12964d",
+          "replayInputSha256": "9d69793516a781e9d53754b7c87b21a79526d5faf4a2cb09f57ae9ea0e368eae",
+          "evaluationPath": "challenges/evaluations/20260929044224-v11.json",
+          "evaluationCommit": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+          "evaluationArtifact": "challenges/evaluations/20260929044224-v11.json",
+          "evaluationUtc": "2026-09-29T04:42:35.085Z",
+          "remainingScreens": 2,
+          "recordedSteps": 39,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2376,
+              "total": 2433
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v11/hero-statue-trap-animates-statue.json",
+            "previousRemainingScreens": 3
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-eat-lesshungry-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port satiation warnings, continuation prompt, and hunger transitions in eat.c lesshungry",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v12/tourist-rations-reach-satiated-choke"
+      ],
+      "selectionReason": "Selected v12/tourist-rations-reach-satiated-choke at eat.c lesshungry warning; port the whole function and its four direct callers, retaining the separate choke and polyself dependencies.",
+      "detail": "Port the whole lesshungry function and production callers in C order. cmd.c paranoid_query and eat.c reset_eat/newuhs are present; audit their active behavior. The separate void eat.c choke callee must be source-ported or left as an explicit note_unported gap under AGENTS.md, with no substituted effects.",
+      "openedAt": "46b1813d486326e424b7975f3433781ef62c59b1",
+      "openStanding": {
+        "sha": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "lesshungry",
+          "line": 3289,
+          "endLine": 3335,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3289,
+        "to": 3335
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/tourist-rations-reach-satiated-choke": {
+          "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "tourist-rations-reach-satiated-choke",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+          "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+          "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139"
+        }
+      },
+      "activeStanding": {
+        "sha": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "tourist-rations-reach-satiated-choke",
+          "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+          "recipe": "challenges/cases/v12/tourist-rations-reach-satiated-choke.recipe.session.json",
+          "recipeSha256": "8e13f8173888d47f6181e3e874c434292c94a446fbe1d7de6dc99822ff9a886c",
+          "replayInputSha256": "0e05889a028c13499e0cfe75609194f08d9bf77158580f2373663c0ca3d34c8e",
+          "evaluationPath": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationCommit": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+          "evaluationArtifact": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationUtc": "2026-09-29T05:13:34.828Z",
+          "remainingScreens": 14,
+          "recordedSteps": 19,
+          "previousScreensMatched": 5,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 5,
+              "total": 19
+            },
+            "rng": {
+              "matched": 4404,
+              "total": 4416
+            },
+            "cursors": {
+              "matched": 5,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires lesshungry()'s paranoid_query() for continued eating",
+            "step": 5
+          },
+          "step": 5,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "lesshungry",
+          "message": "unsupported hero command: an unported branch of this command: eating requires lesshungry()'s paranoid_query() for continued eating",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/tourist-rations-reach-satiated-choke.json",
+            "result": {
+              "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "tourist-rations-reach-satiated-choke",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 14,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+                "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+                "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+                "recipe": "challenges/cases/v12/tourist-rations-reach-satiated-choke.recipe.session.json",
+                "recipeSha256": "8e13f8173888d47f6181e3e874c434292c94a446fbe1d7de6dc99822ff9a886c",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 14,
+                "recordedSteps": 19,
+                "previousScreensMatched": 5,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 5,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 4404,
+                    "total": 4416
+                  },
+                  "cursors": {
+                    "matched": 5,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: eating requires lesshungry()'s paranoid_query() for continued eating",
+                  "step": 5
+                },
+                "step": 5,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "lesshungry",
+                "message": "unsupported hero command: an unported branch of this command: eating requires lesshungry()'s paranoid_query() for continued eating",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the first nearly-full bite of Tourist rations, eat.c:lesshungry asks whether to continue when victual.canchoke is true and more than one bite remains. js/eat.js refuses this prompt branch before reading the answer or updating meal state. Port the whole lesshungry function, preserving its hunger, warning, reset, prompt, and newuhs order; keep any unported choke callee explicit.",
+              "source": {
+                "file": "eat.c",
+                "branch": "lesshungry: u.uhunger reaches 1500 but remains below 2000, Hunger is off, victual.eating is true, fullwarn is false, canchoke is true, and reqtime-usedtime exceeds one; ask ParanoidEating before newuhs.",
+                "functions": [
+                  "lesshungry"
+                ],
+                "callers": [
+                  "eat.c:bite -> eat.c:lesshungry during eatfood occupation",
+                  "eat.c:opentin and other nutrition paths -> eat.c:lesshungry"
+                ],
+                "dependencies": [
+                  "cmd.c:paranoid_query is already ported in js/cmd.js and returns the yes/no result",
+                  "eat.c:reset_eat and newuhs are already ported in js/eat.js",
+                  "eat.c:choke remains a separate source callee for the >=2000 arm; its return is discarded"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C eat.c:3289-3334 increments hunger, checks >=2000 choking first, then emits the >=1500 warning and calls paranoid_query(ParanoidEating, \"Continue eating?\") when a chokable meal has more than one bite left. A negative answer resets eating and clears nomovemsg; newuhs(FALSE) runs afterward.",
+                "JS js/eat.js:1912-1960 increments hunger and reaches an UnsupportedEatError at lines 1945-1953 before invoking the already ported cmd.c:paranoid_query, reset_eat, or newuhs. Other refusal arms in the same function require whole-function source review.",
+                "The independently recorded v12 Tourist recipe has 19 steps; the saved C44 evaluation stops at zero-based step 5 after five matched screens, with 14 remaining screens and the unsupported continued-eating prompt. C provenance is challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json and challenges/evaluations/20260929033350-v12.json.",
+                "C cmd.c:5655-5658 defines paranoid_query as a boolean wrapper over paranoid_ynq; js/cmd.js:955 already implements it. C eat.c:245-287 choke is a separate void callee when hunger reaches 2000; it must be source-ported in a later task or marked as an explicit unported call without inventing its result."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "lesshungry",
+            "implementation": "js/eat.js",
+            "symbol": "lesshungry",
+            "sourceReview": "Read the complete C definition eat.c:3289-3335 and compared it branch by branch. JavaScript evaluates the eating predicate before adding nutrition, then preserves the >=2000 branch before the <2000/1500 branch. The overfull branch records C's discarded void choke() call with note_unported('eat.c choke'); it invokes reset_eat() only for the active meal branch, as C does. Below 2000, the warning requires u.uhunger >= 1500, !Hunger, and either no meal or a meal without fullwarn. It writes the warning and nomovemsg before setting multi=-2 for the no-meal path, or fullwarn and the source-ordered ParanoidEating query for an ongoing canchoke meal with more than one bite remaining. A negative query resets the meal and clears nomovemsg. newuhs(FALSE) remains last. No choke effects are invented. The production cpostfx caller also passes its eat environment through to lesshungry so the source globals pline()/bot() resolve to this caller's message and statusRefresh operations; consume_tin passes its source-derived monsterNumber to cpostfx, and a source-pinned recipe replay protects that value flow. The chameleon tin reaches lesshungry and then stops at the separately unported polyself() call.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "bite",
+                "source": "eat.c:bite:3148,3153 calls lesshungry after ordinary meal nutrition is paid out."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "consume_tin",
+                "source": "eat.c:consume_tin:1560,1631,1694 calls lesshungry for metallivorous empty tins, non-spinach nutrition, and spinach nutrition."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eatspecial",
+                "source": "eat.c:eatspecial:2420 sets the eatfood occupation and calls lesshungry for admitted non-food nutrition."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "cpostfx",
+                "source": "eat.c:cpostfx:1256 consumes polymorphing tin early and calls lesshungry(200 + metallivorous bonus)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/lesshungry-food-ration-independent-c45.session.json",
+              "recordings/eat.c/doeat-cursed-spinach-independent.session.json",
+              "recordings/eat.c/doeat-nonfood-fire-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 6,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry"
+              }
+            ],
+            "checkedAt": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+          }
+        ],
+        "entryPointReview": "Active production entry paths for lesshungry are distinct. Ordinary food uses doeat/start_eating and the eatfood occupation's bite() calls (eat.c:3148,3153); the independent ration recording reaches the 1500 warning and finishes, while admitted v12 case tourist-rations-reach-satiated-choke matches through zero-based segment 0 step 6 before its separate choke-related divergence at step 7. Tin nutrition enters through opentin/consume_tin (eat.c:1560,1631,1694); the existing strict cursed-spinach recording reaches the consume_tin nutrition call. Non-food nutrition enters through eatspecial() (eat.c:2420); the existing strict fire-form non-food recording covers that path. The no-meal 1500 threshold is also pinned to C values and state effects in eat-one-turn.test.mjs. A separate active polymorphing-tin path is consume_tin() -> cpostfx(PM_CHAMELEON) -> lesshungry(200) (eat.c:1256): the committed blocked recipe and cache-only C trace reach this path, and the focused replay test verifies the source-derived monsterNumber reaches the PM_CHAMELEON arm. The exact C/JS differential first diverges afterward at zero-based step 38 on the first polyself.c:polyself RNG call (C rn2(20)=10 at polyself.c:490; JS rn2(5)=0); because the recording is not a complete match, it is not placed in recordings/. The polyself continuation remains a separate source blocker and this cpostfx entry point has no matching recording or admitted synthetic range yet. The >=2000 choke behavior is an explicit gap: C discards the void result, and JavaScript records note_unported('eat.c choke') before preserving the following reset_eat order.",
+        "entryPoints": [
+          {
+            "name": "ordinary food meal through bite",
+            "functions": [
+              "lesshungry"
+            ],
+            "recordings": [
+              "recordings/eat.c/lesshungry-food-ration-independent-c45.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 6,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry"
+              }
+            ]
+          },
+          {
+            "name": "tin nutrition through consume_tin",
+            "functions": [
+              "lesshungry"
+            ],
+            "recordings": [
+              "recordings/eat.c/doeat-cursed-spinach-independent.session.json"
+            ]
+          },
+          {
+            "name": "non-food nutrition through eatspecial",
+            "functions": [
+              "lesshungry"
+            ],
+            "recordings": [
+              "recordings/eat.c/doeat-nonfood-fire-independent.session.json"
+            ]
+          },
+          {
+            "name": "polymorphing tin through consume_tin and cpostfx",
+            "functions": [
+              "lesshungry"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "9c273f47f2c3033b4383f4c0f64eed6faae179fe",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole eat.c lesshungry implementation and three active caller families are source-verified and checkpointed; the distinct consume_tin -> cpostfx(PM_CHAMELEON) -> lesshungry path reaches C polyself.c:polyself at step 38, where current JS diverges at rn2(20) versus rn2(5). Keep the committed independent chameleon-tin recipe blocked until a source task fixes polyself continuation and a completely matching recording covers this entry point. The Tourist overfull continuation separately awaits eat.c choke."
+    },
+    {
+      "id": "div-engrave-read-engr-at-surface-synthetic-v12-20260929",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Use the source-defined surface for engraving text on graves and other terrain",
+      "cFile": "engrave.c",
+      "sessions": [],
+      "selectionReason": "Selected v12/teleportation-wand-moves-floor-potion first mismatch at step 45; engrave.c read_engr_at must use dungeon.c surface for a headstone. Later zap.c bhito and teleport.c rloco behavior remains separate.",
+      "detail": "Correct the existing read_engr_at substrate call to dungeon.c surface, preserve message and cursor order, and source-pin grave, ice, and representative terrain descriptions. The later zap.c bhito(type 424) refusal is a separate source task and is not claimed by this fix.",
+      "openedAt": "e7bff14d56c8c094a74508d1a2e31ba766960040",
+      "openStanding": {
+        "sha": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "read_engr_at",
+      "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+      "step": 45,
+      "syntheticProvenance": {
+        "synthetic/v12/teleportation-wand-moves-floor-potion": {
+          "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleportation-wand-moves-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+          "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+          "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139"
+        }
+      },
+      "activeStanding": {
+        "sha": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleportation-wand-moves-floor-potion",
+          "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingPath": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+          "recipe": "challenges/cases/v12/teleportation-wand-moves-floor-potion.recipe.session.json",
+          "recipeSha256": "27a7693581e68e927be040f9f5da4893ec3b48f8458286c4436331ec15cbcd2a",
+          "replayInputSha256": "6bbbbbab98ea72b7d52f3595f3ae466f180f5bb6d8505a9e032a04183d969743",
+          "evaluationPath": "challenges/evaluations/20260929044224-v12.json",
+          "evaluationCommit": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+          "evaluationArtifact": "challenges/evaluations/20260929044224-v12.json",
+          "evaluationUtc": "2026-09-29T04:42:40.396Z",
+          "remainingScreens": 2,
+          "recordedSteps": 50,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2959,
+              "total": 2969
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 45,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "h",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "f",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 45,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "l"
+              },
+              "cCursor": [
+                52,
+                0,
+                1
+              ],
+              "jsCursor": [
+                48,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 45,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/teleportation-wand-moves-floor-potion.json",
+            "result": {
+              "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "teleportation-wand-moves-floor-potion",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 2,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "teleportation-wand-moves-floor-potion",
+                "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+                "recordingPath": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+                "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+                "recipe": "challenges/cases/v12/teleportation-wand-moves-floor-potion.recipe.session.json",
+                "recipeSha256": "27a7693581e68e927be040f9f5da4893ec3b48f8458286c4436331ec15cbcd2a",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 2,
+                "recordedSteps": 50,
+                "previousScreensMatched": 48,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 2959,
+                    "total": 2969
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 45,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 45,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 34,
+                    "cCell": {
+                      "ch": "h",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "f",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 45,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 45,
+                      "key": "l"
+                    },
+                    "cCursor": [
+                      52,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      48,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 45,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the engraving location text on a grave at step 45. C read_engr_at asks dungeon.c:surface for that square and says headstone; JS read_engr_at hardcodes floor except ice despite having a source-backed dungeon.surface function. Correct that helper call and preserve the engraving message order. A later wand-object callback stop at step 49 is a separate zap.c:bhito behavior.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "read_engr_at sees nonempty HEADSTONE engraving text while the hero stands on a GRAVE; it obtains eloc from dungeon.c:surface(x,y), then prints the engraved-on-headstone message before the text.",
+                "functions": [
+                  "read_engr_at"
+                ],
+                "callers": [
+                  "pickup.c:check_here/read_engr_at during hero movement onto a marked square",
+                  "js/pickup.js:read_engr_at from check_here after movement"
+                ],
+                "dependencies": [
+                  "dungeon.c:surface is already ported as js/dungeon.js:surface and returns headstone for IS_GRAVE",
+                  "The later teleportation wand floor-object effect remains zap.c:bhito and is not part of this first mismatch"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "C engrave.c:318-359 obtains `const char *eloc = surface(x,y)` before the engraving-type switch; HEADSTONE and ENGRAVE print that eloc. C dungeon.c:1750-1788 returns `headstone` for IS_GRAVE after earlier terrain checks.",
+                "JS js/engrave.js:1251-1287 computes `surface = onIce ? ice : floor`, so its HEADSTONE arm says floor on a grave. JS js/dungeon.js:1772 already implements surface including the IS_GRAVE branch. This is a wrong helper choice in an existing implementation.",
+                "The v12 evaluation at challenges/evaluations/20260929033350-v12.json has 48/50 matched screens but its first differing glyph and cursor are at zero-based step 45, where C says headstone and JS says floor. The subsequent bhito(type 424) refusal at step 49 belongs to a different source branch and should remain visible after this repair.",
+                "The C-first manifest challenges/manifests/v12.json records the same first-mismatch attribution and independent C rerecording for this case."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleportation-wand-moves-floor-potion",
+          "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingPath": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+          "recipe": "challenges/cases/v12/teleportation-wand-moves-floor-potion.recipe.session.json",
+          "recipeSha256": "27a7693581e68e927be040f9f5da4893ec3b48f8458286c4436331ec15cbcd2a",
+          "replayInputSha256": "0e05889a028c13499e0cfe75609194f08d9bf77158580f2373663c0ca3d34c8e",
+          "evaluationPath": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationCommit": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+          "evaluationArtifact": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationUtc": "2026-09-29T05:13:34.828Z",
+          "remainingScreens": 1,
+          "recordedSteps": 50,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 49,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2959,
+              "total": 2969
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 424",
+            "step": 49
+          },
+          "step": 49,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhito",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 424",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v12/teleportation-wand-moves-floor-potion.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

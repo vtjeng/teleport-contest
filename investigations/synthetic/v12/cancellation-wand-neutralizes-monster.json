@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v12/cancellation-wand-neutralizes-monster",
+  "corpus": "synthetic",
+  "batch": "v12",
+  "caseId": "cancellation-wand-neutralizes-monster",
+  "manifestPath": "challenges/manifests/v12.json",
+  "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+  "recordingSha256": "bbcd5f0004c8f7dd2f40882d969bc8910fee12712aa44d02984042a767655b14",
+  "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+  "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+  "remainingScreens": 2,
+  "recordedSteps": 58,
+  "status": "complete",
+  "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v12",
+    "caseId": "cancellation-wand-neutralizes-monster",
+    "session": "synthetic/v12/cancellation-wand-neutralizes-monster",
+    "manifestPath": "challenges/manifests/v12.json",
+    "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+    "recording": "challenges/cases/v12/cancellation-wand-neutralizes-monster.session.json",
+    "recordingPath": "challenges/cases/v12/cancellation-wand-neutralizes-monster.session.json",
+    "recordingSha256": "bbcd5f0004c8f7dd2f40882d969bc8910fee12712aa44d02984042a767655b14",
+    "recipe": "challenges/cases/v12/cancellation-wand-neutralizes-monster.recipe.session.json",
+    "recipeSha256": "43544185f7c39db6f61c4989841b80dc32a64eb0257dc967ece05fec51acb60e",
+    "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+    "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+    "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationUtc": "2026-09-29T03:34:04.588Z",
+    "remainingScreens": 2,
+    "recordedSteps": 58,
+    "previousScreensMatched": 56,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 56,
+        "total": 58
+      },
+      "rng": {
+        "matched": 2670,
+        "total": 2680
+      },
+      "cursors": {
+        "matched": 56,
+        "total": 58
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 423",
+      "step": 56
+    },
+    "step": 56,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "bhitm",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 423",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "WAN_CANCELLATION reveals a disguised mimic if needed, calls cancel_monst with hero zap flags, then follows the common wake/reveal/learn tail. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+  "source": {
+    "file": "zap.c",
+    "branch": "WAN_CANCELLATION reveals a disguised mimic if needed, calls cancel_monst with hero zap flags, then follows the common wake/reveal/learn tail.",
+    "functions": [
+      "bhitm"
+    ],
+    "callers": [
+      "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+      "js/zap.js:bhit -> bhitm"
+    ],
+    "dependencies": [
+      "zap.c:cancel_monst is partially ported in js/zap.js and must be audited for this target and return-independent side effects"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+    "zap.c:335-340 invokes cancel_monst(mtmp,otmp,TRUE,TRUE,FALSE) with discarded result. js/zap.js:5753 has a partial cancel_monst implementation; audit its branch and its caller contract while porting bhitm.",
+    "The independently recorded v12 cancellation-wand-neutralizes-monster case first stops at zero-based step 56: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 423. It has 2 remaining screen(s) of 58 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+    "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+  ]
+}
