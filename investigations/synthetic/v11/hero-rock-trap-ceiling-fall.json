@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v11/hero-rock-trap-ceiling-fall",
+  "corpus": "synthetic",
+  "batch": "v11",
+  "caseId": "hero-rock-trap-ceiling-fall",
+  "manifestPath": "challenges/manifests/v11.json",
+  "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+  "recordingSha256": "f58c86876bdbe83d6d2d6e25f11fd6dc24b8a17dbd9ea30a40b01ab6905b8bc2",
+  "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+  "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+  "remainingScreens": 2,
+  "recordedSteps": 25,
+  "status": "complete",
+  "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v11",
+    "caseId": "hero-rock-trap-ceiling-fall",
+    "session": "synthetic/v11/hero-rock-trap-ceiling-fall",
+    "manifestPath": "challenges/manifests/v11.json",
+    "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+    "recording": "challenges/cases/v11/hero-rock-trap-ceiling-fall.session.json",
+    "recordingPath": "challenges/cases/v11/hero-rock-trap-ceiling-fall.session.json",
+    "recordingSha256": "f58c86876bdbe83d6d2d6e25f11fd6dc24b8a17dbd9ea30a40b01ab6905b8bc2",
+    "recipe": "challenges/cases/v11/hero-rock-trap-ceiling-fall.recipe.session.json",
+    "recipeSha256": "cbbd454ce609cef662e19807738c86592eca2bdcb28440334faf642b109533ff",
+    "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+    "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+    "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+    "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+    "evaluationUtc": "2026-09-28T23:47:35.564Z",
+    "remainingScreens": 2,
+    "recordedSteps": 25,
+    "previousScreensMatched": 23,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 23,
+        "total": 25
+      },
+      "rng": {
+        "matched": 3079,
+        "total": 3100
+      },
+      "cursors": {
+        "matched": 23,
+        "total": 25
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: trap activation",
+      "step": 23
+    },
+    "step": 23,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero move: trap activation",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The hero walks onto a falling-rock trap. JavaScript preflight refuses ROCKTRAP because trap.c:trapeffect_rocktrap has only its monster arm ported. Port the complete hero arm, preserving the prior monster behavior and source ordering of damage draw, trap mark, falling rock creation, helmet and form effects, object observation, and final damage.",
+  "source": {
+    "file": "trap.c",
+    "branch": "trap.c:trapeffect_rocktrap hero arm (1324-1374) begins with a seen one-shot wear-out chance or d(2,6) damage, then marks the trap, creates and places a rock, prints ceiling/head text, applies helmet/form protection, observes and stacks the rock, and applies Maybe_Half_Phys damage plus Strength exercise when harmful.",
+    "functions": [
+      "trapeffect_rocktrap"
+    ],
+    "callers": [
+      "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_selector -> trapeffect_rocktrap(hero); js/trap_effects.js:preflight_dotrap excludes ROCKTRAP and its hero arm currently throws.",
+      "trap.c:mintrap -> trapeffect_selector -> trapeffect_rocktrap(monster) is already implemented in js/trap_effects.js and must retain return values and RNG order."
+    ],
+    "dependencies": [
+      "Existing js/trap_effects.js:t_missile and its object-generation environment must create the same rock; preserve place_object, observe_object, stackobj, and newsym order before hero damage.",
+      "Existing js/mondata.js:passes_rocks, js/do_wear.js:hard_helmet, js/objnam.js:helm_simple_name, Maybe_Half_Phys, and losehp cover core return-valued branches; verify ceiling, body_part, xname/article and worn-helmet naming against source.",
+      "The source wear-out branch needs trap.once and trap.tseen before rn2(15); preflight must admit the already-seen trap only where C does, without changing other trap gates.",
+      "Shares js/trap_effects.js with assigned C41 fire-trap port; implement after that reservation is released."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 matches 23/25 screens and stops at zero-based step 23 with 'unsupported hero move: trap activation'. The immutable C recording challenges/cases/v11/hero-rock-trap-ceiling-fall.session.json has SHA-256 f58c86876bdbe83d6d2d6e25f11fd6dc24b8a17dbd9ea30a40b01ab6905b8bc2.",
+    "Upstream trap.c:1324-1399 defines both hero and monster arms; js/trap_effects.js:968-1029 implements only the monster arm and js/trap_effects.js:3576-3585 rejects ROCKTRAP before dotrap commits."
+  ]
+}

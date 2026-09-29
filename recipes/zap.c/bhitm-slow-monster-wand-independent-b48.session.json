@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Wizard-mode C probe for zap.c:bhitm(WAN_SLOW_MONSTER): create a hostile kobold, wish for a slow-monster wand, and aim southeast at the kobold. It varies the selected SPE_SLOW_MONSTER cases by using a wand and another monster.",
+  "segments": [
+    {
+      "seed": 90311476,
+      "datetime": "20421225113045",
+      "nethackrc": "OPTIONS=name:B48SlowWand,role:Wizard,race:human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0007hostile kobold\n\u0017wand of slow monster\nznn"
+    }
+  ]
+}
