@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84592137,
+      "datetime": "20480915091530",
+      "nethackrc": "OPTIONS=name:PickLockA46,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode=debug,pettype:none,time,!autopickup,!acoustics\n",
+      "moves": "\u0017locked chest\n\u0017lock pick\ndgah.y "
+    }
+  ],
+  "_comment": "Independent lock.c:pick_lock -> picklock occupation witness. A Rogue applies a wished ordinary lock pick to a separately wished locked chest; its class and role produce a different pick chance/action state from the v12 skeleton-key case. The trailing space dismisses chest_trap's message so the recording also reaches picklock's Dexterity exercise and reset tail."
+}
