@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840041,
+      "datetime": "20340917101000",
+      "nethackrc": "OPTIONS=name:WormA51,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0007long worm\n"
+    }
+  ],
+  "comment": "Independent source-directed display.c:display_monster recording. After the welcome boundary and debug creation key, C creates a long worm with visible `~~` tail tiles at the same map update; the recording ends there to isolate tail display from later worm combat. Seed, timestamp, player name, and inputs are independent."
+}
