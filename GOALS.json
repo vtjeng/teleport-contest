@@ -115288,7 +115288,7 @@
     {
       "id": "port-trap-trapeffect-statue-trap-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole statue-trap effect dispatch for hero and monster triggers",
       "cFile": "trap.c",
       "sessions": [
@@ -115302,15 +115302,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "9a964783937ab73e829933e56ca729283c899594",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "trapeffect_statue_trap",
           "line": 2279,
           "endLine": 2292,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -115480,7 +115483,101 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_statue_trap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_statue_trap",
+            "sourceReview": "Compared the complete trap.c:trapeffect_statue_trap definition at 2279-2292. C calls (void) activate_statue_trap(trap, u.ux, u.uy, FALSE) only when mtmp == &gy.youmonst, leaves the monster arm empty, and returns Trap_Effect_Finished in either case. The JS selector now calls the existing activate_statue_trap with the hero's current coordinates and false, discards its monster result, and returns Trap_Effect_Finished. The dotrap preflight admits STATUE_TRAP for both unseen and seen traps; seen traps continue through dotrap's existing source-ordered rn2(5) escape gate before the selector. Downstream statue-animation helpers retain their separately owned named gaps (dog.c:wary_dog for a restored tame statue and steal.c:remove_worn_item for a worn statue); neither branch is reached by the cited newt statue. The shkp.c:stolen_value helper is not reached for this ANIMATE_NORMAL trap call. No RNG or message was added to trapeffect_statue_trap itself.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:trapeffect_selector STATUE_TRAP arm dispatches to trapeffect_statue_trap"
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c:dotrap runs hero trap admission/escape logic then calls trapeffect_selector"
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "trap.c:mintrap calls trapeffect_selector after the monster reaches a trap"
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "spoteffects",
+                "source": "hack.c:spoteffects calls dotrap for the hero's floor trap"
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "postmov",
+                "source": "monmove.c:postmov calls mintrap after monster movement"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/statue-trap.test.mjs",
+              "scripts/monster-statue-trap.test.mjs",
+              "scripts/cmd.test.mjs",
+              "scripts/diagonal-doorway.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-statue-trap.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-statue-trap-animates-statue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "hack.c:domove -> hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_statue_trap -> trap.c:activate_statue_trap -> trap.c:animate_statue"
+              }
+            ],
+            "checkedAt": "9a964783937ab73e829933e56ca729283c899594"
+          }
+        ],
+        "entryPointReview": "The active hero entry is hack.c:domove -> hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_statue_trap. The admitted v11 case matches all 39 recorded steps (zero-based 0-38), including the newt statue's activation message and pager. The active monster entry is monmove.c:postmov -> trap.c:mintrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_statue_trap; the pre-existing independent monster-statue recording and runtime mtrapseen assertion cover its no-op arm. The source function has no further branches. STATUE_TRAP is admitted by dotrap preflight, and seen traps retain the existing C rn2(5) escape behavior before effect selection. The independent A48 attempt strictly matched C/JS but was setup-only: the Archeologist's wished statue occupied inventory slot a while the recipe selected o, so C reported that the object was unavailable and never reached the effect. Its recipe and raw recording remain under .cache/a48 and are not completion evidence. Existing activate_statue_trap/animate_statue behavior is reused; saved tame-statue wary_dog and worn-statue remove_worn_item remain separate downstream gaps, not reached by these entry witnesses.\n\nA48 correction: the combined checkpoint at 94d35794311f2957ef94bd3e3bf7bdee2058cfac (summary /home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/94d35794311f2957ef94bd3e3bf7bdee2058cfac/run-Soa0WS/summary.json) exposed three stale test fixtures that treated hero STATUE_TRAP as refused. The two movement-retry cases and the diagonal doorway seam now use hidden/seen MAGIC_PORTAL instead, whose hero path remains blocked at trap.c:trapeffect_magic_portal -> domagicportal. The correction packet uses the original A48 source delivery b8e54cec408f1c2ebab45db8d7b5bf379f951ec4 as its explicit Git base and has no separate external delivery dependencies. It changes only those regression fixtures and keeps their movement/preflight assertions intact.",
+        "entryPoints": [
+          {
+            "name": "Hero steps onto an unseen statue trap and animates its floor statue",
+            "functions": [
+              "trapeffect_statue_trap"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-statue-trap-animates-statue",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "hack.c:domove -> hack.c:spoteffects -> trap.c:dotrap -> trapeffect_selector -> trapeffect_statue_trap -> activate_statue_trap -> animate_statue"
+              }
+            ]
+          },
+          {
+            "name": "Monster reaches a statue trap; effect finishes without activation",
+            "functions": [
+              "trapeffect_statue_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/monster-statue-trap.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "9a964783937ab73e829933e56ca729283c899594",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
