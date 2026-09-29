@@ -105,6 +105,12 @@ import {
     NO_KILLER_PREFIX,
     NO_TRAP_FLAGS,
     TIMEOUT,
+    TIMER_OBJECT,
+    REVIVE_MON,
+    ROT_CORPSE,
+    COST_CANCEL,
+    COST_UNCURS,
+    COST_UNBLSS,
     thats_enough_tries,
     PHYS_EXPL_TYPE,
     PICK_NONE,
@@ -289,6 +295,7 @@ import { done } from './end.js';
 import { losexp, more_experienced, newexplevel } from './exper.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
+import { find_ac } from './u_init_inventory_attrs.js';
 import {
     check_capacity, end_running, in_town, losehp, may_dig, nh_delay_output, nomul,
     test_move,
@@ -300,6 +307,7 @@ import {
 import {
     getobj,
     display_minventory,
+    set_cknown_lknown,
     hands_obj,
     hold_another_object,
     stackobj,
@@ -415,6 +423,7 @@ import { del_engr_at, engr_at, make_engr_at } from './engrave.js';
 import { random_engraving } from './random_engraving.js';
 import {
     carried,
+    is_weptool,
     dealloc_oextra,
     free_omid,
     free_omonst,
@@ -443,6 +452,10 @@ import {
     place_object,
     rnd_class,
     set_corpsenm,
+    unbless,
+    uncurse,
+    costly_alteration,
+    corpse_revive_type,
     stone_furniture_type,
     stone_object_type,
     sobj_at,
@@ -500,6 +513,22 @@ import {
     STATUE,
     FIGURINE,
     WEAPON_CLASS,
+    HELM_OF_BRILLIANCE,
+    GAUNTLETS_OF_DEXTERITY,
+    RIN_GAIN_STRENGTH,
+    RIN_GAIN_CONSTITUTION,
+    RIN_ADORNMENT,
+    RIN_INCREASE_ACCURACY,
+    RIN_INCREASE_DAMAGE,
+    RIN_PROTECTION,
+    CRYSTAL_BALL,
+    CANDELABRUM_OF_INVOCATION,
+    POT_ACID,
+    POT_SICKNESS,
+    POT_SEE_INVISIBLE,
+    POT_FRUIT_JUICE,
+    SCR_BLANK_PAPER,
+    SPE_BOOK_OF_THE_DEAD,
     WAN_DEATH,
     WAN_DIGGING,
     WAN_LIGHTNING,
@@ -666,7 +695,7 @@ import {
 } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import { flash_hits_mon, m_is_steadfast, shade_miss } from './uhitm.js';
-import { enexto, tele, u_teleport_mon } from './teleport.js';
+import { enexto, rloco, tele, u_teleport_mon } from './teleport.js';
 import {
     block_point, cansee, canseemon, couldsee, does_block,
     recalc_block_point, unblock_point, vision_recalc,
@@ -689,7 +718,8 @@ import {
 import { mdrop_obj, remove_worn_item } from './steal.js';
 import {
     burn_away_slime, fall_asleep, obj_stop_timers, spot_stop_timers,
-    spot_time_left, attach_egg_hatch_timeout,
+    spot_time_left, attach_egg_hatch_timeout, peek_timer, stop_timer,
+    start_timer,
 } from './timeout.js';
 import {
     displayPendingTtyMessageWindow,
@@ -3237,148 +3267,371 @@ export async function break_statue(obj, state = game, random = { rn1 }, rawEnv =
     return true;
 }
 
-// C ref: zap.c bhito() (2118-2426). Other unported immediate effects remain
-// explicit source boundaries; Force Bolt/striking is a completed callback arm.
+// C ref: zap.c cancel_item() (1239-1362). The void blank_novel() callee is
+// still an explicit source gap; timer returns and the surrounding object
+// mutations remain source ordered.
+export async function cancel_item(obj, state = game, rawEnv = {}) {
+    const otyp = obj.otyp;
+    const alterationEnv = objectGenerationEnv({
+        ...rawEnv,
+        state,
+        hooks: {
+            ...rawEnv.hooks,
+            costlyAlteration: rawEnv.hooks?.costlyAlteration
+                ?? (() => note_unported('mkobj.c costly_alteration')),
+        },
+    });
+    const alterCost = (alterType) => {
+        // mkobj.c:costly_alteration() returns immediately for a floor object
+        // outside a shop, before consulting its still-unported bill effects.
+        if (obj.where === OBJ_FLOOR
+            && !costly_spot(obj.ox, obj.oy, state)) return;
+        costly_alteration(obj, alterType, alterationEnv);
+    };
+    if (carried(obj, state)) {
+        switch (otyp) {
+        case RIN_GAIN_STRENGTH:
+            if (obj.owornmask & W_RING) {
+                state.u.abon[A_STR] -= obj.spe;
+                state.disp.botl = true;
+            }
+            break;
+        case RIN_GAIN_CONSTITUTION:
+            if (obj.owornmask & W_RING) {
+                state.u.abon[A_CON] -= obj.spe;
+                state.disp.botl = true;
+            }
+            break;
+        case RIN_ADORNMENT:
+            if (obj.owornmask & W_RING) {
+                state.u.abon[A_CHA] -= obj.spe;
+                state.disp.botl = true;
+            }
+            break;
+        case RIN_INCREASE_ACCURACY:
+            if (obj.owornmask & W_RING) state.u.uhitinc -= obj.spe;
+            break;
+        case RIN_INCREASE_DAMAGE:
+            if (obj.owornmask & W_RING) state.u.udaminc -= obj.spe;
+            break;
+        case RIN_PROTECTION:
+            if (obj.owornmask & W_RING) state.disp.botl = true;
+            break;
+        case GAUNTLETS_OF_DEXTERITY:
+            if (obj.owornmask & W_ARMG) {
+                state.u.abon[A_DEX] -= obj.spe;
+                state.disp.botl = true;
+            }
+            break;
+        case HELM_OF_BRILLIANCE:
+            if (obj.owornmask & W_ARMH) {
+                state.u.abon[A_INT] -= obj.spe;
+                state.u.abon[A_WIS] -= obj.spe;
+                state.disp.botl = true;
+            }
+            break;
+        default:
+            if (obj.owornmask & W_ARMOR) state.disp.botl = true;
+            break;
+        }
+    }
+
+    const objectTypeData = state.objects?.[otyp] ?? {};
+    if (objectTypeData.oc_magic
+        || (obj.spe && (obj.oclass === ARMOR_CLASS
+            || obj.oclass === WEAPON_CLASS || is_weptool(obj)))
+        || otyp === POT_ACID
+        || otyp === POT_SICKNESS
+        || (otyp === POT_WATER && (obj.blessed || obj.cursed))
+        || otyp === SPE_NOVEL) {
+        const cancelledSpe = obj.oclass === WAND_CLASS || otyp === CRYSTAL_BALL
+            ? -1 : 0;
+        if (obj.spe !== cancelledSpe
+            && otyp !== WAN_CANCELLATION
+            && otyp !== MAGIC_LAMP
+            && otyp !== CANDELABRUM_OF_INVOCATION) {
+            alterCost(COST_CANCEL);
+            obj.spe = cancelledSpe;
+        }
+        switch (obj.oclass) {
+        case SCROLL_CLASS:
+            alterCost(COST_CANCEL);
+            obj.otyp = SCR_BLANK_PAPER;
+            obj.spe = 0;
+            break;
+        case SPBOOK_CLASS:
+            if (otyp !== SPE_CANCELLATION && otyp !== SPE_BOOK_OF_THE_DEAD) {
+                alterCost(COST_CANCEL);
+                obj.otyp = SPE_BLANK_PAPER;
+                if (otyp === SPE_NOVEL)
+                    note_unported('zap.c blank_novel');
+            }
+            break;
+        case POTION_CLASS:
+            alterCost(otyp !== POT_WATER ? COST_CANCEL
+                : obj.cursed ? COST_UNCURS : COST_UNBLSS);
+            if (otyp === POT_SICKNESS || otyp === POT_SEE_INVISIBLE) {
+                obj.otyp = POT_FRUIT_JUICE;
+            } else {
+                obj.otyp = POT_WATER;
+                obj.odiluted = false;
+            }
+            break;
+        }
+    }
+
+    if (obj.otyp === CORPSE && obj.timed
+        && !is_rider(state.mons?.[obj.corpsenm])) {
+        const timeout = peek_timer(REVIVE_MON, obj, state);
+        if (timeout) {
+            stop_timer(REVIVE_MON, obj, state, rawEnv);
+            start_timer(timeout, TIMER_OBJECT, ROT_CORPSE, obj, state);
+        }
+    }
+    await unbless(obj, alterationEnv);
+    await uncurse(obj, alterationEnv);
+}
+
+// C ref: zap.c bhito() (2119-2427), complete floor-object callback. Void
+// callees without a JS owner are recorded and skipped at their source sites.
 export async function bhito(obj, wand, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
+    let res = 1;
+    let learn_it = false;
+    let maybelearnit = false;
+    const message = rawEnv.message ?? ttyPline;
+
     if (obj === wand) return 0;
     if (obj?.bypass) {
         if (state.context?.bypasses) return 0;
-        // C's defensive stray-bit arm prints only a debug line. The recorder
-        // has no debug channel, so retain its clearing transition without
-        // inventing user-visible output.
+        // C's debugpline is not part of recorded terminal output.
         obj.bypass = false;
     }
-    // bhitpile() adds this result to its hit count. Every immediate effect
-    // can reach this callback, so supported arms stay explicit and unported
-    // effects cannot fall through into polymorph.
-    if (obj === state.uball || obj === state.u?.uball) return 0;
-    if (obj === state.uchain || obj === state.u?.uchain) {
+    if (obj?.where !== OBJ_FLOOR && wand.otyp !== SPE_STONE_TO_FLESH)
+        note_unported('zap.c bhito impossible object location');
+
+    if (obj === state.uball || obj === state.u?.uball) {
+        res = 0;
+    } else if (obj === state.uchain || obj === state.u?.uchain) {
         if (wand.otyp === WAN_OPENING || wand.otyp === SPE_KNOCK) {
-            note_unported('read.c unpunish');
-            learnwand(wand, state);
-        }
-        return 0;
-    }
-    if (wand.otyp === WAN_STRIKING || wand.otyp === SPE_FORCE_BOLT) {
-        const message = rawEnv.message ?? ttyPline;
-        let res = 1;
-        let learn_it = false;
-        let maybeLearnit = cansee(obj.ox, obj.oy, state)
-            || !heroIsDeaf(state);
-        if (obj.otyp === BOULDER) {
-            if (cansee(obj.ox, obj.oy, state)) {
-                await message('The boulder falls apart.', state, rawEnv);
-            } else {
-                const heard = youHear('a crumbling sound.', state);
-                if (heard) await message(heard, state, rawEnv);
-            }
-            await fracture_rock(obj, state, random, rawEnv);
-        } else if (obj.otyp === STATUE) {
-            if (await break_statue(obj, state, random, rawEnv)) {
-                if (cansee(obj.ox, obj.oy, state)) {
-                    const message = Hallucination(state)
-                        ? `${The(rndmonnam({
-                            state,
-                            displayRandom: rawEnv.displayRandom,
-                        }), state)} shatters.`
-                        : 'The statue shatters.';
-                    await (rawEnv.message ?? ttyPline)(message, state, rawEnv);
-                } else {
-                    const heard = youHear('a crumbling sound.', state);
-                    if (heard) await (rawEnv.message ?? ttyPline)(
-                        heard, state, rawEnv,
-                    );
-                }
-            }
+            note_unported('ball.c unpunish');
+            learn_it = true;
         } else {
-            const ox = obj.ox;
-            const oy = obj.oy;
-            const breakEnv = {
-                ...rawEnv,
-                state,
-                random: {
-                    ...random,
-                    d: random.d ?? d,
-                    rn1: random.rn1 ?? rn1,
-                    rnd: random.rnd ?? rnd,
-                },
-            };
-            const broken = state.context?.mon_moving
-                ? await breaks(obj, ox, oy, breakEnv)
-                : await hero_breaks(obj, ox, oy, 0, breakEnv);
-            if (!broken) {
-                maybeLearnit = false;
-            } else {
-                // display.c newsym_force() has the same visible effect as
-                // newsym() in this full-frame terminal renderer.
-                newsym(ox, oy, state);
-            }
             res = 0;
         }
-        if (maybeLearnit) learn_it = true;
-        if (learn_it) learnwand(wand, state);
-        return res;
-    }
-    if (wand.otyp === WAN_OPENING || wand.otyp === SPE_KNOCK
-        || wand.otyp === WAN_LOCKING || wand.otyp === SPE_WIZARD_LOCK) {
-        const res = isBox(obj) ? await boxlock(obj, wand, state) : 0;
-        if (res) learnwand(wand, state);
-        return res;
-    }
-    if (wand.otyp !== WAN_POLYMORPH && wand.otyp !== SPE_POLYMORPH
-        && wand.otyp !== SPE_STONE_TO_FLESH)
-        throw new UnsupportedZapError(
-            `bhito() for immediate effect type ${wand.otyp}`,
-        );
-    // zap.c permits Stone to Flesh to reach inventory objects as well as
-    // floor objects; its return value is consumed by bhitpile(), so this
-    // branch must precede the polymorph-only unpolyable guard.
-    if (wand.otyp === SPE_STONE_TO_FLESH)
-        return await stone_to_flesh_obj(obj, state, random, rawEnv);
-    if (obj_unpolyable(obj, state, random)) return 0;
-
-    state.u ??= {};
-    state.u.uconduct ??= {};
-    const firstPolypile = !(state.u.uconduct.polypiles ?? 0);
-    state.u.uconduct.polypiles = (state.u.uconduct.polypiles ?? 0) + 1;
-    if (firstPolypile) {
-        livelog_printf(
-            LL_CONDUCT,
-            `polymorphed ${state.flags?.female ? 'her' : 'his'} first object`,
-            state,
-        );
-    }
-    if (isBox(obj)) await boxlock(obj, wand, state);
-
-    let learn_it = false;
-    if (obj_shudders(obj, state, random)) {
-        // C's bhito() records this intent before do_osshock(), but calls
-        // learnwand() only after that effect has consumed its own rolls.
-        // Keeping the flag here preserves the object-resistance/deletion
-        // order when discovery exercises Wisdom.
-        learn_it = cansee(obj.ox, obj.oy, state);
-        const cover = obj === state.level?.objects?.[state.u?.ux]?.[state.u?.uy]
-            && state.u?.uundetected
-            && hides_under(state.youmonst?.data);
-        do_osshock(obj, state, random, rawEnv);
-        // C calls hideunder(&youmonst) here for a discarded result.  The
-        // canonical monster helper deliberately has an explicit hero gap, so
-        // retain that boundary rather than invoking its throwing adapter.
-        if (cover) note_unported('mon.c hideunder');
     } else {
-        const replacement = await poly_obj(
-            obj,
-            STRANGE_OBJECT,
-            state,
-            random,
-            rawEnv,
-        );
-        if (replacement)
-            newsym(replacement.ox, replacement.oy, state);
+        switch (wand.otyp) {
+        case WAN_POLYMORPH:
+        case SPE_POLYMORPH: {
+            if (obj_unpolyable(obj, state, random)) {
+                res = 0;
+                break;
+            }
+            state.u.uconduct ??= {};
+            const priorCount = state.u.uconduct.polypiles ?? 0;
+            state.u.uconduct.polypiles = priorCount + 1;
+            if (!priorCount) {
+                livelog_printf(
+                    LL_CONDUCT,
+                    `polymorphed ${state.flags?.female ? 'her' : 'his'} first object`,
+                    state,
+                );
+            }
+            if (isBox(obj)) await boxlock(obj, wand, state);
+            if (obj_shudders(obj, state, random)) {
+                const cover = obj === state.level?.objects?.[state.u?.ux]?.[state.u?.uy]
+                    && state.u?.uundetected
+                    && hides_under(state.youmonst?.data);
+                learn_it = cansee(obj.ox, obj.oy, state);
+                await do_osshock(obj, state, random, rawEnv);
+                if (cover) note_unported('mon.c hideunder');
+            } else {
+                const replacement = await poly_obj(
+                    obj, STRANGE_OBJECT, state, random, rawEnv,
+                );
+                if (replacement)
+                    newsym(replacement.ox, replacement.oy, state);
+            }
+            break;
+        }
+        case WAN_PROBING: {
+            res = !obj.dknown;
+            observe_object(obj, state);
+            if (isContainer(obj) || obj.otyp === STATUE) {
+                obj.cknown = obj.lknown = true;
+                if (isBox(obj) && !obj.tknown) {
+                    if (obj.otrapped)
+                        await message(`${Tobjnam(obj, 'are', state)} trapped!`, state, rawEnv);
+                    obj.tknown = true;
+                }
+                if (!obj.cobj) {
+                    await message(`${Tobjnam(obj, 'are', state)} empty.`, state, rawEnv);
+                } else if (obj.otyp === LARGE_BOX && obj.spe === 1) {
+                    const cat = Hallucination(state)
+                        ? rndmonnam({ state, displayRandom: rawEnv.displayRandom })
+                        : 'cat';
+                    await message(
+                        `You aren't sure whether the ${xnameFresh(obj, state)} has ${an(cat, state)} or its corpse inside.`,
+                        state,
+                        rawEnv,
+                    );
+                    obj.cknown = false;
+                } else {
+                    for (let item = obj.cobj; item; item = item.nobj)
+                        observe_object(item, state);
+                    note_unported('invent.c display_cinventory');
+                }
+                res = 1;
+            } else if (obj.otyp === TIN) {
+                if (!obj.known || !obj.cknown) res = 1;
+                obj.known = true;
+                set_cknown_lknown(obj);
+            } else if (obj.otyp === EGG) {
+                if (!obj.known && obj.corpsenm !== NON_PM) res = 1;
+                obj.known = true;
+            }
+            if (res) learn_it = true;
+            break;
+        }
+        case WAN_STRIKING:
+        case SPE_FORCE_BOLT:
+            maybelearnit = cansee(obj.ox, obj.oy, state) || !heroIsDeaf(state);
+            if (obj.otyp === BOULDER) {
+                if (cansee(obj.ox, obj.oy, state)) {
+                    await message('The boulder falls apart.', state, rawEnv);
+                } else {
+                    const heard = youHear('a crumbling sound.', state);
+                    if (heard) await message(heard, state, rawEnv);
+                }
+                await fracture_rock(obj, state, random, rawEnv);
+            } else if (obj.otyp === STATUE) {
+                if (await break_statue(obj, state, random, rawEnv)) {
+                    if (cansee(obj.ox, obj.oy, state)) {
+                        const text = Hallucination(state)
+                            ? `${The(rndmonnam({
+                                state,
+                                displayRandom: rawEnv.displayRandom,
+                            }), state)} shatters.`
+                            : 'The statue shatters.';
+                        await message(text, state, rawEnv);
+                    } else {
+                        const heard = youHear('a crumbling sound.', state);
+                        if (heard) await message(heard, state, rawEnv);
+                    }
+                }
+            } else {
+                const ox = obj.ox;
+                const oy = obj.oy;
+                const breakEnv = {
+                    ...rawEnv,
+                    state,
+                    random: {
+                        ...random,
+                        d: random.d ?? d,
+                        rn1: random.rn1 ?? rn1,
+                        rnd: random.rnd ?? rnd,
+                    },
+                };
+                const broken = state.context?.mon_moving
+                    ? await breaks(obj, ox, oy, breakEnv)
+                    : await hero_breaks(obj, ox, oy, 0, breakEnv);
+                if (!broken) maybelearnit = false;
+                else newsym(ox, oy, state);
+                res = 0;
+            }
+            if (maybelearnit) learn_it = true;
+            break;
+        case WAN_CANCELLATION:
+        case SPE_CANCELLATION:
+            await cancel_item(obj, state, rawEnv);
+            newsym(obj.ox, obj.oy, state);
+            break;
+        case SPE_DRAIN_LIFE:
+            note_unported('zap.c drain_item');
+            break;
+        case WAN_TELEPORTATION:
+        case SPE_TELEPORT_AWAY: {
+            const ox = obj.ox;
+            const oy = obj.oy;
+            await rloco(obj, { ...rawEnv, state, random });
+            maybe_unhide_at(ox, oy, state, rawEnv);
+            break;
+        }
+        case WAN_MAKE_INVISIBLE:
+            break;
+        case WAN_UNDEAD_TURNING:
+        case SPE_TURN_UNDEAD:
+            if (obj.otyp === EGG) {
+                revive_egg(obj, state, rawEnv);
+            } else if (obj.otyp === CORPSE) {
+                const byHero = !state.context?.mon_moving;
+                const corpsenm = corpse_revive_type(obj);
+                const corpseName = corpse_xname(obj, null, CXN_NORMAL, state);
+                const location = get_obj_location(obj, 0, state);
+                const ox = location?.x ?? obj.ox;
+                const oy = location?.y ?? obj.oy;
+                const saveNorevive = obj.norevive;
+                obj.norevive = false;
+                const monster = await revive(obj, true, {
+                    ...rawEnv, state, random,
+                });
+                if (!monster) {
+                    obj.norevive = saveNorevive;
+                    res = 0;
+                } else {
+                    if (cansee(ox, oy, state)) {
+                        if (canseemon(monster, state)) {
+                            await message(`${Monnam(monster, state)} is resurrected!`, state, rawEnv);
+                            learn_it = byHero ? true : Boolean(state.gz?.zap_oseen);
+                        } else {
+                            const species = state.mons?.[corpsenm];
+                            const name = type_is_pname(species)
+                                ? corpseName : The(corpseName, state);
+                            await message(`${name} disappears.`, state, rawEnv);
+                        }
+                    } else {
+                        if (state.urole?.mnum === PM_HEALER && !heroIsDeaf(state)
+                            && !nonliving(state.mons?.[corpsenm])) {
+                            const name = type_is_pname(state.mons?.[corpsenm])
+                                ? corpseName : an(corpseName, state);
+                            if (!Hallucination(state))
+                                await message(`You hear ${name} reviving.`, state, rawEnv);
+                            else
+                                await message('You hear a defibrillator.', state, rawEnv);
+                            learn_it = byHero ? true : Boolean(state.gz?.zap_oseen);
+                        }
+                        if (canSpotMonster(monster, state))
+                            await message(`${Monnam(monster, state)} appears.`, state, rawEnv);
+                    }
+                    if (learn_it) exercise(A_WIS, true, state);
+                }
+            }
+            break;
+        case WAN_OPENING:
+        case SPE_KNOCK:
+        case WAN_LOCKING:
+        case SPE_WIZARD_LOCK:
+            res = isBox(obj) ? await boxlock(obj, wand, state) : 0;
+            if (res) learn_it = true;
+            break;
+        case WAN_SLOW_MONSTER:
+        case SPE_SLOW_MONSTER:
+        case WAN_SPEED_MONSTER:
+        case WAN_NOTHING:
+        case SPE_HEALING:
+        case SPE_EXTRA_HEALING:
+            res = 0;
+            break;
+        case SPE_STONE_TO_FLESH:
+            res = await stone_to_flesh_obj(obj, state, random, rawEnv);
+            break;
+        default:
+            note_unported('zap.c bhito impossible effect');
+            break;
+        }
     }
     if (learn_it) learnwand(wand, state);
-    return 1;
+    return res;
 }
 
 // C ref: zap.c bhitm() (160-610). The immediate polymorph callback uses the
@@ -6331,8 +6584,16 @@ export async function cancel_monst(
         return false; /* resisted cancellation */
 
     if (self_cancel) {
-        // Inventory cancelling (cancel_item on each item) is not ported.
-        note_unported('zap.c cancel_item loop');
+        // zap.c:cancel_monst() traverses the hero or monster inventory in
+        // chain order before the later cancellation effects.
+        for (let item = youdefend ? state.invent : mdef.minvent;
+            item; item = item.nobj)
+            await cancel_item(item, state);
+
+        if (youdefend) {
+            state.disp.botl = true;
+            find_ac(state);
+        }
     }
 
     /* now handle special cases */

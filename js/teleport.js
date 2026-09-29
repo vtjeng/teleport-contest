@@ -17,6 +17,7 @@ import {
     CC_SKIP_MONS,
     CC_UNSHUFFLED,
     COLNO,
+    SHOPBASE,
     CONFUSION,
     DIED,
     DB_ICE,
@@ -110,7 +111,7 @@ import { next_to_u } from './apply_next_to_u.js';
 import { engr_at } from './engrave.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
-import { addinv, prinv } from './invent.js';
+import { addinv, prinv, obj_extract_self } from './invent.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { in_rooms } from './rooms.js';
 import { learnscroll } from './read.js';
@@ -171,15 +172,16 @@ import {
     unstuck,
     m_into_limbo,
 } from './mon.js';
-import { carried, mksobj, sobj_at } from './obj.js';
+import { carried, mksobj, place_object, sobj_at } from './obj.js';
 import {
     AMULET_OF_YENDOR,
     BOULDER,
+    CORPSE,
     SCR_SCARE_MONSTER,
 } from './objects.js';
 import { within_bounded_area } from './rect.js';
 import { update_monster_region, update_player_regions } from './region.js';
-import { rn2, rnd, rnl } from './rng.js';
+import { rn1, rn2, rnd, rnl } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -192,7 +194,15 @@ import { make_blinded } from './potion.js';
 import { mon_has_amulet } from './wizard.js';
 import { verbalize } from './pline.js';
 import { set_voice, yelp } from './sounds.js';
-import { u_left_shop } from './shk.js';
+import {
+    addtobill,
+    costly_adjacent,
+    costly_spot,
+    find_objowner,
+    stolen_value,
+    subfrombill,
+    u_left_shop,
+} from './shk.js';
 import { note_unported } from './unported.js';
 import { deltrap, fill_pit, Flying, reset_utrap, t_at, unconscious }
     from './trap.js';
@@ -2298,4 +2308,100 @@ export async function level_tele(state = game) {
             : null,
         state,
     );
+}
+
+// C ref: teleport.c rloco() (2102-2186). This floor-object relocation keeps
+// the source's bounded random search, floor-effects Boolean, and shop billing
+// sequence. Its independent C callers outside the zap path remain unported.
+export async function rloco(obj, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn1, rn2 };
+    const env = objectGenerationEnv({ ...rawEnv, state, random });
+    const redraw = rawEnv.redraw ?? ((x, y) => newsym(x, y, state));
+
+    if (obj.otyp === CORPSE && is_rider(state.mons?.[obj.corpsenm])) {
+        const { revive_corpse } = await import('./do.js');
+        if (await revive_corpse(obj, state)) return false;
+    }
+
+    obj_extract_self(obj, env);
+    const otx = obj.ox;
+    const oty = obj.oy;
+    const restrictedFall = otx === 0 && Boolean(state.dndest?.lx);
+    let tx;
+    let ty;
+    let tryLimit = 4000;
+    for (;;) {
+        tx = random.rn1(COLNO - 3, 2);
+        ty = random.rn2(ROWNO);
+        // C breaks immediately on the last attempt, before testing that
+        // candidate; flooreffects() still receives its coordinates.
+        if (!--tryLimit) break;
+        if (!goodpos(tx, ty, null, 0, env)) continue;
+        const inDownArea = !restrictedFall || within_bounded_area(
+            tx, ty,
+            state.dndest.lx, state.dndest.ly,
+            state.dndest.hx, state.dndest.hy,
+        );
+        const inDownNoFall = !restrictedFall || !state.dndest.nlx
+            || !within_bounded_area(
+                tx, ty,
+                state.dndest.nlx, state.dndest.nly,
+                state.dndest.nhx, state.dndest.nhy,
+            );
+        const sameTowerSide = !state.dndest?.nlx
+            || !On_W_tower_level(state.u?.uz, state)
+            || (within_bounded_area(
+                tx, ty,
+                state.dndest.nlx, state.dndest.nly,
+                state.dndest.nhx, state.dndest.nhy,
+            ) === within_bounded_area(
+                otx, oty,
+                state.dndest.nlx, state.dndest.nly,
+                state.dndest.nhx, state.dndest.nhy,
+            ));
+        if (inDownArea && inDownNoFall && sameTowerSide)
+            break;
+    }
+
+    const { flooreffects } = await import('./do.js');
+    if (await flooreffects(obj, tx, ty, 'fall', env)) {
+        if (!(otx === 0 && oty === 0)) redraw(otx, oty);
+        return false;
+    }
+    if (otx === 0 && oty === 0) {
+        // Fell through a trap door; there is no old square to redraw.
+    } else {
+        const shopkeeper = find_objowner(obj, otx, oty, state);
+        const objectInShop = Boolean(shopkeeper)
+            && costly_spot(otx, oty, state);
+        const onBoundary = Boolean(shopkeeper)
+            && costly_adjacent(shopkeeper, otx, oty, state);
+        if (objectInShop || (obj.unpaid && onBoundary)) {
+            const heroShop = in_rooms(state.u.ux, state.u.uy, SHOPBASE, state)[0];
+            const oldShop = in_rooms(otx, oty, 0, state)[0];
+            const keeperRooms = in_rooms(shopkeeper.mx, shopkeeper.my, 0, state);
+            const heroInShop = Boolean(heroShop)
+                && keeperRooms.includes(heroShop);
+            const destinationRooms = in_rooms(tx, ty, 0, state);
+            if (heroInShop && costly_spot(tx, ty, state)
+                && oldShop && destinationRooms.includes(oldShop)) {
+                if (obj.unpaid)
+                    subfrombill(obj, shopkeeper, state, rawEnv);
+            } else if (heroInShop
+                && costly_adjacent(shopkeeper, tx, ty, state)
+                && oldShop && destinationRooms.includes(oldShop)) {
+                if (!obj.unpaid)
+                    await addtobill(obj, false, false, false, state, rawEnv);
+            } else {
+                // C discards stolen_value()'s amount but needs its billing and
+                // shopkeeper effects before the old square is redrawn.
+                await stolen_value(obj, otx, oty, false, false, state);
+            }
+        }
+        redraw(otx, oty);
+    }
+    place_object(obj, tx, ty, env);
+    redraw(tx, ty);
+    return true;
 }

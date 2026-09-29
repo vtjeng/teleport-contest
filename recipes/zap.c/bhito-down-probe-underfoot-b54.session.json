@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70818239,
+      "datetime": "20491214110533",
+      "nethackrc": "OPTIONS=name:B54DownProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": ".\u0017wand of probing\n\u0017potion of sickness\ndpzc>"
+    }
+  ],
+  "comment": "Independent B54 downward floor-callback witness for zap.c:weffects -> zap_updown -> bhitpile(callback=bhito) with WAN_PROBING. Wish a probing wand and sickness potion, drop the potion on the hero square, then select the wand at c from the [co] zap menu and probe downward. The earlier selector miss chose the potion at o; this corrected C recording reaches bhito and strictly matches."
+}

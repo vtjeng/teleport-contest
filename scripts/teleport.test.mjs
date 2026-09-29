@@ -23,6 +23,7 @@ import {
     RLOC_NOMSG,
     ROOM,
     ROWNO,
+    OBJ_FREE,
     STONE,
     STRAT_APPEARMSG,
 } from '../js/const.js';
@@ -40,7 +41,7 @@ import {
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
-import { objects_globals_init } from '../js/objects.js';
+import { POTION_CLASS, POT_WATER, objects_globals_init } from '../js/objects.js';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import { InMemoryStorage } from '../js/storage.js';
 import {
@@ -55,6 +56,7 @@ import {
     mnexto,
     noteleport_level,
     random_teleport_level,
+    rloco,
     rloc,
     rloc_to,
     rloc_to_flag,
@@ -63,6 +65,8 @@ import {
 import { resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
+import { newObject, place_object } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 
 function positionState() {
     const state = {
@@ -160,6 +164,40 @@ test('noteleport_level applies natural levels and stasis in source order', () =>
 
     state.level.flags.stasis_until = state.moves;
     assert.equal(noteleport_level(covetous, state), true);
+});
+
+test('rloco moves a floor object after its source-ordered destination draws', async () => {
+    const state = positionState();
+    state.level.at(12, 10).typ = ROOM;
+    state.level.at(14, 10).typ = ROOM;
+    const obj = newObject({
+        otyp: POT_WATER,
+        oclass: POTION_CLASS,
+        quan: 1,
+        where: OBJ_FREE,
+    });
+    place_object(obj, 12, 10, objectGenerationEnv({ state }));
+    const calls = [];
+    const random = {
+        rn1(bound, offset) {
+            calls.push(['rn1', bound, offset]);
+            return 14;
+        },
+        rn2(bound) {
+            calls.push(['rn2', bound]);
+            return 10;
+        },
+    };
+
+    assert.equal(await rloco(obj, {
+        state,
+        random,
+        redraw() {},
+    }), true);
+    assert.deepEqual(calls, [['rn1', COLNO - 3, 2], ['rn2', ROWNO]]);
+    assert.deepEqual([obj.where, obj.ox, obj.oy], [OBJ_FLOOR, 14, 10]);
+    assert.equal(state.level.objects[12][10], null);
+    assert.equal(state.level.objects[14][10], obj);
 });
 
 test('noteleport_level counts only living on-map demon-court blockers', () => {
