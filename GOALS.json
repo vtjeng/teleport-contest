@@ -113339,6 +113339,49 @@
           "evaluationCommit": "327800a84ddedb020167a65bd3683401f516fea3"
         }
       }
+    },
+    {
+      "id": "port-lock-picklock-trapped-chest-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete lock.c picklock occupation for trapped boxes and doors",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v12/skeleton-key-unlocks-trapped-chest"
+      ],
+      "selectionReason": "Current v12 skeleton-key-unlocks-trapped-chest first stops at step 52 with 52/53 screens and all 3023 RNG calls matched; investigations/synthetic/v12/skeleton-key-unlocks-trapped-chest.json traces the unported trapped-box arm to lock.c:picklock. Latest saved result is challenges/evaluations/20260929060025-v12.json, manifest b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef.",
+      "detail": "Port entire lock.c:picklock (68-160) in source order, including current box and door paths, magic-key branches, success roll and occupation state. Wire the pick_lock setup/occupation caller; on trapped chest toggle olocked and lknown before trap.c:chest_trap(FINGER,FALSE), then exercise Dexterity and reset usedtime. Keep any unported return-valued callees in scope and produce independent C-reaching recordings.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "picklock",
+          "line": 68,
+          "endLine": 161,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 68,
+        "to": 161
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/skeleton-key-unlocks-trapped-chest": {
+          "session": "synthetic/v12/skeleton-key-unlocks-trapped-chest",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "skeleton-key-unlocks-trapped-chest",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+          "recordingSha256": "35dd2a3027d64e189b464ef687c310a1078634f4e7c2dbb80394500ec1a19a36",
+          "evaluationPath": "challenges/evaluations/20260929060025-v12.json",
+          "evaluationCommit": "327800a84ddedb020167a65bd3683401f516fea3"
+        }
+      }
     }
   ]
 }
