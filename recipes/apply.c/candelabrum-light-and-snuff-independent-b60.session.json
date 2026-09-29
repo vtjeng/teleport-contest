@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7382901,
+      "datetime": "20410524141033",
+      "nethackrc": "OPTIONS=name:CandleLoop,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time,showexp\n",
+      "comment": "Independent C replay varies role, seed, time, and candle type; it applies an empty candelabrum while carrying a tallow candle, attaches it, lights the one-candle candelabrum, and snuffs it.",
+      "moves": " \u0017candelabrum of invocation\n\u0017tallow candle\naf agyaf  af"
+    }
+  ]
+}

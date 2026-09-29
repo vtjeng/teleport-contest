@@ -7,8 +7,9 @@
 //
 // doapply()'s switch has thirty-odd named arms. Its live groups include
 // BULLWHIP and polearms, CREAM_PIE, STETHOSCOPE, OIL_LAMP/MAGIC_LAMP/
-// BRASS_LANTERN through apply.c use_lamp(), WAX_CANDLE/TALLOW_CANDLE through
-// use_candle(), and the LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
+// BRASS_LANTERN through apply.c use_lamp(), CANDELABRUM_OF_INVOCATION through
+// use_candelabrum(), WAX_CANDLE/TALLOW_CANDLE through use_candle(), and the
+// LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
 // pick_lock() serves; MAGIC_MARKER delegates to write.c dowrite() in
 // js/write.js; containers delegate to pickup.c use_container() in js/pickup.js;
 // BAG_OF_TRICKS delegates to makemon.c bagotricks() in js/makemon.js; musical
@@ -213,7 +214,15 @@ import {
 } from './do_name.js';
 import { can_reach_floor, cant_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { check_capacity, losehp, near_capacity, nomul, overexertion, spoteffects } from './hack.js';
+import {
+    check_capacity,
+    invocation_pos,
+    losehp,
+    near_capacity,
+    nomul,
+    overexertion,
+    spoteffects,
+} from './hack.js';
 import { dist2, highc, isqrt, s_suffix, strstri, truncateByteString, upstart } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import { gulp_blnd_check } from './mhitu.js';
@@ -296,6 +305,7 @@ import {
     is_graystone,
     is_flimsy,
     is_pick,
+    isCandle,
     hasContents,
     newObject,
     objectType,
@@ -322,6 +332,7 @@ import {
     Tobjnam,
     the,
     The,
+    vtense,
     Yobjnam2,
     Yname2,
     otense,
@@ -3026,6 +3037,96 @@ export async function use_lamp(obj, state = game, env = {}) {
     }
 }
 
+// C ref: apply.c use_candelabrum() (1319-1386). Keep the snuff, empty, water,
+// cursed/swallowed, candle-count, and invocation branches in source order;
+// end_burn() and begin_burn() own their timer and light side effects.
+export async function use_candelabrum(obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const s = obj.spe !== 1 ? 'candles' : 'candle';
+
+    if (obj.lamplit) {
+        await message(`You snuff the ${s}.`, state);
+        end_burn(obj, true, { ...env, state });
+        return;
+    }
+    if (obj.spe <= 0) {
+        const name = xnameFresh(obj, state);
+        await message(`This ${name} has no ${s}.`, state);
+        for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+            if (isCandle(otmp)) {
+                await message(
+                    `To attach candles, apply them instead of the ${name}.`,
+                    state,
+                );
+                break;
+            }
+        }
+        return;
+    }
+    if (state.u?.uinwater) {
+        await message('You cannot make fire under water.', state);
+        return;
+    }
+    if (state.u?.uswallow || obj.cursed) {
+        if (!heroIsBlind(state)) {
+            await message(
+                `${The(s, state)} ${vtense(s, 'flicker')} for a moment,`
+                    + ` then ${vtense(s, 'die')}.`,
+                state,
+            );
+        }
+        return;
+    }
+    if (obj.spe < 7) {
+        await message(
+            `There ${vtense(s, 'are')} only ${obj.spe} ${s} in `
+                + `${the(xnameFresh(obj, state), state)}.`,
+            state,
+        );
+        if (!heroIsBlind(state)) {
+            await message(
+                `${obj.spe === 1 ? 'It is' : 'They are'} lit.  `
+                    + `${Tobjnam(obj, 'shine', state)} dimly.`,
+                state,
+            );
+        }
+    } else {
+        await message(
+            `${The(xnameFresh(obj, state), state)}'s ${s} burn`
+                + `${heroIsBlind(state) ? '.' : ' brightly!'}`,
+            state,
+        );
+    }
+
+    if (!invocation_pos(state.u.ux, state.u.uy, state)
+        || On_stairs(state.u.ux, state.u.uy, state)) {
+        await message(
+            `The ${s} ${vtense(s, 'are')} being rapidly consumed!`, state,
+        );
+        obj.age = Math.trunc(((obj.age ?? 0) + 1) / 2);
+        if (obj.age === 0) {
+            if (state === game) note_unported('pline.c impossible');
+            obj.age = 1;
+        }
+    } else {
+        if (obj.spe === 7) {
+            if (heroIsBlind(state)) {
+                await message(
+                    `${Tobjnam(obj, 'radiate', state)} a strange warmth!`,
+                    state,
+                );
+            } else {
+                await message(
+                    `${Tobjnam(obj, 'glow', state)} with a strange light!`,
+                    state,
+                );
+            }
+        }
+        obj.known = true;
+    }
+    begin_burn(obj, false, { ...env, state });
+}
+
 // C ref: apply.c use_candle() (1387-1468). Attaching a candle stack to the
 // carried candelabrum consumes the accepted split, while a negative answer,
 // a missing/full candelabrum, or a swallowed hero delegates to use_lamp().
@@ -3283,7 +3384,6 @@ const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
     LUMP_OF_ROYAL_JELLY,
     BELL,
     BELL_OF_OPENING,
-    CANDELABRUM_OF_INVOCATION,
     POT_OIL,
     TOWEL,
     TIN_OPENER,
@@ -4189,6 +4289,11 @@ export async function doapply(state = game, env = {}) {
     case TINNING_KIT:
         // apply.c discards use_tinning_kit()'s result.
         await use_tinning_kit(obj, state, env);
+        return ECMD_TIME;
+    case CANDELABRUM_OF_INVOCATION:
+        // apply.c:4337-4338. use_candelabrum() is void; retain doapply's
+        // initial ECMD_TIME result after its source branches.
+        await use_candelabrum(obj, state, env);
         return ECMD_TIME;
     case LEASH:
         return use_leash(obj, state, env);
