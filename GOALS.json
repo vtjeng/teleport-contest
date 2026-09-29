@@ -115232,7 +115232,7 @@
     {
       "id": "port-zap-bhito-floor-effects-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete zap.c bhito floor-object effect callback",
       "cFile": "zap.c",
       "sessions": [
@@ -115241,8 +115241,12 @@
       ],
       "selectionReason": "Current completed investigations identify two related v12 floor-object wand refusals in zap.c bhito. The third teleportation floor-potion case has the same callback refusal after the earlier headstone fix and is grouped as a related path; its investigation count needs refresh.",
       "detail": "Port zap.c bhito in C branch and tail order, retaining existing Force Bolt, polymorph, boxlock and stone-to-flesh paths. Wire zap_updown and bhitpile callbacks and all active production callers. Port zap.c cancel_item for floor and carried cancellation effects and teleport.c rloco for object relocation, including their consumed return dependencies; audit other bhito return-valued callees and source-named void gaps. Match independent C recordings for cancellation, probing, teleportation and additional branch variation, preserving screens, cursors and RNG across all admitted batches.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "9ffaed470fc76ea15c1d1c541347b8ed7a8b01a3",
+      "openStanding": {
+        "sha": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -115283,7 +115287,301 @@
           "evaluationPath": "challenges/evaluations/20260929084757-v12.json",
           "evaluationCommit": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "cancellation-wand-neutralizes-floor-potion",
+          "session": "synthetic/v12/cancellation-wand-neutralizes-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.session.json",
+          "recordingPath": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.session.json",
+          "recordingSha256": "9d474a73454fc403b4eb33687f4aed3626cbef6f410138ea7cd6e7faf9a78f89",
+          "recipe": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.recipe.session.json",
+          "recipeSha256": "c90f2c9e414a08bb43f8a762426d4882e0b2414844b01f1a04a1a2e204af2a84",
+          "replayInputSha256": "125545ff9d5116186467f92b3bd4acd0448902694906ebcf0e4cb581fd14e0c2",
+          "evaluationPath": "challenges/evaluations/20260929123526-v12.json",
+          "evaluationCommit": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
+          "evaluationArtifact": "challenges/evaluations/20260929123526-v12.json",
+          "evaluationUtc": "2026-09-29T12:35:39.944Z",
+          "remainingScreens": 5,
+          "recordedSteps": 53,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 53
+            },
+            "rng": {
+              "matched": 2300,
+              "total": 2317
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 423",
+            "step": 48
+          },
+          "step": 48,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhito",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 423",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/cancellation-wand-neutralizes-floor-potion.json",
+            "result": {
+              "session": "synthetic/v12/cancellation-wand-neutralizes-floor-potion",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "cancellation-wand-neutralizes-floor-potion",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "9d474a73454fc403b4eb33687f4aed3626cbef6f410138ea7cd6e7faf9a78f89",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 5,
+              "recordedSteps": 53,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "cancellation-wand-neutralizes-floor-potion",
+                "session": "synthetic/v12/cancellation-wand-neutralizes-floor-potion",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.session.json",
+                "recordingPath": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.session.json",
+                "recordingSha256": "9d474a73454fc403b4eb33687f4aed3626cbef6f410138ea7cd6e7faf9a78f89",
+                "recipe": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.recipe.session.json",
+                "recipeSha256": "c90f2c9e414a08bb43f8a762426d4882e0b2414844b01f1a04a1a2e204af2a84",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 5,
+                "recordedSteps": 53,
+                "previousScreensMatched": 48,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 2300,
+                    "total": 2317
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 53
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 423",
+                  "step": 48
+                },
+                "step": 48,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhito",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 423",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A downward cancellation wand reaches a floor potion through zap_updown -> bhitpile -> zap.c:bhito. The C WAN_CANCELLATION arm calls cancel_item, redraws the object and returns the default affected result; js/zap.js refuses this immediate effect before it can change the potion or continue the callback.",
+              "source": {
+                "file": "zap.c",
+                "branch": "bhito: floor object differs from the wand and is not bypassed; WAN_CANCELLATION selects cancel_item(obj), then newsym(obj position), then returns res=1 without learnwand.",
+                "functions": [
+                  "bhito",
+                  "cancel_item"
+                ],
+                "callers": [
+                  "zap.c:zap_updown -> zap.c:bhitpile -> zap.c:bhito for downward wand zaps",
+                  "js/zap.js:zap_updown -> bhitpile -> bhito"
+                ],
+                "dependencies": [
+                  "zap.c:cancel_item at line 1239 is not implemented in JS; the callback can only match the object mutation after this void callee is ported",
+                  "display.c:newsym and zap.c:bhitpile are present"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C zap.c:2119-2173 handles identity, bypass, floor-location and ball/chain guards before its effect switch. The WAN_CANCELLATION arm at 2313-2317 calls cancel_item(obj) and newsym(obj->ox,obj->oy); learn_it stays false and the callback returns res=1 at 2424-2426.",
+                "C zap.c:1239 defines cancel_item. JS js/zap.js:2999-3089 has only striking, opening/locking and polymorph/stone-to-flesh arms; for this wand type it throws UnsupportedZapError before the floor object changes. cancel_item has no JS implementation.",
+                "C zap.c:3392-3399 passes bhito to bhitpile on a downward zap. JS js/zap.js:3392 reaches bhito through bhitpile. The v12 independently recorded C case stops at zero-based step 48 with 48 of 53 screens matched and 5 remaining (challenges/evaluations/20260929033350-v12.json)."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "probing-wand-reveals-floor-potion",
+          "session": "synthetic/v12/probing-wand-reveals-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/probing-wand-reveals-floor-potion.session.json",
+          "recordingPath": "challenges/cases/v12/probing-wand-reveals-floor-potion.session.json",
+          "recordingSha256": "1342e359c8a1fc0cb5407438a814ddb05b07c271e4ba20b778cb383044bb0306",
+          "recipe": "challenges/cases/v12/probing-wand-reveals-floor-potion.recipe.session.json",
+          "recipeSha256": "ad55d4d07e91f4aaa948084894372e1ec955dd3a327d91ee91abbf1894202ab4",
+          "replayInputSha256": "125545ff9d5116186467f92b3bd4acd0448902694906ebcf0e4cb581fd14e0c2",
+          "evaluationPath": "challenges/evaluations/20260929123526-v12.json",
+          "evaluationCommit": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
+          "evaluationArtifact": "challenges/evaluations/20260929123526-v12.json",
+          "evaluationUtc": "2026-09-29T12:35:39.944Z",
+          "remainingScreens": 2,
+          "recordedSteps": 44,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2791,
+              "total": 2796
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 427",
+            "step": 42
+          },
+          "step": 42,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhito",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 427",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/probing-wand-reveals-floor-potion.json",
+            "result": {
+              "session": "synthetic/v12/probing-wand-reveals-floor-potion",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "probing-wand-reveals-floor-potion",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "1342e359c8a1fc0cb5407438a814ddb05b07c271e4ba20b778cb383044bb0306",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 2,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "probing-wand-reveals-floor-potion",
+                "session": "synthetic/v12/probing-wand-reveals-floor-potion",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/probing-wand-reveals-floor-potion.session.json",
+                "recordingPath": "challenges/cases/v12/probing-wand-reveals-floor-potion.session.json",
+                "recordingSha256": "1342e359c8a1fc0cb5407438a814ddb05b07c271e4ba20b778cb383044bb0306",
+                "recipe": "challenges/cases/v12/probing-wand-reveals-floor-potion.recipe.session.json",
+                "recipeSha256": "ad55d4d07e91f4aaa948084894372e1ec955dd3a327d91ee91abbf1894202ab4",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 2,
+                "recordedSteps": 44,
+                "previousScreensMatched": 42,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 2791,
+                    "total": 2796
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 427",
+                  "step": 42
+                },
+                "step": 42,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhito",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 427",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A downward probing wand reaches a floor potion through zap_updown -> bhitpile -> zap.c:bhito. C returns whether its appearance was previously known, then observes the object and learns the wand when newly revealed; js/zap.js refuses the WAN_PROBING callback before those state changes.",
+              "source": {
+                "file": "zap.c",
+                "branch": "bhito: floor potion is neither wand nor bypassed; WAN_PROBING sets res=!obj->dknown, observes obj, checks container/tin/egg special cases, and learns the wand if res is true.",
+                "functions": [
+                  "bhito"
+                ],
+                "callers": [
+                  "zap.c:zap_updown -> zap.c:bhitpile -> zap.c:bhito for downward wand zaps",
+                  "js/zap.js:zap_updown -> bhitpile -> bhito"
+                ],
+                "dependencies": [
+                  "o_init.c:observe_object is present in js/o_init.js",
+                  "zap.c:learnwand and zap.c:bhitpile are present in js/zap.js"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C zap.c:2228-2277 implements WAN_PROBING in bhito: save !dknown as res, call observe_object, handle container, statue, tin and egg knowledge, then set learn_it when res. The common tail calls learnwand if observable and returns res.",
+                "JS js/zap.js:2999-3089 refuses WAN_PROBING through UnsupportedZapError before observe_object or learnwand. The whole bhito callback must preserve the C guards and return value consumed by bhitpile.",
+                "C zap.c:3392-3399 routes downward zaps through bhitpile and bhito; JS js/zap.js:3392 does likewise. The v12 independently recorded C case stops at zero-based step 42 with 42 of 44 screens matched and 2 remaining (challenges/evaluations/20260929033350-v12.json)."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-trap-trapeffect-statue-trap-synthetic-v11-20260929",
