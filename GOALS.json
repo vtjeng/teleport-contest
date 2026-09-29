@@ -117265,6 +117265,106 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-display-monster-worm-tail-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port display.c display_monster and pass worm-tail display coordinates through newsym",
+      "cFile": "display.c",
+      "sessions": [
+        "synthetic/v13/thrown-dagger-cuts-long-worm-segment"
+      ],
+      "selectionReason": "The saved v13 case, manifest ab0f5512 and recording 8e4169be, first differs at step 19: C draws PM_LONG_WORM_TAIL at a long-worm segment, while JS draws the head. The completed investigation identifies display.c display_monster and its newsym caller; port the whole display_monster source function and wire both newsym calls. The later worm.c cutworm RNG gap is separate.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "display_monster",
+          "line": 514,
+          "endLine": 633,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 514,
+        "to": 633
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/thrown-dagger-cuts-long-worm-segment": {
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "evaluationPath": "challenges/evaluations/20260929165804-v13.json",
+          "evaluationCommit": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+        }
+      }
+    },
+    {
+      "id": "port-apply-leash-family-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port apply.c leash application and pet attachment family",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v13/pet-leash-attaches-to-tame-dog"
+      ],
+      "selectionReason": "The saved v13 case, manifest ab0f5512 and recording e51da120, first stops at step 19 in doapply LEASH. The completed investigation traces the contiguous leashable through use_leash_core family and the doapply arm. Port complete number_leashed as a consumed return-valued dependency; wire mon.c newcham to the shared leashable predicate. Later unleashed cleanup callers remain separate.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "leashable",
+          "line": 761,
+          "endLine": 768,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_leash",
+          "line": 769,
+          "endLine": 820,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_leash_core",
+          "line": 821,
+          "endLine": 879,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 761,
+        "to": 879
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/pet-leash-attaches-to-tame-dog": {
+          "session": "synthetic/v13/pet-leash-attaches-to-tame-dog",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "pet-leash-attaches-to-tame-dog",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+          "recordingSha256": "e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a",
+          "evaluationPath": "challenges/evaluations/20260929165804-v13.json",
+          "evaluationCommit": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+        }
+      }
     }
   ]
 }
