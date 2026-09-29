@@ -29,7 +29,6 @@ import {
     SPIKED_PIT,
     SQKY_BOARD,
     STAIRS,
-    STATUE_TRAP,
     TELEP_TRAP,
     TRAPDOOR,
     TRAPPED_CHEST,
@@ -277,15 +276,8 @@ test('maketrap rejects non-map trap kinds and protected terrain', () => {
     assert.equal(t_at(11, 5, state), portal);
 });
 
-test('maketrap records the discarded statue call when its helper is unavailable', () => {
+test('maketrap preflights buried-object effects before changing terrain', () => {
     const state = initializedState();
-    const statueTrap = maketrap(10, 5, STATUE_TRAP, { state });
-    assert.equal(statueTrap.ttyp, STATUE_TRAP);
-    assert.equal(state.level.traps[0], statueTrap);
-    assert.equal(state.unported.has('trap.c mk_trap_statue'), true);
-
-    state.level.traps = [];
-
     state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
     state.level.at(10, 5).flags = 37;
     assert.throws(

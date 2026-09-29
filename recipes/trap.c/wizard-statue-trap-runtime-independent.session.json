@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8675309,
+      "datetime": "20320714091500",
+      "nethackrc": "OPTIONS=name:StatuePort,role:Archeologist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".j\u0017statue trap\n.",
+      "comment": "Independent debug-mode wizard terrain wish first steps off the upstairs, then reaches objnam.c:wizterrainwish -> trap.c:maketrap(STATUE_TRAP) -> mk_trap_statue at runtime. The final wait leaves activation outside this creator witness."
+    }
+  ]
+}

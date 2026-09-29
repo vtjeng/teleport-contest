@@ -48,6 +48,7 @@ import {
     reset_mvitals,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
+import { wizterrainwish } from '../js/objnam_readobjnam.js';
 import { objectGenerationHooks } from '../js/object_generation.js';
 import {
     curseFreeObject,
@@ -517,6 +518,37 @@ test('statue traps transfer a temporary monster inventory before detaching it', 
     assert.equal(temporary.mstate & MON_DETACH, MON_DETACH);
     assert.equal(state.level.monsters[temporary.mx][temporary.my], null);
     assert.equal(state.iflags.purge_monsters, 1);
+});
+
+test('a wizard terrain wish awaits runtime statue inventory creation', async () => {
+    const state = generationState(8675309);
+    state.in_mklev = false;
+    state.u.ux = 10;
+    state.u.uy = 5;
+    for (let x = 8; x <= 12; ++x) {
+        for (let y = 3; y <= 7; ++y)
+            state.level.at(x, y).typ = ROOM;
+    }
+    const messages = [];
+
+    const result = wizterrainwish({ bp: 'statue trap' }, {
+        state,
+        hooks: objectGenerationHooks(),
+        message: (text) => messages.push(text),
+    });
+    assert.equal(typeof result?.then, 'function');
+    await result;
+
+    const trap = state.level.traps[0];
+    assert.deepEqual([trap?.tx, trap?.ty, trap?.ttyp],
+        [10, 5, STATUE_TRAP]);
+    const statue = floorPile(state, 10, 5).find((obj) => obj.otyp === STATUE);
+    assert.ok(statue, 'the runtime wish creates its statue');
+    assert.equal(statue.owt, weight(statue, { state }));
+    assert.equal(messages.at(-1), 'A statue trap.');
+    assert.equal(state.mvitals[statue.corpsenm].born, 0);
+    assert.equal(state.level.monlist?.mhp, 0);
+    assert.equal(state.level.monlist?.mstate & MON_DETACH, MON_DETACH);
 });
 
 test('statue traps admit their full adjusted monster reservoir', () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 736201,
+      "datetime": "20370918113347",
+      "nethackrc": "OPTIONS=name:ValleyProbe,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": " \u00168\n",
+      "comment": "Independent wizard level teleport to D:8 reaches ordinary mklev.c:mktrap selection; C records rnd(25)=19 at traptype_rnd (STATUE_TRAP)."
+    }
+  ]
+}

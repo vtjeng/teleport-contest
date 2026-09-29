@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 133,
+      "datetime": "20260928101200",
+      "nethackrc": "OPTIONS=name:StatueTrace,role:Healer,race:human,gender:male,align:neutral\n",
+      "moves": " "
+    }
+  ],
+  "comment": "Ordinary-environment runtime witness: seed 133 selects rooms default x5, t-shaped-rot-2, then fill statuary, then default x2; the C/JS strict recording matches through the level boundary. No THEMERMFILL override. Exercises dat/themerms.lua Statuary -> sp_lev.c:create_trap() -> mklev.c:mktrap() -> trap.c:maketrap(STATUE_TRAP) -> mk_trap_statue."
+}
