@@ -147,9 +147,10 @@ test('self cancellation compares the current form before rehumanizing', async ()
     // its catalog index is in the ordinary monster range; the C Upolyd macro
     // therefore leaves it unchanged.  This distinguishes the source macro
     // from a numeric LOW_PM test.
-    const youmonst = {};
+    const youmonst = { data: { ac: 8 } };
     const state = {
-        u: { umonnum: 4, umonster: 4, mh: 10, uprops: {} },
+        u: { umonnum: 4, umonster: 4, mh: 10, uprops: {}, uac: 10 },
+        disp: { botl: false },
         youmonst,
     };
     assert.equal(
@@ -158,6 +159,8 @@ test('self cancellation compares the current form before rehumanizing', async ()
     );
     assert.equal(state.u.umonnum, 4);
     assert.equal(state.u.umonster, 4);
+    assert.equal(state.u.uac, 8);
+    assert.equal(state.disp.botl, true);
 });
 
 test('extrinsic invisibility suppresses self-zap discovery and feedback', async () => {
@@ -232,7 +235,11 @@ test('stone-to-flesh keeps the source callback and statue dependency order', () 
     assert.match(jsStone, /animate_statue\([\s\S]*ANIMATE_SPELL/u);
     assert.match(jsStone, /obj_resists\([\s\S]*switch \(type\.oc_class\)/u);
     assert.match(jsStone, /poly_obj\([\s\S]*MEATBALL/u);
-    assert.match(JS_SOURCE, /if \(wand\.otyp === SPE_STONE_TO_FLESH\)\s*\n\s*return await stone_to_flesh_obj/u);
+    assert.match(
+        JS_SOURCE,
+        /case SPE_STONE_TO_FLESH:\s*res = await stone_to_flesh_obj\(obj, state, random, rawEnv\);\s*break;/u,
+        'bhito stores the stone-to-flesh callback result before its common tail',
+    );
     assert.equal(typeof animate_statue, 'function');
 
     const cAnimateStart = C_TRAP_SOURCE.indexOf('\nanimate_statue(');
