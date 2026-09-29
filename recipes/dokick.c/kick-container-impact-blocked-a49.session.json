@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "BLOCKED for A49: this source-directed input wishes and drops a closed container, then kicks it. C reaches dokick.c:kick_object -> really_kick_object, which calls container_impact_dmg at dokick.c:655 after landing; the JavaScript kick-object family is still refused and belongs to its separate whole-function source task. This recipe does not establish A49 runtime evidence.",
+  "segments": [
+    {
+      "seed": 62917403,
+      "datetime": "20490322081100",
+      "nethackrc": "OPTIONS=name:A49KickBlocker,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,menustyle:traditional,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,time,!autopickup\n",
+      "moves": "  #wizwish\nempty unlocked chest\ndp#kick\nh"
+    }
+  ]
+}

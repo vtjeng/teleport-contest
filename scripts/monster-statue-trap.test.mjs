@@ -11,7 +11,10 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { trapeffect_selector } from '../js/trap_effects.js';
+import {
+    preflight_dotrap,
+    trapeffect_selector,
+} from '../js/trap_effects.js';
 import { loadMonsterStatueTrapRecipe } from './run-monster-statue-trap.mjs';
 
 test('a monster finishes on a statue trap without activation work', async () => {
@@ -38,17 +41,13 @@ test('a monster finishes on a statue trap without activation work', async () => 
                  'the no-op arm leaves the trap state unchanged');
 });
 
-test('the selector keeps the hero statue-trap refusal', async () => {
-    const hero = { kind: 'hero' };
+test('the hero preflight admits an unseen statue trap', () => {
+    const state = { u: { usteed: null } };
     const trap = { ttyp: STATUE_TRAP, tseen: false };
 
-    await assert.rejects(
-        trapeffect_selector(hero, trap, 0, {
-            state: { youmonst: hero },
-            unsupported: (reason) => { throw new Error(reason); },
-        }),
-        /trap activation/u,
-        'activate_statue_trap() remains outside this span',
+    assert.doesNotThrow(
+        () => preflight_dotrap(trap, state),
+        'trap.c routes the hero arm to activate_statue_trap()',
     );
 });
 

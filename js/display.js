@@ -48,8 +48,8 @@ import {
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
-    ACCESSIBLE, BLINDED, CONFUSION, DEAF, DETECT_MONSTERS, FLYING,
-    HALLUC, HALLUC_RES,
+    ACCESSIBLE, BLINDED, BOLT_LIM, CONFUSION, DEAF, DETECT_MONSTERS, FLYING,
+    HALLUC, HALLUC_RES, SEE_INVIS,
     H_IBM, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
@@ -329,6 +329,22 @@ export function tp_sensemon(mon, state = game) {
     const dy = (mon.my ?? 0) - (hero.uy ?? 0);
     return dx * dx + dy * dy
         <= Math.trunc(hero.unblind_telepat_range ?? 0);
+}
+
+// C ref: display.c knowninvisible() (208-212), used by zap.c:bhitm after
+// turning an unseen monster invisible. See-invisible and monster detection
+// count only when the hero can see that square; unblinded extrinsic telepathy
+// identifies an invisible monster in an otherwise empty square at bolt range.
+export function knowninvisible(mon, state = game) {
+    if (!mon?.minvis) return false;
+    const { mx, my } = mon;
+    if (cansee(mx, my, state)
+        && (_propertyActive(state.u, SEE_INVIS)
+            || _propertyActive(state.u, DETECT_MONSTERS)))
+        return true;
+    const telepathy = state.u?.uprops?.[TELEPAT];
+    return !heroIsBlind(state) && Boolean(telepathy?.extrinsic)
+        && dist2(mx, my, state.u?.ux, state.u?.uy) <= BOLT_LIM * BOLT_LIM;
 }
 
 const WALL_TYPES = new Set([

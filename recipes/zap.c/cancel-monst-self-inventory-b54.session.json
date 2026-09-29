@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 70299831,
+    "datetime": "20491214093817",
+    "nethackrc": "OPTIONS=name:B54CancelSelf,role:Wizard,race:human,gender=female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+    "moves": ".\u0017wand of cancellation\n\u0017potion of sickness\ni\nzn."
+  }],
+  "comment": "Independent B54 source-planned self-cancel witness for zap.c:cancel_monst(self_cancel) and its nobj-ordered cancel_item loop. Wish a cancellation wand and sickness potion, inspect inventory letters, then self-zap with the cancellation wand; retain only if the C trace enters the inventory loop and the full strict comparison matches."
+}

@@ -8,9 +8,9 @@ import {
     D_ISOPEN,
     D_NODOOR,
     IRONBARS,
+    MAGIC_PORTAL,
     ROOM,
     SDOOR,
-    STATUE_TRAP,
     STONE,
     TREE,
 } from '../js/const.js';
@@ -467,10 +467,12 @@ test('the seam consults its destination checks only where the rules allow',
         here.typ = ROOM;
         destination.typ = DOOR;
         destination.flags = destination.doormask = D_ISOPEN;
-        // A statue trap remains outside preflight_dotrap()'s admitted hero
-        // types and stands in for trap.c activate_statue_trap().
+        // A magic portal remains outside preflight_dotrap()'s admitted hero
+        // types because trap.c:level_tele_trap is unported. It makes the
+        // orthogonal-arrival half prove that the trap is consulted only after
+        // the diagonal doorway rule has admitted the step.
         game.level.traps = [{
-            tx: ux + 1, ty: uy + 1, ttyp: STATUE_TRAP, tseen: true,
+            tx: ux + 1, ty: uy + 1, ttyp: MAGIC_PORTAL, tseen: true,
         }];
         preflightDomoveDestination(ux + 1, uy + 1, game);
 
@@ -479,7 +481,7 @@ test('the seam consults its destination checks only where the rules allow',
         game.level.at(ux + 1, uy).typ = DOOR;
         game.level.at(ux + 1, uy).flags = D_ISOPEN;
         game.level.traps = [{
-            tx: ux + 1, ty: uy, ttyp: STATUE_TRAP, tseen: true,
+            tx: ux + 1, ty: uy, ttyp: MAGIC_PORTAL, tseen: true,
         }];
         assert.throws(
             () => preflightDomoveDestination(ux + 1, uy, game),

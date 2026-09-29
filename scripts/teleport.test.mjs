@@ -23,6 +23,7 @@ import {
     RLOC_NOMSG,
     ROOM,
     ROWNO,
+    OBJ_FREE,
     STONE,
     STRAT_APPEARMSG,
 } from '../js/const.js';
@@ -40,7 +41,7 @@ import {
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
-import { objects_globals_init } from '../js/objects.js';
+import { POTION_CLASS, POT_WATER, objects_globals_init } from '../js/objects.js';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import { InMemoryStorage } from '../js/storage.js';
 import {
@@ -55,13 +56,17 @@ import {
     mnexto,
     noteleport_level,
     random_teleport_level,
+    rloco,
     rloc,
     rloc_to,
     rloc_to_flag,
+    u_teleport_mon,
 } from '../js/teleport.js';
 import { resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
+import { newObject, place_object } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 
 function positionState() {
     const state = {
@@ -159,6 +164,40 @@ test('noteleport_level applies natural levels and stasis in source order', () =>
 
     state.level.flags.stasis_until = state.moves;
     assert.equal(noteleport_level(covetous, state), true);
+});
+
+test('rloco moves a floor object after its source-ordered destination draws', async () => {
+    const state = positionState();
+    state.level.at(12, 10).typ = ROOM;
+    state.level.at(14, 10).typ = ROOM;
+    const obj = newObject({
+        otyp: POT_WATER,
+        oclass: POTION_CLASS,
+        quan: 1,
+        where: OBJ_FREE,
+    });
+    place_object(obj, 12, 10, objectGenerationEnv({ state }));
+    const calls = [];
+    const random = {
+        rn1(bound, offset) {
+            calls.push(['rn1', bound, offset]);
+            return 14;
+        },
+        rn2(bound) {
+            calls.push(['rn2', bound]);
+            return 10;
+        },
+    };
+
+    assert.equal(await rloco(obj, {
+        state,
+        random,
+        redraw() {},
+    }), true);
+    assert.deepEqual(calls, [['rn1', COLNO - 3, 2], ['rn2', ROWNO]]);
+    assert.deepEqual([obj.where, obj.ox, obj.oy], [OBJ_FLOOR, 14, 10]);
+    assert.equal(state.level.objects[12][10], null);
+    assert.equal(state.level.objects[14][10], obj);
 });
 
 test('noteleport_level counts only living on-map demon-court blockers', () => {
@@ -1126,6 +1165,23 @@ test('random_teleport_level clamps and adjusts at the bottom level', () => {
     enableRngLog();
     assert.equal(random_teleport_level(state), 7);
     assert.deepEqual(getRngLog(), ['rn2(5)=4', 'rn2(12)=9', 'rnd(3)=3']);
+});
+
+test('u_teleport_mon returns false before relocation on a stasis level', async () => {
+    // teleport.c:2263-2302 returns FALSE at the stasis gate before any RNG or
+    // relocation call, and zap.c:bhitm consumes that result for visibility.
+    const state = positionState();
+    state.moves = 1;
+    state.level.flags.stasis_until = 1;
+    const monster = { mx: 11, my: 10, ispriest: false };
+    const draws = [];
+    const result = await u_teleport_mon(monster, false, {
+        state,
+        random: { rn2: (bound) => { draws.push(bound); return 0; } },
+    });
+    assert.equal(result, false);
+    assert.deepEqual(draws, []);
+    assert.deepEqual([monster.mx, monster.my], [11, 10]);
 });
 
 test('teleds drags the punished ball through the holdout teleport', async () => {

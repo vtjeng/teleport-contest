@@ -16,6 +16,10 @@ import {
     OBJ_FREE,
     OBJ_INVENT,
     OBJ_MINVENT,
+    FM_FMON,
+    FM_MIGRATE,
+    FM_MYDOGS,
+    FM_YOU,
     RANGE_LEVEL,
     ROWNO,
     TEMP_LIT,
@@ -292,6 +296,33 @@ export function get_mon_location(monster, locflags = 0, state = game) {
     return monster.mx > 0 && (!monster.mburied || locflags)
         ? { x: Math.trunc(monster.mx), y: Math.trunc(monster.my) }
         : null;
+}
+
+// C ref: light.c find_mid(). Search only the lists selected by fmflags, in
+// source order; the hero's synthetic monster id is 1.
+export function find_mid(nid, fmflags, state = game) {
+    if ((fmflags & FM_YOU) && nid === 1)
+        return state.youmonst ?? null;
+    if (fmflags & FM_FMON) {
+        for (let monster = state.level?.monlist ?? null;
+            monster; monster = monster.nmon) {
+            if (monster.mhp >= 1 && monster.m_id === nid)
+                return monster;
+        }
+    }
+    if (fmflags & FM_MIGRATE) {
+        for (let monster = state.gm?.migrating_mons ?? null;
+            monster; monster = monster.nmon) {
+            if (monster.m_id === nid) return monster;
+        }
+    }
+    if (fmflags & FM_MYDOGS) {
+        for (let monster = state.gm?.mydogs ?? null;
+            monster; monster = monster.nmon) {
+            if (monster.m_id === nid) return monster;
+        }
+    }
+    return null;
 }
 
 // zap.c:get_obj_location(). Return null for the source's FALSE result.

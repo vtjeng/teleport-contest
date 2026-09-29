@@ -12,6 +12,9 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     M_SEEN_SLEEP,
+    OBJ_FREE,
+    OBJ_FLOOR,
+    OBJ_INVENT,
     ROOMOFFSET,
     SDOOR,
     SLEEP_RES,
@@ -38,6 +41,9 @@ import {
     POT_POLYMORPH,
     SPE_POLYMORPH,
     AMULET_OF_UNCHANGING,
+    POT_FRUIT_JUICE,
+    POT_SICKNESS,
+    WAN_CANCELLATION,
     objects_globals_init,
 } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -46,6 +52,8 @@ import { m_canseeu } from '../js/vision.js';
 import {
     dozap,
     do_enlightenment_effect,
+    cancel_item,
+    cancel_monst,
     obj_shudders,
     obj_unpolyable,
     UnsupportedZapError,
@@ -53,6 +61,8 @@ import {
     zappable,
     zapnodir,
 } from '../js/zap.js';
+import { newObject, place_object } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     BLIND,
     ESCAPE_KEY,
@@ -210,6 +220,57 @@ test('obj_shudders halves the source odds only after the quantity check', () => 
         true,
     );
     assert.deepEqual(calls, [1]);
+});
+
+test('cancel_item turns a floor sickness potion into fruit juice', async () => {
+    await liveGame(4);
+    const potion = newObject({
+        otyp: POT_SICKNESS,
+        oclass: POTION_CLASS,
+        quan: 1,
+        where: OBJ_FREE,
+    });
+    place_object(potion, 12, 10, objectGenerationEnv({ state: game }));
+
+    await cancel_item(potion, game);
+
+    assert.equal(potion.where, OBJ_FLOOR);
+    assert.equal(potion.otyp, POT_FRUIT_JUICE);
+    assert.equal(potion.spe, 0);
+    assert.equal(potion.blessed, false);
+    assert.equal(potion.cursed, false);
+});
+
+test('self-cancellation runs cancel_item across the hero inventory chain', async () => {
+    // zap.c cancel_monst(): self_cancel loops gi.invent in nobj order, then
+    // refreshes AC; zap.c:cancel_item performs each object's mutation.
+    await liveGame(4);
+    const potion = newObject({
+        otyp: POT_SICKNESS,
+        oclass: POTION_CLASS,
+        quan: 1,
+        where: OBJ_INVENT,
+    });
+    const wandInPack = newObject({
+        otyp: WAN_SLEEP,
+        oclass: WAND_CLASS,
+        quan: 1,
+        spe: 0,
+        where: OBJ_INVENT,
+    });
+    potion.nobj = wandInPack;
+    game.invent = potion;
+    const wand = newObject({
+        otyp: WAN_CANCELLATION,
+        oclass: WAND_CLASS,
+        quan: 1,
+    });
+
+    assert.equal(await cancel_monst(
+        game.youmonst, wand, true, true, true, game,
+    ), true);
+    assert.equal(potion.otyp, POT_FRUIT_JUICE);
+    assert.equal(wandInPack.spe, -1);
 });
 
 test('zappable refuses a spent wand without drawing', async () => {
@@ -1132,9 +1193,8 @@ test('every remaining zap refusal names an unported zap.c function',
         [
             // dozap()'s remaining backfire boundary.
             'backfire',
-            // bhito() now handles the Force Bolt/striking object arm; its
-            // other unported effects and bhitm()'s branches still refuse.
-            'bhito', 'bhitm',
+            // bhito() now handles the whole floor-object callback. Void
+            // callee gaps are source-named and do not reject the ray.
             // zhitu(): the still-unported hero damage branches.
             'zhitu', 'zhitu',
             // zapnodir() now covers its whole NODIR switch, including the
