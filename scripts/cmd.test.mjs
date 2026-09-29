@@ -60,6 +60,7 @@ import {
     LADDER,
     LAVAPOOL,
     LEVITATION,
+    MAGIC_PORTAL,
     MARK,
     M_AP_FURNITURE,
     MON_FLOOR,
@@ -1155,16 +1156,16 @@ test('pile_limit zero leaves a single object on the naming path', async () => {
 test('simple hero movement rejects spot effects before mutation', async () => {
     const cases = [
         {
-            // STATUE_TRAP still reaches trap.c activate_statue_trap(), which
-            // is unported. PIT is admitted now that trap.c handles its hero
-            // fall path, so it cannot stand in for this refusal anymore.
-            name: 'hidden statue trap',
+            // trap.c's MAGIC_PORTAL arm still reaches level_tele_trap(),
+            // which is unported. STATUE_TRAP is admitted now that its hero
+            // activation path is implemented.
+            name: 'hidden magic portal',
             reason: 'trap activation',
             setup: ({ x, y }) => {
                 installFloorPile(x, y);
                 // tseen=false models a legally enterable hidden trap.
                 game.level.traps.push({
-                    tx: x, ty: y, ttyp: STATUE_TRAP, tseen: false,
+                    tx: x, ty: y, ttyp: MAGIC_PORTAL, tseen: false,
                 });
             },
         },
@@ -1364,13 +1365,13 @@ test('live !safe_pet collision can decline the attack without a PRNG draw',
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
     const cases = [
         {
-            // The PIT hero effect is implemented; retain this retry assertion
-            // on the genuinely unported statue-trap activation path.
-            name: 'hidden statue trap',
+            // The statue-trap hero arm is implemented; retain this retry
+            // assertion on the unported MAGIC_PORTAL level-teleport path.
+            name: 'hidden magic portal',
             reason: 'trap activation',
             install: ({ x, y }) => {
                 game.level.traps = [{
-                    tx: x, ty: y, ttyp: STATUE_TRAP, tseen: false,
+                    tx: x, ty: y, ttyp: MAGIC_PORTAL, tseen: false,
                 }];
             },
             remove: () => {
