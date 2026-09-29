@@ -116311,14 +116311,18 @@
     {
       "id": "div-timeout-cleanup-burn-light-source-synthetic-v13-20260929",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "open",
       "summary": "Restore source-ordered object light and timer cleanup when ending burn",
       "cFile": "timeout.c",
       "sessions": [],
       "selectionReason": "synthetic/v13/extinguish-lit-oil-lamp has a complete current investigation in investigations/synthetic/v13/extinguish-lit-oil-lamp.json; timeout.c:cleanup_burn requires the real light.c:del_light_source and inventory update path for any timed burning object.",
       "detail": "At segment 0 step 17, v13 recording 5e511642a586dea8e14168956364465b1d844bc653c87ad39b277a3dd1050b6f stops after the lit-lamp turn-off message. The saved evaluation challenges/evaluations/20260929141337-v13.json under manifest digest ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d records 17/18 screens. apply.c:use_lamp calls timeout.c:end_burn; timeout.c:cleanup_burn calls light.c:del_light_source(LS_OBJECT,obj), restores fuel, clears lamplit, and updates inventory. js/timeout.js preflight instead requires an injected deleteObjectLightSource hook absent from js/apply.js:use_lamp. See the investigation for source and caller evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "3fdd3c65d0b811b96963e3e87b8ec41d83493e84",
+      "openStanding": {
+        "sha": "35deeae3b45298577e919836bfad5c2da681ab6b",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "function": "cleanup_burn",
@@ -116337,7 +116341,158 @@
           "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
           "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "35deeae3b45298577e919836bfad5c2da681ab6b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "extinguish-lit-oil-lamp",
+          "session": "synthetic/v13/extinguish-lit-oil-lamp",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/extinguish-lit-oil-lamp.session.json",
+          "recordingPath": "challenges/cases/v13/extinguish-lit-oil-lamp.session.json",
+          "recordingSha256": "5e511642a586dea8e14168956364465b1d844bc653c87ad39b277a3dd1050b6f",
+          "recipe": "challenges/cases/v13/extinguish-lit-oil-lamp.recipe.session.json",
+          "recipeSha256": "bda3cb818fa78cf8b55bc544ec5fd857fad38806331f38b411ca3f405b1eeb9f",
+          "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+          "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+          "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+          "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+          "evaluationUtc": "2026-09-29T14:13:52.803Z",
+          "remainingScreens": 1,
+          "recordedSteps": 18,
+          "previousScreensMatched": null,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 18
+            },
+            "rng": {
+              "matched": 2184,
+              "total": 2208
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 18
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "timer cleanup requires deleteObjectLightSource for function 4",
+            "step": 17
+          },
+          "step": 17,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "timer cleanup requires deleteObjectLightSource for function 4",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/extinguish-lit-oil-lamp.json",
+            "result": {
+              "session": "synthetic/v13/extinguish-lit-oil-lamp",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "extinguish-lit-oil-lamp",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "5e511642a586dea8e14168956364465b1d844bc653c87ad39b277a3dd1050b6f",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 18,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "extinguish-lit-oil-lamp",
+                "session": "synthetic/v13/extinguish-lit-oil-lamp",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/extinguish-lit-oil-lamp.session.json",
+                "recordingPath": "challenges/cases/v13/extinguish-lit-oil-lamp.session.json",
+                "recordingSha256": "5e511642a586dea8e14168956364465b1d844bc653c87ad39b277a3dd1050b6f",
+                "recipe": "challenges/cases/v13/extinguish-lit-oil-lamp.recipe.session.json",
+                "recipeSha256": "bda3cb818fa78cf8b55bc544ec5fd857fad38806331f38b411ca3f405b1eeb9f",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 18,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 18
+                  },
+                  "rng": {
+                    "matched": 2184,
+                    "total": 2208
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 18
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "timer cleanup requires deleteObjectLightSource for function 4",
+                  "step": 17
+                },
+                "step": 17,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "timer cleanup requires deleteObjectLightSource for function 4",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a lit oil lamp prints the C turn-off message, then JS stops before timer and light cleanup because timeout.c cleanup_burn requires an injected deleteObjectLightSource hook that apply.c use_lamp does not supply.",
+              "source": {
+                "file": "timeout.c",
+                "branch": "With a carried, lit oil lamp and an attached BURN_OBJECT timer, apply.c:use_lamp calls end_burn(obj, TRUE). timeout.c:end_burn calls stop_timer, whose cleanup_burn deletes the LS_OBJECT source, restores unused fuel, clears lamplit, and refreshes inventory.",
+                "functions": [
+                  "end_burn",
+                  "cleanup_burn"
+                ],
+                "callers": [
+                  "apply.c:use_lamp -> timeout.c:end_burn on the already-lit branch; js/apply.js:use_lamp calls js/timeout.js:end_burn with state but without object-light cleanup hooks.",
+                  "timeout.c:stop_timer -> cleanup_burn for the BURN_OBJECT timer; js/timeout.js:stop_timer preflights a required deleteObjectLightSource hook before unlinking."
+                ],
+                "dependencies": [
+                  "light.c:del_light_source(LS_OBJECT, obj) is implemented as js/light.js:del_light_source; wire the real source operation for timer cleanup rather than refusing when an optional injected hook is absent.",
+                  "invent.c:update_inventory is called for an inventory object after cleanup; preserve its active-display conditions and source ordering."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b matches 17/18 screens and stops at zero-based step 17 with timer cleanup requires deleteObjectLightSource for function 4; the fixed and earlier synthetic workload still pass.",
+                "Upstream nethack-c/upstream/src/apply.c:use_lamp (1628-1702) calls end_burn on the lit branch. Upstream timeout.c:end_burn (1804-1824) stops BURN_OBJECT and cleanup_burn (1830-1848) calls light.c:del_light_source before clearing lamplit and updating inventory.",
+                "JavaScript js/apply.js:use_lamp prints the off message then calls end_burn(obj,true,{state}). js/timeout.js:preflightTimerCleanup requires env.hooks.deleteObjectLightSource and throws before the timer is removed. js/light.js:del_light_source already implements the C light deletion. This is a production wiring defect across the source functions, not an oil-lamp-only case rule."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-apply-grapple-family-synthetic-v13-20260929",
