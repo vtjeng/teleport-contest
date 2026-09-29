@@ -114957,7 +114957,7 @@
     {
       "id": "port-trap-trapeffect-poly-trap-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port full trap.c polymorph-trap effect and hero activation",
       "cFile": "trap.c",
       "sessions": [
@@ -115150,7 +115150,76 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [],
+        "entryPointReview": "Whole source review: trap.c:trapeffect_poly_trap lines 2453-2525, including hero message construction, shoe transformation and inventory print, Antimagic/Unchanging shield path, steedintrap/delete/redraw/message/polyself order, and all monster iron-shoe/resists_magm/resist/newcham paths. The production C route is allmain.c:moveloop_core -> trap.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_poly_trap; the corresponding JavaScript route is ordinary movement trap dispatch through dotrap and trapeffect_selector. The helper steedintrap call is void-discarded here; its existing partial behavior is invoked in source order and its own mon.c:newcham steed gap is retained. C also discards polyself's return. Verified runtime arms are ordinary unmounted/unresistant hero (the admitted v11 trace and independent Barbarian recording) and starting-cloak Antimagic hero (independent Wizard recording). Still uncovered active arms are hero iron-shoes (invent.c:prinv gap), mounted hero and its steedintrap side effects, and monster iron-shoe, magic resistance, and susceptible/newcham paths (mon.c:newcham gap). The existing blocked monster setup recipe reaches do.c:donull, which refuses the wait while a hostile monster is adjacent; it does not count as function evidence. Keep the source goal open for these entry points.",
+        "entryPoints": [
+          {
+            "name": "Ordinary unmounted hero polymorph and polyself",
+            "functions": [
+              "trapeffect_poly_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-polymorph-trap-barbarian-polyself-independent-a47.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-polymorph-trap-transforms-form",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 21,
+                "source": "allmain.c:moveloop_core -> trap.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_poly_trap -> polyself"
+              }
+            ]
+          },
+          {
+            "name": "Hero Antimagic resistance branch",
+            "functions": [
+              "trapeffect_poly_trap"
+            ],
+            "recordings": [
+              "recordings/trap.c/hero-polymorph-trap-returns-over-trap-independent-a47.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero iron-shoes branch",
+            "functions": [
+              "trapeffect_poly_trap"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Mounted hero polymorph branch through steedintrap",
+            "functions": [
+              "trapeffect_poly_trap"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Monster iron-shoes, antimagic resistance, and susceptible newcham branches",
+            "functions": [
+              "trapeffect_poly_trap"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "4ee9966290fe5b3a15d517b72140203cc65036b7",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The ordinary unmounted hero polyself branch and Wizard Antimagic branch match independent C recordings, and the selected v11 case matches fully. Keep the whole trap.c:trapeffect_poly_trap source unit open: hero iron shoes still needs invent.c:prinv behavior and runtime evidence, mounted steedintrap/newcham and monster iron-shoes/resistance/newcham arms lack matching source-reaching recordings. The monster setup recipe is blocked before mintrap at do.c:donull. Resume when these source paths and callers are independently reachable."
     },
     {
       "id": "port-zap-bhito-floor-effects-synthetic-v12-20260929",
