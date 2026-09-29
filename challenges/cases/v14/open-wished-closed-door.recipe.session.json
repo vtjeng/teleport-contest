@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for lock.c:doopen. A Valkyrie approaches the generated closed east-side room door and uses the explicit open command from the adjacent hallway; this differs from v9's kick-door action and earlier lockpicking missions.",
+  "segments": [
+    {
+      "seed": 78012331,
+      "datetime": "20401019094000",
+      "nethackrc": "OPTIONS=name:V14Door,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " kllllllol"
+    }
+  ]
+}

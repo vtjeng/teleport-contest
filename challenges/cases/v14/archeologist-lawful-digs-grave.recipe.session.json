@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for dig.c:use_pick_axe -> digactualhole -> dig_up_grave. A female lawful human Archeologist moves off the stair, wishes a grave underfoot, and uses the starting pick-axe downward. The frozen action sequence ends after the source-complete map return: three space/period pairs advance the dig occupation through its pager boundaries and return to play after the grave outcome and cleanup. Retain only after an independent C rerecord reaches dig_up_grave and strict JS comparison is recorded.",
+  "segments": [
+    {
+      "seed": 71285366,
+      "datetime": "20560925100800",
+      "nethackrc": "OPTIONS=name:V14GraveDig,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " hj\u0017grave\n ae  > . . ."
+    }
+  ]
+}

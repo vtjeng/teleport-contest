@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for dig.c:dig -> dighole -> digactualhole. A neutral male human Archeologist moves west then south off the up stair to avoid the neighboring grid bug, applies the starting pick-axe, and digs downward until a pit forms. This physical dig path differs from v13 ray-digging through wall and retained v14 doup/climb_pit after debug pit creation. Keep only if the patched C trace confirms digactualhole.",
+  "segments": [
+    {
+      "seed": 88271369,
+      "datetime": "20580709150800",
+      "nethackrc": "OPTIONS=name:V14PickPit3,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " hj ae  >......"
+    }
+  ]
+}

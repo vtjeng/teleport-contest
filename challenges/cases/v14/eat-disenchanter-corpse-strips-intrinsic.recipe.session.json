@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for eat.c:cpostfx PM_DISENCHANTER -> sit.c:attrcurse. A female human Rogue independently wishes a disenchanter corpse, dismisses the wish pager, then eats the C-observed item; two explicit spaces dismiss the meal and encumbrance pagers so its source weight-based occupation completes and cpostfx runs. Keep only if C reaches attrcurse after corpse nutrition.",
+  "segments": [
+    {
+      "seed": 78461723,
+      "datetime": "20521123145900",
+      "nethackrc": "OPTIONS=name:V14IntrinsicMeal,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017disenchanter corpse\n eg  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for read.c:seffect_punishment and punish. A sighted Wizard without existing punishment reads an uncursed scroll; C should create and attach the chain and iron ball. C observed the wished item at inventory slot p; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 58921473,
+      "datetime": "20480501095000",
+      "nethackrc": "OPTIONS=name:V14Punish,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nscroll of punishment\nrp "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for apply.c:use_magic_whistle cursed humming and random-pet teleport gate. A Valkyrie creates two tame dogs, wishes a cursed magic whistle, and uses it while both pets remain on the starting level.",
+  "segments": [
+    {
+      "seed": 82017321,
+      "datetime": "20560930100000",
+      "nethackrc": "OPTIONS=name:V14Whistle,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizgenesis\n tame dog\n#wizgenesis\n tame dog\n#wizwish\ncursed magic whistle\naf"
+    }
+  ]
+}

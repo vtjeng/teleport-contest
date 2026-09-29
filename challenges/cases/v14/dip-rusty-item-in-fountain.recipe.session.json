@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for fountain.c:dipfountain. Wish one explicitly rusty, unworn iron weapon; create a live fountain at the hero tile; invoke dip (T) and select the C-observed weapon. The target is its fountain-specific rust/water branch, distinct from v13 equipment changes and direct drinking.",
+  "segments": [
+    {
+      "seed": 58731924,
+      "datetime": "20490930110540",
+      "nethackrc": "OPTIONS=name:V14DipRusty,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#wizwish\nrusty spear\n \u0017magic fountain\n#dip\noy"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first pickup.c:in_container -> mbag_explodes -> do_boh_explosion case. A Wizard stashes the starting quarterstaff in an inner bag of holding, then puts that nonempty bag into a second bag of holding on the floor; C reaches the depth-zero explosion and records the contents scattering before lethal damage. v1/containers only tests sacks and ordinary bag-of-holding manipulation, not nested magic-bag explosion.",
+  "segments": [
+    {
+      "seed": 39417102,
+      "datetime": "20571208115500",
+      "nethackrc": "OPTIONS=name:V14BagBlast,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "l#wizwish\nuncursed bag of holding\naosa#wizwish\nuncursed bag of holding\ndp#loot\nso "
+    }
+  ]
+}

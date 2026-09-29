@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for do.c:doup -> trap.c:climb_pit. A female human Healer dismisses startup, steps west off the up stairs, creates a pit on ordinary floor, steps off and back onto the square to trigger it, then uses up while trapped. Keep only if C confirms TT_PIT and reaches climb_pit; this differs from older rock-trap activation.",
+  "segments": [
+    {
+      "seed": 65749201,
+      "datetime": "20521204131500",
+      "nethackrc": "OPTIONS=name:V14PitEscape,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " h\u0017pit\nlh<"
+    }
+  ]
+}

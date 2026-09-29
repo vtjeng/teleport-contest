@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for read.c:seffect_amnesia. A Healer reads an uncursed scroll after learning a spell; C should forget map/knowledge state through the ordinary amnesia effect. C observed the wished item at inventory slot k; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 68143025,
+      "datetime": "20500510165500",
+      "nethackrc": "OPTIONS=name:V14Amnesia,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nscroll of amnesia\nrk "
+    }
+  ]
+}
