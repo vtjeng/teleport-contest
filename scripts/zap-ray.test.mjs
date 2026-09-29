@@ -129,7 +129,7 @@ import {
 } from '../js/zap.js';
 import { flash_glyph_at } from '../js/display.js';
 import { flash_mon, shieldeff_mon } from '../js/mon.js';
-import { couldsee } from '../js/vision.js';
+import { cansee, couldsee } from '../js/vision.js';
 import { mon_reflects } from '../js/muse.js';
 import {
     RAY_CASES,
@@ -1196,10 +1196,93 @@ test('a reflecting hero bounces the bolt without taking damage', async () => {
     // a polymorphed silver dragon) still reflects but prints no item message.
     for (const source of ['intrinsic', 'extrinsic']) {
         const wand = await aimedWand(0, 0, 1);
+        const oldSparkle = game.flags.sparkle;
+        const oldHook = game._animationFrameHook;
+        const frames = [];
+        const { ux: x, uy: y } = game.u;
+        game.flags.sparkle = true;
+        game.viz_array[y][x] |= IN_SIGHT;
+        game._animationFrameHook = () => {
+            frames.push(game.level.at(x, y).disp_glyph?.glyph);
+        };
         game.u.uprops[REFLECTING] = { intrinsic: 0, extrinsic: 0 };
         game.u.uprops[REFLECTING][source] = FROMOUTSIDE;
-        // The bolt reflects and the hero takes no damage.
-        await weffects(wand, game, straightThrough());
+        try {
+            // The bolt reflects and the hero takes no damage. C calls
+            // shieldeff(sx, sy) after reversing the ray, producing 3 cycles
+            // through shield_static[] before the loop continues.
+            await weffects(wand, game, straightThrough());
+            const oneCycle = [
+                's_ss1', 's_ss2', 's_ss3', 's_ss2', 's_ss1', 's_ss2',
+                's_ss4',
+            ].map((name) => cmap_to_glyph(SYMBOL_INDEX_BY_NAME[name]));
+            assert.deepEqual(
+                frames.slice(-21), [...oneCycle, ...oneCycle, ...oneCycle],
+                'zap.c:4975 calls display.c shieldeff() after reflection',
+            );
+        } finally {
+            game._animationFrameHook = oldHook;
+            game.flags.sparkle = oldSparkle;
+        }
+    }
+});
+
+test('dobuzz animates a visible reflecting monster before its message',
+    async () => {
+    await aimedWand(1, 0, 0);
+    const monster = game.level.monlist;
+    assert.ok(monster, 'the debug ray fixture has a monster');
+    const oldX = monster.mx;
+    const oldY = monster.my;
+    const oldWeapon = monster.mw;
+    const oldSparkle = game.flags.sparkle;
+    const oldHook = game._animationFrameHook;
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    relocate_monster(monster, x, y, game);
+    game.viz_array[y][x] |= IN_SIGHT;
+    assert.equal(cansee(x, y, game), true,
+        'the C branch animates only a visible reflecting monster');
+    monster.mw = { oartifact: ART_DRAGONBANE, owornmask: W_WEP };
+    game.flags.sparkle = true;
+    const timeline = [];
+    game._animationFrameHook = () => timeline.push({
+        type: 'frame', glyph: game.level.at(x, y).disp_glyph?.glyph,
+    });
+    const message = async (text) => timeline.push({ type: 'message', text });
+
+    try {
+        await dobuzz(
+            1, 1, game.u.ux, game.u.uy, 1, 0, true, false, false, game,
+            { ...straightThrough(), rn1: () => 1,
+                rn2: (bound) => bound - 1 },
+            { message },
+        );
+        const hitIndex = timeline.findIndex(({ type, text = '' }) =>
+            type === 'message' && text.includes('hits'));
+        const reflectIndex = timeline.findIndex(({ type, text = '' }) =>
+            type === 'message' && text.includes('reflects from'));
+        const frameIndexes = timeline.flatMap((item, index) =>
+            item.type === 'frame' ? [index] : []);
+        const shieldFrameIndexes = frameIndexes.slice(-21);
+        const shieldGlyphs = shieldFrameIndexes.map(
+            (index) => timeline[index].glyph,
+        );
+        const oneCycle = [
+            's_ss1', 's_ss2', 's_ss3', 's_ss2', 's_ss1', 's_ss2', 's_ss4',
+        ].map((name) => cmap_to_glyph(SYMBOL_INDEX_BY_NAME[name]));
+
+        assert.ok(hitIndex >= 0, 'the monster is hit before reflecting');
+        assert.equal(shieldFrameIndexes.length, 21,
+            'display.c shieldeff paints all 21 source frames');
+        assert.deepEqual(shieldGlyphs, [...oneCycle, ...oneCycle, ...oneCycle]);
+        assert.ok(reflectIndex > shieldFrameIndexes.at(-1),
+            'C calls shieldeff between hit() and mon_reflects()');
+    } finally {
+        game._animationFrameHook = oldHook;
+        game.flags.sparkle = oldSparkle;
+        monster.mw = oldWeapon;
+        relocate_monster(monster, oldX, oldY, game);
     }
 });
 

@@ -4814,8 +4814,9 @@ async function buzzmonst(
         if (seen) {
             await hit(flash_str(fltyp, false, state, random), mon,
                 exclam(0), state, env);
-            // shieldeff(mon.mx, mon.my) is a visual animation with no game
-            // state or RNG effect, so the shared owner has no call here.
+            // C zap.c:4876 animates the visible reflecting monster between
+            // the hit marker and mon_reflects()'s message.
+            await shieldeff(mon.mx, mon.my, state);
             await mon_reflects(mon, 'But it reflects from %s %s!', state, env);
         }
         return { hit: true, reflected: true, clearGas: seen, stop: false };
@@ -5126,8 +5127,9 @@ export async function dobuzz(
                         monstseesu(M_SEEN_REFL, state);
                         dx = negate(dx);
                         dy = negate(dy);
-                        // shieldeff(sx, sy) is a visual animation;
-                        // skipped because it has no game-state or RNG effect.
+                        // C zap.c:4975 animates the hero after reversing the
+                        // bolt and before clearing the deferred gas trail.
+                        await shieldeff(sx, sy, state);
                         gas_hit = false;
                     } else {
                         /* flash_str here only used for killer; suppress
