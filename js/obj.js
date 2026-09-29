@@ -3324,6 +3324,15 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
         // C: iflags.suppress_price++
         state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
         if (!tipping) {
+            // C's hold_another_object() calls pickup.c:encumber_msg() when
+            // the generated object stays in inventory. The JS inventory
+            // helper receives that call through a required hook, so preserve
+            // an injected callback and otherwise wire the source owner here.
+            const holdHooks = {
+                ...(env.hooks ?? {}),
+                encumberMessage: env.hooks?.encumberMessage
+                    ?? encumber_msg,
+            };
             obj = await hold_another_object(
                 obj,
                 u.uswallow
@@ -3336,7 +3345,7 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
                         : 'Oops!  %s to the floor!',
                 The(aobjnam(obj, 'slip', state), state),
                 null,
-                env,
+                { ...env, hooks: holdHooks },
             );
             // C: nhUse(obj) -- no-op macro to suppress unused-variable warnings
         } else if (targetbox) {

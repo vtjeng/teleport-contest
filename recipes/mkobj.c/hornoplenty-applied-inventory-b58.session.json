@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B58 variation: a debug Valkyrie wishes and wears a blindfold before applying a newly wished horn from a different seed/date. Blindness keeps the horn dknown flag clear, so the recording exercises the carried-object callback without reaching the separately unported o_init.c:discover_object tail.",
+  "segments": [
+    {
+      "seed": 84379261,
+      "datetime": "20450323111709",
+      "nethackrc": "OPTIONS=name:B58Horn,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": "#wizwish\nblindfold\nae#wizwish\nhorn of plenty\naf"
+    }
+  ]
+}
