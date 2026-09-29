@@ -115232,7 +115232,7 @@
     {
       "id": "port-zap-bhito-floor-effects-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete zap.c bhito floor-object effect callback",
       "cFile": "zap.c",
       "sessions": [
@@ -115255,7 +115255,7 @@
           "line": 2119,
           "endLine": 2427,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -115581,7 +115581,163 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "bhito",
+            "implementation": "js/zap.js",
+            "symbol": "bhito",
+            "sourceReview": "Read zap.c:bhito() (2119-2427) in full and preserve source branch order, return value, random draws, object mutations, messages, observation and wand discovery. Implemented floor-object cancellation, probing, teleportation through the consumed-source dependency teleport.c:rloco(), striking/force-bolt breakage, undead turning/revival, locking, stone-to-flesh and existing polymorph behavior. Also ported the complete helper dependencies zap.c:cancel_item() (1239-1362), zap.c:cancel_monst() (3150-3212, including its self_cancel inventory loop) and teleport.c:rloco() (2102-2186); worker-state evidence is limited to the assigned bhito source unit. The C-discarded void calls remain source-named and skipped: ball.c:unpunish, invent.c:display_cinventory, zap.c:drain_item, mon.c:hideunder, and zap.c:blank_novel. cancel_monst's void-discarded clay-golem kill branch is also named. The impossible location/effect boundaries are source-named; no note_unported() return is used. Supplemental dependency checks exercise cancel_item through the selected cancellation range and the independent self-cancel recording, exercise cancel_monst(self_cancel) through the independent hero self-zap recording, and exercise rloco through the selected teleportation range. The relevant focused source tests are scripts/zap-command.test.mjs (floor potion mutation and self-cancel inventory order), scripts/teleport.test.mjs (rloco destination draw order and placement), and scripts/zapyourself.test.mjs (cancel_monst AC refresh fixture and stone-to-flesh callback dispatch). These are described here as dependencies, not added as separately completion-recorded B54 source units.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitpile",
+                "source": "zap.c:bhit() invokes bhitpile(), which applies the bhito callback to each ray-path object and consumes its return for hitanything and wand discovery (zap.c:2981-2982)."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_updown",
+                "source": "zap.c:zap_updown() applies bhito through bhitpile() for downward rays (zap.c:3243-3244) and directly for an under-object upward ray when the hero is undetected (zap.c:3382-3385)."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:zapyourself() iterates the hero inventory and calls bhito() for SPE_STONE_TO_FLESH (zap.c:2970-2984)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-command.test.mjs",
+              "scripts/zapyourself.test.mjs",
+              "scripts/teleport.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/bhito-down-probe-underfoot-b54.session.json",
+              "recordings/spell.c/wizcast-stone-to-flesh-self-cure-c22.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "cancellation-wand-neutralizes-floor-potion",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:bhit -> bhitpile -> bhito(WAN_CANCELLATION)"
+              },
+              {
+                "batch": "v12",
+                "caseId": "probing-wand-reveals-floor-potion",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:bhit -> bhitpile -> bhito(WAN_PROBING)"
+              },
+              {
+                "batch": "v12",
+                "caseId": "teleportation-wand-moves-floor-potion",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 49,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:bhit -> bhitpile -> bhito(WAN_TELEPORTATION) -> rloco"
+              }
+            ],
+            "checkedAt": "08fd66ac08b24c2f477b1e36fedd4b8766836751"
+          }
+        ],
+        "entryPointReview": "The three selected v12 hero horizontal-ray entries run through cmd.c:dozap -> zap.c:weffects -> zap.c:bhit -> bhitpile -> bhito and match through the cited case ranges. The independent downward probing recording runs through zap.c:zap_updown -> bhitpile -> bhito and strictly matches; the existing self-target stone-to-flesh recording exercises zap.c:zapyourself -> bhito on the inventory chain. The independent self-cancellation recording exercises the supplemental dependency path zap.c:zapyourself -> cancel_monst(self_cancel) -> cancel_item, but is not counted as bhito evidence. One active bhito call site remains unverified: zap.c:zap_updown directly calls bhito for an upward ray only when u.uundetected && hides_under(youmonst.data). The repeated-single-drop C trace is preserved at .cache/B54-upward-attempts/garter-snake-upward-single-drops-c-only-mismatch.session.json and its recipe at recipes/zap.c/bhito-upward-hidden-under-object-single-drops-b54.session.json. C reaches the upward zap_updown route, but strict C/JS parity fails first at the #monster concealment/display boundary (screen boundary 74); on the < direction, C executes zap.c:zap_updown()'s ceiling-rock rn2(3) while JS skips to the object-resistance draw. Both caller/display gaps are outside B54's selected bhito unit, so no matching recording is claimed for the upward entry. A second C-reaching setup recipe, recipes/zap.c/bhito-upward-hidden-under-object-light-load-b54.session.json, uses D a A to unload items but strict replay stops at input step 2 because JavaScript does not admit do.c:doddrop()'s D command. The cave-spider silent-can-chant attempt and wrong-letter garter-snake selector attempt are setup-only cache provenance. Other unported caller families are not claimed: muse.c:mbhit uses its separate mbhito path, and js/muse.js currently records the zap.c:cancel_monst branch as unported. The C rloco callers outside bhito are trap.c:3477, steal.c:867, mkobj.c:2081, hack.c:582 and dokick.c:1845; their JS production owners are outside B54, and dokick.c consumes rloco's Boolean to gate breaktest(). The monster-target cancellation paths through zap.c:bhitm and muse.c:mbhit are not claimed as newly recorded B54 entries.",
+        "entryPoints": [
+          {
+            "name": "Hero horizontal cancellation ray reaches a floor potion",
+            "functions": [
+              "bhito"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "cancellation-wand-neutralizes-floor-potion",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "dozap -> weffects -> bhit -> bhitpile -> bhito(WAN_CANCELLATION) -> cancel_item"
+              }
+            ]
+          },
+          {
+            "name": "Hero horizontal probing ray reaches a floor potion",
+            "functions": [
+              "bhito"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "probing-wand-reveals-floor-potion",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 43,
+                "source": "dozap -> weffects -> bhit -> bhitpile -> bhito(WAN_PROBING)"
+              }
+            ]
+          },
+          {
+            "name": "Hero horizontal teleportation ray reaches a floor potion and calls rloco",
+            "functions": [
+              "bhito"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "teleportation-wand-moves-floor-potion",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 49,
+                "source": "dozap -> weffects -> bhit -> bhitpile -> bhito(WAN_TELEPORTATION) -> rloco"
+              }
+            ]
+          },
+          {
+            "name": "Downward probing wand hits the object under the hero",
+            "functions": [
+              "bhito"
+            ],
+            "recordings": [
+              "recordings/zap.c/bhito-down-probe-underfoot-b54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero self-zaps stone-to-flesh across inventory objects",
+            "functions": [
+              "bhito"
+            ],
+            "recordings": [
+              "recordings/spell.c/wizcast-stone-to-flesh-self-cure-c22.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Upward ray reaches an object when the hero is undetected beneath it",
+            "functions": [
+              "bhito"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "08fd66ac08b24c2f477b1e36fedd4b8766836751",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The active upward hidden-under-object zap_updown -> bhito entry lacks a matching replay: the independent garter-snake setup first differs at monster concealment/display screen 74, then JS omits zap_updown ceiling-rock rn2(3). Port and validate that caller/display prerequisite, then resume B54 and record upward entry evidence before closure."
     },
     {
       "id": "port-trap-trapeffect-statue-trap-synthetic-v11-20260929",
