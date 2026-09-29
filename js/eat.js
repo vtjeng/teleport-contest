@@ -1147,7 +1147,7 @@ async function consume_tin(mesg, state = game, env = {}) {
         // C discards these void results. cprefx() remains an explicit gap;
         // cpostfx() is ported below and still runs only if the tin survived it.
         note_unported('eat.c cprefx');
-        if (context.tin) await cpostfx(mnum, state);
+        if (context.tin) await cpostfx(monsterNumber, state, eatEnv);
         if (!context.tin) return;
 
         if (TIN_VARIETIES[variety].nutrition < 0) {
@@ -2374,7 +2374,7 @@ async function eye_of_newt_buzz(state) {
 
 // C ref: eat.c cpostfx() (1127-1319), called after completely consuming a
 // corpse. `state.eatmbuf` is the JS representation of C's ge.eatmbuf.
-async function cpostfx(pm, state) {
+async function cpostfx(pm, state, env = {}) {
     let tmp = 0;
     let catch_lycanthropy = NON_PM;
     let check_intrinsics = false;
@@ -2522,7 +2522,7 @@ async function cpostfx(pm, state) {
                 await lesshungry(
                     200 + (metallivorous(state.youmonst.data) ? 5 : 0),
                     state,
-                    { message: ttyPline },
+                    env,
                 );
             }
             await ttyPline(
@@ -3140,7 +3140,7 @@ async function done_eating(message, state, env) {
     }
 
     if (piece.otyp === CORPSE || piece.globby)
-        await cpostfx(piece.corpsenm, state);
+        await cpostfx(piece.corpsenm, state, env);
     else
         await fpostfx(piece, state, env);
 
