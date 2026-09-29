@@ -107,6 +107,8 @@ function semanticMonster(monster) {
         mx: monster.mx,
         my: monster.my,
         pmidx: monster.data,
+        // C display.c:620 sets meverseen after showing a real monster glyph.
+        meverseen: monster.meverseen,
     };
 }
 
