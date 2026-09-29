@@ -113296,6 +113296,49 @@
           "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
         }
       }
+    },
+    {
+      "id": "port-eat-choke-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete eat.c choke and every eating caller continuation",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v12/tourist-rations-reach-satiated-choke"
+      ],
+      "selectionReason": "Current v12 Tourist ration case matches seven screens then first diverges at step 7 when C enters eat.c:choke; investigations/synthetic/v12/tourist-rations-reach-satiated-choke.json traces the source, and challenges/evaluations/20260929060025-v12.json preserves the 7/19 screens and 4415/4416 RNG baseline.",
+      "detail": "Port whole eat.c:choke (245-287) and wire direct callers eataccessory, bite, and both overfull lesshungry arms. Preserve bite return 1 and its consumed eatfood/start_eating continuations. Match exercise/adjalign, rn2, foodword, done(CHOKING), messages and state in source order; vomit is a separate discarded-void callee gap if not ported.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "choke",
+          "line": 245,
+          "endLine": 291,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 245,
+        "to": 291
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/tourist-rations-reach-satiated-choke": {
+          "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "tourist-rations-reach-satiated-choke",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+          "evaluationPath": "challenges/evaluations/20260929060025-v12.json",
+          "evaluationCommit": "327800a84ddedb020167a65bd3683401f516fea3"
+        }
+      }
     }
   ]
 }
