@@ -30234,7 +30234,15 @@
         "sha": "6f98646530c2e8cbf076bfecc43f9fbb4b3fff36",
         "screens": 7202,
         "rng": 528987
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "trapeffect_statue_trap",
+          "reason": "The prior completion evidence explicitly covered only the monster no-op and retained an unsupported hero arm; admitted v11 hero-statue-trap-animates-statue reaches trap.c:trapeffect_statue_trap at step 37 and stops before its required activate_statue_trap call. The whole C function was therefore partial.",
+          "followupGoal": "port-trap-trapeffect-statue-trap-synthetic-v11-20260929",
+          "at": "f4e001047d3d6eccf9ddc1cbe7b4fa82b0378bad"
+        }
+      ]
     },
     {
       "id": "div-getpos-quick-pick-seed0360",
@@ -115298,7 +115306,7 @@
           "line": 2279,
           "endLine": 2292,
           "declared": true,
-          "complete": true
+          "complete": false
         }
       ],
       "range": {
