@@ -1934,7 +1934,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
     }
 
     const tooLargeOrAirborne = !grounded(species, state)
-        || (mtmp.wormno && count_wsegs(mtmp) > 5)
+        || (mtmp.wormno && count_wsegs(mtmp, state) > 5)
         || species.msize >= MZ_HUGE;
     if (tooLargeOrAirborne) {
         if (forceTrap && !state.level?.flags?.sokoban_rules) {
