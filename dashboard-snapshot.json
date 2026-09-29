@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T04:47:49.901Z",
+  "capturedAt": "2026-09-29T05:18:00.950Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -8709,12 +8709,92 @@
         "type": "accepted",
         "at": "2026-09-29T04:47:24.119Z",
         "task": "B51"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B51-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T04:49:59.904Z",
+        "task": "B51",
+        "commit": "e7bff14d56c8c094a74508d1a2e31ba766960040"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A45-feedback-20260929",
+        "type": "feedback",
+        "at": "2026-09-29T04:50:39.553Z",
+        "task": "A45",
+        "delivery": "24f61f1b7398cf5f9b4c19eaf66e5c88f0f18a62"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B52-assign-20260929",
+        "type": "assign",
+        "at": "2026-09-29T04:51:49.439Z",
+        "task": "B52",
+        "worker": "B",
+        "goal": "div-engrave-read-engr-at-surface-synthetic-v12-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C45-feedback-20260929",
+        "type": "feedback",
+        "at": "2026-09-29T04:52:39.760Z",
+        "task": "C45",
+        "delivery": "b8dc5a20efeadaccf5858d118063413e280c8b6f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d011ac7e86a6d5380a3b91691b28c99392e337ce",
+        "type": "ready",
+        "at": "2026-09-29T05:02:55.373Z",
+        "task": "B52",
+        "delivery": "d011ac7e86a6d5380a3b91691b28c99392e337ce"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B52-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T05:03:53.462Z",
+        "task": "B52",
+        "delivery": "d011ac7e86a6d5380a3b91691b28c99392e337ce"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A45-resume-correction-20260929",
+        "type": "resume",
+        "at": "2026-09-29T05:04:53.905Z",
+        "task": "A45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B52-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T05:06:08.969Z",
+        "task": "B52",
+        "integration": "479b6515bc2e15eb4c415070af2b4180d2dc7531"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B52-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T05:17:37.035Z",
+        "task": "B52",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B52-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T05:17:54.028Z",
+        "task": "B52"
       }
     ]
   },
   "development": {
-    "executionCommit": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
-    "measuredAt": "2026-09-29T04:40:32.485Z",
+    "executionCommit": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+    "measuredAt": "2026-09-29T05:12:53.936Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

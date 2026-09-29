@@ -112207,16 +112207,23 @@
     {
       "id": "div-engrave-read-engr-at-surface-synthetic-v12-20260929",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Use the source-defined surface for engraving text on graves and other terrain",
       "cFile": "engrave.c",
       "sessions": [],
-      "selectionReason": "The v12 teleportation-wand floor-potion case first differs at step 45 before its later wand-object effect: C engrave.c read_engr_at obtains dungeon.c surface(x,y) and says headstone on a grave; JS uses a local ice/floor shortcut despite an existing dungeon.surface port. Investigation: investigations/synthetic/v12/teleportation-wand-moves-floor-potion.json. This is independent of A45 shield, B51 statue, and C45 eating scopes.",
+      "selectionReason": "Selected v12/teleportation-wand-moves-floor-potion first mismatch at step 45; engrave.c read_engr_at must use dungeon.c surface for a headstone. Later zap.c bhito and teleport.c rloco behavior remains separate.",
       "detail": "Correct the existing read_engr_at substrate call to dungeon.c surface, preserve message and cursor order, and source-pin grave, ice, and representative terrain descriptions. The later zap.c bhito(type 424) refusal is a separate source task and is not claimed by this fix.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "e7bff14d56c8c094a74508d1a2e31ba766960040",
+      "openStanding": {
+        "sha": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "read_engr_at",
       "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
       "step": 45,
@@ -112233,6 +112240,298 @@
           "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
           "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139"
         }
+      },
+      "activeStanding": {
+        "sha": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleportation-wand-moves-floor-potion",
+          "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingPath": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+          "recipe": "challenges/cases/v12/teleportation-wand-moves-floor-potion.recipe.session.json",
+          "recipeSha256": "27a7693581e68e927be040f9f5da4893ec3b48f8458286c4436331ec15cbcd2a",
+          "replayInputSha256": "6bbbbbab98ea72b7d52f3595f3ae466f180f5bb6d8505a9e032a04183d969743",
+          "evaluationPath": "challenges/evaluations/20260929044224-v12.json",
+          "evaluationCommit": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+          "evaluationArtifact": "challenges/evaluations/20260929044224-v12.json",
+          "evaluationUtc": "2026-09-29T04:42:40.396Z",
+          "remainingScreens": 2,
+          "recordedSteps": 50,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2959,
+              "total": 2969
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 45,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 34,
+              "cCell": {
+                "ch": "h",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "f",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 45,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 45,
+                "key": "l"
+              },
+              "cCursor": [
+                52,
+                0,
+                1
+              ],
+              "jsCursor": [
+                48,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 45,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/teleportation-wand-moves-floor-potion.json",
+            "result": {
+              "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "teleportation-wand-moves-floor-potion",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 2,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "teleportation-wand-moves-floor-potion",
+                "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+                "recordingPath": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+                "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+                "recipe": "challenges/cases/v12/teleportation-wand-moves-floor-potion.recipe.session.json",
+                "recipeSha256": "27a7693581e68e927be040f9f5da4893ec3b48f8458286c4436331ec15cbcd2a",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 2,
+                "recordedSteps": 50,
+                "previousScreensMatched": 48,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 2959,
+                    "total": 2969
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 45,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 45,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 34,
+                    "cCell": {
+                      "ch": "h",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "f",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 45,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 45,
+                      "key": "l"
+                    },
+                    "cCursor": [
+                      52,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      48,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 45,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the engraving location text on a grave at step 45. C read_engr_at asks dungeon.c:surface for that square and says headstone; JS read_engr_at hardcodes floor except ice despite having a source-backed dungeon.surface function. Correct that helper call and preserve the engraving message order. A later wand-object callback stop at step 49 is a separate zap.c:bhito behavior.",
+              "source": {
+                "file": "engrave.c",
+                "branch": "read_engr_at sees nonempty HEADSTONE engraving text while the hero stands on a GRAVE; it obtains eloc from dungeon.c:surface(x,y), then prints the engraved-on-headstone message before the text.",
+                "functions": [
+                  "read_engr_at"
+                ],
+                "callers": [
+                  "pickup.c:check_here/read_engr_at during hero movement onto a marked square",
+                  "js/pickup.js:read_engr_at from check_here after movement"
+                ],
+                "dependencies": [
+                  "dungeon.c:surface is already ported as js/dungeon.js:surface and returns headstone for IS_GRAVE",
+                  "The later teleportation wand floor-object effect remains zap.c:bhito and is not part of this first mismatch"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "C engrave.c:318-359 obtains `const char *eloc = surface(x,y)` before the engraving-type switch; HEADSTONE and ENGRAVE print that eloc. C dungeon.c:1750-1788 returns `headstone` for IS_GRAVE after earlier terrain checks.",
+                "JS js/engrave.js:1251-1287 computes `surface = onIce ? ice : floor`, so its HEADSTONE arm says floor on a grave. JS js/dungeon.js:1772 already implements surface including the IS_GRAVE branch. This is a wrong helper choice in an existing implementation.",
+                "The v12 evaluation at challenges/evaluations/20260929033350-v12.json has 48/50 matched screens but its first differing glyph and cursor are at zero-based step 45, where C says headstone and JS says floor. The subsequent bhito(type 424) refusal at step 49 belongs to a different source branch and should remain visible after this repair.",
+                "The C-first manifest challenges/manifests/v12.json records the same first-mismatch attribution and independent C rerecording for this case."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleportation-wand-moves-floor-potion",
+          "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingPath": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+          "recipe": "challenges/cases/v12/teleportation-wand-moves-floor-potion.recipe.session.json",
+          "recipeSha256": "27a7693581e68e927be040f9f5da4893ec3b48f8458286c4436331ec15cbcd2a",
+          "replayInputSha256": "0e05889a028c13499e0cfe75609194f08d9bf77158580f2373663c0ca3d34c8e",
+          "evaluationPath": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationCommit": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+          "evaluationArtifact": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationUtc": "2026-09-29T05:13:34.828Z",
+          "remainingScreens": 1,
+          "recordedSteps": 50,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 49,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2959,
+              "total": 2969
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 424",
+            "step": 49
+          },
+          "step": 49,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhito",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 424",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v12/teleportation-wand-moves-floor-potion.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
