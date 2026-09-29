@@ -113343,7 +113343,7 @@
     {
       "id": "port-lock-picklock-trapped-chest-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete lock.c picklock occupation for trapped boxes and doors",
       "cFile": "lock.c",
       "sessions": [
@@ -113365,7 +113365,7 @@
           "line": 68,
           "endLine": 161,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -113536,7 +113536,113 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "picklock",
+            "implementation": "js/lock.js",
+            "symbol": "picklock",
+            "sourceReview": "Compared the complete lock.c:68-160 callback in C order: box and adjacent-door validity checks; usedtime/nohands short circuit and timeout; rn2(100) occupation chance; Master Key trap discovery, chance increase, y_n disarm choice and Wisdom exercise; success message; trapped-door destruction/unblocking/shop check/redraw order; box lock toggle, lknown assignment and discarded chest_trap return; final Dexterity exercise and usedtime reset. JavaScript now implements each branch without a picklock-specific refusal. The C void calls b_trapped() and shk.c:add_damage() remain explicit note_unported gaps in the trapped-door branch; no substitute result or effects are invented. The current recordings exercise the trapped-box success branch, not trapped-door destruction. The Master Key of Thievery disarm branch is implemented but has no matching C recording in this delivery. The trapped-door branch is likewise not runtime-certified; its b_trapped() and conditional shk.c:add_damage() behavior remains source-named and unported.",
+            "callers": [
+              {
+                "path": "js/lock.js",
+                "symbol": "pick_lock",
+                "source": "lock.c:pick_lock installs picklock with set_occupation after initializing gx.xlock; the callback reads the same xlock context."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm calls pick_lock; the v12 and direct-apply recipes enter this route."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:do_loot_cont AUTOUNLOCK_APPLY_KEY arm calls pick_lock for the locked floor container; the independent #loot recording reaches picklock."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen_indir",
+                "source": "lock.c:doopen_indir AUTOUNLOCK_APPLY_KEY arm calls pick_lock for an adjacent locked door; this existing dispatcher is source-traced and wired to the same occupation callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/lock-pick-opens-trapped-chest-independent-a46.session.json",
+              "recordings/lock.c/lock-pick-through-loot-independent-a46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "skeleton-key-unlocks-trapped-chest",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "apply.c:doapply -> lock.c:pick_lock -> lock.c:picklock -> trap.c:chest_trap"
+              }
+            ],
+            "checkedAt": "afef1b4502cba283f93a95c53757b2184efa38c9"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the occupation callback picklock, registered by lock.c:pick_lock. Its active production call paths are apply.c:doapply, pickup.c:do_loot_cont (AUTOUNLOCK_APPLY_KEY), and lock.c:doopen_indir (AUTOUNLOCK_APPLY_KEY). JavaScript retains all three caller routes. The selected v12 case and the independent direct-apply recording reach the trapped-box callback; a second independent #loot recording reaches the same callback through pickup.c and records picklock(lock.c:98). The doopen_indir door-autounlock route shares the callback but has no separate door-specific recording in this delivery. The trapped-door success arm also retains the source-named void gaps trap.c:b_trapped and shk.c:add_damage; its post-call source ordering is implemented, but that branch is not runtime-certified here. The Master Key of Thievery trap-detection/disarm state branch and the trapped-door success/destruction branch are active source paths, but neither has matching C recording or synthetic evidence here; the task remains open for these variants.",
+        "entryPoints": [
+          {
+            "name": "manual lock-tool application occupation",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": [
+              "recordings/lock.c/lock-pick-opens-trapped-chest-independent-a46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "skeleton-key-unlocks-trapped-chest",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "apply.c:doapply -> lock.c:pick_lock -> lock.c:picklock"
+              }
+            ]
+          },
+          {
+            "name": "#loot locked-container autounlock occupation",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": [
+              "recordings/lock.c/lock-pick-through-loot-independent-a46.session.json"
+            ]
+          },
+          {
+            "name": "Master Key of Thievery disarms trapped lock",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Successful pick on trapped door reaches b_trapped destruction arm",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "afef1b4502cba283f93a95c53757b2184efa38c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "picklock source implementation and trapped-box apply/#loot entries match; Master Key disarm, trapped-door destruction, and door-autounlock runtime paths lack matching recordings; b_trapped and add_damage remain named void gaps"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T06:05:51.528Z",
+  "capturedAt": "2026-09-29T07:46:44.712Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -8900,12 +8900,87 @@
         "type": "accepted",
         "at": "2026-09-29T06:05:16.021Z",
         "task": "A45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A45-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T06:08:07.477Z",
+        "task": "A45",
+        "commit": "90ed46719c695b0528ea8f004354f4ac87803bee"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C46-assign-20260929",
+        "type": "assign",
+        "at": "2026-09-29T06:18:36.217Z",
+        "task": "C46",
+        "worker": "C",
+        "goal": "port-eat-choke-synthetic-v12-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A46-assign-20260929",
+        "type": "assign",
+        "at": "2026-09-29T06:29:58.540Z",
+        "task": "A46",
+        "worker": "A2",
+        "goal": "port-lock-picklock-trapped-chest-synthetic-v12-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d86d629ff70bd9c4898be30aac1d785c4df8b537",
+        "type": "ready",
+        "at": "2026-09-29T07:30:43.778Z",
+        "task": "A46",
+        "delivery": "d86d629ff70bd9c4898be30aac1d785c4df8b537"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-08cdb783da3d8f3d4ffde48281f06e0ec879d0fa",
+        "type": "ready",
+        "at": "2026-09-29T07:32:14.221Z",
+        "task": "C46",
+        "delivery": "08cdb783da3d8f3d4ffde48281f06e0ec879d0fa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A46-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T07:32:41.555Z",
+        "task": "A46",
+        "delivery": "d86d629ff70bd9c4898be30aac1d785c4df8b537"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A46-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T07:33:36.956Z",
+        "task": "A46",
+        "integration": "afef1b4502cba283f93a95c53757b2184efa38c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A46-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T07:46:04.158Z",
+        "task": "A46",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A46-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T07:46:20.634Z",
+        "task": "A46"
       }
     ]
   },
   "development": {
-    "executionCommit": "327800a84ddedb020167a65bd3683401f516fea3",
-    "measuredAt": "2026-09-29T05:59:46.244Z",
+    "executionCommit": "afef1b4502cba283f93a95c53757b2184efa38c9",
+    "measuredAt": "2026-09-29T07:39:54.906Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
