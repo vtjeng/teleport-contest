@@ -114957,16 +114957,20 @@
     {
       "id": "port-trap-trapeffect-poly-trap-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port full trap.c polymorph-trap effect and hero activation",
       "cFile": "trap.c",
       "sessions": [
         "synthetic/v11/hero-polymorph-trap-transforms-form"
       ],
-      "selectionReason": "Current v11 hero polymorph-trap case stops at the preflight refusal at step 20; C enters trap.c:trapeffect_poly_trap and polyself. The accepted A45 shieldeff caller removes the earlier dependency.",
+      "selectionReason": "The current v11 hero polymorph-trap case still stops at step 20 with two unmatched screens; A47 source-traced the hero branch and two independent C witnesses, while other branches remain to be covered.",
       "detail": "Port every hero and monster branch of trap.c:trapeffect_poly_trap (2453-2525) in source order, including iron shoes, Antimagic and Unchanging, ordinary steedintrap and polyself, monster resistance and newcham. Admit POLY_TRAP through hero preflight and wire dotrap/mintrap production dispatch. Preserve consumed mpickobj, poly_obj, and resist results, plus source-named discarded-void gaps; provide independent C-reaching recordings for active paths without copying v11 inputs.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "e142e4c5e91794d4e43f1f21dd45de92ff17a585",
+      "openStanding": {
+        "sha": "31b7c21a9cdcb90bed2c9b3180e5567b9b3154ea",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -114995,7 +114999,158 @@
           "evaluationPath": "challenges/evaluations/20260929075918-v11.json",
           "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "31b7c21a9cdcb90bed2c9b3180e5567b9b3154ea",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-polymorph-trap-transforms-form",
+          "session": "synthetic/v11/hero-polymorph-trap-transforms-form",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-polymorph-trap-transforms-form.session.json",
+          "recordingPath": "challenges/cases/v11/hero-polymorph-trap-transforms-form.session.json",
+          "recordingSha256": "a489a6cbf5d30018d1f82dc6f48b2c3579fd99d2541b656d0781237bb76f934a",
+          "recipe": "challenges/cases/v11/hero-polymorph-trap-transforms-form.recipe.session.json",
+          "recipeSha256": "35eddbc2a4baa3c1c5b436a15be2d60b20288e3ed2d8a27b3c609ee3eaca735a",
+          "replayInputSha256": "74671a80a46a7f23da6f8b6075b6f4a03203fecd2dcfd249d3c3ad9fb965aa6a",
+          "evaluationPath": "challenges/evaluations/20260929084757-v11.json",
+          "evaluationCommit": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f",
+          "evaluationArtifact": "challenges/evaluations/20260929084757-v11.json",
+          "evaluationUtc": "2026-09-29T08:48:06.697Z",
+          "remainingScreens": 2,
+          "recordedSteps": 22,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 22
+            },
+            "rng": {
+              "matched": 2320,
+              "total": 2328
+            },
+            "cursors": {
+              "matched": 20,
+              "total": 22
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 20
+          },
+          "step": 20,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/hero-polymorph-trap-transforms-form.json",
+            "result": {
+              "session": "synthetic/v11/hero-polymorph-trap-transforms-form",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "hero-polymorph-trap-transforms-form",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "a489a6cbf5d30018d1f82dc6f48b2c3579fd99d2541b656d0781237bb76f934a",
+              "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+              "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "remainingScreens": 2,
+              "recordedSteps": 22,
+              "status": "complete",
+              "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "hero-polymorph-trap-transforms-form",
+                "session": "synthetic/v11/hero-polymorph-trap-transforms-form",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/hero-polymorph-trap-transforms-form.session.json",
+                "recordingPath": "challenges/cases/v11/hero-polymorph-trap-transforms-form.session.json",
+                "recordingSha256": "a489a6cbf5d30018d1f82dc6f48b2c3579fd99d2541b656d0781237bb76f934a",
+                "recipe": "challenges/cases/v11/hero-polymorph-trap-transforms-form.recipe.session.json",
+                "recipeSha256": "35eddbc2a4baa3c1c5b436a15be2d60b20288e3ed2d8a27b3c609ee3eaca735a",
+                "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+                "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+                "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationUtc": "2026-09-28T23:47:35.564Z",
+                "remainingScreens": 2,
+                "recordedSteps": 22,
+                "previousScreensMatched": 20,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 22
+                  },
+                  "rng": {
+                    "matched": 2320,
+                    "total": 2328
+                  },
+                  "cursors": {
+                    "matched": 20,
+                    "total": 22
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: trap activation",
+                  "step": 20
+                },
+                "step": 20,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: trap activation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A Valkyrie steps on a polymorph trap. JavaScript preflight refuses POLY_TRAP, and its partial trap.c:trapeffect_poly_trap hero arm skips existing steedintrap and polyself implementations after removing the trap. Complete the whole source function and admit this branch, preserving monster behavior and the three hero branches for iron shoes, magic resistance or unchanging, and actual polymorph.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c:trapeffect_poly_trap (2453-2525) first marks and announces the trap. Hero iron shoes transform, Antimagic or Unchanging calls shieldeff and preserves the trap, and the ordinary branch calls steedintrap, deletes the trap, refreshes the square, then calls polyself(POLY_NOFLAGS). Monster arms handle iron shoes, magic resistance, and resisted or successful newcham.",
+                "functions": [
+                  "trapeffect_poly_trap"
+                ],
+                "callers": [
+                  "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_selector -> trapeffect_poly_trap(hero); js/trap_effects.js preflight excludes POLY_TRAP before the already-partial hero arm.",
+                  "trap.c:mintrap -> trapeffect_selector -> trapeffect_poly_trap(monster); preserve the existing JavaScript monster arms and their source return behavior."
+                ],
+                "dependencies": [
+                  "js/trap_effects.js already contains steedintrap and js/polyself.js exports polyself; replace the ordinary hero arm note_unported calls with source-ordered production calls and await their effects. The C discards both return values.",
+                  "The Antimagic or Unchanging branch calls display.c:shieldeff and retains the trap. A45 is porting shieldeff and reserves its active trapeffect_poly_trap caller; coordinate after A45 acceptance.",
+                  "The iron-shoes branch uses zap.c:poly_obj, update_inventory, and invent.c:prinv; verify existing partial code against C and remove placeholders when their source operations exist.",
+                  "C44 rock-trap work and its trap_effects.js reservation are accepted; the remaining active reservation is A45 shieldeff caller wiring, not the old C41 fire-trap task."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 matches 20/22 screens and stops at zero-based step 20 with 'unsupported hero move: trap activation'. The immutable C recording challenges/cases/v11/hero-polymorph-trap-transforms-form.session.json has SHA-256 a489a6cbf5d30018d1f82dc6f48b2c3579fd99d2541b656d0781237bb76f934a.",
+                "Upstream trap.c:2453-2525 defines all hero and monster branches. js/trap_effects.js:2686-2775 holds the partial port and its hero note_unported calls; js/trap_effects.js:3576-3585 refuses POLY_TRAP before activation."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-zap-bhito-floor-effects-synthetic-v12-20260929",
