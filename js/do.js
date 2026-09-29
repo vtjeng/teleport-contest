@@ -37,7 +37,6 @@ import {
     GETOBJ_PROMPT,
     G_GENOD,
     HAND,
-    Has_contents,
     HALF_PHDAM,
     IS_ALTAR,
     IS_WATERWALL,
@@ -237,12 +236,9 @@ import {
 import {
     COIN_CLASS,
     BOULDER,
-    BAG_OF_HOLDING,
-    BAG_OF_TRICKS,
     CORPSE,
     ENORMOUS_MEATBALL,
     GLOB_OF_GREEN_SLIME,
-    LARGE_BOX,
     LEASH,
     LOADSTONE,
     MEATBALL,
@@ -297,7 +293,7 @@ import { cloneIsaacContext, createCoreRandom, d, rn2, rnd } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
 import { costly_spot } from './shk.js';
-import { ship_object } from './dokick.js';
+import { container_impact_dmg, ship_object } from './dokick.js';
 import { set_levltyp } from './terrain.js';
 import {
     stairway_at,
@@ -1756,15 +1752,10 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         normalized,
     );
     if (withImpact) {
-        // dokick.c:container_impact_dmg() is void. Its full inventory-loss,
-        // luck, sound, and shop branches remain unported; the source guard
-        // makes the helper inert for ordinary non-container objects.
-        const isContainer = obj.otyp >= LARGE_BOX
-            && obj.otyp <= BAG_OF_TRICKS
-            && obj.otyp !== BAG_OF_HOLDING
-            && obj.otyp !== BAG_OF_TRICKS;
-        if (isContainer && Has_contents(obj))
-            note_unported('dokick.c container_impact_dmg');
+        // C do.c:dropz() calls container_impact_dmg() after placement and
+        // before corpse disturbance, ball handling, shop sale, and stacking.
+        await container_impact_dmg(obj, normalized.state.u.ux,
+            normalized.state.u.uy, { state: normalized.state });
 
         // hack.c:impact_disturbs_zombies() is already implemented with the
         // dothrow landing helpers. C calls it after container impact and

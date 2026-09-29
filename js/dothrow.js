@@ -408,7 +408,7 @@ import {
     autoreturn_weapon, dmgval, hitval, skill_name, weapon_descr,
     weapon_hit_bonus,
 } from './weapon.js';
-import { ship_object } from './dokick.js';
+import { container_impact_dmg, ship_object } from './dokick.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
     Flying,
@@ -2699,7 +2699,8 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     clearThrownObject(state);
     place_object(obj, bx, by, { state });
     if (!IS_SOFT(location.typ)) {
-        note_unported('dokick.c container_impact_dmg');
+        // dothrow.c passes the hero's launch square, not the landing square.
+        await container_impact_dmg(obj, state.u.ux, state.u.uy, { state });
         impact_disturbs_zombies(obj, true, state);
     }
     if ((state.u.ushops?.[0] || obj.unpaid) && obj !== state.uball)

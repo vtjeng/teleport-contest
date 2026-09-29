@@ -99,7 +99,7 @@ import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level } from './dungeon.js'
 import { breaktest } from './dothrow.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
-import { obj_extract_self, obfree } from './invent.js';
+import { currency, obj_extract_self, obfree, useup } from './invent.js';
 import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
 } from './hack.js';
@@ -120,11 +120,13 @@ import {
     AT_KICK, PM_SASQUATCH, PM_SHADE, S_EEL, S_LIZARD,
 } from './monsters.js';
 import {
-    add_to_migration, mkgold, mksobj_at, objectType, rnd_class, sobj_at,
+    add_to_migration, isContainer, mkgold, mksobj_at, objectType, rnd_class,
+    sobj_at, weight,
 } from './obj.js';
 import {
-    BOULDER, COIN_CLASS, CORPSE, DILITHIUM_CRYSTAL, EGG,
-    EXPENSIVE_CAMERA, GLASS, KICKING_BOOTS, LUCKSTONE, MIRROR,
+    BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, COIN_CLASS, CORPSE,
+    DILITHIUM_CRYSTAL, EGG, EXPENSIVE_CAMERA, GEM_CLASS, GLASS,
+    KICKING_BOOTS, LUCKSTONE, MIRROR,
 } from './objects.js';
 import { corpse_xname, otense, Tobjnam } from './objnam.js';
 import { change_luck } from './moveloop_preamble.js';
@@ -132,7 +134,12 @@ import { encumber_msg } from './pickup.js';
 import { ok_to_quest } from './quest.js';
 import { d, rn1, rn2, rnd, rnl } from './rng.js';
 import { in_rooms } from './rooms.js';
-import { is_unpaid, picked_container } from './shk.js';
+import { obj_resists } from './bury.js';
+import {
+    costly_spot, inside_shop, is_unpaid, picked_container, shop_keeper,
+    stolen_value,
+} from './shk.js';
+import { shkname } from './shknam.js';
 import { stairway_at } from './stairs.js';
 import { remove_worn_item } from './steal.js';
 import { fall_through, is_pool, t_at } from './trap.js';
@@ -1033,6 +1040,90 @@ export function drop_to(cc, loc, x, y, state = game) {
     default:
         cc.y = cc.x = 0;
         break;
+    }
+}
+
+// C ref: dokick.c container_impact_dmg() (412-488). This runs after a
+// container lands on a hard surface. Its source coordinates are the square
+// before impact; for drops and throws the callers pass the hero's square.
+export async function container_impact_dmg(obj, x, y, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message ?? ttyPline;
+    if (!isContainer(obj) || !Has_contents(obj)
+        || obj.otyp === BAG_OF_HOLDING || obj.otyp === BAG_OF_TRICKS) {
+        return;
+    }
+
+    const impactRooms = in_rooms(x, y, SHOPBASE, state);
+    const roomno = impactRooms[0] ?? 0;
+    const keeper = shop_keeper(roomno, state);
+    const costly = Boolean(keeper) && costly_spot(x, y, state);
+    const heroShop = state.u?.ushops?.[0] ?? 0;
+    const insider = Boolean(heroShop)
+        && Boolean(inside_shop(state.u.ux, state.u.uy, state))
+        && roomno === heroShop;
+    const fromInventory = obj !== (state.gk?.kickedobj ?? state.kickedobj);
+    let loss = 0;
+    let weightChanged = false;
+
+    for (let item = obj.cobj; item;) {
+        // C saves nobj before destroying or extracting the current child.
+        const next = item.nobj;
+        let result = null;
+        const itemType = objectType(item, state);
+        if (itemType.oc_material === GLASS && item.oclass !== GEM_CLASS
+            && !obj_resists(item, 33, 100, { state, random })) {
+            result = 'shatter';
+        } else if (item.otyp === EGG && !random.rn2(3)) {
+            result = 'cracking';
+        }
+
+        if (result) {
+            if (item.otyp === MIRROR) change_luck(-2, state);
+            if (item.otyp === EGG && item.spe && ismnum(item.corpsenm))
+                change_luck(-1, state);
+
+            // sounds.c:Soundeffect has no terminal-side behavior in this port.
+            note_unported('sounds.c Soundeffect');
+            const heard = youHear(`a muffled ${result}.`, state);
+            if (heard) await message(heard, state, rawEnv);
+
+            if (costly) {
+                if (fromInventory && !item.unpaid)
+                    item.no_charge = 1;
+                loss += await stolen_value(
+                    item, x, y, keeper.mpeaceful, true, state,
+                );
+            }
+            if (item.quan > 1) {
+                useup(item, { state });
+            } else {
+                obj_extract_self(item, { state });
+                obfree(item, null, { state });
+            }
+            obj.cknown = 0;
+            weightChanged = true;
+        }
+        item = next;
+    }
+
+    if (weightChanged) obj.owt = weight(obj, { state });
+    if (costly && loss) {
+        if (!insider) {
+            await message(
+                `You caused ${loss} ${currency(loss, state)} worth of damage!`,
+                state, rawEnv,
+            );
+            // shk.c:make_angry_shk() is void and remains unported.
+            note_unported('shk.c make_angry_shk');
+        } else {
+            await message(
+                `You owe ${shkname(keeper, state)} ${loss} `
+                + `${currency(loss, state)} for objects destroyed.`,
+                state, rawEnv,
+            );
+        }
     }
 }
 
