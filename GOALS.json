@@ -116506,16 +116506,20 @@
     {
       "id": "port-apply-grapple-family-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port complete grappling-hook targeting and resolution helpers",
       "cFile": "apply.c",
       "sessions": [
         "synthetic/v13/grappling-hook-finds-no-object"
       ],
-      "selectionReason": "The complete investigation investigations/synthetic/v13/grappling-hook-finds-no-object.json traces the v13 four-screen mismatch to the unported apply.c:use_grapple family and doapply caller. Preserve the unwielded-tool queued-command path, targeting, RNG, and all trap/object/monster/surface/self branches; the related leash case is planned for this same worker in a separate source-range task.",
+      "selectionReason": "Current synthetic/v13/grappling-hook-finds-no-object remains 4 screens short in challenges/evaluations/20260929161024-v13.json; investigations/synthetic/v13/grappling-hook-finds-no-object.json traces apply.c use_grapple and its targeting helpers.",
       "detail": "At segment 0 step 27, the saved v13 evaluation stops in doapply after selecting GRAPPLING_HOOK; the C recording runs through step 30 and reaches the empty-object result. Batch manifest identity ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d, recording challenges/cases/v13/grappling-hook-finds-no-object.session.json, evaluation challenges/evaluations/20260929141337-v13.json. Port apply.c:grapple_range, can_grapple_location, display_grapple_positions, use_grapple (3685-3873) and wire doapply(GRAPPLING_HOOK); include consumed return dependencies and independent entry-point evidence.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "b61ffea542ed722b83dfe21597889bacebb1f882",
+      "openStanding": {
+        "sha": "b61ffea542ed722b83dfe21597889bacebb1f882",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -116565,7 +116569,166 @@
           "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
           "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "b61ffea542ed722b83dfe21597889bacebb1f882",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "grappling-hook-finds-no-object",
+          "session": "synthetic/v13/grappling-hook-finds-no-object",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+          "recordingPath": "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+          "recordingSha256": "0946fffe16c9be504bc681f00391c4840b447c138c08de78139469b4179bcb99",
+          "recipe": "challenges/cases/v13/grappling-hook-finds-no-object.recipe.session.json",
+          "recipeSha256": "05c63d046e719066629fb2f06fe6723fee4310beb47eab9cf042a466d4e26a81",
+          "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
+          "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+          "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+          "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
+          "evaluationUtc": "2026-09-29T16:10:43.240Z",
+          "remainingScreens": 4,
+          "recordedSteps": 31,
+          "previousScreensMatched": 27,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 27,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2902,
+              "total": 2917
+            },
+            "cursors": {
+              "matched": 27,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 260",
+            "step": 27
+          },
+          "step": 27,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 260",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/grappling-hook-finds-no-object.json",
+            "result": {
+              "session": "synthetic/v13/grappling-hook-finds-no-object",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "grappling-hook-finds-no-object",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "0946fffe16c9be504bc681f00391c4840b447c138c08de78139469b4179bcb99",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 4,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "d433aeafb7104c549bd58b19db2bc4c169c12d09",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "session": "synthetic/v13/grappling-hook-finds-no-object",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+                "recordingPath": "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+                "recordingSha256": "0946fffe16c9be504bc681f00391c4840b447c138c08de78139469b4179bcb99",
+                "recipe": "challenges/cases/v13/grappling-hook-finds-no-object.recipe.session.json",
+                "recipeSha256": "05c63d046e719066629fb2f06fe6723fee4310beb47eab9cf042a466d4e26a81",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 4,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 27,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2902,
+                    "total": 2917
+                  },
+                  "cursors": {
+                    "matched": 27,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 260",
+                  "step": 27
+                },
+                "step": 27,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 260",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v13 replay stops at the named GRAPPLING_HOOK refusal in js/apply.js before C reaches apply.c:use_grapple. C uses the unwielded-hook arm to wield the tool and queue a repeated doapply; its later matching source trace reaches a selected empty-object target and prints “Nothing happens.” The implementation scope is the complete grapple helper family plus doapply caller wiring, with the existing getpos, wield, targeting, and movement dependencies preserved in C order.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For a selected GRAPPLING_HOOK, use_grapple returns without acting when swallowed. If the hook is not uwep, C calls wield_tool(obj, \"cast\"); on success it queues doapply and the object letter and returns ECMD_TIME. Once wielded, it prompts for a target, filters visible in-range squares, applies the weapon-skill menu/RNG branches, and resolves trap, object, monster, surface, or self targets. The selected case is a human Wizard who is not swallowed or blind: its first hook input is the unheld-tool arm, then its later target is an adjacent visible empty square and its source-selected tohit value is 1.",
+                "functions": [
+                  "grapple_range",
+                  "can_grapple_location",
+                  "display_grapple_positions",
+                  "use_grapple",
+                  "doapply"
+                ],
+                "callers": [
+                  "The #apply command dispatches to apply.c:doapply; its GRAPPLING_HOOK switch arm assigns the return from use_grapple(obj) to the command result.",
+                  "Within use_grapple, an unwielded hook that wield_tool accepts queues a repeated doapply and the hook inventory letter, so the next command reaches the wielded-target flow."
+                ],
+                "dependencies": [
+                  "wield_tool(obj, \"cast\") returns a Boolean consumed by the wield/queue branch.",
+                  "uwep_skill_type, grapple_range, and can_grapple_location provide the weapon skill, maximum range, and target eligibility; the latter two have consumed return values.",
+                  "getpos_sethilite and getpos mutate the target coordinate; use_grapple consumes getpos’s negative cancellation result.",
+                  "The skilled menu consumes select_menu’s count/selection and an RNG gate; preserve C menu and random-call order.",
+                  "The target branch consumes m_at’s monster pointer and enexto’s Boolean; pickup_object, attack_checks, and thitmonst effects are called with discarded return values in C.",
+                  "u_wipe_engr, hurtle, spoteffects, losehp, and the target-description/display helpers preserve source side effects and command results."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The examined evaluation challenges/evaluations/20260929141337-v13.json and queue entry report 4 remaining screens in a 31-step recording, with 27/31 screens, 2902/2917 RNG calls, and 27/31 cursors matched. The recorded input at zero-based step 27 is key m; evaluation stops because js/apply.js refuses object type 260 in doapply. The case manifest’s source trace associates that hook selection with apply.c:doapply(GRAPPLING_HOOK) -> use_grapple on an unwielded hook.",
+                "In nethack-c/upstream/src/apply.c:3685-3873, the complete contiguous helper family is grapple_range, can_grapple_location, display_grapple_positions, and use_grapple. In use_grapple, lines 3740-3751 check swallowed/unwielded state; the unwielded success path calls wield_tool, queues doapply and obj->invlet, then returns ECMD_TIME. Lines 3753-3810 perform the getpos, range/vision validation, RNG/menu selection, and engraving scuff; lines 3812-3872 resolve the target and common “Nothing happens.” result. The doapply GRAPPLING_HOOK arm at lines 4268-4269 consumes use_grapple’s return.",
+                "In js/apply.js, GRAPPLING_HOOK remains in DOAPPLY_UNPORTED_NAMED_ARMS (around line 2943) and the generic doapply default throws UnsupportedApplyError for the named arm (around lines 3999-4002). There is no JS implementation of grapple_range, can_grapple_location, display_grapple_positions, or use_grapple, so this is a source-port scope rather than a narrow output adjustment.",
+                "The C recording challenges/cases/v13/grappling-hook-finds-no-object.session.json has 31 steps. At step 27, key m, C reports “You now wield a grappling hook. Where do you want to hit?” after the wield_tool/queued-doapply path. The replay continues to select east with l and confirm with ., reaching step 30; C records rn2(5)=1 at use_grapple(apply.c:3776), then rn2(2)=0 and rnd(2)=2 at lines 3809-3810, takes the tohit==1 object branch, finds no object at the selected coordinate, and outputs “Nothing happens.” This establishes the later empty-object outcome but does not make it a JS match yet."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "div-makemon-runtime-named-creation-synthetic-v13-20260929",
