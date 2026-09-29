@@ -110367,6 +110367,352 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-trap-dofiretrap-synthetic-v11-20260928",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port complete fire-trap effects and wire hero, magic-trap, and chest-trap callers",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v11/hero-fire-trap-smoulders-cloak"
+      ],
+      "selectionReason": "The complete investigation traces the earliest unmatched v11 fire-trap step to the missing trap.c dofiretrap function and refused hero caller; all older batches match.",
+      "detail": "Port dofiretrap from trap.c in full, including source-ordered RNG, armor and item damage, hit-point and maximum-hit-point changes, and object ignition. Wire trapeffect_fire_trap hero arm, domagictrap fate 12, and chest_trap fire outcomes while preserving monster arm and other trap behavior.",
+      "openedAt": "4159b71a4b3956a25249e787d639efea235c0dc2",
+      "openStanding": {
+        "sha": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "77e9867ad37271d551bdcd26a185da93cf6ff634",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "dofiretrap",
+          "line": 4233,
+          "endLine": 4316,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 4233,
+        "to": 4316
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-fire-trap-smoulders-cloak": {
+          "session": "synthetic/v11/hero-fire-trap-smoulders-cloak",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-fire-trap-smoulders-cloak",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-fire-trap-smoulders-cloak.session.json",
+          "recordingSha256": "d7a006f09d4f1a69d4505d50ee3c9275326c6e2202a06ccd9aaad6ae540adea5",
+          "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+          "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328"
+        }
+      },
+      "activeStanding": {
+        "sha": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-fire-trap-smoulders-cloak",
+          "session": "synthetic/v11/hero-fire-trap-smoulders-cloak",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-fire-trap-smoulders-cloak.session.json",
+          "recordingPath": "challenges/cases/v11/hero-fire-trap-smoulders-cloak.session.json",
+          "recordingSha256": "d7a006f09d4f1a69d4505d50ee3c9275326c6e2202a06ccd9aaad6ae540adea5",
+          "recipe": "challenges/cases/v11/hero-fire-trap-smoulders-cloak.recipe.session.json",
+          "recipeSha256": "57f36a9cae31598d3c5809be7be1702505fef44877e23f5733672e8e2a996442",
+          "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+          "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+          "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+          "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+          "evaluationUtc": "2026-09-28T23:47:35.564Z",
+          "remainingScreens": 2,
+          "recordedSteps": 17,
+          "previousScreensMatched": 15,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 15,
+              "total": 17
+            },
+            "rng": {
+              "matched": 3446,
+              "total": 3486
+            },
+            "cursors": {
+              "matched": 15,
+              "total": 17
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 15
+          },
+          "step": 15,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/hero-fire-trap-smoulders-cloak.json",
+            "result": {
+              "session": "synthetic/v11/hero-fire-trap-smoulders-cloak",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "hero-fire-trap-smoulders-cloak",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "d7a006f09d4f1a69d4505d50ee3c9275326c6e2202a06ccd9aaad6ae540adea5",
+              "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+              "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "remainingScreens": 2,
+              "recordedSteps": 17,
+              "status": "complete",
+              "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "hero-fire-trap-smoulders-cloak",
+                "session": "synthetic/v11/hero-fire-trap-smoulders-cloak",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/hero-fire-trap-smoulders-cloak.session.json",
+                "recordingPath": "challenges/cases/v11/hero-fire-trap-smoulders-cloak.session.json",
+                "recordingSha256": "d7a006f09d4f1a69d4505d50ee3c9275326c6e2202a06ccd9aaad6ae540adea5",
+                "recipe": "challenges/cases/v11/hero-fire-trap-smoulders-cloak.recipe.session.json",
+                "recipeSha256": "57f36a9cae31598d3c5809be7be1702505fef44877e23f5733672e8e2a996442",
+                "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+                "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+                "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationUtc": "2026-09-28T23:47:35.564Z",
+                "remainingScreens": 2,
+                "recordedSteps": 17,
+                "previousScreensMatched": 15,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 15,
+                    "total": 17
+                  },
+                  "rng": {
+                    "matched": 3446,
+                    "total": 3486
+                  },
+                  "cursors": {
+                    "matched": 15,
+                    "total": 17
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: trap activation",
+                  "step": 15
+                },
+                "step": 15,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: trap activation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A hero steps on a floor fire trap. JavaScript preflight_dotrap rejects FIRE_TRAP before trap.c:trapeffect_fire_trap can call the missing dofiretrap(NULL) helper. Port the complete trap.c:dofiretrap function and wire all active callers, then admit the hero fire-trap arm while preserving the existing monster arm.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c:trapeffect_fire_trap hero arm (1729-1737) marks the trap and calls trap.c:dofiretrap(NULL) (4233-4314). In this v11 recording an unresistant hero with a worn cloak triggers the floor trap at step 15; C draws d(2,4)=6, d(2,4)=8, rn2(9)=1, then burnarmor draws and reports a tower of flame and the cloak smouldering.",
+                "functions": [
+                  "dofiretrap",
+                  "trapeffect_fire_trap"
+                ],
+                "callers": [
+                  "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_selector -> trapeffect_fire_trap(hero) calls dofiretrap(NULL); js/trap_effects.js:preflight_dotrap currently refuses FIRE_TRAP before this path.",
+                  "trap.c:mintrap -> trapeffect_selector -> trapeffect_fire_trap(monster) is already ported; trap.c:trapeffect_magic_trap can return this monster arm status.",
+                  "trap.c:domagictrap fate 12 calls dofiretrap(NULL); its JavaScript path currently refuses this fire effect.",
+                  "trap.c:chest_trap fire outcomes 9-12 call dofiretrap(box); JavaScript currently records an unported gap."
+                ],
+                "dependencies": [
+                  "trap.c:trapeffect_fire_trap consumes the integer result of its existing monster arm; preserve its source return values while wiring the hero arm.",
+                  "js/trap_erode_obj.js:burnarmor returns the boolean consumed before rn2(3). js/zap_destroy_items.js:burn_floor_objects returns the boolean consumed before the blind smell message; destroy_items is a void effect.",
+                  "js/attrib.js:minuhpmax and setuhpmax, js/mondata.js:monstseesu and monstunseesu, js/apply_catch_lit.js:ignite_items, and existing damage/erosion helpers are available; trace their state and RNG order.",
+                  "Void/display helpers shieldeff and melt_ice and the wet-towel dry_a_towel path need source review; record exact allowed gaps only where C discards the result."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 matches 15/17 screens and 3446/3486 RNG calls; its first stop at zero-based step 15 is unsupported hero move: trap activation. The immutable C recording is challenges/cases/v11/hero-fire-trap-smoulders-cloak.session.json (SHA-256 d7a006f09d4f1a69d4505d50ee3c9275326c6e2202a06ccd9aaad6ae540adea5).",
+                "Upstream nethack-c/upstream/src/trap.c:1729-1821 and :4233-4314 define the hero fire-trap caller and full dofiretrap effect. js/trap_effects.js:preflight_dotrap excludes FIRE_TRAP; its trapeffect_fire_trap hero arm refuses dofiretrap. Source inspection also found the domagictrap and chest_trap calls, which must be wired in this source task.",
+                "The selected v11 manifest compares its C fire-trap behavior, hero state, and action history against every v10 case and all then-unresolved older cases. The current B48 queue has seven unresolved v11 sessions and no unresolved v1-v10 cases."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dofiretrap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "dofiretrap",
+            "sourceReview": "Read the complete trap.c:dofiretrap source range (4233-4316) in order. The port consumes d(2,4) before the water check; tests an uncarried box square for a pool and otherwise uses u.uinwater; preserves the bubble/fire message and early return; then follows the resistance, polymorphed-golem, and human max-HP branches with their original draw and side-effect order. It keeps the short-circuit burnarmor || rn2(3), then destroy_items/ignite_items, hero floor burn only when box is null, and the final is_ice(u.ux,u.uy) check even for a non-null box. Fire_resistance uses the existing state predicate and marks the discarded visual-only display.c:shieldeff call with note_unported at its C position. timeout.c:burn_away_slime is called on the ordinary path; its active SLIMED/make_slimed branch is named with note_unported because the void callee has state/message effects. zap.c:melt_ice is likewise a void call with terrain effects and remains a named gap on ice. Existing return-valued/effect dependencies (minuhpmax, setuhpmax, losexp, burnarmor, destroy_items, ignite_items, burn_floor_objects, losehp, and resistance checks) are awaited or consumed in source order. The hero trapeffect_fire_trap arm, domagictrap fate 12 arm, and chest_trap fire outcomes are wired to this helper; the existing monster fire arm remains separate. Recording hashes: magic-fate12 recipe sha256 201c01697fb536bb32fcac766e28f5fc65d382f11e3fd8ae36cee86db7bfb20a and recording sha256 53b89e3c53dee0f537688e21002e03c8eeb0a77bbfcc2f418ecba41ee59e12e8; chest-fire recipe sha256 23ef463576d42e3b4eb284e0a50a7de9c40461301552b3415d829475fa83f3fc and recording sha256 e32d482a203f7f24f640f31da3838cab6baa706803784f0c907965e2ad5332e0.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_fire_trap",
+                "source": "trap.c:dotrap dispatches FIRE_TRAP to trapeffect_fire_trap; the hero arm calls dofiretrap(NULL) after seetrap()."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "domagictrap",
+                "source": "trap.c:trapeffect_magic_trap -> trap.c:domagictrap; case 12 calls dofiretrap(NULL)."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "chest_trap",
+                "source": "trap.c:chest_trap cases 9-12 call dofiretrap(obj); the independent #loot recipe reaches pickup.c:in_container -> chest_trap."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "cmd.c:#loot -> pickup.c:doloot -> pickup.c:do_loot_cont -> pickup.c:in_container -> trap.c:chest_trap -> dofiretrap(obj)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-magic-trap.test.mjs",
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/dofiretrap-magic-fate12-independent-c41.session.json",
+              "recordings/trap.c/dofiretrap-chest-fire-independent-c41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-fire-trap-smoulders-cloak",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "trap.c:dotrap -> trap.c:trapeffect_fire_trap(hero arm) -> trap.c:dofiretrap(NULL)"
+              }
+            ],
+            "checkedAt": "77e9867ad37271d551bdcd26a185da93cf6ff634"
+          }
+        ],
+        "entryPointReview": "Active production entry points are: (1) stepping on a floor FIRE_TRAP, through dotrap -> trapeffect_fire_trap hero arm; the admitted v11 hero-fire-trap-smoulders-cloak recording fully matches through zero-based step 15, whose C RNG is at dofiretrap lines 4238/4287/4289. (2) triggering a MAGIC_TRAP whose domagictrap roll is fate 12; the independent recording reaches rnd(20)=12 at step 17, then dofiretrap. (3) opening an unlocked trapped chest; the independent #loot recording reaches pickup.c:in_container -> trap.c:chest_trap, whose fire outcome calls dofiretrap(obj) at step 33. The magic-trap fate<10 monster-creation path is a separate unported domagictrap branch and is not claimed: recipes/trap.c/dofiretrap-magic-fate-seed38170629-blocked-domagictrap-create-monsters-c41.session.json records the source-owned setup blocker before dofiretrap. The remaining dofiretrap-specific gaps are display.c:shieldeff (discarded presentation), timeout.c:burn_away_slime when SLIMED (state/message effect through unported make_slimed), and zap.c:melt_ice when the hero is standing on ice (terrain effect); those branches have no matching runtime entry claim in this task.",
+        "entryPoints": [
+          {
+            "name": "Hero steps on a floor fire trap",
+            "functions": [
+              "dofiretrap"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-fire-trap-smoulders-cloak",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "trap.c:dotrap -> trap.c:trapeffect_fire_trap(hero arm) -> trap.c:dofiretrap(NULL)"
+              }
+            ]
+          },
+          {
+            "name": "Magic trap fate 12 produces a fire trap effect",
+            "functions": [
+              "dofiretrap"
+            ],
+            "recordings": [
+              "recordings/trap.c/dofiretrap-magic-fate12-independent-c41.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Opening a trapped chest triggers its fire outcome",
+            "functions": [
+              "dofiretrap"
+            ],
+            "recordings": [
+              "recordings/trap.c/dofiretrap-chest-fire-independent-c41.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "77e9867ad37271d551bdcd26a185da93cf6ff634",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-lock-doorlock-synthetic-v11-20260928",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete door magic and wire player and monster wand rays",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v11/wand-locking-closes-open-door"
+      ],
+      "selectionReason": "The completed source investigation traces the last unmatched wand-locking screen to missing lock.c doorlock dispatch in zap.c bhit; higher-count statue-trap work shares reserved trap.c callers with C41.",
+      "detail": "Port complete lock.c doorlock and its consumed obstructed Boolean helper. Wire zap.c bhit and muse.c mbhit callers, preserve wand learning, door state, messages, vision, shop effects, and source RNG order. Provide independent C recordings for impure entry points.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "doorlock",
+          "line": 1103,
+          "endLine": 1275,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1103,
+        "to": 1275
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/wand-locking-closes-open-door": {
+          "session": "synthetic/v11/wand-locking-closes-open-door",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-locking-closes-open-door",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/wand-locking-closes-open-door.session.json",
+          "recordingSha256": "162cee8fb369b8f62557b3a80e460e4bb7da884869faf729efaa46d51827b30c",
+          "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+          "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328"
+        }
+      }
     }
   ]
 }

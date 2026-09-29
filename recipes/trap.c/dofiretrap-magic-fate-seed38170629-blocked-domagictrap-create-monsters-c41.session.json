@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked C41 magic-trap caller probe. The debug Wizard clears the welcome pager, leaves the stair tile, wishes a magic trap on the adjacent floor, then returns to trigger it. C reached domagictrap fate<10 and its unrelated monster-creation arm, before dofiretrap; JS stops at that source-owned gap.",
+  "segments": [
+    {
+      "seed": 38170629,
+      "datetime": "20360704101238",
+      "nethackrc": "OPTIONS=name:FlameTest,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time\n",
+      "moves": " h\u0017magic trap\nlh"
+    }
+  ]
+}

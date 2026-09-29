@@ -86,7 +86,10 @@ function heroEnv(state, rn2_30, rnd_20) {
             },
             rn1: (x, y) => y,
             rne: () => 1,
-            d: (n, x) => n,
+            d(n, x) {
+                randomCalls.push(`d(${n},${x})`);
+                return n;
+            },
         },
         message: async (text) => messages.push(text),
         redraw: () => {},
@@ -441,14 +444,17 @@ test('trapeffect_magic_trap: fate 11 still toggles while blind', async () => {
     assert.deepEqual(env.randomCalls, ['rn2(30)', 'rnd(20)']);
 });
 
-test('trapeffect_magic_trap: fate 12 refuses (fire)', async () => {
+test('trapeffect_magic_trap: fate 12 triggers a tower of flame', async () => {
     const state = await initState();
     const trap = makeTrap(state);
     const env = heroEnv(state, 1, 12);
-    await assert.rejects(
-        () => trapeffect_selector(state.youmonst, trap, 0, env),
-        (error) => error.reason === 'magic trap fire',
-    );
+    const result = await trapeffect_selector(state.youmonst, trap, 0, env);
+    assert.equal(result, Trap_Effect_Finished);
+    assert.equal(env.rndCalled, true);
+    assert.ok(env.messages.some((line) => line.includes('tower of flame')));
+    assert.deepEqual(env.randomCalls.slice(0, 4), [
+        'rn2(30)', 'rnd(20)', 'd(2,4)', 'd(2,4)',
+    ]);
 });
 
 test('trapeffect_magic_trap: fate 19 refuses (tame monsters)', async () => {

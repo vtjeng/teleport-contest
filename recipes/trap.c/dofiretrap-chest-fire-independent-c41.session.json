@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C41 chest fire caller. A debug Wizard wishes an unlocked trapped chest, drops it underfoot, and opens it. The bounded C seed sweep selected 74210938 because chest_trap chose its fire outcome and reached dofiretrap(box).",
+  "segments": [
+    {
+      "seed": 74210938,
+      "datetime": "20360704101238",
+      "nethackrc": "OPTIONS=name:ChestProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time\n",
+      "moves": "\u0017unlocked trapped chest\ndo#loot\n "
+    }
+  ]
+}
