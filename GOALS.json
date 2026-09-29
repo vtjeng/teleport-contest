@@ -116506,7 +116506,7 @@
     {
       "id": "port-apply-grapple-family-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete grappling-hook targeting and resolution helpers",
       "cFile": "apply.c",
       "sessions": [
@@ -116520,36 +116520,39 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "grapple_range",
           "line": 3686,
           "endLine": 3700,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "can_grapple_location",
           "line": 3701,
           "endLine": 3706,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "display_grapple_positions",
           "line": 3707,
           "endLine": 3728,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_grapple",
           "line": 3729,
           "endLine": 3875,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -116728,7 +116731,161 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "grapple_range",
+            "implementation": "js/apply.js",
+            "symbol": "grapple_range",
+            "sourceReview": "Read apply.c:grapple_range() (3685-3698) in full. It reads uwep_skill_type once, then preserves the source thresholds: P_NONE or skill <= P_BASIC returns 4; exactly P_SKILLED returns 5; greater skill returns 8. This helper makes no C RNG call, message, screen write, or state change. The JavaScript uses the same expression order and square-distance consumers.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "can_grapple_location",
+                "source": "apply.c:can_grapple_location() calls grapple_range() after isok() and cansee()."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple() rechecks distu() against grapple_range() after getpos returns."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "apply.c:doapply(GRAPPLING_HOOK) -> use_grapple -> getpos valid-location callback -> grapple_range"
+              }
+            ],
+            "checkedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+          },
+          {
+            "name": "can_grapple_location",
+            "implementation": "js/apply.js",
+            "symbol": "can_grapple_location",
+            "sourceReview": "Read apply.c:can_grapple_location() (3700-3704) in full. Preserve short-circuit order isok(x,y), cansee(x,y), then distu(x,y) <= grapple_range(); distu is square distance, not Chebyshev distance. The helper has no C RNG, message, screen, or state mutation.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "display_grapple_positions",
+                "source": "apply.c:display_grapple_positions() calls can_grapple_location() for each dx/dy candidate."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple() installs can_grapple_location() through getpos_sethilite() for getpos selection validation."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "apply.c:use_grapple -> getpos_sethilite(can_grapple_location) -> getpos location validation"
+              }
+            ],
+            "checkedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+          },
+          {
+            "name": "display_grapple_positions",
+            "implementation": "js/apply.js",
+            "symbol": "display_grapple_positions",
+            "sourceReview": "Read apply.c:display_grapple_positions() (3706-3726) in full. On enable it emits DISP_BEAM/S_goodpos then scans dx outer and dy inner from -3 through 3, passing squares that satisfy can_grapple_location and are not occupied by the hero; on disable it emits DISP_END. JavaScript preserves this order and callback behavior.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple() passes display_grapple_positions to getpos_sethilite(); getpos.c invokes the callback for the valid-square toggle."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/grappling-hook-valid-marker-independent-b55.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+          },
+          {
+            "name": "use_grapple",
+            "implementation": "js/apply.js",
+            "symbol": "use_grapple",
+            "sourceReview": "Read apply.c:use_grapple() (3728-3873) in full and preserve branch and evaluation order: swallowed and wield-tool/command-queue gates; getpos setup and cancellation; range, cansee, couldsee; base rn2(5), optional skilled PICK_ONE menu and its rn2 draws; C initializes any.a_int to 1 and increments it before each add_menu, so the three item IDs are 2/3/4 and selected.a_int - 1 maps to object/monster/surface switch values 1/2/3; the focused source-pinned test checks all three mappings through the pure menu helpers; engraving rn2/rnd; trap/object/monster/surface/self dispatch; monster enexto, attack_checks, check_caitiff, relocation/hit order; and ECMD results. The object branch discards pickup_object's result; the monster branches discard attack_checks/thitmonst/rloc_to results, and these are called with the same order. The hard-surface branch calls dothrow.c:hurtle(), an unported void callee, via note_unported('dothrow.c hurtle') and then calls spoteffects(TRUE); no movement or RNG is fabricated. Its active surface-pull result is not claimed as strictly matched: recipes/apply.c/grappling-hook-surface-pull-blocked-b55.session.json reaches C hurtle_step and differs there. Other branches in this source range are implemented without a substitute refusal.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() GRAPPLING_HOOK arm dispatches use_grapple(obj); if the hook is not wielded, use_grapple() calls wield_tool(), queues doapply and the hook invlet, then re-enters this arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/grappling-hook-valid-marker-independent-b55.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "apply.c:doapply(GRAPPLING_HOOK) -> use_grapple; selected visible east square produces the no-object result"
+              }
+            ],
+            "checkedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+          }
+        ],
+        "entryPointReview": "The active production entry is the hero Apply command selecting GRAPPLING_HOOK: apply.c:doapply dispatches use_grapple. If the item is not wielded, the C helper wields it, queues doapply plus the item letter, and re-enters with obj == uwep; the selected v13 case and independent recording exercise this route. The selected v13 case is fully matched through segment 0 step 30 (all 31 screens, RNG calls and cursors) and reaches the no-object result. The independent male Wizard recording reaches display_grapple_positions through getpos's '$' valid-square toggle at step 29 and use_grapple's base roll at step 31; its complete 32-screen recording strictly matches with 2,117 RNG entries. A separate source-distinct C probe reaches the surface-pull arm but cannot strictly match because dothrow.c:hurtle is an unported void callee; the retained blocked recipe names that boundary and has no regression recording. No other production caller to use_grapple or the three helpers was found in apply.c. The four listed functions remain in the evidence; the active surface-pull effect is explicitly incomplete pending the hurtle source port.",
+        "entryPoints": [
+          {
+            "name": "Hero applies a grappling hook through doapply",
+            "functions": [
+              "grapple_range",
+              "can_grapple_location",
+              "display_grapple_positions",
+              "use_grapple"
+            ],
+            "recordings": [
+              "recordings/apply.c/grappling-hook-valid-marker-independent-b55.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "apply.c:doapply(GRAPPLING_HOOK) -> apply.c:use_grapple -> getpos"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "div-makemon-runtime-named-creation-synthetic-v13-20260929",
