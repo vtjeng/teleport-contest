@@ -115582,7 +115582,7 @@
     {
       "id": "port-dokick-container-impact-dmg-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port container impact damage for dropped, thrown, and kicked contents",
       "cFile": "dokick.c",
       "sessions": [
@@ -115590,17 +115590,24 @@
       ],
       "selectionReason": "The current v12 levitating-sack-impact-keeps-content case has matched screens but an eight-call RNG mismatch at step 86. investigations/synthetic/v12/levitating-sack-impact-keeps-content.json traces it to dokick.c:container_impact_dmg: C do.c:dropz calls this discarded void helper after an impacted drop, while js/do.js skips it. The queue inherited an older zap.c attribution; the complete source trace establishes dokick.c. The v12 floor bhito screens are reserved by B54, and the v11 statue screens were resolved by A48.",
       "detail": "Source dokick.c:412-483 checks normal containers, calls obj_resists for glass non-gem contents and rn2(3) for eggs, updates luck, sound, shop loss, cknown and weight; C callers are do.c:dropz, dothrow.c:throwit and dokick.c:really_kick_object. JS gaps are js/do.js:dropz and js/dothrow.js:throwit, with kick caller review needed. Selected recording challenges/cases/v12/levitating-sack-impact-keeps-content.session.json and current saved challenges/evaluations/20260929104811-v12.json at 9a964783937ab73e829933e56ca729283c899594; full trace in investigations/synthetic/v12/levitating-sack-impact-keeps-content.json.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "cab85c434f41c321be192bd67ed3c6ef22f3ee93",
+      "openStanding": {
+        "sha": "cab85c434f41c321be192bd67ed3c6ef22f3ee93",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "container_impact_dmg",
           "line": 412,
           "endLine": 488,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -115620,6 +115627,231 @@
           "evaluationPath": "challenges/evaluations/20260929104811-v12.json",
           "evaluationCommit": "9a964783937ab73e829933e56ca729283c899594"
         }
+      },
+      "activeStanding": {
+        "sha": "cab85c434f41c321be192bd67ed3c6ef22f3ee93",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "levitating-sack-impact-keeps-content",
+          "session": "synthetic/v12/levitating-sack-impact-keeps-content",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/levitating-sack-impact-keeps-content.session.json",
+          "recordingPath": "challenges/cases/v12/levitating-sack-impact-keeps-content.session.json",
+          "recordingSha256": "83a15039c873173ef1746abf2e1d28a15c6f6b2f711de653ae7db715999f3110",
+          "recipe": "challenges/cases/v12/levitating-sack-impact-keeps-content.recipe.session.json",
+          "recipeSha256": "3d1203e1d4d76f1b27d1a7c81979a9a4b238a7c7d4759095abc16d12c21a40a5",
+          "replayInputSha256": "711214d0a85d2d04bac4404d397b972223e50c50971c2b4c8d68d51c6b6c19d9",
+          "evaluationPath": "challenges/evaluations/20260929104811-v12.json",
+          "evaluationCommit": "9a964783937ab73e829933e56ca729283c899594",
+          "evaluationArtifact": "challenges/evaluations/20260929104811-v12.json",
+          "evaluationUtc": "2026-09-29T10:48:25.677Z",
+          "remainingScreens": 0,
+          "recordedSteps": 87,
+          "previousScreensMatched": 87,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 87,
+              "total": 87
+            },
+            "rng": {
+              "matched": 2951,
+              "total": 2959
+            },
+            "cursors": {
+              "matched": 87,
+              "total": 87
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2951,
+              "cEntry": "rn2(100)=89",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 86,
+                "key": " "
+              },
+              "stepIndex": 86
+            },
+            "cursor": null
+          },
+          "step": 86,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/levitating-sack-impact-keeps-content.json",
+            "result": {
+              "session": "synthetic/v12/levitating-sack-impact-keeps-content",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "levitating-sack-impact-keeps-content",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "83a15039c873173ef1746abf2e1d28a15c6f6b2f711de653ae7db715999f3110",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 0,
+              "recordedSteps": 87,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "levitating-sack-impact-keeps-content",
+                "session": "synthetic/v12/levitating-sack-impact-keeps-content",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/levitating-sack-impact-keeps-content.session.json",
+                "recordingPath": "challenges/cases/v12/levitating-sack-impact-keeps-content.session.json",
+                "recordingSha256": "83a15039c873173ef1746abf2e1d28a15c6f6b2f711de653ae7db715999f3110",
+                "recipe": "challenges/cases/v12/levitating-sack-impact-keeps-content.recipe.session.json",
+                "recipeSha256": "3d1203e1d4d76f1b27d1a7c81979a9a4b238a7c7d4759095abc16d12c21a40a5",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 0,
+                "recordedSteps": 87,
+                "previousScreensMatched": 87,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 87,
+                    "total": 87
+                  },
+                  "rng": {
+                    "matched": 2951,
+                    "total": 2959
+                  },
+                  "cursors": {
+                    "matched": 87,
+                    "total": 87
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2951,
+                    "cEntry": "rn2(100)=89",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(5)=4",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 86,
+                      "key": " "
+                    },
+                    "stepIndex": 86
+                  },
+                  "cursor": null
+                },
+                "step": 86,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "The levitating sack has no screen or cursor difference, but the C trace at step 86 draws rn2(100) in zap.c:obj_resists for a glass item inside the impacted container. JS do.js skips the void dokick.c:container_impact_dmg call and records a gap, so its next draw is rn2(5). Port that whole source function and wire its drop, throw, and kick callers; preserve object destruction, luck, shop cost, and weight updates.",
+              "source": {
+                "file": "dokick.c",
+                "branch": "container_impact_dmg: a normal floor container with contents is impacted by the hero; for each glass non-gem child C calls obj_resists(child,33,100) before any later drop or turn-loop RNG.",
+                "functions": [
+                  "container_impact_dmg"
+                ],
+                "callers": [
+                  "do.c:dropz calls container_impact_dmg after place_object for a floating hero",
+                  "dothrow.c:drop_throw calls container_impact_dmg for thrown containers",
+                  "dokick.c:really_kick_object calls container_impact_dmg for a kicked box",
+                  "js/do.js:dropz currently notes and skips the void call"
+                ],
+                "dependencies": [
+                  "zap.c:obj_resists is ported in js/bury.js and must receive 33,100 with source RNG order",
+                  "shk.c:stolen_value is ported and returns shop loss; other shop helpers need source review",
+                  "Object extraction, useup, obfree, weight, and luck helpers must be checked for source behavior; make_angry_shk may remain an explicit void gap if unported"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C dokick.c:412-484 skips non-containers, empty containers and magic bags; for each child it tests glass/non-gem then calls obj_resists(33,100), otherwise tests egg rn2(3). A broken child changes luck, emits the muffled sound/message, accounts for shop loss, consumes/removes the child, clears cknown and recomputes weight.",
+                "C do.c:831, dothrow.c:1830 and dokick.c:655 call container_impact_dmg and discard its return. JS js/do.js:1759-1767 identifies a content-bearing ordinary container but only calls note_unported, leaving all of the source RNG and effects skipped.",
+                "The v12 saved evaluation matches all 87 screens and cursors, but its first RNG difference is at zero-based step 86: C `rn2(100)=89` from obj_resists(zap.c:1469), JS next `rn2(5)=4`. It has 0 remaining screens but is still unmatched by the challenge evaluator.",
+                "JS js/bury.js:97 implements obj_resists; the source task should call that shared implementation instead of synthesizing the recorded draw. The recipe and recording are challenges/cases/v12/levitating-sack-impact-keeps-content.*.session.json."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "container_impact_dmg",
+            "implementation": "js/dokick.js",
+            "symbol": "container_impact_dmg",
+            "sourceReview": "Compared all of dokick.c:container_impact_dmg (412-488), preserving the container/contents/magic-bag guard, shop/insider/from-inventory state, saved next-child pointer, glass non-gem obj_resists(33,100) before egg rn2(3), luck changes, muffled You_hear message, stolen_value return accumulation, stack use or extraction/free, cknown clearing, final weight recomputation, and post-loop damage/owe messages. The helper calls obj_resists and awaits the return-valued shk.c:stolen_value; skipped void sounds.c:Soundeffect and shk.c:make_angry_shk remain named gaps. The production dropz and throwit callers pass the pre-impact hero coordinates and preserve C order. dokick.c:really_kick_object is a separate, currently refused caller family and is not claimed as wired here.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropzAdmitted",
+                "source": "do.c:dropz calls container_impact_dmg after place_object and before impact_disturbs_zombies, ball handling, sale and stackobj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit calls container_impact_dmg after hard-surface place_object and before impact_disturbs_zombies"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dokick-shipping.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/container-impact-drop-independent-a49.session.json",
+              "recordings/dokick.c/container-impact-throw-independent-a49.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "levitating-sack-impact-keeps-content",
+                "segment": 0,
+                "fromStep": 86,
+                "throughStep": 86,
+                "source": "do.c:drop -> dropx -> dropz(with_impact) -> dokick.c:container_impact_dmg -> zap.c:obj_resists"
+              }
+            ],
+            "checkedAt": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f"
+          }
+        ],
+        "entryPointReview": "This helper-only source range has an empty entryPoints array; production callers and their evidence are described here. The selected v12 case’s step 86 reaches do.c:dropz(with_impact) and exercises the glass-child obj_resists call. The independent drop recording reaches dropz(with_impact) at zero-based step 84, and the independent throw recording reaches dothrow.c:throwit’s hard-surface impact at step 52; both strictly match C and JS. Kicking calls the helper only from dokick.c:really_kick_object (dokick.c:655); js/dokick.js still refuses the entire object-pile arm because kick_object/really_kick_object are unported. This A49 task does not claim that caller, which remains a separate source task. The helper skips the void sounds.c:Soundeffect and shk.c:make_angry_shk calls with named note_unported markers.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T10:53:41.097Z",
+  "capturedAt": "2026-09-29T12:41:40.004Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9233,12 +9233,108 @@
         "type": "accepted",
         "at": "2026-09-29T10:53:26.961Z",
         "task": "A48"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T10:55:16.387Z",
+        "task": "A48",
+        "commit": "396be8851692bc794a1db10e16e2bd2032c725e7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A49-20260929",
+        "type": "assign",
+        "at": "2026-09-29T11:00:02.192Z",
+        "task": "A49",
+        "worker": "A2",
+        "goal": "port-dokick-container-impact-dmg-synthetic-v12-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fad3ec02fed8c26a6f17dcec0b01884a9bc8a3ff",
+        "type": "ready",
+        "at": "2026-09-29T11:10:57.290Z",
+        "task": "B54",
+        "delivery": "fad3ec02fed8c26a6f17dcec0b01884a9bc8a3ff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B54-fad3ec02",
+        "type": "received",
+        "at": "2026-09-29T11:12:34.025Z",
+        "task": "B54",
+        "delivery": "fad3ec02fed8c26a6f17dcec0b01884a9bc8a3ff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B54-upward-evidence-20260929",
+        "type": "feedback",
+        "at": "2026-09-29T11:13:34.747Z",
+        "task": "B54",
+        "delivery": "fad3ec02fed8c26a6f17dcec0b01884a9bc8a3ff"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B54-resume-upward-bhito-witness-20260929",
+        "type": "resume",
+        "at": "2026-09-29T11:14:56.584Z",
+        "task": "B54"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ac9c02d978cef6b0ef2437367d32d4c18ea0b87e",
+        "type": "ready",
+        "at": "2026-09-29T12:23:23.321Z",
+        "task": "A49",
+        "delivery": "ac9c02d978cef6b0ef2437367d32d4c18ea0b87e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A49-ac9c02d9",
+        "type": "received",
+        "at": "2026-09-29T12:24:26.410Z",
+        "task": "A49",
+        "delivery": "ac9c02d978cef6b0ef2437367d32d4c18ea0b87e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A49-97cc557a",
+        "type": "integrating",
+        "at": "2026-09-29T12:27:14.494Z",
+        "task": "A49",
+        "integration": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2b0791bbe56fb1e480b3d04f092b5c145b6d3767",
+        "type": "ready",
+        "at": "2026-09-29T12:37:44.175Z",
+        "task": "B54",
+        "delivery": "2b0791bbe56fb1e480b3d04f092b5c145b6d3767"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A49-97cc557a",
+        "type": "validated",
+        "at": "2026-09-29T12:40:48.883Z",
+        "task": "A49",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-A49-97cc557a",
+        "type": "accepted",
+        "at": "2026-09-29T12:40:49.606Z",
+        "task": "A49"
       }
     ]
   },
   "development": {
-    "executionCommit": "9a964783937ab73e829933e56ca729283c899594",
-    "measuredAt": "2026-09-29T10:47:53.702Z",
+    "executionCommit": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
+    "measuredAt": "2026-09-29T12:34:05.651Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
