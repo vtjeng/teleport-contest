@@ -113192,7 +113192,7 @@
     {
       "id": "port-zap-bhitm-monster-wands-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete zap.c bhitm monster wand effects and shared tail",
       "cFile": "zap.c",
       "sessions": [
@@ -113219,7 +113219,7 @@
           "line": 160,
           "endLine": 577,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -114166,7 +114166,184 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "bhitm",
+            "implementation": "js/zap.js",
+            "symbol": "bhitm",
+            "sourceReview": "Read the complete zap.c:bhitm definition at 160–577 in C definition order. Compared every wand/spell arm, target visibility/resistance guard, mutation/RNG order, disclosure behavior, and common wake/reveal/learn tail. The required consumed returns from teleport.c:u_teleport_mon, zap.c:unturn_dead, and display.c:knowninvisible are implemented; probe_monster's output is preserved. Its discarded-result gaps are explicit source-named note_unported calls: mon.c:mcureblindness, pline.c:set_msg_xy, uhitm.c:that_is_a_mimic, and mhitu.c:expels(TRUE). The expanded B53 scope also implements source helpers probe_monster, zap_steed, unturn_dead, revive, revive_egg, get_container_location, zombie_can_dig, find_mid, and u_teleport_mon; source-pinned tests cover the pure helper predicates and the matching recordings listed below cover the reached impure paths. Ordinary ray callback branches match all six cited v12 cases. The mounted cancellation recording enters zap_steed's default delegation to bhitm. Separate mounted probe and teleport recordings validate the direct zap_steed arms but do not count as bhitm coverage. The active swallowed weffects branch remains unverified: its independent recipe diverges on the preceding C gulpum/distfleeck turn (rn2(5)=4 at monmove.c:538), before the zap reaches bhitm.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects calls bhit with bhitm as the callback and calls bhitm(u.ustuck,obj) when swallowed"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c:bhit invokes the supplied monster callback as it walks the ray"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_steed",
+                "source": "zap.c:zap_steed delegates the default mounted-wand switch arm to bhitm(u.usteed,obj)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-ray.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/teleport.test.mjs",
+              "scripts/light.test.mjs",
+              "scripts/display.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/zap-steed-cancellation-knight-independent-b53.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "cancellation-wand-neutralizes-monster",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_CANCELLATION"
+              },
+              {
+                "batch": "v12",
+                "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_MAKE_INVISIBLE"
+              },
+              {
+                "batch": "v12",
+                "caseId": "probing-wand-reveals-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_PROBING -> probe_monster"
+              },
+              {
+                "batch": "v12",
+                "caseId": "speed-wand-hastens-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_SPEED_MONSTER"
+              },
+              {
+                "batch": "v12",
+                "caseId": "teleport-wand-moves-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_TELEPORTATION -> teleport.c:u_teleport_mon"
+              },
+              {
+                "batch": "v12",
+                "caseId": "undead-turning-wand-stuns-zombie",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_UNDEAD_TURNING -> unturn_dead"
+              }
+            ],
+            "checkedAt": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f"
+          }
+        ],
+        "entryPointReview": "B53's planned source unit is zap.c:bhitm. Its ordinary production path is zap.c:weffects -> zap.c:bhit(callback=bhitm) -> bhitm; all six selected v12 histories match through their final step. The independent mounted cancellation recording follows zap.c:weffects -> zap_steed -> zap_steed's default arm -> bhitm. The separately expanded zap_steed direct-probing and direct-teleportation arms also have exact independent recordings at recordings/zap.c/zap-steed-probing-knight-independent-b53.session.json and recordings/zap.c/zap-steed-teleport-knight-independent-b53.session.json. The separately expanded hero self-turning recording at recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json reaches zap.c:unturn_you -> unturn_dead -> revive_egg/revive and matches the corpse resurrection, encumbrance, and shudder message order. The swallowed weffects branch is active and calls bhitm(u.ustuck,obj), but remains unverified: the independent recipe at recipes/zap.c/bhitm-swallowed-trapper-gulpmu-blocked-b53.session.json diverges on its preceding trapper gulpum/distfleeck continuation at monmove.c:538 (C rn2(5)=4) before zap input. The floor-object zap.c:bhito callers for revived corpses/eggs remain outside B53's assigned source unit and are not claimed. Additional named void gaps within expanded helpers are revive's eat.c:cant_finish_meal and probe_monster's long-worm insight.c:mstatusline segment-count path; they are skipped only where C discards the result.",
+        "entryPoints": [
+          {
+            "name": "ordinary monster ray callback through weffects/bhit",
+            "functions": [
+              "bhitm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "cancellation-wand-neutralizes-monster",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_CANCELLATION"
+              },
+              {
+                "batch": "v12",
+                "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_MAKE_INVISIBLE"
+              },
+              {
+                "batch": "v12",
+                "caseId": "probing-wand-reveals-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_PROBING -> probe_monster"
+              },
+              {
+                "batch": "v12",
+                "caseId": "speed-wand-hastens-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_SPEED_MONSTER"
+              },
+              {
+                "batch": "v12",
+                "caseId": "teleport-wand-moves-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_TELEPORTATION -> teleport.c:u_teleport_mon"
+              },
+              {
+                "batch": "v12",
+                "caseId": "undead-turning-wand-stuns-zombie",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_UNDEAD_TURNING -> unturn_dead"
+              }
+            ]
+          },
+          {
+            "name": "mounted downward cancellation wand delegates to bhitm",
+            "functions": [
+              "bhitm"
+            ],
+            "recordings": [
+              "recordings/zap.c/zap-steed-cancellation-knight-independent-b53.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "swallowed weffects immediate dispatch to bhitm(u.ustuck)",
+            "functions": [
+              "bhitm"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole zap.c:bhitm and its consumed monster-wand helpers are source-ported; six admitted v12 wand ranges and four independent C recordings match. The active swallowed weffects -> bhitm(u.ustuck) caller still lacks matching runtime evidence because the independent trapper recipe first diverges in mhitu.c:gulpum / monmove.c:distfleeck before the zap input. Resume after that predecessor is ported and record a strict swallowed-entry witness."
     },
     {
       "id": "port-eat-choke-synthetic-v12-20260929",
