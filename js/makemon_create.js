@@ -1654,15 +1654,17 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // dungeon never sees.  On the main dungeon during mklev, keep the
         // allowlist for explicitly placed species but bypass it for
         // rndmonst selections (the _rndmonMklev flag, set in the rndmonst
-        // loop).  Outside mklev, ordinary runtime callers keep the allowlist;
-        // The explicit exceptions below bypass it only after their creation
-        // shape has been validated above.
+        // loop). Outside mklev, ordinary runtime callers keep the allowlist.
+        // read.c create_particular_creation() has its own exact
+        // pointer/hero-square/flag contract above, and C makemon() has no
+        // species allowlist for that source path.
         if (!revivalCall
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall
             && !deadbookCall
             && !runtimeGroupCall
+            && !createParticularCall
             && !explicitInventorylessHeroCall
             && !explicitCoordinateRuntimeCall
             && !nastyCall
@@ -3323,8 +3325,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
             monster.wormno = get_wormno(state);
             if (monster.wormno) {
                 initworm(monster, allowtail ? random.rn2(5) : 0, state);
-                const record = wormSlots(state)[monster.wormno];
-                if (record && record.segments.length > 1)
+                if (count_wsegs(monster, state))
                     place_worm_tail_randomly(monster, x, y, normalized);
             }
         }
