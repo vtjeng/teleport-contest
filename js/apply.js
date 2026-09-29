@@ -1088,6 +1088,22 @@ export async function display_grapple_positions(onOff, state = game) {
     }
 }
 
+// C apply.c:use_grapple() initializes any.a_int to 1 and increments it before
+// each add_menu(); selected.a_int - 1 then maps these IDs to object/monster/
+// surface values 1/2/3.
+export function grapple_target_menu_items(ground) {
+    let itemId = 1;
+    return [
+        { text: `an object on the ${ground}`, value: ++itemId },
+        { text: 'a monster', value: ++itemId },
+        { text: `the ${ground}`, value: ++itemId },
+    ];
+}
+
+export function grapple_menu_choice_to_hit(itemId) {
+    return Number(itemId) - 1;
+}
+
 export async function use_grapple(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? { rn1, rn2, rnd };
@@ -1142,18 +1158,14 @@ export async function use_grapple(obj, state = game, env = {}) {
         tohit = random.rn2(4);
         const selected = await select_menu(state, {
             title: 'Aim for what?',
-            items: [
-                { text: `an object on the ${ground}`, value: 1 },
-                { text: 'a monster', value: 2 },
-                { text: `the ${ground}`, value: 3 },
-            ],
+            items: grapple_target_menu_items(ground),
             how: PICK_ONE,
             cancelValue: null,
             behavior: MENU_BEHAVE_STANDARD,
         });
         if (selected > 0
             && random.rn2(P_SKILL(typ, state) > P_SKILLED ? 20 : 2)) {
-            tohit = Number(selected) - 1;
+            tohit = grapple_menu_choice_to_hit(selected);
         }
     }
 
