@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 candidate for zap.c:zhitm(WAN_DEATH). A debug Wizard wishes a charged death wand, creates a hostile grid bug northeast, selects the unidentified wand and zaps northeast. C kills the target, processes xkilled/corpse RNG, and the death ray bounces. Independent rerecord SHA-256 094939bc7b87ef44a1df6c8401108c167065a1d77a6c602b951db0777c1e705e.",
+  "segments": [
+    {
+      "seed": 80234915,
+      "datetime": "20471111132044",
+      "nethackrc": "OPTIONS=name:V12DeathWand,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": "\u0017wand of death\n#wizgenesis\nhostile grid bug\nz?ou"
+    }
+  ]
+}

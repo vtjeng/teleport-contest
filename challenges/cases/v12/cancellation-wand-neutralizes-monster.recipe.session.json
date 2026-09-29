@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v12 C-first zap.c:cancel_monst probe. A fresh Wizard wishes for a wand of cancellation, creates a hostile grid bug by wizard command, selects the wished wand and aims a single zap toward the created monster. Preserve outside the manifest if the source branch is not reached.",
+  "segments": [
+    {
+      "seed": 62704183,
+      "datetime": "20470903162145",
+      "nethackrc": "OPTIONS=name:V12Cancel,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of cancellation\n#wizgenesis\nhostile grid bug\nz?ol "
+    }
+  ]
+}

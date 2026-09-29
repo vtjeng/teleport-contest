@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 probe for zap.c:bhitm/WAN_POLYMORPH against a hostile monster. A fresh debug Wizard wishes a charged polymorph wand and creates a hostile grid bug. The C map placed the bug south of the hero, so the corrected attempt aims south; the preceding eastward zap was a setup miss and is retained only under .cache.",
+  "segments": [
+    {
+      "seed": 79302561,
+      "datetime": "20471103142917",
+      "nethackrc": "OPTIONS=name:V12PolyMonster,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of polymorph\n#wizgenesis\nhostile grid bug\nz?oj"
+    }
+  ]
+}

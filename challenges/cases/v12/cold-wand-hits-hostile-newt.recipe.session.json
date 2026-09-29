@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 candidate for zap.c:zhitm(WAN_COLD). A fresh debug Wizard wishes a charged cold wand, creates a hostile newt directly south of the hero, selects the unidentified wand slot, and zaps south. C reaches the cold zhitm damage and xkilled/corpse path; independent rerecord SHA-256 68d9519d0344cea55a3ac61a321ded15788a700cfc02ee94bac9f7051a701c5d.",
+  "segments": [
+    {
+      "seed": 69314702,
+      "datetime": "20471106110522",
+      "nethackrc": "OPTIONS=name:V12ColdWand,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of cold\n#wizgenesis\nhostile newt\nz?nj"
+    }
+  ]
+}

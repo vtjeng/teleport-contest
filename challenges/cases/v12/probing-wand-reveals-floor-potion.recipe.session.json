@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 candidate for zap.c:bhito(WAN_PROBING). A fresh Wizard wishes for a probing wand and a potion, drops the potion, and zaps the floor object. Keep only if C reaches bhito’s object observation arm; compare its object target against monster probing and v11 hero-probe histories.",
+  "segments": [
+    {
+      "seed": 84019358,
+      "datetime": "20471116153042",
+      "nethackrc": "OPTIONS=name:V12ProbeObject,role:Wizard,race:human,gender=male,align=neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode=debug,time,!autopickup,!acoustics\n",
+      "moves": "\u0017wand of probing\n\u0017potion of healing\ndplzohi"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 candidate for zap.c:bhitm(WAN_UNDEAD_TURNING). C spawns the gnome zombie directly north of the hero in this valid run; the corrected input selects the wished wand and zaps north. The previous directions missed its grid position and remain setup-only probes.",
+  "segments": [
+    {
+      "seed": 47915208,
+      "datetime": "20471104112749",
+      "nethackrc": "OPTIONS=name:V12UndeadWand,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": " \u0017wand of undead turning\n#wizgenesis\nhostile zombie\nz?ok"
+    }
+  ]
+}

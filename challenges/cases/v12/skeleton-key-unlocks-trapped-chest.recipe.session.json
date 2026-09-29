@@ -1,0 +1,14 @@
+{
+  "version": 5,
+  "comment": "C-first independent v12 case for lock.c:pick_lock and the locked-container use path: wish a locked chest and skeleton key, drop the chest, apply the key to the chest underfoot, and confirm the unlock. C emits \"You succeed in unlocking the chest. You trigger a trap!\" with picklock RNG; unlike the v8 tipped trapped-box probe, this tests key-based unlocking and traps only after the chest opens.",
+  "segments": [
+    {
+      "seed": 61957031,
+      "datetime": "20470612101308",
+      "nethackrc": "OPTIONS=name:SkeletonKeyV12,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup\n",
+      "moves": "  #wizwish\nlocked chest\n#wizwish\nskeleton key\ndoap.y"
+    }
+  ],
+  "name": "skeleton-key-unlocks-trapped-chest",
+  "description": "Unlock a wished locked chest with an independently wished skeleton key, then reach the C trap response."
+}

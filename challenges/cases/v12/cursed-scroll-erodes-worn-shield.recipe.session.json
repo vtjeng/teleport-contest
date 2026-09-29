@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 case for the cursed target arm of read.c:seffect_enchant_armor. The independent Wizard wears a shield, reads a cursed enchant-armor scroll, and reaches C RNG rnd(3)=3 at read.c:1217 before the shield-glows-black message. The unresolved v8 cursed destroy-armor case uses a different scroll effect and protection-removal path; keep this candidate provisional until first-mismatch crosswalk.",
+  "segments": [
+    {
+      "seed": 37251047,
+      "datetime": "20470405163052",
+      "nethackrc": "OPTIONS=name:V12CurseShield,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup\n",
+      "moves": " #wizwish\nshield\n#wizwish\ncursed scroll of enchant armor\nw-WpTbrq "
+    }
+  ]
+}
