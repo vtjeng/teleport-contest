@@ -8,11 +8,10 @@ import { mon_has_amulet } from './wizard.js';
 
 // C ref: apply.c mleashed_next2u() (896-913).
 //
-// Its whole body sits behind `mtmp->mleashed`, and nothing in this port sets
-// that flag: apply.c use_leash() is C's only writer and `#apply` is unported,
-// which is the same reason js/steed.js:314 gives. The arm therefore refuses.
-// Reproducing it would need mnexto(), get_mleash(), number_leashed() and the
-// "You feel the leash go slack." line, and none of those is ported either.
+// Its whole body sits behind `mtmp->mleashed`; apply.c:use_leash() and
+// newcham() can now establish and maintain that state. This companion-follow
+// arm still refuses because apply.c:mleashed_next2u()'s consumed mnexto()
+// result and "You feel the leash go slack." behavior are not ported.
 function mleashed_next2u(monster) {
     if (monster.mleashed) {
         throw new UnsupportedHeroMoveBoundaryError(

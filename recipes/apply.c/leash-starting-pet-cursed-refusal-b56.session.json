@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 19420763,
+      "datetime": "20461103090000",
+      "nethackrc": "OPTIONS=name:StartingLeashCursedB56,role:Healer,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup\n",
+      "moves": "\u0017cursed leash\nakyaky"
+    }
+  ],
+  "_comment": "C reaches apply.c:use_leash_core attach and cursed detach refusal, but matching JS replay stops afterward at the out-of-scope dogmove.c:dog_move special-starting-pet turn boundary; retain as a blocked recipe, not a passing recording. The observed Healer starting dog is northwest and the cursed leash selector is k."
+}

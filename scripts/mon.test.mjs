@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -40,6 +41,7 @@ import {
     mon_regen,
     movemon,
     movemon_singlemon,
+    newcham,
     new_were,
     mpickstuff,
     seemimic,
@@ -61,6 +63,9 @@ import {
     PM_DOPPELGANGER,
     PM_GNOME,
     PM_HUMAN_WEREWOLF,
+    PM_CHAMELEON,
+    PM_HUMAN,
+    PM_LONG_WORM,
     PM_WIZARD,
     PM_HUMAN_WERERAT,
     PM_SMALL_MIMIC,
@@ -68,6 +73,7 @@ import {
     PM_SANDESTIN,
     PM_VAMPIRE,
     PM_VLAD_THE_IMPALER,
+    PM_SEWER_RAT,
     PM_WERERAT,
     PM_WEREWOLF,
     S_EEL,
@@ -91,6 +97,10 @@ import {
     POT_HEALING,
     objects_globals_init,
 } from '../js/objects.js';
+
+const MON_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
+);
 
 function monster(mmove, mspeed = 0) {
     return { data: { mmove }, mspeed };
@@ -815,6 +825,65 @@ test('accept_newcham_form pins catalog and genocide decisions', () => {
         null,
         'genocide rejects an otherwise valid form',
     );
+});
+
+test('mon.c newcham uses apply.c leashable after changing a pet form', async () => {
+    assert.match(MON_C,
+        /if \(mtmp->mleashed\) \{\s*if \(!leashable\(mtmp\)\)\s*m_unleash\(mtmp, TRUE\);/);
+
+    const state = {
+        level: new GameMap(),
+        u: {
+            ux: 5,
+            uy: 5,
+            uz: { dnum: 0, dlevel: 1 },
+            uprops: [],
+        },
+        dungeons: [{
+            depth_start: 1,
+            ledger_start: 0,
+            num_dunlevs: 29,
+            entry_lev: 0,
+            flags: { hellish: false },
+        }],
+        in_mklev: true,
+    };
+    monst_globals_init(state);
+    reset_mvitals(state);
+    state.youmonst = { data: state.mons[PM_HUMAN] };
+    const pet = newMonster({
+        data: state.mons[PM_SEWER_RAT],
+        mnum: PM_SEWER_RAT,
+        cham: PM_CHAMELEON,
+        m_id: 56,
+        mleashed: 1,
+        mhp: 4,
+        mhpmax: 4,
+        mcanmove: true,
+        mx: 4,
+        my: 4,
+    });
+    game.unported = new Set();
+
+    const changed = await newcham(pet, state.mons[PM_LONG_WORM], {
+        state,
+        random: {
+            rn2: () => 0,
+            rnd: () => 1,
+            rn1: () => assert.fail('newcham called unexpected rn1'),
+            rne: () => assert.fail('newcham called unexpected rne'),
+            d: () => 4,
+        },
+        canSpotMonster: () => false,
+        message: () => {},
+        redrawSquare: () => {},
+    });
+
+    assert.equal(changed, true);
+    assert.equal(pet.mnum, PM_LONG_WORM);
+    assert.equal(pet.mleashed, 1,
+        'the C-discarded m_unleash return remains a named state gap');
+    assert.ok(game.unported.has('apply.c m_unleash'));
 });
 
 // C refs: mon.c decide_to_shapeshift() (4872-4937),
