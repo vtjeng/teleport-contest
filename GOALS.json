@@ -112800,6 +112800,114 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-zap-bhitm-monster-wands-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete zap.c bhitm monster wand effects and shared tail",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v12/cancellation-wand-neutralizes-monster",
+        "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug",
+        "synthetic/v12/probing-wand-reveals-hostile-grid-bug",
+        "synthetic/v12/speed-wand-hastens-hostile-grid-bug",
+        "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
+        "synthetic/v12/undead-turning-wand-stuns-zombie"
+      ],
+      "selectionReason": "Six distinct unresolved v12 monster wand arms share zap.c:bhitm and its common wake/reveal/learn tail; all are source-traced in investigations/synthetic/v12 and measured in challenges/evaluations/20260929053037-v12.json (manifest b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef). Group the whole function and preserve each case recording provenance in task context. Floor-object bhito cases are separate.",
+      "detail": "Port bhitm in C definition order and wire zap.c:bhit hero-ray callback. Return-valued callees teleport.c:u_teleport_mon and zap.c:unturn_dead are required in the same task; probe_monster is a void callee whose output must be source-traced. Audit all bhitm switch arms and common tail, including existing partial effects, without altering A45 zap callers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "bhitm",
+          "line": 160,
+          "endLine": 577,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 160,
+        "to": 577
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/cancellation-wand-neutralizes-monster": {
+          "session": "synthetic/v12/cancellation-wand-neutralizes-monster",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "cancellation-wand-neutralizes-monster",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/cancellation-wand-neutralizes-monster.session.json",
+          "recordingSha256": "bbcd5f0004c8f7dd2f40882d969bc8910fee12712aa44d02984042a767655b14",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug": {
+          "session": "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.session.json",
+          "recordingSha256": "a3272f7ed7d8e41e692334e0ad5903cde06a8e19e2cb5342b0d9648c11779308",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/probing-wand-reveals-hostile-grid-bug": {
+          "session": "synthetic/v12/probing-wand-reveals-hostile-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "probing-wand-reveals-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.session.json",
+          "recordingSha256": "ec09569c7bef3635827b90dbdc88bd5e647798c4b6042eb60a6fb2137c435199",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/speed-wand-hastens-hostile-grid-bug": {
+          "session": "synthetic/v12/speed-wand-hastens-hostile-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "speed-wand-hastens-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.session.json",
+          "recordingSha256": "94f22a27d69930cb9d322402bb06629cc022d025068e323888420e723b656db3",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/teleport-wand-moves-hostile-grid-bug": {
+          "session": "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleport-wand-moves-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.session.json",
+          "recordingSha256": "6f604845ff5fd8ed29cb0fc3fce2c31880fb7fdb4a11818de0582ec28381e7f6",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/undead-turning-wand-stuns-zombie": {
+          "session": "synthetic/v12/undead-turning-wand-stuns-zombie",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "undead-turning-wand-stuns-zombie",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/undead-turning-wand-stuns-zombie.session.json",
+          "recordingSha256": "9b5d9776ee469952e70f019c2713c6c7a20ab3b6fbd97898bc48421e6a4f136c",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        }
+      }
     }
   ]
 }
