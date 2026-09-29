@@ -113192,7 +113192,7 @@
     {
       "id": "port-zap-bhitm-monster-wands-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete zap.c bhitm monster wand effects and shared tail",
       "cFile": "zap.c",
       "sessions": [
@@ -113203,10 +113203,14 @@
         "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
         "synthetic/v12/undead-turning-wand-stuns-zombie"
       ],
-      "selectionReason": "Six distinct unresolved v12 monster wand arms share zap.c:bhitm and its common wake/reveal/learn tail; all are source-traced in investigations/synthetic/v12 and measured in challenges/evaluations/20260929053037-v12.json (manifest b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef). Group the whole function and preserve each case recording provenance in task context. Floor-object bhito cases are separate.",
+      "selectionReason": "Current admitted v12 evaluations leave six related monster-wand cases in zap.c:bhitm; B53 source-traced the shared switch, consumed helpers, and mounted/self callers.",
       "detail": "Port bhitm in C definition order and wire zap.c:bhit hero-ray callback. Return-valued callees teleport.c:u_teleport_mon and zap.c:unturn_dead are required in the same task; probe_monster is a void callee whose output must be source-traced. Audit all bhitm switch arms and common tail, including existing partial effects, without altering A45 zap callers.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "4bfe2f5c93ca3f25916620ad590c1f0723afab52",
+      "openStanding": {
+        "sha": "4bfe2f5c93ca3f25916620ad590c1f0723afab52",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -113215,7 +113219,7 @@
           "line": 160,
           "endLine": 577,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -113294,6 +113298,1758 @@
           "recordingSha256": "9b5d9776ee469952e70f019c2713c6c7a20ab3b6fbd97898bc48421e6a4f136c",
           "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
           "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        }
+      },
+      "activeStanding": {
+        "sha": "4bfe2f5c93ca3f25916620ad590c1f0723afab52",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "cancellation-wand-neutralizes-monster",
+          "session": "synthetic/v12/cancellation-wand-neutralizes-monster",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/cancellation-wand-neutralizes-monster.session.json",
+          "recordingPath": "challenges/cases/v12/cancellation-wand-neutralizes-monster.session.json",
+          "recordingSha256": "bbcd5f0004c8f7dd2f40882d969bc8910fee12712aa44d02984042a767655b14",
+          "recipe": "challenges/cases/v12/cancellation-wand-neutralizes-monster.recipe.session.json",
+          "recipeSha256": "43544185f7c39db6f61c4989841b80dc32a64eb0257dc967ece05fec51acb60e",
+          "replayInputSha256": "db5a6b9479f2abac6b814daa5695cdc678a14c03f85d79e3cd9cb71272f994d6",
+          "evaluationPath": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
+          "evaluationArtifact": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationUtc": "2026-09-29T07:59:32.252Z",
+          "remainingScreens": 2,
+          "recordedSteps": 58,
+          "previousScreensMatched": 56,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 56,
+              "total": 58
+            },
+            "rng": {
+              "matched": 2670,
+              "total": 2680
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 58
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 423",
+            "step": 56
+          },
+          "step": 56,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhitm",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 423",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/cancellation-wand-neutralizes-monster.json",
+            "result": {
+              "session": "synthetic/v12/cancellation-wand-neutralizes-monster",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "cancellation-wand-neutralizes-monster",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "bbcd5f0004c8f7dd2f40882d969bc8910fee12712aa44d02984042a767655b14",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 2,
+              "recordedSteps": 58,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "cancellation-wand-neutralizes-monster",
+                "session": "synthetic/v12/cancellation-wand-neutralizes-monster",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/cancellation-wand-neutralizes-monster.session.json",
+                "recordingPath": "challenges/cases/v12/cancellation-wand-neutralizes-monster.session.json",
+                "recordingSha256": "bbcd5f0004c8f7dd2f40882d969bc8910fee12712aa44d02984042a767655b14",
+                "recipe": "challenges/cases/v12/cancellation-wand-neutralizes-monster.recipe.session.json",
+                "recipeSha256": "43544185f7c39db6f61c4989841b80dc32a64eb0257dc967ece05fec51acb60e",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 2,
+                "recordedSteps": 58,
+                "previousScreensMatched": 56,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 56,
+                    "total": 58
+                  },
+                  "rng": {
+                    "matched": 2670,
+                    "total": 2680
+                  },
+                  "cursors": {
+                    "matched": 56,
+                    "total": 58
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 423",
+                  "step": 56
+                },
+                "step": 56,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhitm",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 423",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "WAN_CANCELLATION reveals a disguised mimic if needed, calls cancel_monst with hero zap flags, then follows the common wake/reveal/learn tail. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_CANCELLATION reveals a disguised mimic if needed, calls cancel_monst with hero zap flags, then follows the common wake/reveal/learn tail.",
+                "functions": [
+                  "bhitm"
+                ],
+                "callers": [
+                  "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+                  "js/zap.js:bhit -> bhitm"
+                ],
+                "dependencies": [
+                  "zap.c:cancel_monst is partially ported in js/zap.js and must be audited for this target and return-independent side effects"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+                "zap.c:335-340 invokes cancel_monst(mtmp,otmp,TRUE,TRUE,FALSE) with discarded result. js/zap.js:5753 has a partial cancel_monst implementation; audit its branch and its caller contract while porting bhitm.",
+                "The independently recorded v12 cancellation-wand-neutralizes-monster case first stops at zero-based step 56: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 423. It has 2 remaining screen(s) of 58 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+                "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "probing-wand-reveals-hostile-grid-bug",
+          "session": "synthetic/v12/probing-wand-reveals-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.session.json",
+          "recordingSha256": "ec09569c7bef3635827b90dbdc88bd5e647798c4b6042eb60a6fb2137c435199",
+          "recipe": "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.recipe.session.json",
+          "recipeSha256": "2723cdba32f02a96b33dae1f6e4774f71ea419a7601db41df31b67224506357a",
+          "replayInputSha256": "db5a6b9479f2abac6b814daa5695cdc678a14c03f85d79e3cd9cb71272f994d6",
+          "evaluationPath": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
+          "evaluationArtifact": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationUtc": "2026-09-29T07:59:32.252Z",
+          "remainingScreens": 1,
+          "recordedSteps": 51,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 51
+            },
+            "rng": {
+              "matched": 2558,
+              "total": 2558
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 427",
+            "step": 50
+          },
+          "step": 50,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhitm",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 427",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/probing-wand-reveals-hostile-grid-bug.json",
+            "result": {
+              "session": "synthetic/v12/probing-wand-reveals-hostile-grid-bug",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "probing-wand-reveals-hostile-grid-bug",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "ec09569c7bef3635827b90dbdc88bd5e647798c4b6042eb60a6fb2137c435199",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 1,
+              "recordedSteps": 51,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "probing-wand-reveals-hostile-grid-bug",
+                "session": "synthetic/v12/probing-wand-reveals-hostile-grid-bug",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.session.json",
+                "recordingPath": "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.session.json",
+                "recordingSha256": "ec09569c7bef3635827b90dbdc88bd5e647798c4b6042eb60a6fb2137c435199",
+                "recipe": "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.recipe.session.json",
+                "recipeSha256": "2723cdba32f02a96b33dae1f6e4774f71ea419a7601db41df31b67224506357a",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 1,
+                "recordedSteps": 51,
+                "previousScreensMatched": 50,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 2558,
+                    "total": 2558
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 51
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 427",
+                  "step": 50
+                },
+                "step": 50,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhitm",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 427",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "WAN_PROBING suppresses wake, reveals invisible location, calls probe_monster, marks wand learning, then follows the common tail. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_PROBING suppresses wake, reveals invisible location, calls probe_monster, marks wand learning, then follows the common tail.",
+                "functions": [
+                  "bhitm"
+                ],
+                "callers": [
+                  "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+                  "js/zap.js:bhit -> bhitm"
+                ],
+                "dependencies": [
+                  "zap.c:probe_monster is not implemented; it is a void callee whose gap must be explicit or ported to match the recorded probe output"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+                "zap.c:377-381 calls probe_monster and marks learn_it; js/artifacts.js records probe_monster as an unported void effect.",
+                "The independently recorded v12 probing-wand-reveals-hostile-grid-bug case first stops at zero-based step 50: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 427. It has 1 remaining screen(s) of 51 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+                "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "speed-wand-hastens-hostile-grid-bug",
+          "session": "synthetic/v12/speed-wand-hastens-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.session.json",
+          "recordingSha256": "94f22a27d69930cb9d322402bb06629cc022d025068e323888420e723b656db3",
+          "recipe": "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.recipe.session.json",
+          "recipeSha256": "9e580653baf6e5e45c4f4c0023febb1a28b2fcb3f9ce0c37f2df92fd0243c3f2",
+          "replayInputSha256": "db5a6b9479f2abac6b814daa5695cdc678a14c03f85d79e3cd9cb71272f994d6",
+          "evaluationPath": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
+          "evaluationArtifact": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationUtc": "2026-09-29T07:59:32.252Z",
+          "remainingScreens": 1,
+          "recordedSteps": 57,
+          "previousScreensMatched": 56,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 56,
+              "total": 57
+            },
+            "rng": {
+              "matched": 2401,
+              "total": 2410
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 420",
+            "step": 56
+          },
+          "step": 56,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhitm",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 420",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/speed-wand-hastens-hostile-grid-bug.json",
+            "result": {
+              "session": "synthetic/v12/speed-wand-hastens-hostile-grid-bug",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "speed-wand-hastens-hostile-grid-bug",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "94f22a27d69930cb9d322402bb06629cc022d025068e323888420e723b656db3",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 1,
+              "recordedSteps": 57,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "speed-wand-hastens-hostile-grid-bug",
+                "session": "synthetic/v12/speed-wand-hastens-hostile-grid-bug",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.session.json",
+                "recordingPath": "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.session.json",
+                "recordingSha256": "94f22a27d69930cb9d322402bb06629cc022d025068e323888420e723b656db3",
+                "recipe": "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.recipe.session.json",
+                "recipeSha256": "9e580653baf6e5e45c4f4c0023febb1a28b2fcb3f9ce0c37f2df92fd0243c3f2",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 1,
+                "recordedSteps": 57,
+                "previousScreensMatched": 56,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 56,
+                    "total": 57
+                  },
+                  "rng": {
+                    "matched": 2401,
+                    "total": 2410
+                  },
+                  "cursors": {
+                    "matched": 56,
+                    "total": 57
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 420",
+                  "step": 56
+                },
+                "step": 56,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhitm",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 420",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "WAN_SPEED_MONSTER tests resist, unmasks a mimic if needed, increases monster speed through mon_adjust_speed, schedules gear reassessment, marks the gesture helpful, then follows the common tail. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_SPEED_MONSTER tests resist, unmasks a mimic if needed, increases monster speed through mon_adjust_speed, schedules gear reassessment, marks the gesture helpful, then follows the common tail.",
+                "functions": [
+                  "bhitm"
+                ],
+                "callers": [
+                  "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+                  "js/zap.js:bhit -> bhitm"
+                ],
+                "dependencies": [
+                  "worn.c:mon_adjust_speed and zap.c:resist are ported; preserve their source order",
+                  "zap.c:bhitm helpful_gesture affects the common tail and must be maintained"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+                "zap.c:234-244 applies mon_adjust_speed(mtmp,1,otmp) after resist and sets helpful_gesture. js/worn.js has mon_adjust_speed but bhitm refuses the speed wand.",
+                "The independently recorded v12 speed-wand-hastens-hostile-grid-bug case first stops at zero-based step 56: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 420. It has 1 remaining screen(s) of 57 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+                "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleport-wand-moves-hostile-grid-bug",
+          "session": "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.session.json",
+          "recordingSha256": "6f604845ff5fd8ed29cb0fc3fce2c31880fb7fdb4a11818de0582ec28381e7f6",
+          "recipe": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.recipe.session.json",
+          "recipeSha256": "0edde60dad1b102f4eb45149fd0ce5e2d04bd4c67e1f5dd5d2be06827470baf8",
+          "replayInputSha256": "db5a6b9479f2abac6b814daa5695cdc678a14c03f85d79e3cd9cb71272f994d6",
+          "evaluationPath": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
+          "evaluationArtifact": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationUtc": "2026-09-29T07:59:32.252Z",
+          "remainingScreens": 1,
+          "recordedSteps": 57,
+          "previousScreensMatched": 56,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 56,
+              "total": 57
+            },
+            "rng": {
+              "matched": 2692,
+              "total": 2699
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 424",
+            "step": 56
+          },
+          "step": 56,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhitm",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 424",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/teleport-wand-moves-hostile-grid-bug.json",
+            "result": {
+              "session": "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "teleport-wand-moves-hostile-grid-bug",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "6f604845ff5fd8ed29cb0fc3fce2c31880fb7fdb4a11818de0582ec28381e7f6",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 1,
+              "recordedSteps": 57,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "teleport-wand-moves-hostile-grid-bug",
+                "session": "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.session.json",
+                "recordingPath": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.session.json",
+                "recordingSha256": "6f604845ff5fd8ed29cb0fc3fce2c31880fb7fdb4a11818de0582ec28381e7f6",
+                "recipe": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.recipe.session.json",
+                "recipeSha256": "0edde60dad1b102f4eb45149fd0ce5e2d04bd4c67e1f5dd5d2be06827470baf8",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 1,
+                "recordedSteps": 57,
+                "previousScreensMatched": 56,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 56,
+                    "total": 57
+                  },
+                  "rng": {
+                    "matched": 2692,
+                    "total": 2699
+                  },
+                  "cursors": {
+                    "matched": 56,
+                    "total": 57
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 424",
+                  "step": 56
+                },
+                "step": 56,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhitm",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 424",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "WAN_TELEPORTATION reveals a disguised mimic if needed, uses the return of u_teleport_mon to decide invisible-map behavior, learns based on canspotmon, then follows the common tail. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_TELEPORTATION reveals a disguised mimic if needed, uses the return of u_teleport_mon to decide invisible-map behavior, learns based on canspotmon, then follows the common tail.",
+                "functions": [
+                  "bhitm"
+                ],
+                "callers": [
+                  "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+                  "js/zap.js:bhit -> bhitm"
+                ],
+                "dependencies": [
+                  "teleport.c:u_teleport_mon return value is required by zap.c:bhitm and must be ported with its production caller"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+                "zap.c:341-346 consumes !u_teleport_mon(mtmp,TRUE). There is no JavaScript u_teleport_mon implementation; its return-valued teleport.c callee is a required dependency for this arm.",
+                "The independently recorded v12 teleport-wand-moves-hostile-grid-bug case first stops at zero-based step 56: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 424. It has 1 remaining screen(s) of 57 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+                "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "undead-turning-wand-stuns-zombie",
+          "session": "synthetic/v12/undead-turning-wand-stuns-zombie",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/undead-turning-wand-stuns-zombie.session.json",
+          "recordingPath": "challenges/cases/v12/undead-turning-wand-stuns-zombie.session.json",
+          "recordingSha256": "9b5d9776ee469952e70f019c2713c6c7a20ab3b6fbd97898bc48421e6a4f136c",
+          "recipe": "challenges/cases/v12/undead-turning-wand-stuns-zombie.recipe.session.json",
+          "recipeSha256": "2965fff3c6a77d58542703b830d0bef0d56e6a87eb111a7b35c02b0b1cbc4b10",
+          "replayInputSha256": "db5a6b9479f2abac6b814daa5695cdc678a14c03f85d79e3cd9cb71272f994d6",
+          "evaluationPath": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
+          "evaluationArtifact": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationUtc": "2026-09-29T07:59:32.252Z",
+          "remainingScreens": 1,
+          "recordedSteps": 57,
+          "previousScreensMatched": 56,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 56,
+              "total": 57
+            },
+            "rng": {
+              "matched": 4226,
+              "total": 4237
+            },
+            "cursors": {
+              "matched": 56,
+              "total": 57
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 421",
+            "step": 56
+          },
+          "step": 56,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhitm",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 421",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/undead-turning-wand-stuns-zombie.json",
+            "result": {
+              "session": "synthetic/v12/undead-turning-wand-stuns-zombie",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "undead-turning-wand-stuns-zombie",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "9b5d9776ee469952e70f019c2713c6c7a20ab3b6fbd97898bc48421e6a4f136c",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 1,
+              "recordedSteps": 57,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "undead-turning-wand-stuns-zombie",
+                "session": "synthetic/v12/undead-turning-wand-stuns-zombie",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/undead-turning-wand-stuns-zombie.session.json",
+                "recordingPath": "challenges/cases/v12/undead-turning-wand-stuns-zombie.session.json",
+                "recordingSha256": "9b5d9776ee469952e70f019c2713c6c7a20ab3b6fbd97898bc48421e6a4f136c",
+                "recipe": "challenges/cases/v12/undead-turning-wand-stuns-zombie.recipe.session.json",
+                "recipeSha256": "2965fff3c6a77d58542703b830d0bef0d56e6a87eb111a7b35c02b0b1cbc4b10",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 1,
+                "recordedSteps": 57,
+                "previousScreensMatched": 56,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 56,
+                    "total": 57
+                  },
+                  "rng": {
+                    "matched": 4226,
+                    "total": 4237
+                  },
+                  "cursors": {
+                    "matched": 56,
+                    "total": 57
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 421",
+                  "step": 56
+                },
+                "step": 56,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhitm",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 421",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "WAN_UNDEAD_TURNING first asks unturn_dead whether a carried corpse revives; against an undead target it then rolls damage, marks bypasses, calls resist, and may make the survivor flee. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_UNDEAD_TURNING first asks unturn_dead whether a carried corpse revives; against an undead target it then rolls damage, marks bypasses, calls resist, and may make the survivor flee.",
+                "functions": [
+                  "bhitm"
+                ],
+                "callers": [
+                  "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+                  "js/zap.js:bhit -> bhitm"
+                ],
+                "dependencies": [
+                  "zap.c:unturn_dead return value is required by zap.c:bhitm and must be ported",
+                  "zap.c:resist and mon.c:monflee are downstream branches to audit"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+                "zap.c:245-267 consumes unturn_dead(mtmp) before undead damage and wake decisions. js/zap.js marks unturn_dead unported in another caller; its return-valued callee must be ported for this arm.",
+                "The independently recorded v12 undead-turning-wand-stuns-zombie case first stops at zero-based step 56: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 421. It has 1 remaining screen(s) of 57 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+                "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+          "session": "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.session.json",
+          "recordingPath": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.session.json",
+          "recordingSha256": "a3272f7ed7d8e41e692334e0ad5903cde06a8e19e2cb5342b0d9648c11779308",
+          "recipe": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.recipe.session.json",
+          "recipeSha256": "f505c8b2671380ee11e154e6ef9b0b8f7a4139aea727a27d6543cdf2c0ab0dcf",
+          "replayInputSha256": "db5a6b9479f2abac6b814daa5695cdc678a14c03f85d79e3cd9cb71272f994d6",
+          "evaluationPath": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
+          "evaluationArtifact": "challenges/evaluations/20260929075918-v12.json",
+          "evaluationUtc": "2026-09-29T07:59:32.252Z",
+          "remainingScreens": 1,
+          "recordedSteps": 58,
+          "previousScreensMatched": 57,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 57,
+              "total": 58
+            },
+            "rng": {
+              "matched": 2763,
+              "total": 2768
+            },
+            "cursors": {
+              "matched": 57,
+              "total": 58
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 418",
+            "step": 57
+          },
+          "step": 57,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhitm",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 418",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/make-invisible-wand-hides-hostile-grid-bug.json",
+            "result": {
+              "session": "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "a3272f7ed7d8e41e692334e0ad5903cde06a8e19e2cb5342b0d9648c11779308",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 1,
+              "recordedSteps": 58,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+                "session": "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.session.json",
+                "recordingPath": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.session.json",
+                "recordingSha256": "a3272f7ed7d8e41e692334e0ad5903cde06a8e19e2cb5342b0d9648c11779308",
+                "recipe": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.recipe.session.json",
+                "recipeSha256": "f505c8b2671380ee11e154e6ef9b0b8f7a4139aea727a27d6543cdf2c0ab0dcf",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 1,
+                "recordedSteps": 58,
+                "previousScreensMatched": 57,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 57,
+                    "total": 58
+                  },
+                  "rng": {
+                    "matched": 2763,
+                    "total": 2768
+                  },
+                  "cursors": {
+                    "matched": 57,
+                    "total": 58
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 418",
+                  "step": 57
+                },
+                "step": 57,
+                "kind": "stop",
+                "sourceFile": "zap.c",
+                "function": "bhitm",
+                "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 418",
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "WAN_MAKE_INVISIBLE saves prior visibility and name, calls mon_set_minvis, then chooses the transparent or vanishes message using before/after sight before the common tail. This is one of six distinct v12 monster-target effect arms sharing zap.c:bhitm; select one whole-function port with the related sessions.",
+              "source": {
+                "file": "zap.c",
+                "branch": "WAN_MAKE_INVISIBLE saves prior visibility and name, calls mon_set_minvis, then chooses the transparent or vanishes message using before/after sight before the common tail.",
+                "functions": [
+                  "bhitm"
+                ],
+                "callers": [
+                  "zap.c:bhit -> zap.c:bhitm when a wand ray hits a monster",
+                  "js/zap.js:bhit -> bhitm"
+                ],
+                "dependencies": [
+                  "worn.c:mon_set_minvis is ported; preserve its message and visibility state contract"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C zap.c:160-610 bhitm dispatches immediate wand effects on a monster, and its common wake/reveal/learn tail runs after the switch. JS js/zap.js:3146-3177 reaches a guard that throws UnsupportedZapError for this wand type before the source effect branch or common tail.",
+                "zap.c:347-367 orders name formatting before mon_set_minvis and compares oldinvis/couldsee with knowninvisible/canseemon. js/worn.js has mon_set_minvis, but bhitm refuses this wand.",
+                "The independently recorded v12 make-invisible-wand-hides-hostile-grid-bug case first stops at zero-based step 57: unsupported hero command: an unported branch of this command: zapping a wand requires bhitm() for immediate effect type 418. It has 1 remaining screen(s) of 58 recorded steps in challenges/evaluations/20260929033350-v12.json.",
+                "The six v12 monster-target wand cases enter different bhitm switch arms, so group implementation by the shared C function while retaining each case's own recording provenance and first-mismatch result."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "bhitm",
+            "implementation": "js/zap.js",
+            "symbol": "bhitm",
+            "sourceReview": "Read the complete zap.c:bhitm definition at 160–577 in C definition order. Compared every wand/spell arm, target visibility/resistance guard, mutation/RNG order, disclosure behavior, and common wake/reveal/learn tail. The required consumed returns from teleport.c:u_teleport_mon, zap.c:unturn_dead, and display.c:knowninvisible are implemented; probe_monster's output is preserved. Its discarded-result gaps are explicit source-named note_unported calls: mon.c:mcureblindness, pline.c:set_msg_xy, uhitm.c:that_is_a_mimic, and mhitu.c:expels(TRUE). The expanded B53 scope also implements source helpers probe_monster, zap_steed, unturn_dead, revive, revive_egg, get_container_location, zombie_can_dig, find_mid, and u_teleport_mon; source-pinned tests cover the pure helper predicates and the matching recordings listed below cover the reached impure paths. Ordinary ray callback branches match all six cited v12 cases. The mounted cancellation recording enters zap_steed's default delegation to bhitm. Separate mounted probe and teleport recordings validate the direct zap_steed arms but do not count as bhitm coverage. The active swallowed weffects branch remains unverified: its independent recipe diverges on the preceding C gulpum/distfleeck turn (rn2(5)=4 at monmove.c:538), before the zap reaches bhitm.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "weffects",
+                "source": "zap.c:weffects calls bhit with bhitm as the callback and calls bhitm(u.ustuck,obj) when swallowed"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c:bhit invokes the supplied monster callback as it walks the ray"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_steed",
+                "source": "zap.c:zap_steed delegates the default mounted-wand switch arm to bhitm(u.usteed,obj)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-ray.test.mjs",
+              "scripts/zap-command.test.mjs",
+              "scripts/teleport.test.mjs",
+              "scripts/light.test.mjs",
+              "scripts/display.test.mjs"
+            ],
+            "recordings": [
+              "recordings/zap.c/zap-steed-cancellation-knight-independent-b53.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "cancellation-wand-neutralizes-monster",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_CANCELLATION"
+              },
+              {
+                "batch": "v12",
+                "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_MAKE_INVISIBLE"
+              },
+              {
+                "batch": "v12",
+                "caseId": "probing-wand-reveals-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_PROBING -> probe_monster"
+              },
+              {
+                "batch": "v12",
+                "caseId": "speed-wand-hastens-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_SPEED_MONSTER"
+              },
+              {
+                "batch": "v12",
+                "caseId": "teleport-wand-moves-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_TELEPORTATION -> teleport.c:u_teleport_mon"
+              },
+              {
+                "batch": "v12",
+                "caseId": "undead-turning-wand-stuns-zombie",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_UNDEAD_TURNING -> unturn_dead"
+              }
+            ],
+            "checkedAt": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f"
+          }
+        ],
+        "entryPointReview": "B53's planned source unit is zap.c:bhitm. Its ordinary production path is zap.c:weffects -> zap.c:bhit(callback=bhitm) -> bhitm; all six selected v12 histories match through their final step. The independent mounted cancellation recording follows zap.c:weffects -> zap_steed -> zap_steed's default arm -> bhitm. The separately expanded zap_steed direct-probing and direct-teleportation arms also have exact independent recordings at recordings/zap.c/zap-steed-probing-knight-independent-b53.session.json and recordings/zap.c/zap-steed-teleport-knight-independent-b53.session.json. The separately expanded hero self-turning recording at recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json reaches zap.c:unturn_you -> unturn_dead -> revive_egg/revive and matches the corpse resurrection, encumbrance, and shudder message order. The swallowed weffects branch is active and calls bhitm(u.ustuck,obj), but remains unverified: the independent recipe at recipes/zap.c/bhitm-swallowed-trapper-gulpmu-blocked-b53.session.json diverges on its preceding trapper gulpum/distfleeck continuation at monmove.c:538 (C rn2(5)=4) before zap input. The floor-object zap.c:bhito callers for revived corpses/eggs remain outside B53's assigned source unit and are not claimed. Additional named void gaps within expanded helpers are revive's eat.c:cant_finish_meal and probe_monster's long-worm insight.c:mstatusline segment-count path; they are skipped only where C discards the result.",
+        "entryPoints": [
+          {
+            "name": "ordinary monster ray callback through weffects/bhit",
+            "functions": [
+              "bhitm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "cancellation-wand-neutralizes-monster",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_CANCELLATION"
+              },
+              {
+                "batch": "v12",
+                "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 57,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_MAKE_INVISIBLE"
+              },
+              {
+                "batch": "v12",
+                "caseId": "probing-wand-reveals-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 50,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_PROBING -> probe_monster"
+              },
+              {
+                "batch": "v12",
+                "caseId": "speed-wand-hastens-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_SPEED_MONSTER"
+              },
+              {
+                "batch": "v12",
+                "caseId": "teleport-wand-moves-hostile-grid-bug",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_TELEPORTATION -> teleport.c:u_teleport_mon"
+              },
+              {
+                "batch": "v12",
+                "caseId": "undead-turning-wand-stuns-zombie",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 56,
+                "source": "zap.c:weffects -> zap.c:bhit(callback=bhitm) -> zap.c:bhitm WAN_UNDEAD_TURNING -> unturn_dead"
+              }
+            ]
+          },
+          {
+            "name": "mounted downward cancellation wand delegates to bhitm",
+            "functions": [
+              "bhitm"
+            ],
+            "recordings": [
+              "recordings/zap.c/zap-steed-cancellation-knight-independent-b53.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "swallowed weffects immediate dispatch to bhitm(u.ustuck)",
+            "functions": [
+              "bhitm"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole zap.c:bhitm and its consumed monster-wand helpers are source-ported; six admitted v12 wand ranges and four independent C recordings match. The active swallowed weffects -> bhitm(u.ustuck) caller still lacks matching runtime evidence because the independent trapper recipe first diverges in mhitu.c:gulpum / monmove.c:distfleeck before the zap input. Resume after that predecessor is ported and record a strict swallowed-entry witness."
+    },
+    {
+      "id": "port-eat-choke-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete eat.c choke and every eating caller continuation",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v12/tourist-rations-reach-satiated-choke"
+      ],
+      "selectionReason": "Current v12 Tourist ration case matches seven screens then first diverges at step 7 when C enters eat.c:choke; investigations/synthetic/v12/tourist-rations-reach-satiated-choke.json traces the source, and challenges/evaluations/20260929060025-v12.json preserves the 7/19 screens and 4415/4416 RNG baseline.",
+      "detail": "Port whole eat.c:choke (245-287) and wire direct callers eataccessory, bite, and both overfull lesshungry arms. Preserve bite return 1 and its consumed eatfood/start_eating continuations. Match exercise/adjalign, rn2, foodword, done(CHOKING), messages and state in source order; vomit is a separate discarded-void callee gap if not ported.",
+      "openedAt": "cf7fde20c323f1ec652ea962df49b4ea6fe1c036",
+      "openStanding": {
+        "sha": "afef1b4502cba283f93a95c53757b2184efa38c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "choke",
+          "line": 245,
+          "endLine": 291,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 245,
+        "to": 291
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/tourist-rations-reach-satiated-choke": {
+          "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "tourist-rations-reach-satiated-choke",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+          "evaluationPath": "challenges/evaluations/20260929060025-v12.json",
+          "evaluationCommit": "327800a84ddedb020167a65bd3683401f516fea3"
+        }
+      },
+      "activeStanding": {
+        "sha": "afef1b4502cba283f93a95c53757b2184efa38c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "tourist-rations-reach-satiated-choke",
+          "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+          "recipe": "challenges/cases/v12/tourist-rations-reach-satiated-choke.recipe.session.json",
+          "recipeSha256": "8e13f8173888d47f6181e3e874c434292c94a446fbe1d7de6dc99822ff9a886c",
+          "replayInputSha256": "26e194a8e9c34460ab16ca1086e4b4cd74f1de0c20de48727cb6b09cd5c498cc",
+          "evaluationPath": "challenges/evaluations/20260929074021-v12.json",
+          "evaluationCommit": "afef1b4502cba283f93a95c53757b2184efa38c9",
+          "evaluationArtifact": "challenges/evaluations/20260929074021-v12.json",
+          "evaluationUtc": "2026-09-29T07:40:35.151Z",
+          "remainingScreens": 12,
+          "recordedSteps": 19,
+          "previousScreensMatched": 7,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 7,
+              "total": 19
+            },
+            "rng": {
+              "matched": 4415,
+              "total": 4416
+            },
+            "cursors": {
+              "matched": 7,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "an occupation reached eating requires choke()",
+            "step": 7
+          },
+          "step": 7,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "choke",
+          "message": "an occupation reached eating requires choke()",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/tourist-rations-reach-satiated-choke.json",
+            "result": {
+              "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "tourist-rations-reach-satiated-choke",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+              "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+              "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe",
+              "remainingScreens": 12,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+                "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+                "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+                "recipe": "challenges/cases/v12/tourist-rations-reach-satiated-choke.recipe.session.json",
+                "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+                "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe",
+                "evaluationUtc": "2026-09-29T05:30:52.340Z",
+                "remainingScreens": 12,
+                "recordedSteps": 19,
+                "previousScreensMatched": 7,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 7,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 4415,
+                    "total": 4416
+                  },
+                  "cursors": {
+                    "matched": 7,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "rng",
+                  "message": "At segment 0, step 7 (`y`), C next calls rn2(2)=1 from exercise(attrib.c:509); JavaScript next calls rn2(5)=1 from distfleeck(monmove.c:538). C then calls rn2(20)=12 in choke(eat.c:258) and prints “You choke over your food.”",
+                  "step": 7,
+                  "sourceFile": "eat.c",
+                  "function": "choke",
+                  "line": 258,
+                  "cFile": "eat.c",
+                  "cFunction": "choke",
+                  "luaFile": null
+                },
+                "recipeSha256": "8e13f8173888d47f6181e3e874c434292c94a446fbe1d7de6dc99822ff9a886c",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18"
+              },
+              "summary": "C45 removed the earlier continued-eating prompt mismatch: the v12 case now matches through the `Continue eating?` screen and the answer `y`. On the next bite, eat.c:lesshungry crosses 2000 nutrition while `victual.canchoke` is true and calls eat.c:choke with the meal. C first calls exercise(A_CON,FALSE), producing rn2(2)=1 @ exercise(attrib.c:509), then rn2(20)=12 @ choke(eat.c:258) selects the fatal branch and `done(CHOKING)`; JS instead continues into monster movement and has no screen at step 7. Port the whole choke helper and wire its active meal, tin, and strangulation-amulet caller, preserving bite()’s nonzero return when choking is survived.",
+              "source": {
+                "file": "eat.c",
+                "branch": "choke(struct obj *food), complete body at eat.c:245-287.",
+                "functions": [
+                  "choke"
+                ],
+                "callers": [
+                  "eat.c:eataccessory (2265-2404), AMULET_OF_STRANGULATION case calls choke(otmp) at line 2387; result discarded.",
+                  "eat.c:bite (3133-3161), canchoke && u.uhunger >= 2000 calls choke(victual.piece), then returns 1; eatfood (517-541) and start_eating (2021-2074) consume that return.",
+                  "eat.c:lesshungry (3289-3334), active meal overfull arm calls choke(victual.piece), then reset_eat(); result discarded.",
+                  "eat.c:lesshungry (3289-3334), opentin overfull arm calls choke(tin), with no reset_eat(); result discarded."
+                ],
+                "dependencies": [
+                  "attrib.c:exercise(A_CON,FALSE) is already implemented in js/attrib.js; choke discards its return, while its RNG and possible encumber_msg side effect must remain ordered.",
+                  "Role_if(PM_KNIGHT), u.ualign.type, adjalign(-1), You_feel, You, Hunger, Breathless, and Strangled are source state/format predicates. Hunger checks intrinsic or extrinsic HUNGER; Breathless checks magical breathing or current-form breathlessness; Strangled is exactly the intrinsic STRANGLED value. The corresponding state/message helpers are present in js/eat.js and js/attrib.js.",
+                  "eat.c:morehungry is already implemented in js/eat.js; it calls newuhs after lowering u.uhunger.",
+                  "eat.c:vomit is a separate partial helper in js/eat.js. choke discards its result; for unsupported vomit branches preserve an exact note_unported gap rather than simulating effects.",
+                  "eat.c:foodword is already implemented in js/eat.js; objnam.c:killer_xname is already implemented for ordinary non-artifact, non-corpse food and its string is consumed to populate svk.killer.name.",
+                  "end.c:done(CHOKING) is already implemented in js/end.js; its return value is not consumed by choke. Preserve its awaited life-saving/game-over behavior."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current post-C45 evaluation challenges/evaluations/20260929053037-v12.json (source commit 9c273f47f2c3033b4383f4c0f64eed6faae179fe, 2026-09-29T05:30:52.340Z) reports 7/19 screens, 4415/4416 RNG values, and 7/19 cursors; no error is recorded.",
+                "The C recording uses seed 58016493, date/time 2047-12-15 12:25:17, Tourist, and moves `eb eb y.......... `. At zero-based step 5 it emits the nearly-full warning; step 6 is the continued-eating prompt; step 7 input `y` starts the overfull bite. C RNG at that step includes rn2(2)=1 @ exercise(attrib.c:509), then rn2(20)=12 @ choke(eat.c:258); the screen is `You choke over your food.--More--`.",
+                "JS-only replay against the committed C recording has 4428 RNG entries versus C 4416 and 7/19 screens. Its first RNG mismatch is index 4414 at segment 0, step 7, key `y`: C entry `rn2(2)=1`, caller exercise(attrib.c:509); JS entry `rn2(5)=1`, caller distfleeck(monmove.c:538). JS has no screen at that step.",
+                "The previous evaluation 20260929033350-v12.json stopped at step 5 in lesshungry because the continued-eating paranoid_query branch was unsupported. C45 implemented that branch; the latest evaluation advances two screens and exposes the later choke call. Treat the old lesshungry mismatch as resolved, not the current first cause.",
+                "Current JS gap sites are js/eat.js:1928 (`lesshungry` calls note_unported for choke), js/eat.js:1973 (`bite` throws UnsupportedEatError for choke), and js/eat.js:3641 (`eataccessory` calls note_unported for choke). Wire all these direct sites; bite must return nonzero after choke so eatfood/start_eating take C’s survived-choking continuation."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "choke",
+            "implementation": "js/eat.js",
+            "symbol": "choke",
+            "sourceReview": "Read all of eat.c:choke (245-291) and compared the branches, state changes, and evaluation order. The initial non-satiated return admits only an amulet of strangulation; the Knight/lawful penalty runs before exercise(A_CON,FALSE), then Breathless, Hunger, and the conditional rn2(20) are checked in C order. The nonfatal amulet path returns after its recovery message. Other safe chokes call morehungry with u.uhunger-60 under Hunger or 1000 otherwise, then record the discarded void vomit() call as note_unported('eat.c vomit'). The fatal path sets killer format/name, calls done(CHOKING), and does not return to the C caller. JS preserves that continuation for bite/start_eating and lesshungry. The consumed objnam.c:killer_xname dependency is fully source-ported in js/objnam.js, including artifact bypass, corpse and slime-mold forms, holy-water BUC handling, temporary object/type identification, and restoration; scripts/objnam.test.mjs pins those source branches. No RNG, output, or state-changing C callee is silently replaced.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "lesshungry",
+                "source": "eat.c:lesshungry:3299-3303 calls choke with the active meal piece, or with the open tin/null in its non-meal branch."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "bite",
+                "source": "eat.c:bite:3139 calls choke before nutrition when canchoke is set and hunger is already at least 2000; its survived result is consumed by start_eating/eatfood."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eataccessory",
+                "source": "eat.c:eataccessory:2387 calls choke for AMULET_OF_STRANGULATION after its rn2(5) effect selector chooses the effect arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/choke-archeologist-start-bite-c46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 7,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry -> choke"
+              }
+            ],
+            "checkedAt": "e46682624a2ecd3200df8975e3c64e1ac4cfc492"
+          }
+        ],
+        "entryPointReview": "The matching meal entry is ordinary doeat/start_eating nutrition: the independent Archeologist recipe reaches choke through bite's lesshungry call when the satiated meal crosses the overfull threshold, and the admitted v12 Tourist case reaches the same eat.c:choke draw at segment 0 step 7. start_eating now consumes bite's survived-choke return and stops if done(CHOKING) reaches game over. Three active caller paths remain without matching runtime evidence and are deliberately unverified: (1) bite's direct precheck when canchoke is true and u.uhunger is already >=2000 at bite entry; the two matching meal traces enter choke later through lesshungry instead. (2) lesshungry's non-meal overfull arm, including go.occupation == opentin passing svc.context.tin.tin; the existing recipes/eat.c/lesshungry-cpostfx-polymorph-tin-blocked-c45.session.json documents a separate polymorphing-tin nutrition route, but its replay diverges in polyself and is not choke evidence. (3) eataccessory's strangulation-amulet effect arm. The committed recipes/eat.c/choke-strangulation-amulet-accessory-blocked-c46.session.json reaches eataccessory at eat.c:2280 but the selector rn2(5) returns 4 and 1 on its two bounded variations, both before choke; no mismatching output was added to recordings/. Keep the source function verified through the matching meal route, but keep the goal parked until these active caller paths have matching evidence.",
+        "entryPoints": [
+          {
+            "name": "satiated meal crosses the overfull threshold through lesshungry",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [
+              "recordings/eat.c/choke-archeologist-start-bite-c46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 7,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry -> choke"
+              }
+            ]
+          },
+          {
+            "name": "bite direct precheck when already overfull",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "non-meal or opentin overfull nutrition through lesshungry",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "eat a strangulation amulet through eataccessory",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "choke meal lesshungry path and killer naming now match; direct bite precheck, opentin/non-meal lesshungry, and strangulation-amulet eataccessory callers lack matching C runtime evidence; amulet effect blocked at rn2(5), tin setup at polyself"
+    },
+    {
+      "id": "port-lock-picklock-trapped-chest-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port complete lock.c picklock occupation for trapped boxes and doors",
+      "cFile": "lock.c",
+      "sessions": [
+        "synthetic/v12/skeleton-key-unlocks-trapped-chest"
+      ],
+      "selectionReason": "Current v12 skeleton-key-unlocks-trapped-chest first stops at step 52 with 52/53 screens and all 3023 RNG calls matched; investigations/synthetic/v12/skeleton-key-unlocks-trapped-chest.json traces the unported trapped-box arm to lock.c:picklock. Latest saved result is challenges/evaluations/20260929060025-v12.json, manifest b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef.",
+      "detail": "Port entire lock.c:picklock (68-160) in source order, including current box and door paths, magic-key branches, success roll and occupation state. Wire the pick_lock setup/occupation caller; on trapped chest toggle olocked and lknown before trap.c:chest_trap(FINGER,FALSE), then exercise Dexterity and reset usedtime. Keep any unported return-valued callees in scope and produce independent C-reaching recordings.",
+      "openedAt": "77c849babe2ffb0bb5536fd665bd79450e376f47",
+      "openStanding": {
+        "sha": "b55c6ce47f7853f106d082144a248f4bb3ed21d4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "picklock",
+          "line": 68,
+          "endLine": 161,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 68,
+        "to": 161
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/skeleton-key-unlocks-trapped-chest": {
+          "session": "synthetic/v12/skeleton-key-unlocks-trapped-chest",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "skeleton-key-unlocks-trapped-chest",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+          "recordingSha256": "35dd2a3027d64e189b464ef687c310a1078634f4e7c2dbb80394500ec1a19a36",
+          "evaluationPath": "challenges/evaluations/20260929060025-v12.json",
+          "evaluationCommit": "327800a84ddedb020167a65bd3683401f516fea3"
+        }
+      },
+      "activeStanding": {
+        "sha": "b55c6ce47f7853f106d082144a248f4bb3ed21d4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "skeleton-key-unlocks-trapped-chest",
+          "session": "synthetic/v12/skeleton-key-unlocks-trapped-chest",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+          "recordingPath": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+          "recordingSha256": "35dd2a3027d64e189b464ef687c310a1078634f4e7c2dbb80394500ec1a19a36",
+          "recipe": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.recipe.session.json",
+          "recipeSha256": "28ecf5e96b823ed71f35d94e169b72c717ce6965a0bcaea2f2a361816e7a9ed6",
+          "replayInputSha256": "2a9894486c470d29712355eeba6df48ad9f2271138f999ea3772b1787b978020",
+          "evaluationPath": "challenges/evaluations/20260929060025-v12.json",
+          "evaluationCommit": "327800a84ddedb020167a65bd3683401f516fea3",
+          "evaluationArtifact": "challenges/evaluations/20260929060025-v12.json",
+          "evaluationUtc": "2026-09-29T06:00:39.813Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 3023,
+              "total": 3023
+            },
+            "cursors": {
+              "matched": 52,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "an occupation reached picking a lock requires picklock() trapped box",
+            "step": 52
+          },
+          "step": 52,
+          "kind": "stop",
+          "sourceFile": "lock.c",
+          "function": "picklock",
+          "message": "an occupation reached picking a lock requires picklock() trapped box",
+          "cFile": "lock.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/skeleton-key-unlocks-trapped-chest.json",
+            "result": {
+              "session": "synthetic/v12/skeleton-key-unlocks-trapped-chest",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "skeleton-key-unlocks-trapped-chest",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "35dd2a3027d64e189b464ef687c310a1078634f4e7c2dbb80394500ec1a19a36",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 1,
+              "recordedSteps": 53,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "skeleton-key-unlocks-trapped-chest",
+                "session": "synthetic/v12/skeleton-key-unlocks-trapped-chest",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+                "recordingPath": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+                "recordingSha256": "35dd2a3027d64e189b464ef687c310a1078634f4e7c2dbb80394500ec1a19a36",
+                "recipe": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.recipe.session.json",
+                "recipeSha256": "28ecf5e96b823ed71f35d94e169b72c717ce6965a0bcaea2f2a361816e7a9ed6",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 1,
+                "recordedSteps": 53,
+                "previousScreensMatched": 52,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 3023,
+                    "total": 3023
+                  },
+                  "cursors": {
+                    "matched": 52,
+                    "total": 53
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "an occupation reached picking a lock requires picklock() trapped box",
+                  "step": 52
+                },
+                "step": 52,
+                "kind": "stop",
+                "sourceFile": "lock.c",
+                "function": "picklock",
+                "message": "an occupation reached picking a lock requires picklock() trapped box",
+                "cFile": "lock.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "On successful skeleton-key use against a trapped floor chest, lock.c:picklock toggles olocked, marks lknown, then invokes trap.c:chest_trap before exercise and resetting the occupation. JS refuses the trapped-box arm before those source-ordered state changes. Port the whole picklock occupation callback and preserve its magic-key and trapped-door branches; chest_trap is an active shared dependency.",
+              "source": {
+                "file": "lock.c",
+                "branch": "picklock occupation: the chest remains on the hero square, rn2(100) succeeds, no magic key is used, xlock.box is trapped, and source toggles lock/knowledge before invoking chest_trap(FINGER,FALSE).",
+                "functions": [
+                  "picklock"
+                ],
+                "callers": [
+                  "lock.c:pick_lock sets the xlock context and starts the picklock occupation",
+                  "js/lock.js:pick_lock establishes xlock and dispatches js/lock.js:picklock each occupied turn"
+                ],
+                "dependencies": [
+                  "trap.c:chest_trap is partially ported in js/trap.js and currently reserved by A45 for shield display wiring; coordinate after that delivery",
+                  "lock.c:picklock magic-key and trapped-door arms are also unported; return-valued helper calls in those arms must be source-backed"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C lock.c:68-160 validates the box or door position, advances usedtime, rolls rn2(100), handles the magic key, prints success, toggles box->olocked, sets lknown, calls chest_trap when otrapped, then exercises Dexterity and clears usedtime.",
+                "JS js/lock.js:484-558 reaches UnsupportedLockError at trapped box before toggling olocked or lknown, before chest_trap, and before exercise. Its magic-key and trapped-door branches also refuse. This is a partial whole-function port, not a case-specific message fix.",
+                "The independent v12 case first stops at zero-based step 52 with 52 of 53 screens and all 3023 RNG calls matched in challenges/evaluations/20260929033350-v12.json; the remaining screen is the trapped-chest occupation continuation.",
+                "C trap.c:6294-6501 owns chest_trap, which this lock.c function calls with a discarded result. A45 currently owns only its shield-display caller wiring; the picklock task must coordinate production behavior without overwriting A45 changes."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "picklock",
+            "implementation": "js/lock.js",
+            "symbol": "picklock",
+            "sourceReview": "Compared the complete lock.c:68-160 callback in C order: box and adjacent-door validity checks; usedtime/nohands short circuit and timeout; rn2(100) occupation chance; Master Key trap discovery, chance increase, y_n disarm choice and Wisdom exercise; success message; trapped-door destruction/unblocking/shop check/redraw order; box lock toggle, lknown assignment and discarded chest_trap return; final Dexterity exercise and usedtime reset. JavaScript now implements each branch without a picklock-specific refusal. The C void calls b_trapped() and shk.c:add_damage() remain explicit note_unported gaps in the trapped-door branch; no substitute result or effects are invented. The current recordings exercise the trapped-box success branch, not trapped-door destruction. The Master Key of Thievery disarm branch is implemented but has no matching C recording in this delivery. The trapped-door branch is likewise not runtime-certified; its b_trapped() and conditional shk.c:add_damage() behavior remains source-named and unported.",
+            "callers": [
+              {
+                "path": "js/lock.js",
+                "symbol": "pick_lock",
+                "source": "lock.c:pick_lock installs picklock with set_occupation after initializing gx.xlock; the callback reads the same xlock context."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm calls pick_lock; the v12 and direct-apply recipes enter this route."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:do_loot_cont AUTOUNLOCK_APPLY_KEY arm calls pick_lock for the locked floor container; the independent #loot recording reaches picklock."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen_indir",
+                "source": "lock.c:doopen_indir AUTOUNLOCK_APPLY_KEY arm calls pick_lock for an adjacent locked door; this existing dispatcher is source-traced and wired to the same occupation callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/lock-pick-opens-trapped-chest-independent-a46.session.json",
+              "recordings/lock.c/lock-pick-through-loot-independent-a46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "skeleton-key-unlocks-trapped-chest",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "apply.c:doapply -> lock.c:pick_lock -> lock.c:picklock -> trap.c:chest_trap"
+              }
+            ],
+            "checkedAt": "afef1b4502cba283f93a95c53757b2184efa38c9"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the occupation callback picklock, registered by lock.c:pick_lock. Its active production call paths are apply.c:doapply, pickup.c:do_loot_cont (AUTOUNLOCK_APPLY_KEY), and lock.c:doopen_indir (AUTOUNLOCK_APPLY_KEY). JavaScript retains all three caller routes. The selected v12 case and the independent direct-apply recording reach the trapped-box callback; a second independent #loot recording reaches the same callback through pickup.c and records picklock(lock.c:98). The doopen_indir door-autounlock route shares the callback but has no separate door-specific recording in this delivery. The trapped-door success arm also retains the source-named void gaps trap.c:b_trapped and shk.c:add_damage; its post-call source ordering is implemented, but that branch is not runtime-certified here. The Master Key of Thievery trap-detection/disarm state branch and the trapped-door success/destruction branch are active source paths, but neither has matching C recording or synthetic evidence here; the task remains open for these variants.",
+        "entryPoints": [
+          {
+            "name": "manual lock-tool application occupation",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": [
+              "recordings/lock.c/lock-pick-opens-trapped-chest-independent-a46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "skeleton-key-unlocks-trapped-chest",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "apply.c:doapply -> lock.c:pick_lock -> lock.c:picklock"
+              }
+            ]
+          },
+          {
+            "name": "#loot locked-container autounlock occupation",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": [
+              "recordings/lock.c/lock-pick-through-loot-independent-a46.session.json"
+            ]
+          },
+          {
+            "name": "Master Key of Thievery disarms trapped lock",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Successful pick on trapped door reaches b_trapped destruction arm",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "afef1b4502cba283f93a95c53757b2184efa38c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "picklock source implementation and trapped-box apply/#loot entries match; Master Key disarm, trapped-door destruction, and door-autounlock runtime paths lack matching recordings; b_trapped and add_damage remain named void gaps"
+    },
+    {
+      "id": "port-trap-trapeffect-poly-trap-synthetic-v11-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port full trap.c polymorph-trap effect and hero activation",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v11/hero-polymorph-trap-transforms-form"
+      ],
+      "selectionReason": "Current v11 hero polymorph-trap case stops at the preflight refusal at step 20; C enters trap.c:trapeffect_poly_trap and polyself. The accepted A45 shieldeff caller removes the earlier dependency.",
+      "detail": "Port every hero and monster branch of trap.c:trapeffect_poly_trap (2453-2525) in source order, including iron shoes, Antimagic and Unchanging, ordinary steedintrap and polyself, monster resistance and newcham. Admit POLY_TRAP through hero preflight and wire dotrap/mintrap production dispatch. Preserve consumed mpickobj, poly_obj, and resist results, plus source-named discarded-void gaps; provide independent C-reaching recordings for active paths without copying v11 inputs.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_poly_trap",
+          "line": 2453,
+          "endLine": 2527,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2453,
+        "to": 2527
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-polymorph-trap-transforms-form": {
+          "session": "synthetic/v11/hero-polymorph-trap-transforms-form",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-polymorph-trap-transforms-form",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-polymorph-trap-transforms-form.session.json",
+          "recordingSha256": "a489a6cbf5d30018d1f82dc6f48b2c3579fd99d2541b656d0781237bb76f934a",
+          "evaluationPath": "challenges/evaluations/20260929075918-v11.json",
+          "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492"
+        }
+      }
+    },
+    {
+      "id": "port-zap-bhito-floor-effects-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete zap.c bhito floor-object effect callback",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v12/cancellation-wand-neutralizes-floor-potion",
+        "synthetic/v12/probing-wand-reveals-floor-potion"
+      ],
+      "selectionReason": "Current completed investigations identify two related v12 floor-object wand refusals in zap.c bhito. The third teleportation floor-potion case has the same callback refusal after the earlier headstone fix and is grouped as a related path; its investigation count needs refresh.",
+      "detail": "Port zap.c bhito in C branch and tail order, retaining existing Force Bolt, polymorph, boxlock and stone-to-flesh paths. Wire zap_updown and bhitpile callbacks and all active production callers. Port zap.c cancel_item for floor and carried cancellation effects and teleport.c rloco for object relocation, including their consumed return dependencies; audit other bhito return-valued callees and source-named void gaps. Match independent C recordings for cancellation, probing, teleportation and additional branch variation, preserving screens, cursors and RNG across all admitted batches.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "bhito",
+          "line": 2119,
+          "endLine": 2427,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2119,
+        "to": 2427
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/cancellation-wand-neutralizes-floor-potion": {
+          "session": "synthetic/v12/cancellation-wand-neutralizes-floor-potion",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "cancellation-wand-neutralizes-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/cancellation-wand-neutralizes-floor-potion.session.json",
+          "recordingSha256": "9d474a73454fc403b4eb33687f4aed3626cbef6f410138ea7cd6e7faf9a78f89",
+          "evaluationPath": "challenges/evaluations/20260929084757-v12.json",
+          "evaluationCommit": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f"
+        },
+        "synthetic/v12/probing-wand-reveals-floor-potion": {
+          "session": "synthetic/v12/probing-wand-reveals-floor-potion",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "probing-wand-reveals-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/probing-wand-reveals-floor-potion.session.json",
+          "recordingSha256": "1342e359c8a1fc0cb5407438a814ddb05b07c271e4ba20b778cb383044bb0306",
+          "evaluationPath": "challenges/evaluations/20260929084757-v12.json",
+          "evaluationCommit": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f"
         }
       }
     }

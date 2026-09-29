@@ -9,9 +9,11 @@ import {
     AGGRAVATE_MONSTER,
     A_CHA,
     A_CON,
+    A_LAWFUL,
     A_DEX,
     A_STR,
     A_WIS,
+    CHOKING,
     BY_COOKIE,
     BLINDED,
     COST_DSTROY,
@@ -57,6 +59,7 @@ import {
     Is_astralevel,
     Is_waterlevel,
     KILLED_BY_AN,
+    KILLED_BY,
     LL_CONDUCT,
     LAST_PROP,
     LIGHT_HEADED,
@@ -176,7 +179,7 @@ import {
     breathless,
     perceives,
 } from './mondata.js';
-import { AD_ACID, AD_DISE, AT_BREA } from './monsters.js';
+import { AD_ACID, AD_DISE, AT_BREA, PM_KNIGHT } from './monsters.js';
 import { hcolor, Mgender, pmname, rndmonnam } from './do_name.js';
 import { monflee } from './monmove.js';
 import {
@@ -292,7 +295,7 @@ import {
     mksobj,
 } from './obj.js';
 import {
-    an, ansimpleoname, corpse_xname, donameFresh, obj_is_pname,
+    an, ansimpleoname, corpse_xname, donameFresh, killer_xname, obj_is_pname,
     otense, safe_qbuf,
     singular, the, the_unique_pm, xnameFresh, yobjnam,
 } from './objnam.js';
@@ -1868,6 +1871,83 @@ export async function morehungry(num, state, env) {
     await newuhs(true, state, env);
 }
 
+// C ref: eat.c choke() (245-291). The return value is only a JS control-flow
+// adapter: true means C would return to its caller; false means done() reached
+// really_done(), where C does not return. The source function itself is void.
+async function choke(food, state, env = {}) {
+    const u = state.u;
+    const message = env.message ?? ttyPline;
+
+    // C only chokes from a satiated state, except that an amulet of
+    // strangulation can invoke this directly through eataccessory().
+    if (u.uhs !== SATIATED
+        && (!food || food.otyp !== AMULET_OF_STRANGULATION))
+        return true;
+
+    if (u.uhs === SATIATED
+        && state.urole?.mnum === PM_KNIGHT
+        && u.ualign?.type === A_LAWFUL) {
+        adjalign(-1, state);
+        await message('You feel like a glutton!', state);
+    }
+
+    const random = env.random ?? { rn2 };
+    await exercise(A_CON, false, state, random, {
+        encumberMessage: env.encumberMessage
+            ?? ((subject) => encumber_msg(subject, { message })),
+    });
+
+    // youprop.h: Breathless includes either magical-breathing property or a
+    // breathless form; Hunger is intrinsic OR extrinsic, while Strangled is
+    // specifically the intrinsic property.
+    const hunger = propertyActive(state, HUNGER);
+    const strangled = Boolean(u.uprops?.[STRANGLED]?.intrinsic);
+    const breathlessHero = propertyActive(state, MAGICAL_BREATHING)
+        || breathless(state.youmonst?.data);
+    if (breathlessHero || hunger
+        || (!strangled && random.rn2(20) === 0)) {
+        if (food?.otyp === AMULET_OF_STRANGULATION) {
+            await message('You choke, but recover your composure.', state);
+            return true;
+        }
+        await message('You stuff yourself and then vomit voluminously.', state);
+        await morehungry(
+            hunger ? u.uhunger - 60 : 1000,
+            state,
+            env,
+        );
+        // eat.c discards vomit()'s result. Its remaining source branches are
+        // not part of this task, so preserve the exact named gap.
+        note_unported('eat.c vomit');
+        return true;
+    }
+
+    state.killer ??= { name: '', format: KILLED_BY_AN };
+    state.killer.format = KILLED_BY_AN;
+    if (food) {
+        await message(`You choke over your ${foodword(food, state)}.`, state);
+        if (food.oclass === COIN_CLASS) {
+            state.killer.name = 'very rich meal';
+        } else {
+            state.killer.format = KILLED_BY;
+            state.killer.name = killer_xname(food, state);
+        }
+    } else {
+        await message('You choke over it.', state);
+        state.killer.name = 'quick snack';
+    }
+    await message('You die...', state);
+
+    const { done } = await import('./end.js');
+    await done(CHOKING, state, {
+        message,
+        random,
+        encumberMessage: env.encumberMessage
+            ?? ((subject) => encumber_msg(subject, { message })),
+    });
+    return !state.program_state?.gameover;
+}
+
 // C ref: eat.c vomit() (3736-3785). This is the ordinary, unpolymorphed hero
 // continuation used by fountain.c's foul-water arm. The other arms are kept
 // explicit boundaries: their C callees (make_sick(), ubreatheu(),
@@ -1922,10 +2002,19 @@ export async function lesshungry(num, state, env) {
     u.uhunger += num;
     if (u.uhunger >= 2000) {
         if (!iseating || meal.canchoke) {
-            // C discards choke()'s void result. Preserve its source position
-            // and keep the still-unported effects explicit; reset_eat() is
-            // called only for the active meal branch.
-            note_unported('eat.c choke');
+            // eat.c passes the meal piece while the meal occupation is
+            // active, the open tin while opentin owns the occupation, and
+            // NULL for other nutrition callers. `occtxt` is the state field
+            // set with that source occupation; "opening the tin" is unique
+            // to opentin() in this file.
+            const chokingFood = iseating
+                ? meal.piece
+                : state.go?.occtxt === 'opening the tin'
+                    ? tinContext(state).tin : null;
+            const returned = await choke(chokingFood, state, env);
+            // C's done(CHOKING) does not return on the fatal arm. The JS
+            // game-over marker preserves that control-flow boundary.
+            if (!returned) return;
             if (iseating) reset_eat(state);
         }
     } else if (u.uhunger >= 1500
@@ -1961,16 +2050,16 @@ export async function lesshungry(num, state, env) {
     await newuhs(false, state, env);
 }
 
-// C ref: eat.c bite() (3126-3161). One turn's worth of the meal: the nutrition
-// it pays out, the food it uses up, and the weight that leaves. Returns 1 when
-// the hero choked and survived, which no ported arm can answer yet.
+// C ref: eat.c bite() (3133-3161). One turn's worth of the meal: the nutrition
+// it pays out, the food it uses up, and the weight that leaves. C returns 1
+// after a nonfatal choke; 2 is a local sentinel for C's non-returning fatal
+// done(CHOKING) path, so callers do not continue after the JS finalizer.
 async function bite(state, env) {
     const meal = victual(state);
 
     if (meal.canchoke && state.u.uhunger >= 2000) {
-        // choke() prints, may kill through done(CHOKING), and is the only
-        // producer of bite()'s nonzero result.
-        throw new UnsupportedEatError('choke()');
+        const returned = await choke(meal.piece, state, env);
+        return returned ? 1 : 2;
     }
     if (meal.doreset) {
         // reset_eat() raises this when moveloop_core() interrupts a meal, so
@@ -3167,9 +3256,20 @@ async function start_eating(otmp, already_partly_eaten, state, env) {
         // of the arms that clear either field.
     }
 
-    if (await bite(state, env)) {
-        // bite() answers nonzero only after choke(), which stops above.
-        throw new Error('start_eating: unreachable choke continuation');
+    const oldNomovemsg = state.nomovemsg;
+    const biteResult = await bite(state, env);
+    if (biteResult === 2) return;
+    if (biteResult) {
+        // C's survived-choke continuation counts this bite. When it finishes
+        // the meal, suppress a vomit's nomovemsg for done_eating(), then
+        // restore the value that choke()/vomit() installed.
+        if (++meal.usedtime >= meal.reqtime) {
+            const saveNomovemsg = state.nomovemsg;
+            if (!oldNomovemsg) state.nomovemsg = null;
+            await done_eating(false, state, env);
+            if (!oldNomovemsg) state.nomovemsg = saveNomovemsg;
+        }
+        return;
     }
 
     if (++meal.usedtime >= meal.reqtime) {
@@ -3638,7 +3738,7 @@ async function eataccessory(otmp, state, env) {
         }
         break;
     case AMULET_OF_STRANGULATION:
-        note_unported('eat.c choke');
+        await choke(otmp, state, env);
         break;
     case AMULET_OF_RESTFUL_SLEEP: {
         const newnap = rnd(100);

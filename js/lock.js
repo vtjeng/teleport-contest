@@ -25,6 +25,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FAINTED,
+    FINGER,
     IS_DOOR,
     M_AP_FURNITURE,
     M_AP_OBJECT,
@@ -52,6 +53,7 @@ import {
     getdir,
     set_occupation,
     yn_function,
+    y_n,
 } from './cmd.js';
 import {
     feel_location,
@@ -121,7 +123,13 @@ import { container_at, doloot, encumber_msg } from './pickup.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnl } from './rng.js';
 import { costly_spot } from './shk.js';
-import { is_lava, is_pool, t_at, unconscious } from './trap.js';
+import {
+    chest_trap,
+    is_lava,
+    is_pool,
+    t_at,
+    unconscious,
+} from './trap.js';
 import { in_rooms } from './rooms.js';
 import { canSpotMonster, heroIsBlind, messageAt } from './startup_a11y.js';
 import {
@@ -469,18 +477,10 @@ function lock_action(state = game) {
     return 'picking the lock';
 }
 
-// C ref: lock.c picklock() (67-159), the occupation callback that runs once
-// per turn while the hero picks a lock. It rolls rn2(100) against the chance
-// computed in pick_lock(), and on success changes D_LOCKED to D_CLOSED (for a
-// door) or toggles olocked (for a box).
-//
-// Covered: the door arm with its doormask sanity checks, the 50-turn timeout,
-// the success roll, the plain-success path that flips D_LOCKED to D_CLOSED or
-// D_CLOSED to D_LOCKED, and the exercise() calls.
-//
-// Not covered, each throwing: the magic-key trap detection arm
-// (lock.c:101-136), and the door-trap arm (lock.c:140-146) that fires
-// b_trapped() and destroys the door.
+// C ref: lock.c picklock() (68-160). This is the occupation callback installed
+// by pick_lock(). C calls b_trapped() for a trapped door but discards its
+// result; preserve that source gap, then continue the door destruction and
+// redraw sequence.
 async function picklock(state = game) {
     const xlock = xlockContext(state);
     const u = state.u;
@@ -522,21 +522,65 @@ async function picklock(state = game) {
     if (rn2(100) >= xlock.chance)
         return 1; /* still busy */
 
-    // lock.c:101-136. The magic-key trap detection arm fires when the target
-    // is trapped and xlock.magic_key is set. That combination requires the
-    // Master Key of Thievery, which no development session carries.
-    if ((xlock.box ? xlock.box.otrapped
-        : (doorMask(xlock.door) & D_TRAPPED) !== 0) && xlock.magic_key) {
-        throw new UnsupportedLockError('magic-key trap detection in picklock()');
+    // lock.c:101-136. A suitably blessed/cursed Master Key of Thievery finds
+    // a trap and improves the chance for the next occupation turn. The C
+    // y_n() prompt defaults to No; answer is its character byte.
+    if ((xlock.door
+        ? (doorMask(xlock.door) & D_TRAPPED) !== 0
+        : Boolean(xlock.box?.otrapped)) && xlock.magic_key) {
+        xlock.chance += 20;
+        if (!xlock.door) {
+            if (!xlock.box.tknown)
+                await ttyPline('You find a trap!', state);
+            xlock.box.tknown = 1;
+        }
+        if (await y_n('Do you want to try to disarm it?', state)
+            === 'y'.charCodeAt(0)) {
+            let what;
+            let alreadyunlocked;
+            if (xlock.door) {
+                setDoorMask(
+                    xlock.door,
+                    doorMask(xlock.door) & ~D_TRAPPED,
+                );
+                what = 'door';
+                alreadyunlocked = !(doorMask(xlock.door) & D_LOCKED);
+            } else {
+                xlock.box.otrapped = 0;
+                xlock.box.tknown = 0;
+                what = (xlock.box.otyp === CHEST) ? 'chest' : 'box';
+                alreadyunlocked = !xlock.box.olocked;
+            }
+            await ttyPline(
+                `You succeed in disarming the trap.  The ${what} is still `
+                    + `${alreadyunlocked ? 'un' : ''}locked.`,
+                state,
+            );
+            await exercise(A_WIS, true, state, { rn2 }, {
+                encumberMessage: encumber_msg,
+            });
+        } else {
+            await ttyPline(
+                `You stop ${lock_action(state)}.`, state,
+            );
+            await exercise(A_WIS, false, state, { rn2 }, {
+                encumberMessage: encumber_msg,
+            });
+        }
+        return (xlock.usedtime = 0);
     }
 
     await ttyPline(`You succeed in ${lock_action(state)}.`, state);
     if (xlock.door) {
         if (doorMask(xlock.door) & D_TRAPPED) {
-            // lock.c:141-146. b_trapped() fires the door trap. This path
-            // needs b_trapped(), unblock_point(), in_rooms(), add_damage(),
-            // and newsym().
-            throw new UnsupportedLockError('door trap in picklock()');
+            // C discards b_trapped()'s void result, so keep its explosion
+            // behavior as a named gap and preserve the remaining source order.
+            note_unported('trap.c b_trapped');
+            setDoorMask(xlock.door, D_NODOOR);
+            unblock_point(u.ux + u.dx, u.uy + u.dy, state);
+            if (in_rooms(u.ux + u.dx, u.uy + u.dy, SHOPBASE, state).length)
+                note_unported('shk.c add_damage');
+            newsym(u.ux + u.dx, u.uy + u.dy, state);
         } else if (doorMask(xlock.door) & D_LOCKED) {
             xlock.door.flags = D_CLOSED;
             xlock.door.doormask = D_CLOSED;
@@ -544,15 +588,13 @@ async function picklock(state = game) {
             xlock.door.flags = D_LOCKED;
             xlock.door.doormask = D_LOCKED;
         }
-    } else if (xlock.box) {
-        // lock.c:148-153. The selected ordinary box simply changes lock
-        // state; trap handling is deliberately outside this witness.
-        if (xlock.box.otrapped)
-            throw new UnsupportedLockError('picklock() trapped box');
+    } else {
+        // lock.c:148-153. C toggles first, then calls chest_trap() if this
+        // was a trapped floor box. Its return is explicitly discarded.
         xlock.box.olocked = xlock.box.olocked ? 0 : 1;
         xlock.box.lknown = 1;
-    } else {
-        throw new UnsupportedLockError('picklock() without a door or box');
+        if (xlock.box.otrapped)
+            await chest_trap(xlock.box, FINGER, false, state);
     }
     await exercise(A_DEX, true, state, { rn2 }, {
         encumberMessage: encumber_msg,

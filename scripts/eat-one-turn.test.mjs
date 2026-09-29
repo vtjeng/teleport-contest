@@ -41,6 +41,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    A_CON,
     ECMD_TIME,
     FAINTED,
     HALLUC,
@@ -601,8 +602,8 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         await lesshungry(20, recovering, newuhsEnv(said));
         assert.deepEqual(said, ['You only feel hungry now.']);
 
-        // At 2000 C reaches choke() only when the meal can choke. That helper
-        // is an explicit void-call gap here, while reset_eat() still runs.
+        // Although hunger reaches 2000, the saved status is not SATIATED, so
+        // C's choke() returns immediately; the active meal still resets.
         const choking = state();
         choking.u.uhunger = 1999;
         choking.force_save_hs = true;
@@ -626,6 +627,40 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         await lesshungry(1, drinking, newuhsEnv());
         assert.equal(drinking.u.uhunger, 2000);
         assert.equal(drinking.context.victual.doreset, 0);
+    });
+
+test('choke handles the satiated Hunger branch before resetting a meal',
+    async () => {
+        const current = state();
+        const messages = [];
+        const draws = [];
+        current.u.uhunger = 1999;
+        current.u.uhs = SATIATED;
+        current.u.uprops[HUNGER] = { intrinsic: 0, extrinsic: 1 };
+        current.force_save_hs = true;
+        const piece = food(current, FOOD_RATION);
+        current.context.victual = {
+            ...zero_victual(), piece, eating: 1, canchoke: 1,
+        };
+        const env = {
+            ...newuhsEnv(messages),
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    return 1;
+                },
+            },
+        };
+
+        await lesshungry(1, current, env);
+
+        // exercise(A_CON,FALSE) is the only random call: Hunger short-circuits
+        // C's following rn2(20), and the status is still satiated at entry.
+        assert.deepEqual(draws, [2]);
+        assert.equal(current.u.aexe[A_CON], -1);
+        assert.equal(current.u.uhunger, 60);
+        assert.equal(current.context.victual.doreset, 1);
+        assert.equal(messages[0], 'You stuff yourself and then vomit voluminously.');
     });
 
 function topLine() {

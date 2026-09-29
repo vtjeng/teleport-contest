@@ -23,7 +23,7 @@ import {
     MALE, NEUTRAL, NON_PM,
     OBJ_CONTAINED, OBJ_FLOOR, OBJ_INVENT, OBJ_MINVENT, QBUFSZ,
     P_BOW, W_AMUL, W_ARMOR, W_BALL, W_CHAIN, W_QUIVER, W_RING, W_RINGR,
-    W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP,
+    W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP, plur,
 } from './const.js';
 import {
     fruit_from_indx, fruit_from_name, makeplural, makesingular,
@@ -1382,16 +1382,13 @@ export function cxname(obj, state = game) {
     return xnameFresh(obj, state);
 }
 
-// C ref: objnam.c killer_xname() (1940-2005), ordinary non-artifact object
-// arm. Death reasons identify the object type but suppress BUC, erosion-proof,
-// grease, poison, and player-assigned names. All temporary identification is
-// restored before returning, so calculating a nonfatal hit's killer string
-// does not teach the hero anything.
+// C ref: objnam.c killer_xname() (1942-2005). Death reasons identify the
+// object type but suppress BUC, erosion-proof, grease, poison, and
+// player-assigned names. All temporary identification is restored before
+// returning, so calculating a killer string does not teach the hero anything.
 export function killer_xname(obj, state = game) {
     if (obj.oartifact)
-        unsupported('artifact killer name', obj);
-    if (obj.otyp === CORPSE || obj.otyp === SLIME_MOLD)
-        unsupported('corpse or slime-mold killer name', obj);
+        return bare_artifactname(obj, state);
 
     const type = objectType(obj, state);
     const savedObject = { ...obj };
@@ -1403,11 +1400,13 @@ export function killer_xname(obj, state = game) {
     try {
         obj.known = true;
         obj.dknown = true;
-        obj.bknown = false;
+        obj.bknown = obj.otyp === POT_WATER;
         obj.rknown = false;
         obj.greased = false;
-        obj.blessed = false;
-        obj.cursed = false;
+        if (obj.otyp !== POT_WATER) {
+            obj.blessed = false;
+            obj.cursed = false;
+        }
         obj.opoisoned = false;
         if (savedExtra?.oname) {
             obj.oextra = { ...savedExtra };
@@ -1416,7 +1415,14 @@ export function killer_xname(obj, state = game) {
         type.oc_name_known = true;
         type.oc_uname = null;
 
-        let name = xnameFresh(obj, state);
+        let name;
+        if (obj.otyp === CORPSE) {
+            name = corpse_xname(obj, null, CXN_NORMAL, state);
+        } else if (obj.otyp === SLIME_MOLD) {
+            name = `deadly slime mold${plur(obj.quan)}`;
+        } else {
+            name = xnameFresh(obj, state);
+        }
         const possessive = name.toLowerCase().includes("'s ")
             || name.toLowerCase().includes("s' ");
         if (obj.quan === 1 && !possessive) {
