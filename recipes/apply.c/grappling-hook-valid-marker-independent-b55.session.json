@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93415829,
+      "datetime": "20481117092300",
+      "nethackrc": "OPTIONS=name:MarkerProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizwish\ngrappling hook\nao $l.",
+      "comment": "Independent C-first apply.c:doapply -> use_grapple witness. A male Wizard wishes and wields the hook, toggles getpos valid-square highlights, then targets a visible east floor square. C reaches the tohit==0 no-object result; seed, identity, gender, and marker-toggle history differ from the admitted v13 case."
+    }
+  ]
+}

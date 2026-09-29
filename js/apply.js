@@ -1,7 +1,8 @@
 // apply.js -- the `a` command: using a tool.
 // C refs: src/apply.c apply_ok(), doapply(), get_mleash(), use_cream_pie(),
 // use_whistle(), use_magic_whistle(), magic_whistled(), use_whip(), the
-// polearm helpers and use_pole(), use_stethoscope(), its_dead(), reset_trapset(),
+// polearm helpers and use_pole(), use_stethoscope(), the grappling-hook
+// helpers and use_grapple(), its_dead(), reset_trapset(),
 // use_trap(), and set_trap().
 //
 // doapply()'s switch has thirty-odd named arms. Its live groups include
@@ -103,6 +104,7 @@ import {
     INVIS,
     INVIS_BEAM,
     IS_DOOR,
+    IS_AIR,
     IS_FURNITURE,
     IS_OBSTRUCTED,
     IS_STWALL,
@@ -112,6 +114,8 @@ import {
     P_BASIC,
     P_NONE,
     P_SKILLED,
+    PICK_ONE,
+    MENU_BEHAVE_STANDARD,
     P_RIDING,
     STOMACH,
     STONE,
@@ -208,7 +212,7 @@ import {
 } from './do_name.js';
 import { can_reach_floor, cant_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { check_capacity, losehp, near_capacity, nomul, overexertion } from './hack.js';
+import { check_capacity, losehp, near_capacity, nomul, overexertion, spoteffects } from './hack.js';
 import { dist2, highc, isqrt, s_suffix, strstri, truncateByteString, upstart } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import { gulp_blnd_check } from './mhitu.js';
@@ -260,6 +264,8 @@ import {
     throws_rocks,
     type_is_pname,
     bigmonst,
+    strongmonst,
+    verysmall,
     touch_petrifies,
     little_to_big,
     big_to_little,
@@ -497,7 +503,7 @@ import { wield_tool } from './wield.js';
 import { acurr } from './attrib.js';
 import { known_spell, spe_Fresh, spelleffects } from './spell.js';
 import { stucksteed, use_saddle } from './steed.js';
-import { enexto, mnexto, rloc, tele_restrict, tele_to_rnd_pet, teleds } from './teleport.js';
+import { enexto, mnexto, rloc, rloc_to, tele_restrict, tele_to_rnd_pet, teleds } from './teleport.js';
 import { mpickobj } from './steal.js';
 import {
     _doWearInternals,
@@ -546,6 +552,7 @@ import { note_unported } from './unported.js';
 import { dbon, setmnotwielded, uwep_skill_type } from './weapon.js';
 import { mwelded } from './wield.js';
 import { u_wipe_engr } from './engrave.js';
+import { select_menu } from './windows.js';
 import {
     ART_SNICKERSNEE,
     Stone_resistance,
@@ -1041,6 +1048,203 @@ export function get_mleash(monster, state = game) {
             return object;
     }
     return null;
+}
+
+// C ref: apply.c grapple_range(), can_grapple_location(),
+// display_grapple_positions(), and use_grapple() (3686-3873).
+export function grapple_range(state = game) {
+    const typ = uwep_skill_type(state);
+    let maxRange = 4;
+    if (typ === P_NONE || P_SKILL(typ, state) <= P_BASIC) {
+        maxRange = 4;
+    } else if (P_SKILL(typ, state) === P_SKILLED) {
+        maxRange = 5;
+    } else {
+        maxRange = 8;
+    }
+    return maxRange;
+}
+
+// apply.c uses distu(), whose source macro delegates to square-distance
+// dist2(); this is intentionally not Chebyshev range.
+export function can_grapple_location(x, y, state = game) {
+    return isok(x, y) && cansee(x, y, state)
+        && dist2(x, y, state.u.ux, state.u.uy) <= grapple_range(state);
+}
+
+export async function display_grapple_positions(onOff, state = game) {
+    if (onOff) {
+        await tmp_at(DISP_BEAM, cmap_to_glyph(S_goodpos, state), state);
+        for (let dx = -3; dx <= 3; ++dx) {
+            for (let dy = -3; dy <= 3; ++dy) {
+                const x = dx + state.u.ux;
+                const y = dy + state.u.uy;
+                if (can_grapple_location(x, y, state) && !u_at(x, y, state))
+                    await tmp_at(x, y, state);
+            }
+        }
+    } else {
+        await tmp_at(DISP_END, 0, state);
+    }
+}
+
+export async function use_grapple(obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { rn1, rn2, rnd };
+    let res = ECMD_OK;
+    let typ;
+    let tohit;
+    let cc;
+    let monster;
+    let object;
+
+    if (state.u.uswallow) {
+        await message("There's not enough room here to use that.", state);
+        return ECMD_OK;
+    }
+    if (obj !== state.uwep) {
+        if (await wield_tool(obj, 'cast', state)) {
+            cmdq_add_ec(CQ_CANNED, extcmdRow('apply'), state);
+            cmdq_add_key(CQ_CANNED, obj.invlet, state);
+            return ECMD_TIME;
+        }
+        return ECMD_OK;
+    }
+
+    await message('Where do you want to hit?', state);
+    cc = { x: state.u.ux, y: state.u.uy };
+    state.getpos_hilitefunc = (onOff) =>
+        display_grapple_positions(onOff, state);
+    state.getpos_getvalid = (x, y) => can_grapple_location(x, y, state);
+    try {
+        if (await getpos(cc, true, 'the spot to hit', state) < 0)
+            return res | ECMD_CANCEL;
+    } finally {
+        state.getpos_hilitefunc = null;
+        state.getpos_getvalid = null;
+    }
+
+    typ = uwep_skill_type(state);
+    if (dist2(cc.x, cc.y, state.u.ux, state.u.uy) > grapple_range(state)) {
+        await message('Too far!', state);
+        return res;
+    } else if (!cansee(cc.x, cc.y, state)) {
+        await message("You won't hit anything if you can't see that spot.", state);
+        return res;
+    } else if (!couldsee(cc.x, cc.y, state)) {
+        await message("You can't reach that spot from here.", state);
+        return res;
+    }
+
+    tohit = random.rn2(5);
+    if (typ !== P_NONE && P_SKILL(typ, state) >= P_SKILLED) {
+        const ground = surface(cc.x, cc.y, state);
+        tohit = random.rn2(4);
+        const selected = await select_menu(state, {
+            title: 'Aim for what?',
+            items: [
+                { text: `an object on the ${ground}`, value: 1 },
+                { text: 'a monster', value: 2 },
+                { text: `the ${ground}`, value: 3 },
+            ],
+            how: PICK_ONE,
+            cancelValue: null,
+            behavior: MENU_BEHAVE_STANDARD,
+        });
+        if (selected > 0
+            && random.rn2(P_SKILL(typ, state) > P_SKILLED ? 20 : 2)) {
+            tohit = Number(selected) - 1;
+        }
+    }
+
+    if (tohit === 2 || !random.rn2(2))
+        u_wipe_engr(random.rnd(2), { ...env, state, random });
+
+    switch (tohit) {
+    case 0:
+        // apply.c's untrap FIXME leaves this target unchanged.
+        break;
+    case 1:
+        object = state.level.objects?.[cc.x]?.[cc.y] ?? null;
+        if (object) {
+            await message(`You snag an object from the ${surface(cc.x, cc.y, state)}!`, state);
+            // apply.c discards pickup_object()'s result.
+            await pickup_object(object, 1, false, { ...env, state, random });
+            newsym(cc.x, cc.y, state);
+            return ECMD_TIME;
+        }
+        break;
+    case 2:
+        state.gb.bhitpos = { x: cc.x, y: cc.y };
+        monster = m_at(cc.x, cc.y, state);
+        if (!monster) break;
+        state.gn.notonhead = state.gb.bhitpos.x !== monster.mx
+            || state.gb.bhitpos.y !== monster.my;
+        {
+            const saveConfirm = state.flags.confirm;
+            let adjacent = null;
+            if (verysmall(monster.data) && !random.rn2(4)) {
+                adjacent = enexto(
+                    state.u.ux, state.u.uy, null,
+                    { ...env, state, random },
+                );
+            }
+            if (adjacent) {
+                cc = adjacent;
+                state.flags.confirm = false;
+                await attack_checks(monster, state.uwep, state,
+                    { ...env, message, random });
+                state.flags.confirm = saveConfirm;
+                await check_caitiff(monster, state,
+                    { ...env, message, random });
+                await message(
+                    `You pull in ${mon_nam(monster, state, { ...env, random })}!`,
+                    state,
+                );
+                monster.mundetected = 0;
+                // apply.c discards rloc_to()'s return; its ordinary monster
+                // relocation path is already available to this caller.
+                rloc_to(monster, cc.x, cc.y, { ...env, state, random });
+                return ECMD_TIME;
+            }
+            if ((!bigmonst(monster.data) && !strongmonst(monster.data))
+                || random.rn2(4)) {
+                state.flags.confirm = false;
+                await attack_checks(monster, state.uwep, state,
+                    { ...env, message, random });
+                state.flags.confirm = saveConfirm;
+                await check_caitiff(monster, state,
+                    { ...env, message, random });
+                await thitmonst(monster, state.uwep, state, { ...env, random });
+                return ECMD_TIME;
+            }
+        }
+        // FALLTHROUGH: a large and strong monster can turn this into a
+        // surface pull when the final source rn2(4) is zero.
+    case 3:
+        if (IS_AIR(state.level.at(cc.x, cc.y).typ) || is_pool(cc.x, cc.y, state)) {
+            await message(`The hook slices through the ${surface(cc.x, cc.y, state)}.`, state);
+        } else {
+            await message(`You are yanked toward the ${surface(cc.x, cc.y, state)}!`, state);
+            // dothrow.c:hurtle() is still an unported void callee. Preserve
+            // the call site without inventing its movement or screen effects.
+            note_unported('dothrow.c hurtle');
+            await spoteffects(true, state, { ...env, random });
+        }
+        return ECMD_TIME;
+    default:
+        if (P_SKILL(typ, state) <= P_BASIC) {
+            await message('You hook yourself!', state);
+            await losehp(
+                halfPhysicalDamage(random.rn1(10, 10), state),
+                'a grappling hook', KILLED_BY, state, { ...env, random },
+            );
+            return ECMD_TIME;
+        }
+        break;
+    }
+    await message(nothing_happens, state);
+    return ECMD_TIME;
 }
 
 // Thrown where apply.c reaches a tool or a branch this port has not ported.
@@ -2940,7 +3144,6 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
 // only after every named case has failed to match.
 const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
     LUMP_OF_ROYAL_JELLY,
-    GRAPPLING_HOOK,
     LEASH,
     BELL,
     BELL_OF_OPENING,
@@ -3855,6 +4058,8 @@ export async function doapply(state = game, env = {}) {
         return use_cream_pie(obj, state, env);
     case BULLWHIP:
         return use_whip(obj, state, env);
+    case GRAPPLING_HOOK:
+        return use_grapple(obj, state, env);
     case SADDLE:
         return use_saddle(obj, state, env);
     case MAGIC_WHISTLE:
