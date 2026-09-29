@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked B59 follow-up: this independent cursed-katana wish attempts the still-unported wield.c:ready_weapon -> will_weld() branch. Keep it as a recipe, not a matching recording, until that separate source branch is implemented.",
+  "segments": [
+    {
+      "seed": 61174283,
+      "datetime": "20440811140922",
+      "nethackrc": "OPTIONS=name:B59Weld,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+      "moves": "#wizwish\ncursed katana\nwe"
+    }
+  ]
+}
