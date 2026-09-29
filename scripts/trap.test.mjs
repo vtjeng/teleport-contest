@@ -52,6 +52,49 @@ test('chest_trap flushes its trigger message before the Luck roll', () => {
     assert.ok(jsMessage >= 0 && jsMessage < jsFlush && jsFlush < jsLuck);
 });
 
+test('electric chest resistance animates before its resistance message', () => {
+    const cChestTrap = cFunction(
+        C_TRAP,
+        'chest_trap(\n    struct obj *obj,',
+        '\nstruct trap *\nt_at(',
+    );
+    const cBranchStart = cChestTrap.indexOf('case 8:');
+    const cBranchEnd = cChestTrap.indexOf('} /* case 6 */', cBranchStart);
+    const cBranch = cChestTrap.slice(cBranchStart, cBranchEnd);
+    const cCharge = cBranch.indexOf('You("are jolted by a surge of electricity!");');
+    const cResistance = cBranch.indexOf('if (Shock_resistance)', cCharge);
+    const cShield = cBranch.indexOf('shieldeff(u.ux, u.uy);', cResistance);
+    const cUnaffected = cBranch.indexOf('You("don\'t seem to be affected.");', cShield);
+    const cPerception = cBranch.indexOf('monstseesu(M_SEEN_ELEC);', cUnaffected);
+    const cDestroy = cBranch.indexOf(
+        'destroy_items(&gy.youmonst, AD_ELEC, orig_dmg);', cPerception,
+    );
+    assert.ok(cCharge >= 0 && cCharge < cResistance
+        && cResistance < cShield && cShield < cUnaffected
+        && cUnaffected < cPerception && cPerception < cDestroy);
+
+    const jsStart = JS_TRAP.indexOf('export async function chest_trap(');
+    const jsChestTrap = JS_TRAP.slice(jsStart);
+    const jsBranchStart = jsChestTrap.indexOf('case 8: case 7: case 6:');
+    const jsBranchEnd = jsChestTrap.indexOf('\n        case 5: case 4: case 3:', jsBranchStart);
+    const jsBranch = jsChestTrap.slice(jsBranchStart, jsBranchEnd);
+    const jsCharge = jsBranch.indexOf("await ttyPline('You are jolted by a surge of electricity!', state);");
+    const jsResistance = jsBranch.indexOf('if (Shock_resistance(state))', jsCharge);
+    const jsShield = jsBranch.indexOf('await shieldeff(u.ux, u.uy, state);', jsResistance);
+    const jsUnaffected = jsBranch.indexOf('await ttyPline("You don\'t seem to be affected.", state);', jsShield);
+    const jsPerception = jsBranch.indexOf('monstseesu(M_SEEN_ELEC, state);', jsUnaffected);
+    const jsDestroy = jsBranch.indexOf(
+        'await destroy_items(state.youmonst, AD_ELEC, orig_dmg, {', jsPerception,
+    );
+    const jsRandom = jsBranch.indexOf(
+        'random: { d, rn1, rn2, rnd, rne, rnl },', jsDestroy,
+    );
+    assert.ok(jsCharge >= 0 && jsCharge < jsResistance
+        && jsResistance < jsShield && jsShield < jsUnaffected
+        && jsUnaffected < jsPerception && jsPerception < jsDestroy
+        && jsDestroy < jsRandom);
+});
+
 test('loot, disarm, and tip preserve their discarded-result chest_trap calls', () => {
     assert.match(C_PICKUP, /\(void\) chest_trap\(obj, HAND, FALSE\);/u);
     assert.match(C_TRAP, /\(void\) chest_trap\(box, FINGER, TRUE\);/u);

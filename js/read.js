@@ -350,7 +350,7 @@ import { more_experienced } from './exper.js';
 import { d, rn1, rn2, rne, rnl, rnd } from './rng.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import {
-    cmap_to_glyph, map_invisible, newsym, tmp_at,
+    cmap_to_glyph, map_invisible, newsym, shieldeff, tmp_at,
 } from './display.js';
 import { flooreffects, trycall } from './do.js';
 import { y_n } from './cmd.js';
@@ -2653,8 +2653,7 @@ export async function seffect_fire(scroll, state = game) {
                 state,
             );
         } else if (Fire_resistance(state)) {
-            // display.c shieldeff() returns void and is still a named gap.
-            note_unported('display.c shieldeff');
+            await shieldeff(state.u.ux, state.u.uy, state);
             monstseesu(M_SEEN_FIRE, state);
             const hands = makeplural(body_part(HAND, state.youmonst));
             if (!propertyActive(BLINDED, state)) {

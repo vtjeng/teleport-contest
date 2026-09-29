@@ -55,6 +55,7 @@ import {
     map_invisible,
     map_monster_glyph_info,
     mon_to_glyph,
+    cmap_to_glyph,
     zapdir_to_glyph,
 } from '../js/display.js';
 import {
@@ -68,7 +69,8 @@ import { make_stoned } from '../js/potion.js';
 import { relocate_monster } from '../js/monst.js';
 import {
     AD_ACID, AD_COLD, AD_DISN, AD_DRLI, AD_DRST, AD_ELEC, AD_FIRE, AD_PHYS,
-    AD_SLEE, AD_STON, NUMMONS, PM_BABY_GRAY_DRAGON, PM_GIANT_RAT, PM_KNIGHT,
+    AD_BLND, AD_SLEE, AD_STON, NUMMONS, PM_BABY_GRAY_DRAGON, PM_GIANT_RAT,
+    PM_KNIGHT,
 } from '../js/monsters.js';
 import {
     ARMOR_CLASS,
@@ -94,7 +96,7 @@ import {
     WAN_SLEEP,
     WAND_CLASS,
 } from '../js/objects.js';
-import { ART_DRAGONBANE } from '../js/artifacts.js';
+import { ART_DRAGONBANE, ART_SUNSWORD } from '../js/artifacts.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 // Read straight out of the generated defsym.h index rather than through
 // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`
@@ -109,6 +111,7 @@ import {
     adtyp_to_prop,
     bounce_dir,
     dobuzz,
+    flashburn,
     flash_str,
     hit,
     inventory_resistance_check,
@@ -126,7 +129,7 @@ import {
 } from '../js/zap.js';
 import { flash_glyph_at } from '../js/display.js';
 import { flash_mon, shieldeff_mon } from '../js/mon.js';
-import { couldsee } from '../js/vision.js';
+import { cansee, couldsee } from '../js/vision.js';
 import { mon_reflects } from '../js/muse.js';
 import {
     RAY_CASES,
@@ -1193,10 +1196,93 @@ test('a reflecting hero bounces the bolt without taking damage', async () => {
     // a polymorphed silver dragon) still reflects but prints no item message.
     for (const source of ['intrinsic', 'extrinsic']) {
         const wand = await aimedWand(0, 0, 1);
+        const oldSparkle = game.flags.sparkle;
+        const oldHook = game._animationFrameHook;
+        const frames = [];
+        const { ux: x, uy: y } = game.u;
+        game.flags.sparkle = true;
+        game.viz_array[y][x] |= IN_SIGHT;
+        game._animationFrameHook = () => {
+            frames.push(game.level.at(x, y).disp_glyph?.glyph);
+        };
         game.u.uprops[REFLECTING] = { intrinsic: 0, extrinsic: 0 };
         game.u.uprops[REFLECTING][source] = FROMOUTSIDE;
-        // The bolt reflects and the hero takes no damage.
-        await weffects(wand, game, straightThrough());
+        try {
+            // The bolt reflects and the hero takes no damage. C calls
+            // shieldeff(sx, sy) after reversing the ray, producing 3 cycles
+            // through shield_static[] before the loop continues.
+            await weffects(wand, game, straightThrough());
+            const oneCycle = [
+                's_ss1', 's_ss2', 's_ss3', 's_ss2', 's_ss1', 's_ss2',
+                's_ss4',
+            ].map((name) => cmap_to_glyph(SYMBOL_INDEX_BY_NAME[name]));
+            assert.deepEqual(
+                frames.slice(-21), [...oneCycle, ...oneCycle, ...oneCycle],
+                'zap.c:4975 calls display.c shieldeff() after reflection',
+            );
+        } finally {
+            game._animationFrameHook = oldHook;
+            game.flags.sparkle = oldSparkle;
+        }
+    }
+});
+
+test('dobuzz animates a visible reflecting monster before its message',
+    async () => {
+    await aimedWand(1, 0, 0);
+    const monster = game.level.monlist;
+    assert.ok(monster, 'the debug ray fixture has a monster');
+    const oldX = monster.mx;
+    const oldY = monster.my;
+    const oldWeapon = monster.mw;
+    const oldSparkle = game.flags.sparkle;
+    const oldHook = game._animationFrameHook;
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    relocate_monster(monster, x, y, game);
+    game.viz_array[y][x] |= IN_SIGHT;
+    assert.equal(cansee(x, y, game), true,
+        'the C branch animates only a visible reflecting monster');
+    monster.mw = { oartifact: ART_DRAGONBANE, owornmask: W_WEP };
+    game.flags.sparkle = true;
+    const timeline = [];
+    game._animationFrameHook = () => timeline.push({
+        type: 'frame', glyph: game.level.at(x, y).disp_glyph?.glyph,
+    });
+    const message = async (text) => timeline.push({ type: 'message', text });
+
+    try {
+        await dobuzz(
+            1, 1, game.u.ux, game.u.uy, 1, 0, true, false, false, game,
+            { ...straightThrough(), rn1: () => 1,
+                rn2: (bound) => bound - 1 },
+            { message },
+        );
+        const hitIndex = timeline.findIndex(({ type, text = '' }) =>
+            type === 'message' && text.includes('hits'));
+        const reflectIndex = timeline.findIndex(({ type, text = '' }) =>
+            type === 'message' && text.includes('reflects from'));
+        const frameIndexes = timeline.flatMap((item, index) =>
+            item.type === 'frame' ? [index] : []);
+        const shieldFrameIndexes = frameIndexes.slice(-21);
+        const shieldGlyphs = shieldFrameIndexes.map(
+            (index) => timeline[index].glyph,
+        );
+        const oneCycle = [
+            's_ss1', 's_ss2', 's_ss3', 's_ss2', 's_ss1', 's_ss2', 's_ss4',
+        ].map((name) => cmap_to_glyph(SYMBOL_INDEX_BY_NAME[name]));
+
+        assert.ok(hitIndex >= 0, 'the monster is hit before reflecting');
+        assert.equal(shieldFrameIndexes.length, 21,
+            'display.c shieldeff paints all 21 source frames');
+        assert.deepEqual(shieldGlyphs, [...oneCycle, ...oneCycle, ...oneCycle]);
+        assert.ok(reflectIndex > shieldFrameIndexes.at(-1),
+            'C calls shieldeff between hit() and mon_reflects()');
+    } finally {
+        game._animationFrameHook = oldHook;
+        game.flags.sparkle = oldSparkle;
+        monster.mw = oldWeapon;
+        relocate_monster(monster, oldX, oldY, game);
     }
 });
 
@@ -1711,25 +1797,67 @@ test('resist() does not halve damage when the roll exceeds MR', async () => {
     assert.equal(mon.mhp, 20, 'full damage 10 deducted without halving');
 });
 
-test('shieldeff_mon reports visible resistance after the shield gap', async () => {
+test('shieldeff() draws the shield-static sequence before shieldeff_mon text', async () => {
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
     });
     const monster = game.level.monlist;
     assert.ok(monster, 'the debug-wished ray fixture has a monster');
     game.viz_array[monster.my][monster.mx] |= IN_SIGHT;
+    const frames = [];
+    game._animationFrameHook = () => {
+        frames.push(game.level.at(monster.mx, monster.my).disp_glyph?.glyph);
+    };
     const messages = [];
-    await shieldeff_mon(monster, {
-        state: game,
-        message: async (text) => messages.push(text),
-    });
-    assert.equal(messages.length, 1,
-        'C shieldeff_mon() emits one visible resistance message');
-    assert.match(messages[0], /resists!$/u,
-        'the message keeps C\'s resistance suffix');
-    assert.ok(game.unported.has('display.c shieldeff'),
-        'display.c shieldeff() remains an explicit gap');
+    try {
+        await shieldeff_mon(monster, {
+            state: game,
+            message: async (text) => messages.push(text),
+        });
+        const oneCycle = [
+            's_ss1', 's_ss2', 's_ss3', 's_ss2', 's_ss1', 's_ss2', 's_ss4',
+        ].map((name) => cmap_to_glyph(SYMBOL_INDEX_BY_NAME[name]));
+        assert.deepEqual(frames, [...oneCycle, ...oneCycle, ...oneCycle],
+            'display.c shieldeff() follows shield_static[] source order');
+        assert.equal(messages.length, 1,
+            'C shieldeff_mon() emits one visible resistance message');
+        assert.match(messages[0], /resists!$/u,
+            'the message keeps C\'s resistance suffix');
+        assert.ok(!game.unported.has('display.c shieldeff'),
+            'the source-backed animation replaces the old display gap');
+    } finally {
+        game._animationFrameHook = null;
+    }
 });
+
+test('flashburn() animates artifact-resisted blindness after its guard',
+    async () => {
+        await runSegment({
+            ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+        });
+        const oldWeapon = game.uwep;
+        const oldSparkle = game.flags.sparkle;
+        const x = game.u.ux;
+        const y = game.u.uy;
+        const frames = [];
+        game.uwep = { oartifact: ART_SUNSWORD };
+        assert.equal(game.artilist[ART_SUNSWORD].defn.adtyp, AD_BLND,
+            'artifact.c defines the Sunsword defense as AD_BLND');
+        game.flags.sparkle = true;
+        game.viz_array[y][x] |= IN_SIGHT;
+        game._animationFrameHook = () => frames.push('frame');
+        try {
+            assert.equal(await flashburn(100, false, game), true);
+            assert.equal(frames.length, 21,
+                'zap.c:3076 calls display.c shieldeff()');
+            assert.ok(!game.unported.has('display.c shieldeff'),
+                'the artifact-defense branch uses the source-backed animation');
+        } finally {
+            game._animationFrameHook = null;
+            game.uwep = oldWeapon;
+            game.flags.sparkle = oldSparkle;
+        }
+    });
 
 test('flash_mon restores the original vision byte before newsym()', async () => {
     await runSegment({
@@ -1942,7 +2070,7 @@ test('zhitm() resistance keeps shieldeff visual-only in the monster arm',
         minvent: null,
     };
     const messages = [];
-    const state = { ...game, unported: new Set() };
+    const state = game;
     const result = await zhitm(mon, 0, 1, state, {
         d: () => 6,
         rn2: (bound) => bound - 1,
@@ -1951,8 +2079,8 @@ test('zhitm() resistance keeps shieldeff visual-only in the monster arm',
     assert.equal(result.damage, 0, 'magic-resistant monster takes no damage');
     assert.equal(mon.mhp, 30, 'resistance leaves monster HP unchanged');
     assert.deepEqual(messages, [], 'display shieldeff has no text message');
-    assert.ok(game.unported.has('display.c shieldeff'),
-        'the visual-only display gap remains explicit');
+    assert.ok(!state.unported.has('display.c shieldeff'),
+        'the visual-only source behavior no longer records a gap');
 });
 
 test('zhitm() death ray rechecks spell band after its source type changes',

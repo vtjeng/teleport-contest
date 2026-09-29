@@ -99,7 +99,7 @@ import {
     mon_nam,
     monsterCommonName,
 } from './do_name.js';
-import { newsym, see_monsters } from './display.js';
+import { newsym, see_monsters, shieldeff } from './display.js';
 import {
     schedule_goto,
     UnsupportedLevelChangeError,
@@ -1761,14 +1761,7 @@ export async function tele_trap(trap, state = game) {
         if (inEndgame(state) || Antimagic_prop(state)
             || noteleport_level(state.youmonst, state)) {
             if (Antimagic_prop(state)) {
-                // shieldeff() animates a shield over the hero's square with
-                // tmp_at(); nothing of tmp_at() is ported.
-                // trapeffect_telep_trap()'s preflight refuses a magic-
-                // resistant hero before the move commits, so this is proof
-                // rather than a live branch.
-                throw new UnsupportedHeroMoveBoundaryError(
-                    'shieldeff() for a magic-resistant hero on a teleport trap',
-                );
+                await shieldeff(state.u.ux, state.u.uy, state);
             }
             await ttyPline('You feel a wrenching sensation.', state);
         } else if (!next_to_u(state)) {

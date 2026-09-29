@@ -111382,16 +111382,20 @@
     {
       "id": "port-display-shieldeff-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port shield flash display for magic-resistant trap effects",
       "cFile": "display.c",
       "sessions": [
         "synthetic/v11/hero-teleport-trap-displaces-hero"
       ],
-      "selectionReason": "The complete investigation investigations/synthetic/v11/hero-teleport-trap-displaces-hero.json traces a magic-resistant Wizard stepping onto TELEP_TRAP: teleport.c tele_trap calls display.c shieldeff before its wrenching-sensation message, and JS refuses the helper. This shared display source helper also serves anti-magic and polymorph trap effects; wire its active callers without overlapping the domagictrap source function reserved by C43. Admitted v11 manifest SHA 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347; saved evaluation challenges/evaluations/20260929013352-v11.json.",
+      "selectionReason": "Selected v11/hero-teleport-trap-displaces-hero Antimagic flash at step 24; implement complete display.c shieldeff and source-wire reachable existing callers. Keep unported caller families and monster reflection setup as explicit dependencies.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "1620dad1074988564482eff8578f23da99da5d5a",
+      "openStanding": {
+        "sha": "1620dad1074988564482eff8578f23da99da5d5a",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -111399,8 +111403,8 @@
           "name": "shieldeff",
           "line": 1110,
           "endLine": 1126,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -111420,7 +111424,391 @@
           "evaluationPath": "challenges/evaluations/20260929013352-v11.json",
           "evaluationCommit": "a149eb3605fe68acf848e20f8255850d22e83a3d"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1620dad1074988564482eff8578f23da99da5d5a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-teleport-trap-displaces-hero",
+          "session": "synthetic/v11/hero-teleport-trap-displaces-hero",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+          "recordingPath": "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+          "recordingSha256": "5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7",
+          "recipe": "challenges/cases/v11/hero-teleport-trap-displaces-hero.recipe.session.json",
+          "recipeSha256": "75877d8e71ef50dcb66370df72397c34948b2ed908665e0ae7bef42b0d7bed9b",
+          "replayInputSha256": "0193a80a9551d8df290fd66e5d6b9b1373e1be3cb2b6ba414187c5676df93687",
+          "evaluationPath": "challenges/evaluations/20260929053037-v11.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe",
+          "evaluationArtifact": "challenges/evaluations/20260929053037-v11.json",
+          "evaluationUtc": "2026-09-29T05:30:47.306Z",
+          "remainingScreens": 2,
+          "recordedSteps": 26,
+          "previousScreensMatched": 24,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 26
+            },
+            "rng": {
+              "matched": 2466,
+              "total": 2489
+            },
+            "cursors": {
+              "matched": 24,
+              "total": 26
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap",
+            "step": 24
+          },
+          "step": 24,
+          "kind": "stop",
+          "sourceFile": "display.c",
+          "function": "shieldeff",
+          "message": "unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap",
+          "cFile": "display.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/hero-teleport-trap-displaces-hero.json",
+            "result": {
+              "session": "synthetic/v11/hero-teleport-trap-displaces-hero",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "hero-teleport-trap-displaces-hero",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7",
+              "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+              "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "remainingScreens": 2,
+              "recordedSteps": 26,
+              "status": "complete",
+              "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "hero-teleport-trap-displaces-hero",
+                "session": "synthetic/v11/hero-teleport-trap-displaces-hero",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+                "recordingPath": "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+                "recordingSha256": "5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7",
+                "recipe": "challenges/cases/v11/hero-teleport-trap-displaces-hero.recipe.session.json",
+                "recipeSha256": "75877d8e71ef50dcb66370df72397c34948b2ed908665e0ae7bef42b0d7bed9b",
+                "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+                "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+                "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationUtc": "2026-09-28T23:47:35.564Z",
+                "remainingScreens": 2,
+                "recordedSteps": 26,
+                "previousScreensMatched": 24,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 24,
+                    "total": 26
+                  },
+                  "rng": {
+                    "matched": 2466,
+                    "total": 2489
+                  },
+                  "cursors": {
+                    "matched": 24,
+                    "total": 26
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap",
+                  "step": 24
+                },
+                "step": 24,
+                "kind": "stop",
+                "sourceFile": "display.c",
+                "function": "shieldeff",
+                "message": "unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap",
+                "cFile": "display.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The Wizard steps on a teleport trap while magic resistant. C teleport.c:tele_trap calls display.c:shieldeff, then reports a wrenching sensation without moving the hero. JavaScript preflight refuses this branch because shieldeff is unported. Port the complete display.c helper, then admit the existing teleport.c branch and preserve its guard and effect order.",
+              "source": {
+                "file": "display.c",
+                "branch": "teleport.c:tele_trap (1492-1535) takes Antimagic before displacement, calls display.c:shieldeff(u.ux,u.uy), and prints a wrenching sensation. display.c:shieldeff (1110-1123) checks flags.sparkle and cansee, displays SHIELD_COUNT source glyphs with flush/delay, then restores newsym.",
+                "functions": [
+                  "shieldeff",
+                  "tele_trap",
+                  "trapeffect_telep_trap"
+                ],
+                "callers": [
+                  "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_telep_trap(hero) -> teleport.c:tele_trap -> display.c:shieldeff when Antimagic; the JS path is refused by js/trap_effects.js:preflight_dotrap before game state changes.",
+                  "Other active C shieldeff callers are trap.c:trapeffect_fire_trap(monster), trap.c:trapeffect_anti_magic, trap.c:dofiretrap, and trap.c:chest_trap; wire the display helper to source paths as each is ported."
+                ],
+                "dependencies": [
+                  "Use source SHIELD_COUNT/shield_static glyph sequence, show_glyph, flush_screen(1), nh_delay_output, newsym, flags.sparkle, and cansee in the same order; this impure helper needs complete recorded-play evidence.",
+                  "js/teleport.js:tele_trap already has the Antimagic and recursive-entry guard but throws in the shieldeff branch; js/trap_effects.js preflight rejects this case before teleport dispatch. Remove the refusal only when the complete effect can run.",
+                  "The v11 recording name describes a hoped-for displacement, but this Wizard is magic resistant and the C source outcome is a wrenching sensation; preserve C behavior rather than the case label."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 has 2 unmatched screens and stops at zero-based step 24 with 'unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap'. The C recording challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json has SHA-256 5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7.",
+                "Upstream teleport.c:1492-1535 and display.c:1110-1123 establish the Antimagic effect and animation; trap.c:2070-2087 supplies the hero caller. js/trap_effects.js:3585-3592 and js/teleport.js:1763-1776 show the matching refusal boundaries."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "shieldeff",
+            "implementation": "js/display.js",
+            "symbol": "shieldeff",
+            "sourceReview": "Reviewed the complete display.c:shieldeff definition (1110-1126). It returns when flags.sparkle is false; when cansee(x,y) is true it loops through the complete SHIELD_COUNT shield_static[] sequence in declaration order, performing show_glyph(cmap_to_glyph(...)), flush_screen(1), and nh_delay_output() for every frame, then newsym(x,y) restores the square. JS preserves the source guard, all 21 frames, flush/delay boundaries, and redraw. It makes no RNG or game-state changes but writes and flushes the display, so it is impure under validation rules. Existing direct JS callers are listed above; source-audited unimplemented or refused C callers and missing runtime witnesses are recorded below rather than treated as covered.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "tele_trap",
+                "source": "teleport.c:tele_trap calls shieldeff(u.ux,u.uy) on its Antimagic refusal arm before You_feel()."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "chest_trap",
+                "source": "trap.c:chest_trap calls shieldeff after its electric-surge message and Shock_resistance test, before the unaffected message and monster-seen update."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dofiretrap",
+                "source": "trap.c:dofiretrap calls shieldeff for a fire-resistant hero before monstseesu() and the half-damage roll."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_fire_trap",
+                "source": "trap.c:trapeffect_fire_trap calls shieldeff for a visible fire-resistant monster before its uninjured message."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_poly_trap",
+                "source": "trap.c:trapeffect_poly_trap calls shieldeff for an Antimagic/Unchanging hero and shieldeff_mon for a magic-resistant monster, before their respective no-change messages."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:zapyourself calls shieldeff in its resistance-protected self-zap arms."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitm",
+                "source": "zap.c:zhitm calls shieldeff after its resistance result is established and before the hit returns."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "flashburn",
+                "source": "zap.c:flashburn calls shieldeff for artifact resistance when the flash is not lightning-induced."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dobuzz",
+                "source": "zap.c:dobuzz calls shieldeff(mon->mx,mon->my) after hit() and before mon_reflects() for a visible reflecting monster (4876), and shieldeff(sx,sy) after reversing a reflected hero ray and before clearing gas_hit (4975)."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:mbhitm calls shieldeff for resistant hero and monster targets in its live striking-wand arms."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "passiveum",
+                "source": "mhitu.c:passiveum calls shieldeff for a monster resisting elemental passive damage."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_fire",
+                "source": "read.c:seffect_fire calls shieldeff for a fire-resistant hero before its remaining effect handling."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "shieldeff_mon",
+                "source": "mon.c:shieldeff_mon delegates the animation to display.c:shieldeff()."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_psi_bolt",
+                "source": "mcastu.c:mcast_psi_bolt calls shieldeff for the hero magic-resistance branch."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_open_wounds",
+                "source": "mcastu.c:mcast_open_wounds calls shieldeff for the hero magic-resistance branch."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_fire_pillar",
+                "source": "mcastu.c:mcast_fire_pillar calls shieldeff for a fire-resistant hero."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_lightning",
+                "source": "mcastu.c:mcast_lightning calls shieldeff for a reflecting or shock-resistant hero."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_paralyze",
+                "source": "mcastu.c:mcast_paralyze calls shieldeff for Antimagic or Free_action."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "sleep_monst",
+                "source": "mhitm.c:sleep_monst calls shieldeff when the monster resists sleep."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "cursed_book",
+                "source": "spell.c:cursed_book calls shieldeff in its magic-resistance branch."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "Mb_hit",
+                "source": "artifact.c:Mb_hit calls shieldeff when the defender resists the artifact effect."
+              },
+              {
+                "path": "js/attrib.js",
+                "symbol": "poisoned",
+                "source": "attrib.c:poisoned calls shieldeff when the poison blast is resisted."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "flash_hits_mon",
+                "source": "uhitm.c:flash_hits_mon calls shieldeff(mx,my) when an artifact blinds a visible monster; the JS helper delegates this to shieldeff_mon()."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "resist",
+                "source": "zap.c:resist calls shieldeff_mon(mtmp) for a told monster-resistance result."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm calls shieldeff for a monster resisting striking-wand or force-bolt magic before Boing!. Its whole-function source port and caller evidence are assigned separately to B53; this A45 evidence does not claim that caller complete."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-ray.test.mjs",
+              "scripts/trap.test.mjs",
+              "scripts/monster-fire-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/chest-trap-shock-resistance-shieldeff-a45.session.json",
+              "recordings/muse.c/ureflects-amulet-wand-bounce.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-teleport-trap-displaces-hero",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "trap activation -> teleport.c:tele_trap Antimagic branch -> display.c:shieldeff (all 21 shield_static frames, flush/delay and newsym)"
+              }
+            ],
+            "checkedAt": "327800a84ddedb020167a65bd3683401f516fea3"
+          }
+        ],
+        "entryPointReview": "The complete display.c:shieldeff body and each listed JavaScript branch are source-wired. This correction wires the two active zap.c:dobuzz calls at C source positions 4876 and 4975. Strict C/JS evidence for hero reflection is recordings/muse.c/ureflects-amulet-wand-bounce.session.json, zero-based steps 60–61: C enters dobuzz at step 60 and emits the 21-frame hero shieldeff animation at step 61; run-21Rwch matched 2,208 RNG values, 66 screens/cursors, and 27 animation frames. The admitted v11 range reaches teleport.c:tele_trap at segment 0 step 24, and the independent chest recording reaches trap.c:chest_trap. The visible-monster dobuzz arm is source-wired and unit-tested for its 21-frame order, but has no source-reaching C recording: the independent silver-dragon setup diverges before dobuzz at step 59, where C enters teleport.c:collect_coords (2,721 RNG calls versus JS 2,669, and 69 versus 58 screens/cursors). Its recipe is retained as blocked setup evidence only, with no recording. Other wired branches without matching runtime evidence in this packet are zap.c:bhitm (its complete source port and caller evidence are a named B53 dependency)/resist, uhitm.c:flash_hits_mon, dofiretrap, trapeffect_fire_trap, both hero and monster trapeffect_poly_trap arms, zapyourself, zhitm, flashburn, muse.c:mbhitm, mhitu.c:passiveum, read.c:seffect_fire, mon.c:shieldeff_mon, mcastu.c:mcast_psi_bolt/mcast_open_wounds/mcast_fire_pillar/mcast_lightning/mcast_paralyze, mhitm.c:sleep_monst, spell.c:cursed_book, artifact.c:Mb_hit, and attrib.c:poisoned. Wiring and unit assertions are not C runtime evidence. Other active C callsites stop at unported or refused JavaScript paths and remain for their own source tasks: teleport.c:level_tele_trap stops at trap_effects.js:trapeffect_level_telep preflight; zap.c:maybe_explode_trap is called by zap.c:zap_map, whose JS port handles only its downward polymorph branch; sit.c:rndcurse is note_unported in sit.js; pray.c:god_zaps_you reaches angrygods(), whose lightning arm is UnsupportedPrayerError; uhitm.c:mhitm_ad_fire/mhitm_ad_deth and target arms of mhitm_ad_cold/mhitm_ad_elec are refused by uhitm.js dispatch; uhitm.c:passive refuses non-AD_PHYS attacks; mhitm.c:mon_poly has no production JS path; mhitu.c:gazemu stops at the unsupported gaze arm and gulpmu refuses its cold-resistant engulf branch; mcastu.c:castmu refuses AD_FIRE/AD_COLD/AD_MAGM, while mcast_spell records gaps for mcast_death_touch, mcast_destroy_armor, mcast_weaken_you, mcast_stun_you, and mcast_confuse_you; zap.c:zhitu refuses the fire-resistant and non-fire arms above their shieldeff calls. The muse.c:find_offensive and use_offensive MUSE_SCR_FIRE arms are inside #if 0 and excluded from this build. No runtime completion is claimed for any gap or wired branch without matching recording evidence.",
+        "entryPoints": [
+          {
+            "name": "Antimagic hero teleport trap (teleport.c:tele_trap)",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-teleport-trap-displaces-hero",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "trap activation -> teleport.c:tele_trap Antimagic branch -> display.c:shieldeff"
+              }
+            ]
+          },
+          {
+            "name": "Shock-resistant electric chest trap (trap.c:chest_trap)",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [
+              "recordings/trap.c/chest-trap-shock-resistance-shieldeff-a45.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero ray reflected by amulet (zap.c:dobuzz)",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [
+              "recordings/muse.c/ureflects-amulet-wand-bounce.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Visible monster reflects a ray (zap.c:dobuzz)",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Wired zap, trap, monster, spell, artifact, read, and poison resistance branches without matching C recording",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Direct C callers blocked by unported or refused JavaScript paths",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "327800a84ddedb020167a65bd3683401f516fea3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Complete display.c shieldeff implementation and three matching runtime routes are recorded: v11 Antimagic teleport trap, electric chest trap, and hero ray reflection. Remaining active entry-point evidence is incomplete: visible-monster dobuzz setup first diverges in teleport.c collect_coords before its shield call; B53 owns the bhitm caller; level_tele_trap stops at trap_effects.js trapeffect_level_telep; other wired zap/trap/monster/spell callers need independent C-reaching recordings, while refused sit/pray/uhitm/mcastu/mhitu branches require their own source ports. Resume when these named callers and blockers can yield matching recordings; do not count unit-only animation checks as runtime coverage."
     },
     {
       "id": "port-trap-trapeffect-rocktrap-synthetic-v11-20260929",
@@ -112799,6 +113187,114 @@
         "sha": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
         "screens": 11405,
         "rng": 792838
+      }
+    },
+    {
+      "id": "port-zap-bhitm-monster-wands-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete zap.c bhitm monster wand effects and shared tail",
+      "cFile": "zap.c",
+      "sessions": [
+        "synthetic/v12/cancellation-wand-neutralizes-monster",
+        "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug",
+        "synthetic/v12/probing-wand-reveals-hostile-grid-bug",
+        "synthetic/v12/speed-wand-hastens-hostile-grid-bug",
+        "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
+        "synthetic/v12/undead-turning-wand-stuns-zombie"
+      ],
+      "selectionReason": "Six distinct unresolved v12 monster wand arms share zap.c:bhitm and its common wake/reveal/learn tail; all are source-traced in investigations/synthetic/v12 and measured in challenges/evaluations/20260929053037-v12.json (manifest b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef). Group the whole function and preserve each case recording provenance in task context. Floor-object bhito cases are separate.",
+      "detail": "Port bhitm in C definition order and wire zap.c:bhit hero-ray callback. Return-valued callees teleport.c:u_teleport_mon and zap.c:unturn_dead are required in the same task; probe_monster is a void callee whose output must be source-traced. Audit all bhitm switch arms and common tail, including existing partial effects, without altering A45 zap callers.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "bhitm",
+          "line": 160,
+          "endLine": 577,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 160,
+        "to": 577
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/cancellation-wand-neutralizes-monster": {
+          "session": "synthetic/v12/cancellation-wand-neutralizes-monster",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "cancellation-wand-neutralizes-monster",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/cancellation-wand-neutralizes-monster.session.json",
+          "recordingSha256": "bbcd5f0004c8f7dd2f40882d969bc8910fee12712aa44d02984042a767655b14",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug": {
+          "session": "synthetic/v12/make-invisible-wand-hides-hostile-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "make-invisible-wand-hides-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/make-invisible-wand-hides-hostile-grid-bug.session.json",
+          "recordingSha256": "a3272f7ed7d8e41e692334e0ad5903cde06a8e19e2cb5342b0d9648c11779308",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/probing-wand-reveals-hostile-grid-bug": {
+          "session": "synthetic/v12/probing-wand-reveals-hostile-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "probing-wand-reveals-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/probing-wand-reveals-hostile-grid-bug.session.json",
+          "recordingSha256": "ec09569c7bef3635827b90dbdc88bd5e647798c4b6042eb60a6fb2137c435199",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/speed-wand-hastens-hostile-grid-bug": {
+          "session": "synthetic/v12/speed-wand-hastens-hostile-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "speed-wand-hastens-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/speed-wand-hastens-hostile-grid-bug.session.json",
+          "recordingSha256": "94f22a27d69930cb9d322402bb06629cc022d025068e323888420e723b656db3",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/teleport-wand-moves-hostile-grid-bug": {
+          "session": "synthetic/v12/teleport-wand-moves-hostile-grid-bug",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleport-wand-moves-hostile-grid-bug",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/teleport-wand-moves-hostile-grid-bug.session.json",
+          "recordingSha256": "6f604845ff5fd8ed29cb0fc3fce2c31880fb7fdb4a11818de0582ec28381e7f6",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        },
+        "synthetic/v12/undead-turning-wand-stuns-zombie": {
+          "session": "synthetic/v12/undead-turning-wand-stuns-zombie",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "undead-turning-wand-stuns-zombie",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/undead-turning-wand-stuns-zombie.session.json",
+          "recordingSha256": "9b5d9776ee469952e70f019c2713c6c7a20ab3b6fbd97898bc48421e6a4f136c",
+          "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+        }
       }
     }
   ]
