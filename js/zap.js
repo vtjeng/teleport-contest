@@ -136,14 +136,28 @@ import {
     OBJ_AT,
     OBJ_FLOOR,
     OBJ_INVENT,
+    OBJ_CONTAINED,
+    OBJ_MINVENT,
+    OBJ_BURIED,
+    OBJ_FREE,
+    OBJ_MIGRATING,
+    OBJ_ONBILL,
+    OBJ_LUAFREE,
     BURIED_TOO,
     CONTAINED_TOO,
+    FM_FMON,
+    GRAVE,
+    MINV_ALL,
+    MINV_NOLET,
+    PLNMSG_OBJ_GLOWS,
     CORPSTAT_FEMALE,
     CORPSTAT_GENDER,
     CORPSTAT_MALE,
     CORPSTAT_HISTORIC,
     STATUE_TRAP,
     CXN_PFX_THE,
+    CXN_NORMAL,
+    CXN_NO_PFX,
     DEAF,
     MM_FEMALE,
     MM_ADJACENTOK,
@@ -245,6 +259,7 @@ import {
     map_invisible,
     glyph_is_warning,
     newsym,
+    knowninvisible,
     obj_to_glyph,
     shieldeff,
     tmp_at,
@@ -256,6 +271,7 @@ import {
     christen_monst,
     hliquid,
     a_monnam,
+    noit_Monnam,
     Monnam,
     mon_nam,
     monsterCommonName,
@@ -268,9 +284,9 @@ import {
     adj_pit_checks, dighole, fillholetyp, is_moat, watch_dig,
 } from './dig.js';
 import { dropx, dropy } from './do.js';
-import { ceiling } from './dungeon.js';
+import { ceiling, surface } from './dungeon.js';
 import { done } from './end.js';
-import { losexp, more_experienced } from './exper.js';
+import { losexp, more_experienced, newexplevel } from './exper.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import {
@@ -279,16 +295,18 @@ import {
     set_uinwater,
 } from './hack.js';
 import {
-    lcase, mungspaces, s_suffix, truncateByteString, upstart,
+    dist2, lcase, mungspaces, s_suffix, truncateByteString, upstart,
 } from './hacklib.js';
 import {
     getobj,
+    display_minventory,
     hands_obj,
     hold_another_object,
     stackobj,
     delete_contents,
     replace_inventory_core,
     update_inventory,
+    obfree,
     useupall,
     useup,
     obj_extract_self,
@@ -298,6 +316,7 @@ import {
 } from './invent.js';
 import {
     get_obj_location,
+    find_mid,
     show_transient_light,
     transient_light_cleanup,
 } from './light.js';
@@ -323,7 +342,9 @@ import {
     mindless,
     is_mplayer,
     is_rider,
+    is_reviver,
     is_vampshifter,
+    resists_drli,
     is_swimmer,
     amphibious,
     breathless,
@@ -374,6 +395,9 @@ import {
     PM_DOPPELGANGER,
     PM_MONK,
     PM_KNIGHT,
+    PM_HEALER,
+    PM_GHOST,
+    PM_PESTILENCE,
     PM_GREMLIN,
     PM_LONG_WORM,
     PM_ARCHEOLOGIST,
@@ -382,6 +406,7 @@ import {
     NUMMONS,
     S_EEL,
     S_MIMIC,
+    S_ZOMBIE,
     MZ_MEDIUM,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
@@ -418,6 +443,8 @@ import {
     place_object,
     rnd_class,
     set_corpsenm,
+    stone_furniture_type,
+    stone_object_type,
     sobj_at,
     splitobj,
     weight,
@@ -452,6 +479,7 @@ import {
     SPE_CONE_OF_COLD,
     SPE_EXTRA_HEALING,
     SPE_FINGER_OF_DEATH,
+    SPE_CURE_SICKNESS,
     SPE_HEALING,
     SPE_KNOCK,
     SPE_MAGIC_MISSILE,
@@ -499,6 +527,7 @@ import {
     MUMMY_WRAPPING,
     LARGE_BOX,
     CHEST,
+    BAG_OF_HOLDING,
     TIN,
     WAN_SECRET_DOOR_DETECTION,
     WAN_CREATE_MONSTER,
@@ -565,7 +594,7 @@ import { readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
 import { cant_revive, litroom } from './read.js';
 import { is_quest_artifact } from './questpgr.js';
-import { ustatusline } from './insight.js';
+import { mstatusline, ustatusline } from './insight.js';
 import {
     body_part, mbodypart, polyself, polymon, rehumanize, ugolemeffects,
 } from './polyself.js';
@@ -592,6 +621,7 @@ import {
     check_gear_next_turn,
     set_ustuck,
     unstuck,
+    mimic_hit_msg,
 } from './mon.js';
 import { dmgval } from './weapon.js';
 import { expels, u_slow_down } from './mhitu.js';
@@ -611,13 +641,18 @@ import {
     inside_shop,
     shkcatch,
     shop_keeper,
+    shk_your,
+    stolen_value,
 } from './shk.js';
 import { Shknam, shkname } from './shknam.js';
-import { canSpotMonster, messageAt } from './startup_a11y.js';
+import { canSeeMonster, canSpotMonster, messageAt } from './startup_a11y.js';
 import {
     S_digbeam, S_flashbeam, S_hcdoor, S_vodoor,
 } from './symbols.js';
-import { closed_door, dissolve_bars, m_in_air, youHear } from './monmove.js';
+import {
+    closed_door, dissolve_bars, m_in_air, monflee, monfleeMessage,
+    onscary, set_apparxy, youHear,
+} from './monmove.js';
 import { stairway_at } from './stairs.js';
 import { is_ice } from './terrain.js';
 import { burnarmor } from './trap_erode_obj.js';
@@ -631,7 +666,7 @@ import {
 } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import { flash_hits_mon, m_is_steadfast, shade_miss } from './uhitm.js';
-import { enexto, tele } from './teleport.js';
+import { enexto, tele, u_teleport_mon } from './teleport.js';
 import {
     block_point, cansee, canseemon, couldsee, does_block,
     recalc_block_point, unblock_point, vision_recalc,
@@ -641,6 +676,7 @@ import {
     bypass_obj,
     find_mac,
     mon_adjust_speed,
+    mon_set_minvis,
     set_twoweap,
     setuqwep,
     setuswapwep,
@@ -650,10 +686,10 @@ import {
     wearmask_to_obj,
     which_armor,
 } from './worn.js';
-import { remove_worn_item } from './steal.js';
+import { mdrop_obj, remove_worn_item } from './steal.js';
 import {
     burn_away_slime, fall_asleep, obj_stop_timers, spot_stop_timers,
-    spot_time_left,
+    spot_time_left, attach_egg_hatch_timeout,
 } from './timeout.js';
 import {
     displayPendingTtyMessageWindow,
@@ -969,44 +1005,93 @@ export function montraits(obj, cc, adjacentok = false, rawEnv = {}) {
         ? dummy.then(finish) : finish(dummy);
 }
 
-// C ref: zap.c revive() (884-1100), for a floor corpse and a non-hero cause.
-// That is the complete call shape of do.c revive_corpse() from revive_nasty().
+// C ref: zap.c get_container_location() (841-859). Return the outermost
+// object's location, nesting depth, and its carrier when that location is a
+// monster inventory.
+export function get_container_location(obj) {
+    let nesting = 0;
+    let outer = obj;
+    while (outer && outer.where === OBJ_CONTAINED) {
+        nesting++;
+        outer = outer.ocontainer;
+    }
+    return {
+        loc: outer?.where ?? OBJ_FREE,
+        nesting,
+        carrier: outer?.where === OBJ_MINVENT ? outer.ocarry ?? null : null,
+    };
+}
+
+// C ref: zap.c zombie_can_dig() (862-879). A buried zombie can emerge only
+// from an untrapped room, corridor, or grave square.
+export function zombie_can_dig(x, y, state = game) {
+    if (!isok(x, y, state)) return false;
+    const terrain = state.level?.at(x, y)?.typ;
+    if (t_at(x, y, state)) return false;
+    return terrain === ROOM || terrain === CORR || terrain === GRAVE;
+}
+
+// C ref: zap.c revive_egg() (1142-1150).
+export function revive_egg(obj, state = game, env = {}) {
+    if (obj?.otyp !== EGG) return;
+    if (obj.corpsenm !== NON_PM
+        && !dead_species(obj.corpsenm, true, { ...env, state })) {
+        attach_egg_hatch_timeout(obj, 0, { ...env, state });
+    }
+}
+
+// C ref: zap.c revive() (884-1140). Revival keeps the corpse in place on a
+// failed attempt and transfers its container, shop, saved-trait, and active
+// ghost effects in source order.
 export async function revive(corpse, byHero = false, rawEnv = {}) {
     const env = revivalEnv(rawEnv);
     const { state } = env;
     if (corpse?.otyp !== CORPSE) return null;
-    if (byHero || corpse.where !== OBJ_FLOOR) {
-        throw new UnsupportedRevivalError(
-            'the floor, non-hero revive() call shape',
-        );
-    }
     if (state.context?.victual?.piece === corpse) {
-        throw new UnsupportedRevivalError('eat.c cant_finish_meal()');
-    }
-    if (corpse.oextra?.omid) {
-        throw new UnsupportedRevivalError('active-ghost recorporealization');
-    }
-    if (corpse.quan > 1 && (corpse.timed || corpse.unpaid || corpse.lamplit)) {
-        throw new UnsupportedRevivalError('timed, billed, or lit corpse split');
+        note_unported('eat.c cant_finish_meal');
     }
 
     const originalType = corpse.corpsenm;
     const originalSpecies = state.mons?.[originalType];
     if (!originalSpecies) return null;
-    let coordinate = get_obj_location(corpse, 0, state);
-    if (!coordinate?.x) return null;
-    corpse.ox = coordinate.x;
-    corpse.oy = coordinate.y;
-
-    if (m_at(coordinate.x, coordinate.y, state)) {
-        coordinate = enexto(
-            coordinate.x,
-            coordinate.y,
-            originalSpecies,
-            env,
-        ) ?? coordinate;
+    const isZombie = originalSpecies.mlet === S_ZOMBIE
+        || (corpse.where === OBJ_BURIED && is_reviver(originalSpecies));
+    let container = null;
+    let containerNesting = 0;
+    let coordinate = null;
+    if (corpse.where !== OBJ_CONTAINED) {
+        coordinate = get_obj_location(
+            corpse, isZombie ? BURIED_TOO : 0, state,
+        );
+    } else {
+        container = corpse.ocontainer;
+        const outer = get_container_location(container);
+        containerNesting = outer.nesting;
+        if (outer.loc === OBJ_MINVENT && outer.carrier)
+            coordinate = { x: outer.carrier.mx, y: outer.carrier.my };
+        else if (outer.loc === OBJ_INVENT)
+            coordinate = { x: state.u?.ux ?? 0, y: state.u?.uy ?? 0 };
+        else if (outer.loc === OBJ_FLOOR)
+            coordinate = get_obj_location(corpse, CONTAINED_TOO, state);
     }
-    const { x, y } = coordinate;
+    let x = coordinate?.x ?? 0;
+    let y = coordinate?.y ?? 0;
+    if (x) {
+        corpse.ox = x;
+        corpse.oy = y;
+    }
+    const random = env.random;
+    if (!x
+        || (container && (container.olocked || containerNesting > 2
+            || container.otyp === STATUE
+            || (container.otyp === BAG_OF_HOLDING && random.rn2(40))))
+        || (isZombie && corpse.where === OBJ_BURIED
+            && !zombie_can_dig(x, y, state))) return null;
+
+    if (m_at(x, y, state)) {
+        const nearby = enexto(x, y, originalSpecies, { ...env, state });
+        if (nearby) ({ x, y } = nearby);
+    }
     if (corpse.norevive
         || (originalSpecies.mlet === S_EEL && !is_pool(x, y, state))) {
         if (cansee(x, y, state)) {
@@ -1040,6 +1125,9 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
             if (corpse.oextra?.omonst) free_omonst(corpse);
             if (monster.cham === PM_DOPPELGANGER) {
                 await newcham_revival(monster, originalSpecies, env);
+            } else if (monster.data?.mlet === S_ZOMBIE) {
+                monster.mhp = monster.mhpmax = 100;
+                await mon_adjust_speed(monster, 2, null, state, env);
             }
         }
     } else if (corpse.oextra?.omonst) {
@@ -1063,8 +1151,72 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
     }
     if (M_AP_TYPE(monster)) seemimic(monster, state);
 
-    if (corpse.quan > 1)
+    const oneOf = corpse.quan > 1;
+    if (oneOf)
         corpse = splitobj(corpse, 1, objectGenerationEnv(env));
+
+    if (byHero) {
+        let shopkeeper = null;
+        x = corpse.ox;
+        y = corpse.oy;
+        if (costly_spot(x, y, state)
+            && (carried(corpse) ? corpse.unpaid : !corpse.no_charge)) {
+            const room = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+            shopkeeper = shop_keeper(room, state);
+        }
+        if (cansee(x, y, state)) {
+            const owner = oneOf
+                ? 'One of ' + shk_your(corpse, state)
+                : upstart(shk_your(corpse, state));
+            if (oneOf) corpse.quan++;
+            const corpseName = corpse_xname(corpse, null, CXN_NO_PFX, state);
+            if (oneOf) corpse.quan--;
+            await ttyPline(
+                upstart(owner + corpseName) + ' glows iridescently.',
+                state,
+                env,
+            );
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_OBJ_GLOWS;
+        } else if (shopkeeper) {
+            await ttyPline('A corpse is resuscitated.', state, env);
+        }
+        if (shopkeeper && monster !== shopkeeper) {
+            await stolen_value(
+                corpse, x, y, Boolean(shopkeeper.mpeaceful), false, state,
+            );
+        }
+    }
+
+    if (corpse.oextra?.omid) {
+        const ghost = find_mid(corpse.oextra.omid, FM_FMON, state);
+        if (ghost && ghost.data === state.mons?.[PM_GHOST]) {
+            if (canseemon(ghost, state)) {
+                await ttyPline(
+                    Monnam(ghost, state, env)
+                        + ' is suddenly drawn into its former body!',
+                    state,
+                    env,
+                );
+            }
+            for (let object = ghost.minvent; object;) {
+                const next = object.nobj;
+                obj_extract_self(object, env);
+                const { add_to_minv } = await import('./invent.js');
+                add_to_minv(monster, object, env);
+                object = next;
+            }
+            if (ghost.mtame && !monster.mtame) {
+                const { tamedog } = await import('./dog.js');
+                if (await tamedog(monster, null, false, env))
+                    monster.mtame = ghost.mtame;
+            }
+            monster.mconf = true;
+            const { mongone } = await import('./makemon_create.js');
+            await mongone(ghost, env);
+        }
+        free_omid(corpse);
+    }
 
     if (corpse.oextra?.oname && !unique_corpstat(monster.data)) {
         monster = christen_monst(monster, corpse.oextra.oname, {
@@ -1075,10 +1227,36 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
         monster.mhp = eaten_stat(monster.mhp, corpse, env);
     monster.mrevived = true;
 
-    delobj_core(corpse, true, objectGenerationEnv({
+    const objectEnv = objectGenerationEnv({
         ...env,
         redraw: (rx, ry) => newsym(rx, ry, state),
-    }));
+    });
+    switch (corpse.where) {
+    case OBJ_INVENT:
+        await useup(corpse, objectEnv);
+        break;
+    case OBJ_FLOOR:
+        await delobj_core(corpse, true, objectEnv);
+        break;
+    case OBJ_MINVENT:
+        await m_useup(corpse.ocarry, corpse, objectEnv);
+        break;
+    case OBJ_CONTAINED:
+        obj_extract_self(corpse, objectEnv);
+        await obfree(corpse, null, objectEnv);
+        break;
+    case OBJ_BURIED:
+        if (!isZombie) return null;
+        obj_extract_self(corpse, objectEnv);
+        await obfree(corpse, null, objectEnv);
+        break;
+    case OBJ_FREE:
+    case OBJ_MIGRATING:
+    case OBJ_ONBILL:
+    case OBJ_LUAFREE:
+    default:
+        throw new Error('revive: invalid corpse location ' + corpse.where);
+    }
     return monster;
 }
 
@@ -1317,18 +1495,85 @@ function probe_objchain(head, state = game) {
     }
 }
 
-// C ref: zap.c unturn_you() (1225-1234).  unturn_dead() and make_stunned()
-// are void calls whose source owners are still outside this span; preserve
-// the source messages and record those discarded calls without rejecting the
-// otherwise valid undead-turning effect.
+// C ref: zap.c unturn_dead() (1155-1222). Revive each carried egg or corpse
+// in list order, preserving the old norevive bit only when revival fails.
+export async function unturn_dead(monster, state = game, rawEnv = {}) {
+    const isHero = monster === state.youmonst;
+    const youSeeIt = isHero || canseemon(monster, state);
+    let object = isHero ? state.invent : monster.minvent;
+    let revivedCount = 0;
+    while (object) {
+        const next = object.nobj;
+        if (object.otyp === EGG)
+            revive_egg(object, state, rawEnv);
+        if (object.otyp !== CORPSE) {
+            object = next;
+            continue;
+        }
+
+        let owner = '';
+        let corpseName = '';
+        if (youSeeIt) {
+            corpseName = corpse_xname(object, null, CXN_NORMAL, state);
+            if (object.quan > 1)
+                owner = 'One of ' + shk_your(object, state);
+            else
+                owner = upstart(shk_your(object, state));
+        }
+        const corpseType = object.corpsenm;
+        const savedNorevive = object.norevive;
+        object.norevive = 0;
+        const revived = await revive(
+            object,
+            !state.context?.mon_moving,
+            { ...rawEnv, state },
+        );
+        if (revived) {
+            revivedCount++;
+            const differentType = revived.data !== state.mons?.[corpseType];
+            if (state.iflags?.last_msg === PLNMSG_OBJ_GLOWS) {
+                corpseName = 'It';
+                owner = '';
+            }
+            if (youSeeIt) {
+                const verb = nonliving(revived.data)
+                    ? 'reanimates' : 'comes alive';
+                const asMonster = differentType
+                    ? ' as ' + an(monsterCommonName(revived.data, state))
+                    : '';
+                await ttyPline(
+                    owner + corpseName + ' suddenly ' + verb + asMonster + '!',
+                    state,
+                    rawEnv,
+                );
+            } else if (canseemon(revived, state)) {
+                await ttyPline(
+                    upstart(a_monnam(revived, { state }))
+                        + ' suddenly appears!',
+                    state,
+                    rawEnv,
+                );
+            }
+        } else {
+            object.norevive = savedNorevive ? 1 : 0;
+        }
+        object = next;
+    }
+    if (isHero && revivedCount) await encumber_msg(state);
+    return revivedCount;
+}
+
+// C ref: zap.c unturn_you() (1225-1234). The duration argument to the still
+// unported make_stunned() is evaluated before the discarded void call.
 async function unturn_you(state = game) {
-    note_unported('zap.c unturn_dead');
+    await unturn_dead(state.youmonst, state);
     if (is_undead(state.youmonst?.data)) {
         const already = Boolean(state.u?.uprops?.[STUNNED]?.intrinsic);
         await ttyPline(
             `You feel frightened and ${already ? 'even more ' : ''}stunned.`,
             state,
         );
+        rnd(30);
         note_unported('potion.c make_stunned');
     } else {
         await ttyPline('You shudder in dread.', state);
@@ -3140,6 +3385,51 @@ export async function bhito(obj, wand, state = game,
 // same monster selector as mon.c and awaits its result because newcham may
 // prompt or run floor effects. Force Bolt and SPE_KNOCK have their source
 // effect paths; remaining callback effects retain named refusals.
+// C ref: zap.c probe_monster() and its local probe_objchain().
+export async function probe_monster(monster, state = game, rawEnv = {}) {
+    if (monster.data === state.mons?.[PM_LONG_WORM]) {
+        note_unported('insight.c mstatusline long-worm segment count');
+    } else {
+        await mstatusline(monster, state);
+    }
+    if (state.gn?.notonhead) return;
+    if (monster.minvent) {
+        probe_objchain(monster.minvent, state);
+        await display_minventory(
+            monster,
+            MINV_ALL | MINV_NOLET | PICK_NONE,
+            null,
+            state,
+            rawEnv,
+        );
+    } else {
+        await ttyPline(
+            noit_Monnam(monster, state) + ' is not carrying anything'
+                + (engulfing_u(monster, state) ? ' besides you.' : '.'),
+            state,
+            rawEnv,
+        );
+    }
+}
+
+function bhitmRelocationEnv(state, random, rawEnv = {}) {
+    // zap.c:bhitm() reaches teleport.c:u_teleport_mon(), then rloc() redraws
+    // both squares, checks scary terrain, and updates the monster's apparent
+    // hero position. Supply those production operations at the callback edge.
+    return {
+        ...rawEnv,
+        state,
+        random,
+        newsym: rawEnv.newsym ?? ((x, y) => newsym(x, y, state)),
+        onscary: rawEnv.onscary
+            ?? ((x, y, target) => onscary(x, y, target, state)),
+        setApparxy: rawEnv.setApparxy
+            ?? ((target, env) => set_apparxy(target, {
+                ...env, state, random,
+            })),
+    };
+}
+
 export async function bhitm(monster, wand, state = game,
     random = { d, rn2, rnd }, rawEnv = {}) {
     // bhit() consumes the callback's return value while walking the ray.
@@ -3150,12 +3440,21 @@ export async function bhitm(monster, wand, state = game,
     let reveal_invis = false;
     let wake = true;
     let ret = 0;
+    let helpful_gesture = false;
     const otyp = wand.otyp;
     const forceBolt = otyp === WAN_STRIKING || otyp === SPE_FORCE_BOLT;
     const slowMonster = otyp === WAN_SLOW_MONSTER
         || otyp === SPE_SLOW_MONSTER;
+    const skilledSpell = wand.oclass === SPBOOK_CLASS && wand.blessed;
     const disguised_mimic = monster.data?.mlet === S_MIMIC
         && M_AP_TYPE(monster) !== M_AP_NOTHING;
+    const boxOrDoor = (M_AP_TYPE(monster) === M_AP_OBJECT
+        && (monster.mappearance === CHEST
+            || monster.mappearance === LARGE_BOX))
+        || (M_AP_TYPE(monster) === M_AP_FURNITURE
+            && monster.mappearance >= S_vodoor
+            && monster.mappearance <= S_hcdoor);
+    if (engulfing_u(monster, state)) reveal_invis = false;
     // A long worm which this same zap just changed into must not be hit again
     // when its tail is traversed later in the ray.
     if (otyp === WAN_LIGHT) {
@@ -3163,12 +3462,217 @@ export async function bhitm(monster, wand, state = game,
             learn_it = true;
             reveal_invis = true;
         }
-    } else if (!forceBolt && otyp !== WAN_POLYMORPH
-        && otyp !== SPE_POLYMORPH && otyp !== SPE_KNOCK
-        && !slowMonster) {
-        throw new UnsupportedZapError(
-            `bhitm() for immediate effect type ${otyp}`,
+    } else if (otyp === WAN_SLEEP) {
+        reveal_invis = true;
+        if (await sleep_monst(
+            monster,
+            random.d(1 + wand.spe, 12),
+            WAND_CLASS,
+            { ...rawEnv, state, random },
+        )) {
+            await slept_monst(monster, { ...rawEnv, state, random });
+        }
+        if (!heroIsBlind(state)) learn_it = true;
+    } else if (otyp === WAN_CANCELLATION || otyp === SPE_CANCELLATION) {
+        if (disguised_mimic) seemimic(monster, state);
+        // C explicitly discards cancel_monst()'s Boolean result.
+        await cancel_monst(monster, wand, true, true, false, state);
+    } else if (otyp === WAN_SPEED_MONSTER) {
+        if (!await resist(
+            monster, wand.oclass, 0, NOTELL, state, random, rawEnv,
+        )) {
+            if (disguised_mimic) seemimic(monster, state);
+            await mon_adjust_speed(
+                monster, 1, wand, state, { ...rawEnv, random },
+            );
+            check_gear_next_turn(monster);
+        }
+        helpful_gesture = true;
+    } else if (otyp === WAN_UNDEAD_TURNING || otyp === SPE_TURN_UNDEAD) {
+        wake = false;
+        if (await unturn_dead(monster, state, { ...rawEnv, random }))
+            wake = true;
+        if (is_undead(monster.data) || is_vampshifter(monster)) {
+            reveal_invis = true;
+            wake = true;
+            let damage = random.rnd(8);
+            if (state.urole?.mnum === PM_KNIGHT
+                && state.u?.uhave?.questart) {
+                damage *= 2;
+            }
+            if (otyp === SPE_TURN_UNDEAD)
+                damage = spell_damage_bonus(damage, state);
+            state.context ??= {};
+            state.context.bypasses = true;
+            if (!await resist(
+                monster,
+                wand.oclass,
+                damage,
+                NOTELL,
+                state,
+                random,
+                rawEnv,
+            ) && monster.mhp >= 1) {
+                await monflee(monster, 0, false, true, {
+                    ...rawEnv,
+                    state,
+                    random,
+                    canSeeMonster: (target) => canSeeMonster(target, state),
+                    fleeMessage: (target, detail, env) =>
+                        monfleeMessage(target, detail, env),
+                });
+            }
+        }
+    } else if (otyp === WAN_TELEPORTATION || otyp === SPE_TELEPORT_AWAY) {
+        if (disguised_mimic) seemimic(monster, state);
+        reveal_invis = !await u_teleport_mon(monster, true, {
+            ...bhitmRelocationEnv(state, random, rawEnv),
+        });
+        learn_it = canSpotMonster(monster, state);
+    } else if (otyp === WAN_MAKE_INVISIBLE) {
+        const oldInvis = Boolean(monster.minvis);
+        const couldSee = canseemon(monster, state);
+        if (disguised_mimic) seemimic(monster, state);
+        // C names the mimic after revealing it, but before changing minvis.
+        const name = Monnam(monster, state, rawEnv);
+        mon_set_minvis(monster, false, state);
+        if (!oldInvis && knowninvisible(monster, state)) {
+            await ttyPline(name + ' turns transparent!', state, rawEnv);
+            reveal_invis = true;
+            learn_it = true;
+        } else if (couldSee && !canseemon(monster, state)) {
+            await ttyPline(name + ' vanishes!', state, rawEnv);
+        }
+    } else if (otyp === WAN_LOCKING || otyp === SPE_WIZARD_LOCK) {
+        if (disguised_mimic && boxOrDoor) seemimic(monster, state);
+        const trapped = await closeholdingtrap(monster, state);
+        wake = Boolean(trapped.result);
+        learn_it = Boolean(trapped.noticed);
+    } else if (otyp === WAN_PROBING) {
+        wake = false;
+        reveal_invis = true;
+        await probe_monster(monster, state, rawEnv);
+        learn_it = true;
+    } else if (otyp === SPE_HEALING || otyp === SPE_EXTRA_HEALING) {
+        const healAmount = random.d(
+            6,
+            otyp === SPE_EXTRA_HEALING ? 8 : 4,
         );
+        reveal_invis = true;
+        if (monster.data !== state.mons?.[PM_PESTILENCE]) {
+            const delta = monster.mhpmax - monster.mhp;
+            wake = false;
+            healmon(monster, healAmount, 0);
+            if (skilledSpell || otyp === SPE_EXTRA_HEALING)
+                note_unported('mon.c mcureblindness');
+            if (canseemon(monster, state)) {
+                if (disguised_mimic) {
+                    if (monster.mappearance === STRANGE_OBJECT) {
+                        const { set_mimic_sym } =
+                            await import('./makemon_create.js');
+                        set_mimic_sym(monster, { state });
+                        newsym(monster.mx, monster.my, state);
+                    } else {
+                        await mimic_hit_msg(monster, otyp, {
+                            ...rawEnv, state,
+                        });
+                    }
+                } else {
+                    await ttyPline(
+                        Monnam(monster, state, rawEnv) + ' looks'
+                            + (otyp === SPE_EXTRA_HEALING
+                                ? ' much better.' : ' better.'),
+                        state,
+                        rawEnv,
+                    );
+                }
+            }
+            if (monster.mtame && state.urole?.mnum === PM_HEALER
+                && delta > 0) {
+                more_experienced(
+                    Math.min(delta, healAmount), 0, state,
+                );
+                await newexplevel(state);
+            }
+            if (monster.mtame || monster.mpeaceful) {
+                const alignment = Math.trunc(state.u?.ualign?.type ?? 0);
+                const sign = alignment < 0 ? -1 : alignment > 0 ? 1 : 0;
+                adjalign(state.urole?.mnum === PM_HEALER ? 1 : sign, state);
+            }
+        } else {
+            await resist(
+                monster,
+                wand.oclass,
+                Math.trunc(healAmount / 2),
+                TELL,
+                state,
+                random,
+                rawEnv,
+            );
+        }
+    } else if (otyp === SPE_STONE_TO_FLESH) {
+        if (monster.data.mlet === S_GOLEM) {
+            const name = Monnam(monster, state, rawEnv);
+            let message;
+            if (monster.data.pmidx === PM_STONE_GOLEM
+                && await newcham(
+                    monster,
+                    state.mons[PM_FLESH_GOLEM],
+                    { ...rawEnv, state, random, ncflags: 0 },
+                )) {
+                message = 'turns to flesh!';
+            } else if (monster.data.pmidx === PM_FLESH_GOLEM) {
+                message = 'seems fleshier...';
+            } else {
+                message = 'looks rather fleshy for a moment.';
+            }
+            if (canseemon(monster, state))
+                await ttyPline(name + ' ' + message, state, rawEnv);
+        } else if (monster.data.mlet === S_MIMIC
+            && ((M_AP_TYPE(monster) === M_AP_FURNITURE
+                    && stone_furniture_type(monster.mappearance))
+                || (M_AP_TYPE(monster) === M_AP_OBJECT
+                    && stone_object_type(monster.mappearance)))) {
+            if (cansee(monster.mx, monster.my, state)) {
+                note_unported('pline.c set_msg_xy');
+                // zap.c discards that_is_a_mimic()'s result; wakeup() in the
+                // common tail reveals this mimic after the source call site.
+                note_unported('uhitm.c that_is_a_mimic');
+            }
+        } else {
+            wake = false;
+        }
+    } else if (otyp === SPE_DRAIN_LIFE) {
+        if (disguised_mimic) seemimic(monster, state);
+        let damage = monhp_per_lvl(monster);
+        if (state.urole?.mnum === PM_KNIGHT
+            && state.u?.uhave?.questart)
+            damage *= 2;
+        damage = spell_damage_bonus(damage, state);
+        if (resists_drli(monster, state)) {
+            await shieldeff_mon(monster, { state });
+        } else if (!await resist(
+            monster, wand.oclass, damage, NOTELL, state, random, rawEnv,
+        ) && monster.mhp >= 1) {
+            monster.mhp -= damage;
+            monster.mhpmax -= damage;
+            if (monster.mhp < 1 || monster.mhpmax <= 0
+                || monster.m_lev < 1) {
+                await killed(monster, state, rawEnv);
+            } else {
+                monster.m_lev--;
+                if (canseemon(monster, state)) {
+                    await ttyPline(
+                        Monnam(monster, state, rawEnv)
+                            + ' suddenly seems weaker!',
+                        state,
+                        rawEnv,
+                    );
+                }
+            }
+        }
+    } else if (otyp === WAN_NOTHING) {
+        wake = false;
     } else if (forceBolt) {
         const zap_type_text = otyp === WAN_STRIKING ? 'wand' : 'spell';
         reveal_invis = true;
@@ -3176,7 +3680,7 @@ export async function bhitm(monster, wand, state = game,
         if (resists_magm(monster, state)) {
             if (disguised_mimic && M_AP_TYPE(monster) !== M_AP_MONSTER)
                 seemimic(monster, state);
-            await shieldeff_mon(monster, { state });
+            await shieldeff(monster.mx, monster.my, state);
             await ttyPline('Boing!', state, rawEnv);
         } else if (state.u?.uswallow
             || random.rnd(20) < 10 + find_mac(monster, state)) {
@@ -3222,14 +3726,7 @@ export async function bhitm(monster, wand, state = game,
                 note_unported('mhitu.c expels TRUE');
             }
         }
-    } else if (otyp === SPE_KNOCK) {
-        const appearanceType = M_AP_TYPE(monster);
-        const boxOrDoor = (appearanceType === M_AP_OBJECT
-            && (monster.mappearance === CHEST
-                || monster.mappearance === LARGE_BOX))
-            || (appearanceType === M_AP_FURNITURE
-                && monster.mappearance >= S_vodoor
-                && monster.mappearance <= S_hcdoor);
+    } else if (otyp === WAN_OPENING || otyp === SPE_KNOCK) {
         if (disguised_mimic && boxOrDoor) seemimic(monster, state);
         wake = false;
         if (monster === state.u?.ustuck) {
@@ -3242,114 +3739,152 @@ export async function bhitm(monster, wand, state = game,
                 const falling = await openfallingtrap(monster, true, state);
                 if (falling.noticed) learn_it = true;
                 if (!falling.result) {
-                    wake = true;
-                    ret = 1;
-                    if (monster.data.msize < MZ_MEDIUM
-                        && !m_is_steadfast(monster, state)) {
-                        if (canseemon(monster, state)) {
+                    if (otyp === SPE_KNOCK) {
+                        wake = true;
+                        ret = 1;
+                        if (monster.data.msize < MZ_MEDIUM
+                            && !m_is_steadfast(monster, state)) {
+                            if (canseemon(monster, state)) {
+                                await ttyPline(
+                                    Monnam(monster, state, rawEnv)
+                                        + ' is knocked back!',
+                                    state,
+                                    rawEnv,
+                                );
+                            }
+                            await mhurtle(
+                                monster,
+                                monster.mx - state.u.ux,
+                                monster.my - state.u.uy,
+                                random.rnd(2),
+                                { ...rawEnv, state, random },
+                            );
+                        } else if (canseemon(monster, state)) {
                             await ttyPline(
-                                `${Monnam(monster, state, rawEnv)}`
-                                    + ' is knocked back!',
+                                Monnam(monster, state, rawEnv)
+                                    + " doesn't budge.",
                                 state,
+                                rawEnv,
                             );
                         }
-                        await mhurtle(
-                            monster,
-                            monster.mx - state.u.ux,
-                            monster.my - state.u.uy,
-                            random.rnd(2),
-                            { ...rawEnv, state, random },
-                        );
-                    } else if (canseemon(monster, state)) {
-                        await ttyPline(
-                            `${Monnam(monster, state, rawEnv)}`
-                                + " doesn't budge.",
-                            state,
-                        );
-                    }
-                    if (monster.mhp >= 1) {
-                        await wakeup(monster, !mindless(monster.data), {
-                            ...rawEnv, state, random,
-                        });
-                        const { abuse_dog } = await import('./dog.js');
-                        await abuse_dog(monster, state, random);
+                        if (monster.mhp >= 1) {
+                            await wakeup(monster, !mindless(monster.data), {
+                                ...rawEnv, state, random,
+                            });
+                            const { abuse_dog } = await import('./dog.js');
+                            await abuse_dog(monster, state, random);
+                        }
+                    } else {
+                        const saddle = which_armor(monster, W_SADDLE, state);
+                        if (saddle) {
+                            let name = `${s_suffix(Monnam(monster, state, rawEnv))} `
+                                + distant_name(saddle, xnameFresh, state);
+                            if (cansee(monster.mx, monster.my, state)) {
+                                if (!canSpotMonster(monster, state)) {
+                                    name = upstart(
+                                        an(distant_name(
+                                            saddle, xnameFresh, state,
+                                        ), state),
+                                    );
+                                }
+                                await ttyPline(
+                                    `${name} falls to the ${surface(
+                                        monster.mx, monster.my, state,
+                                    )}.`,
+                                    state,
+                                    rawEnv,
+                                );
+                            } else if (canSpotMonster(monster, state)) {
+                                await ttyPline(`${name} falls off.`, state, rawEnv);
+                            }
+                            await mdrop_obj(monster, saddle, false, {
+                                ...rawEnv, state, random,
+                            });
+                        }
                     }
                 }
             }
         }
-    } else if (monster.data === state.mons?.[PM_LONG_WORM]
-        && has_mcorpsenm(monster)) {
-        // C leaves the common wake/reveal/learn tail in place even for this
-        // no-op guard; there is simply no effect to learn.
-    } else if (resists_magm(monster, state)) {
-        await shieldeff_mon(monster, { state });
-    } else if (await resist(
-        monster,
-        wand.oclass ?? WAND_CLASS,
-        0,
-        NOTELL,
-        state,
-        random,
-    )) {
-        // A resisted zap still wakes the defender below, as in C.
-    } else {
-        const give_msg = !Hallucination(state)
-            && (canseemon(monster, state) || engulfing_u(monster, state));
-        // C marks inventory objects bypassed before changing the monster. The
-        // bypass context is consumed by the shared polymorph cleanup owner.
-        for (let object = monster.minvent; object; object = object.nobj)
-            bypass_obj(object, state);
+    } else if (otyp === WAN_POLYMORPH || otyp === SPE_POLYMORPH
+        || otyp === POT_POLYMORPH) {
+        if (monster.data === state.mons?.[PM_LONG_WORM]
+            && has_mcorpsenm(monster)) {
+            // A long worm changed by this same zap is not transformed again.
+        } else if (resists_magm(monster, state)) {
+            await shieldeff_mon(monster, { state });
+        } else if (!await resist(
+            monster,
+            wand.oclass,
+            0,
+            NOTELL,
+            state,
+            random,
+            rawEnv,
+        )) {
+            const polyspot = otyp !== POT_POLYMORPH;
+            const give_msg = !Hallucination(state)
+                && (canseemon(monster, state) || engulfing_u(monster, state));
+            if (polyspot) {
+                for (let object = monster.minvent; object; object = object.nobj)
+                    bypass_obj(object, state);
+            }
 
-        if (monster.cham === NON_PM && !random.rn2(25)) {
-            if (canseemon(monster, state)) {
-                await (rawEnv.message ?? ttyPline)(
-                    `${Monnam(monster, state, rawEnv)} shudders!`,
+            if (monster.cham === NON_PM && !random.rn2(25)) {
+                if (canseemon(monster, state)) {
+                    await ttyPline(
+                        `${Monnam(monster, state, rawEnv)} shudders!`,
+                        state,
+                        rawEnv,
+                    );
+                    learn_it = true;
+                }
+                await xkilled(
+                    monster,
+                    XKILL_GIVEMSG | XKILL_NOCORPSE,
                     state,
                     rawEnv,
                 );
-                learn_it = true;
+            } else {
+                const ncflags = (polyspot ? NC_VIA_WAND_OR_SPELL : 0)
+                    | (give_msg ? NC_SHOW_MSG : 0);
+                let changed = await newcham(monster, null, {
+                    ...rawEnv, state, random, ncflags,
+                });
+                if (!changed && Number.isInteger(monster.cham)
+                    && monster.cham !== NON_PM) {
+                    changed = await newcham(
+                        monster,
+                        state.mons[monster.cham],
+                        { ...rawEnv, state, random, ncflags },
+                    );
+                }
+                if (changed && give_msg
+                    && (canSpotMonster(monster, state)
+                        || engulfing_u(monster, state)))
+                    learn_it = true;
             }
-            await xkilled(
-                monster,
-                XKILL_GIVEMSG | XKILL_NOCORPSE,
-                state,
-                rawEnv,
-            );
-        } else {
-            const ncflags = NC_VIA_WAND_OR_SPELL
-                | (give_msg ? NC_SHOW_MSG : 0);
-            let changed = await newcham(monster, null, {
-                ...rawEnv, state, random, ncflags,
-            });
-            if (!changed && Number.isInteger(monster.cham)
-                && monster.cham !== NON_PM) {
-                changed = await newcham(
-                    monster,
-                    state.mons[monster.cham],
-                    { ...rawEnv, state, random, ncflags },
-                );
-            }
-            if (changed && give_msg
-                && (canSpotMonster(monster, state)
-                    || engulfing_u(monster, state)))
-                learn_it = true;
-        }
 
-        // Do this even when polymorph failed: otherwise forcing a long worm
-        // form would be retried when the same zap traverses its new tail.
-        if (monster.mhp >= 1
-            && monster.data === state.mons?.[PM_LONG_WORM]) {
-            if (!has_mcorpsenm(monster)) newmcorpsenm(monster);
-            monster.mextra.mcorpsenm = PM_LONG_WORM;
-            state.context ??= {};
-            state.context.bypasses = true;
+            // Do this even when polymorph fails; otherwise a new long-worm
+            // tail can trigger another transformation during this ray.
+            if (monster.mhp >= 1
+                && monster.data === state.mons?.[PM_LONG_WORM]) {
+                if (!has_mcorpsenm(monster)) newmcorpsenm(monster);
+                monster.mextra.mcorpsenm = PM_LONG_WORM;
+                state.context ??= {};
+                state.context.bypasses = true;
+            }
         }
+    } else {
+        // C's default is impossible() for an invalid effect/type pairing.
+        note_unported('zap.c bhitm impossible effect');
     }
     if (wake && monster.mhp >= 1) {
-        await wakeup(monster, !mindless(monster.data), {
+        await wakeup(monster, !helpful_gesture, {
             ...rawEnv, state, random,
         });
         await m_respond(monster, { ...rawEnv, state, random });
+        if (monster.isshk && !state.u?.ushops?.length)
+            note_unported('shk.c hot_pursuit');
     }
     if (reveal_invis && monster.mhp >= 1
         && cansee(hitpos.x, hitpos.y, state)
@@ -5623,9 +6158,8 @@ export async function zapwrapup(state = game, rawEnv = {}) {
     state.go.obj_zapped = false;
 }
 
-// C ref: zap.c zap_steed() (3087-3217).  The immediate polymorph arm uses the
-// ordinary monster callback at the steed's coordinates; unsupported wand
-// types still return false so we.effects can continue with its source test.
+// C ref: zap.c zap_steed() (3087-3142).  Probing and teleportation have their
+// own steed behavior; the source's listed effect types delegate to bhitm().
 export async function zap_steed(obj, state = game, random = { rn2, rnd }, rawEnv = {}) {
     const steed = state.u?.usteed;
     if (!steed) return false;
@@ -5633,10 +6167,45 @@ export async function zap_steed(obj, state = game, random = { rn2, rnd }, rawEnv
     state.gb.bhitpos = { x: steed.mx, y: steed.my };
     state.gn ??= {};
     state.gn.notonhead = false;
-    if (obj.otyp !== WAN_POLYMORPH && obj.otyp !== SPE_POLYMORPH)
+
+    switch (obj.otyp) {
+    case WAN_PROBING:
+        await probe_monster(steed, state, rawEnv);
+        learnwand(obj, state);
+        return true;
+    case WAN_TELEPORTATION:
+    case SPE_TELEPORT_AWAY: {
+        await tele(state);
+        if ((heroHasProperty(state, TELEPORT_CONTROL)
+                && !heroHasProperty(state, STUNNED))
+            || !couldsee(state.u.ux0, state.u.uy0, state)
+            || dist2(state.u.ux0, state.u.uy0,
+                state.u.ux, state.u.uy) >= 16) {
+            learnwand(obj, state);
+        }
+        return true;
+    }
+    case SPE_CURE_SICKNESS:
+    case WAN_MAKE_INVISIBLE:
+    case WAN_CANCELLATION:
+    case SPE_CANCELLATION:
+    case WAN_POLYMORPH:
+    case SPE_POLYMORPH:
+    case WAN_STRIKING:
+    case SPE_FORCE_BOLT:
+    case WAN_SLOW_MONSTER:
+    case SPE_SLOW_MONSTER:
+    case WAN_SPEED_MONSTER:
+    case SPE_HEALING:
+    case SPE_EXTRA_HEALING:
+    case SPE_DRAIN_LIFE:
+    case WAN_OPENING:
+    case SPE_KNOCK:
+        await bhitm(steed, obj, state, random, rawEnv);
+        return true;
+    default:
         return false;
-    await bhitm(steed, obj, state, random, rawEnv);
-    return true;
+    }
 }
 
 // C ref: zap.c zap_updown() (3219-3410).  Its polymorph path has no special

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent B53 zap.c:zap_steed -> zap.c:bhitm(WAN_PROBING) witness. A Knight waits for the starting pony, mounts east with #ride, wishes a probing wand, and zaps downward into the steed.",
+  "segments": [{
+    "seed": 52093321,
+    "datetime": "20481013122536",
+    "nethackrc": "OPTIONS=name:B53KnightProbe,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+    "moves": ".#ride\nl\u0017wand of probing\nz? i>"
+  }]
+}
