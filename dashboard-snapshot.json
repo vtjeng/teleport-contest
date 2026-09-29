@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T19:40:19.229Z",
+  "capturedAt": "2026-09-29T20:22:23.150Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9795,12 +9795,118 @@
         "type": "accepted",
         "at": "2026-09-29T19:40:18.769Z",
         "task": "B56"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B56-192464e9-20260929",
+        "type": "published",
+        "at": "2026-09-29T19:41:09.411Z",
+        "task": "B56",
+        "commit": "192464e910eedb84479827a8a3abda5e9636e1fc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A51-34ab63c0-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T19:42:01.572Z",
+        "task": "A51",
+        "integration": "34ab63c06ff6dce8f865873d36f4fc7aa1332c6b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A51-evidence-candidate-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T19:43:09.416Z",
+        "task": "A51",
+        "integration": "de8bbe50106ba95b9d6d0a0139f3afac29912d99"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A51-de8bbe50-failed-20260929",
+        "type": "validated",
+        "at": "2026-09-29T19:52:16.424Z",
+        "task": "A51",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-A51-de8bbe50-test-digest-20260929",
+        "type": "feedback",
+        "at": "2026-09-29T19:52:28.600Z",
+        "task": "A51",
+        "delivery": "07353b9a473692e1051fae58a536a8c34ff98cbf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B57-20260929",
+        "type": "assign",
+        "at": "2026-09-29T19:55:00.653Z",
+        "task": "B57",
+        "worker": "B",
+        "goal": "fix-hack-losehp-planning-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A51-state-oracle-20260929",
+        "type": "resume",
+        "at": "2026-09-29T19:57:03.581Z",
+        "task": "A51"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0679d8d2f5e4d0b778dd3cc9769e8d6b28047d3c",
+        "type": "ready",
+        "at": "2026-09-29T20:05:01.838Z",
+        "task": "A51",
+        "delivery": "0679d8d2f5e4d0b778dd3cc9769e8d6b28047d3c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A51-correction-0679d8d2-20260929",
+        "type": "received",
+        "at": "2026-09-29T20:05:32.696Z",
+        "task": "A51",
+        "delivery": "0679d8d2f5e4d0b778dd3cc9769e8d6b28047d3c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-A51-correction-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T20:05:44.231Z",
+        "task": "A51",
+        "integration": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A52-20260929",
+        "type": "assign",
+        "at": "2026-09-29T20:13:42.550Z",
+        "task": "A52",
+        "worker": "A2",
+        "goal": "port-worm-cut-segment-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-A51-f4a7ca9e-pass-20260929",
+        "type": "validated",
+        "at": "2026-09-29T20:16:39.563Z",
+        "task": "A51",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-A51-f4a7ca9e-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T20:22:22.654Z",
+        "task": "A51"
       }
     ]
   },
   "development": {
-    "executionCommit": "c6a50520a55684515ff6188696cd94704cf47cc1",
-    "measuredAt": "2026-09-29T19:11:42.879Z",
+    "executionCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+    "measuredAt": "2026-09-29T20:16:04.361Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
