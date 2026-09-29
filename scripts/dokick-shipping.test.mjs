@@ -2,13 +2,20 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
     HOLE, IN_SIGHT, MIGR_LADDER_UP, MIGR_NOWHERE, MIGR_RANDOM,
-    MIGR_SSTAIRS, MIGR_STAIRS_UP, OBJ_DELETED, OBJ_MIGRATING, TRAPDOOR,
+    MIGR_SSTAIRS, MIGR_STAIRS_UP, OBJ_CONTAINED, OBJ_DELETED,
+    OBJ_MIGRATING, TRAPDOOR,
 } from '../js/const.js';
-import { down_gate, drop_to, otransit_msg, ship_object } from '../js/dokick.js';
+import {
+    container_impact_dmg, down_gate, drop_to, otransit_msg, ship_object,
+} from '../js/dokick.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { mksobj, place_object } from '../js/obj.js';
-import { BOULDER, CORPSE, DAGGER, EGG, MIRROR } from '../js/objects.js';
+import { mksobj, objectType, place_object } from '../js/obj.js';
+import { add_to_container } from '../js/invent.js';
+import {
+    BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, CORPSE, DAGGER, EGG,
+    GLASS, LARGE_BOX, MIRROR, POT_WATER,
+} from '../js/objects.js';
 import { PM_NEWT } from '../js/monsters.js';
 
 async function setup() {
@@ -204,4 +211,49 @@ test('ship_object reports pile impact before migration', async () => {
     assert.equal(state.gm.migrating_objs, obj);
     assert.equal(state.level.objects[x][y], pile,
         'unported impact_drop is recorded, not replaced with invented pile movement');
+});
+
+
+test('container_impact_dmg breaks non-gem glass in C order', async () => {
+    const state = await setup();
+    const box = mksobj(LARGE_BOX, false, false, { state });
+    const potion = mksobj(POT_WATER, false, false, { state });
+    assert.equal(objectType(potion, state).oc_material, GLASS);
+    add_to_container(box, potion, {
+        state, hooks: { objectNoLongerHeld() {} },
+    });
+    state.flags.acoustics = true;
+    box.cknown = true;
+    const draws = [];
+    const messages = [];
+    await container_impact_dmg(box, state.u.ux, state.u.uy, {
+        state,
+        message: (text) => { messages.push(text); },
+        random: { rn2: (n) => { draws.push(n); return 99; } },
+    });
+    assert.deepEqual(draws, [100]);
+    assert.equal(box.cobj, null);
+    assert.equal(box.cknown, 0);
+    assert.equal(potion.where, OBJ_DELETED);
+    assert.deepEqual(messages, ['You hear a muffled shatter.']);
+    assert.equal(state.unported?.has('sounds.c Soundeffect'), true);
+});
+
+test('container_impact_dmg skips bags of holding and tricks', async () => {
+    const state = await setup();
+    const draws = [];
+    for (const type of [BAG_OF_HOLDING, BAG_OF_TRICKS]) {
+        const bag = mksobj(type, false, false, { state });
+        const potion = mksobj(POT_WATER, false, false, { state });
+        add_to_container(bag, potion, {
+            state, hooks: { objectNoLongerHeld() {} },
+        });
+        await container_impact_dmg(bag, state.u.ux, state.u.uy, {
+            state,
+            random: { rn2: (n) => { draws.push(n); return 99; } },
+        });
+        assert.equal(bag.cobj, potion);
+        assert.equal(potion.where, OBJ_CONTAINED);
+    }
+    assert.deepEqual(draws, []);
 });

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C witness for `do.c:drop -> dothrow.c:hitfloor -> do.c:dropz(with_impact=TRUE) -> dokick.c:container_impact_dmg`. The debug Wizard wishes a sack and a levitation potion, drops the sack using its observed inventory letter, inserts one starting potion, picks it up, moves, drinks levitation, and drops it while floating. The seed, date, name, gender, alignment, and starting-potion state are independent of the admitted v12 case.",
+  "segments": [
+    {
+      "seed": 70192345,
+      "datetime": "20480701093000",
+      "nethackrc": "OPTIONS=name:A49DropCheck,role:Wizard,race:human,gender:female,align:chaotic\nOPTIONS=playmode:debug,menustyle:traditional,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,time,!autopickup\n",
+      "moves": "  #wizwish\nempty unlocked sack\n#wizwish\npotion of levitation\ndp#loot\ni!\ny nnn,lqqdp "
+    }
+  ]
+}
