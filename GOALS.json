@@ -111154,6 +111154,49 @@
           "evaluationCommit": "a149eb3605fe68acf848e20f8255850d22e83a3d"
         }
       }
+    },
+    {
+      "id": "port-display-shieldeff-synthetic-v11-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port shield flash display for magic-resistant trap effects",
+      "cFile": "display.c",
+      "sessions": [
+        "synthetic/v11/hero-teleport-trap-displaces-hero"
+      ],
+      "selectionReason": "The complete investigation investigations/synthetic/v11/hero-teleport-trap-displaces-hero.json traces a magic-resistant Wizard stepping onto TELEP_TRAP: teleport.c tele_trap calls display.c shieldeff before its wrenching-sensation message, and JS refuses the helper. This shared display source helper also serves anti-magic and polymorph trap effects; wire its active callers without overlapping the domagictrap source function reserved by C43. Admitted v11 manifest SHA 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347; saved evaluation challenges/evaluations/20260929013352-v11.json.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "shieldeff",
+          "line": 1110,
+          "endLine": 1126,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1110,
+        "to": 1126
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-teleport-trap-displaces-hero": {
+          "session": "synthetic/v11/hero-teleport-trap-displaces-hero",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-teleport-trap-displaces-hero",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+          "recordingSha256": "5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7",
+          "evaluationPath": "challenges/evaluations/20260929013352-v11.json",
+          "evaluationCommit": "a149eb3605fe68acf848e20f8255850d22e83a3d"
+        }
+      }
     }
   ]
 }
