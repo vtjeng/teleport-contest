@@ -16,6 +16,7 @@ import {
     CORR,
     D_BROKEN,
     D_CLOSED,
+    DIED,
     DRAWBRIDGE_DOWN,
     D_ISOPEN,
     D_LOCKED,
@@ -36,6 +37,7 @@ import {
     LAVAPOOL,
     LS_MONSTER,
     LS_OBJECT,
+    KILLED_BY_AN,
     MMOVE_DONE,
     MMOVE_NOTHING,
     MOAT,
@@ -74,6 +76,7 @@ import {
 } from '../js/const.js';
 import { eatfood } from '../js/eat.js';
 import { game } from '../js/gstate.js';
+import { losehp } from '../js/hack.js';
 import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -121,6 +124,7 @@ import {
 } from '../js/monsters.js';
 import {
     preflightSimpleMonsterActions,
+    preflightElapsedTurnTail,
     planningState,
     runSimpleMonsterAction,
     UnsupportedSimpleMonsterActionError,
@@ -168,6 +172,10 @@ import { UnsupportedObjectNameError } from '../js/objnam.js';
 const DATETIME = '20260725120000';
 const REGION_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/region.c', import.meta.url),
+    'utf8',
+);
+const HACK_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/hack.c', import.meta.url),
     'utf8',
 );
 
@@ -883,6 +891,81 @@ test('planned lethal poison stops before polymorph rehumanization',
         assert.equal(game.u.mh, 1);
         assert.equal(game.program_state.gameover ?? false, false);
         assert.equal(game.nhDisplay.inputQueueLength, inputBefore);
+    });
+
+test('planned region death hands off to both live elapsed continuations',
+    async () => {
+        assert.match(
+            HACK_SOURCE,
+            /u\.uhp -= n;[\s\S]*?svk\.killer\.format = k_format;[\s\S]*?urgent_pline\("You die\.\.\."\);[\s\S]*?done\(DIED\)/,
+        );
+        // This fixed independent seed and date supply reproducible production
+        // planning state without reusing a recorded session.
+        const replay = await runSegment({
+            seed: 34019027,
+            datetime: '20430212143307',
+            nethackrc: 'OPTIONS=name:RegionHandoff,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.u.umovement = 0;
+        // One HP and a two-point hit enter losehp's ordinary lethal branch;
+        // the stale killer record proves preflight writes only its copy.
+        game.u.uhp = 1;
+        game.u.uhpmax = 10;
+        game.killer = { name: 'old cause', format: KILLED_BY_AN };
+        game.iflags.showdamage = false;
+        const queueLength = game.nhDisplay.inputQueueLength;
+        const topline = game._ttyToplines;
+        const randomBefore = rngSnapshot();
+        const rngLogLengthBefore = replay.getRngLog().length;
+
+        const simplePlan = await preflightSimpleMonsterActions(game, {
+            // Skipping ration consumption isolates the supplied round callback.
+            consumeHeroRation: false,
+            advanceRound: async (planned) => {
+                await losehp(2, 'gas cloud', KILLED_BY_AN, planned, {
+                    planning: true,
+                });
+            },
+        });
+        assert.deepEqual(simplePlan.heroDeath, {
+            monsterId: null,
+            how: DIED,
+            killerName: 'gas cloud',
+            killerFormat: KILLED_BY_AN,
+            fromMonster: false,
+        });
+
+        const tailPlan = await preflightElapsedTurnTail(
+            game,
+            async (planned) => losehp(
+                2,
+                'gas cloud',
+                KILLED_BY_AN,
+                planned,
+                { planning: true },
+            ),
+        );
+        assert.deepEqual(tailPlan.heroDeath, {
+            how: DIED,
+            killerName: 'gas cloud',
+            killerFormat: KILLED_BY_AN,
+            fromMonster: false,
+        });
+        assert.equal(game.u.uhp, 1);
+        assert.deepEqual(game.killer, {
+            name: 'old cause',
+            format: KILLED_BY_AN,
+        });
+        assert.equal(game.nhDisplay.inputQueueLength, queueLength);
+        assert.equal(game._ttyToplines, topline);
+        assert.deepEqual(rngSnapshot(), randomBefore);
+        assert.equal(game.program_state.gameover ?? false, false);
+        assert.equal(replay.getRngLog().length, rngLogLengthBefore);
     });
 
 test('a planned hallucinated pickup uses only the cloned display RNG',

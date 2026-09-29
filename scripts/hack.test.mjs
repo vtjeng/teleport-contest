@@ -18,6 +18,7 @@ import {
     TELEPAT,
     THRONE,
     CORR,
+    DIED,
     DO_MOVE,
     DOMOVE_WALK,
     DUST,
@@ -30,6 +31,7 @@ import {
     LEVITATION,
     MAX_TYPE,
     MELT_ICE_AWAY,
+    KILLED_BY_AN,
     LAVAPOOL,
     PARANOID_SWIM,
     PIT,
@@ -64,10 +66,12 @@ import {
     end_running,
     findtravelpath,
     furniture_present,
+    HeroDeathPlanningError,
     hero_tread_disturbs_buried_zombies,
     in_town,
     invocation_pos,
     long_to_any,
+    losehp,
     lookaround,
     maybe_smudge_engr,
     monstinroom,
@@ -93,7 +97,7 @@ import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    M1_FLY, PM_GRID_BUG, PM_SOLDIER, monst_globals_init,
+    M1_FLY, PM_GRID_BUG, PM_HUMAN, PM_SOLDIER, monst_globals_init,
 } from '../js/monsters.js';
 import {
     CORPSE, DAGGER, objects_globals_init,
@@ -103,8 +107,85 @@ import {
     start_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
+import { planningState } from '../js/unported_monster_actions.js';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
+
+test('planned losehp stops after source-ordered lethal state writes', async () => {
+    assert.match(
+        HACK_SOURCE,
+    /losehp\(int n, const char \*knam, schar k_format\)[\s\S]*?if \(Upolyd\)[\s\S]*?u\.mh -= n;[\s\S]*?rehumanize\(\);[\s\S]*?u\.uhp -= n;[\s\S]*?svk\.killer\.format = k_format;[\s\S]*?Strcpy\(svk\.killer\.name, knam \? knam : ""\);[\s\S]*?urgent_pline\("You die\.\.\."\);[\s\S]*?done\(DIED\)/,
+    );
+    // This fixed independent seed and date give planningState reproducible
+    // display and random owners without reusing a recorded session.
+    const live = await runSegment({
+        seed: 23190417,
+        datetime: '20410908153211',
+        nethackrc: 'OPTIONS=name:PlannedLoss,role:Wizard,race:human,'
+            + 'gender:male,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: '',
+    });
+
+    // One HP and a two-point hit enter each C lethal branch; ten maximum HP
+    // leaves the ordinary case able to verify that losehp does not lower it.
+    for (const polymorphed of [false, true]) {
+        if (polymorphed) {
+            game.u.umonster = PM_HUMAN;
+            game.u.umonnum = PM_GRID_BUG;
+            game.u.mh = 1;
+            game.u.mhmax = 1;
+            game.youmonst.data = game.mons[PM_GRID_BUG];
+        } else {
+            game.u.umonster = PM_HUMAN;
+            game.u.umonnum = PM_HUMAN;
+            game.u.uhp = 1;
+            game.u.uhpmax = 10;
+        }
+        game.killer = { name: 'previous killer', format: KILLED_BY_AN };
+        game.iflags.showdamage = true;
+        const planned = planningState(game);
+        const queueLength = game.nhDisplay.inputQueueLength;
+        const topline = game._ttyToplines;
+        const rngLength = live.getRngLog().length;
+        assert.notStrictEqual(planned.killer, game.killer);
+
+        await assert.rejects(
+            () => losehp(
+                2,
+                'gas cloud',
+                KILLED_BY_AN,
+                planned,
+                { planning: true },
+            ),
+            (error) => error instanceof HeroDeathPlanningError
+                && error.how === DIED
+                && error.killerName === 'gas cloud'
+                && error.killerFormat === KILLED_BY_AN,
+        );
+
+        if (polymorphed) {
+            assert.equal(planned.u.mh, -1);
+            assert.equal(game.u.mh, 1);
+            assert.equal(game.u.mtimedone, 0);
+        } else {
+            assert.equal(planned.u.uhp, -1);
+            assert.equal(game.u.uhp, 1);
+            assert.deepEqual(planned.killer, {
+                name: 'gas cloud',
+                format: KILLED_BY_AN,
+            });
+            assert.deepEqual(game.killer, {
+                name: 'previous killer',
+                format: KILLED_BY_AN,
+            });
+        }
+        assert.equal(planned.disp.botl, true);
+        assert.equal(game.nhDisplay.inputQueueLength, queueLength);
+        assert.equal(game._ttyToplines, topline);
+        assert.equal(game.program_state.gameover ?? false, false);
+        assert.equal(live.getRngLog().length, rngLength);
+    }
+});
 
 test('invocation_pos matches the C level and coordinate predicate', () => {
     assert.match(
