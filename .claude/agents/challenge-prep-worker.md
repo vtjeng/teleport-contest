@@ -20,21 +20,21 @@ the roadmap, and prior missed missions, while leaving room for exploratory
 cases. Choose different source owners where practical. Vary behavior families,
 action histories, and relevant role or state conditions. Changing only seeds
 is insufficient.
-Record every valid case with patched C and confirm it with an independent C
-replay. Compare its reached behavior, state conditions, and action history with
-every case in the immediately preceding batch and every unresolved older case;
-v7 must differ from all v6 cases. Name the closest earlier cases and causal
-distinction for each case kept in the prepared manifest, including matching
-cases and target misses. Keep valid overlapping probes and their replays as
-preparation provenance outside the manifest. Reject invalid setup or recorder
-failure with C evidence. Do not copy a fixed or admitted recording's seed and
-inputs, special-case a case, or edit prior batches.
+Record every valid case with patched C. Independently replay each case kept
+in the prepared manifest. Compare its reached behavior, state conditions,
+and action history with every case in the immediately preceding batch and
+every unresolved older case; v7 must differ from all v6 cases. Name the
+closest earlier cases and causal distinction for each case kept in the prepared manifest, including matching
+cases and target misses. Keep valid overlapping probes outside the manifest
+with their C observation and earlier case; replay them again only when needed
+to establish a blocker. Reject invalid setup or recorder failure with C
+evidence. Do not copy a fixed or admitted recording's seed and inputs, special-case a case, or edit prior batches.
 
-After independent C replay, compare each recording with the JavaScript port in
-this worktree. In `missionPlan`, count a session when it has a local mismatch
-and the C behavior responsible for its first mismatch is source-traced and
-distinct from the first mismatching behavior of every other counted session.
-Later mismatches in the session are allowed. Name the recording, first mismatch
+After independent C replay, compare each included recording with the
+JavaScript port in this worktree. In `missionPlan`, count a session when it
+has a local mismatch and the C behavior responsible for its first mismatch
+is source-traced and distinct from the first mismatching behavior of every
+other counted session. Later mismatches in the session are allowed. Name the recording, first mismatch
 step, source behavior, and owner for each counted session. Retain every
 distinct valid case in the prepared manifest, including misses of the intended
 behavior and JavaScript matches. A missed mission can count when its first
