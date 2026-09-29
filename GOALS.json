@@ -118892,7 +118892,7 @@
     {
       "id": "fix-apply-candelabrum-empty-no-candles-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete candelabrum application and wire its command caller",
       "cFile": "apply.c",
       "sessions": [
@@ -118906,8 +118906,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b55fe3125b08dfa7eb4feaeb437a897fc7c8808c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "use_candelabrum",
@@ -119148,6 +119151,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b55fe3125b08dfa7eb4feaeb437a897fc7c8808c",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
