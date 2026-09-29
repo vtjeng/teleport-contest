@@ -115288,7 +115288,7 @@
     {
       "id": "port-trap-trapeffect-statue-trap-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port whole statue-trap effect dispatch for hero and monster triggers",
       "cFile": "trap.c",
       "sessions": [
@@ -115296,8 +115296,12 @@
       ],
       "selectionReason": "Current A47 evaluation leaves synthetic/v11/hero-statue-trap-animates-statue two unmatched screens at step 37; investigations/synthetic/v11/hero-statue-trap-animates-statue.json traces the refusal to trap.c:trapeffect_statue_trap. Port its full hero and monster arms and production selector call, using the existing activate_statue_trap source callee. v12 floor-wand bhito is already reserved by B54.",
       "detail": "v11 manifest 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347; independent C recording challenges/cases/v11/hero-statue-trap-animates-statue.session.json SHA a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91; saved evaluation challenges/evaluations/20260929092931-v11.json at 4ee9966290fe5b3a15d517b72140203cc65036b7. C trap.c:2279-2292 calls activate_statue_trap(trap,u.ux,u.uy,FALSE) for hero, leaves monster without side effects, and returns Trap_Effect_Finished. Source trace at investigations/synthetic/v11/hero-statue-trap-animates-statue.json.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "134c075b8dd22a5e3c91487cd38eeb0265666e6f",
+      "openStanding": {
+        "sha": "134c075b8dd22a5e3c91487cd38eeb0265666e6f",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -115326,7 +115330,157 @@
           "evaluationPath": "challenges/evaluations/20260929092931-v11.json",
           "evaluationCommit": "4ee9966290fe5b3a15d517b72140203cc65036b7"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "134c075b8dd22a5e3c91487cd38eeb0265666e6f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-statue-trap-animates-statue",
+          "session": "synthetic/v11/hero-statue-trap-animates-statue",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingPath": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+          "recipe": "challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json",
+          "recipeSha256": "676e93c84bc911489e707abbf9a80a1e53d46dfd99c12b8f848e04625d12964d",
+          "replayInputSha256": "204d917ca8a768facaab16565deb0bbddf0ab2c07e4d38ee91c1489c3b68088e",
+          "evaluationPath": "challenges/evaluations/20260929092931-v11.json",
+          "evaluationCommit": "4ee9966290fe5b3a15d517b72140203cc65036b7",
+          "evaluationArtifact": "challenges/evaluations/20260929092931-v11.json",
+          "evaluationUtc": "2026-09-29T09:29:40.738Z",
+          "remainingScreens": 2,
+          "recordedSteps": 39,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2376,
+              "total": 2433
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/hero-statue-trap-animates-statue.json",
+            "result": {
+              "session": "synthetic/v11/hero-statue-trap-animates-statue",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "hero-statue-trap-animates-statue",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+              "evaluationPath": "challenges/evaluations/20260929084757-v11.json",
+              "evaluationCommit": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f",
+              "remainingScreens": 2,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "hero-statue-trap-animates-statue",
+                "session": "synthetic/v11/hero-statue-trap-animates-statue",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+                "recordingPath": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+                "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+                "recipe": "challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json",
+                "recipeSha256": "676e93c84bc911489e707abbf9a80a1e53d46dfd99c12b8f848e04625d12964d",
+                "replayInputSha256": "74671a80a46a7f23da6f8b6075b6f4a03203fecd2dcfd249d3c3ad9fb965aa6a",
+                "evaluationPath": "challenges/evaluations/20260929084757-v11.json",
+                "evaluationCommit": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f",
+                "evaluationArtifact": "challenges/evaluations/20260929084757-v11.json",
+                "evaluationUtc": "2026-09-29T08:48:06.697Z",
+                "remainingScreens": 2,
+                "recordedSteps": 39,
+                "previousScreensMatched": 37,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2376,
+                    "total": 2433
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: trap activation",
+                  "step": 37
+                },
+                "step": 37,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: trap activation",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Statue creation now matches C through the trap setup. The first remaining mismatch is the hero entering the statue trap at step 37: JS refuses trap.c:trapeffect_statue_trap before calling its existing activate_statue_trap implementation. Port the whole hero and monster effect branches and wire the production selector.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c:trapeffect_statue_trap (2279-2292) checks whether the trigger is the hero, calls activate_statue_trap(trap,u.ux,u.uy,FALSE) for the hero, does nothing for monsters, and returns Trap_Effect_Finished. The v11 hero movement reaches this branch after the statue is created.",
+                "functions": [
+                  "trapeffect_statue_trap"
+                ],
+                "callers": [
+                  "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_selector -> trapeffect_statue_trap(hero); js/trap_effects.js dispatches STATUE_TRAP but refuses the hero arm.",
+                  "trap.c:mintrap -> trapeffect_selector -> trapeffect_statue_trap(monster); JS monster arm already returns Trap_Effect_Finished without side effects."
+                ],
+                "dependencies": [
+                  "trap.c:activate_statue_trap is already ported in js/trap.js and consumes animate_statue result; call it with source coordinates and FALSE in the hero arm.",
+                  "Earlier mk_trap_statue setup and rndmonst_adj divergence was fixed by the accepted B51 source port; retain the prior investigation in Git history, not as the current first mismatch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current challenges/evaluations/20260929084757-v11.json at 8cb19c81f03984a669d9ee9dff876e2c6cc7514f matches 37/39 screens and cursors; JS stops at zero-based step 37 with unsupported hero move: trap activation.",
+                "Upstream trap.c:2279-2292 calls activate_statue_trap for the hero and returns Trap_Effect_Finished for either trigger; js/trap_effects.js:3718-3727 refuses only the hero branch. The existing js/trap.js:activate_statue_trap is the source callee.",
+                "The immutable independent C case challenges/cases/v11/hero-statue-trap-animates-statue.session.json has recording SHA-256 a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91 and reaches the hero trigger after statue creation."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
