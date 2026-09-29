@@ -15,6 +15,7 @@ import {
     OBJ_LUAFREE,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { inv_weight, near_capacity } from '../js/hack.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
     UnsupportedObjectOperationError,
@@ -1646,4 +1647,102 @@ test('hornoplenty identifies a cursed item spilled onto an altar', async () => {
     assert.equal(game.u.uconduct.gnostic, 1);
     assert.match(game.nhDisplay.toplines, /black flash as .* hits the altar/u);
     assert.equal(game.iflags.suppress_price, 0);
+});
+
+test('hornoplenty wires the default carried-object encumbrance callback', async () => {
+    // This seed and timestamp make a repeatable fresh game without targeting
+    // a particular random draw; Valkyrie options exercise ordinary inventory
+    // handling, while !autopickup keeps the generated object on this path.
+    await runSegment({
+        seed: 4917324,
+        datetime: '20450323111709',
+        nethackrc: 'OPTIONS=name:Test,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics,!autopickup',
+        // Initialization needs no command input before the direct helper call.
+        moves: '',
+    });
+    clearTtyMessageWindow(game);
+    // The callback's real message path may pause on its next continuation.
+    // These spaces only make the focused test's display queue deterministic.
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
+    // One carried horn at `a` isolates the generated-object weight delta from
+    // all other inventory; 25 is only the initial horn's fixture weight.
+    const horn = newObject({
+        otyp: HORN_OF_PLENTY,
+        oclass: game.objects[HORN_OF_PLENTY].oc_class,
+        quan: 1,
+        // One charge reaches mkobj.c:hornoplenty's charged branch.
+        spe: 1,
+        where: OBJ_INVENT,
+        invlet: 'a',
+        owt: 25,
+    });
+    game.invent = horn;
+    const beforeWeight = inv_weight(game);
+    // Force pickup.c:encumber_msg's decrease arm even when this light object
+    // leaves the actual capacity unchanged.
+    game.go.oldcap = 4;
+
+    assert.equal(await hornoplenty(horn, false, null, { state: game }), 1);
+
+    const inventory = [];
+    for (let obj = game.invent; obj; obj = obj.nobj) inventory.push(obj);
+    const generated = inventory.find((obj) => obj !== horn);
+    assert.ok(generated, 'the generated object remains in inventory');
+    assert.equal(generated.where, OBJ_INVENT);
+    assert.equal(horn.spe, 0, 'hornoplenty consumes its one charge');
+    assert.equal(
+        inv_weight(game),
+        beforeWeight + generated.owt,
+        'the carried weight includes the generated object',
+    );
+    assert.equal(game.go.oldcap, near_capacity(game));
+    assert.match(game.nhDisplay.toplines, /movements are now unencumbered/u);
+    assert.equal(game.iflags.suppress_price, 0);
+
+    // Reset the harness to verify that an established caller override remains
+    // authoritative. Reusing the same seed/date/options gives the same clean
+    // initialized state as the default-callback check above.
+    await runSegment({
+        seed: 4917324,
+        datetime: '20450323111709',
+        nethackrc: 'OPTIONS=name:Test,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics,!autopickup',
+        // No command is needed before applying the manually constructed horn.
+        moves: '',
+    });
+    clearTtyMessageWindow(game);
+    // Match the queued continuations used above; these are unrelated to the
+    // encumbrance callback being tested.
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
+    // Keep the same one-charge carried-horn fixture used above.
+    const overrideHorn = newObject({
+        otyp: HORN_OF_PLENTY,
+        oclass: game.objects[HORN_OF_PLENTY].oc_class,
+        quan: 1,
+        // One charge reaches the same charged hornoplenty branch.
+        spe: 1,
+        where: OBJ_INVENT,
+        invlet: 'a',
+        owt: 25,
+    });
+    game.invent = overrideHorn;
+    game.go.oldcap = 4;
+    let overrideCalls = 0;
+    await hornoplenty(overrideHorn, false, null, {
+        state: game,
+        hooks: {
+            // The established injection seam owns this call when provided.
+            encumberMessage() { overrideCalls += 1; },
+        },
+    });
+    assert.equal(overrideCalls, 1);
+    assert.equal(game.go.oldcap, 4, 'the default callback was not substituted');
+    assert.doesNotMatch(
+        game.nhDisplay.toplines,
+        /movements are now unencumbered/u,
+        'the default callback did not replace the supplied hook',
+    );
 });

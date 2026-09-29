@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked B58 diagnostic: this ordinary sighted horn application exposes the existing JS note_unported path in mkobj.c:hornoplenty -> makeknown() -> o_init.c:discover_object; do not record it as matching until that source dependency is ported.",
+  "segments": [
+    {
+      "seed": 84379261,
+      "datetime": "20450323111709",
+      "nethackrc": "OPTIONS=name:B58Horn,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": "  #wizwish\nhorn of plenty\nae"
+    }
+  ]
+}
