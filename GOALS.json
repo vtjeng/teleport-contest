@@ -111791,6 +111791,37 @@
           "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139"
         }
       }
+    },
+    {
+      "id": "div-engrave-read-engr-at-surface-synthetic-v12-20260929",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Use the source-defined surface for engraving text on graves and other terrain",
+      "cFile": "engrave.c",
+      "sessions": [],
+      "selectionReason": "The v12 teleportation-wand floor-potion case first differs at step 45 before its later wand-object effect: C engrave.c read_engr_at obtains dungeon.c surface(x,y) and says headstone on a grave; JS uses a local ice/floor shortcut despite an existing dungeon.surface port. Investigation: investigations/synthetic/v12/teleportation-wand-moves-floor-potion.json. This is independent of A45 shield, B51 statue, and C45 eating scopes.",
+      "detail": "Correct the existing read_engr_at substrate call to dungeon.c surface, preserve message and cursor order, and source-pin grave, ice, and representative terrain descriptions. The later zap.c bhito(type 424) refusal is a separate source task and is not claimed by this fix.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "read_engr_at",
+      "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+      "step": 45,
+      "syntheticProvenance": {
+        "synthetic/v12/teleportation-wand-moves-floor-potion": {
+          "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleportation-wand-moves-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+          "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+          "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139"
+        }
+      }
     }
   ]
 }
