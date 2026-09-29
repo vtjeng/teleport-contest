@@ -112207,7 +112207,7 @@
     {
       "id": "div-engrave-read-engr-at-surface-synthetic-v12-20260929",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Use the source-defined surface for engraving text on graves and other terrain",
       "cFile": "engrave.c",
       "sessions": [],
@@ -112219,8 +112219,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "read_engr_at",
       "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
       "step": 45,
@@ -112466,7 +112469,70 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "teleportation-wand-moves-floor-potion",
+          "session": "synthetic/v12/teleportation-wand-moves-floor-potion",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingPath": "challenges/cases/v12/teleportation-wand-moves-floor-potion.session.json",
+          "recordingSha256": "d10c68cc2b05ec79c687b82eb8355a1dcdf8b43d1ae8a5b7883d68d38fa841f3",
+          "recipe": "challenges/cases/v12/teleportation-wand-moves-floor-potion.recipe.session.json",
+          "recipeSha256": "27a7693581e68e927be040f9f5da4893ec3b48f8458286c4436331ec15cbcd2a",
+          "replayInputSha256": "0e05889a028c13499e0cfe75609194f08d9bf77158580f2373663c0ca3d34c8e",
+          "evaluationPath": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationCommit": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+          "evaluationArtifact": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationUtc": "2026-09-29T05:13:34.828Z",
+          "remainingScreens": 1,
+          "recordedSteps": 50,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 49,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2959,
+              "total": 2969
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 424",
+            "step": 49
+          },
+          "step": 49,
+          "kind": "stop",
+          "sourceFile": "zap.c",
+          "function": "bhito",
+          "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 424",
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v12/teleportation-wand-moves-floor-potion.json",
+            "previousRemainingScreens": 2
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
