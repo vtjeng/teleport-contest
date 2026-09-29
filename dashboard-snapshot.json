@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T21:33:22.382Z",
+  "capturedAt": "2026-09-29T21:56:09.651Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9958,12 +9958,77 @@
         "type": "accepted",
         "at": "2026-09-29T21:33:17.199Z",
         "task": "B57"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B57-20260929",
+        "type": "published",
+        "at": "2026-09-29T21:34:29.360Z",
+        "task": "B57",
+        "commit": "88fd33f38d3db9c2895903ccc54796b253743bae"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-790b711950fca2d5e80ce6e7cd83240524276af2",
+        "type": "ready",
+        "at": "2026-09-29T21:35:58.244Z",
+        "task": "B58",
+        "delivery": "790b711950fca2d5e80ce6e7cd83240524276af2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B58-20260929",
+        "type": "received",
+        "at": "2026-09-29T21:36:42.402Z",
+        "task": "B58",
+        "delivery": "790b711950fca2d5e80ce6e7cd83240524276af2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B58-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T21:38:53.969Z",
+        "task": "B58",
+        "integration": "2f36445470f66c6ebc8234436abf21f324c0b46f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B59-ready-weapon-shielded-bimanual",
+        "type": "assign",
+        "at": "2026-09-29T21:45:42.416Z",
+        "task": "B59",
+        "worker": "B",
+        "goal": "fix-wield-ready-weapon-shielded-bimanual-refusal-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B58-20260929",
+        "type": "validated",
+        "at": "2026-09-29T21:46:29.743Z",
+        "task": "B58",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-610bf28f5adc9e0601e71d602ed0cd92865ecea4",
+        "type": "ready",
+        "at": "2026-09-29T21:55:57.592Z",
+        "task": "B59",
+        "delivery": "610bf28f5adc9e0601e71d602ed0cd92865ecea4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B58-accepted",
+        "type": "accepted",
+        "at": "2026-09-29T21:56:09.494Z",
+        "task": "B58"
       }
     ]
   },
   "development": {
-    "executionCommit": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
-    "measuredAt": "2026-09-29T21:30:11.015Z",
+    "executionCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+    "measuredAt": "2026-09-29T21:45:57.155Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
