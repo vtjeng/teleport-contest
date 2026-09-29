@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent B53 zap.c:weffects -> zap.c:zap_steed(WAN_CANCELLATION) -> zap.c:bhitm witness. A Knight mounts the starting pony, wishes a cancellation wand, and zaps downward. This exercises the source arm that delegates a supported wand to bhitm, unlike the direct-probe steed arm.",
+  "segments": [{
+    "seed": 52093322,
+    "datetime": "20481013122537",
+    "nethackrc": "OPTIONS=name:B53KnightCancel,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+    "moves": ".#ride\nl\u0017wand of cancellation\nz? i>"
+  }]
+}

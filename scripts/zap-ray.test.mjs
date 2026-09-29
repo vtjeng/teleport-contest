@@ -20,6 +20,7 @@ import {
     DISINT_RES,
     DOOR,
     D_CLOSED,
+    GRAVE,
     KILLED_BY_AN,
     ER_DAMAGED,
     ERODE_BURN,
@@ -34,11 +35,14 @@ import {
     KILLED_BY,
     NOTELL,
     OBJ_FLOOR,
+    OBJ_CONTAINED,
+    OBJ_FREE,
     STONED,
     LAVAPOOL,
     LAVAWALL,
     MOAT,
     OBJ_INVENT,
+    OBJ_MINVENT,
     POOL,
     REFLECTING,
     ROOM,
@@ -63,6 +67,7 @@ import {
     GLYPH_ZAP_OFF,
 } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
+import { GameMap } from '../js/game.js';
 import { runSegment } from '../js/jsmain.js';
 import { find_delayed_killer } from '../js/end.js';
 import { make_stoned } from '../js/potion.js';
@@ -103,6 +108,7 @@ import { enableRngLog, getRngLog } from '../js/rng.js';
 // arithmetic the arm under test performs.
 import { SYMBOL_INDEX_BY_NAME } from '../js/symbol_data.js';
 import { cmap_symbol, misc_symbol } from '../js/symbols.js';
+import { compareSessionOutputs, runJsSession } from './diff-fresh.mjs';
 import { burnarmor, erode_obj } from '../js/trap_erode_obj.js';
 import {
     CLR_BRIGHT_BLUE, CLR_GREEN, CLR_ORANGE, CLR_WHITE, CLR_YELLOW, NO_COLOR,
@@ -113,6 +119,7 @@ import {
     dobuzz,
     flashburn,
     flash_str,
+    get_container_location,
     hit,
     inventory_resistance_check,
     miss,
@@ -124,6 +131,7 @@ import {
     zap_hit,
     zaptype,
     zapyourself,
+    zombie_can_dig,
     zhitm,
     zhituLosehpArguments,
 } from '../js/zap.js';
@@ -2160,4 +2168,95 @@ test('mon_reflects uses the artifact reflection return contract', async () => {
     }
     assert.equal(lines.length, 1);
     assert.match(lines[0], /weapon!/u);
+});
+
+test('get_container_location returns outer location, nesting, and carrier', () => {
+    // zap.c:841-859. Each contained hop increments the depth before C writes
+    // the outermost object's location and returns its monster carrier.
+    const carrier = { mx: 12, my: 7 };
+    const outer = { where: OBJ_MINVENT, ocarry: carrier };
+    const middle = { where: OBJ_CONTAINED, ocontainer: outer };
+    const inner = { where: OBJ_CONTAINED, ocontainer: middle };
+    assert.deepEqual(get_container_location(inner), {
+        loc: OBJ_MINVENT,
+        nesting: 2,
+        carrier,
+    });
+    assert.deepEqual(get_container_location(null), {
+        loc: OBJ_FREE,
+        nesting: 0,
+        carrier: null,
+    });
+});
+
+test('zombie_can_dig admits room, corridor, and grave but rejects traps', () => {
+    // zap.c:862-879 checks isok, then t_at, then exactly these three terrain
+    // types. No RNG or state mutation occurs in this predicate.
+    const state = { level: new GameMap() };
+    state.level.traps = [];
+    state.level.at(4, 4).typ = ROOM;
+    assert.equal(zombie_can_dig(4, 4, state), true);
+    state.level.at(4, 4).typ = CORR;
+    assert.equal(zombie_can_dig(4, 4, state), true);
+    state.level.at(4, 4).typ = GRAVE;
+    assert.equal(zombie_can_dig(4, 4, state), true);
+    state.level.traps.push({ tx: 4, ty: 4 });
+    assert.equal(zombie_can_dig(4, 4, state), false);
+    assert.equal(zombie_can_dig(0, 4, state), false);
+});
+
+test('zap.c bhitm matches each selected v12 monster-wand case', async () => {
+    // These admitted histories independently exercise the production bhit()
+    // callback: cancellation, invisibility, probing, speed, teleportation,
+    // and undead turning. Compare the complete recorded result, not a direct
+    // call to the helper.
+    const cases = [
+        'cancellation-wand-neutralizes-monster',
+        'make-invisible-wand-hides-hostile-grid-bug',
+        'probing-wand-reveals-hostile-grid-bug',
+        'speed-wand-hastens-hostile-grid-bug',
+        'teleport-wand-moves-hostile-grid-bug',
+        'undead-turning-wand-stuns-zombie',
+    ];
+    for (const caseId of cases) {
+        const recording = JSON.parse(readFileSync(new URL(
+            `../challenges/cases/v12/${caseId}.session.json`,
+            import.meta.url,
+        ), 'utf8'));
+        const js = await runJsSession(recording, process.cwd());
+        const result = compareSessionOutputs(recording, js);
+        assert.equal(result.passed, true,
+            `${caseId}: ${JSON.stringify(result)}`);
+    }
+});
+
+test('zap.c zap_steed preserves direct and delegated mounted wand paths', async () => {
+    // Probing and teleportation have their own zap_steed arms; cancellation
+    // delegates to bhitm. These recordings exercise weffects -> zap_steed.
+    for (const filename of [
+        'zap-steed-probing-knight-independent-b53.session.json',
+        'zap-steed-teleport-knight-independent-b53.session.json',
+        'zap-steed-cancellation-knight-independent-b53.session.json',
+    ]) {
+        const recording = JSON.parse(readFileSync(new URL(
+            `../recordings/zap.c/${filename}`,
+            import.meta.url,
+        ), 'utf8'));
+        const js = await runJsSession(recording, process.cwd());
+        const result = compareSessionOutputs(recording, js);
+        assert.equal(result.passed, true,
+            `${filename}: ${JSON.stringify(result)}`);
+    }
+});
+
+test('zap.c unturn_dead awaits corpse revival and encumbrance effects', async () => {
+    // The independently recorded self-turning case reaches revive_egg() and
+    // revive() before unturn_you() reports its final message.
+    const recording = JSON.parse(readFileSync(new URL(
+        '../recordings/zap.c/bhitm-self-unturn-revive-witness-b53.session.json',
+        import.meta.url,
+    ), 'utf8'));
+    const js = await runJsSession(recording, process.cwd());
+    const result = compareSessionOutputs(recording, js);
+    assert.equal(result.passed, true, JSON.stringify(result));
 });

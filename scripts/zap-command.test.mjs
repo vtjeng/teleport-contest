@@ -1133,8 +1133,8 @@ test('every remaining zap refusal names an unported zap.c function',
             // dozap()'s remaining backfire boundary.
             'backfire',
             // bhito() now handles the Force Bolt/striking object arm; its
-            // other unported effects and bhitm()'s branches still refuse.
-            'bhito', 'bhitm',
+            // other unported object effects still refuse. bhitm() is ported.
+            'bhito',
             // zhitu(): the still-unported hero damage branches.
             'zhitu', 'zhitu',
             // zapnodir() now covers its whole NODIR switch, including the

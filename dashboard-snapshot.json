@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T08:06:19.911Z",
+  "capturedAt": "2026-09-29T09:35:39.954Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9014,12 +9014,135 @@
         "type": "accepted",
         "at": "2026-09-29T08:05:49.227Z",
         "task": "C46"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C46-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T08:07:48.780Z",
+        "task": "C46",
+        "commit": "df2767b4848def39b730a2a0e93a4959266437df"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A47-assign-20260929",
+        "type": "assign",
+        "at": "2026-09-29T08:18:21.596Z",
+        "task": "A47",
+        "worker": "A2",
+        "goal": "port-trap-trapeffect-poly-trap-synthetic-v11-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C47-assign-v13-20260929",
+        "type": "assign",
+        "at": "2026-09-29T08:19:26.151Z",
+        "task": "C47",
+        "worker": "C",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a6d0c053e8709e998e1938ac1803eed52328ddbe",
+        "type": "ready",
+        "at": "2026-09-29T08:39:35.350Z",
+        "task": "B53",
+        "delivery": "a6d0c053e8709e998e1938ac1803eed52328ddbe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B53-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T08:40:19.392Z",
+        "task": "B53",
+        "delivery": "a6d0c053e8709e998e1938ac1803eed52328ddbe"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B53-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T08:41:39.878Z",
+        "task": "B53",
+        "integration": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B53-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T08:52:33.989Z",
+        "task": "B53",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B53-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T08:52:39.769Z",
+        "task": "B53"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B53-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T08:55:00.177Z",
+        "task": "B53",
+        "commit": "5a0a1b5f761cf8603686cb0e13bace9ce7251010"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B54-assign-20260929",
+        "type": "assign",
+        "at": "2026-09-29T09:07:38.166Z",
+        "task": "B54",
+        "worker": "B",
+        "goal": "port-zap-bhito-floor-effects-synthetic-v12-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-90c55fcd53469860c2bdffc41e7704e3b6320d4a",
+        "type": "ready",
+        "at": "2026-09-29T09:21:06.391Z",
+        "task": "A47",
+        "delivery": "90c55fcd53469860c2bdffc41e7704e3b6320d4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A47-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T09:21:38.988Z",
+        "task": "A47",
+        "delivery": "90c55fcd53469860c2bdffc41e7704e3b6320d4a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A47-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T09:23:26.472Z",
+        "task": "A47",
+        "integration": "4ee9966290fe5b3a15d517b72140203cc65036b7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A47-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T09:34:54.483Z",
+        "task": "A47",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A47-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T09:35:09.051Z",
+        "task": "A47"
       }
     ]
   },
   "development": {
-    "executionCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
-    "measuredAt": "2026-09-29T07:58:45.244Z",
+    "executionCommit": "4ee9966290fe5b3a15d517b72140203cc65036b7",
+    "measuredAt": "2026-09-29T09:29:15.612Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
