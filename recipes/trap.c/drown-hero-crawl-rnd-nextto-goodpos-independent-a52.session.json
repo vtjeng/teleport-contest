@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent trap.c:drown -> rnd_nextto_goodpos hero-crawl entry. The wizard creates a pool underfoot, then waits; the recorded crawl shuffle succeeds. Seed 9493317 was selected for this ordinary pool-crawl path without a life-saving item.",
+  "segments": [
+    {
+      "seed": 9493317,
+      "datetime": "20360405090000",
+      "nethackrc": "OPTIONS=name:DrownProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017pool\n.\u0020\u0020\u0020"
+    }
+  ]
+}

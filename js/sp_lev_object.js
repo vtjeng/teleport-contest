@@ -28,7 +28,8 @@ import {
     obfree,
     stackobj,
 } from './invent.js';
-import { makemon, mongone } from './makemon_create.js';
+import { makemon } from './makemon_create.js';
+import { mongone } from './mon.js';
 import { propagate, rndmonnum } from './makemon.js';
 import { monster_resists_element, poly_when_stoned } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';

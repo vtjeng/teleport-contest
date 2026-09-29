@@ -139,13 +139,13 @@ import { add_to_container, carrying, freeinv, hands_obj, obfree, obj_extract_sel
 import { game } from './gstate.js';
 import { can_carry } from './moncarry.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
-import { makemon, mongone } from './makemon_create.js';
+import { makemon } from './makemon_create.js';
 import { grow_up, rndmonst, set_malign } from './makemon.js';
 import { awaken_soldiers } from './music.js';
 import { m_next2u } from './mhitu.js';
 import { paralyze_monst } from './mhitm.js';
 import {
-    healmon, m_carrying, maybe_unhide_at, mon_offmap, mondead, monkilled,
+    healmon, m_carrying, maybe_unhide_at, mon_offmap, mondead, mongone, monkilled,
     seemimic, wakeup, xkilled, is_Vlad, flash_mon,
 } from './mon.js';
 import {

@@ -362,6 +362,7 @@ import { is_lava, is_pool, is_pool_or_lava, t_at, trapname } from './trap.js';
 import { digests } from './dothrow.js';
 import { dxdy_to_dist_descr } from './getpos.js';
 import { item_what, u_adtyp_resistance_obj } from './zap.js';
+import { count_wsegs, wseg_at } from './worm.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
 // description and the status window share this source-owned wording. The
@@ -3006,9 +3007,19 @@ export async function mstatusline(mtmp, state = game) {
     }
 
     if (mtmp.data === state.mons[PM_LONG_WORM]) {
-        throw new UnsupportedEnlightenmentError(
-            "mstatusline()'s long-worm segment count",
-        );
+        let segments = count_wsegs(mtmp, state);
+        if (!segments) {
+            info += ', single segment';
+        } else {
+            ++segments; // C includes the head in the player-facing count.
+            const index = wseg_at(
+                mtmp,
+                state.gb.bhitpos.x,
+                state.gb.bhitpos.y,
+                state,
+            );
+            info += `, ${index}${ordin(index)} of ${segments} segments`;
+        }
     }
     /* don't reveal the innate form (chameleon, vampire, &c),
        just expose the fact that this current form isn't it */

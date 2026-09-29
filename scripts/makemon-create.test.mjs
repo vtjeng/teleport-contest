@@ -67,12 +67,12 @@ import {
     makemon_runtime,
     m_dowear,
     mklevSleeperSpecies,
-    mongone,
     ogreWeaponDivisor,
     racial_exception,
     startsPermanentlyInvisible,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
+import { mongone } from '../js/mon.js';
 import {
     is_dprince,
     is_giant,
@@ -2012,6 +2012,32 @@ test('mongone marks a monster dead before discarding worn wrapping', () => {
     assert.equal(monster.minvis, false);
 });
 
+test('mongone exposes a synchronous m_detach redraw failure to its caller', () => {
+    // mon.c:2710 and :2734. m_detach() calls mon_leaving_level(), which
+    // removes the on-map monster before its source-site newsym() redraw. The
+    // non-death mongone path must throw that redraw failure synchronously;
+    // discarding an async m_detach() promise would hide it from C's caller.
+    const state = initialLevelState();
+    const monster = newMonster({
+        data: state.mons[PM_NEWT],
+        mnum: PM_NEWT,
+        m_id: 46,
+        mhp: 4,
+    });
+    state.level.monlist = monster;
+    place_monster(monster, MON_X, MON_Y, state);
+    const redrawFailure = new Error('source-site redraw failed');
+
+    assert.throws(
+        () => mongone(monster, {
+            state,
+            hooks: { newsym() { throw redrawFailure; } },
+        }),
+        (error) => error === redrawFailure,
+    );
+    assert.equal(state.level.monsters[MON_X][MON_Y], null);
+});
+
 test('ghost creation names from player or source ghost-name reservoir', () => {
     const cases = [
         {
@@ -3591,6 +3617,11 @@ test('initial chameleon long-worm form owns and removes its full tail', () => {
             { x: MON_X, y: MON_Y },
         ],
     );
+    assert.equal(
+        state.level.worms[1].growtime,
+        0,
+        'initworm sets C wgrowtime[wnum] to zero for the new worm slot',
+    );
     for (const x of [MON_X - 2, MON_X - 1, MON_X])
         assert.equal(state.level.monsters[x][MON_Y], monster);
     assert.deepEqual(redraws, [
@@ -3600,8 +3631,12 @@ test('initial chameleon long-worm form owns and removes its full tail', () => {
     ]);
 
     const teardown = scriptedRandom([]);
-    mongone(monster, { state, random: teardown.random, hooks });
+    const disappearance = mongone(
+        monster, { state, random: teardown.random, hooks },
+    );
     teardown.assertExhausted();
+    assert.equal(disappearance, undefined,
+        'mongone completes its admitted worm teardown synchronously');
     assert.equal(monster.wormno, 0);
     assert.equal(state.level.worms[1], null);
     for (const x of [MON_X - 2, MON_X - 1, MON_X])

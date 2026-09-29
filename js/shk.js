@@ -87,8 +87,7 @@ import {
 } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
-import { mongone } from './makemon_create.js';
-import { angry_guards, mnearto, wake_nearto } from './mon.js';
+import { angry_guards, mnearto, mongone, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
     carried, dealloc_obj, hasContents, isCandle, is_pick,

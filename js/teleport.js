@@ -146,6 +146,7 @@ import {
     relocate_monster,
     remove_monster,
 } from './monst.js';
+import { place_worm_tail_randomly, remove_worm } from './worm.js';
 import {
     G_UNIQ,
     M1_AMORPHOUS,
@@ -279,11 +280,18 @@ function requiredRelocationOperation(env, name) {
 // emptied square before track clearing, placement, and region-cache updates;
 // the destination redraw and apparent-position update come last.
 function relocateMonsterCore(monster, x, y, oldX, oldY, env) {
-    remove_monster(oldX, oldY, env.state);
-    env.newsym(oldX, oldY, env);
+    if (oldX) {
+        if (monster.wormno) remove_worm(monster, env);
+        else {
+            remove_monster(oldX, oldY, env.state);
+            env.newsym(oldX, oldY, env);
+        }
+    }
     mon_track_clear(monster);
     place_monster(monster, x, y, env.state);
     update_monster_region(monster, env.state);
+    if (monster.wormno)
+        place_worm_tail_randomly(monster, x, y, env);
     maybe_unhide_at(x, y, env.state);
     env.newsym(x, y, env);
     env.setApparxy(monster, env);
@@ -431,8 +439,7 @@ function preflightOrdinaryRloc(monster, rlocflags, rawEnv) {
     // (void) dochugw(mtmp, FALSE);`, whose stop_occupation() has no port.
     // cmd.c set_occupation() writes that value to state.go.occupation, so this
     // names that field rather than a bare one nothing assigns.
-    if (monster.wormno
-        || monster === env.state.u?.ustuck
+    if (monster === env.state.u?.ustuck
         || monster.mtrapped
         || monster.mundetected
         || env.state.go?.occupation) {
@@ -1265,8 +1272,8 @@ export function enexto(xx, yy, species, env = {}) {
 
 // C ref: teleport.c rloc_to(), which is rloc_to_core() with RLOC_NOMSG.
 // Besides an arriving monster with mx == 0, hack.c revive_nasty() moves an
-// ordinary on-map occupant away from a reviving corpse. Worm tails and the
-// extended shop, trap, occupation, and hero-attachment tails remain bounded.
+// ordinary on-map occupant away from a reviving corpse. Worm tails are placed
+// around the new head; shop, trap, occupation, and hero-attachment tails remain bounded.
 //
 // Every message in rloc_to_core() is suppressed by RLOC_NOMSG, and the
 // shopkeeper, shop-goods, occupation and trap tails below the placement each
@@ -1282,8 +1289,9 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
     // The occupation term names state.go.occupation, cmd.c set_occupation()'s
     // home for C's go.occupation, so the tail at teleport.c:1761-1762 refuses
     // instead of being skipped by a field nothing assigns.
-    if (monster.isshk || monster.wormno || monster === state.u?.ustuck
-        || monster.mtrapped || state.go?.occupation) {
+    if (monster.isshk || monster === state.u?.ustuck
+        || (monster.mtrapped && !monster.wormno)
+        || state.go?.occupation) {
         throw new UnsupportedPositionCheckError(
             'extended rloc_to_core side effects',
         );
@@ -1296,13 +1304,19 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
         }
     }
 
+    const wormEnv = { ...env, newsym: redraw };
     if (oldx) {
-        remove_monster(oldx, oldy, state);
-        redraw(oldx, oldy, state);
+        if (monster.wormno) remove_worm(monster, wormEnv);
+        else {
+            remove_monster(oldx, oldy, state);
+            redraw(oldx, oldy, state);
+        }
     }
     mon_track_clear(monster);
     place_monster(monster, x, y, state);
     update_monster_region(monster, state);
+    if (monster.wormno)
+        place_worm_tail_randomly(monster, x, y, wormEnv);
     // maybe_unhide_at(x, y) calls hideunder() for a monster whose mundetected
     // is set; an arriving follower's is clear, because dog.c relmon() cleared
     // it as the monster left the level it came from.

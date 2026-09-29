@@ -53,11 +53,10 @@ import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { money_cnt, obj_extract_self, obfree } from './invent.js';
 import { set_malign } from './makemon.js';
-import { mongone } from './makemon_create.js';
 import { gender, is_silent, sticks } from './mondata.js';
 import { PM_GUARD } from './monsters.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { m_into_limbo, mpickgold } from './mon.js';
+import { m_into_limbo, mongone, mpickgold } from './mon.js';
 import {
     capitalizedAlwaysVisibleMonsterName,
     alwaysVisibleMonsterName,
@@ -258,11 +257,6 @@ async function clear_fcorr(grd, forceshow, state, env) {
 async function restfakecorr(grd, state, env) {
     if (await clear_fcorr(grd, false, state, env)) {
         grd.isgd = 0; // dmonsfree() should delete this mon
-        // The guard was parked at (0,0) by parkguard(). JS's mongone checks
-        // isok(mx,my) which is false for (0,0), so it won't clean the grid
-        // entry. Remove it manually before mongone.
-        if (m_at(0, 0, state) === grd)
-            remove_monster(0, 0, state);
         mongone(grd, { state });
     }
 }

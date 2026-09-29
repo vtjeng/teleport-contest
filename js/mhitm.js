@@ -128,7 +128,7 @@ import { breamm, spitmm, thrwmm } from './mthrowu.js';
 import { possibly_unwield } from './weapon.js';
 import { find_mac, which_armor } from './worn.js';
 import { finish_meating } from './dogmove.js';
-import { place_worm_tail_randomly, remove_worm } from './makemon_create.js';
+import { place_worm_tail_randomly, remove_worm } from './worm.js';
 import { newsym, flush_screen, shieldeff } from './display.js';
 import { resist } from './zap.js';
 import { ttyPline } from './tty_message.js';

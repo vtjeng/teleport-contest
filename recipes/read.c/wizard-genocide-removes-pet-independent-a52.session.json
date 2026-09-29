@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent blessed-genocide wizard path: the starting cat pet is removed by the wizard '*' class input, exercising read.c:do_class_genocide -> mon.c:mongone.",
+  "segments": [
+    {
+      "seed": 104205037,
+      "datetime": "20420403151627",
+      "nethackrc": "OPTIONS=name:A52WizardGenocideCat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:cat,!autopickup,!debug_mongen\n",
+      "moves": " \u0017blessed scroll of genocide\nrp  *\n"
+    }
+  ]
+}

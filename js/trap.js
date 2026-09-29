@@ -241,6 +241,7 @@ import {
     nomul, unmul, losehp, You_can_move_again,
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
+import { goodpos } from './teleport.js';
 import { sgn, upstart } from './hacklib.js';
 import {
     stackobj, getobj, useup, useupall, consume_obj_charge, delete_contents,
@@ -251,8 +252,8 @@ import { get_obj_location } from './light.js';
 import { water_damage_chain } from './trap_water_damage.js';
 import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
 import { rndmonnum_adj, set_malign } from './makemon.js';
-import { makemon, makemon_runtime, mongone } from './makemon_create.js';
-import { killed, set_ustuck, wake_nearby, wakeup, seemimic } from './mon.js';
+import { makemon, makemon_runtime } from './makemon_create.js';
+import { killed, mongone, set_ustuck, wake_nearby, wakeup, seemimic } from './mon.js';
 import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
     ceiling_hider, is_clinger, is_floater,
@@ -1204,18 +1205,37 @@ function numberLeashed(state) {
     return count;
 }
 
-async function randomCrawlDestination(state) {
+// C ref: trap.c rnd_nextto_goodpos(). The helper shuffles all eight adjacent
+// directions before checking any candidate. Worm tails use the synchronous
+// monster-goodpos arm; drown() awaits the hero-specific crawl_destination.
+export function rnd_nextto_goodpos(x, y, monster, rawEnv = {}) {
+    const env = rawEnv && typeof rawEnv === 'object' ? rawEnv : {};
+    const state = env.state ?? game;
+    const random = { rn2, ...(env.random ?? {}) };
     const directions = Array.from({ length: N_DIRS }, (_, index) => index);
     for (let count = N_DIRS; count > 0; --count) {
-        const selected = rn2(count);
+        const selected = random.rn2(count);
         const swap = directions[selected];
         directions[selected] = directions[count - 1];
         directions[count - 1] = swap;
     }
+
+    if (monster === state.youmonst) {
+        return (async () => {
+            for (const direction of directions) {
+                const nx = x + xdir[direction];
+                const ny = y + ydir[direction];
+                if (await crawl_destination(nx, ny, state))
+                    return { x: nx, y: ny };
+            }
+            return null;
+        })();
+    }
+
     for (const direction of directions) {
-        const x = state.u.ux + xdir[direction];
-        const y = state.u.uy + ydir[direction];
-        if (await crawl_destination(x, y, state)) return { x, y };
+        const nx = x + xdir[direction];
+        const ny = y + ydir[direction];
+        if (goodpos(nx, ny, monster, 0, env)) return { x: nx, y: ny };
     }
     return null;
 }
@@ -1373,7 +1393,12 @@ export async function drown(state = game) {
 
     const destination = (state.multi ?? 0) >= 0
         && state.youmonst?.data?.mmove
-        ? await randomCrawlDestination(state)
+        ? await rnd_nextto_goodpos(
+            u.ux,
+            u.uy,
+            state.youmonst,
+            { state, random: { rn2 } },
+        )
         : null;
     if (destination) {
         const lost = { value: false };
