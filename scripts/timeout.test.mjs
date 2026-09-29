@@ -25,6 +25,7 @@ import {
     INVULNERABLE,
     INVIS,
     LAST_PROP,
+    LS_OBJECT,
     MELT_ICE_AWAY,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
@@ -75,6 +76,7 @@ import {
     S_HUMAN,
 } from '../js/monsters.js';
 import { GameMap } from '../js/game.js';
+import { light_globals_init, new_light_source } from '../js/light.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     CORPSE,
@@ -1673,6 +1675,49 @@ test('stop_timer performs burning-object cleanup in source order', () => {
     assert.equal(state.iflags.suppress_price, 7);
 });
 
+test('cleanup_burn deletes its object light before restoring fuel and inventory', () => {
+    const cleanup = C_TIMEOUT.match(
+        /staticfn void\s+cleanup_burn\(anything \*arg, long expire_time\)\s*\{([\s\S]*?)\n\}/u,
+    )?.[1];
+    assert.ok(cleanup);
+    assert.match(cleanup, /del_light_source\(LS_OBJECT, obj_to_any\(obj\)\);/u);
+    assert.match(cleanup, /del_light_source[\s\S]*obj->age \+= expire_time - svm\.moves;[\s\S]*obj->lamplit = 0;[\s\S]*update_inventory\(\);/u);
+    assert.match(JS_TIMEOUT, /del_light_source\(LS_OBJECT, object, state\)/u);
+
+    const state = timerState(10);
+    state.iflags = { perm_invent: true, suppress_price: 7 };
+    state.program_state = { in_moveloop: 1 };
+    light_globals_init(state);
+    const lamp = {
+        age: 40,
+        lamplit: true,
+        timed: 0,
+        where: OBJ_INVENT,
+        otyp: OIL_LAMP,
+    };
+    new_light_source(10, 10, 1, LS_OBJECT, lamp, state);
+    start_timer(7, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+    state.moves = 12;
+
+    let refreshed = false;
+    assert.equal(stop_timer(BURN_OBJECT, lamp, state, {
+        hooks: {
+            updateInventory(currentState) {
+                refreshed = true;
+                assert.equal(currentState, state);
+                assert.equal(currentState.gl.light_base, null);
+                assert.equal(peek_timer(BURN_OBJECT, lamp, state), 0);
+                assert.equal(lamp.timed, 0);
+                assert.equal(lamp.age, 45);
+                assert.equal(lamp.lamplit, false);
+            },
+        },
+    }), 5);
+    assert.equal(refreshed, true);
+    assert.equal(state.vision_full_recalc, 1);
+    assert.equal(state.iflags.suppress_price, 7);
+});
+
 test('burn cleanup completes local state before rethrowing hook errors', () => {
     for (const failingHook of ['deleteObjectLightSource', 'updateInventory']) {
         const state = timerState(10);
@@ -1757,7 +1802,7 @@ test('burn cleanup preserves the first thrown value even when it is falsy', () =
     assert.equal(state.iflags.suppress_price, 7);
 });
 
-test('burn cleanup preflights every required seam before queue mutation', () => {
+test('burn cleanup preflights the required inventory refresh before queue mutation', () => {
     const state = timerState(10);
     state.iflags = { perm_invent: true };
     state.program_state = { in_moveloop: 1 };
@@ -1772,7 +1817,7 @@ test('burn cleanup preflights every required seam before queue mutation', () => 
     assert.throws(
         () => stop_timer(BURN_OBJECT, lamp, state),
         (error) => error instanceof UnsupportedTimerCleanupError
-            && error.operation === 'deleteObjectLightSource',
+            && error.operation === 'updateInventory',
     );
     assert.throws(
         () => stop_timer(BURN_OBJECT, lamp, state, {
@@ -1818,14 +1863,16 @@ test('burn cleanup uses the optional live inventory seam without perm_invent', (
 
 test('obj_stop_timers preflights all cleanup before removing any timer', () => {
     const state = timerState(20);
+    state.iflags = { perm_invent: true };
+    state.program_state = { in_moveloop: 1 };
     const target = {
         age: 30,
         lamplit: true,
         timed: 0,
-        where: OBJ_FREE,
+        where: OBJ_INVENT,
     };
-    // ROT expires first, before the later BURN timer whose cleanup hook is
-    // missing. Global preflight must reject without removing either timer.
+    // ROT expires first, before the later BURN timer whose inventory-window
+    // hook is missing. Global preflight must reject without removing either.
     start_timer(4, TIMER_OBJECT, ROT_CORPSE, target, state);
     start_timer(8, TIMER_OBJECT, BURN_OBJECT, target, state);
     const timers = queue(state);
@@ -1833,7 +1880,7 @@ test('obj_stop_timers preflights all cleanup before removing any timer', () => {
     assert.throws(
         () => obj_stop_timers(target, state),
         (error) => error instanceof UnsupportedTimerCleanupError
-            && error.operation === 'deleteObjectLightSource',
+            && error.operation === 'updateInventory',
     );
     assert.deepEqual(queue(state), timers);
     assert.equal(target.timed, 2);

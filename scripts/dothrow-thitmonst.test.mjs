@@ -191,9 +191,11 @@ test('thitmonst gives attrib exercise its RNG and encumbrance continuation',
         const ball = mksobj(HEAVY_IRON_BALL, false, false, { state: game });
         game.u.uhitinc = -100; // Keep this fixture on the pre-hmon miss arm.
         game.moves = 1; // Strength exercise must preserve encumber_msg order.
+        game.go.oldcap = 1; // The continuation must report the drop to 0.
         game.gb.bhitpos = { x: mon.mx, y: mon.my };
 
         const draws = [];
+        const messages = [];
         const result = await thitmonst(mon, ball, game, {
             random: {
                 rnd(bound) {
@@ -209,7 +211,7 @@ test('thitmonst gives attrib exercise its RNG and encumbrance continuation',
                     return bound - 1;
                 },
             },
-            message: () => {},
+            message: (text) => { messages.push(text); },
             unsupported: (what) => { throw new Error(`unexpected ${what}`); },
         });
 
@@ -220,6 +222,7 @@ test('thitmonst gives attrib exercise its RNG and encumbrance continuation',
         assert.deepEqual(draws, ['rnd(20)', 'rn2(19)', 'rn2(3)']);
         assert.equal(game.u.aexe[A_STR], 1);
         assert.equal(game.go.oldcap, 0);
+        assert.deepEqual(messages, ['Your movements are now unencumbered.']);
     });
 
 test('thitmonst carries the throw RNG into successful-hit dexterity exercise',

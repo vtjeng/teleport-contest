@@ -172,9 +172,13 @@ separately from other goals.
    manifest in immutable delivery evidence, outside admitted manifests.
    Commit the combined candidate.
 4. Run `worker-state.mjs preflight --task <id>` before broad focused testing.
-   Resolve its omissions, then run its listed checks, affected focused tests,
-   `npm run lint`, and `npm run quality`. Follow `.agents/review.md` to decide
-   whether review is needed. For a retry, pass the failed summary with
+   Resolve its omissions. For implementation work, run its listed checks,
+   affected focused tests, `npm run lint`, and `npm run quality`. For a
+   preparation-only delivery containing only challenge case files, verify its
+   independent C replay checks; skip separate focused game tests, lint, and
+   quality. Run them if the delivery changes executable files or a prior
+   failure calls for them. Follow `.agents/review.md` to decide whether
+   review is needed. For a retry, pass the failed summary with
    `--previous-checkpoint` and address every failure. If corrections change
    the candidate, commit them and rerun preflight before testing it.
    Run `npm run checkpoint`
