@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73329115,
+      "datetime": "20491218131522",
+      "nethackrc": "OPTIONS=name:B54SnakeDrops,role=Wizard,race=human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "da dc dd de df dg dh di dj dk dl dm dn #polyself\ngarter snake\n  #monster\nZa<"
+    }
+  ],
+  "comment": "B54 blocked source-planned witness for the concealed-hero upward bhito call. Repeated single-item d drops avoid the unsupported D command and let C reach the upward zap.c:zap_updown() path: after polyself to a garter snake, #monster hides the hero under the dropped cloak and Force Bolt < enters the upward caller. The C/JS comparison still does not match before bhito evidence can be claimed: the first screen difference is at the #monster concealment/display boundary (screen boundary 74), and at the < direction boundary C executes zap.c:zap_updown()'s ceiling-rock rn2(3) branch while JS skips it and advances to the object-resistance draw. These are caller/display gaps outside B54's bhito unit. Preserve this as blocked provenance; do not add a recording or claim upward-entry completion."
+}
