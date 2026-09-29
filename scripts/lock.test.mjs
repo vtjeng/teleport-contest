@@ -28,6 +28,7 @@ import {
     PICKLOCK_DID_SOMETHING,
     picking_at,
     picking_lock,
+    doorlock,
 } from '../js/lock.js';
 import { M1_NOHANDS } from '../js/monsters.js';
 import { is_magic_key } from '../js/artifacts.js';
@@ -37,6 +38,10 @@ import {
     CREDIT_CARD,
     LOCK_PICK,
     SKELETON_KEY,
+    SPE_KNOCK,
+    WAN_LOCKING,
+    WAN_OPENING,
+    WAND_CLASS,
 } from '../js/objects.js';
 
 // Seed 9400016 puts a plain closed door one square west of a Valkyrie's
@@ -129,6 +134,40 @@ test('a winning pull opens the door for every reader of the mask', async () => {
     // moveloop_core()'s vision_recalc(0).
     assert.equal(game.vision_full_recalc, 1);
     assert.equal(result, ECMD_TIME);
+});
+
+test('door magic preserves the trapped bit while locking and unlocking', async () => {
+    const { x, y, door } = await closedDoorBesideHero();
+    const events = [];
+    const wand = {
+        otyp: WAN_LOCKING,
+        oclass: WAND_CLASS,
+        dknown: true,
+    };
+    door.flags = D_ISOPEN | D_TRAPPED;
+    door.doormask = D_ISOPEN | D_TRAPPED;
+
+    assert.equal(await doorlock(wand, x, y, game, {
+        message(text) { events.push(text); },
+    }), true);
+    assert.equal(door.doormask, D_LOCKED | D_TRAPPED);
+    assert.deepEqual(events, ['The door swings shut, and locks!']);
+
+    events.length = 0;
+    assert.equal(await doorlock({
+        ...wand,
+        otyp: WAN_OPENING,
+    }, x, y, game, {
+        message(text) { events.push(text); },
+    }), true);
+    assert.equal(door.doormask, D_CLOSED | D_TRAPPED);
+    assert.deepEqual(events, ['The door unlocks!']);
+
+    assert.equal(await doorlock({
+        ...wand,
+        otyp: SPE_KNOCK,
+    }, x, y, game), false,
+    'knock has no effect after the door is already unlocked');
 });
 
 test('the roll uses folded Strength, not acurr()\'s raw encoding', async () => {
@@ -495,6 +534,18 @@ test('doclose resist roll leaves the door open and costs a turn', async () => {
     assert.equal(result, ECMD_TIME, 'resist attempt still spends a turn');
     // The roll failed for this seed: door stays open.
     assert.equal(door.flags, D_ISOPEN, 'door resisted closing');
+});
+
+test('doclose leaves an open door unchanged when an object blocks it', async () => {
+    // lock.c:obstructed() returns TRUE for OBJ_AT before doclose attempts
+    // its strength roll or changes the door mask.
+    const { x, y, door } = await openDoorBesideHero();
+    game.level.objects[x][y] = { otyp: 0 };
+    answer('h', ' ');
+
+    assert.equal(await doclose(game), ECMD_OK);
+    assert.equal(door.flags, D_ISOPEN);
+    assert.equal(door.doormask, D_ISOPEN);
 });
 
 test('doclose mounted hero always closes the door', async () => {

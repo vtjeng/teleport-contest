@@ -17,6 +17,7 @@ import {
     ARTICLE_A,
     BOLT_LIM,
     CORR,
+    D_BROKEN,
     D_CLOSED,
     D_LOCKED,
     DEAF,
@@ -71,6 +72,7 @@ import {
     RLOC_MSG,
     SCORR,
     SDOOR,
+    SHOPBASE,
     SEE_INVIS,
     STAIRS,
     STONE_RES,
@@ -203,6 +205,7 @@ import { s_suffix, upstart } from './hacklib.js';
 import { mpickobj, remove_worn_item } from './steal.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { doorlock } from './lock.js';
 import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { body_part } from './polyself.js';
 import { arti_reflects } from './artifacts.js';
@@ -2379,8 +2382,30 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
             case O.WAN_OPENING:
             case O.WAN_LOCKING:
             case O.WAN_STRIKING:
-                // doorlock() is unported.
-                note_unported('lock.c doorlock');
+                if (await doorlock(
+                    obj,
+                    state.gb.bhitpos.x,
+                    state.gb.bhitpos.y,
+                    state,
+                    rawEnv,
+                )) {
+                    if (state.gz?.zap_oseen)
+                        discover_object(otyp, true, true, true, state);
+                    const hitDoor = state.level.at(
+                        state.gb.bhitpos.x,
+                        state.gb.bhitpos.y,
+                    );
+                    if ((hitDoor.doormask === D_BROKEN
+                        || hitDoor.flags === D_BROKEN)
+                        && in_rooms(
+                            state.gb.bhitpos.x,
+                            state.gb.bhitpos.y,
+                            SHOPBASE,
+                            state,
+                        ).length) {
+                        note_unported('shk.c add_damage');
+                    }
+                }
                 break;
             }
         }

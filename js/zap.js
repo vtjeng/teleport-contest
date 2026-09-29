@@ -88,6 +88,7 @@ import {
     IS_TREE,
     IS_WALL,
     IS_WATERWALL,
+    IS_DOOR,
     In_mines,
     TEST_MOVE,
     is_hole,
@@ -669,7 +670,7 @@ import { note_unported } from './unported.js';
 import { livelog_printf } from './pline.js';
 import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
-import { boxlock, picking_at, reset_pick } from './lock.js';
+import { boxlock, doorlock, picking_at, reset_pick } from './lock.js';
 import { breaks, breakobj, hero_breaks, mhurtle } from './dothrow.js';
 
 // Thrown where zap.c reaches a wand effect this port has not ported.
@@ -3470,6 +3471,7 @@ export async function bhit(
     let skiprange_end = 0;
     let in_skip = false;
     let skipcount = 0;
+    let shopdoor = false;
 
     const tetheredWeapon = weapon === THROWN_TETHERED_WEAPON && Boolean(obj);
     const zapped = weapon === ZAPPED_WAND;
@@ -3702,6 +3704,34 @@ export async function bhit(
         if (fhito && await bhitpile(obj, x, y, state, random, rawEnv))
             range--;
 
+        // zap.c:4125-4146. The lock effect's Boolean controls wand discovery,
+        // shop billing, and whether the ray is stopped by the updated door.
+        if (zapped && (IS_DOOR(typ) || typ === SDOOR)) {
+            switch (obj.otyp) {
+            case WAN_OPENING:
+            case WAN_LOCKING:
+            case WAN_STRIKING:
+            case SPE_KNOCK:
+            case SPE_WIZARD_LOCK:
+            case SPE_FORCE_BOLT:
+                if (await doorlock(obj, x, y, state, rawEnv)) {
+                    if (cansee(x, y, state)
+                        || (obj.otyp === WAN_STRIKING
+                            && !heroIsDeaf(state))) {
+                        learnwand(obj, state);
+                    }
+                    const hitDoor = state.level.at(x, y);
+                    if ((hitDoor.doormask === D_BROKEN
+                        || hitDoor.flags === D_BROKEN)
+                        && in_rooms(x, y, SHOPBASE, state).length) {
+                        shopdoor = true;
+                        note_unported('shk.c add_damage');
+                    }
+                }
+                break;
+            }
+        }
+
         if (!ZAP_POS(typ) || closed_door(x, y, state)) {
             state.gb.bhitpos.x -= ddx;
             state.gb.bhitpos.y -= ddy;
@@ -3766,6 +3796,7 @@ export async function bhit(
     await bhitTransientLightCleanup(
         weapon, tetheredWeapon, state, random, rawEnv,
     );
+    if (shopdoor) note_unported('shk.c pay_for_damage');
     //
     // The return value is the monster the missile hit. Reaching the tail means
     // the flight ended on terrain or on its own range instead, so it is null.

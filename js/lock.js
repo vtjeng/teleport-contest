@@ -16,12 +16,15 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    DEAF,
+    DOOR,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
     BLINDED,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    FAINTED,
     IS_DOOR,
     M_AP_FURNITURE,
     M_AP_OBJECT,
@@ -29,17 +32,20 @@ import {
     OBJ_AT,
     OBJ_FLOOR,
     OBJ_INVENT,
+    SHOPBASE,
     P_DAGGER,
     P_FLAIL,
     P_LANCE,
     PASSES_WALLS,
     STUNNED,
     TT_PIT,
+    SDOOR,
     isok,
     u_at,
 } from './const.js';
 import { is_db_wall, is_drawbridge_wall } from './dbridge.js';
 import { is_magic_key } from './artifacts.js';
+import { stop_occupation } from './allmain.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import {
     get_adjacent_loc,
@@ -50,6 +56,7 @@ import {
 import {
     feel_location,
     feel_newsym,
+    map_invisible,
     newsym,
     same_remembered_glyph,
 } from './display.js';
@@ -64,7 +71,7 @@ import {
     useup,
 } from './invent.js';
 import { m_at } from './monst.js';
-import { wake_nearby } from './mon.js';
+import { wake_nearby, wake_nearto } from './mon.js';
 import { nohands, verysmall } from './mondata.js';
 import { PM_ROGUE, PM_WIZARD } from './monsters.js';
 import { obj_resists } from './bury.js';
@@ -87,14 +94,18 @@ import {
     ROCK_CLASS,
     SKELETON_KEY,
     SPE_KNOCK,
+    SPE_FORCE_BOLT,
     SPE_POLYMORPH,
     SPE_WIZARD_LOCK,
+    WAN_STRIKING,
     WAN_LOCKING,
     WAN_OPENING,
     WAN_POLYMORPH,
+    WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { closed_door } from './monmove.js';
+import { closed_door, youHear } from './monmove.js';
+import { Some_Monnam } from './do_name.js';
 import {
     an,
     ansimpleoname,
@@ -110,13 +121,16 @@ import { container_at, doloot, encumber_msg } from './pickup.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn2, rnl } from './rng.js';
 import { costly_spot } from './shk.js';
-import { is_lava, is_pool } from './trap.js';
+import { is_lava, is_pool, t_at, unconscious } from './trap.js';
+import { in_rooms } from './rooms.js';
+import { canSpotMonster, heroIsBlind, messageAt } from './startup_a11y.js';
 import {
-    heroIsBlind,
-    messageAt,
-} from './startup_a11y.js';
+    block_point, cansee, canseemon, recalc_block_point, unblock_point,
+    vision_recalc,
+} from './vision.js';
+import { dist2, s_suffix } from './hacklib.js';
+import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
-import { block_point, recalc_block_point } from './vision.js';
 import { setnotworn } from './worn.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
@@ -610,6 +624,12 @@ export async function ynq(query, state = game) {
 // write it to `doormask`, so every reader accepts either.
 function doorMask(location) {
     return location?.flags || location?.doormask || 0;
+}
+
+function setDoorMask(location, mask) {
+    // C rm.doormask aliases flags; generated JS levels store both fields.
+    location.flags = mask;
+    location.doormask = mask;
 }
 
 // C ref: lock.c:352-354, pick_lock()'s three return values. The caller reads
@@ -1300,39 +1320,242 @@ function Protection_from_shape_changers(state) {
     return Boolean(prop?.intrinsic || prop?.extrinsic);
 }
 
-// C ref: lock.c obstructed() (926-953). Checks whether a monster or object
-// blocks the hero from closing a door. The monster arm needs canspotmon() and
-// Some_Monnam(), which are unported; this function throws for any visible
-// monster that is not an object-mimic (M_AP_OBJECT falls through to the
-// OBJ_AT arm, matching C's goto objhere).
-//
-// Covered: the OBJ_AT arm that prints "Something's in the way."
-// Not covered: the visible-monster arm (canspotmon/Some_Monnam unported).
-function obstructed(x, y, quietly, state = game) {
+// C ref: lock.c obstructed() (926-953). A non-furniture monster blocks the
+// ray; object mimics continue through C's objhere label to OBJ_AT.
+async function obstructed(x, y, quietly, state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
     const mtmp = m_at(x, y, state);
     if (mtmp && M_AP_TYPE(mtmp) !== M_AP_FURNITURE) {
         if (M_AP_TYPE(mtmp) === M_AP_OBJECT) {
             // C: goto objhere -- fall through to the OBJ_AT arm below.
         } else {
-            // The visible-monster arm needs canspotmon() and Some_Monnam(),
-            // neither of which is ported.
-            throw new UnsupportedLockError(
-                'obstructed() visible-monster arm (canspotmon/Some_Monnam)',
-            );
+            if (!quietly) {
+                let name = Some_Monnam(mtmp, state, rawEnv);
+                if ((mtmp.mx !== x || mtmp.my !== y)
+                    && canSpotMonster(mtmp, state)) {
+                    name = `${s_suffix(name)} tail`;
+                }
+                await message(`${name} blocks the way!`, state, rawEnv);
+            }
+            if (!canSpotMonster(mtmp, state)) map_invisible(x, y, state);
+            return true;
         }
     } else if (OBJ_AT(x, y, state)) {
         // objhere:
         if (!quietly)
-            return { blocked: true, message: "Something's in the way." };
-        return { blocked: true };
+            await message("Something's in the way.", state, rawEnv);
+        return true;
     } else {
-        return { blocked: false };
+        return false;
     }
     // Reached only from the M_AP_OBJECT fall-through above.
     // objhere:
     if (!quietly)
-        return { blocked: true, message: "Something's in the way." };
-    return { blocked: true };
+        await message("Something's in the way.", state, rawEnv);
+    return true;
+}
+
+// C ref: lock.c doorlock() (1103-1275). Shared by hero and monster rays:
+// return true means the effect acted on this door and its caller may reveal
+// the wand. Void shop damage and trapped-monster handling remain named gaps.
+export async function doorlock(obj, x, y, state = game, rawEnv = {}) {
+    const door = state.level.at(x, y);
+    const message = rawEnv.message ?? ttyPline;
+    const mysterywand = obj.oclass === WAND_CLASS && !obj.dknown;
+    let result = true;
+    let loudness = 0;
+    let messageText = null;
+    const dustcloud = 'A cloud of dust';
+    const dissipates = 'quickly dissipates';
+
+    if (door.typ === SDOOR) {
+        switch (obj.otyp) {
+        case WAN_OPENING:
+        case SPE_KNOCK:
+        case WAN_STRIKING:
+        case SPE_FORCE_BOLT:
+            door.typ = DOOR;
+            setDoorMask(door, D_CLOSED | (doorMask(door) & D_TRAPPED));
+            newsym(x, y, state);
+            if (cansee(x, y, state))
+                await message('A door appears in the wall!', state, rawEnv);
+            if (obj.otyp === WAN_OPENING || obj.otyp === SPE_KNOCK)
+                return true;
+            break;
+        case WAN_LOCKING:
+        case SPE_WIZARD_LOCK:
+        default:
+            return false;
+        }
+    }
+
+    switch (obj.otyp) {
+    case WAN_LOCKING:
+    case SPE_WIZARD_LOCK: {
+        const level = state.u?.uz;
+        const rogueLevel = state.rogue_level;
+        const onRogueLevel = Boolean(rogueLevel && level
+            && rogueLevel.dnum === level.dnum
+            && rogueLevel.dlevel === level.dlevel);
+        if (onRogueLevel) {
+            const visible = cansee(x, y, state);
+            if (visible) {
+                await message(
+                    `${dustcloud} springs up in the older, more primitive doorway.`,
+                    state,
+                    rawEnv,
+                );
+            } else {
+                const heard = youHear('a swoosh.', state);
+                if (heard) await message(heard, state, rawEnv);
+            }
+            if (await obstructed(x, y, mysterywand, state, rawEnv)) {
+                if (visible)
+                    await message(`The cloud ${dissipates}.`, state, rawEnv);
+                return false;
+            }
+            block_point(x, y, state);
+            door.typ = SDOOR;
+            setDoorMask(door, D_NODOOR);
+            if (visible)
+                await message('The doorway vanishes!', state, rawEnv);
+            newsym(x, y, state);
+            return true;
+        }
+        if (await obstructed(x, y, mysterywand, state, rawEnv)) return false;
+        // C keeps dust from assembling across a trap, even though maketrap()
+        // normally clears the door mask before this point.
+        if (t_at(x, y, state)) {
+            await message(
+                `${dustcloud} springs up in the doorway, but ${dissipates}.`,
+                state,
+                rawEnv,
+            );
+            return false;
+        }
+
+        switch (doorMask(door) & ~D_TRAPPED) {
+        case D_CLOSED:
+            messageText = 'The door locks!';
+            break;
+        case D_ISOPEN:
+            messageText = 'The door swings shut, and locks!';
+            break;
+        case D_BROKEN:
+            messageText = 'The broken door reassembles and locks!';
+            break;
+        case D_NODOOR:
+            messageText = 'A cloud of dust springs up and assembles itself into a door!';
+            break;
+        default:
+            result = false;
+            break;
+        }
+        block_point(x, y, state);
+        setDoorMask(door, D_LOCKED | (doorMask(door) & D_TRAPPED));
+        newsym(x, y, state);
+        break;
+    }
+    case WAN_OPENING:
+    case SPE_KNOCK:
+        if (doorMask(door) & D_LOCKED) {
+            messageText = 'The door unlocks!';
+            setDoorMask(door, D_CLOSED | (doorMask(door) & D_TRAPPED));
+        } else {
+            result = false;
+        }
+        break;
+    case WAN_STRIKING:
+    case SPE_FORCE_BOLT:
+        if (doorMask(door) & (D_LOCKED | D_CLOSED)) {
+            if (doorMask(door) & D_TRAPPED) {
+                const monster = m_at(x, y, state);
+                const sawit = monster
+                    ? canseemon(monster, state) : cansee(x, y, state);
+                setDoorMask(door, D_NODOOR);
+                unblock_point(x, y, state);
+                newsym(x, y, state);
+                const seeit = monster
+                    ? canseemon(monster, state) : cansee(x, y, state);
+                if (monster) {
+                    // C discards mb_trapped()'s return; preserve the gap at
+                    // the source call while keeping doorlock's true result.
+                    note_unported('trap.c mb_trapped');
+                } else {
+                    loudness = 40;
+                    if (state.flags?.verbose) {
+                        if ((sawit || seeit) && !Unaware(state)) {
+                            await message(
+                                'KABOOM!!  You see a door explode.',
+                                state,
+                                rawEnv,
+                            );
+                        } else if (!heroIsDeaf(state)) {
+                            const distance = dist2(
+                                state.u.ux, state.u.uy, x, y,
+                            ) > 7 * 7 ? 'distant' : 'nearby';
+                            const heard = youHear(
+                                `a ${distance} explosion.`, state,
+                            );
+                            if (heard) await message(heard, state, rawEnv);
+                        }
+                    }
+                }
+                break;
+            }
+            const sawit = cansee(x, y, state);
+            setDoorMask(door, D_BROKEN);
+            recalc_block_point(x, y, state);
+            const seeit = cansee(x, y, state);
+            newsym(x, y, state);
+            if (state.flags?.verbose) {
+                if ((sawit || seeit) && !Unaware(state)) {
+                    await message('The door crashes open!', state, rawEnv);
+                } else if (!heroIsDeaf(state)) {
+                    const heard = youHear('a crashing sound.', state);
+                    if (heard) await message(heard, state, rawEnv);
+                }
+            }
+            if (state.vision_full_recalc)
+                vision_recalc(0, {
+                    state,
+                    redraw: (redrawX, redrawY) =>
+                        newsym(redrawX, redrawY, state),
+                });
+            loudness = 20;
+        } else {
+            result = false;
+        }
+        break;
+    default:
+        // zap.c's impossible() is debug-only in this tty build.
+        break;
+    }
+
+    if (messageText && cansee(x, y, state))
+        await message(messageText, state, rawEnv);
+    if (loudness > 0) {
+        await wake_nearto(x, y, loudness, { ...rawEnv, state });
+        if (in_rooms(x, y, SHOPBASE, state).length)
+            note_unported('shk.c add_damage');
+    }
+
+    if (result && picking_at(x, y, state)) {
+        await stop_occupation(state, { ...rawEnv, message });
+        reset_pick(state);
+    }
+    return result;
+}
+
+function heroIsDeaf(state) {
+    const property = state.u?.uprops?.[DEAF];
+    return Boolean(property?.intrinsic || property?.extrinsic
+        || state.u?.uroleplay?.deaf);
+}
+
+function Unaware(state) {
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
 }
 
 // C ref: youprop.h:286 Passes_walls, the bare intrinsic OR extrinsic.
@@ -1448,11 +1671,7 @@ export async function doclose(state = game) {
         await ttyPline('This doorway has no door.', state);
         return res;
     }
-    const obs = obstructed(x, y, false, state);
-    if (obs.blocked) {
-        if (obs.message) await ttyPline(obs.message, state);
-        return res;
-    }
+    if (await obstructed(x, y, false, state)) return res;
     if (doorMask(door) === D_BROKEN) {
         await ttyPline('This door is broken.', state);
         return res;
