@@ -25,19 +25,19 @@
     "recipe": "challenges/cases/v13/shield-refuses-two-handed-wield.recipe.session.json",
     "recipeSha256": "12d7fcda5c6f6efc55d415d8ca5e8b3c1239118e7c06a2aef85fc36b67c38c38",
     "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
-    "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
-    "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
-    "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationPath": "challenges/evaluations/20260929220352-v13.json",
+    "evaluationCommit": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+    "evaluationArtifact": "challenges/evaluations/20260929220352-v13.json",
     "evaluationUtc": "2026-09-29T14:13:52.803Z",
-    "remainingScreens": 1,
+    "remainingScreens": 0,
     "recordedSteps": 50,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 49,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 49,
+        "matched": 50,
         "total": 50
       },
       "rng": {
@@ -45,20 +45,16 @@
         "total": 2793
       },
       "cursors": {
-        "matched": 49,
+        "matched": 50,
         "total": 50
       }
     },
-    "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
-      "step": 49
-    },
-    "step": 49,
-    "kind": "stop",
+    "firstMismatch": null,
+    "step": null,
+    "kind": null,
     "sourceFile": null,
     "function": null,
-    "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+    "message": null,
     "cFile": null,
     "luaFile": null,
     "line": null
@@ -82,7 +78,7 @@
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "The preserved original mismatch was a stop at segment 0, zero-based step 49 with 49/50 screens/cursors and 2793/2793 RNG calls. Its original queue entry remains in mismatch as provenance.",
+    "The original mismatch was a stop at segment 0, zero-based step 49 with 49/50 screens/cursors and 2793/2793 RNG calls. Git retains that diagnosis; mismatch now records the fully passing B59 result.",
     "At 06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0, challenges/evaluations/20260929220352-v13.json reports this case fully passing: 50/50 screens and cursors, 2793/2793 RNG calls. A fresh-process replay at the same candidate in .cache/B59-replay.log confirms these totals and zero animation frames.",
     "Upstream wield.c:ready_weapon (169–273), specifically 186–192, chooses sword/axe/weapon wording under uarms && bimanual(wep), sets ECMD_FAIL, and skips retouch_object and setuwep before the common status tail. js/wield.js implements the same branch with existing source predicates and no RNG.",
     "The admitted v13 recording reaches ready_weapon through dowield at step 49. scripts/ready-weapon.test.mjs pins sword, battle-axe and generic wording, unchanged equipment, and doswapweapon restoration of the secondary slot after refusal; all 244 affected tests pass at the combined candidate.",
