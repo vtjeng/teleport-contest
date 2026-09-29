@@ -1652,7 +1652,8 @@ test('hornoplenty identifies a cursed item spilled onto an altar', async () => {
 test('hornoplenty wires the default carried-object encumbrance callback', async () => {
     // This seed and timestamp make a repeatable fresh game without targeting
     // a particular random draw; Valkyrie options exercise ordinary inventory
-    // handling, while !autopickup keeps the generated object on this path.
+    // handling. The direct horn call reaches hold_another_object regardless
+    // of the autopickup option.
     await runSegment({
         seed: 4917324,
         datetime: '20450323111709',
