@@ -118060,7 +118060,7 @@
     {
       "id": "fix-hack-losehp-planning-synthetic-v13-20260929",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Keep planned lethal gas damage off the live terminal",
       "cFile": "hack.c",
       "sessions": [],
@@ -118072,8 +118072,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "losehp",
       "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
       "step": 69,
@@ -118318,7 +118321,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

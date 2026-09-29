@@ -3174,6 +3174,20 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-09-29T16:28:06.169Z"
+    },
+    {
+      "kind": "review",
+      "head": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+      "auditedRange": "202fc10e007b6ea7047aebf665adeb39d845e6c4..357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+      "level": "full",
+      "areas": [
+        "startup",
+        "monsters",
+        "world-effects",
+        "commands"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-09-29T21:27:43.603Z"
     }
   ]
 }
