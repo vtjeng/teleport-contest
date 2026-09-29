@@ -80,7 +80,7 @@ import {
     WM_W_LEFT, WM_W_RIGHT, WM_W_TOP, WM_W_BOTTOM,
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
-    HI_DOMESTIC, M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER,
+    HI_DOMESTIC, M_AP_NOTHING, M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER,
     M_AP_TYPMASK, MON_STILL_ARRIVING, WARN_OF_MON,
     SYM_BOULDER, SYM_INVISIBLE, SYM_NOTHING, SYM_UNEXPLORED,
     SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE,
@@ -123,6 +123,7 @@ import { observe_object } from './o_init.js';
 import { can_reach_floor, engr_at, engr_can_be_felt } from './engrave.js';
 import { status_version } from './version.js';
 import { is_weptool, sobj_at } from './obj.js';
+import { cmap_to_type } from './mkroom.js';
 import { newuexp, UnsupportedExperienceChangeError } from './exper.js';
 import { weapon_type } from './startup_skills.js';
 import { weapon_descr } from './weapon.js';
@@ -296,6 +297,7 @@ import {
     M1_MINDLESS,
     NON_PM,
     NUMMONS,
+    PM_LONG_WORM_TAIL,
     PM_TENGU,
 } from './monsters.js';
 import { rn2_on_display_rng } from './rng.js';
@@ -1239,7 +1241,7 @@ function mimickedMonsterGlyphInfo(monster, state) {
     );
 }
 
-function mimicObject(monster) {
+function mimicObject(monster, x = monster.mx, y = monster.my) {
     const storedCorpsenm = monster.mextra?.mcorpsenm;
     return {
         // display.c display_monster() initializes this temporary object from
@@ -1252,8 +1254,8 @@ function mimicObject(monster) {
         // display_monster() deliberately uses PM_TENGU when mextra has no
         // mcorpsenm. Corpse color and statue presentation can observe it.
         dknown: false,
-        ox: monster.mx,
-        oy: monster.my,
+        ox: x,
+        oy: y,
     };
 }
 
@@ -1280,6 +1282,120 @@ export function monster_glyph_info(monster, state = game) {
     if (appearanceType === M_AP_MONSTER)
         return mimickedMonsterGlyphInfo(monster, state);
     return presentedMonsterGlyphInfo(monster, state, false);
+}
+
+const DISPLAY_PHYSICALLY_SEEN = 1;
+const DISPLAY_DETECTED = 2;
+
+// C ref: display.c display_monster() (514-621). Coordinates identify a worm
+// segment independently of the monster's head coordinates; C's is_worm_tail
+// macro is exactly this comparison and does not depend on worm.c:see_wsegs.
+function display_monster(x, y, monster, sightflags, wormTail, state = game) {
+    if (state !== game)
+        throw new Error('display_monster requires the active display state');
+    if (!monster?.data)
+        throw new TypeError('display_monster requires monster data');
+
+    const appearanceType = (monster.m_ap_type ?? M_AP_NOTHING)
+        & M_AP_TYPMASK;
+    const monMimic = appearanceType !== M_AP_NOTHING;
+    const sensed = monMimic && (
+        _propertyActive(state.u, PROT_FROM_SHAPE_CHANGERS)
+        || sensesMonster(monster, state)
+    );
+
+    // C checks physical sight before the real monster. Each mimic appearance
+    // therefore has its own memory and drawing effects before the final
+    // sensed-monster arm below.
+    if (monMimic && sightflags === DISPLAY_PHYSICALLY_SEEN) {
+        switch (appearanceType) {
+        case M_AP_FURNITURE: {
+            const glyphNumber = cmap_to_glyph(monster.mappearance, state);
+            const glyph = map_glyphinfo(glyphNumber, state);
+            const location = state.level.at(x, y);
+            // display.c writes levl[x][y].glyph even when the mimic is sensed
+            // or hero_memory is disabled.
+            location.remembered_glyph
+                = remembered_glyph_from_presentation(glyph);
+            if (!sensed) {
+                show_glyph_cell(x, y, glyph);
+                state.level.lastseentyp ??= Array.from(
+                    { length: COLNO },
+                    () => new Array(ROWNO).fill(STONE),
+                );
+                state.level.lastseentyp[x][y]
+                    = cmap_to_type(monster.mappearance);
+            }
+            break;
+        }
+        case M_AP_OBJECT: {
+            // display.c map_object() only observes a generic glyph, not an
+            // object whose class-zero presentation is GLYPH_OBJ_OFF. Compute
+            // that source gate through the existing object presenter while
+            // retaining map_object()'s memory/show ordering.
+            const mapped = mappedObjectGlyphInfo(
+                mimicObject(monster, x, y), state,
+            );
+            if (state.level.flags?.hero_memory) {
+                state.level.at(x, y).remembered_glyph
+                    = remembered_glyph_from_presentation(mapped.remembered);
+            }
+            if (!sensed) show_glyph_cell(x, y, mapped.shown);
+            break;
+        }
+        case M_AP_MONSTER:
+            // The appearance is transient. display_monster() uses the
+            // mimic's gender even if mappearance names another species.
+            show_glyph_cell(
+                x, y, mimickedMonsterGlyphInfo(monster, state),
+            );
+            break;
+        default:
+            // C's impossible() arm falls through to mon_to_glyph().
+            show_glyph_cell(
+                x, y, presentedMonsterGlyphInfo(monster, state, false),
+            );
+            break;
+        }
+    }
+
+    if (!monMimic || sensed) {
+        const presented = wormTail
+            ? { ...monster, data: state.mons?.[PM_LONG_WORM_TAIL] }
+            : monster;
+        if (!presented.data) {
+            throw new Error(
+                'worm-tail display requires PM_LONG_WORM_TAIL in the monster catalog',
+            );
+        }
+        const detected = sightflags === DISPLAY_DETECTED;
+        const glyph = presentedMonsterGlyphInfo(
+            presented, state, detected,
+        );
+
+        // C show_mon_or_warn() clears a remembered invisible marker and then
+        // remembers a visible floor object beneath the monster. The only
+        // unported branch in that void helper is forgetting an engraved
+        // square; preserve that named gap without using a fake return value.
+        const location = state.level.at(x, y);
+        if (glyph_is_invisible(location.remembered_glyph?.glyph)) {
+            try {
+                unmap_object(x, y, state);
+            } catch (error) {
+                if (!(error instanceof UnsupportedMapMemoryError)) throw error;
+                note_unported('display.c unmap_object');
+            }
+            const object = vobj_at(x, y, state);
+            if (cansee(x, y, state) && object)
+                map_object(object, false, state);
+        }
+        show_glyph_cell(x, y, glyph);
+        monster.meverseen = 1;
+    }
+}
+
+function is_worm_tail_at(monster, x, y) {
+    return Boolean(monster && (x !== monster.mx || y !== monster.my));
 }
 
 // C ref: display.h mon_warning() and display.c warning_of().
@@ -3057,11 +3173,13 @@ export function feel_location(x, y, state = game) {
     // the square. sensemon() excludes direct sight, matching the C macro.
     const monster = !u_at(x, y, state) ? m_at(x, y, state) : null;
     if (monster && sensesMonster(monster, state)) {
-        // display.c:902-905 discards display_monster()'s return, but that
-        // callee owns mimic-memory/intermediate drawing and worm-tail glyphs.
-        // No callable JS owner exists yet, so preserve this source boundary
-        // explicitly instead of approximating those side effects here.
-        note_unported('display.c display_monster');
+        const sightflags = tp_sensemon(monster, state)
+            || monsterWarnsHero(monster, state)
+            ? DISPLAY_PHYSICALLY_SEEN : DISPLAY_DETECTED;
+        display_monster(
+            x, y, monster, sightflags,
+            is_worm_tail_at(monster, x, y), state,
+        );
     }
 }
 
@@ -3551,6 +3669,7 @@ export function newsym(x, y) {
     // intentionally leaves the remembered underlying glyph untouched.
     const region = visible ? visible_region_at(x, y, game) : null;
     const monster = visible ? m_at(x, y, game) : null;
+    const wormTail = is_worm_tail_at(monster, x, y);
     const monsterDirectlyVisible = Boolean(
         monster && monsterVisible(monster, game),
     );
@@ -3571,6 +3690,7 @@ export function newsym(x, y) {
         && !sensedWithoutDetection;
     const monsterWarning = Boolean(
         monster
+        && !wormTail
         && x === monster.mx
         && y === monster.my
         && monsterWarnsHero(monster, game),
@@ -3585,7 +3705,11 @@ export function newsym(x, y) {
         // display.c mon_overrides_region()'s closing line (697-699): with no
         // monster to prefer, a remembered invisible monster still overrides
         // the cloud, so the marker survives a gas cloud drifting over it.
-        if (!monsterSensed && !monsterWarning
+        const sensedAtMonster = Boolean(
+            monster && !wormTail && x === monster.mx && y === monster.my
+            && (monsterSensed || monsterWarning),
+        );
+        if (!sensedAtMonster && !monsterWarning
             && !adjacentVisibleMonster
             && !glyph_is_invisible(loc.remembered_glyph?.glyph)) {
             show_region(region, x, y, game);
@@ -3594,12 +3718,11 @@ export function newsym(x, y) {
     }
 
     // display.c:1013, `mon && (see_it || (!worm_tail && Detect_monsters))`.
-    // C evaluates this before _map_location() files the remembered glyph, so
-    // it is hoisted above the layer choice below rather than computed with
-    // the rest of the monster presentation. No worm_tail operand: long worms
-    // have no port, so is_worm_tail() is constantly false here.
+    // A physically visible tail is shown, but telepathy/warning and monster
+    // detection only show the head. Keep the segment test coordinate based,
+    // as display.c's is_worm_tail(mon) macro is.
     const shouldDisplayMonster = Boolean(
-        monster && (monsterDirectlyVisible || monsterSensed),
+        monster && (monsterDirectlyVisible || (!wormTail && monsterSensed)),
     );
 
     // display.c:1032-1033, `else if (glyph_is_invisible(lev->glyph))
@@ -3701,97 +3824,39 @@ export function newsym(x, y) {
         && (sensesMonsterWithoutDetection(outOfSightMon, game)
             || canSeeMonster(outOfSightMon, game)),
     );
+    const outOfSightWormTail = is_worm_tail_at(outOfSightMon, x, y);
     const outOfSightSensed = Boolean(
         outOfSightSeeIt
-        || (outOfSightMon && sensesMonster(outOfSightMon, game)),
+        || (outOfSightMon && !outOfSightWormTail
+            && sensesMonster(outOfSightMon, game)),
     );
     // C ref: display.c newsym() (1055-1056). mon_warning fires only when
     // the monster was not already handled by the sensed path above.
     const outOfSightWarning = Boolean(
         outOfSightMon
         && !outOfSightSensed
+        && !outOfSightWormTail
         && outOfSightMon.mx === x && outOfSightMon.my === y
         && monsterWarnsHero(outOfSightMon, game),
     );
 
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (visible) {
-        const mimicAppearanceType = monster?.m_ap_type & M_AP_TYPMASK;
-        // PHYSICALLY_SEEN mimicry presents the disguise before any sensed real
-        // monster presentation. Object disguises therefore own their complete
-        // map_object() draw sequence here, while monster disguises consume
-        // their transient what_mon() draw without replacing floor memory.
-        const mapsMimicDisguise = shouldDisplayMonster && !detectedOnly
-            && [M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER].includes(
-                mimicAppearanceType,
-            );
-        let mappedMimic = null;
-        if (mapsMimicDisguise) {
-            if (mimicAppearanceType === M_AP_OBJECT)
-                mappedMimic = mappedObjectGlyphInfo(
-                    mimicObject(monster),
-                    game,
-                );
-            else {
-                const glyph = monster_glyph_info(monster, game);
-                mappedMimic = {
-                    shown: glyph,
-                    remembered: mimicAppearanceType === M_AP_MONSTER
-                        ? rememberedUnderlying : glyph,
-                };
-            }
-        }
-        // display_monster()'s PHYSICALLY_SEEN category is broader than literal
-        // sight: telepathy and warn-of-mon sensing enter it too. It handles the
-        // disguise before revealing the real monster: object and furniture
-        // appearances can update memory, while a monster appearance is a
-        // transient presentation only.
-        const revealsMappedMimic = mapsMimicDisguise
-            && (monsterSensed
-                || _propertyActive(game.u, PROT_FROM_SHAPE_CHANGERS));
-        if (revealsMappedMimic
-            && mimicAppearanceType === M_AP_MONSTER) {
-            // display_monster() emits this disguise before overwriting it with
-            // the sensed real form. Besides preserving rendering order, the
-            // intermediate write can drive accessibility glyph-change notices.
-            show_glyph_cell(x, y, mappedMimic.shown);
-        }
-        // display_monster() exposes a mimic's real monster glyph when sensing
-        // defeats its appearance. Detect-only sensing uses the detected glyph
-        // family; physical sight alone shows the disguise.
-        const shown = shouldDisplayMonster
-            ? (detectedOnly
-                ? detectedMonsterGlyphInfo(monster, game)
-                : monsterSensed || revealsMappedMimic
-                    ? presentedMonsterGlyphInfo(monster, game, false)
-                    : mappedMimic?.shown
-                        ?? monster_glyph_info(monster, game))
-            : monsterWarning ? warningGlyphInfo(monster, game) : underlying;
-        // PHYSICALLY_SEEN object and furniture mimics map their disguise
-        // before sensing reveals the real monster. M_AP_MONSTER leaves the
-        // underlying floor memory intact, and DETECTED skips every disguise.
-        //
-        // display.c show_mon_or_warn()'s marker clear (486-493) has no
-        // separate statement here. C reaches it through display_monster()
-        // after _map_location(x, y, FALSE) has already rewritten
-        // levl[x][y].glyph from the layers -- map_background(),
-        // map_object() and map_trap() each write it under
-        // svl.level.flags.hero_memory -- so the clear finds no marker left to
-        // clear and its vobj_at() re-map repeats _map_location()'s own
-        // map_object(). The write below is that same write, so both halves are
-        // covered. C's warning arm is the one that reaches show_mon_or_warn()
-        // with the marker intact, and this port raises no warning level.
-        const remembered = mapsMimicDisguise
-            ? mappedMimic.remembered : rememberedUnderlying;
-        if (game.level?.flags?.hero_memory
-            || (mapsMimicDisguise
-                && mimicAppearanceType === M_AP_FURNITURE)) {
-            // display_monster() writes a furniture disguise directly to
-            // levl[x][y].glyph even when ordinary hero memory is disabled.
+        if (game.level?.flags?.hero_memory) {
             loc.remembered_glyph
-                = remembered_glyph_from_presentation(remembered);
+                = remembered_glyph_from_presentation(rememberedUnderlying);
         }
-        show_glyph_cell(x, y, shown);
+        if (shouldDisplayMonster) {
+            display_monster(
+                x, y, monster,
+                detectedOnly ? DISPLAY_DETECTED : DISPLAY_PHYSICALLY_SEEN,
+                wormTail,
+            );
+        } else if (monsterWarning) {
+            show_glyph_cell(x, y, warningGlyphInfo(monster, game));
+        } else {
+            show_glyph_cell(x, y, underlying);
+        }
     } else if (outOfSightSensed) {
         // display.c:1046-1054, not-visible path: the hero senses or detects
         // the monster through infravision, telepathy, warning-of-mon, or
@@ -3799,9 +3864,11 @@ export function newsym(x, y) {
         // see_it ? 0 : DETECTED, ...) without _map_location, so memory
         // is not updated. see_it chooses the real monster glyph; DETECTED
         // chooses the detected glyph family.
-        show_glyph_cell(x, y, outOfSightSeeIt
-            ? presentedMonsterGlyphInfo(outOfSightMon, game, false)
-            : detectedMonsterGlyphInfo(outOfSightMon, game));
+        display_monster(
+            x, y, outOfSightMon,
+            outOfSightSeeIt ? 0 : DISPLAY_DETECTED,
+            outOfSightWormTail,
+        );
     } else if (outOfSightWarning) {
         // display.c:1055-1056, display_warning() for out-of-sight monster
         show_glyph_cell(x, y, warningGlyphInfo(outOfSightMon, game));
