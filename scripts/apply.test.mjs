@@ -28,7 +28,9 @@ import {
 import {
     beautiful,
     can_grapple_location,
+    grapple_menu_choice_to_hit,
     grapple_range,
+    grapple_target_menu_items,
     touchstone_ok,
     use_towel,
 } from '../js/apply.js';
@@ -127,6 +129,19 @@ test('can_grapple_location uses visible squares and C square-distance range', ()
     state.viz_array[10][12] = 0;
     assert.equal(can_grapple_location(12, 10, state), false);
     assert.equal(can_grapple_location(COLNO, 10, state), false);
+});
+
+test('grappling hook skilled menu IDs select object, monster, and surface', () => {
+    // apply.c:use_grapple() starts any.a_int at 1, increments before each
+    // add_menu(), then subtracts 1 from the selected ID for its switch.
+    const items = grapple_target_menu_items('floor');
+    assert.deepEqual(items.map(({ text, value }) => [text, value]), [
+        ['an object on the floor', 2],
+        ['a monster', 3],
+        ['the floor', 4],
+    ]);
+    assert.deepEqual(items.map(({ value }) => grapple_menu_choice_to_hit(value)),
+        [1, 2, 3]);
 });
 
 test('touchstone_ok follows apply.c target ranks and identification flags', () => {
