@@ -116307,6 +116307,101 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-timeout-cleanup-burn-light-source-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Restore source-ordered object light and timer cleanup when ending burn",
+      "cFile": "timeout.c",
+      "sessions": [],
+      "selectionReason": "synthetic/v13/extinguish-lit-oil-lamp has a complete current investigation in investigations/synthetic/v13/extinguish-lit-oil-lamp.json; timeout.c:cleanup_burn requires the real light.c:del_light_source and inventory update path for any timed burning object.",
+      "detail": "At segment 0 step 17, v13 recording 5e511642a586dea8e14168956364465b1d844bc653c87ad39b277a3dd1050b6f stops after the lit-lamp turn-off message. The saved evaluation challenges/evaluations/20260929141337-v13.json under manifest digest ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d records 17/18 screens. apply.c:use_lamp calls timeout.c:end_burn; timeout.c:cleanup_burn calls light.c:del_light_source(LS_OBJECT,obj), restores fuel, clears lamplit, and updates inventory. js/timeout.js preflight instead requires an injected deleteObjectLightSource hook absent from js/apply.js:use_lamp. See the investigation for source and caller evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "cleanup_burn",
+      "session": "synthetic/v13/extinguish-lit-oil-lamp",
+      "step": 17,
+      "syntheticProvenance": {
+        "synthetic/v13/extinguish-lit-oil-lamp": {
+          "session": "synthetic/v13/extinguish-lit-oil-lamp",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "extinguish-lit-oil-lamp",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/extinguish-lit-oil-lamp.session.json",
+          "recordingSha256": "5e511642a586dea8e14168956364465b1d844bc653c87ad39b277a3dd1050b6f",
+          "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+          "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b"
+        }
+      }
+    },
+    {
+      "id": "port-apply-grapple-family-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port complete grappling-hook targeting and resolution helpers",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v13/grappling-hook-finds-no-object"
+      ],
+      "selectionReason": "The complete investigation investigations/synthetic/v13/grappling-hook-finds-no-object.json traces the v13 four-screen mismatch to the unported apply.c:use_grapple family and doapply caller. Preserve the unwielded-tool queued-command path, targeting, RNG, and all trap/object/monster/surface/self branches; the related leash case is planned for this same worker in a separate source-range task.",
+      "detail": "At segment 0 step 27, the saved v13 evaluation stops in doapply after selecting GRAPPLING_HOOK; the C recording runs through step 30 and reaches the empty-object result. Batch manifest identity ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d, recording challenges/cases/v13/grappling-hook-finds-no-object.session.json, evaluation challenges/evaluations/20260929141337-v13.json. Port apply.c:grapple_range, can_grapple_location, display_grapple_positions, use_grapple (3685-3873) and wire doapply(GRAPPLING_HOOK); include consumed return dependencies and independent entry-point evidence.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "grapple_range",
+          "line": 3686,
+          "endLine": 3700,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "can_grapple_location",
+          "line": 3701,
+          "endLine": 3706,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "display_grapple_positions",
+          "line": 3707,
+          "endLine": 3728,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_grapple",
+          "line": 3729,
+          "endLine": 3875,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3686,
+        "to": 3875
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/grappling-hook-finds-no-object": {
+          "session": "synthetic/v13/grappling-hook-finds-no-object",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "grappling-hook-finds-no-object",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+          "recordingSha256": "0946fffe16c9be504bc681f00391c4840b447c138c08de78139469b4179bcb99",
+          "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+          "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b"
+        }
+      }
     }
   ]
 }
