@@ -118913,8 +118913,8 @@
           "name": "use_candelabrum",
           "line": 1319,
           "endLine": 1386,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -119086,7 +119086,69 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_candelabrum",
+            "implementation": "js/apply.js",
+            "symbol": "use_candelabrum",
+            "sourceReview": "Read the complete upstream apply.c:use_candelabrum definition (1319-1386) and compared every branch, message, predicate, state write, return, and call order. The JS keeps the lit snuff path first, then empty inventory scan/tip, underwater refusal, swallowed/cursed visible failure, candle-count and dim/bright wording, rapid consumption with upward age rounding and zero-age repair, and the invocation-position path. C sets obj->known for every positive candle count at the invocation position; source-pinned tests cover the three-candle and exactly-seven-candle cases, with only the latter receiving the warmth/glow message. The final begin_burn call and earlier end_burn call use the existing timeout.c ports. The discarded pline.c impossible() result remains note_unported('pline.c impossible'); its following age repair still runs, and no note_unported result is used. The complete apply.c:doapply candelabrum arm (4337-4338) is wired and retains ECMD_TIME.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply CANDELABRUM_OF_INVOCATION switch arm calls use_candelabrum(obj) and retains its initial ECMD_TIME result."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c command-table entry for 'a' invokes doapply(); JS runApplyCommand dispatches to apply.js:doapply."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-candelabrum.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/candelabrum-light-and-snuff-independent-b60.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "empty-candelabrum-no-candles",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c command 'a' -> apply.c:doapply CANDELABRUM_OF_INVOCATION arm -> apply.c:use_candelabrum"
+              }
+            ],
+            "checkedAt": "da87960493b3c5abe1d9841adae193df6340d9f3"
+          }
+        ],
+        "entryPointReview": "The selected active entry is the typed apply command: cmd.c maps 'a' to doapply, whose CANDELABRUM_OF_INVOCATION arm is the only direct C caller of use_candelabrum. The independent recording reaches it after attaching a tallow candle, then lights and snuffs the carried candelabrum; the admitted v13 case reaches the empty-candelabrum branch through step 38. apply.c:use_candle can establish the candle count before a later apply command but is not a caller of use_candelabrum. No other direct use_candelabrum caller is present in the source tree.",
+        "entryPoints": [
+          {
+            "name": "Typed apply of the carried candelabrum",
+            "functions": [
+              "use_candelabrum"
+            ],
+            "recordings": [
+              "recordings/apply.c/candelabrum-light-and-snuff-independent-b60.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "empty-candelabrum-no-candles",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c command 'a' -> apply.c:doapply CANDELABRUM_OF_INVOCATION arm -> apply.c:use_candelabrum"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
