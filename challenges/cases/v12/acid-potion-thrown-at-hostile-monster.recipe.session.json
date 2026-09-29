@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A44 C-first exact-pass diversity case for dothrow.c:throwit -> thitmonst. A debug Wizard wishes for an acid potion, creates a hostile grid bug adjacent northwest, and throws the potion northwest. C traces the monster-miss path then breaks the potion; this is distinct from floor-object placement and the v11 floor-weapon pickup.",
+  "segments": [
+    {
+      "seed": 86231183,
+      "datetime": "20471123160723",
+      "nethackrc": "OPTIONS=name:AcidProbeA44,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": " \u0017potion of acid\n#wizgenesis\nhostile grid bug\nt?oy"
+    }
+  ]
+}

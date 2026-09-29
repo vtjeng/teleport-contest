@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 case for dothrow.c:thitmonst/tmiss: a level-10 Wizard wishes a paralysis potion, creates a hostile newt, and throws the wished potion northeast at it. C rolls the throw miss branch, then shatters the ruby potion. This is a genuine miss/action path, not a setup miss.",
+  "segments": [
+    {
+      "seed": 75296141,
+      "datetime": "20470613100811",
+      "nethackrc": "OPTIONS=name:ThrownPotionV12,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup\n",
+      "moves": "  #levelchange\n10\n                 #wizwish\npotion of paralysis\n #wizgenesis\nhostile newt\ntou"
+    }
+  ]
+}

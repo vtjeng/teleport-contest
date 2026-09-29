@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v12 C-first case for do.c:dropz(with_impact): put an uncursed water potion inside an unlocked sack, pick up the sack, move off the staircase, drink a separate levitation potion, and drop the sack while floating. The valid-date C trace reaches container_impact_dmg; the water resists the impact and remains inside.",
+  "segments": [
+    {
+      "seed": 47038149,
+      "datetime": "20470611100811",
+      "nethackrc": "OPTIONS=name:BagImpactV12,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,menustyle:traditional,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,time,!autopickup\n",
+      "moves": "  #wizwish\nempty unlocked sack\n#wizwish\npotion of levitation\ndo#loot\ni!\ny nnn, lqp do "
+    }
+  ]
+}

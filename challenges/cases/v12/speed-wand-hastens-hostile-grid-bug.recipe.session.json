@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 candidate for zap.c:bhitm(WAN_SPEED_MONSTER). A debug Wizard wishes a charged speed-monster wand, creates a hostile grid bug directly north, selects the unidentified wand slot, and zaps north. C reports that the grid bug suddenly moves faster and runs its speed recalculation. Independent rerecord SHA-256 94f22a27d69930cb9d322402bb06629cc022d025068e323888420e723b656db3.",
+  "segments": [
+    {
+      "seed": 39712064,
+      "datetime": "20471107145130",
+      "nethackrc": "OPTIONS=name:V12SpeedWand,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": "\u0017wand of speed monster\n#wizgenesis\nhostile grid bug\nz?pk"
+    }
+  ]
+}

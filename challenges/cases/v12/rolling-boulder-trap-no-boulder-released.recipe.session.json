@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v12 C-first probe for trap.c:trapeffect_rolling_boulder_trap. A new debug Wizard creates the trap on ordinary floor, leaves its square, returns to trigger it, and dismisses the result pager. This generated corridor had no launch path, so C reaches the explicit “Fortunately for you, no boulder was released” branch. The movement trap and launch-path refusal differ from v11 falling-rock and dart effects.",
+  "segments": [
+    {
+      "seed": 18347029,
+      "datetime": "20470509145127",
+      "nethackrc": "OPTIONS=name:V12Boulder,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": "  h#wizwish\nrolling boulder trap\nlh "
+    }
+  ]
+}

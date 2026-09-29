@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent v12 C-first zap.c:bhito polymorph-object probe. A newly seeded Wizard wishes for a polymorph wand, drops a potion on ordinary floor, moves one square away, and zaps the floor pile. Keep only if the C trace shows the beam reaching bhito and the potion object-change response; this is distinct from v11's polymorph trap, which changes hero form.",
+  "segments": [{
+    "seed": 69178343,
+    "datetime": "20471109100853",
+    "nethackrc": "OPTIONS=name:V12PolyObj,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+    "moves": " \u0017wand of polymorph\nd?flz?oh "
+  }]
+}

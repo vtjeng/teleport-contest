@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v12 C-first read.c:seffect_enchant_armor probe. A newly seeded male Valkyrie starts with a worn shield, wishes a blessed enchant-armor scroll, reads it, and observes the target selection and result. It differs from v8's cursed destroy-armor scroll removing worn armor and v8's enchant-weapon scroll target.",
+  "segments": [
+    {
+      "seed": 47381029,
+      "datetime": "20470814121249",
+      "nethackrc": "OPTIONS=name:V12Shield,role:Valkyrie,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": " \u0017blessed scroll of enchant armor\nre "
+    }
+  ]
+}

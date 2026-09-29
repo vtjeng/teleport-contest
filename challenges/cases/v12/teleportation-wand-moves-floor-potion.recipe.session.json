@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 candidate for zap.c:bhito(WAN_TELEPORTATION). A debug Wizard wishes a charged teleportation wand and healing potion, drops the potion, moves aside and zaps the floor object; then return and inspect its new square. This object relocation branch must be compared separately from bhitm teleportation of a monster and v11 teleport-trap displacement of the hero.",
+  "segments": [
+    {
+      "seed": 84019357,
+      "datetime": "20471115153042",
+      "nethackrc": "OPTIONS=name:V12TeleportObject,role:Wizard,race:human,gender=male,align=neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": "\u0017wand of teleportation\n\u0017potion of healing\ndpl zoh"
+    }
+  ]
+}

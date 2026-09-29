@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v12 C-first probe for mcastu.c:castmu from a hostile kobold shaman created by wizard command; compare its action/effects with the earlier hero-cast v11 spell case.",
+  "segments": [
+    {
+      "seed": 43597103,
+      "datetime": "20470307134921",
+      "nethackrc": "OPTIONS=name:V12Shaman,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup\n",
+      "moves": " #wizgenesis\nhostile kobold shaman\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

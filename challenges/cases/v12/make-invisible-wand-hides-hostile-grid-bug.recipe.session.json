@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 candidate for zap.c:bhitm(WAN_MAKE_INVISIBLE). A debug Wizard wishes a charged make-invisible wand, creates a hostile grid bug directly north, selects the unidentified wand, and zaps north. C reports “The grid bug vanishes!” and the target disappears from the visible map. Independent rerecord SHA-256 a3272f7ed7d8e41e692334e0ad5903cde06a8e19e2cb5342b0d9648c11779308.",
+  "segments": [
+    {
+      "seed": 27645189,
+      "datetime": "20471109113510",
+      "nethackrc": "OPTIONS=name:V12InvisibleWand,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": "\u0017wand of make invisible\n#wizgenesis\nhostile grid bug\nz?ok"
+    }
+  ]
+}

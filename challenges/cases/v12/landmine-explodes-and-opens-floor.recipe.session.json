@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent v12 C-first probe for trap.c:trapeffect_landmine. A newly seeded debug Wizard creates a land-mine trap on ordinary floor, leaves its square, returns to trigger it, and dismisses the resulting output. Keep only if C's trace reaches the blast/floor-state branch and the independent replay is identical.",
+  "segments": [
+    {
+      "seed": 95261731,
+      "datetime": "20470422103719",
+      "nethackrc": "OPTIONS=name:V12Mine,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup\n",
+      "moves": "h#wizwish\nland mine trap\nlh"
+    }
+  ]
+}

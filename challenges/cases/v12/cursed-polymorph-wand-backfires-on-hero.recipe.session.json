@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v12 candidate for zap.c:backfire. A debug Wizard wishes a cursed polymorph wand and zaps self once. C enters cursed-wand backfire, polyself changes the hero into a fire elemental, and the cloak clasp breaks. This is a wand-self-zap path distinct from the v11 polymorph-trap activation/state; independent C rerecord SHA-256 167b2ff59cbd0f95a9723bb2a6615dde380deb1ae91a45d1c2ecce315a5d2702.",
+  "segments": [
+    {
+      "seed": 54109872,
+      "datetime": "20471113151027",
+      "nethackrc": "OPTIONS=name:V12CursedBackfire,role:Wizard,race:human,gender=male,align=neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,time,!autopickup,!acoustics\n",
+      "moves": "\u0017cursed wand of polymorph\nz?n."
+    }
+  ]
+}
