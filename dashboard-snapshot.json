@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T01:17:40.054Z",
+  "capturedAt": "2026-09-29T01:37:50.541Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -8366,12 +8366,61 @@
         "type": "accepted",
         "at": "2026-09-29T01:17:26.411Z",
         "task": "C41"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C41-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T01:19:34.206Z",
+        "task": "C41",
+        "commit": "f57ed870d48de9f2624a9000c391bfe50eb981c7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C42-20260929",
+        "type": "assign",
+        "at": "2026-09-29T01:23:32.570Z",
+        "task": "C42",
+        "worker": "C",
+        "goal": "fix-trap-domagictrap-fates-synthetic-v11-20260928",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B49-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T01:24:06.455Z",
+        "task": "B49",
+        "delivery": "086194cc3f2c0459d5ae78c1689150b6d1e7a7f2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B49-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T01:27:19.866Z",
+        "task": "B49",
+        "integration": "a149eb3605fe68acf848e20f8255850d22e83a3d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B49-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T01:37:40.389Z",
+        "task": "B49",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B49-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T01:37:41.172Z",
+        "task": "B49"
       }
     ]
   },
   "development": {
-    "executionCommit": "77e9867ad37271d551bdcd26a185da93cf6ff634",
-    "measuredAt": "2026-09-29T01:03:57.582Z",
+    "executionCommit": "a149eb3605fe68acf848e20f8255850d22e83a3d",
+    "measuredAt": "2026-09-29T01:33:24.017Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

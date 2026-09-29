@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 681117,
+      "datetime": "20340817113000",
+      "nethackrc": "OPTIONS=name:DoorTest,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " jjllllllol#wizgenesis\nhostile Dispater\nycl."
+    }
+  ],
+  "_comment": "Blocked evidence attempt for the active muse.c:mbhit WAN_STRIKING door caller. C asks to force the unique Dispater after the requested species resolves to a doppelganger, and the recipe accepts that prompt. The setup does not leave a closed-door tile between the monster's mux/muy target and its position: the first `ol` attempt reports that the door is locked, and the later close-direction input does not establish the cross-door ray. A source-directed cache-only retry creates a sleeping hostile Dispater, then tries to move west/north across the observed doorway, close it, and wake it with a tin whistle; the C trace is diverted by a hostile ranged attack and repeated pager before the door operation, with no muse.c:mbhit door call. The two C attempts are preserved under .cache/B49-attempts/. The active blocker remains the read.c:create_particular_creation placement and muse.c:find_offensive target geometry needed to put a closed door on the ray. No muse.c:mbhit door arm is claimed."
+}

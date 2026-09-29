@@ -110674,7 +110674,7 @@
     {
       "id": "port-lock-doorlock-synthetic-v11-20260928",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete door magic and wire player and monster wand rays",
       "cFile": "lock.c",
       "sessions": [
@@ -110682,8 +110682,12 @@
       ],
       "selectionReason": "The completed source investigation traces the last unmatched wand-locking screen to missing lock.c doorlock dispatch in zap.c bhit; higher-count statue-trap work shares reserved trap.c callers with C41.",
       "detail": "Port complete lock.c doorlock and its consumed obstructed Boolean helper. Wire zap.c bhit and muse.c mbhit callers, preserve wand learning, door state, messages, vision, shop effects, and source RNG order. Provide independent C recordings for impure entry points.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "f57ed870d48de9f2624a9000c391bfe50eb981c7",
+      "openStanding": {
+        "sha": "77e9867ad37271d551bdcd26a185da93cf6ff634",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -110691,8 +110695,8 @@
           "name": "doorlock",
           "line": 1103,
           "endLine": 1275,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -110711,6 +110715,389 @@
           "recordingSha256": "162cee8fb369b8f62557b3a80e460e4bb7da884869faf729efaa46d51827b30c",
           "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
           "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328"
+        }
+      },
+      "activeStanding": {
+        "sha": "77e9867ad37271d551bdcd26a185da93cf6ff634",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "wand-locking-closes-open-door",
+          "session": "synthetic/v11/wand-locking-closes-open-door",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/wand-locking-closes-open-door.session.json",
+          "recordingPath": "challenges/cases/v11/wand-locking-closes-open-door.session.json",
+          "recordingSha256": "162cee8fb369b8f62557b3a80e460e4bb7da884869faf729efaa46d51827b30c",
+          "recipe": "challenges/cases/v11/wand-locking-closes-open-door.recipe.session.json",
+          "recipeSha256": "fabbdd8d3d2306b4fd4d9dbdc9a6464b5c3ed9bc92cdce2d3b51ecaf8354d2b8",
+          "replayInputSha256": "e8f2d6b3643633332c5d5c4f659fadf829a2a463b1d77c9e59425f34d646b35f",
+          "evaluationPath": "challenges/evaluations/20260929010538-v11.json",
+          "evaluationCommit": "77e9867ad37271d551bdcd26a185da93cf6ff634",
+          "evaluationArtifact": "challenges/evaluations/20260929010538-v11.json",
+          "evaluationUtc": "2026-09-29T01:05:53.427Z",
+          "remainingScreens": 1,
+          "recordedSteps": 43,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 43
+            },
+            "rng": {
+              "matched": 2622,
+              "total": 2627
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 43
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 42,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 42,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2620,
+              "cEntry": "rn2(19)=8",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(12)=7",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 42,
+                "key": "h"
+              },
+              "stepIndex": 42
+            },
+            "cursor": null
+          },
+          "step": 42,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/wand-locking-closes-open-door.json",
+            "result": {
+              "session": "synthetic/v11/wand-locking-closes-open-door",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "wand-locking-closes-open-door",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "162cee8fb369b8f62557b3a80e460e4bb7da884869faf729efaa46d51827b30c",
+              "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+              "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "remainingScreens": 1,
+              "recordedSteps": 43,
+              "status": "complete",
+              "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "wand-locking-closes-open-door",
+                "session": "synthetic/v11/wand-locking-closes-open-door",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/wand-locking-closes-open-door.session.json",
+                "recordingPath": "challenges/cases/v11/wand-locking-closes-open-door.session.json",
+                "recordingSha256": "162cee8fb369b8f62557b3a80e460e4bb7da884869faf729efaa46d51827b30c",
+                "recipe": "challenges/cases/v11/wand-locking-closes-open-door.recipe.session.json",
+                "recipeSha256": "fabbdd8d3d2306b4fd4d9dbdc9a6464b5c3ed9bc92cdce2d3b51ecaf8354d2b8",
+                "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+                "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+                "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationUtc": "2026-09-28T23:47:35.564Z",
+                "remainingScreens": 1,
+                "recordedSteps": 43,
+                "previousScreensMatched": 42,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 43
+                  },
+                  "rng": {
+                    "matched": 2622,
+                    "total": 2627
+                  },
+                  "cursors": {
+                    "matched": 43,
+                    "total": 43
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 42,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 42,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2620,
+                    "cEntry": "rn2(19)=8",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(12)=7",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 42,
+                      "key": "h"
+                    },
+                    "stepIndex": 42
+                  },
+                  "cursor": null
+                },
+                "step": 42,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "A locking wand hits an open door. C zap.c:bhit calls lock.c:doorlock, closes and locks the door, then learns the wand when visible, which exercises Wisdom. JavaScript bhit skips the doorlock call, so the unchanged door and missing identification cause the reported screen and RNG divergence; attrib.c:exercise is the downstream symptom.",
+              "source": {
+                "file": "lock.c",
+                "branch": "lock.c:doorlock (1102-1273) handles locking, opening, striking, and corresponding spells on secret or ordinary doors; it consumes lock.c:obstructed (926-953). The v11 case reaches the open-door WAN_LOCKING arm. zap.c:bhit (4059-4076) consumes doorlock return to decide learnwand and shop damage. muse.c:mbhit (1792 onward) consumes the same helper return for monster striking-wand behavior.",
+                "functions": [
+                  "obstructed",
+                  "doorlock"
+                ],
+                "callers": [
+                  "zap.c:bhit calls doorlock for opening, locking, striking, knock, wizard lock, and force bolt when a wand ray meets a door; on true, it learns a visible wand and may bill a broken shop door. js/zap.js:bhit currently has no equivalent door arm.",
+                  "muse.c:mbhit calls doorlock for monster WAN_OPENING, WAN_LOCKING, and WAN_STRIKING, then makes a seen wand known and records shop repair; js/muse.js currently records note_unported(lock.c doorlock).",
+                  "lock.c:doorlock calls obstructed before locking a normal or Rogue doorway; the existing js/lock.js:obstructed has a visible-monster refusal and must be completed for the consumed Boolean."
+                ],
+                "dependencies": [
+                  "Preserve source door typ and doormask updates, message and vision ordering, blocked-square behavior, trapped-door consequences, shop damage, and picking cancellation. Complete the current partial js/lock.js:obstructed function and source name/map-invisible behavior.",
+                  "The existing helpers cover block_point, unblock_point, recalc_block_point, cansee, map_invisible, picking_at, stop_occupation, reset_pick, in_rooms, and learnwand. Check each caller and return-value dependency against C.",
+                  "The C-discarded trap.c:mb_trapped result and shk.c:add_damage effect require source review; only retain explicit note_unported for void calls still unported. Do not introduce a case-specific wand or door branch.",
+                  "Independent C recipes should cover a distinct seeded open-door WAN_LOCKING outcome and SPE_WIZARD_LOCK through zap.c; seek a monster WAN_STRIKING door replay for the muse.c caller. Keep the v11 case as admitted-prefix evidence, not a copied regression recording."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 has 1 unmatched screen; C and JS match their first Wisdom exercise and its rn1(8,6) range draw, then C draws rn2(19)=8 at attrib.c:exercise after the door lock and wand discovery while JS enters later movement RNG. The first mismatch is at zero-based step 42.",
+                "The immutable C recording is challenges/cases/v11/wand-locking-closes-open-door.session.json (SHA-256 162cee8fb369b8f62557b3a80e460e4bb7da884869faf729efaa46d51827b30c); upstream zap.c:4059-4076 and lock.c:1102-1273 trace the successful door effect and learning.",
+                "Upstream lock.c:926-953 defines the Boolean obstruction helper and muse.c:1792 onward consumes doorlock for monster wand rays. js/lock.js:1311-1324 refuses a visible monster, js/muse.js:2380-2383 skips doorlock, and js/zap.js lacks the call."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doorlock",
+            "implementation": "js/lock.js",
+            "symbol": "doorlock",
+            "sourceReview": "Read lock.c:doorlock() (1103-1275) in full and preserve source evaluation order. Covered every effect arm: secret-door conversion for opening/knock/striking/force-bolt and refusal for locking/wizard-lock; Rogue doorway concealment and obstruction; normal obstruction through the consumed lock.c:obstructed() callee and trap refusal; the doormask switch for locking; unlocking; normal and trapped breaking; visibility snapshots, vision recalculation, messages, wake_nearto(), and pick-occupation cancellation/reset. Preserve C's true return when a trapped door changes even though trap.c:mb_trapped()'s result is discarded. Record and skip the discarded void calls to trap.c:mb_trapped() and shk.c:add_damage() via note_unported; shop billing tail gaps remain named. JS writes both generated door-mask aliases to preserve C struct rm.doormask semantics.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c:bhit() calls doorlock() when a hero ray reaches a door for WAN_OPENING, WAN_LOCKING, WAN_STRIKING, SPE_KNOCK, SPE_WIZARD_LOCK, or SPE_FORCE_BOLT; it consumes the Boolean for wand discovery and broken-shop-door handling"
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhit",
+                "source": "muse.c:mbhit() calls doorlock() for monster WAN_OPENING, WAN_LOCKING, and WAN_STRIKING; it consumes the Boolean for object discovery and broken-shop-door handling"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-wand-locking-independent-b49.session.json",
+              "recordings/lock.c/striking-wand-breaks-locked-door-independent-b49.session.json",
+              "recordings/lock.c/force-bolt-breaks-door-independent-b49.session.json",
+              "recordings/lock.c/opening-wand-unlocks-door-independent-b49.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-locking-closes-open-door",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 42,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:bhit(WAN_LOCKING) -> lock.c:doorlock closes and locks the open door, then zap.c:bhit consumes the true return to learn the wand"
+              }
+            ],
+            "checkedAt": "a149eb3605fe68acf848e20f8255850d22e83a3d"
+          }
+        ],
+        "entryPointReview": "The active hero entry is cmd.c:dozap or spell.c:spelleffects -> zap.c:weffects -> zap.c:bhit when a wand or ray spell reaches a door. Matching C runs cover WAN_LOCKING on an open door, WAN_OPENING on a locked door, WAN_STRIKING on a locked door, and SPE_FORCE_BOLT on a locked door; the admitted v11 prefix independently covers the selected WAN_LOCKING path through its final matching step 42. zap.c:bhit consumes doorlock's Boolean to identify wands and handle shop damage. The active monster entry is muse.c:use_offensive -> muse.c:mbhit when a monster with a usable striking wand targets the hero across a door; js/muse.js wires the same helper and Boolean, but no matching C recording reaches this door arm. The blocked recipe and cache-only attempts show the setup gate: read.c:create_particular_creation() places the unique Dispater adjacent to the hero without establishing a closed door on the monster ray. A final sleeping-monster route tried to cross the observed doorway and wake the monster, but the C input stream was diverted by a hostile ranged attack and repeated pager before closing the door; it still did not reach muse.c:mbhit. The attempts are cache-only under .cache/B49-attempts/. No muse.c:mbhit door call is claimed. Other named void gaps are trap.c:mb_trapped and shk.c:add_damage; no return from note_unported is used.",
+        "entryPoints": [
+          {
+            "name": "Hero wand or ray spell reaches a door through zap.c:bhit",
+            "functions": [
+              "doorlock"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-wand-locking-independent-b49.session.json",
+              "recordings/lock.c/striking-wand-breaks-locked-door-independent-b49.session.json",
+              "recordings/lock.c/force-bolt-breaks-door-independent-b49.session.json",
+              "recordings/lock.c/opening-wand-unlocks-door-independent-b49.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-locking-closes-open-door",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 42,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:bhit(WAN_LOCKING) -> lock.c:doorlock"
+              }
+            ]
+          },
+          {
+            "name": "Monster WAN_STRIKING ray reaches a door through muse.c:mbhit",
+            "functions": [
+              "doorlock"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "a149eb3605fe68acf848e20f8255850d22e83a3d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The hero zap.c:bhit entry is verified by four independent C recordings and admitted v11; the active monster muse.c:mbhit door ray still lacks a matching C recording. Resume when a source-reaching monster wand ray crosses a closed door and matches through doorlock, using a geometry-aligned hostile wand carrier rather than the blocked Dispater setup."
+    },
+    {
+      "id": "port-trap-domagictrap-synthetic-v11-20260928",
+      "kind": "file-port",
+      "status": "superseded",
+      "summary": "Port complete magic-trap fate behavior including monster taming and creation",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v11/hero-magic-trap-summons-monsters"
+      ],
+      "selectionReason": "v11 hero-magic-trap-summons-monsters in investigations/synthetic/v11/hero-magic-trap-summons-monsters.json: manifest 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347, C recording challenges/cases/v11/hero-magic-trap-summons-monsters.session.json SHA 73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052, evaluation challenges/evaluations/20260929010538-v11.json. Source trace reaches trap.c domagictrap fate 19 taming; whole function also requires an independent fate below 10 monster-creation witness.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "domagictrap",
+          "line": 4317,
+          "endLine": 4454,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 4317,
+        "to": 4454
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-magic-trap-summons-monsters": {
+          "session": "synthetic/v11/hero-magic-trap-summons-monsters",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-magic-trap-summons-monsters",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+          "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
+          "evaluationPath": "challenges/evaluations/20260929010538-v11.json",
+          "evaluationCommit": "77e9867ad37271d551bdcd26a185da93cf6ff634"
+        }
+      },
+      "supersededBy": "fix-trap-domagictrap-fates-synthetic-v11-20260928",
+      "supersededReason": "Historical domagictrap completion flag prevents a new file-port task context; the replacement corrects its still-refused C fate arms and independently records the unported creation branch.",
+      "supersededAt": "f57ed870d48de9f2624a9000c391bfe50eb981c7"
+    },
+    {
+      "id": "fix-trap-domagictrap-fates-synthetic-v11-20260928",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Complete domagictrap taming and monster-creation fate arms",
+      "cFile": "trap.c",
+      "sessions": [],
+      "selectionReason": "Historical port-trap-domagictrap-invisibility marked domagictrap complete although the production path still refuses C fate 19. Selected admitted v11 case is source-traced in investigations/synthetic/v11/hero-magic-trap-summons-monsters.json; also cover separate fate below 10 with independent C play.",
+      "detail": "Admitted v11 hero-magic-trap-summons-monsters segment 0 step 16 stops before screen 17 at unsupported hero move: magic trap tame monsters; saved evaluation challenges/evaluations/20260929010538-v11.json, manifest SHA 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347, recording SHA 73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052. C trap.c:domagictrap draws fate 19 and uses adjattrib, nearby m_at and tamedog. JavaScript js/trap_effects.js refuses that branch. Source fate below 10 monster creation is separately unported; complete the whole function and verify it with independent C recording.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "domagictrap",
+      "session": "synthetic/v11/hero-magic-trap-summons-monsters",
+      "step": 16,
+      "syntheticProvenance": {
+        "synthetic/v11/hero-magic-trap-summons-monsters": {
+          "session": "synthetic/v11/hero-magic-trap-summons-monsters",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-magic-trap-summons-monsters",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+          "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
+          "evaluationPath": "challenges/evaluations/20260929010538-v11.json",
+          "evaluationCommit": "77e9867ad37271d551bdcd26a185da93cf6ff634"
         }
       }
     }

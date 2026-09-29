@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 681053,
+      "datetime": "20340817091500",
+      "nethackrc": "OPTIONS=name:B49,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics\n",
+      "moves": "  #wizwish\nwand of locking\nolzel"
+    }
+  ],
+  "_comment": "Independent B49 hero-ray witness: wish a locking wand and target the generated east-room door with a distinct seed/date from the v11 challenge. The recipe exercises zap.c:bhit -> lock.c:doorlock and subsequent wand discovery."
+}

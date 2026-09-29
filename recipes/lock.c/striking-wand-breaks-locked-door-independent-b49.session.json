@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 681117,
+      "datetime": "20340817121000",
+      "nethackrc": "OPTIONS=name:DoorTest,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017wand of striking\njjllllllzol"
+    }
+  ],
+  "_comment": "Independent hero zap.c:bhit -> lock.c:doorlock witness. The newly wished striking wand targets the generated locked east door; this differs from the selected v11 locking-wand/open-door arm."
+}
