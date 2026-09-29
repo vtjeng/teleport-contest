@@ -111382,7 +111382,7 @@
     {
       "id": "port-display-shieldeff-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port shield flash display for magic-resistant trap effects",
       "cFile": "display.c",
       "sessions": [
@@ -111403,8 +111403,8 @@
           "name": "shieldeff",
           "line": 1110,
           "endLine": 1126,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -111576,7 +111576,239 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "shieldeff",
+            "implementation": "js/display.js",
+            "symbol": "shieldeff",
+            "sourceReview": "Reviewed the complete display.c:shieldeff definition (1110-1126). It returns when flags.sparkle is false; when cansee(x,y) is true it loops through the complete SHIELD_COUNT shield_static[] sequence in declaration order, performing show_glyph(cmap_to_glyph(...)), flush_screen(1), and nh_delay_output() for every frame, then newsym(x,y) restores the square. JS preserves the source guard, all 21 frames, flush/delay boundaries, and redraw. It makes no RNG or game-state changes but writes and flushes the display, so it is impure under validation rules. Existing direct JS callers are listed above; source-audited unimplemented or refused C callers and missing runtime witnesses are recorded below rather than treated as covered.",
+            "callers": [
+              {
+                "path": "js/teleport.js",
+                "symbol": "tele_trap",
+                "source": "teleport.c:tele_trap calls shieldeff(u.ux,u.uy) on its Antimagic refusal arm before You_feel()."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "chest_trap",
+                "source": "trap.c:chest_trap calls shieldeff after its electric-surge message and Shock_resistance test, before the unaffected message and monster-seen update."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dofiretrap",
+                "source": "trap.c:dofiretrap calls shieldeff for a fire-resistant hero before monstseesu() and the half-damage roll."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_fire_trap",
+                "source": "trap.c:trapeffect_fire_trap calls shieldeff for a visible fire-resistant monster before its uninjured message."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_poly_trap",
+                "source": "trap.c:trapeffect_poly_trap calls shieldeff for an Antimagic/Unchanging hero and shieldeff_mon for a magic-resistant monster, before their respective no-change messages."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:zapyourself calls shieldeff in its resistance-protected self-zap arms."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zhitm",
+                "source": "zap.c:zhitm calls shieldeff after its resistance result is established and before the hit returns."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "flashburn",
+                "source": "zap.c:flashburn calls shieldeff for artifact resistance when the flash is not lightning-induced."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "dobuzz",
+                "source": "zap.c:dobuzz calls shieldeff(mon->mx,mon->my) after hit() and before mon_reflects() for a visible reflecting monster (4876), and shieldeff(sx,sy) after reversing a reflected hero ray and before clearing gas_hit (4975)."
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhitm",
+                "source": "muse.c:mbhitm calls shieldeff for resistant hero and monster targets in its live striking-wand arms."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "passiveum",
+                "source": "mhitu.c:passiveum calls shieldeff for a monster resisting elemental passive damage."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_fire",
+                "source": "read.c:seffect_fire calls shieldeff for a fire-resistant hero before its remaining effect handling."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "shieldeff_mon",
+                "source": "mon.c:shieldeff_mon delegates the animation to display.c:shieldeff()."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_psi_bolt",
+                "source": "mcastu.c:mcast_psi_bolt calls shieldeff for the hero magic-resistance branch."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_open_wounds",
+                "source": "mcastu.c:mcast_open_wounds calls shieldeff for the hero magic-resistance branch."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_fire_pillar",
+                "source": "mcastu.c:mcast_fire_pillar calls shieldeff for a fire-resistant hero."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_lightning",
+                "source": "mcastu.c:mcast_lightning calls shieldeff for a reflecting or shock-resistant hero."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_paralyze",
+                "source": "mcastu.c:mcast_paralyze calls shieldeff for Antimagic or Free_action."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "sleep_monst",
+                "source": "mhitm.c:sleep_monst calls shieldeff when the monster resists sleep."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "cursed_book",
+                "source": "spell.c:cursed_book calls shieldeff in its magic-resistance branch."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "Mb_hit",
+                "source": "artifact.c:Mb_hit calls shieldeff when the defender resists the artifact effect."
+              },
+              {
+                "path": "js/attrib.js",
+                "symbol": "poisoned",
+                "source": "attrib.c:poisoned calls shieldeff when the poison blast is resisted."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "flash_hits_mon",
+                "source": "uhitm.c:flash_hits_mon calls shieldeff(mx,my) when an artifact blinds a visible monster; the JS helper delegates this to shieldeff_mon()."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "resist",
+                "source": "zap.c:resist calls shieldeff_mon(mtmp) for a told monster-resistance result."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhitm",
+                "source": "zap.c:bhitm calls shieldeff for a monster resisting striking-wand or force-bolt magic before Boing!. Its whole-function source port and caller evidence are assigned separately to B53; this A45 evidence does not claim that caller complete."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-ray.test.mjs",
+              "scripts/trap.test.mjs",
+              "scripts/monster-fire-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/chest-trap-shock-resistance-shieldeff-a45.session.json",
+              "recordings/muse.c/ureflects-amulet-wand-bounce.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-teleport-trap-displaces-hero",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "trap activation -> teleport.c:tele_trap Antimagic branch -> display.c:shieldeff (all 21 shield_static frames, flush/delay and newsym)"
+              }
+            ],
+            "checkedAt": "327800a84ddedb020167a65bd3683401f516fea3"
+          }
+        ],
+        "entryPointReview": "The complete display.c:shieldeff body and each listed JavaScript branch are source-wired. This correction wires the two active zap.c:dobuzz calls at C source positions 4876 and 4975. Strict C/JS evidence for hero reflection is recordings/muse.c/ureflects-amulet-wand-bounce.session.json, zero-based steps 60–61: C enters dobuzz at step 60 and emits the 21-frame hero shieldeff animation at step 61; run-21Rwch matched 2,208 RNG values, 66 screens/cursors, and 27 animation frames. The admitted v11 range reaches teleport.c:tele_trap at segment 0 step 24, and the independent chest recording reaches trap.c:chest_trap. The visible-monster dobuzz arm is source-wired and unit-tested for its 21-frame order, but has no source-reaching C recording: the independent silver-dragon setup diverges before dobuzz at step 59, where C enters teleport.c:collect_coords (2,721 RNG calls versus JS 2,669, and 69 versus 58 screens/cursors). Its recipe is retained as blocked setup evidence only, with no recording. Other wired branches without matching runtime evidence in this packet are zap.c:bhitm (its complete source port and caller evidence are a named B53 dependency)/resist, uhitm.c:flash_hits_mon, dofiretrap, trapeffect_fire_trap, both hero and monster trapeffect_poly_trap arms, zapyourself, zhitm, flashburn, muse.c:mbhitm, mhitu.c:passiveum, read.c:seffect_fire, mon.c:shieldeff_mon, mcastu.c:mcast_psi_bolt/mcast_open_wounds/mcast_fire_pillar/mcast_lightning/mcast_paralyze, mhitm.c:sleep_monst, spell.c:cursed_book, artifact.c:Mb_hit, and attrib.c:poisoned. Wiring and unit assertions are not C runtime evidence. Other active C callsites stop at unported or refused JavaScript paths and remain for their own source tasks: teleport.c:level_tele_trap stops at trap_effects.js:trapeffect_level_telep preflight; zap.c:maybe_explode_trap is called by zap.c:zap_map, whose JS port handles only its downward polymorph branch; sit.c:rndcurse is note_unported in sit.js; pray.c:god_zaps_you reaches angrygods(), whose lightning arm is UnsupportedPrayerError; uhitm.c:mhitm_ad_fire/mhitm_ad_deth and target arms of mhitm_ad_cold/mhitm_ad_elec are refused by uhitm.js dispatch; uhitm.c:passive refuses non-AD_PHYS attacks; mhitm.c:mon_poly has no production JS path; mhitu.c:gazemu stops at the unsupported gaze arm and gulpmu refuses its cold-resistant engulf branch; mcastu.c:castmu refuses AD_FIRE/AD_COLD/AD_MAGM, while mcast_spell records gaps for mcast_death_touch, mcast_destroy_armor, mcast_weaken_you, mcast_stun_you, and mcast_confuse_you; zap.c:zhitu refuses the fire-resistant and non-fire arms above their shieldeff calls. The muse.c:find_offensive and use_offensive MUSE_SCR_FIRE arms are inside #if 0 and excluded from this build. No runtime completion is claimed for any gap or wired branch without matching recording evidence.",
+        "entryPoints": [
+          {
+            "name": "Antimagic hero teleport trap (teleport.c:tele_trap)",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-teleport-trap-displaces-hero",
+                "segment": 0,
+                "fromStep": 24,
+                "throughStep": 24,
+                "source": "trap activation -> teleport.c:tele_trap Antimagic branch -> display.c:shieldeff"
+              }
+            ]
+          },
+          {
+            "name": "Shock-resistant electric chest trap (trap.c:chest_trap)",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [
+              "recordings/trap.c/chest-trap-shock-resistance-shieldeff-a45.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hero ray reflected by amulet (zap.c:dobuzz)",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [
+              "recordings/muse.c/ureflects-amulet-wand-bounce.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Visible monster reflects a ray (zap.c:dobuzz)",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Wired zap, trap, monster, spell, artifact, read, and poison resistance branches without matching C recording",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Direct C callers blocked by unported or refused JavaScript paths",
+            "functions": [
+              "shieldeff"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "327800a84ddedb020167a65bd3683401f516fea3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Complete display.c shieldeff implementation and three matching runtime routes are recorded: v11 Antimagic teleport trap, electric chest trap, and hero ray reflection. Remaining active entry-point evidence is incomplete: visible-monster dobuzz setup first diverges in teleport.c collect_coords before its shield call; B53 owns the bhitm caller; level_tele_trap stops at trap_effects.js trapeffect_level_telep; other wired zap/trap/monster/spell callers need independent C-reaching recordings, while refused sit/pray/uhitm/mcastu/mhitu branches require their own source ports. Resume when these named callers and blockers can yield matching recordings; do not count unit-only animation checks as runtime coverage."
     },
     {
       "id": "port-trap-trapeffect-rocktrap-synthetic-v11-20260929",
