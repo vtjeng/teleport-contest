@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for do_wear.c:Armor_on -> dragon_armor_handling. Debug Wizard wishes yellow dragon scales, wears the source-created body armor, and verifies worn-state/color/AC transition. Distinct from v10/v12 scroll enchantments because this executes direct equipment activation.",
+  "segments": [
+    {
+      "seed": 71340282,
+      "datetime": "20450112120948",
+      "nethackrc": "OPTIONS=name:V13Scales,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": ". \u0017yellow dragon scales\nWe"
+    }
+  ]
+}

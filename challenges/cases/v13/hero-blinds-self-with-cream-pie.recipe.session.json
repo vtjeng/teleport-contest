@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first self-application case for apply.c:doapply(CREAM_PIE) -> use_cream_pie. A single paid cream pie should reach rnd(25), blindness/ucreamed updates, and consumption for an ordinary sighted human.",
+  "segments": [
+    {
+      "seed": 61032841,
+      "datetime": "20450520094400",
+      "nethackrc": "OPTIONS=name:C47Pie,role:Healer,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#wizwish\ncream pie\nal "
+    }
+  ]
+}
