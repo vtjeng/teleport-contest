@@ -15,6 +15,7 @@ import {
 import {
     A_DEX,
     BURN_OBJECT,
+    COULD_SEE,
     CLAIRVOYANT,
     COLNO,
     DETECT_MONSTERS,
@@ -37,6 +38,7 @@ import {
     M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPMASK,
+    M_SEEN_POISON,
     MOD_ENCUMBER,
     NORMAL_SPEED,
     NON_PM,
@@ -47,6 +49,7 @@ import {
     OVERLOADED,
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
+    POISON_RES,
     ROOM,
     ROT_CORPSE,
     RUN_STEP,
@@ -104,7 +107,11 @@ import {
     TOOL_CLASS,
     WAX_CANDLE,
 } from '../js/objects.js';
-import { create_gas_cloud, create_region } from '../js/region.js';
+import {
+    create_gas_cloud,
+    create_region,
+    inside_gas_cloud,
+} from '../js/region.js';
 import {
     UnsupportedObjectOperationError,
     newObject,
@@ -1214,6 +1221,124 @@ test('planned region upkeep is replayed on the live tail', async () => {
     assert.equal(callbacks, 1);
     assert.deepEqual(game.level.regions, []);
 });
+
+test('wizard recovery from fatal gas continues the elapsed-turn tail',
+    async () => {
+        // This independent debug wizard fixture can decline fatal loss through
+        // C's wizard recovery path without a setup command sequence.
+        await runSegment({
+            seed: 37029141,
+            datetime: '20430618121933',
+            nethackrc: 'OPTIONS=name:GasRecovery,role:Wizard,race:human,'
+                + 'gender:male,align:neutral,playmode:debug,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        const region = create_region([{
+            lx: game.u.ux,
+            ly: game.u.uy,
+            hx: game.u.ux,
+            hy: game.u.uy,
+        }]);
+        region.inside_f = 'inside_gas_cloud';
+        region.hero_inside = true;
+        // The one-square hero-inside region reaches its gas damage callback;
+        // its argument and TTL keep the cloud active for the elapsed turn.
+        region.arg = 10;
+        region.ttl = 5;
+        game.level.regions = [region];
+        // One HP makes gas damage lethal; five blessing turns give the elapsed
+        // tail a sentinel that must fall once after wizard recovery.
+        game.u.uhp = 1;
+        game.u.uhpmax = Math.max(game.u.uhpmax, 10);
+        game.u.ublesscnt = 5;
+        game.u.uprops[POISON_RES] = {
+            intrinsic: 0,
+            extrinsic: 0,
+            blocked: 0,
+        };
+        // These queued spaces clear region and postmortem prompts; the final
+        // no declines the wizard-mode "Die?" query. Saved HP and reset killer
+        // are live done() results; the blessing counter proves the elapsed-turn
+        // tail continued after the recovered callback returned.
+        for (let index = 0; index < 8; ++index)
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
+        game.nhDisplay.pushKey('n'.charCodeAt(0));
+
+        await finishElapsedTurn(game, { rn1, rn2, rnd });
+
+        assert.ok(game.u.uhp > 0, 'wizard recovery restores positive HP');
+        assert.equal(game.killer.name, '', 'recovery clears the killer');
+        assert.equal(game.u.ublesscnt, 4,
+            'the elapsed tail runs after recovered region damage');
+        assert.equal(game.program_state.gameover ?? false, false);
+    });
+
+test('fatal gas skips poison-belief updates after final gameover',
+    async () => {
+        // This independent seed and date give a reproducible non-wizard death
+        // path without using a recorded play as the fixture.
+        await runSegment({
+            seed: 37029143,
+            datetime: '20430618121933',
+            nethackrc: 'OPTIONS=name:GasStop,role:Healer,race:human,'
+                + 'gender:male,align:neutral,!legacy,'
+                + '!tutorial,!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        // The adjacent live goblin sees the hero; its unique ID and seeded
+        // poison-resistance belief expose monstunseesu after fatal loss.
+        const watcherX = game.u.ux + 1;
+        const watcher = newMonster({
+            m_id: 7002,
+            mnum: PM_GOBLIN,
+            data: game.mons[PM_GOBLIN],
+            mhp: 5,
+            mhpmax: 5,
+            mx: watcherX,
+            my: game.u.uy,
+            seen_resistance: M_SEEN_POISON,
+        });
+        game.level.monlist = watcher;
+        game.viz_array[watcher.my][watcher.mx] |= COULD_SEE;
+        game.u.uinwater = false;
+
+        const region = create_region([{
+            lx: game.u.ux,
+            ly: game.u.uy,
+            hx: game.u.ux,
+            hy: game.u.uy,
+        }]);
+        region.inside_f = 'inside_gas_cloud';
+        region.hero_inside = true;
+        // Active gas with damage ten is lethal to the one-HP hero.
+        region.arg = 10;
+        region.ttl = 5;
+        game.level.regions = [region];
+        game.u.uhp = 1;
+        game.u.uhpmax = Math.max(game.u.uhpmax, 10);
+        game.u.uprops[POISON_RES] = {
+            intrinsic: 0,
+            extrinsic: 0,
+            blocked: 0,
+        };
+
+        // Thirty spaces clear region, urgent-death, and postmortem output
+        // waits; a non-wizard reaches final death without a Die? query.
+        for (let index = 0; index < 30; ++index)
+            game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+        await inside_gas_cloud(region, null, {
+            state: game,
+            random: { rn2, rnd },
+            message: (text) => ttyPline(text, game),
+        });
+
+        assert.equal(game.program_state.gameover, true);
+        assert.equal(watcher.seen_resistance & M_SEEN_POISON,
+            M_SEEN_POISON,
+            'C does not return to monstunseesu after final done(DIED)');
+    });
 
 test('planned visible vapor expiry restores live vision on success and failure',
     async () => {

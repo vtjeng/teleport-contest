@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent live witness for hack.c:losehp reached from region.c:inside_gas_cloud. The debug Wizard reads a wished stinking-cloud scroll at the hero square; lethal ordinary HP loss reaches the wizard-mode decline-death recovery, then the elapsed turn resumes.",
+  "segments": [
+    {
+      "seed": 37029142,
+      "datetime": "20430618121933",
+      "nethackrc": "OPTIONS=name:GasLossB57,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " .\u0017scroll of stinking cloud\nro    .    "
+    }
+  ]
+}
