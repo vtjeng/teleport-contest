@@ -32,6 +32,7 @@ import {
     HUNGRY,
     NOT_HUNGRY,
     OBJ_INVENT,
+    PARANOID_EATING,
     SATIATED,
 } from '../js/const.js';
 import { PM_FOX } from '../js/monsters.js';
@@ -447,10 +448,9 @@ test('lesshungry treats a running occupation as eating', async () => {
     // With canchoke set, the same call chokes instead.
     game.u.uhunger = 1999;
     game.context.victual.canchoke = 1;
-    await assert.rejects(
-        () => lesshungry(1, game, env),
-        UnsupportedEatError,
-    );
+    await lesshungry(1, game, env);
+    assert.equal(game.u.uhunger, 2000);
+    assert.equal(game.context.victual.doreset, 1);
 });
 
 test('eatfood stops on each state a meal can be missing', async () => {
@@ -475,19 +475,19 @@ test('eatfood stops on each state a meal can be missing', async () => {
     await assert.rejects(() => eatfood(game), UnsupportedEatError);
 });
 
-test('a refusal raised inside the occupation becomes a turn boundary',
+test('refusing a full-meal prompt flags reset before the next bite',
     async () => {
-        // The occupation callback runs outside cmd.c failClosedCommand(), so
-        // a refusal it raises would otherwise escape runSegment() as a hard
-        // failure and cost the whole segment its matching prefix instead of
-        // ending it at the last matching screen.
+        // The occupation callback reaches lesshungry()'s paranoid_query()
+        // while the meal is active. A negative answer finishes this bite,
+        // clears its completion message, and raises victual.doreset; C's
+        // separate do_reset_eat() gap is reached only on the following bite.
         const segment = segmentFor(5820011, 'ed ');
         await runSegment({ ...segment, moves: '.' });
         // doeat() sets victual.canchoke from `u.uhs == SATIATED`, so a hero
         // already satiated when the meal begins reaches lesshungry()'s
-        // paranoid_query() refusal on the bite that carries u.uhunger past
-        // 1500 with more than one bite still to come. 1250 plus the first
-        // bite's 160 stays under 1500; the second crosses it.
+        // paranoid_query() on the bite that carries u.uhunger past 1500 with
+        // more than one bite still to come. 1250 plus the first bite's 160
+        // stays under 1500; the second crosses it.
         game.u.uhunger = 1250;
         game.u.uhs = SATIATED;
         game.nhDisplay.terminal.pushKey('d'.charCodeAt(0));
@@ -495,16 +495,51 @@ test('a refusal raised inside the occupation becomes a turn boundary',
         assert.equal(game.context.victual.canchoke, 1);
         assert.equal(game.u.uhunger, 1410);
 
-        // Skip the elapsed-turn block, so the turn is the occupation alone.
+        // Skip the elapsed-turn block and answer C's ordinary y/n prompt.
+        game.context.move = 0;
+        game.nhDisplay.pushKey(' '.charCodeAt(0)); // dismiss the warning
+        game.nhDisplay.pushKey('n'.charCodeAt(0));
+        await moveloop_core();
+        assert.equal(game.context.victual.usedtime, 2);
+        assert.equal(game.context.victual.doreset, 1);
+        assert.equal(game.context.victual.fullwarn, 1);
+        assert.equal(game.nomovemsg, null);
+        assert.notEqual(game.go.occupation, null);
+
+        // The next bite encounters the existing do_reset_eat() refusal in
+        // bite(); that separate source unit is not part of this task.
         game.context.move = 0;
         await assert.rejects(() => moveloop_core(), (error) => {
             assert.ok(error instanceof UnsupportedTurnBoundaryError,
                 `${error.constructor.name} is not a turn boundary`);
             assert.match(error.message,
-                /^an occupation reached .*paranoid_query/u);
+                /^an occupation reached .*do_reset_eat/u);
             return true;
         });
     });
+
+test('ParanoidEating accepts only the spelled affirmative', async () => {
+    const segment = segmentFor(5820011, 'ed ');
+    await runSegment({ ...segment, moves: '.' });
+    game.u.uhunger = 1250;
+    game.u.uhs = SATIATED;
+    game.nhDisplay.pushKey('d'.charCodeAt(0));
+    await doeat(game, { statusRefresh: async () => {} });
+    assert.equal(game.u.uhunger, 1410);
+
+    game.flags.paranoia_bits |= PARANOID_EATING;
+    game.u.uhunger = 1499;
+    for (const key of 'yes\r') game.nhDisplay.pushKey(key.charCodeAt(0));
+    const said = [];
+    await lesshungry(1, game, recordingEnv(said));
+
+    assert.equal(game.u.uhunger, 1500);
+    assert.equal(game.context.victual.fullwarn, 1);
+    assert.equal(game.context.victual.doreset, 0);
+    assert.equal(game.nomovemsg, "You're finally finished.");
+    assert.deepEqual(said,
+        ["You're having a hard time getting all of it down."]);
+});
 
 test('a meal that ends beside a monster plays its last turn through',
     async () => {
