@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T14:42:27.866Z",
+  "capturedAt": "2026-09-29T14:46:44.234Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9471,6 +9471,26 @@
         "task": "B55",
         "worker": "B",
         "goal": "port-apply-grapple-family-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C48-timeout-cleanup-burn-light-source-20260929",
+        "type": "assign",
+        "at": "2026-09-29T14:42:40.001Z",
+        "task": "C48",
+        "worker": "C",
+        "goal": "div-timeout-cleanup-burn-light-source-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A50-makemon-runtime-named-creation-v13-20260929",
+        "type": "assign",
+        "at": "2026-09-29T14:46:24.182Z",
+        "task": "A50",
+        "worker": "A2",
+        "goal": "div-makemon-runtime-named-creation-synthetic-v13-20260929",
         "kind": "implementation"
       }
     ]
