@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { OBJ_DELETED, OBJ_FREE } from '../js/const.js';
+import { A_DEX, A_STR, OBJ_DELETED, OBJ_FREE } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { tamedog } from '../js/dog.js';
 import {
@@ -19,7 +19,13 @@ import {
     PM_MONKEY,
     PM_SOLDIER_ANT,
 } from '../js/monsters.js';
-import { BANANA, CREAM_PIE, GRAY_DRAGON_SCALE_MAIL } from '../js/objects.js';
+import {
+    BANANA,
+    CREAM_PIE,
+    DAGGER,
+    GRAY_DRAGON_SCALE_MAIL,
+    HEAVY_IRON_BALL,
+} from '../js/objects.js';
 
 // The startup input is independent of the recorded development play. The
 // target and object are then installed directly so this test isolates the
@@ -162,6 +168,111 @@ test('thitmonst keeps C\'s final tmiss arm source-ordered', async () => {
     assert.equal(mon.msleeping, 0);
     assert.equal(mail.where, OBJ_FREE);
 });
+
+test('thitmonst gives attrib exercise its RNG and encumbrance continuation',
+    async () => {
+        await runSegment(START);
+        const mon = {
+            data: game.mons[PM_SOLDIER_ANT],
+            mx: game.u.ux + 1,
+            my: game.u.uy,
+            mhp: 12,
+            mhpmax: 12,
+            m_id: 9004,
+            mcanmove: true,
+            mcansee: true,
+            msleeping: false,
+            mblinded: 0,
+            mpeaceful: false,
+            mavenge: 0,
+            mstrategy: 0,
+            minvent: null,
+        };
+        const ball = mksobj(HEAVY_IRON_BALL, false, false, { state: game });
+        game.u.uhitinc = -100; // Keep this fixture on the pre-hmon miss arm.
+        game.moves = 1; // Strength exercise must preserve encumber_msg order.
+        game.gb.bhitpos = { x: mon.mx, y: mon.my };
+
+        const draws = [];
+        const result = await thitmonst(mon, ball, game, {
+            random: {
+                rnd(bound) {
+                    draws.push(`rnd(${bound})`);
+                    return bound;
+                },
+                rn1(bound, offset) {
+                    draws.push(`rn1(${bound},${offset})`);
+                    return offset + 1;
+                },
+                rn2(bound) {
+                    draws.push(`rn2(${bound})`);
+                    return bound - 1;
+                },
+            },
+            message: () => {},
+            unsupported: (what) => { throw new Error(`unexpected ${what}`); },
+        });
+
+        // dothrow.c:2217-2231 calls exercise(A_STR, TRUE) before its hit
+        // check. attrib.c:509-528 consumes that caller's rn2(19), then the
+        // miss's optional wake-up check consumes rn2(3).
+        assert.equal(result, 0);
+        assert.deepEqual(draws, ['rnd(20)', 'rn2(19)', 'rn2(3)']);
+        assert.equal(game.u.aexe[A_STR], 1);
+        assert.equal(game.go.oldcap, 0);
+    });
+
+test('thitmonst carries the throw RNG into successful-hit dexterity exercise',
+    async () => {
+        await runSegment(START);
+        const mon = {
+            data: game.mons[PM_SOLDIER_ANT],
+            mx: game.u.ux + 1,
+            my: game.u.uy,
+            mhp: 100,
+            mhpmax: 100,
+            m_id: 9005,
+            mcanmove: true,
+            mcansee: true,
+            msleeping: false,
+            mblinded: 0,
+            mpeaceful: false,
+            mavenge: 0,
+            mstrategy: 0,
+            minvent: null,
+        };
+        const dagger = mksobj(DAGGER, false, false, { state: game });
+        game.u.uhitinc = 100;
+        game.gt.thrownobj = dagger;
+        game.gb.bhitpos = { x: mon.mx, y: mon.my };
+
+        const draws = [];
+        const result = await thitmonst(mon, dagger, game, {
+            random: {
+                rnd(bound) {
+                    draws.push(`rnd(${bound})`);
+                    return 1;
+                },
+                rn1(bound, offset) {
+                    draws.push(`rn1(${bound},${offset})`);
+                    return offset + 1;
+                },
+                rn2(bound) {
+                    draws.push(`rn2(${bound})`);
+                    return bound - 1;
+                },
+            },
+            message: () => {},
+            unsupported: (what) => { throw new Error(`unexpected ${what}`); },
+        });
+
+        // dothrow.c:2209 calls exercise(A_DEX, TRUE) after hmon() and the
+        // optional worm cut. This verifies the caller supplies the same
+        // random stream as those earlier attack operations.
+        assert.equal(result, 0);
+        assert.equal(draws.at(-1), 'rn2(19)');
+        assert.equal(game.u.aexe[A_DEX], 1);
+    });
 
 test('tamedog feeds a newly tamed dog through dog_eat', async () => {
     await runSegment(START);
