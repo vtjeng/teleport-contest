@@ -152,11 +152,11 @@ families, action histories, and relevant character or state conditions;
 changing only seeds is insufficient. Follow
 `experiments/generalization/plan.md`, "Expanding challenges", and
 `.agents/validation.md` for C exploration and recording.
-After independent C replay, compare each case with the JavaScript port in the
-preparation worktree. Count a session toward the batch target when it has a
-local mismatch and the C behavior responsible for its first mismatch is
-source-traced and distinct from the first mismatching behavior of every other
-counted session. Later mismatches in that session are allowed. Record the
+After independent C replay, compare each case retained for the prepared
+manifest with the JavaScript port in the preparation worktree. Count a
+session toward the batch target when it has a local mismatch and the C
+behavior responsible for its first mismatch is source-traced and distinct
+from the first mismatching behavior of every other counted session. Later mismatches in that session are allowed. Record the
 first mismatch step, source behavior, and owner for each counted session.
 Keep every distinct, valid, reproducible case in the prepared manifest,
 including cases that miss their intended behavior or already match JavaScript.
@@ -204,11 +204,12 @@ Shared startup and command setup do not by themselves constitute overlap; the
 substantive behavior exercised must differ. Record the closest earlier cases
 and causal distinction for every included candidate, including candidates
 that already match JavaScript or miss their intended target. Keep valid
-overlapping C probes and independent replays as preparation provenance outside
-the prepared manifest. Do not omit a distinct valid case because JavaScript
-passes it. Recheck overlap against current saved evaluations before admission;
-require a corrected delivery if a submitted manifest includes an overlapping
-case. Until admission, the cases do not enter synthetic scoring, the mismatch
+overlapping C probes outside the prepared manifest with their C observation
+and the earlier case they duplicate. They do not need independent replay unless
+needed to establish a blocker. Do not omit a distinct valid case because
+JavaScript passes it. Recheck overlap against current saved evaluations before
+admission; require a corrected delivery if a submitted manifest includes
+an overlapping case. Until admission, the cases do not enter synthetic scoring, the mismatch
 queue, or the dashboard.
 
 Admit the oldest prepared batch when current, complete evaluations of every

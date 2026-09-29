@@ -115,6 +115,7 @@ import { the } from './objnam.js';
 import {
     candle_light_range,
     arti_light_radius,
+    del_light_source,
     get_obj_location,
     new_light_source,
 } from './light.js';
@@ -203,10 +204,10 @@ function timerCleanupEnv(state, env = {}) {
     };
 }
 
-// Cleanup hook contracts are deleteObjectLightSource(obj, env) and
-// updateInventory(state). As a JS safety adaptation, all required hooks are
-// resolved while the timer queue is intact, before any timer is removed; C's
-// corresponding cleanup functions are always linked.
+// The non-timer end_burn() path still resolves its light-deletion integration
+// hook before mutating object state. BURN_OBJECT timer cleanup uses the
+// source-backed light.js operation above; inventory refresh remains an
+// integration hook and is resolved before a timer is removed.
 function requiredCleanupHook(env, operation, funcIndex) {
     const hook = env.hooks?.[operation];
     if (typeof hook !== 'function')
@@ -253,11 +254,10 @@ function runBurnInventoryRefresh(updateInventory, state) {
     }
 }
 
-// C ref: timeout.c cleanup_burn(). Light-source deletion remains an injected
-// object-lifecycle operation so timer cleanup can be composed with whichever
-// subsystem owns the object. Resolve live integration seams before unlinking
-// a timer so a missing seam cannot leave the queue, timed count, fuel, and
-// light ownership partially updated.
+// C ref: timeout.c cleanup_burn(). The timeout owns the BURN_OBJECT callback
+// and calls light.c:del_light_source(LS_OBJECT, obj_to_any(obj)) directly.
+// Keep the optional hook as a focused integration seam; the production path
+// uses the source-backed light implementation when no test hook is supplied.
 function preflightTimerCleanup(timer, state, env = {}) {
     if (timer.func_index !== BURN_OBJECT) return null;
 
@@ -269,11 +269,10 @@ function preflightTimerCleanup(timer, state, env = {}) {
         return { normalized, deleteLight: null, updateInventory: null };
     }
 
-    const deleteLight = requiredCleanupHook(
-        normalized,
-        'deleteObjectLightSource',
-        timer.func_index,
-    );
+    const deleteLight = typeof normalized.hooks?.deleteObjectLightSource
+        === 'function'
+        ? normalized.hooks.deleteObjectLightSource
+        : (object) => del_light_source(LS_OBJECT, object, state);
     const updateInventory = preflightBurnInventoryRefresh(
         obj,
         state,

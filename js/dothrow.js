@@ -2732,6 +2732,15 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
         message,
         unsupported,
     };
+    // attrib.c:exercise() takes the RNG object itself, not this surrounding
+    // operation environment. Strength exercise also owns the trailing
+    // pickup.c:encumber_msg() call once play has begun.
+    const exerciseHooks = {
+        encumberMessage: (exerciseState) => encumber_msg(
+            exerciseState,
+            { message },
+        ),
+    };
     const u = state.u;
     const otyp = obj.otyp;
     const guaranteedHit = engulfing_u(mon, state);
@@ -2909,7 +2918,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
             );
             if (alive && mon.wormno)
                 note_unported('worm.c cutworm');
-            await exercise(A_DEX, true, state, operationEnv);
+            await exercise(A_DEX, true, state, random, exerciseHooks);
             if (wasThrown && !thrownObject(state)) return 1;
             if (should_mulch_missile(obj, state, operationEnv)) {
                 if (state.u.ushops?.[0] || obj.unpaid)
@@ -2927,10 +2936,10 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                 await wakeup(mon, true, operationEnv);
         }
     } else if (otyp === HEAVY_IRON_BALL) {
-        await exercise(A_STR, true, state, operationEnv);
+        await exercise(A_STR, true, state, random, exerciseHooks);
         if (tmp >= dieroll) {
             const wasSwallowed = guaranteedHit;
-            await exercise(A_DEX, true, state, operationEnv);
+            await exercise(A_DEX, true, state, random, exerciseHooks);
             const alive = await hmon(
                 mon, obj, hmode, dieroll, state, operationEnv,
             );
@@ -2941,9 +2950,9 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
             await tmiss(obj, mon, true, state, operationEnv);
         }
     } else if (otyp === BOULDER) {
-        await exercise(A_STR, true, state, operationEnv);
+        await exercise(A_STR, true, state, random, exerciseHooks);
         if (tmp >= dieroll) {
-            await exercise(A_DEX, true, state, operationEnv);
+            await exercise(A_DEX, true, state, random, exerciseHooks);
             await hmon(mon, obj, hmode, dieroll, state, operationEnv);
         } else {
             await tmiss(obj, mon, true, state, operationEnv);

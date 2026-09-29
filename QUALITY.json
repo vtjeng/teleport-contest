@@ -3162,6 +3162,18 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-09-27T04:08:54.716Z"
+    },
+    {
+      "kind": "review",
+      "head": "52db3b9f54547102e14a1b1872299a48baaabba4",
+      "auditedRange": "b6e1f0cfcf2f07101acc830f077bdbfc0e8b4b1b..52db3b9f54547102e14a1b1872299a48baaabba4",
+      "level": "full",
+      "areas": [
+        "objects",
+        "monsters"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-09-29T16:28:06.169Z"
     }
   ]
 }

@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v13/ordinary-bell-rings",
+  "corpus": "synthetic",
+  "batch": "v13",
+  "caseId": "ordinary-bell-rings",
+  "manifestPath": "challenges/manifests/v13.json",
+  "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+  "recordingSha256": "04413b86de4003f2eabfc16c50d4c1d570d2df29538a72d06395da6a753c1a0d",
+  "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+  "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "remainingScreens": 1,
+  "recordedSteps": 27,
+  "status": "complete",
+  "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v13",
+    "caseId": "ordinary-bell-rings",
+    "session": "synthetic/v13/ordinary-bell-rings",
+    "manifestPath": "challenges/manifests/v13.json",
+    "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+    "recording": "challenges/cases/v13/ordinary-bell-rings.session.json",
+    "recordingPath": "challenges/cases/v13/ordinary-bell-rings.session.json",
+    "recordingSha256": "04413b86de4003f2eabfc16c50d4c1d570d2df29538a72d06395da6a753c1a0d",
+    "recipe": "challenges/cases/v13/ordinary-bell-rings.recipe.session.json",
+    "recipeSha256": "ff37967c7e21a4cd7bb290334f2997762aa0bb4b0ee41e08828c13e63353e84f",
+    "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+    "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+    "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationUtc": "2026-09-29T14:13:52.803Z",
+    "remainingScreens": 1,
+    "recordedSteps": 27,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 26,
+        "total": 27
+      },
+      "rng": {
+        "matched": 2907,
+        "total": 2926
+      },
+      "cursors": {
+        "matched": 26,
+        "total": 27
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 255",
+      "step": 26
+    },
+    "step": 26,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 255",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Applying an uncursed ordinary bell reaches apply.c:doapply(BELL), but JavaScript refuses that object arm before use_bell. C rings the bell and wakes nearby monsters. The selected path has no bell-branch RNG; the whole use_bell function also covers cursed ordinary bells and charged Bell of Opening state.",
+  "source": {
+    "file": "apply.c",
+    "branch": "For an uncursed ordinary BELL with the hero neither underwater nor swallowed, use_bell calls Hero_playnotes, prints the ring message, enters the ordinary branch without the cursed nymph roll, sets wakem, then calls wake_nearby(TRUE). Other branches cover muffling, discharged or charged Bell of Opening, invocation location, cursed nymph summon or undead creation, object charge, opening and finding, and discovery updates.",
+    "functions": [
+      "use_bell",
+      "doapply (BELL and BELL_OF_OPENING arms)"
+    ],
+    "callers": [
+      "cmd.c command a dispatches to apply.c:doapply, whose BELL and BELL_OF_OPENING arms call use_bell(&obj); js/cmd.js dispatches to js/apply.js:doapply, whose named-arm refusal currently includes both types."
+    ],
+    "dependencies": [
+      "invocation_pos and On_stairs are consumed in the invoking predicate even for an ordinary bell; preserve evaluation order and avoid adding RNG.",
+      "obj_to_instr supplies Hero_playnotes; Hero_playnotes and wake_nearby are void side effects, while use_bell can null the object pointer after shattering.",
+      "The cursed ordinary branch consumes mkclass, makemon, obj_resists, and rn2/rnd results; the charged Bell of Opening branches consume openit/findit results and update charges, age, knowledge, punishment, and nearby-monster state.",
+      "The selected ordinary-bell path must execute wake_nearby(TRUE) through a real source-backed caller, not merely print the ring message."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "At evaluation commit 35deeae3b45298577e919836bfad5c2da681ab6b, challenges/evaluations/20260929141337-v13.json reports synthetic/v13/ordinary-bell-rings 26/27 matching screens and cursors and first stop at zero-based step 26, an unported doapply object-type-255 arm. The immutable C recording is challenges/cases/v13/ordinary-bell-rings.session.json, SHA256 04413b86de4003f2eabfc16c50d4c1d570d2df29538a72d06395da6a753c1a0d.",
+    "The C recording segment 0 step 26 follows input n and displays “You ring the bell.” with no use_bell random draw. The independent recipe wishes an explicitly uncursed ordinary bell and applies its C-observed inventory letter; the recorded screen confirms that the use_bell ordinary path is reached.",
+    "Upstream nethack-c/upstream/src/apply.c:1202-1321 defines the complete use_bell branch tree. Lines 1211-1212 call Hero_playnotes and ring-message output; lines 1223-1250 distinguish cursed from uncursed ordinary behavior and set wakem; lines 1314-1315 call wake_nearby(TRUE). Lines 4333-4335 wire both bell types in doapply.",
+    "JavaScript js/apply.js has BELL and BELL_OF_OPENING in DOAPPLY_UNPORTED_NAMED_ARMS and no use_bell implementation. The source function and caller must be ported together, with consumed-return dependencies and independent evidence for active branches."
+  ]
+}
