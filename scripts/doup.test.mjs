@@ -13,6 +13,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     LFILE_EXISTS,
+    MAX_NUM_WORMS,
     TT_PIT,
 } from '../js/const.js';
 import { doup } from '../js/do.js';
@@ -208,6 +209,28 @@ test('savelev() captures level state and getlev() restores it', async () => {
     const originalLevel = state.level;
     const originalStairs = state.stairs;
     const originalMoves = state.moves;
+    state.level.worms = Array(MAX_NUM_WORMS).fill(null);
+    const worm = {
+        wormno: 1,
+        mx: 10,
+        my: 8,
+        mhp: 12,
+        mhpmax: 12,
+        m_lev: 3,
+    };
+    const wormSlot = {
+        // restore.c:getlev() restores the level-local JS record as saved;
+        // C's rest_worm() restores this chain and wgrowtime before occupancy.
+        segments: [
+            { x: 8, y: 8 },
+            { x: 9, y: 8 },
+            { x: 10, y: 8 },
+        ],
+        growtime: 37,
+    };
+    state.level.worms[1] = wormSlot;
+    for (const segment of wormSlot.segments)
+        state.level.monsters[segment.x][segment.y] = worm;
 
     // Save the level.
     savelev(ledger, state);
@@ -236,6 +259,19 @@ test('savelev() captures level state and getlev() restores it', async () => {
 
     assert.equal(state.level, originalLevel,
         'getlev restores the same level object');
+    assert.equal(state.level.worms[1], wormSlot,
+        'getlev restores the saved worm slot without recreating its records');
+    assert.deepEqual(state.level.worms[1].segments, [
+        { x: 8, y: 8 },
+        { x: 9, y: 8 },
+        { x: 10, y: 8 },
+    ], 'getlev retains the saved tail-to-head coordinates');
+    assert.equal(state.level.worms[1].growtime, 37,
+        'getlev retains the saved C wgrowtime value');
+    for (const segment of wormSlot.segments) {
+        assert.equal(state.level.monsters[segment.x][segment.y], worm,
+            'getlev retains the occupancy grid saved with the worm records');
+    }
     assert.equal(state.stairs, originalStairs,
         'getlev restores the same stairs chain');
     // The snapshot should be deleted after restore.

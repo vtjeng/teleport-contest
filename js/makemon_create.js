@@ -67,9 +67,6 @@ import {
     M_AP_FURNITURE,
     M_AP_OBJECT,
     M_SEEN_NOTHING,
-    MAX_NUM_WORMS,
-    MON_DETACH,
-    N_DIRS,
     NO_MINVENT,
     NO_MM_FLAGS,
     A_LAWFUL,
@@ -102,17 +99,20 @@ import {
     W_SADDLE,
     IS_WALL,
     ZOO,
-    xdir,
-    ydir,
 } from './const.js';
 import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
     artifact_exists,
 } from './artifacts.js';
-import { obj_resists } from './bury.js';
 import { newemin } from './minion.js';
 import { in_town } from './hack.js';
+import {
+    count_wsegs,
+    get_wormno,
+    initworm,
+    place_worm_tail_randomly,
+} from './worm.js';
 import {
     can_saddle,
     newedog,
@@ -141,7 +141,7 @@ import {
     obj_extract_self,
     update_inventory,
 } from './invent.js';
-import { del_light_source, new_light_source } from './light.js';
+import { new_light_source } from './light.js';
 import {
     newmcorpsenm,
     newmonhp,
@@ -175,13 +175,11 @@ import {
     newcham,
     newcham_initial,
 } from './mon.js';
-import { shkgone } from './shk.js';
 import { mon_adjust_speed } from './worn.js';
 import {
     m_at,
     newMonster,
     place_monster,
-    remove_monster,
 } from './monst.js';
 
 // Compatibility exports for callers that historically imported these mon.c
@@ -838,132 +836,6 @@ function runtimeAppearanceMessage(monster, mmflags, normalized) {
         monster.my,
         state,
     );
-}
-
-function wormSlots(state) {
-    if (!state.level)
-        throw new Error('worm lifecycle requires an initialized level');
-    if (!Object.hasOwn(state.level, 'worms')) {
-        state.level.worms = Array(MAX_NUM_WORMS).fill(null);
-    }
-    if (!Array.isArray(state.level.worms)
-        || state.level.worms.length !== MAX_NUM_WORMS) {
-        throw new Error('worm lifecycle found invalid level worm slots');
-    }
-    return state.level.worms;
-}
-
-// C ref: worm.c count_wsegs(). The final array entry is the hidden segment
-// co-located with the head, so only the preceding visible tail entries count.
-export function count_wsegs(monster, state = game) {
-    if (!monster?.wormno) return 0;
-    const segments = wormSlots(state)[monster.wormno]?.segments;
-    return Math.max(0, (segments?.length ?? 0) - 1);
-}
-
-// C ref: worm.c get_wormno(). Slot zero remains reserved.
-export function get_wormno(state) {
-    const slots = wormSlots(state);
-    for (let wormno = 1; wormno < MAX_NUM_WORMS; ++wormno) {
-        if (!slots[wormno]) return wormno;
-    }
-    return 0;
-}
-
-// C ref: worm.c initworm(). The array order is the source linked-list order,
-// from the visible tail to the hidden segment co-located with the head.
-export function initworm(monster, segmentCount, state) {
-    const slots = wormSlots(state);
-    if (!monster.wormno || slots[monster.wormno])
-        throw new Error('initworm requires a newly allocated worm slot');
-    const segments = Array.from(
-        { length: segmentCount + 1 },
-        () => ({ x: 0, y: 0 }),
-    );
-    const head = segments[segments.length - 1];
-    head.x = monster.mx;
-    head.y = monster.my;
-    slots[monster.wormno] = { segments };
-}
-
-// C ref: trap.c rnd_nextto_goodpos(). Fisher-Yates consumes rn2(8) through
-// rn2(1) before any candidate is checked.
-function rnd_nextto_goodpos(x, y, monster, normalized) {
-    const directions = Array.from({ length: N_DIRS }, (_, index) => index);
-    for (let count = N_DIRS; count > 0; --count) {
-        const selected = normalized.random.rn2(count);
-        const swap = directions[selected];
-        directions[selected] = directions[count - 1];
-        directions[count - 1] = swap;
-    }
-    for (const direction of directions) {
-        const nx = x + xdir[direction];
-        const ny = y + ydir[direction];
-        if (goodpos(nx, ny, monster, 0, normalized)) return { x: nx, y: ny };
-    }
-    return null;
-}
-
-// C ref: worm.c place_worm_tail_randomly(). Reversing the segment chain as
-// coordinates are chosen leaves the list in tail-to-head order.
-export function place_worm_tail_randomly(monster, x, y, normalized) {
-    const record = wormSlots(normalized.state)[monster.wormno];
-    if (!record?.segments?.length)
-        throw new Error('place_worm_tail_randomly requires an initialized tail');
-    if (record.segments.length === 1) {
-        record.segments[0].x = monster.mx;
-        record.segments[0].y = monster.my;
-        return;
-    }
-
-    const unplaced = record.segments;
-    const hiddenHead = unplaced[0];
-    hiddenHead.x = x;
-    hiddenHead.y = y;
-    const placed = [hiddenHead];
-    let previousX = x;
-    let previousY = y;
-    for (let index = 1; index < unplaced.length; ++index) {
-        const next = rnd_nextto_goodpos(
-            previousX,
-            previousY,
-            monster,
-            normalized,
-        );
-        if (!next) break;
-        const segment = unplaced[index];
-        segment.x = previousX = next.x;
-        segment.y = previousY = next.y;
-        normalized.state.level.monsters[next.x][next.y] = monster;
-        placed.unshift(segment);
-        redrawSquare(next.x, next.y, normalized);
-    }
-    record.segments = placed;
-}
-
-// C ref: worm.c remove_worm(). This removes coordinate occupancy but retains
-// the segment record until wormgone() releases its slot.
-export function remove_worm(monster, normalized) {
-    const record = wormSlots(normalized.state)[monster.wormno];
-    if (!record?.segments?.length)
-        throw new Error('remove_worm requires an initialized tail');
-    for (const segment of record.segments) {
-        if (!segment.x) continue;
-        remove_monster(segment.x, segment.y, normalized.state);
-        redrawSquare(segment.x, segment.y, normalized);
-        segment.x = 0;
-    }
-}
-
-// C ref: worm.c wormgone(). remove_worm() has already cleared map occupancy
-// in mongone()'s m_detach path, so only the owned tail state remains here.
-export function wormgone(monster, state) {
-    const wormno = monster.wormno;
-    const slots = wormSlots(state);
-    if (!wormno || !slots[wormno])
-        throw new Error('wormgone requires an allocated worm slot');
-    monster.wormno = 0;
-    slots[wormno] = null;
 }
 
 function canHideUnderObject(obj) {
@@ -2803,84 +2675,6 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
     return monster;
 }
 
-function monsterOnLevelChain(monster, state) {
-    for (let current = state.level?.monlist ?? null;
-        current;
-        current = current.nmon) {
-        if (current === monster) return true;
-    }
-    return false;
-}
-
-// C refs: mon.c mongone() (3266-3283), with mon_leaving_level() (2695-2730)
-// and m_detach() (2733-2803) merged into it for the due_to_death FALSE case.
-// This is the level-generation subset used to discard a temporary monster
-// after its inventory has been transferred elsewhere. The dead monster stays
-// linked on level.monlist until dmonsfree(), just as C's fmon does.
-//
-// js/mon.js holds the separate mon_leaving_level() and m_detach() the kill
-// path uses. This copy does not call them because m_detach() is async there
-// and the level build that reaches this function is synchronous throughout;
-// js/mon.js states the split in full above its killed() group. The two are
-// not interchangeable in the other direction either: the mimic reveal at
-// 2721-2722 is ported inline here and refused there.
-export function mongone(monster, env = {}) {
-    const normalized = creationEnv(env);
-    const { state } = normalized;
-    if (!monster || typeof monster !== 'object')
-        throw new TypeError('mongone requires a monster instance');
-    if (!monsterOnLevelChain(monster, state))
-        throw new Error('mongone: monster is not on the level chain');
-    if (monster.mstate & MON_DETACH)
-        throw new Error('mongone: monster is already detached');
-    if (monster.isgd || monster.mleashed
-        || monster.iswiz || state.u?.ustuck === monster
-        || state.u?.usteed === monster) {
-        throw new UnsupportedMonsterCreationError(
-            'temporary monster with unsupported departure state',
-        );
-    }
-
-    monster.mhp = 0;
-    // C ref: steal.c mdrop_special_objs(). Even with both resistance
-    // percentages set to zero, obj_resists() consumes rn2(100) for each
-    // ordinary inventory object before mongone() discards it. The admitted
-    // temporary-monster callers cannot create protected or quest objects.
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        if (obj_resists(obj, 0, 0, normalized)) {
-            throw new UnsupportedMonsterCreationError(
-                'temporary monster carrying a protected object',
-            );
-        }
-    }
-    discard_minvent(monster, false, normalized);
-
-    if (monster.mx > 0 && emits_light(monster.data))
-        del_light_source(LS_MONSTER, monster, state);
-
-    const onmap = isok(monster.mx, monster.my)
-        && m_at(monster.mx, monster.my, state) === monster;
-    monster.mtrapped = false;
-    if (onmap) {
-        if (monster.wormno) remove_worm(monster, normalized);
-        else remove_monster(monster.mx, monster.my, state);
-        monster.mundetected = false;
-        if (monster.m_ap_type) {
-            monster.m_ap_type = 0;
-            monster.mappearance = 0;
-            if (monster.mextra && 'mcorpsenm' in monster.mextra)
-                monster.mextra.mcorpsenm = NON_PM;
-        }
-        redrawSquare(monster.mx, monster.my, normalized);
-    }
-    if (monster.isshk) shkgone(monster, state);
-    if (monster.wormno) wormgone(monster, state);
-    monster.mstate |= MON_DETACH;
-    state.iflags ??= {};
-    state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
-    return monster;
-}
-
 // C ref: mon.c dmonsfree(). Dead non-guard nodes are unlinked in place, and
 // the source checks that their count matches iflags.purge_monsters.
 export function dmonsfree(state = game) {
@@ -3324,7 +3118,10 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         if (mndx === PM_LONG_WORM) {
             monster.wormno = get_wormno(state);
             if (monster.wormno) {
-                initworm(monster, allowtail ? random.rn2(5) : 0, state);
+                initworm(monster, allowtail ? random.rn2(5) : 0, {
+                    ...normalized,
+                    state,
+                });
                 if (count_wsegs(monster, state))
                     place_worm_tail_randomly(monster, x, y, normalized);
             }

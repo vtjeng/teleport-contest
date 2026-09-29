@@ -1242,7 +1242,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
                     monster.mtame = ghost.mtame;
             }
             monster.mconf = true;
-            const { mongone } = await import('./makemon_create.js');
+            const { mongone } = await import('./mon.js');
             await mongone(ghost, env);
         }
         free_omid(corpse);
@@ -3640,11 +3640,7 @@ export async function bhito(obj, wand, state = game,
 // effect paths; remaining callback effects retain named refusals.
 // C ref: zap.c probe_monster() and its local probe_objchain().
 export async function probe_monster(monster, state = game, rawEnv = {}) {
-    if (monster.data === state.mons?.[PM_LONG_WORM]) {
-        note_unported('insight.c mstatusline long-worm segment count');
-    } else {
-        await mstatusline(monster, state);
-    }
+    await mstatusline(monster, state);
     if (state.gn?.notonhead) return;
     if (monster.minvent) {
         probe_objchain(monster.minvent, state);

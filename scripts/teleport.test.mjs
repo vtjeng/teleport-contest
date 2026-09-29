@@ -15,6 +15,7 @@ import {
     HALLUC_RES,
     IN_SIGHT,
     LAVAPOOL,
+    MAX_NUM_WORMS,
     MON_FLOOR,
     MON_MIGRATING,
     OBJ_FLOOR,
@@ -34,6 +35,7 @@ import { newMonster, place_monster } from '../js/monst.js';
 import {
     PM_KITTEN,
     PM_LITTLE_DOG,
+    PM_LONG_WORM,
     PM_ORCUS,
     PM_PONY,
     PM_SEWER_RAT,
@@ -538,13 +540,13 @@ test('rloc rejects carried shop state before its first destination draw', () => 
     }
 });
 
-test('rloc refuses each rloc_to_core tail state on its own', () => {
-    // teleport.c rloc_to_core() ends with tails this port does not run: the
-    // ustuck unstick block (1690-1698), `if (go.occupation) (void)
-    // dochugw(mtmp, FALSE);` (1761-1762) and mintrap() for a trapped monster
-    // (1765-1766); a worm and a hidden monster reach maybe_unhide_at() and the
-    // segment walk instead. Each is set alone, so a guard joining any two of
-    // them would let that state through.
+test('rloc keeps its preflight refusals while core worm placement is wired', () => {
+    // The randomized rloc() wrapper still refuses the unported ustuck,
+    // mtrapped, hidden-monster, and occupation preflight paths. These are not
+    // rloc_to_core()'s worm or maybe_unhide_at() behavior: direct rloc_to()
+    // now runs those source-wired arms, with its separate remaining tail
+    // guards covered below. Each preflight state is set alone so a guard
+    // joining any two of them would let that state through.
     //
     // STRAT_APPEARMSG is now admitted: the messaging block that reads it is
     // ported.
@@ -553,7 +555,6 @@ test('rloc refuses each rloc_to_core tail state on its own', () => {
     // home for C's go.occupation. It used to name a bare state.occupation that
     // nothing in js/ assigns, so it refused nothing.
     for (const [name, set] of [
-        ['wormno', (mon) => { mon.wormno = 3; }],
         ['ustuck', (mon, state) => { state.u.ustuck = mon; }],
         ['mtrapped', (mon) => { mon.mtrapped = 1; }],
         ['mundetected', (mon) => { mon.mundetected = 1; }],
@@ -922,7 +923,7 @@ test('planned hallucinated flagged relocation uses its display RNG seam',
         assert.equal(messages.length, 1);
     });
 
-test('rloc_to moves an ordinary on-map monster and refuses extended tails',
+test('rloc_to moves ordinary and worm monsters and refuses remaining tails',
     () => {
     const state = positionState();
     state.level.at(10, 11).typ = ROOM;
@@ -952,14 +953,56 @@ test('rloc_to moves an ordinary on-map monster and refuses extended tails',
     assert.equal(state.level.monsters[12][11], placed);
     state.level.monsters[12][11] = null;
 
-    // Each term of the side-effect guard on its own. The occupation term names
+    // teleport.c:1676-1688 removes and recreates a worm's tail around its
+    // destination. The west square begins as the visible tail; the injected
+    // shuffle makes the helper choose the first available direction at the
+    // new head, pinning occupancy without relying on a random seed.
+    for (let x = 8; x <= 15; ++x) {
+        for (let y = 7; y <= 15; ++y)
+            state.level.at(x, y).typ = ROOM;
+    }
+    const worm = arrivingMonster(state);
+    worm.data = state.mons[PM_LONG_WORM];
+    worm.mnum = PM_LONG_WORM;
+    worm.wormno = 1;
+    worm.mtrapped = 1; // C skips mintrap() for worms at teleport.c:1765.
+    state.level.worms = Array(MAX_NUM_WORMS).fill(null);
+    state.level.worms[1] = {
+        segments: [{ x: 9, y: 11 }, { x: 10, y: 11 }],
+        growtime: 0,
+    };
+    place_monster(worm, 10, 11, state);
+    state.level.monsters[9][11] = worm;
+    const wormDraws = [];
+    assert.equal(rloc_to(worm, 12, 11, {
+        state,
+        random: {
+            rn2(bound) {
+                wormDraws.push(bound);
+                return 0;
+            },
+            rnd: () => 1,
+        },
+        newsym: () => {},
+    }), worm);
+    assert.deepEqual([worm.mx, worm.my], [12, 11]);
+    assert.equal(state.level.monsters[9][11], null,
+        'the original tail square is cleared before relocation');
+    assert.deepEqual(wormDraws, [8, 7, 6, 5, 4, 3, 2, 1],
+        'tail placement preserves the source Fisher-Yates draw bounds');
+    assert.deepEqual(state.level.worms[1].segments.at(-1),
+        { x: 12, y: 11 }, 'the hidden segment follows the new head');
+    const visibleTail = state.level.worms[1].segments[0];
+    assert.equal(state.level.monsters[visibleTail.x][visibleTail.y], worm,
+        'the new visible segment is occupied by the worm');
+
+    // Each remaining term of the side-effect guard on its own. The occupation term names
     // state.go.occupation, where cmd.c set_occupation() puts C's
     // go.occupation; it used to name a bare state.occupation that nothing in
     // js/ assigns, so it refused nothing.
     state.go = {};
     for (const set of [
         (mon) => { mon.isshk = true; },
-        (mon) => { mon.wormno = 3; },
         (mon) => { state.u.ustuck = mon; },
         (mon) => { mon.mtrapped = 1; },
         () => { state.go.occupation = () => 0; },

@@ -39,13 +39,14 @@ import {
     add_to_container,
 } from './invent.js';
 import { y_n } from './cmd.js';
-import { dmonsfree, makemon, mongone } from './makemon_create.js';
+import { dmonsfree, makemon } from './makemon_create.js';
 import {
     is_unicorn,
     is_undead,
     likes_gold, likes_gems, likes_objs, likes_magic, monsndx,
 } from './mondata.js';
 import { m_at } from './monst.js';
+import { mongone } from './mon.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { can_carry } from './moncarry.js';
 import { artifact_light } from './artifacts.js';

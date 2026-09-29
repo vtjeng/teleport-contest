@@ -1662,11 +1662,12 @@ test('the monster arm answers in apply.c branch order', async () => {
 
     // apply.c:396-397. gn.notonhead is FALSE while the monster stands on the
     // square the listen pointed at. Only a long worm can answer m_at()
-    // somewhere other than its own <mx,my>, and insight.c:3290 stops for one,
-    // but the write happens at :397, well above that stop.
+    // somewhere other than its own <mx,my>. mstatusline() reports the hit
+    // position after this write.
     const wormHead = await heroWithEmptyWest();
     monsterAt(wormHead, { data: game.mons[PM_LONG_WORM] });
-    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+    assert.equal(await listenWest(1), null);
+    assert.match(game._ttyToplines, /, single segment\.$/u);
     assert.equal(game.gb.bhitpos.x, wormHead.x);
     assert.equal(game.gb.bhitpos.y, wormHead.y);
     assert.equal(game.gn.notonhead, false);
@@ -1679,7 +1680,16 @@ test('the monster arm answers in apply.c branch order', async () => {
         const worm = monsterAt(tail, { data: game.mons[PM_LONG_WORM] });
         worm.mx += dx;
         worm.my += dy;
-        await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+        worm.wormno = 1;
+        game.level.worms ??= [];
+        game.level.worms[1] = {
+            segments: [
+                { x: tail.x, y: tail.y },
+                { x: worm.mx, y: worm.my },
+            ],
+        };
+        assert.equal(await listenWest(1), null);
+        assert.match(game._ttyToplines, /, 2nd of 2 segments\.$/u);
         assert.equal(game.gn.notonhead, true, `${dx},${dy}`);
     }
 });
@@ -1850,13 +1860,36 @@ test('a debug game reports a pet\'s tameness, hunger and apport', async () => {
     assert.match(game._ttyToplines, /^Status of the newt of /i);
 });
 
-test('mstatusline stops on the three clauses that need unported source',
+test('mstatusline reports long-worm segment count and hit position',
     async () => {
-    // insight.c:3290-3303, the long-worm segment count, which needs worm.c
-    // count_wsegs() and wseg_at().
+    // insight.c:3290-3303 and worm.c count_wsegs()/wseg_at(). C includes
+    // the hidden head node in its player-facing count and indexes from head
+    // toward the tail.
     const worm = await heroWithEmptyWest();
     monsterAt(worm, { data: game.mons[PM_LONG_WORM] });
-    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+    assert.equal(await listenWest(1), null);
+    assert.match(game._ttyToplines, /, single segment\.$/u);
+
+    // Each iteration points at the visible tail while moving the head one
+    // coordinate axis away. Both the source bhitpos and the occupancy gate in
+    // wseg_at() must identify the same attacked segment.
+    for (const [dx, dy] of [[1, 0], [0, 1]]) {
+        const tail = await heroWithEmptyWest();
+        const monster = monsterAt(tail, { data: game.mons[PM_LONG_WORM] });
+        monster.wormno = 1;
+        monster.mx += dx;
+        monster.my += dy;
+        game.level.worms ??= [];
+        game.level.worms[1] = {
+            segments: [
+                { x: tail.x, y: tail.y },
+                { x: monster.mx, y: monster.my },
+            ],
+        };
+        assert.equal(await listenWest(1), null);
+        assert.match(game._ttyToplines, /, 2nd of 2 segments\.$/u);
+        assert.equal(game.gn.notonhead, true, `${dx},${dy}`);
+    }
 
     // insight.c:3316-3318's third term. gb.bhitpos is the square the listen
     // pointed at, not the hero's, so a cloud over the monster reaches

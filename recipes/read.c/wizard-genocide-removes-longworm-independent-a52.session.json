@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent wizard genocide recipe: the debug-created long worm is visible before '*' removes every monster through read.c:do_class_genocide -> mon.c:mongone -> worm.c:wormgone.",
+  "segments": [
+    {
+      "seed": 104205038,
+      "datetime": "20420403151628",
+      "nethackrc": "OPTIONS=name:A52WizardGenocideWorm,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "  .\u0007long worm\n\u0017blessed scroll of genocide\nro  *\n"
+    }
+  ]
+}

@@ -192,7 +192,8 @@ import {
     is_art,
 } from './artifacts.js';
 import { is_quest_artifact } from './questpgr.js';
-import { count_wsegs, makemon_runtime } from './makemon_create.js';
+import { count_wsegs } from './worm.js';
+import { makemon_runtime } from './makemon_create.js';
 import {
     maybe_unhide_at,
     monkilled,

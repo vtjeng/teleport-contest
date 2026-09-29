@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71029203,
+      "datetime": "20531020182745",
+      "nethackrc": "OPTIONS=name:WormNoteA52,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,playmode:debug\n",
+      "moves": "  .\u0007long worm\nacy"
+    }
+  ],
+  "comment": "Independent A52 production entry for insight.c:mstatusline through apply.c:use_stethoscope(). A bounded JS-only seed scan over 71029200-71029299 selected 71029203: the C-confirmed debug-created worm has exactly one visible tail adjacent northwest of the Healer. C's status line reports its segment index; tail placement executes without entering the separate out-of-sight multi-tail display branch."
+}

@@ -450,6 +450,7 @@ import { dotrap, mintrap } from './trap_effects.js';
 import { Punished } from './steed.js';
 import { move_bc, drag_ball } from './ball.js';
 import { note_unported } from './unported.js';
+import { cutworm } from './worm.js';
 import { make_blinded, potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
 
@@ -2917,7 +2918,13 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                 mon, obj, hmode, dieroll, state, operationEnv,
             );
             if (alive && mon.wormno)
-                note_unported('worm.c cutworm');
+                await cutworm(
+                    mon,
+                    state.gb.bhitpos.x,
+                    state.gb.bhitpos.y,
+                    chopper,
+                    operationEnv,
+                );
             await exercise(A_DEX, true, state, random, exerciseHooks);
             if (wasThrown && !thrownObject(state)) return 1;
             if (should_mulch_missile(obj, state, operationEnv)) {

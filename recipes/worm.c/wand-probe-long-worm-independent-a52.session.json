@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent A52 wand-of-probing entry for zap.c:bhitm -> zap.c:probe_monster -> insight.c:mstatusline on a debug-created long-worm tail. A bounded JS-only scan over 71029300-71029399 selected seed 71029304 for one visible adjacent tail east of the Healer, so probe_monster returns at C's gn.notonhead guard after the segment report.",
+  "segments": [{
+    "seed": 71029304,
+    "datetime": "20531020182746",
+    "nethackrc": "OPTIONS=name:WormProbeA52,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,playmode:debug\n",
+    "moves": "  .\u0007long worm\n\u0017wand of probing\nzll"
+  }]
+}

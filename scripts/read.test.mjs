@@ -5,7 +5,7 @@ import test from 'node:test';
 import {
     CONFUSION, ECMD_TIME, GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE, GETOBJ_SUGGEST, G_GENOD, IN_SIGHT,
-    ROOM, SPE_LIM, W_RINGL,
+    MM_NOMSG, MON_DETACH, ROOM, SPE_LIM, TOPLINE_EMPTY, W_RINGL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -13,12 +13,16 @@ import {
     cap_spe,
     can_center_cloud,
     charge_ok,
+    do_class_genocide,
     recharge,
     seffect_identify,
     seffect_amnesia,
     seffects,
 } from '../js/read.js';
-import { G_NOCORPSE, PM_NEWT, PM_WIZARD } from '../js/monsters.js';
+import {
+    G_NOCORPSE, PM_LONG_WORM, PM_NEWT, PM_WIZARD,
+} from '../js/monsters.js';
+import { makemon_runtime } from '../js/makemon_create.js';
 import {
     MAGIC_MARKER, SCR_CHARGING, SCR_CREATE_MONSTER, SCR_FOOD_DETECTION,
     SCR_GOLD_DETECTION, SCR_SCARE_MONSTER,
@@ -613,6 +617,78 @@ test('read.c genocide wrappers keep ordinary, class, throne, and cursed return p
         G_GENOD | G_NOCORPSE,
     );
 });
+
+test('read.c wizard class genocide synchronously removes a worm through mongone',
+    async () => {
+        // This fixed seed initializes a reproducible room; species and its
+        // explicit placement are chosen directly, so generation is not under
+        // test. The east-adjacent coordinate uses makemon.c's runtime
+        // explicit-coordinate, MM_NOMSG call shape.
+        await emptyTamingWorld(8080060);
+        const worm = await makemon_runtime(
+            game.mons[PM_LONG_WORM],
+            game.u.ux + 1,
+            game.u.uy,
+            MM_NOMSG,
+            { state: game },
+        );
+        assert.ok(worm);
+        const wormno = worm.wormno;
+        const slot = game.level.worms[wormno];
+        const occupied = [
+            [worm.mx, worm.my],
+            ...slot.segments.map(({ x, y }) => [x, y]),
+        ];
+
+        game.wizard = true;
+        game._pending_message = '';
+        game._ttyMessageStopped = false;
+        game.nhDisplay.toplin = TOPLINE_EMPTY;
+        // read.c do_class_genocide() consumes a class line; '*' selects the
+        // wizard-only all-monsters branch and LF ends that line.
+        game.nhDisplay.terminal._inputQueue.push('*'.charCodeAt(0), 10);
+        await do_class_genocide(game);
+
+        assert.equal(worm.mhp, 0);
+        assert.ok(worm.mstate & MON_DETACH);
+        assert.equal(worm.wormno, 0);
+        assert.equal(game.level.worms[wormno], null);
+        for (const [x, y] of occupied)
+            assert.equal(game.level.monsters[x][y], null, `${x},${y}`);
+        assert.match(game._pending_message, /Eliminated 1 monster\./u);
+        assert.equal(game.unported?.has('mon.c mongone'), false);
+    });
+
+test('read.c wizard genocide recipe reaches mongone through blessed scroll input',
+    async () => {
+        // The matching C recording fixes the debug wish, item selection, and
+        // '*' class-input sequence independently of this state assertion.
+        const { session, state } = await replayGenocideRecipe(
+            'read.c/wizard-genocide-removes-pet-independent-a52',
+        );
+
+        assert.match(session.getScreens().at(-1), /Eliminated 1 monster\./u);
+        assert.equal(state._pending_message, 'Eliminated 1 monster.');
+        assert.equal(state.level.monlist, null);
+        assert.equal(state.unported?.has('mon.c mongone'), false);
+    });
+
+test('read.c wizard genocide removes a created worm through mongone',
+    async () => {
+        // This independent C recipe creates a long worm before the wizard's
+        // all-monsters '*' branch, then records its removal from the level.
+        const { session, state } = await replayGenocideRecipe(
+            'read.c/wizard-genocide-removes-longworm-independent-a52',
+        );
+        const screens = session.getScreens();
+
+        assert.ok(screens.some((screen) =>
+            screen.includes('A long worm appears') && screen.includes('~~')));
+        assert.match(screens.at(-1), /Eliminated \d+ monsters\./u);
+        assert.doesNotMatch(screens.at(-1), /~~/u);
+        assert.equal(state.level.monlist, null);
+        assert.equal(state.unported?.has('mon.c mongone'), false);
+    });
 
 test('read.c first-genocide Chronicle uses uhis() for class and species paths', async () => {
     const cases = [
