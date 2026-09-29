@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T09:35:39.954Z",
+  "capturedAt": "2026-09-29T10:53:41.097Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9137,12 +9137,108 @@
         "type": "accepted",
         "at": "2026-09-29T09:35:09.051Z",
         "task": "A47"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A47-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T09:38:05.908Z",
+        "task": "A47",
+        "commit": "23531388b402d7c1f45ceee906f478e81335217b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-assign-20260929",
+        "type": "assign",
+        "at": "2026-09-29T09:49:02.639Z",
+        "task": "A48",
+        "worker": "A2",
+        "goal": "port-trap-trapeffect-statue-trap-synthetic-v11-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b8e54cec408f1c2ebab45db8d7b5bf379f951ec4",
+        "type": "ready",
+        "at": "2026-09-29T10:18:59.111Z",
+        "task": "A48",
+        "delivery": "b8e54cec408f1c2ebab45db8d7b5bf379f951ec4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T10:19:50.435Z",
+        "task": "A48",
+        "delivery": "b8e54cec408f1c2ebab45db8d7b5bf379f951ec4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T10:21:25.067Z",
+        "task": "A48",
+        "integration": "94d35794311f2957ef94bd3e3bf7bdee2058cfac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-feedback-stale-statue-tests-20260929",
+        "type": "feedback",
+        "at": "2026-09-29T10:26:40.322Z",
+        "task": "A48",
+        "delivery": "b8e54cec408f1c2ebab45db8d7b5bf379f951ec4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-resume-after-checkpoint-20260929",
+        "type": "resume",
+        "at": "2026-09-29T10:28:29.811Z",
+        "task": "A48"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-27e8950c166cad7b6d362554fd1bf1de5d6653d4",
+        "type": "ready",
+        "at": "2026-09-29T10:38:58.698Z",
+        "task": "A48",
+        "delivery": "27e8950c166cad7b6d362554fd1bf1de5d6653d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-correction-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T10:40:14.150Z",
+        "task": "A48",
+        "delivery": "27e8950c166cad7b6d362554fd1bf1de5d6653d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-correction-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T10:41:04.053Z",
+        "task": "A48",
+        "integration": "9a964783937ab73e829933e56ca729283c899594"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T10:53:15.265Z",
+        "task": "A48",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A48-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T10:53:26.961Z",
+        "task": "A48"
       }
     ]
   },
   "development": {
-    "executionCommit": "4ee9966290fe5b3a15d517b72140203cc65036b7",
-    "measuredAt": "2026-09-29T09:29:15.612Z",
+    "executionCommit": "9a964783937ab73e829933e56ca729283c899594",
+    "measuredAt": "2026-09-29T10:47:53.702Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
