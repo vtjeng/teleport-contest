@@ -113300,7 +113300,7 @@
     {
       "id": "port-eat-choke-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete eat.c choke and every eating caller continuation",
       "cFile": "eat.c",
       "sessions": [
@@ -113321,8 +113321,8 @@
           "name": "choke",
           "line": 245,
           "endLine": 291,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -113497,7 +113497,110 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "choke",
+            "implementation": "js/eat.js",
+            "symbol": "choke",
+            "sourceReview": "Read all of eat.c:choke (245-291) and compared the branches, state changes, and evaluation order. The initial non-satiated return admits only an amulet of strangulation; the Knight/lawful penalty runs before exercise(A_CON,FALSE), then Breathless, Hunger, and the conditional rn2(20) are checked in C order. The nonfatal amulet path returns after its recovery message. Other safe chokes call morehungry with u.uhunger-60 under Hunger or 1000 otherwise, then record the discarded void vomit() call as note_unported('eat.c vomit'). The fatal path sets killer format/name, calls done(CHOKING), and does not return to the C caller. JS preserves that continuation for bite/start_eating and lesshungry. The consumed objnam.c:killer_xname dependency is fully source-ported in js/objnam.js, including artifact bypass, corpse and slime-mold forms, holy-water BUC handling, temporary object/type identification, and restoration; scripts/objnam.test.mjs pins those source branches. No RNG, output, or state-changing C callee is silently replaced.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "lesshungry",
+                "source": "eat.c:lesshungry:3299-3303 calls choke with the active meal piece, or with the open tin/null in its non-meal branch."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "bite",
+                "source": "eat.c:bite:3139 calls choke before nutrition when canchoke is set and hunger is already at least 2000; its survived result is consumed by start_eating/eatfood."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eataccessory",
+                "source": "eat.c:eataccessory:2387 calls choke for AMULET_OF_STRANGULATION after its rn2(5) effect selector chooses the effect arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/choke-archeologist-start-bite-c46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 7,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry -> choke"
+              }
+            ],
+            "checkedAt": "e46682624a2ecd3200df8975e3c64e1ac4cfc492"
+          }
+        ],
+        "entryPointReview": "The matching meal entry is ordinary doeat/start_eating nutrition: the independent Archeologist recipe reaches choke through bite's lesshungry call when the satiated meal crosses the overfull threshold, and the admitted v12 Tourist case reaches the same eat.c:choke draw at segment 0 step 7. start_eating now consumes bite's survived-choke return and stops if done(CHOKING) reaches game over. Three active caller paths remain without matching runtime evidence and are deliberately unverified: (1) bite's direct precheck when canchoke is true and u.uhunger is already >=2000 at bite entry; the two matching meal traces enter choke later through lesshungry instead. (2) lesshungry's non-meal overfull arm, including go.occupation == opentin passing svc.context.tin.tin; the existing recipes/eat.c/lesshungry-cpostfx-polymorph-tin-blocked-c45.session.json documents a separate polymorphing-tin nutrition route, but its replay diverges in polyself and is not choke evidence. (3) eataccessory's strangulation-amulet effect arm. The committed recipes/eat.c/choke-strangulation-amulet-accessory-blocked-c46.session.json reaches eataccessory at eat.c:2280 but the selector rn2(5) returns 4 and 1 on its two bounded variations, both before choke; no mismatching output was added to recordings/. Keep the source function verified through the matching meal route, but keep the goal parked until these active caller paths have matching evidence.",
+        "entryPoints": [
+          {
+            "name": "satiated meal crosses the overfull threshold through lesshungry",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [
+              "recordings/eat.c/choke-archeologist-start-bite-c46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 7,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry -> choke"
+              }
+            ]
+          },
+          {
+            "name": "bite direct precheck when already overfull",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "non-meal or opentin overfull nutrition through lesshungry",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "eat a strangulation amulet through eataccessory",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "choke meal lesshungry path and killer naming now match; direct bite precheck, opentin/non-meal lesshungry, and strangulation-amulet eataccessory callers lack matching C runtime evidence; amulet effect blocked at rn2(5), tin setup at polyself"
     },
     {
       "id": "port-lock-picklock-trapped-chest-synthetic-v12-20260929",
