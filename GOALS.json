@@ -26298,7 +26298,15 @@
         "sha": "fca9b0a04593f6482fcbbe931f35c5a45f009cad",
         "screens": 6813,
         "rng": 500793
-      }
+      },
+      "invalidatedFunctions": [
+        {
+          "name": "domagictrap",
+          "reason": "The historical completion evidence explicitly covered fate 11 invisibility while leaving other fate branches at source-named refusals. The admitted v11 hero-magic-trap-summons-monsters C recording reaches trap.c:domagictrap fate 19 at segment 0 step 16 and JS refuses taming; an independent C fate below 10 recording also reaches its monster-creation branch. Whole-function porting is required.",
+          "followupGoal": "port-trap-domagictrap-fates-synthetic-v11-20260929",
+          "at": "d20f57f277f3c6c6b874c558664d28be8cf1de41"
+        }
+      ]
     },
     {
       "id": "port-do-wear-gloves-on",
@@ -111073,7 +111081,7 @@
     {
       "id": "fix-trap-domagictrap-fates-synthetic-v11-20260928",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "superseded",
       "summary": "Complete domagictrap taming and monster-creation fate arms",
       "cFile": "trap.c",
       "sessions": [],
@@ -111098,6 +111106,52 @@
           "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
           "evaluationPath": "challenges/evaluations/20260929010538-v11.json",
           "evaluationCommit": "77e9867ad37271d551bdcd26a185da93cf6ff634"
+        }
+      },
+      "supersededBy": "port-trap-domagictrap-fates-synthetic-v11-20260929",
+      "supersededReason": "The source completion evidence was formally invalidated, so the outstanding fate arms belong to a complete trap.c domagictrap file-port rather than a correction to a verified function.",
+      "supersededAt": "d20f57f277f3c6c6b874c558664d28be8cf1de41"
+    },
+    {
+      "id": "port-trap-domagictrap-fates-synthetic-v11-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Complete every trap.c domagictrap fate and its production callers",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v11/hero-magic-trap-summons-monsters"
+      ],
+      "selectionReason": "Corrected investigation investigations/synthetic/v11/hero-magic-trap-summons-monsters.json traces admitted v11 fate 19 taming at segment 0 step 16. Historical invisibility-only evidence marked the function complete while other fates still refused; invalidate it and port the whole function. Manifest SHA 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347; recording challenges/cases/v11/hero-magic-trap-summons-monsters.session.json SHA 73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052; evaluation challenges/evaluations/20260929013352-v11.json.",
+      "detail": "",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "domagictrap",
+          "line": 4317,
+          "endLine": 4454,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4317,
+        "to": 4454
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-magic-trap-summons-monsters": {
+          "session": "synthetic/v11/hero-magic-trap-summons-monsters",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-magic-trap-summons-monsters",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+          "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
+          "evaluationPath": "challenges/evaluations/20260929013352-v11.json",
+          "evaluationCommit": "a149eb3605fe68acf848e20f8255850d22e83a3d"
         }
       }
     }
