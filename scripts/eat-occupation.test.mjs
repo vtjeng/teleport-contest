@@ -29,6 +29,7 @@ import { ART_EXCALIBUR } from '../js/artifacts.js';
 import {
     ECMD_TIME,
     HALLUC,
+    HUNGER,
     HUNGRY,
     NOT_HUNGRY,
     OBJ_INVENT,
@@ -445,11 +446,14 @@ test('lesshungry treats a running occupation as eating', async () => {
     await lesshungry(1, game, env);
     assert.equal(game.u.uhunger, 2000);
 
-    // With canchoke set, the same call chokes instead.
+    // With canchoke set, the same call reaches choke(). Hunger selects the
+    // nonfatal source arm, so the test can verify reset_eat() without entering
+    // the separate end-of-game prompt.
     game.u.uhunger = 1999;
+    game.u.uprops[HUNGER] = { intrinsic: 0, extrinsic: 1 };
     game.context.victual.canchoke = 1;
     await lesshungry(1, game, env);
-    assert.equal(game.u.uhunger, 2000);
+    assert.equal(game.u.uhunger, 60);
     assert.equal(game.context.victual.doreset, 1);
 });
 
