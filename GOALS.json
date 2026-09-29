@@ -112164,7 +112164,7 @@
     {
       "id": "port-eat-lesshungry-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port satiation warnings, continuation prompt, and hunger transitions in eat.c lesshungry",
       "cFile": "eat.c",
       "sessions": [
@@ -112186,7 +112186,7 @@
           "line": 3289,
           "endLine": 3335,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -112358,7 +112358,118 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "lesshungry",
+            "implementation": "js/eat.js",
+            "symbol": "lesshungry",
+            "sourceReview": "Read the complete C definition eat.c:3289-3335 and compared it branch by branch. JavaScript evaluates the eating predicate before adding nutrition, then preserves the >=2000 branch before the <2000/1500 branch. The overfull branch records C's discarded void choke() call with note_unported('eat.c choke'); it invokes reset_eat() only for the active meal branch, as C does. Below 2000, the warning requires u.uhunger >= 1500, !Hunger, and either no meal or a meal without fullwarn. It writes the warning and nomovemsg before setting multi=-2 for the no-meal path, or fullwarn and the source-ordered ParanoidEating query for an ongoing canchoke meal with more than one bite remaining. A negative query resets the meal and clears nomovemsg. newuhs(FALSE) remains last. No choke effects are invented. The production cpostfx caller also passes its eat environment through to lesshungry so the source globals pline()/bot() resolve to this caller's message and statusRefresh operations; consume_tin passes its source-derived monsterNumber to cpostfx, and a source-pinned recipe replay protects that value flow. The chameleon tin reaches lesshungry and then stops at the separately unported polyself() call.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "bite",
+                "source": "eat.c:bite:3148,3153 calls lesshungry after ordinary meal nutrition is paid out."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "consume_tin",
+                "source": "eat.c:consume_tin:1560,1631,1694 calls lesshungry for metallivorous empty tins, non-spinach nutrition, and spinach nutrition."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eatspecial",
+                "source": "eat.c:eatspecial:2420 sets the eatfood occupation and calls lesshungry for admitted non-food nutrition."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "cpostfx",
+                "source": "eat.c:cpostfx:1256 consumes polymorphing tin early and calls lesshungry(200 + metallivorous bonus)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/lesshungry-food-ration-independent-c45.session.json",
+              "recordings/eat.c/doeat-cursed-spinach-independent.session.json",
+              "recordings/eat.c/doeat-nonfood-fire-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 6,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry"
+              }
+            ],
+            "checkedAt": "9c273f47f2c3033b4383f4c0f64eed6faae179fe"
+          }
+        ],
+        "entryPointReview": "Active production entry paths for lesshungry are distinct. Ordinary food uses doeat/start_eating and the eatfood occupation's bite() calls (eat.c:3148,3153); the independent ration recording reaches the 1500 warning and finishes, while admitted v12 case tourist-rations-reach-satiated-choke matches through zero-based segment 0 step 6 before its separate choke-related divergence at step 7. Tin nutrition enters through opentin/consume_tin (eat.c:1560,1631,1694); the existing strict cursed-spinach recording reaches the consume_tin nutrition call. Non-food nutrition enters through eatspecial() (eat.c:2420); the existing strict fire-form non-food recording covers that path. The no-meal 1500 threshold is also pinned to C values and state effects in eat-one-turn.test.mjs. A separate active polymorphing-tin path is consume_tin() -> cpostfx(PM_CHAMELEON) -> lesshungry(200) (eat.c:1256): the committed blocked recipe and cache-only C trace reach this path, and the focused replay test verifies the source-derived monsterNumber reaches the PM_CHAMELEON arm. The exact C/JS differential first diverges afterward at zero-based step 38 on the first polyself.c:polyself RNG call (C rn2(20)=10 at polyself.c:490; JS rn2(5)=0); because the recording is not a complete match, it is not placed in recordings/. The polyself continuation remains a separate source blocker and this cpostfx entry point has no matching recording or admitted synthetic range yet. The >=2000 choke behavior is an explicit gap: C discards the void result, and JavaScript records note_unported('eat.c choke') before preserving the following reset_eat order.",
+        "entryPoints": [
+          {
+            "name": "ordinary food meal through bite",
+            "functions": [
+              "lesshungry"
+            ],
+            "recordings": [
+              "recordings/eat.c/lesshungry-food-ration-independent-c45.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 6,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry"
+              }
+            ]
+          },
+          {
+            "name": "tin nutrition through consume_tin",
+            "functions": [
+              "lesshungry"
+            ],
+            "recordings": [
+              "recordings/eat.c/doeat-cursed-spinach-independent.session.json"
+            ]
+          },
+          {
+            "name": "non-food nutrition through eatspecial",
+            "functions": [
+              "lesshungry"
+            ],
+            "recordings": [
+              "recordings/eat.c/doeat-nonfood-fire-independent.session.json"
+            ]
+          },
+          {
+            "name": "polymorphing tin through consume_tin and cpostfx",
+            "functions": [
+              "lesshungry"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "9c273f47f2c3033b4383f4c0f64eed6faae179fe",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Whole eat.c lesshungry implementation and three active caller families are source-verified and checkpointed; the distinct consume_tin -> cpostfx(PM_CHAMELEON) -> lesshungry path reaches C polyself.c:polyself at step 38, where current JS diverges at rn2(20) versus rn2(5). Keep the committed independent chameleon-tin recipe blocked until a source task fixes polyself continuation and a completely matching recording covers this entry point. The Tourist overfull continuation separately awaits eat.c choke."
     },
     {
       "id": "div-engrave-read-engr-at-surface-synthetic-v12-20260929",
