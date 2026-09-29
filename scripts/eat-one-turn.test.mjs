@@ -37,6 +37,7 @@
 // term deciding the answer.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -108,6 +109,11 @@ import {
     loadEatOneTurnOptionsRecipe,
     loadEatOneTurnRecipe,
 } from './run-eat-one-turn.mjs';
+
+const chameleonTinRecipe = JSON.parse(readFileSync(new URL(
+    '../recipes/eat.c/lesshungry-cpostfx-polymorph-tin-blocked-c45.session.json',
+    import.meta.url,
+), 'utf8'));
 
 function state() {
     const result = {};
@@ -637,6 +643,19 @@ function slotFor(otyp) {
 function statusRow() {
     return game.nhDisplay.grid[23].map(({ ch }) => ch).join('').trimEnd();
 }
+
+test('consume_tin passes the corpse number to cpostfx for tin effects',
+    async () => {
+        // The independent C recipe chooses a chameleon tin and answers yes.
+        // In C, consume_tin() saves tin.corpsenm as `monsterNumber` and passes
+        // that value to cpostfx(); the resulting PM_CHAMELEON arm reaches
+        // polyself after lesshungry() consumes the tin.
+        const replay = await runSegment(chameleonTinRecipe.segments[0]);
+        assert.ok(
+            replay.getUnported().includes('polyself.c polyself'),
+            'the PM_CHAMELEON cpostfx arm must be reached',
+        );
+    });
 
 // Locate a segment by the keys it types, so reordering the matrix cannot
 // silently point a test at a different case.
