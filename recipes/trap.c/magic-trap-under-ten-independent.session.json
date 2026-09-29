@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent fate<10 magic-trap witness. A debug Valkyrie clears the welcome pager, steps off the starting stair, wishes a magic trap on the adjacent floor, then leaves and re-enters the square. The C trace must reach trap.c:domagictrap's blindness/deafness and monster-creation arm before this is a regression recording.",
+  "segments": [
+    {
+      "seed": 95761328,
+      "datetime": "20410817142633",
+      "nethackrc": "OPTIONS=name:TrapFateProbe,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time\n",
+      "moves": " h\u0017magic trap\nlh"
+    }
+  ]
+}

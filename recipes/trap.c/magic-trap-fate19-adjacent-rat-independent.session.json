@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C43 candidate seed selected by scripts/scan-port.mjs over 70221646-70222645 for a source-directed nearby-rat fate-19 branch. It clears startup, wishes the trap on the hero square, creates a hostile giant rat beside it, steps southeast off the trap, then northwest onto it. Keep only if patched C confirms domagictrap fate 19 and the adjacent rat becomes peaceful.",
+  "segments": [
+    {
+      "seed": 70222192,
+      "datetime": "20451212091505",
+      "nethackrc": "OPTIONS=name:TrapTameProbe3,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time\n",
+      "moves": " h\u0017magic trap\n#wizgenesis\nhostile giant rat\nny"
+    }
+  ]
+}
