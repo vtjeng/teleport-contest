@@ -1,0 +1,88 @@
+{
+  "session": "synthetic/v12/probing-wand-reveals-floor-potion",
+  "corpus": "synthetic",
+  "batch": "v12",
+  "caseId": "probing-wand-reveals-floor-potion",
+  "manifestPath": "challenges/manifests/v12.json",
+  "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+  "recordingSha256": "1342e359c8a1fc0cb5407438a814ddb05b07c271e4ba20b778cb383044bb0306",
+  "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+  "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+  "remainingScreens": 2,
+  "recordedSteps": 44,
+  "status": "complete",
+  "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v12",
+    "caseId": "probing-wand-reveals-floor-potion",
+    "session": "synthetic/v12/probing-wand-reveals-floor-potion",
+    "manifestPath": "challenges/manifests/v12.json",
+    "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+    "recording": "challenges/cases/v12/probing-wand-reveals-floor-potion.session.json",
+    "recordingPath": "challenges/cases/v12/probing-wand-reveals-floor-potion.session.json",
+    "recordingSha256": "1342e359c8a1fc0cb5407438a814ddb05b07c271e4ba20b778cb383044bb0306",
+    "recipe": "challenges/cases/v12/probing-wand-reveals-floor-potion.recipe.session.json",
+    "recipeSha256": "ad55d4d07e91f4aaa948084894372e1ec955dd3a327d91ee91abbf1894202ab4",
+    "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+    "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+    "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+    "evaluationUtc": "2026-09-29T03:34:04.588Z",
+    "remainingScreens": 2,
+    "recordedSteps": 44,
+    "previousScreensMatched": 42,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 42,
+        "total": 44
+      },
+      "rng": {
+        "matched": 2791,
+        "total": 2796
+      },
+      "cursors": {
+        "matched": 42,
+        "total": 44
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 427",
+      "step": 42
+    },
+    "step": 42,
+    "kind": "stop",
+    "sourceFile": "zap.c",
+    "function": "bhito",
+    "message": "unsupported hero command: an unported branch of this command: zapping a wand requires bhito() for immediate effect type 427",
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A downward probing wand reaches a floor potion through zap_updown -> bhitpile -> zap.c:bhito. C returns whether its appearance was previously known, then observes the object and learns the wand when newly revealed; js/zap.js refuses the WAN_PROBING callback before those state changes.",
+  "source": {
+    "file": "zap.c",
+    "branch": "bhito: floor potion is neither wand nor bypassed; WAN_PROBING sets res=!obj->dknown, observes obj, checks container/tin/egg special cases, and learns the wand if res is true.",
+    "functions": [
+      "bhito"
+    ],
+    "callers": [
+      "zap.c:zap_updown -> zap.c:bhitpile -> zap.c:bhito for downward wand zaps",
+      "js/zap.js:zap_updown -> bhitpile -> bhito"
+    ],
+    "dependencies": [
+      "o_init.c:observe_object is present in js/o_init.js",
+      "zap.c:learnwand and zap.c:bhitpile are present in js/zap.js"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C zap.c:2228-2277 implements WAN_PROBING in bhito: save !dknown as res, call observe_object, handle container, statue, tin and egg knowledge, then set learn_it when res. The common tail calls learnwand if observable and returns res.",
+    "JS js/zap.js:2999-3089 refuses WAN_PROBING through UnsupportedZapError before observe_object or learnwand. The whole bhito callback must preserve the C guards and return value consumed by bhitpile.",
+    "C zap.c:3392-3399 routes downward zaps through bhitpile and bhito; JS js/zap.js:3392 does likewise. The v12 independently recorded C case stops at zero-based step 42 with 42 of 44 screens matched and 2 remaining (challenges/evaluations/20260929033350-v12.json)."
+  ]
+}

@@ -111748,6 +111748,49 @@
           "evaluationCommit": "c64c3fa1121e1a2ad5dad3a8ea4bf9c49df51586"
         }
       }
+    },
+    {
+      "id": "port-eat-lesshungry-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port satiation warnings, continuation prompt, and hunger transitions in eat.c lesshungry",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v12/tourist-rations-reach-satiated-choke"
+      ],
+      "selectionReason": "The v12 Tourist rations case first stops at step 5 in eat.c lesshungry, where a chokable meal crosses the 1500 warning and asks paranoid_query before newuhs. The complete source investigation is investigations/synthetic/v12/tourist-rations-reach-satiated-choke.json. A45 owns display shield effects and B51 owns trap statue creation; eat.c lesshungry and its meal state are independently assignable to worker C.",
+      "detail": "Port the whole lesshungry function and production callers in C order. cmd.c paranoid_query and eat.c reset_eat/newuhs are present; audit their active behavior. The separate void eat.c choke callee must be source-ported or left as an explicit note_unported gap under AGENTS.md, with no substituted effects.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "lesshungry",
+          "line": 3289,
+          "endLine": 3335,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3289,
+        "to": 3335
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/tourist-rations-reach-satiated-choke": {
+          "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "tourist-rations-reach-satiated-choke",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+          "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+          "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139"
+        }
+      }
     }
   ]
 }
