@@ -61,7 +61,7 @@ import {
     place_object, rnd_class, set_corpsenm, weight,
 } from './obj.js';
 import { is_quest_artifact } from './questpgr.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     Flying, is_pool, is_lava, Levitation, maketrap, reset_utrap, trapname,
 } from './trap.js';
@@ -435,7 +435,7 @@ function wishEnv(env = {}) {
 }
 
 function wishRandom(env) {
-    return env.random ?? { rn2, rnd, rn1 };
+    return env.random ?? { d, rn1, rn2, rnd, rne, rnz };
 }
 
 // What C's origbp reads: the text bp has passed over, followed by what is left
@@ -534,7 +534,7 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
             const { Can_fall_thru } = await import('./dungeon.js');
             if (!Can_fall_thru(state.u.uz, state)) trap = ROCKTRAP;
         }
-        const t = maketrap(x, y, trap, { ...env, state, random });
+        const t = await maketrap(x, y, trap, { ...env, state, random });
         if (t) {
             trap = t.ttyp;
             tname = trapname(trap, true, state, random);

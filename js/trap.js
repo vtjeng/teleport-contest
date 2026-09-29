@@ -184,6 +184,7 @@ import {
     CORPSTAT_GENDER,
     CORPSTAT_HISTORIC,
     CORPSTAT_MALE,
+    CORPSTAT_NONE,
     ONAME,
     has_oname,
     u_at,
@@ -243,13 +244,14 @@ import {
 import { sgn, upstart } from './hacklib.js';
 import {
     stackobj, getobj, useup, useupall, consume_obj_charge, delete_contents,
-    nxtobj,
+    add_to_container, nxtobj,
     delobj, obj_extract_self,
 } from './invent.js';
 import { get_obj_location } from './light.js';
 import { water_damage_chain } from './trap_water_damage.js';
 import { Is_box, stumble_on_door_mimic, ynq } from './lock.js';
-import { set_malign } from './makemon.js';
+import { rndmonnum_adj, set_malign } from './makemon.js';
+import { makemon, makemon_runtime, mongone } from './makemon_create.js';
 import { killed, set_ustuck, wake_nearby, wakeup, seemimic } from './mon.js';
 import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
@@ -257,7 +259,7 @@ import {
     is_animal, is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
     bigmonst, is_swimmer, likes_lava, mindless, monster_resists_element,
     touch_petrifies, unique_corpstat, poly_when_stoned, is_golem,
-    is_vampshifter, nonliving, hides_under,
+    is_vampshifter, nonliving, hides_under, is_unicorn,
 } from './mondata.js';
 import { stagger, monstseesu, monstunseesu } from './mondata.js';
 import {
@@ -283,6 +285,7 @@ import {
     sobj_at,
     weight,
 } from './obj.js';
+import { mkcorpstat } from './corpstat.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     an, bare_artifactname, safe_qbuf, ansimpleoname, the, The, Yobjnam2,
@@ -838,6 +841,75 @@ function pitTerrain(x, y, env) {
     capability(env, 'recalculateBlockPoint')?.(x, y, env);
 }
 
+// C ref: trap.c mk_trap_statue() (390-417). Create a statue and a temporary
+// monster whose generated inventory is moved into it, then detach the donor.
+// Level-generation creation stays synchronous; a runtime caller awaits the
+// ordinary makemon runtime tail before consuming the returned monster.
+function mk_trap_statue(x, y, env) {
+    const { state } = env;
+    let tryCount = 10;
+    let species;
+    do {
+        species = state.mons[rndmonnum_adj(3, 6, env)];
+    } while (--tryCount > 0
+        && is_unicorn(species)
+        && sgn(state.u.ualign.type) === sgn(species.maligntyp));
+
+    const statue = mkcorpstat(
+        STATUE,
+        null,
+        species,
+        x,
+        y,
+        CORPSTAT_NONE,
+        env,
+    );
+    const mmflags = MM_NOCOUNTBIRTH | MM_NOMSG;
+    const donorEnv = { ...env, _statueInventoryCreation: true };
+    const finishDonor = (monster) => {
+        if (!monster) return;
+        while (monster.minvent) {
+            const obj = monster.minvent;
+            obj.owornmask = 0;
+            obj_extract_self(obj, donorEnv);
+            add_to_container(statue, obj, donorEnv);
+        }
+        statue.owt = weight(statue, donorEnv);
+        mongone(monster, donorEnv);
+    };
+
+    if (state.in_mklev) {
+        finishDonor(makemon(
+            state.mons[statue.corpsenm],
+            0,
+            0,
+            mmflags,
+            donorEnv,
+        ));
+        return;
+    }
+    if (env._specialRoomFill) {
+        // sp_lev.c room filling owns the runtime tail inside makemon(), which
+        // returns its Promise to keep the caller's source order intact.
+        const creation = makemon(
+            state.mons[statue.corpsenm],
+            0,
+            0,
+            mmflags,
+            { ...donorEnv, runtimeContinuation: { claimed: false } },
+        );
+        return creation && typeof creation.then === 'function'
+            ? creation.then(finishDonor) : finishDonor(creation);
+    }
+    return makemon_runtime(
+        state.mons[statue.corpsenm],
+        0,
+        0,
+        mmflags,
+        donorEnv,
+    ).then(finishDonor);
+}
+
 // C ref: trap.c maketrap(). This owns the level trap list, field reset, terrain
 // conversion, hole destination, and trap-specific side effects. When a
 // discarded C callee is unavailable at this caller, keep its named gap in
@@ -869,17 +941,25 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     preflightTrapCreation(x, y, typ, resetHero, env);
     if (resetHero) resetHeroTrap(env);
     resetTrap(trap, typ, oldplace);
+    const linkTrap = () => {
+        if (!oldplace) {
+            state.level.traps.unshift(trap);
+        } else if (state.level?.flags?.sokoban_rules) {
+            // C's maybe_finish_sokoban() result is discarded. Keep its prize
+            // and luck side effects visible as an unported source boundary.
+            note_unported('sokoban maybe_finish_sokoban');
+        }
+        return trap;
+    };
     switch (typ) {
     case SQKY_BOARD:
         trap.tnote = choose_trapnote(trap, env);
         break;
     case STATUE_TRAP:
-        if (typeof capability(env, 'makeTrapStatue') === 'function') {
-            capability(env, 'makeTrapStatue')(x, y, env);
-        } else {
-            // C discards mk_trap_statue()'s return. Level generation supplies
-            // this helper; a caller without it keeps an explicit source gap.
-            note_unported('trap.c mk_trap_statue');
+        {
+            const created = mk_trap_statue(x, y, env);
+            if (created && typeof created.then === 'function')
+                return created.then(linkTrap);
         }
         break;
     case ROLLING_BOULDER_TRAP:
@@ -914,14 +994,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         break;
     }
 
-    if (!oldplace) {
-        state.level.traps.unshift(trap);
-    } else if (state.level?.flags?.sokoban_rules) {
-        // C's maybe_finish_sokoban() result is discarded. Keep its prize and
-        // luck side effects visible as an unported source boundary.
-        note_unported('sokoban maybe_finish_sokoban');
-    }
-    return trap;
+    return linkTrap();
 }
 
 // C ref: trap.c deltrap() (6529-6548). Unlinks a trap from the level's trap
