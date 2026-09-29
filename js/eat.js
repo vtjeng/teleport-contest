@@ -63,6 +63,7 @@ import {
     MAGICAL_BREATHING,
     M_AP_OBJECT,
     NOT_HUNGRY,
+    PARANOID_EATING,
     POISON_RES,
     PROTECTION,
     REGENERATION,
@@ -110,7 +111,9 @@ import {
     acurr, acurrstr, adjalign, adjattrib, exercise, gainstr, poison_strdmg,
 } from './attrib.js';
 import { ART_ORB_OF_DETECTION } from './artifacts.js';
-import { set_occupation, y_n, yn_function } from './cmd.js';
+import {
+    paranoid_query, set_occupation, y_n, yn_function,
+} from './cmd.js';
 import { tinnable } from './apply.js';
 import { on_level, surface } from './dungeon.js';
 import { pluslvl } from './exper.js';
@@ -1144,7 +1147,7 @@ async function consume_tin(mesg, state = game, env = {}) {
         // C discards these void results. cprefx() remains an explicit gap;
         // cpostfx() is ported below and still runs only if the tin survived it.
         note_unported('eat.c cprefx');
-        if (context.tin) await cpostfx(mnum, state);
+        if (context.tin) await cpostfx(monsterNumber, state, eatEnv);
         if (!context.tin) return;
 
         if (TIN_VARIETIES[variety].nutrition < 0) {
@@ -1907,8 +1910,8 @@ export async function vomit(state = game) {
     }
 }
 
-// C ref: eat.c lesshungry() (3287-3334). Adds a bite's nutrition and lets
-// newuhs() comment on the result.
+// C ref: eat.c lesshungry() (3289-3335). Adds nutrition, handles the full
+// warning and meal-refusal state, and lets newuhs() comment on the result.
 export async function lesshungry(num, state, env) {
     const u = state.u;
     const meal = victual(state);
@@ -1919,9 +1922,11 @@ export async function lesshungry(num, state, env) {
     u.uhunger += num;
     if (u.uhunger >= 2000) {
         if (!iseating || meal.canchoke) {
-            throw new UnsupportedEatError(
-                'lesshungry() choking on an overfull stomach',
-            );
+            // C discards choke()'s void result. Preserve its source position
+            // and keep the still-unported effects explicit; reset_eat() is
+            // called only for the active meal branch.
+            note_unported('eat.c choke');
+            if (iseating) reset_eat(state);
         }
     } else if (u.uhunger >= 1500
         && !propertyActive(state, HUNGER)
@@ -1933,23 +1938,24 @@ export async function lesshungry(num, state, env) {
         );
         state.nomovemsg = "You're finally finished.";
         if (!meal.eating) {
-            // C sets gm.multi = -2, which paralyses the hero for two turns and
-            // needs nomul()'s afternmv machinery. Only potion.c's fruit juice
-            // reaches lesshungry() with no meal in progress, and no potion is
-            // ported, so nothing can take this arm.
-            throw new UnsupportedEatError(
-                "lesshungry()'s nearly-full warning outside a meal",
-            );
-        }
-        meal.fullwarn = 1;
-        if (meal.canchoke && (meal.reqtime - meal.usedtime) > 1) {
-            // paranoid_query(ParanoidEating, "Continue eating?") asks before
-            // risking a choke, and reset_eat() abandons the meal on a refusal.
-            // canchoke is set only when the hero was already SATIATED when the
-            // meal began.
-            throw new UnsupportedEatError(
-                "lesshungry()'s paranoid_query() for continued eating",
-            );
+            // eat.c writes gm.multi directly here (rather than calling
+            // nomul()), matching the source's two-turn interruption.
+            state.multi = -2;
+        } else {
+            meal.fullwarn = 1;
+            if (meal.canchoke && (meal.reqtime - meal.usedtime) > 1) {
+                // C passes the ParanoidEating flag and the shared prompt to
+                // cmd.c; a negative answer abandons the meal for reset_eat().
+                const beParanoid = Boolean(
+                    state.flags?.paranoia_bits & PARANOID_EATING,
+                );
+                if (!await paranoid_query(
+                    beParanoid, 'Continue eating?', state,
+                )) {
+                    reset_eat(state);
+                    state.nomovemsg = null;
+                }
+            }
         }
     }
     await newuhs(false, state, env);
@@ -2368,7 +2374,7 @@ async function eye_of_newt_buzz(state) {
 
 // C ref: eat.c cpostfx() (1127-1319), called after completely consuming a
 // corpse. `state.eatmbuf` is the JS representation of C's ge.eatmbuf.
-async function cpostfx(pm, state) {
+async function cpostfx(pm, state, env = {}) {
     let tmp = 0;
     let catch_lycanthropy = NON_PM;
     let check_intrinsics = false;
@@ -2516,7 +2522,7 @@ async function cpostfx(pm, state) {
                 await lesshungry(
                     200 + (metallivorous(state.youmonst.data) ? 5 : 0),
                     state,
-                    { message: ttyPline },
+                    env,
                 );
             }
             await ttyPline(
@@ -3134,7 +3140,7 @@ async function done_eating(message, state, env) {
     }
 
     if (piece.otyp === CORPSE || piece.globby)
-        await cpostfx(piece.corpsenm, state);
+        await cpostfx(piece.corpsenm, state, env);
     else
         await fpostfx(piece, state, env);
 

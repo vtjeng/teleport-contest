@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent eat.c lesshungry caller probe. The leading space dismisses the welcome pager before the debug Wizard wishes and eats a chameleon tin, exercising eat.c:consume_tin -> cpostfx(PM_CHAMELEON) -> lesshungry after early tin consumption. The exact C/JS replay first diverges at step 38 on polyself.c:polyself (C rn2(20) at polyself.c:490), which remains an explicit source gap; keep this recipe outside the matching recordings corpus.",
+  "segments": [{
+    "seed": 8382197,
+    "datetime": "20260928174200",
+    "nethackrc": "OPTIONS=name:PolyTinTest,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+    "moves": " \u0017blessed tin of chameleon meat\neo  y"
+  }]
+}

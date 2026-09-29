@@ -37,6 +37,7 @@
 // term deciding the answer.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -55,7 +56,6 @@ import {
     W_TOOL,
 } from '../js/const.js';
 import {
-    UnsupportedEatError,
     UnsupportedHungerTransitionError,
     adj_victual_nutrition,
     consume_oeaten,
@@ -109,6 +109,11 @@ import {
     loadEatOneTurnOptionsRecipe,
     loadEatOneTurnRecipe,
 } from './run-eat-one-turn.mjs';
+
+const chameleonTinRecipe = JSON.parse(readFileSync(new URL(
+    '../recipes/eat.c/lesshungry-cpostfx-polymorph-tin-blocked-c45.session.json',
+    import.meta.url,
+), 'utf8'));
 
 function state() {
     const result = {};
@@ -519,7 +524,7 @@ test('nonrotting_food names the two rations that never go bad', () => {
     assert.equal(nonrotting_food(APPLE), false);
 });
 
-// C ref: eat.c lesshungry() (3287-3334). bite() pays out a mouthful here.
+// C ref: eat.c lesshungry() (3289-3335). bite() pays out a mouthful here.
 test('lesshungry adds nutrition and stops at the two overfull thresholds',
     async () => {
         // An ordinary mouthful: 900 plus an apple's 50, no message.
@@ -530,14 +535,17 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         assert.equal(current.u.uhunger, 950);
         assert.deepEqual(messages, []);
 
-        // 1500 is where C warns that the meal is hard to get down. Outside a
-        // meal it also sets gm.multi = -2, which has no port.
+        // 1500 is where C warns that food is hard to get down. Outside a meal
+        // it also sets gm.multi = -2 directly.
         const full = state();
         full.u.uhunger = 1499;
-        await assert.rejects(
-            () => lesshungry(1, full, newuhsEnv()),
-            UnsupportedEatError,
-        );
+        const fullSaid = [];
+        await lesshungry(1, full, newuhsEnv(fullSaid));
+        assert.equal(full.u.uhunger, 1500);
+        assert.equal(full.multi, -2);
+        assert.equal(full.nomovemsg, "You're finally finished.");
+        assert.deepEqual(fullSaid,
+            ["You're having a hard time getting all of it down."]);
         // A ring of hunger suppresses that warning entirely, so the same
         // nutrition goes through with nothing said.
         const hungry = state();
@@ -572,20 +580,8 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         // and fullwarn is what stops the next bite repeating the warning.
         assert.equal(unwarned.nomovemsg, "You're finally finished.");
         assert.equal(unwarned.context.victual.fullwarn, 1);
-        // canchoke plus more than one bite left reaches paranoid_query(),
-        // which has no port. Two bites left is the smallest amount that does:
-        // C tests `(reqtime - usedtime) > 1`.
-        const risky = state();
-        risky.u.uhunger = 1499;
-        risky.context.victual = {
-            ...zero_victual(),
-            eating: 1, fullwarn: 0, canchoke: 1, reqtime: 5, usedtime: 3,
-        };
-        await assert.rejects(
-            () => lesshungry(1, risky, newuhsEnv()),
-            UnsupportedEatError,
-        );
-        // One bite left takes the same warning silently past that query.
+        // One bite left takes the warning without a confirmation query; C
+        // tests `(reqtime - usedtime) > 1` before asking whether to continue.
         const lastBite = state();
         lastBite.u.uhunger = 1499;
         lastBite.context.victual = {
@@ -605,31 +601,31 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         await lesshungry(20, recovering, newuhsEnv(said));
         assert.deepEqual(said, ['You only feel hungry now.']);
 
-        // 2000 is choking. A hero who was not satiated when the meal began
-        // survives it, because C only chokes when canchoke is set.
+        // At 2000 C reaches choke() only when the meal can choke. That helper
+        // is an explicit void-call gap here, while reset_eat() still runs.
         const choking = state();
         choking.u.uhunger = 1999;
         choking.force_save_hs = true;
-        choking.context.victual = { ...zero_victual(), canchoke: 1 };
-        await assert.rejects(
-            () => lesshungry(1, choking, newuhsEnv()),
-            UnsupportedEatError,
-        );
+        choking.context.victual = {
+            ...zero_victual(), eating: 1, canchoke: 1,
+        };
+        await lesshungry(1, choking, newuhsEnv());
+        assert.equal(choking.context.victual.doreset, 1);
+        assert.equal(choking.u.uhunger, 2000);
         const spared = state();
         spared.u.uhunger = 1999;
         spared.force_save_hs = true;
         spared.context.victual = { ...zero_victual(), canchoke: 0 };
         await lesshungry(1, spared, newuhsEnv());
         assert.equal(spared.u.uhunger, 2000);
-        // Nothing outside a meal is spared: gf.force_save_hs is what makes
-        // C's `iseating` true here.
+        // Outside a meal, C calls choke() even without canchoke; no meal reset
+        // is scheduled on that source branch.
         const drinking = state();
         drinking.u.uhunger = 1999;
         drinking.context.victual = { ...zero_victual(), canchoke: 0 };
-        await assert.rejects(
-            () => lesshungry(1, drinking, newuhsEnv()),
-            UnsupportedEatError,
-        );
+        await lesshungry(1, drinking, newuhsEnv());
+        assert.equal(drinking.u.uhunger, 2000);
+        assert.equal(drinking.context.victual.doreset, 0);
     });
 
 function topLine() {
@@ -647,6 +643,19 @@ function slotFor(otyp) {
 function statusRow() {
     return game.nhDisplay.grid[23].map(({ ch }) => ch).join('').trimEnd();
 }
+
+test('consume_tin passes the corpse number to cpostfx for tin effects',
+    async () => {
+        // The independent C recipe chooses a chameleon tin and answers yes.
+        // In C, consume_tin() saves tin.corpsenm as `monsterNumber` and passes
+        // that value to cpostfx(); the resulting PM_CHAMELEON arm reaches
+        // polyself after lesshungry() consumes the tin.
+        const replay = await runSegment(chameleonTinRecipe.segments[0]);
+        assert.ok(
+            replay.getUnported().includes('polyself.c polyself'),
+            'the PM_CHAMELEON cpostfx arm must be reached',
+        );
+    });
 
 // Locate a segment by the keys it types, so reordering the matrix cannot
 // silently point a test at a different case.
