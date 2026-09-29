@@ -32,6 +32,7 @@ import {
     PM_GUARD,
     PM_HIGH_CLERIC,
     PM_HUMAN_ZOMBIE,
+    PM_JABBERWOCK,
     PM_LONG_WORM,
     PM_LONG_WORM_TAIL,
     PM_MEDUSA,
@@ -684,14 +685,12 @@ test('affirmative cant_revive force response creates the requested aligned cleri
         );
     });
 
-test('a species outside the admitted reservoir stops before it is created',
+test('^G creates an explicitly named monster outside the level reservoir',
     async () => {
-        // js/makemon_create.js assertSupportedSpecies() bounds which species
-        // this port will build, and ^G is the one command that lets the player
-        // name any of them. A jabberwock is difficulty 17, past the band
-        // isOrdinaryD5ReservoirSpecies() admits, so the request stops with
-        // nothing created rather than building a monster whose inventory and
-        // strategy setup is unverified.
+        // read.c create_particular_creation() passes a resolved mons[] pointer
+        // to makemon() on the hero square. C makemon() has no species
+        // allowlist, so a named runtime request is not limited to the
+        // generated D:5 reservoir.
         const boundaries = [];
         const segment = segmentFor(`${GENESIS_KEY}gas spore\n`);
         const { added } = await createdBy(
@@ -700,9 +699,12 @@ test('a species outside the admitted reservoir stops before it is created',
             { onBoundary: (error) => boundaries.push(error) },
         );
 
-        assert.equal(boundaries.length, 1);
-        assert.match(boundaries[0].message, /unsupported initial-level/u);
-        assert.deepEqual(added, []);
+        assert.deepEqual(boundaries, []);
+        assert.equal(added.length, 1);
+        assert.equal(added[0].mnum, PM_JABBERWOCK);
+        assert.notDeepEqual(
+            [added[0].mx, added[0].my], [game.u.ux, game.u.uy],
+        );
     });
 
 test('^G creates the giant eel the eel-concealment goal acts on', async () => {
@@ -725,6 +727,34 @@ test('^G creates the giant eel the eel-concealment goal acts on', async () => {
     // that clear, so this eel arrives visible to the monster scan.
     assert.ok(!added[0].mundetected);
 });
+
+test('^G named creation relocates and initializes a long worm from the C contract',
+    async () => {
+        const segment = {
+            seed: 83004117,
+            datetime: '20470816152341',
+            nethackrc: [
+                'OPTIONS=name:WormPort,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: `${WAIT_KEY}${GENESIS_KEY}long worm\n`,
+        };
+        const { added } = await createdBy(segment, segment.moves);
+
+        assert.equal(added.length, 1);
+        const worm = added[0];
+        assert.equal(worm.mnum, PM_LONG_WORM);
+        assert.notDeepEqual([worm.mx, worm.my], [game.u.ux, game.u.uy]);
+        assert.ok(worm.wormno > 0);
+
+        const record = game.level.worms[worm.wormno];
+        assert.ok(record?.segments.length >= 1);
+        assert.deepEqual(record.segments.at(-1), { x: worm.mx, y: worm.my });
+        for (const { x, y } of record.segments)
+            assert.equal(game.level.monsters[x][y], worm);
+    });
 
 test('#wizgenesis reaches the same prompt as ^G', async () => {
     const typed = segmentFor(`${EXTCMD_KEY}wizgenesis\ngas spore\n`);
