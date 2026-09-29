@@ -113343,7 +113343,7 @@
     {
       "id": "port-lock-picklock-trapped-chest-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete lock.c picklock occupation for trapped boxes and doors",
       "cFile": "lock.c",
       "sessions": [
@@ -113351,8 +113351,12 @@
       ],
       "selectionReason": "Current v12 skeleton-key-unlocks-trapped-chest first stops at step 52 with 52/53 screens and all 3023 RNG calls matched; investigations/synthetic/v12/skeleton-key-unlocks-trapped-chest.json traces the unported trapped-box arm to lock.c:picklock. Latest saved result is challenges/evaluations/20260929060025-v12.json, manifest b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef.",
       "detail": "Port entire lock.c:picklock (68-160) in source order, including current box and door paths, magic-key branches, success roll and occupation state. Wire the pick_lock setup/occupation caller; on trapped chest toggle olocked and lknown before trap.c:chest_trap(FINGER,FALSE), then exercise Dexterity and reset usedtime. Keep any unported return-valued callees in scope and produce independent C-reaching recordings.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "77c849babe2ffb0bb5536fd665bd79450e376f47",
+      "openStanding": {
+        "sha": "b55c6ce47f7853f106d082144a248f4bb3ed21d4",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -113361,7 +113365,7 @@
           "line": 68,
           "endLine": 161,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -113381,7 +113385,264 @@
           "evaluationPath": "challenges/evaluations/20260929060025-v12.json",
           "evaluationCommit": "327800a84ddedb020167a65bd3683401f516fea3"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "b55c6ce47f7853f106d082144a248f4bb3ed21d4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "skeleton-key-unlocks-trapped-chest",
+          "session": "synthetic/v12/skeleton-key-unlocks-trapped-chest",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+          "recordingPath": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+          "recordingSha256": "35dd2a3027d64e189b464ef687c310a1078634f4e7c2dbb80394500ec1a19a36",
+          "recipe": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.recipe.session.json",
+          "recipeSha256": "28ecf5e96b823ed71f35d94e169b72c717ce6965a0bcaea2f2a361816e7a9ed6",
+          "replayInputSha256": "2a9894486c470d29712355eeba6df48ad9f2271138f999ea3772b1787b978020",
+          "evaluationPath": "challenges/evaluations/20260929060025-v12.json",
+          "evaluationCommit": "327800a84ddedb020167a65bd3683401f516fea3",
+          "evaluationArtifact": "challenges/evaluations/20260929060025-v12.json",
+          "evaluationUtc": "2026-09-29T06:00:39.813Z",
+          "remainingScreens": 1,
+          "recordedSteps": 53,
+          "previousScreensMatched": 52,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 52,
+              "total": 53
+            },
+            "rng": {
+              "matched": 3023,
+              "total": 3023
+            },
+            "cursors": {
+              "matched": 52,
+              "total": 53
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "an occupation reached picking a lock requires picklock() trapped box",
+            "step": 52
+          },
+          "step": 52,
+          "kind": "stop",
+          "sourceFile": "lock.c",
+          "function": "picklock",
+          "message": "an occupation reached picking a lock requires picklock() trapped box",
+          "cFile": "lock.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/skeleton-key-unlocks-trapped-chest.json",
+            "result": {
+              "session": "synthetic/v12/skeleton-key-unlocks-trapped-chest",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "skeleton-key-unlocks-trapped-chest",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "35dd2a3027d64e189b464ef687c310a1078634f4e7c2dbb80394500ec1a19a36",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 1,
+              "recordedSteps": 53,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "skeleton-key-unlocks-trapped-chest",
+                "session": "synthetic/v12/skeleton-key-unlocks-trapped-chest",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+                "recordingPath": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.session.json",
+                "recordingSha256": "35dd2a3027d64e189b464ef687c310a1078634f4e7c2dbb80394500ec1a19a36",
+                "recipe": "challenges/cases/v12/skeleton-key-unlocks-trapped-chest.recipe.session.json",
+                "recipeSha256": "28ecf5e96b823ed71f35d94e169b72c717ce6965a0bcaea2f2a361816e7a9ed6",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 1,
+                "recordedSteps": 53,
+                "previousScreensMatched": 52,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 52,
+                    "total": 53
+                  },
+                  "rng": {
+                    "matched": 3023,
+                    "total": 3023
+                  },
+                  "cursors": {
+                    "matched": 52,
+                    "total": 53
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "an occupation reached picking a lock requires picklock() trapped box",
+                  "step": 52
+                },
+                "step": 52,
+                "kind": "stop",
+                "sourceFile": "lock.c",
+                "function": "picklock",
+                "message": "an occupation reached picking a lock requires picklock() trapped box",
+                "cFile": "lock.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "On successful skeleton-key use against a trapped floor chest, lock.c:picklock toggles olocked, marks lknown, then invokes trap.c:chest_trap before exercise and resetting the occupation. JS refuses the trapped-box arm before those source-ordered state changes. Port the whole picklock occupation callback and preserve its magic-key and trapped-door branches; chest_trap is an active shared dependency.",
+              "source": {
+                "file": "lock.c",
+                "branch": "picklock occupation: the chest remains on the hero square, rn2(100) succeeds, no magic key is used, xlock.box is trapped, and source toggles lock/knowledge before invoking chest_trap(FINGER,FALSE).",
+                "functions": [
+                  "picklock"
+                ],
+                "callers": [
+                  "lock.c:pick_lock sets the xlock context and starts the picklock occupation",
+                  "js/lock.js:pick_lock establishes xlock and dispatches js/lock.js:picklock each occupied turn"
+                ],
+                "dependencies": [
+                  "trap.c:chest_trap is partially ported in js/trap.js and currently reserved by A45 for shield display wiring; coordinate after that delivery",
+                  "lock.c:picklock magic-key and trapped-door arms are also unported; return-valued helper calls in those arms must be source-backed"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C lock.c:68-160 validates the box or door position, advances usedtime, rolls rn2(100), handles the magic key, prints success, toggles box->olocked, sets lknown, calls chest_trap when otrapped, then exercises Dexterity and clears usedtime.",
+                "JS js/lock.js:484-558 reaches UnsupportedLockError at trapped box before toggling olocked or lknown, before chest_trap, and before exercise. Its magic-key and trapped-door branches also refuse. This is a partial whole-function port, not a case-specific message fix.",
+                "The independent v12 case first stops at zero-based step 52 with 52 of 53 screens and all 3023 RNG calls matched in challenges/evaluations/20260929033350-v12.json; the remaining screen is the trapped-chest occupation continuation.",
+                "C trap.c:6294-6501 owns chest_trap, which this lock.c function calls with a discarded result. A45 currently owns only its shield-display caller wiring; the picklock task must coordinate production behavior without overwriting A45 changes."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "picklock",
+            "implementation": "js/lock.js",
+            "symbol": "picklock",
+            "sourceReview": "Compared the complete lock.c:68-160 callback in C order: box and adjacent-door validity checks; usedtime/nohands short circuit and timeout; rn2(100) occupation chance; Master Key trap discovery, chance increase, y_n disarm choice and Wisdom exercise; success message; trapped-door destruction/unblocking/shop check/redraw order; box lock toggle, lknown assignment and discarded chest_trap return; final Dexterity exercise and usedtime reset. JavaScript now implements each branch without a picklock-specific refusal. The C void calls b_trapped() and shk.c:add_damage() remain explicit note_unported gaps in the trapped-door branch; no substitute result or effects are invented. The current recordings exercise the trapped-box success branch, not trapped-door destruction. The Master Key of Thievery disarm branch is implemented but has no matching C recording in this delivery. The trapped-door branch is likewise not runtime-certified; its b_trapped() and conditional shk.c:add_damage() behavior remains source-named and unported.",
+            "callers": [
+              {
+                "path": "js/lock.js",
+                "symbol": "pick_lock",
+                "source": "lock.c:pick_lock installs picklock with set_occupation after initializing gx.xlock; the callback reads the same xlock context."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm calls pick_lock; the v12 and direct-apply recipes enter this route."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "do_loot_cont",
+                "source": "pickup.c:do_loot_cont AUTOUNLOCK_APPLY_KEY arm calls pick_lock for the locked floor container; the independent #loot recording reaches picklock."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "doopen_indir",
+                "source": "lock.c:doopen_indir AUTOUNLOCK_APPLY_KEY arm calls pick_lock for an adjacent locked door; this existing dispatcher is source-traced and wired to the same occupation callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/lock-pick-opens-trapped-chest-independent-a46.session.json",
+              "recordings/lock.c/lock-pick-through-loot-independent-a46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "skeleton-key-unlocks-trapped-chest",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "apply.c:doapply -> lock.c:pick_lock -> lock.c:picklock -> trap.c:chest_trap"
+              }
+            ],
+            "checkedAt": "afef1b4502cba283f93a95c53757b2184efa38c9"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the occupation callback picklock, registered by lock.c:pick_lock. Its active production call paths are apply.c:doapply, pickup.c:do_loot_cont (AUTOUNLOCK_APPLY_KEY), and lock.c:doopen_indir (AUTOUNLOCK_APPLY_KEY). JavaScript retains all three caller routes. The selected v12 case and the independent direct-apply recording reach the trapped-box callback; a second independent #loot recording reaches the same callback through pickup.c and records picklock(lock.c:98). The doopen_indir door-autounlock route shares the callback but has no separate door-specific recording in this delivery. The trapped-door success arm also retains the source-named void gaps trap.c:b_trapped and shk.c:add_damage; its post-call source ordering is implemented, but that branch is not runtime-certified here. The Master Key of Thievery trap-detection/disarm state branch and the trapped-door success/destruction branch are active source paths, but neither has matching C recording or synthetic evidence here; the task remains open for these variants.",
+        "entryPoints": [
+          {
+            "name": "manual lock-tool application occupation",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": [
+              "recordings/lock.c/lock-pick-opens-trapped-chest-independent-a46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "skeleton-key-unlocks-trapped-chest",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "apply.c:doapply -> lock.c:pick_lock -> lock.c:picklock"
+              }
+            ]
+          },
+          {
+            "name": "#loot locked-container autounlock occupation",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": [
+              "recordings/lock.c/lock-pick-through-loot-independent-a46.session.json"
+            ]
+          },
+          {
+            "name": "Master Key of Thievery disarms trapped lock",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": []
+          },
+          {
+            "name": "Successful pick on trapped door reaches b_trapped destruction arm",
+            "functions": [
+              "picklock"
+            ],
+            "recordings": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "afef1b4502cba283f93a95c53757b2184efa38c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "picklock source implementation and trapped-box apply/#loot entries match; Master Key disarm, trapped-door destruction, and door-autounlock runtime paths lack matching recordings; b_trapped and add_damage remain named void gaps"
     }
   ]
 }
