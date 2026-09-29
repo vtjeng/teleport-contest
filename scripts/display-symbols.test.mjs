@@ -196,6 +196,7 @@ import {
     GLYPH_CMAP_SOKO_OFF,
     GLYPH_CMAP_STONE_OFF,
     GLYPH_NOTHING_OFF,
+    GLYPH_DETECT_MALE_OFF,
     GLYPH_MON_FEM_OFF,
     GLYPH_MON_MALE_OFF,
     GLYPH_OBJ_OFF,
@@ -234,6 +235,8 @@ import {
     NUMMONS,
     PM_GOBLIN,
     PM_GARTER_SNAKE,
+    PM_LONG_WORM,
+    PM_LONG_WORM_TAIL,
     PM_JACKAL,
     PM_LURKER_ABOVE,
     PM_SEWER_RAT,
@@ -2302,22 +2305,24 @@ test('feel_location maps a sensed monster after tactile memory updates', () => {
     const x = 7;
     const y = 4;
     const state = feelingHeroBeside(x, y);
+    monst_globals_init(state);
     state.level.at(x, y).typ = ROOM;
     // display.c:902-905 finishes with display_monster() for a monster the
     // hero senses. Detect_monsters is the cheapest of sensemon()'s operands.
     state.level.monsters[x][y] = {
-        data: { mlet: S_FELINE, mcolor: CLR_WHITE, mflags1: 0 },
+        data: state.mons[PM_GOBLIN],
         mx: x,
         my: y,
         minvis: false,
         mundetected: false,
+        female: false,
     };
     state.u.uprops[DETECT_MONSTERS] = {
         intrinsic: 0, extrinsic: 1, blocked: 0,
     };
     // C runs this test last, after set_seenv(), _map_location() and the
-    // dark-room rewrite. display_monster() is a discarded callee whose full
-    // mimic/intermediate-display owner is still an explicit gap here.
+    // dark-room rewrite. The detected monster glyph overlays that remembered
+    // terrain and marks the monster as seen.
     const square = state.level.at(x, y);
     feel_location(x, y, state);
     assert.notEqual(square.seenv ?? 0, 0);
@@ -2325,8 +2330,8 @@ test('feel_location maps a sensed monster after tactile memory updates', () => {
         glyph_to_cmap(square.remembered_glyph.glyph), S_darkroom,
     );
     assert.equal(state.level.lastseentyp[x][y], ROOM);
-    assert.ok(game.unported.has('display.c display_monster'));
-    assert.equal(state.level.monsters[x][y].meverseen, undefined);
+    assert.equal(square.disp_glyph.glyph, GLYPH_DETECT_MALE_OFF + PM_GOBLIN);
+    assert.equal(state.level.monsters[x][y].meverseen, 1);
 
     // Without the sensing the same square is felt normally.
     state.u.uprops[DETECT_MONSTERS] = {
@@ -2338,6 +2343,66 @@ test('feel_location maps a sensed monster after tactile memory updates', () => {
         S_darkroom,
     );
 
+});
+
+test('newsym displays a long-worm segment with the tail glyph', () => {
+    const x = 7;
+    const y = 4;
+    const headX = x - 1;
+    const state = visibleCellState({ x, y });
+    const worm = {
+        data: state.mons[PM_LONG_WORM],
+        mx: headX,
+        my: y,
+        minvis: false,
+        mundetected: false,
+        mtame: 0,
+        female: false,
+        m_ap_type: 0,
+        mhp: 10,
+    };
+    state.level.monsters[headX][y] = worm;
+    state.level.monsters[x][y] = worm;
+
+    // C display.c:1013 calls display_monster() because the segment is
+    // physically visible, and its coordinate-based is_worm_tail() selects
+    // PM_LONG_WORM_TAIL for the glyph.
+    newsym(x, y);
+    assert.equal(
+        state.level.at(x, y).disp_glyph.glyph,
+        GLYPH_MON_MALE_OFF + PM_LONG_WORM_TAIL,
+    );
+    assert.equal(worm.meverseen, 1);
+});
+
+test('newsym does not reveal a hidden worm tail through monster detection', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+    const worm = {
+        data: state.mons[PM_LONG_WORM],
+        mx: x - 1,
+        my: y,
+        minvis: true,
+        mundetected: false,
+        mtame: 0,
+        female: false,
+        m_ap_type: 0,
+        mhp: 10,
+    };
+    state.level.monsters[x - 1][y] = worm;
+    state.level.monsters[x][y] = worm;
+    state.u.uprops ??= [];
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 0, extrinsic: 1, blocked: 0,
+    };
+
+    newsym(x, y);
+    assert.notEqual(
+        state.level.at(x, y).disp_glyph.glyph,
+        GLYPH_DETECT_MALE_OFF + PM_LONG_WORM_TAIL,
+    );
+    assert.equal(worm.meverseen, undefined);
 });
 
 test('reglyph_darkroom points S_darkroom at S_room or at nothing', () => {
@@ -5219,6 +5284,9 @@ test('nearby zero-class object mimics stay outside the generic-glyph range', () 
         glyph_is_generic_object(state.level.at(x, y).remembered_glyph.glyph),
         false,
     );
+    // display.c:map_object() observes only when glyph_is_generic_object(glyph)
+    // succeeds. The fake object's zero class makes its base GLYPH_OBJ_OFF
+    // presentation fail display.h's strict `glyph > GLYPH_OBJ_OFF` test.
 });
 
 test('newsym maps a visible furniture mimic into display and memory', () => {

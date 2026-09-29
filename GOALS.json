@@ -117269,7 +117269,7 @@
     {
       "id": "port-display-monster-worm-tail-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port display.c display_monster and pass worm-tail display coordinates through newsym",
       "cFile": "display.c",
       "sessions": [
@@ -117277,8 +117277,12 @@
       ],
       "selectionReason": "The saved v13 case, manifest ab0f5512 and recording 8e4169be, first differs at step 19: C draws PM_LONG_WORM_TAIL at a long-worm segment, while JS draws the head. The completed investigation identifies display.c display_monster and its newsym caller; port the whole display_monster source function and wire both newsym calls. The later worm.c cutworm RNG gap is separate.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "192464e910eedb84479827a8a3abda5e9636e1fc",
+      "openStanding": {
+        "sha": "c6a50520a55684515ff6188696cd94704cf47cc1",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -117307,12 +117311,228 @@
           "evaluationPath": "challenges/evaluations/20260929165804-v13.json",
           "evaluationCommit": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "c6a50520a55684515ff6188696cd94704cf47cc1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+          "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+          "replayInputSha256": "1fdf90808f69b20d9f370cb887a693ce5ec0890db9df169664fb66d5fb11b4c3",
+          "evaluationPath": "challenges/evaluations/20260929191838-v13.json",
+          "evaluationCommit": "c6a50520a55684515ff6188696cd94704cf47cc1",
+          "evaluationArtifact": "challenges/evaluations/20260929191838-v13.json",
+          "evaluationUtc": "2026-09-29T19:19:11.176Z",
+          "remainingScreens": 23,
+          "recordedSteps": 42,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 42
+            },
+            "rng": {
+              "matched": 3819,
+              "total": 3826
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 19,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 19,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 15,
+              "column": 30,
+              "cCell": {
+                "ch": "~",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "w",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3813,
+              "cEntry": "rnd(20)=15",
+              "cCaller": "cutworm(worm.c:388)",
+              "jsEntry": "rn2(19)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "j"
+              },
+              "stepIndex": 41
+            },
+            "cursor": null
+          },
+          "step": 19,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/thrown-dagger-cuts-long-worm-segment.json",
+            "result": {
+              "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "thrown-dagger-cuts-long-worm-segment",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+              "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+              "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+              "remainingScreens": 23,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "52db3b9f54547102e14a1b1872299a48baaabba4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+                "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+                "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+                "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
+                "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+                "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationUtc": "2026-09-29T16:10:43.240Z",
+                "remainingScreens": 23,
+                "recordedSteps": 42,
+                "previousScreensMatched": 0,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 3819,
+                    "total": 3826
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 19,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 19,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 15,
+                    "column": 30,
+                    "cCell": {
+                      "ch": "~",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "w",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3813,
+                    "cEntry": "rnd(20)=15",
+                    "cCaller": "cutworm(worm.c:388)",
+                    "jsEntry": "rn2(19)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "j"
+                    },
+                    "stepIndex": 41
+                  },
+                  "cursor": null
+                },
+                "step": 19,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 19, a newly created long worm has a visible tail tile. C display.c:newsym passes is_worm_tail to display_monster, which draws PM_LONG_WORM_TAIL (~) there; JavaScript draws the long-worm head glyph (w). Runtime named creation now proceeds through makemon. A separate later RNG gap at step 41 remains worm.c:cutworm when the thrown dagger strikes a segment.",
+              "source": {
+                "file": "display.c",
+                "functions": [
+                  "newsym",
+                  "display_monster"
+                ],
+                "branch": "For a visible long-worm segment at (x,y) different from the monster head (mx,my), newsym sets worm_tail and calls display_monster; its ordinary, pet, and detected arms choose PM_LONG_WORM_TAIL instead of the head monster glyph. The partial JavaScript newsym/display_monster path currently treats the segment as the head.",
+                "callers": [
+                  "C: makemon.c:makemon initializes and places long-worm tail segments, then display.c:newsym redraws the affected tiles; later movement and sensing also call newsym. JS: js/makemon_create.js:place_worm_tail_randomly calls js/display.js:newsym, which resolves the segment monster and renders its glyph."
+                ],
+                "dependencies": [
+                  "worm.c segment-to-monster lookup and head coordinates identify whether the tile is a tail; preserve the C glyph choice for visible, tame, and detected arms and their display RNG order.",
+                  "The later step-41 gap is worm.c:cutworm after dothrow.c:thitmonst strikes the segment; it remains a separate source task and must not be hidden by display changes."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current saved v13 evaluation challenges/evaluations/20260929161024-v13.json at f74689ea reports 19/42 screens, 42/42 cursors, and 3819/3826 RNG for the immutable case. At segment 0 step 19, C row 15 column 30 is ~ while JS is w; no runner error remains. The audit-fix descendant changed only a source-pinned test, so this replay input digest is current.",
+                "Upstream display.c:500 defines is_worm_tail(mon) as a segment location different from mon->mx,my. display.c:1027 calls display_monster with that value, and display_monster:590-615 selects PM_LONG_WORM_TAIL in the pet, detected, and ordinary glyph branches. js/display.js near newsym still documents that worm_tail is always false and draws the monster glyph at the segment.",
+                "A50 corrected read.c:create_particular_creation -> makemon.c:makemon and independently recorded the named-long-worm path at recordings/makemon.c/runtime-named-long-worm-a50.session.json. The selected v13 replay now proceeds beyond creation. At step 41, the remaining RNG divergence reaches existing note_unported(\"worm.c cutworm\") in js/dothrow.js, a separate later defect."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-apply-leash-family-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port apply.c leash application and pet attachment family",
       "cFile": "apply.c",
       "sessions": [
@@ -117320,8 +117540,12 @@
       ],
       "selectionReason": "The saved v13 case, manifest ab0f5512 and recording e51da120, first stops at step 19 in doapply LEASH. The completed investigation traces the contiguous leashable through use_leash_core family and the doapply arm. Port complete number_leashed as a consumed return-valued dependency; wire mon.c newcham to the shared leashable predicate. Later unleashed cleanup callers remain separate.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "14ec08c418195f13623d326d6ef8e8cc5b42762e",
+      "openStanding": {
+        "sha": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -117329,21 +117553,21 @@
           "name": "leashable",
           "line": 761,
           "endLine": 768,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "use_leash",
           "line": 769,
           "endLine": 820,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "use_leash_core",
           "line": 821,
           "endLine": 879,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -117364,7 +117588,227 @@
           "evaluationPath": "challenges/evaluations/20260929165804-v13.json",
           "evaluationCommit": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "pet-leash-attaches-to-tame-dog",
+          "session": "synthetic/v13/pet-leash-attaches-to-tame-dog",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+          "recordingPath": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+          "recordingSha256": "e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a",
+          "recipe": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.recipe.session.json",
+          "recipeSha256": "13d65c886416f72d7b6a0e540659530949c689435d8f5cdd4875ee88f19d904f",
+          "replayInputSha256": "02d0b0b51001745c43e2cca53010b45f93afd49bf05605ca6fa1dce9d4ad15cc",
+          "evaluationPath": "challenges/evaluations/20260929165804-v13.json",
+          "evaluationCommit": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+          "evaluationArtifact": "challenges/evaluations/20260929165804-v13.json",
+          "evaluationUtc": "2026-09-29T16:58:23.277Z",
+          "remainingScreens": 2,
+          "recordedSteps": 21,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 21
+            },
+            "rng": {
+              "matched": 2981,
+              "total": 2989
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 236",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 236",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/pet-leash-attaches-to-tame-dog.json",
+            "result": {
+              "session": "synthetic/v13/pet-leash-attaches-to-tame-dog",
+              "remainingScreens": 2,
+              "recordedSteps": 21,
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "pet-leash-attaches-to-tame-dog",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "pet-leash-attaches-to-tame-dog",
+                "session": "synthetic/v13/pet-leash-attaches-to-tame-dog",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+                "recordingPath": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+                "recordingSha256": "e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a",
+                "recipe": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.recipe.session.json",
+                "recipeSha256": "13d65c886416f72d7b6a0e540659530949c689435d8f5cdd4875ee88f19d904f",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 2,
+                "recordedSteps": 21,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 2981,
+                    "total": 2989
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 236",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 236",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the unported LEASH arm of apply.c:doapply: JavaScript stops at step 19 before the direction prompt. Recorded C applies an unused leash to an adjacent visible tame dog, reaches use_leash_core’s successful attach branch at step 20, sets both the monster mleashed flag and object leashmon ID, wakes the dog, and updates inventory.",
+              "source": {
+                "file": "apply.c",
+                "branch": "doapply dispatches a selected LEASH to use_leash; for an unused leash with fewer than MAXLEASHED (2) attached pets, use_leash obtains an adjacent location, finds a visible tame solid monster with limbs or a head that is not already leashed, and use_leash_core attaches the leash. Other use_leash_core branches handle invisible or unspotted targets, non-tame monsters, invalid forms, and detaching an in-use leash.",
+                "functions": [
+                  "leashable (pure predicate; rejects long worms, unsolid forms, and forms with neither limbs nor a head)",
+                  "use_leash (returns ECMD_OK/ECMD_TIME; handles swallowed state, capacity, direction selection, mounted-self target, and absent/selected monster)",
+                  "use_leash_core (void helper; handles visibility, tame state, attach eligibility, and detach/cursed cases)",
+                  "doapply (LEASH switch arm consumes use_leash’s ECMD result)"
+                ],
+                "callers": [
+                  "cmd.c command table maps apply command key a to doapply; js/cmd.js:runApplyCommand dispatches the JavaScript apply command to doapply(state).",
+                  "apply.c:doapply LEASH arm calls use_leash(obj); use_leash calls use_leash_core for the selected monster, or for the steed when applying downward while mounted."
+                ],
+                "dependencies": [
+                  "get_adjacent_loc’s Boolean result and selected coordinate determine cancellation and target selection; number_leashed’s result is compared with MAXLEASHED=2 before attaching an unused leash.",
+                  "u_at, m_at, and canspotmon determine hero/monster targeting and the spotmon argument; use_leash_core also checks the target tile’s invisible glyph.",
+                  "unsolid, nolimbs, has_head, and leashable determine whether the leash fits. leashable is pure and needs source-pinned predicate tests if implemented.",
+                  "The successful attach writes mtmp->mleashed=1 and obj->leashmon=mtmp->m_id together, clears mtmp->msleeping, and calls update_inventory; detach also clears both fields together and updates inventory.",
+                  "unmap_invisible’s return is discarded in the empty-square branch; map_invisible is a void visibility side effect. set_bknown is used only by cursed-detach refusal.",
+                  "mleashed_next2u/next_to_u later read the paired monster state when leaving a level; this selected recording ends immediately after attachment and does not exercise that downstream path."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Source: nethack-c/upstream/src/apply.c:758-883 defines MAXLEASHED, pure leashable, use_leash, and the full use_leash_core branch tree. The successful branch requires an unused leash, available leash capacity, a selected adjacent visible tame monster not already leashed, a solid form with limbs or a head, and a species accepted by leashable; it emits the slip-leash message, links the monster and leash IDs, wakes the monster, then updates inventory.",
+                "Source: nethack-c/upstream/src/apply.c:4297-4298 dispatches case LEASH through res = use_leash(obj), so use_leash’s ECMD result is consumed by doapply while use_leash_core’s void result is discarded. nethack-c/upstream/src/cmd.c:1677-1678 maps command a to doapply.",
+                "Selected runtime evidence: challenges/evaluations/20260929141337-v13.json, synthetic/v13/pet-leash-attaches-to-tame-dog, segment 0. Through zero-based step 18 the apply inventory prompt matches; at step 19 C handles key p and displays “In what direction?”, but JavaScript stops with the unsupported doapply object-type-236 arm. At step 20 the C key j selects the adjacent dog and displays “You slip the leash around your dog.”, exercising apply.c:use_leash -> use_leash_core’s attach branch. Evaluation reports 19/21 matched screens and 2 remaining screens; recording has 21 steps and SHA256 e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a.",
+                "The independent recipe challenges/cases/v13/pet-leash-attaches-to-tame-dog.recipe.session.json uses seed 77433825, a debug Wizard with pettype:none and !autopickup, creates an adjacent tame dog, wishes an unused leash, then applies it with apj. The recorded C screen at step 20 verifies the successful branch’s message; paired flag/ID and wake updates are established by the cited C source."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [],
+        "entryPointReview": "The primary active entry point is the hero applying an inventory leash through cmd.c:doapply -> apply.c:doapply -> use_leash -> use_leash_core. The independent Healer starting-dog recording reaches both successful attach and detach; the admitted v13 case matches through step 20 and reaches the attach path. `number_leashed` and `leashable` have source-pinned pure tests. The additional active predicate caller is mon.c:newcham when a leashed monster changes into an unleasable form. scripts/mon.test.mjs directly drives that production JS caller, pins the C predicate call, and verifies that the discarded void m_unleash dependency remains explicitly unported; there is no matching C recording for that form-change caller in this delivery. The downward mounted-steed branch in use_leash has no independent matching recording. The cursed-removal C trace reaches use_leash_core's cursed branch and set_bknown(), but full JS replay stops on the subsequent dogmove.c:dog_move simple-action boundary; its recipe remains blocked, with no nonmatching recording. A separate wizard-created-pet attempt reaches leash interactions but fails at monmove.c:distfleeck after the effects; it remains a blocked recipe. These do not invalidate the matching primary apply entry, but the newcham, mounted-steed, cursed-continuation, and wizard-created-pet variants remain uncovered. Existing downstream cleanup and movement gaps outside this family include apply.c:o_unleash, apply.c:m_unleash, apply.c:unleash_all, and dogmove.c:mleashed_next2u; where C discards m_unleash's result, JS calls note_unported('apply.c m_unleash') and never consumes the marker as data. Coordinator audit: no source unit is recorded complete while newcham, mounted-steed, and cursed continuation coverage remains incomplete. The primary attach/detach recording and v13 prefix establish only the cited apply entry.",
+        "entryPoints": [
+          {
+            "name": "Hero applies a leash to a visible adjacent tame pet; attach and detach through doapply",
+            "functions": [
+              "leashable",
+              "use_leash",
+              "use_leash_core"
+            ],
+            "recordings": [
+              "recordings/apply.c/leash-starting-pet-attach-detach-b56.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "pet-leash-attaches-to-tame-dog",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c:doapply(LEASH) -> apply.c:doapply() -> use_leash() -> use_leash_core()"
+              }
+            ]
+          },
+          {
+            "name": "A leashed monster changes into a form rejected by mon.c:newcham's leashable check",
+            "functions": [
+              "leashable"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Cursed leash removal through use_leash_core",
+            "functions": [
+              "use_leash_core"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hero applies a leash downward to a mounted steed",
+            "functions": [
+              "use_leash",
+              "use_leash_core"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c6a50520a55684515ff6188696cd94704cf47cc1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Primary doapply leash attach and detach entry matches the independent C recording and admitted v13 steps 0-20. Whole-source completion remains unverified for the active mon.c:newcham leashable entry (apply.c:m_unleash gap), downward mounted-steed leash entry, and cursed-removal continuation blocked by dogmove.c:dog_move. Preserve the committed cursed and wizard-created-pet blocked recipes; resume when those source entries have matching runtime evidence."
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent display.c feel_location -> display_monster witness. Wizard creation places an adjacent long worm; #wizintrinsic gives Blind (i) and Detect monsters (t), then explicit m-prefixed search forces dosearch0 past the already-found safety gate. C sensemon accepts Detect_monsters, and blind dosearch0 calls feel_location on adjacent squares before its sensed-monster check. Seed, time, and history are independent of the visible-tail newsym witness.",
+  "segments": [
+    {
+      "seed": 840051,
+      "datetime": "20340917101100",
+      "nethackrc": "OPTIONS=name:FeelWorm,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".\u0007long worm\n#wizintrinsic\ni\n #wizintrinsic\nt\n ms"
+    }
+  ]
+}
