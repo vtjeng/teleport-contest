@@ -23,6 +23,7 @@ import {
     UNCHANGING,
     ARTICLE_NONE,
     ARTICLE_THE,
+    A_CHA,
     A_CON,
     A_DEX,
     A_STR,
@@ -62,6 +63,7 @@ import {
     In_quest,
     KILLED_BY,
     KILLED_BY_AN,
+    NO_MM_FLAGS,
     NO_KILLER_PREFIX,
     NOTELL,
     LANDMINE,
@@ -133,7 +135,7 @@ import {
 import { stop_occupation } from './allmain.js';
 import { placebc, unplacebc } from './ball.js';
 import {
-    acurr, exercise, minuhpmax, poisoned, setuhpmax,
+    acurr, adjattrib, exercise, minuhpmax, poisoned, setuhpmax,
 } from './attrib.js';
 import { map_trap, newsym, obj_to_glyph, tmp_at } from './display.js';
 import { flooreffects, set_wounded_legs } from './do.js';
@@ -185,7 +187,7 @@ import {
     is_art,
 } from './artifacts.js';
 import { is_quest_artifact } from './questpgr.js';
-import { count_wsegs } from './makemon_create.js';
+import { count_wsegs, makemon_runtime } from './makemon_create.js';
 import {
     maybe_unhide_at,
     monkilled,
@@ -219,6 +221,7 @@ import {
     pm_invisible,
     passes_rocks,
     passes_walls,
+    resists_blnd,
     resists_magm,
     strongmonst,
     throws_rocks,
@@ -351,7 +354,12 @@ import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { is_ice } from './terrain.js';
 import { burn_away_slime, end_burn, fall_asleep } from './timeout.js';
-import { self_invis_message, split_mon } from './potion.js';
+import {
+    incr_itimeout,
+    make_blinded,
+    self_invis_message,
+    split_mon,
+} from './potion.js';
 import { note_unported } from './unported.js';
 import { dmgval } from './weapon.js';
 import {
@@ -1591,13 +1599,12 @@ function Hallucination(state) {
 // trapeffect_magic_trap() when the 1/30 explosion did not fire.
 //
 // Rolls rnd(20) for `fate` and dispatches across 11 branches:
-//   fate < 10: blindness, deafness, monster creation -- refused (needs
-//     make_blinded, incr_itimeout, Soundeffect, makemon, wake_nearto).
+//   fate < 10: blindness, deafness, monster creation.
 //   fate 10: no-op.
 //   fate 11: toggle HInvis, including self_invis_message() and redraw.
 //   fate 12: dofiretrap() -- the hero-only tower-of-flame effect.
 //   fate 13-18: odd-feelings messages, fully ported.
-//   fate 19: tame nearby monsters -- refused (needs adjattrib, tamedog).
+//   fate 19: increase charisma and tame nearby monsters.
 //   fate 20: uncurse items through read.c:seffects(SPE_REMOVE_CURSE).
 
 // C ref: youprop.h:198 Invis, the intrinsic or extrinsic invisibility source
@@ -1625,15 +1632,65 @@ async function domagictrap(env) {
     const { state } = env;
     const random = env.random;
     const message = requireTrapOperation(env, 'message');
-    const unsupported = requireTrapOperation(env, 'unsupported');
 
     const fate = random.rnd(20);
 
     if (fate < 10) {
-        // Most of the time, it creates some monsters and blinds/deafens the
-        // hero. Needs make_blinded(), incr_itimeout(), Soundeffect(),
-        // makemon(), wake_nearto() for the hero arm.
-        unsupported('magic trap monster creation');
+        // trap.c:4322-4347. rnd(4) precedes the resistance test and all
+        // blindness/deafness effects. makemon()'s pointer is discarded by C;
+        // await its runtime continuation for the monster's complete effects,
+        // then deliberately ignore its returned instance.
+        let count = random.rnd(4);
+        if (!resists_blnd(state.youmonst, state)) {
+            await message(
+                'You are momentarily blinded by a flash of light!', state,
+            );
+            await make_blinded(random.rn1(5, 10), false, state, env);
+            if (!heroIsBlind(state))
+                await message('Your vision clears.', state);
+        } else if (!heroIsBlind(state)) {
+            // C's You_see() adds this prefix only when Unaware.
+            await message(
+                heroUnaware(state)
+                    ? 'You dream that you see a flash of light!'
+                    : 'You see a flash of light!',
+                state,
+            );
+        }
+
+        if (!heroIsDeaf(state)) {
+            // Soundeffect(se_deafening_roar_atmospheric, 100) is a no-op
+            // under the patched tty recorder build; You_hear() is observable.
+            const heard = plineYouHear('a deafening roar!', state);
+            if (heard !== null) await message(heard, state);
+            await incr_itimeout(
+                state.u.uprops[DEAF], random.rn1(20, 30),
+            );
+            state.disp.botl = true;
+        } else {
+            await message(
+                heroUnaware(state)
+                    ? 'You dream that you feel rankled.'
+                    : 'You feel rankled.',
+                state,
+            );
+            await incr_itimeout(
+                state.u.uprops[DEAF], random.rn1(5, 15),
+            );
+            state.disp.botl = true;
+        }
+
+        while (count--) {
+            await makemon_runtime(
+                null,
+                state.u.ux,
+                state.u.uy,
+                NO_MM_FLAGS,
+                env,
+            );
+        }
+        // C creates the monsters before waking nearby ones. Its return is void.
+        await wake_nearto(state.u.ux, state.u.uy, 7 * 7, env);
     } else {
         switch (fate) {
         case 10:
@@ -1726,9 +1783,23 @@ async function domagictrap(env) {
             break;
         /* very occasionally something nice happens. */
         case 19: /* tame nearby monsters */
-            // Needs adjattrib() and tamedog().
-            unsupported('magic trap tame monsters');
-            break; // unreachable
+            // Both return values are discarded at trap.c:4429-4437. Preserve
+            // their state/output effects while keeping that source contract.
+            await adjattrib(A_CHA, 1, 0, state, env);
+            {
+                const { tamedog } = await import('./dog.js');
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        const x = state.u.ux + i;
+                        const y = state.u.uy + j;
+                        if (!isok(x, y)) continue;
+                        const monster = m_at(x, y, state);
+                        if (monster)
+                            await tamedog(monster, null, true, env);
+                    }
+                }
+            }
+            break;
         case 20: { /* uncurse stuff */
             const confusion = state.u.uprops?.[CONFUSION];
             const savedConfusion = confusion?.intrinsic ?? 0;

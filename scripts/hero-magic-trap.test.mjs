@@ -3,7 +3,9 @@ import test from 'node:test';
 
 import {
     BLINDED,
+    A_CHA,
     CONFUSION,
+    DEAF,
     FAINTED,
     FROMOUTSIDE,
     HALLUC,
@@ -17,8 +19,11 @@ import {
 } from '../js/const.js';
 import { at_dgn_entrance, on_level } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
+import { acurr } from '../js/attrib.js';
 import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import { PM_GIANT_RAT } from '../js/monsters.js';
 import { body_part } from '../js/polyself.js';
 import {
     preflight_dotrap,
@@ -61,9 +66,9 @@ function makeTrap(state) {
 }
 
 // Build a controlled env for trapeffect_selector(). The hero arm of
-// trapeffect_magic_trap() reads random.rn2 and random.rnd, plus message,
-// redraw, and unsupported from the env. This env stubs the PRNG so every
-// test controls the rn2(30) explosion gate and the rnd(20) fate roll.
+// trapeffect_magic_trap() reads several injected PRNG methods plus message,
+// redraw, and the existing unsupported explosion boundary. The stub makes
+// the rn2(30) gate and rnd(20) fate explicit while keeping other draws stable.
 function heroEnv(state, rn2_30, rnd_20) {
     const messages = [];
     const randomCalls = [];
@@ -84,8 +89,12 @@ function heroEnv(state, rn2_30, rnd_20) {
                 if (n === 20) { rndCalled = true; return rnd_20; }
                 return 1;
             },
-            rn1: (x, y) => y,
+            rn1(x, y) {
+                randomCalls.push(`rn1(${x},${y})`);
+                return x + 1; // The stubbed rn2(y) returns 1.
+            },
             rne: () => 1,
+            rnz: (x) => x,
             d(n, x) {
                 randomCalls.push(`d(${n},${x})`);
                 return n;
@@ -360,19 +369,26 @@ test('trapeffect_magic_trap: fate 18 tired', async () => {
     assert.equal(env.messages[0], 'You feel tired.');
 });
 
-// ── refused complex branches ──
+// ── complex branches ──
 
-test('trapeffect_magic_trap: fate < 10 refuses (monster creation)',
+test('trapeffect_magic_trap: fate < 10 blinds, deafens, then creates monsters',
     async () => {
-        // fate=5 triggers the blindness/deafness/monster-creation branch.
-        // Breaking: remove the `unsupported` call for fate < 10.
+        // trap.c:4322-4347 first rolls rnd(4), then applies the flash and roar
+        // effects before makemon() and wake_nearto().
         const state = await initState();
         const trap = makeTrap(state);
         const env = heroEnv(state, 1, 5);
-        await assert.rejects(
-            () => trapeffect_selector(state.youmonst, trap, 0, env),
-            (error) => error.reason === 'magic trap monster creation',
+        const result = await trapeffect_selector(
+            state.youmonst, trap, 0, env,
         );
+        assert.equal(result, Trap_Effect_Finished);
+        assert.deepEqual(env.randomCalls.slice(0, 5), [
+            'rn2(30)', 'rnd(20)', 'rnd(4)', 'rn1(5,10)', 'rn1(20,30)',
+        ]);
+        assert.match(env.messages[0], /momentarily blinded/);
+        assert.ok(env.messages.includes('You hear a deafening roar!'));
+        assert.ok(state.u.uprops[BLINDED].intrinsic > 0);
+        assert.ok(state.u.uprops[DEAF].intrinsic > 0);
     });
 
 test('trapeffect_magic_trap: fate 11 grants intrinsic invisibility',
@@ -457,14 +473,31 @@ test('trapeffect_magic_trap: fate 12 triggers a tower of flame', async () => {
     ]);
 });
 
-test('trapeffect_magic_trap: fate 19 refuses (tame monsters)', async () => {
+test('trapeffect_magic_trap: fate 19 increases charisma and tames nearby monsters', async () => {
     const state = await initState();
     const trap = makeTrap(state);
     const env = heroEnv(state, 1, 19);
-    await assert.rejects(
-        () => trapeffect_selector(state.youmonst, trap, 0, env),
-        (error) => error.reason === 'magic trap tame monsters',
+    const ratX = state.u.ux < 78 ? state.u.ux + 1 : state.u.ux - 1;
+    const rat = newMonster({
+        data: state.mons[PM_GIANT_RAT],
+        m_id: 9001,
+        mcanmove: true,
+        mhp: 5,
+        mhpmax: 5,
+    });
+    place_monster(rat, ratX, state.u.uy, state);
+    state.level.monlist = rat;
+    const charisma = acurr(state, A_CHA);
+    const result = await trapeffect_selector(
+        state.youmonst, trap, 0, env,
     );
+    assert.equal(result, Trap_Effect_Finished);
+    assert.equal(acurr(state, A_CHA), Math.min(charisma + 1, 25));
+    assert.equal(rat.mpeaceful, true,
+        'fate 19 makes the adjacent hostile giant rat peaceful');
+    assert.ok(rat.mtame > 0,
+        'fate 19 initializes the adjacent monster as a pet');
+    assert.deepEqual(env.randomCalls, ['rn2(30)', 'rnd(20)']);
 });
 
 test('trapeffect_magic_trap: fate 20 calls remove-curse with confusion cleared', async () => {
