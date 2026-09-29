@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T03:42:23.377Z",
+  "capturedAt": "2026-09-29T04:47:49.901Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -8620,12 +8620,101 @@
         "type": "accepted",
         "at": "2026-09-29T03:42:17.923Z",
         "task": "C44"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C44-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T03:43:45.348Z",
+        "task": "C44",
+        "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C45-lesshungry-20260929",
+        "type": "assign",
+        "at": "2026-09-29T03:50:40.628Z",
+        "task": "C45",
+        "worker": "C",
+        "goal": "port-eat-lesshungry-synthetic-v12-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c242df9fa3c3383fad36ce5456d2012929abb37e",
+        "type": "ready",
+        "at": "2026-09-29T04:27:55.659Z",
+        "task": "B51",
+        "delivery": "c242df9fa3c3383fad36ce5456d2012929abb37e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B51-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T04:28:57.975Z",
+        "task": "B51",
+        "delivery": "c242df9fa3c3383fad36ce5456d2012929abb37e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B51-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T04:32:50.849Z",
+        "task": "B51",
+        "integration": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-24f61f1b7398cf5f9b4c19eaf66e5c88f0f18a62",
+        "type": "ready",
+        "at": "2026-09-29T04:39:30.018Z",
+        "task": "A45",
+        "delivery": "24f61f1b7398cf5f9b4c19eaf66e5c88f0f18a62"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A45-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T04:41:27.486Z",
+        "task": "A45",
+        "delivery": "24f61f1b7398cf5f9b4c19eaf66e5c88f0f18a62"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-b8dc5a20efeadaccf5858d118063413e280c8b6f",
+        "type": "ready",
+        "at": "2026-09-29T04:42:14.097Z",
+        "task": "C45",
+        "delivery": "b8dc5a20efeadaccf5858d118063413e280c8b6f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C45-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T04:43:09.743Z",
+        "task": "C45",
+        "delivery": "b8dc5a20efeadaccf5858d118063413e280c8b6f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B51-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T04:47:07.144Z",
+        "task": "B51",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B51-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T04:47:24.119Z",
+        "task": "B51"
       }
     ]
   },
   "development": {
-    "executionCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
-    "measuredAt": "2026-09-29T03:33:28.227Z",
+    "executionCommit": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+    "measuredAt": "2026-09-29T04:40:32.485Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

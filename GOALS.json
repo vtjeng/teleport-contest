@@ -111709,7 +111709,7 @@
     {
       "id": "port-trap-mk-trap-statue-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port statue-trap creation for every trap creator",
       "cFile": "trap.c",
       "sessions": [
@@ -111723,15 +111723,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mk_trap_statue",
           "line": 390,
           "endLine": 417,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -111973,7 +111976,190 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mk_trap_statue",
+            "implementation": "js/trap.js",
+            "symbol": "mk_trap_statue",
+            "sourceReview": "Read trap.c:mk_trap_statue() (390-417) in full and traced its STATUE_TRAP caller in trap.c:maketrap(). Preserved the do/while evaluation order and ten-attempt co-aligned-unicorn rejection, created the statue with mkcorpstat(CORPSTAT_NONE), then made the donor with makemon(&mons[statue->corpsenm], 0, 0, MM_NOCOUNTBIRTH|MM_NOMSG). On a donor, transferred minvent in source list order after clearing owornmask, extracted each object, added it to the statue, recalculated statue weight, then detached the donor with mongone. Runtime and special-level callers now await the donor completion before linking/returning the trap; level-generation creation remains synchronous. All consumed callees are implemented; no source-named gap substitutes for this function.",
+            "callers": [
+              {
+                "path": "js/trap.js",
+                "symbol": "maketrap",
+                "source": "trap.c:maketrap() calls mk_trap_statue(x,y) in the STATUE_TRAP switch arm before linking the trap into ftrap."
+              },
+              {
+                "path": "js/objnam_readobjnam.js",
+                "symbol": "apply_wizterrainwish",
+                "source": "objnam.c:wizterrainwish() creates an explicitly wished statue trap with maketrap(); JavaScript awaits the async runtime donor before reporting the created trap."
+              },
+              {
+                "path": "js/mktrap.js",
+                "symbol": "mktrap",
+                "source": "mklev.c:mktrap() chooses a random trap with traptype_rnd(), calls maketrap(), and the D:8 witness selects STATUE_TRAP."
+              },
+              {
+                "path": "js/themeroom_fill.js",
+                "symbol": "fillStatuary",
+                "source": "dat/themerms.lua Statuary invokes des.trap(\"statue\"); sp_lev.c:create_trap() passes the type and coordinate to mklev.c:mktrap(), which then reaches trap.c:maketrap() and mk_trap_statue(). JavaScript fillStatuary awaits the createRoomTrap -> createTrap -> mktrap path in source order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-generation.test.mjs",
+              "scripts/mktrap-orchestration.test.mjs",
+              "scripts/themeroom-fill.test.mjs",
+              "scripts/objnam-wizterrainwish.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/wizard-statue-trap-runtime-independent.session.json",
+              "recordings/trap.c/statuary-fill-runtime-independent.session.json",
+              "recordings/trap.c/wizard-level8-statue-selector-independent.session.json",
+              "recordings/Arc-loca.lua/arc-loca-level-teleport.session.json",
+              "recordings/Wiz-loca.lua/wizard-locate.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-statue-trap-animates-statue",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "cmd.c apply/wish dispatch -> objnam.c:wizterrainwish() -> trap.c:maketrap(STATUE_TRAP) -> trap.c:mk_trap_statue()"
+              }
+            ],
+            "checkedAt": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42"
+          }
+        ],
+        "entryPointReview": "B51 covers the common trap.c:maketrap(STATUE_TRAP) creation branch and five production routes. (1) Wizard #wish reaches objnam.c:wizterrainwish() and maketrap(); its independent recording strictly matches 2,473 RNG calls and 17 screen/cursor boundaries. (2) Ordinary D:8 generation reaches mklev.c:mktrap(); the independent D:8 recording’s level-generation boundary includes rnd(25)=19 @ traptype_rnd(mklev.c:1941), selecting STATUE_TRAP, followed by somex/somey and the mk_trap_statue rndmonst_adj sequence; strict replay matches 4,980 RNG calls and five screen/cursor boundaries. (3) The natural dat/themerms.lua Statuary room calls des.trap(\"statue\"); seed 133 produces room selections default x5, t-shaped-rot-2, then fill statuary, then default x2, without a debug environment override. The independent level-generation recording strictly matches 3,372 RNG calls and two boundaries. (4) dat/Arc-loca.lua:107-109 and (5) dat/Wiz-loca.lua:115-116 each call des.trap(\"statue\") in their special-level programs. Existing Arc-loca and Wiz-loca level-teleport recordings reach the selected quest-locate load at segment 0 step 44 and segment 0 step 41 respectively. Replaying the complete saved recordings against current B51 code matched all 45/45 and 42/42 boundaries with no divergence; each path runs mklev.c:makelevel -> mkmaze.c:makemaz/load_special -> sp_lev.c:create_trap -> mklev.c:mktrap -> trap.c:maketrap(STATUE_TRAP) -> trap.c:mk_trap_statue(). The admitted v11 hero-wish case also matches through segment 0 steps 35-36 for the creation chain; the subsequent hero activation is outside this creation task.",
+        "entryPoints": [
+          {
+            "name": "Wizard wishes a statue trap through wizterrainwish",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/trap.c/wizard-statue-trap-runtime-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-statue-trap-animates-statue",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 36,
+                "source": "objnam.c:wizterrainwish() -> trap.c:maketrap(STATUE_TRAP) -> trap.c:mk_trap_statue()"
+              }
+            ]
+          },
+          {
+            "name": "Ordinary D:8 level generation selects a statue trap through mklev.c:mktrap",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/trap.c/wizard-level8-statue-selector-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Natural Statuary special-room generation creates statue traps",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/trap.c/statuary-fill-runtime-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Arc-loca special level creates its explicit statue traps",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/Arc-loca.lua/arc-loca-level-teleport.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Wiz-loca special level creates its explicit statue traps",
+            "functions": [
+              "mk_trap_statue"
+            ],
+            "recordings": [
+              "recordings/Wiz-loca.lua/wizard-locate.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-statue-trap-animates-statue",
+          "session": "synthetic/v11/hero-statue-trap-animates-statue",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingPath": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+          "recipe": "challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json",
+          "recipeSha256": "676e93c84bc911489e707abbf9a80a1e53d46dfd99c12b8f848e04625d12964d",
+          "replayInputSha256": "9d69793516a781e9d53754b7c87b21a79526d5faf4a2cb09f57ae9ea0e368eae",
+          "evaluationPath": "challenges/evaluations/20260929044224-v11.json",
+          "evaluationCommit": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+          "evaluationArtifact": "challenges/evaluations/20260929044224-v11.json",
+          "evaluationUtc": "2026-09-29T04:42:35.085Z",
+          "remainingScreens": 2,
+          "recordedSteps": 39,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2376,
+              "total": 2433
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: trap activation",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: trap activation",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v11/hero-statue-trap-animates-statue.json",
+            "previousRemainingScreens": 3
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "7e0de1c572b6d462333181bcdc3b7e0e2fcaaf42",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-eat-lesshungry-synthetic-v12-20260929",
