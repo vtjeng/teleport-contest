@@ -110371,7 +110371,7 @@
     {
       "id": "port-trap-dofiretrap-synthetic-v11-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port complete fire-trap effects and wire hero, magic-trap, and chest-trap callers",
       "cFile": "trap.c",
       "sessions": [
@@ -110385,15 +110385,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "77e9867ad37271d551bdcd26a185da93cf6ff634",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dofiretrap",
           "line": 4233,
           "endLine": 4316,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -110568,7 +110571,105 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dofiretrap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "dofiretrap",
+            "sourceReview": "Read the complete trap.c:dofiretrap source range (4233-4316) in order. The port consumes d(2,4) before the water check; tests an uncarried box square for a pool and otherwise uses u.uinwater; preserves the bubble/fire message and early return; then follows the resistance, polymorphed-golem, and human max-HP branches with their original draw and side-effect order. It keeps the short-circuit burnarmor || rn2(3), then destroy_items/ignite_items, hero floor burn only when box is null, and the final is_ice(u.ux,u.uy) check even for a non-null box. Fire_resistance uses the existing state predicate and marks the discarded visual-only display.c:shieldeff call with note_unported at its C position. timeout.c:burn_away_slime is called on the ordinary path; its active SLIMED/make_slimed branch is named with note_unported because the void callee has state/message effects. zap.c:melt_ice is likewise a void call with terrain effects and remains a named gap on ice. Existing return-valued/effect dependencies (minuhpmax, setuhpmax, losexp, burnarmor, destroy_items, ignite_items, burn_floor_objects, losehp, and resistance checks) are awaited or consumed in source order. The hero trapeffect_fire_trap arm, domagictrap fate 12 arm, and chest_trap fire outcomes are wired to this helper; the existing monster fire arm remains separate. Recording hashes: magic-fate12 recipe sha256 201c01697fb536bb32fcac766e28f5fc65d382f11e3fd8ae36cee86db7bfb20a and recording sha256 53b89e3c53dee0f537688e21002e03c8eeb0a77bbfcc2f418ecba41ee59e12e8; chest-fire recipe sha256 23ef463576d42e3b4eb284e0a50a7de9c40461301552b3415d829475fa83f3fc and recording sha256 e32d482a203f7f24f640f31da3838cab6baa706803784f0c907965e2ad5332e0.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_fire_trap",
+                "source": "trap.c:dotrap dispatches FIRE_TRAP to trapeffect_fire_trap; the hero arm calls dofiretrap(NULL) after seetrap()."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "domagictrap",
+                "source": "trap.c:trapeffect_magic_trap -> trap.c:domagictrap; case 12 calls dofiretrap(NULL)."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "chest_trap",
+                "source": "trap.c:chest_trap cases 9-12 call dofiretrap(obj); the independent #loot recipe reaches pickup.c:in_container -> chest_trap."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "cmd.c:#loot -> pickup.c:doloot -> pickup.c:do_loot_cont -> pickup.c:in_container -> trap.c:chest_trap -> dofiretrap(obj)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-magic-trap.test.mjs",
+              "scripts/trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/dofiretrap-magic-fate12-independent-c41.session.json",
+              "recordings/trap.c/dofiretrap-chest-fire-independent-c41.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-fire-trap-smoulders-cloak",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "trap.c:dotrap -> trap.c:trapeffect_fire_trap(hero arm) -> trap.c:dofiretrap(NULL)"
+              }
+            ],
+            "checkedAt": "77e9867ad37271d551bdcd26a185da93cf6ff634"
+          }
+        ],
+        "entryPointReview": "Active production entry points are: (1) stepping on a floor FIRE_TRAP, through dotrap -> trapeffect_fire_trap hero arm; the admitted v11 hero-fire-trap-smoulders-cloak recording fully matches through zero-based step 15, whose C RNG is at dofiretrap lines 4238/4287/4289. (2) triggering a MAGIC_TRAP whose domagictrap roll is fate 12; the independent recording reaches rnd(20)=12 at step 17, then dofiretrap. (3) opening an unlocked trapped chest; the independent #loot recording reaches pickup.c:in_container -> trap.c:chest_trap, whose fire outcome calls dofiretrap(obj) at step 33. The magic-trap fate<10 monster-creation path is a separate unported domagictrap branch and is not claimed: recipes/trap.c/dofiretrap-magic-fate-seed38170629-blocked-domagictrap-create-monsters-c41.session.json records the source-owned setup blocker before dofiretrap. The remaining dofiretrap-specific gaps are display.c:shieldeff (discarded presentation), timeout.c:burn_away_slime when SLIMED (state/message effect through unported make_slimed), and zap.c:melt_ice when the hero is standing on ice (terrain effect); those branches have no matching runtime entry claim in this task.",
+        "entryPoints": [
+          {
+            "name": "Hero steps on a floor fire trap",
+            "functions": [
+              "dofiretrap"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-fire-trap-smoulders-cloak",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 15,
+                "source": "trap.c:dotrap -> trap.c:trapeffect_fire_trap(hero arm) -> trap.c:dofiretrap(NULL)"
+              }
+            ]
+          },
+          {
+            "name": "Magic trap fate 12 produces a fire trap effect",
+            "functions": [
+              "dofiretrap"
+            ],
+            "recordings": [
+              "recordings/trap.c/dofiretrap-magic-fate12-independent-c41.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Opening a trapped chest triggers its fire outcome",
+            "functions": [
+              "dofiretrap"
+            ],
+            "recordings": [
+              "recordings/trap.c/dofiretrap-chest-fire-independent-c41.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "77e9867ad37271d551bdcd26a185da93cf6ff634",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-lock-doorlock-synthetic-v11-20260928",

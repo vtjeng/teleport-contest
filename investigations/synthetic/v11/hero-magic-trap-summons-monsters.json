@@ -63,27 +63,28 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "The hero steps onto a magic trap and C trap.c:domagictrap draws fate below 10, blinds and deafens the hero, creates nearby monsters, then wakes them. JavaScript reaches the partial domagictrap function but refuses that branch. Port the complete function with its return-valued dependencies and preserve every existing fate arm.",
+  "summary": "At the recorded hero magic-trap step, C draws rn2(30)=28 and domagictrap fate 19, which raises Charisma and tries to tame adjacent monsters. JavaScript reaches the partial domagictrap function but refuses that fate. Complete the whole source function, including its separately unported fate-below-10 monster-creation branch, while preserving every existing fate arm.",
   "source": {
     "file": "trap.c",
-    "branch": "trap.c:trapeffect_magic_trap hero arm (2294-2321) draws the 1/30 explosion check and otherwise calls domagictrap (4317-4451). For fate below 10, domagictrap draws rnd(4), applies blindness and deafness with source-specific rn1 ranges, creates cnt monsters with makemon, and wakes nearby monsters only after creation.",
+    "branch": "trap.c:trapeffect_magic_trap hero arm (2294-2321) avoids its 1/30 explosion and calls domagictrap (4317-4451). The admitted v11 recording draws rnd(20)=19 at step 16 and takes the fate-19 taming arm (4418-4432): adjattrib(A_CHA,1,FALSE), then i/j ordered 3x3 isok and m_at checks, followed by tamedog(mon,NULL,TRUE) for each monster. A separate fate-below-10 arm draws rnd(4), applies blindness and deafness, creates monsters, then wakes them; it requires independent runtime evidence.",
     "functions": [
       "domagictrap",
       "trapeffect_magic_trap"
     ],
     "callers": [
-      "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_magic_trap(hero) -> domagictrap; js/trap_effects.js:domagictrap currently refuses fate below 10.",
-      "Other domagictrap fates remain production paths: fate 12 calls dofiretrap(NULL), currently being wired by C41, and fate 19 tames nearby monsters. Preserve the shared function across every fate."
+      "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_magic_trap(hero) -> domagictrap; js/trap_effects.js:domagictrap currently refuses recorded fate 19 after the C rn2(30)=28 and rnd(20)=19 draws.",
+      "Other domagictrap fates remain production paths: fate 12 calls the C41-ported dofiretrap(NULL), and fate below 10 creates and wakes monsters. Preserve the shared function across every fate and wire trapeffect_magic_trap to call steedintrap after domagictrap as C does."
     ],
     "dependencies": [
-      "Use resists_blnd, make_blinded, incr_itimeout for HDeaf, and source message gates; verify return values and exact random-draw order around rnd(4), rn1(5,10) or blindness resistance, and rn1(20,30) or rn1(5,15).",
-      "makemon return is discarded in C, but each call creates state and consumes RNG; wire existing production makemon where available. Wake_nearto follows all creations, not each one.",
-      "C41 already reserves trap.c:domagictrap to wire fate 12. Defer the separate whole-function completion until its task ends, then reuse that worker or coordinate scope explicitly; do not overlap edits to js/trap_effects.js."
+      "For recorded fate 19, adjattrib(A_CHA,1,FALSE) and tamedog(mon,NULL,TRUE) have explicitly discarded results in C. Existing js/attrib.js:adjattrib and js/dog.js:tamedog are stateful and asynchronous; await them in source order while ignoring their results.",
+      "For separate fate below 10, resists_blnd(&youmonst) is the consumed Boolean. Existing make_blinded, incr_itimeout, makemon_runtime, and wake_nearto cover state effects; preserve rnd(4), conditional rn1 ranges, cnt monster creations, and wake_nearto after all creations. Obtain an independent C recording that actually draws fate below 10.",
+      "The admitted case name says summons, but its C recording exercises fate-19 taming. Select by the trace rather than the label; do not count the earlier fate-below-10 C probe as evidence for this admitted case."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
     "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 has 1 unmatched screen and stops at zero-based step 16 with 'unsupported hero move: magic trap tame monsters'. The immutable C recording challenges/cases/v11/hero-magic-trap-summons-monsters.session.json has SHA-256 73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052.",
-    "Upstream trap.c:2294-2321 and :4317-4451 define the caller and whole effect. js/trap_effects.js:1582-1690 states and enforces the fate-below-10 refusal."
+    "The recording step 16 RNG begins rn2(30)=28 @ trapeffect_magic_trap(trap.c:2300), then rnd(20)=19 @ domagictrap(trap.c:4319); upstream trap.c:4418-4432 defines the taming arm. js/trap_effects.js currently refuses fate 19 as magic trap tame monsters.",
+    "Upstream trap.c:4317-4451 also defines fate below 10 monster creation, which is a distinct unported arm and needs its own source-reaching C witness. C41 independently recorded fate 12 and wired dofiretrap; that does not establish fate 19 or fate below 10 completion."
   ]
 }
