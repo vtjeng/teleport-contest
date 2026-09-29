@@ -77,6 +77,7 @@ import {
     is_missile,
     is_wet_towel,
     is_weptool,
+    is_sword,
     costly_alteration,
     set_bknown,
     splitobj,
@@ -98,6 +99,7 @@ import {
 } from './objnam.js';
 import {
     AKLYS,
+    BATTLE_AXE,
     COIN_CLASS,
     CORPSE,
     CRYSKNIFE,
@@ -537,14 +539,14 @@ export async function untwoweapon(state = game) {
 // works easily": puts `wep` in the hero's hand and reports what happened,
 // ECMD_TIME on every path that spends the turn.
 //
-// Three branches stop. A cockatrice corpse wielded bare-handed reaches
-// instapetrify(); a two-handed weapon under a shield; and an artifact that
-// lights up (Sunsword). The arti_speak() path is ported for its early return
-// (no SPFX_SPEAK), and the speaking case stops. The bottom-line test at
-// 270-271 is C's, and its condition never holds: condtests[bl_bareh] is an
-// opt-in status condition that botl.c leaves disabled, so a hero who goes
-// from armed to empty-handed marks nothing here. setworn(), which setuwep()
-// calls, is what actually marks the status line.
+// The source refusal for a two-handed weapon under a shield returns ECMD_FAIL
+// without changing either weapon slot. The petrifying-corpse, welded-weapon,
+// artifact-light, and unpaid-item branches remain unsupported. The arti_speak()
+// path is ported for its early return (no SPFX_SPEAK), and the speaking case
+// stops. The bottom-line test at 270-271 is C's, and its condition never holds:
+// condtests[bl_bareh] is an opt-in status condition that botl.c leaves
+// disabled, so a hero who goes from armed to empty-handed marks nothing here.
+// setworn(), which setuwep() calls, is what actually marks the status line.
 export async function ready_weapon(wep, state = game) {
     /* Separated function so swapping works easily */
     let res = ECMD_OK;
@@ -563,7 +565,14 @@ export async function ready_weapon(wep, state = game) {
         /* hero must have been life-saved to get here; use a turn */
         res = ECMD_TIME; /* corpse won't be wielded */
     } else if (state.uarms && bimanual(wep, state)) {
-        throw new UnsupportedWieldError('a two-handed weapon under a shield');
+        const weaponType = is_sword(wep, state)
+            ? 'sword'
+            : wep.otyp === BATTLE_AXE ? 'axe' : 'weapon';
+        await ttyPline(
+            `You cannot wield a two-handed ${weaponType} while wearing a shield.`,
+            state,
+        );
+        res = ECMD_FAIL;
     } else if (!await retouch_object({ obj: wep }, false, state)) {
         res = ECMD_TIME; /* takes a turn even though it doesn't get wielded */
     } else {

@@ -13,6 +13,7 @@ import {
     LAST_PROP,
     OBJ_INVENT,
     RIGHT_HANDED,
+    W_ARMS,
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
@@ -24,9 +25,11 @@ import {
 } from '../js/monsters.js';
 import {
     BOW,
+    BATTLE_AXE,
     CLUB,
-    CRYSTAL_PLATE_MAIL,
+    HALBERD,
     KATANA,
+    SMALL_SHIELD,
     SHORT_SWORD,
     SILVER_SABER,
     SLING,
@@ -150,20 +153,63 @@ test('ready_weapon() empties the hand when given nothing', async () => {
     assert.equal(drain(state), 'You are already bare handed.');
 });
 
-test('ready_weapon() stops for the four objects it cannot handle', async () => {
-    // Each stops before setuwep(), so the hand is unchanged and the command
-    // can be reported as unported rather than half-performed.
-    const shielded = makeState();
-    shielded.uarms = object(shielded, CRYSTAL_PLATE_MAIL);
-    await assert.rejects(
-        () => ready_weapon(object(shielded, TWO_HANDED_SWORD), shielded),
-        /two-handed weapon under a shield/u,
+test('ready_weapon() refuses bimanual weapons under a shield', async () => {
+    // wield.c:186-192. C distinguishes swords, battle axes, and other
+    // bimanual weapons in the refusal message, then returns ECMD_FAIL before
+    // retouch_object() or setuwep().
+    for (const { otyp, noun } of [
+        { otyp: TWO_HANDED_SWORD, noun: 'sword' },
+        { otyp: BATTLE_AXE, noun: 'axe' },
+        { otyp: HALBERD, noun: 'weapon' },
+    ]) {
+        const state = makeState();
+        const shield = object(state, SMALL_SHIELD, { owornmask: W_ARMS });
+        const primary = object(state, KATANA, { owornmask: W_WEP });
+        const selected = object(state, otyp);
+        state.uarms = shield;
+        state.uwep = primary;
+
+        assert.equal(await ready_weapon(selected, state), ECMD_FAIL);
+        assert.equal(
+            drain(state),
+            `You cannot wield a two-handed ${noun} while wearing a shield.`,
+        );
+        assert.equal(state.uwep, primary);
+        assert.equal(state.uarms, shield);
+        // The selected weapon starts unworn and the refusal leaves it so.
+        assert.equal(selected.owornmask, 0);
+    }
+});
+
+test('doswapweapon() restores the secondary after a shield refusal', async () => {
+    // wield.c:483-488 calls ready_weapon(oldswap), then restores oldswap when
+    // the primary slot did not change after its ECMD_FAIL result.
+    const state = makeState();
+    const shield = object(state, SMALL_SHIELD, { owornmask: W_ARMS });
+    const primary = object(state, KATANA, { owornmask: W_WEP });
+    const secondary = object(state, TWO_HANDED_SWORD,
+        { owornmask: W_SWAPWEP });
+    state.uarms = shield;
+    state.uwep = primary;
+    state.uswapwep = secondary;
+
+    assert.equal(await doswapweapon(state), ECMD_FAIL);
+    assert.equal(
+        drain(state),
+        'You cannot wield a two-handed sword while wearing a shield.',
     );
-    assert.equal(shielded.uwep, null);
-    // Both halves of that conjunction are needed: a one-handed weapon under
-    // the same shield is fine, and a two-handed one with no shield is too.
+    assert.equal(state.uwep, primary);
+    assert.equal(state.uswapwep, secondary);
+    assert.equal(state.uarms, shield);
+});
+
+test('ready_weapon() keeps its other wielding and weld behavior', async () => {
+    // The one-handed and no-shield controls pin both sides of wield.c:186's
+    // uarms && bimanual(wep) condition.
+    // A one-handed katana under the same shield remains wieldable.
     const oneHanded = makeState();
-    oneHanded.uarms = object(oneHanded, CRYSTAL_PLATE_MAIL);
+    oneHanded.uarms = object(oneHanded, SMALL_SHIELD,
+        { owornmask: W_ARMS });
     assert.equal(
         await ready_weapon(object(oneHanded, KATANA), oneHanded), ECMD_TIME,
     );
@@ -182,7 +228,8 @@ test('ready_weapon() stops for the four objects it cannot handle', async () => {
         ECMD_TIME,
     );
     drain(silver);
-    // wield.c:196-209, a cursed weapon welding itself to the hand.
+    // wield.c:196-209, a cursed weapon welding itself to the hand remains an
+    // explicit unsupported branch, independent of the shield refusal.
     const cursed = makeState();
     await assert.rejects(
         () => ready_weapon(object(cursed, KATANA, { cursed: 1 }), cursed),
