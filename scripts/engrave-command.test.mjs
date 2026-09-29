@@ -11,6 +11,8 @@ import {
     DUST,
     ECMD_FAIL,
     FOUNTAIN,
+    GRAVE,
+    HEADSTONE,
     LAVAPOOL,
     LEVITATION,
     POOL,
@@ -293,3 +295,34 @@ test('reading an engraving interrupts a running command after the text',
     assert.equal(state.disp.botl, true);
     assert.deepEqual(state.command_queue, [[], []]);
 });
+
+test('read_engr_at names a headstone engraving with dungeon surface()',
+    async () => {
+        // engrave.c read_engr_at() obtains `eloc` from dungeon.c surface()
+        // before choosing the engraving message. A grave is a headstone, not
+        // the ordinary floor fallback used by the former JS branch.
+        const state = {
+            u: { uprops: [] },
+            level: new GameMap(),
+        };
+        state.level.at(3, 4).typ = GRAVE;
+        const engraving = make_engr_at(
+            3,
+            4,
+            'remember the fallen',
+            null,
+            0,
+            HEADSTONE,
+            { state, random: { rn2: () => 0, rnd: () => 1 } },
+        );
+        const messages = [];
+        assert.equal(await read_engr_at(3, 4, state, {
+            pline: async (message) => messages.push(message),
+        }), true);
+        assert.deepEqual(messages, [
+            'Something is engraved here on the headstone.',
+            'You read: "remember the fallen".',
+        ]);
+        assert.equal(engraving.eread, true);
+        assert.equal(engraving.erevealed, true);
+    });
