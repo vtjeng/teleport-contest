@@ -115276,6 +115276,49 @@
           "evaluationCommit": "8cb19c81f03984a669d9ee9dff876e2c6cc7514f"
         }
       }
+    },
+    {
+      "id": "port-trap-trapeffect-statue-trap-synthetic-v11-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port whole statue-trap effect dispatch for hero and monster triggers",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v11/hero-statue-trap-animates-statue"
+      ],
+      "selectionReason": "Current A47 evaluation leaves synthetic/v11/hero-statue-trap-animates-statue two unmatched screens at step 37; investigations/synthetic/v11/hero-statue-trap-animates-statue.json traces the refusal to trap.c:trapeffect_statue_trap. Port its full hero and monster arms and production selector call, using the existing activate_statue_trap source callee. v12 floor-wand bhito is already reserved by B54.",
+      "detail": "v11 manifest 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347; independent C recording challenges/cases/v11/hero-statue-trap-animates-statue.session.json SHA a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91; saved evaluation challenges/evaluations/20260929092931-v11.json at 4ee9966290fe5b3a15d517b72140203cc65036b7. C trap.c:2279-2292 calls activate_statue_trap(trap,u.ux,u.uy,FALSE) for hero, leaves monster without side effects, and returns Trap_Effect_Finished. Source trace at investigations/synthetic/v11/hero-statue-trap-animates-statue.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_statue_trap",
+          "line": 2279,
+          "endLine": 2292,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2279,
+        "to": 2292
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-statue-trap-animates-statue": {
+          "session": "synthetic/v11/hero-statue-trap-animates-statue",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-statue-trap-animates-statue",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+          "evaluationPath": "challenges/evaluations/20260929092931-v11.json",
+          "evaluationCommit": "4ee9966290fe5b3a15d517b72140203cc65036b7"
+        }
+      }
     }
   ]
 }
