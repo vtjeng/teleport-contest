@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first joust case. A lawful male Knight wishes a blessed +5 lance, mounts the role-started saddled pony, creates a hostile newt, and attacks south from the C-observed position. The +5 lance is a source-directed hit-chance variation after the starting +1 lance missed; C reaches uhitm.c:joust and kills the newt.",
+  "segments": [
+    {
+      "seed": 91462173,
+      "datetime": "20430817121700",
+      "nethackrc": "OPTIONS=name:KnightLanceC47,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nblessed +5 lance\n#ride\nlywi \u0007hostile newt\nj"
+    }
+  ]
+}

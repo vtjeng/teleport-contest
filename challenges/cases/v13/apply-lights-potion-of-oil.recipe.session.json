@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for apply.c:doapply(POT_OIL) -> light_cocktail. The frozen target is one uncursed, unlit potion of oil, dry and not swallowed, quantity one. C must confirm the inventory selector and that the light_cocktail unlit branch reaches begin_burn; do not substitute oil-lamp use_lamp or snuffing an already lit potion.",
+  "segments": [
+    {
+      "seed": 29350187,
+      "datetime": "20490926100520",
+      "nethackrc": "OPTIONS=name:OilCocktailC47,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed potion of oil\nan"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first source candidate for pickup.c:pickup_object(SCR_SCARE_MONSTER). The C trace must confirm the wished scroll is explicitly uncursed and comma pickup executes the spe=1 identification branch, not a cursed/blessed dust branch. C's wish output assigns the scroll to inventory slot p; the corrected input drops p and then uses comma pickup. Confirm the floor selector and source branch from the C trace before JS comparison.",
+  "segments": [
+    {
+      "seed": 39085217,
+      "datetime": "20490924094213",
+      "nethackrc": "OPTIONS=name:ScareScrollC47,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed scroll of scare monster\ndp,"
+    }
+  ]
+}

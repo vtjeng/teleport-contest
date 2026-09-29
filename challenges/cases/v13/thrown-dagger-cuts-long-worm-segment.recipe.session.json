@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first dothrow.c:throwit -> thitmonst -> worm.c:cutworm candidate. The first C-only attempt hit the intended long-worm segment but missed at rnd(20)=14 and tmiss rn2(3)=1; this source-informed C-only variation uses a blessed +5 dagger to raise hit chance, without consulting JS outcomes.",
+  "segments": [
+    {
+      "seed": 80341217,
+      "datetime": "20461203112900",
+      "nethackrc": "OPTIONS=name:WormSliceC47,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0007hostile long worm\n\u0017blessed +5 dagger\ntoj"
+    }
+  ]
+}

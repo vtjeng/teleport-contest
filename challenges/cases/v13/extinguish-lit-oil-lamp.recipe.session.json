@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for apply.c:use_lamp -> light.c:end_burn. A fresh debug character independently wishes an oil lamp, applies the actual inventory letter i to light it, then applies it again to extinguish while retaining fuel. The source-reached output/status is required.",
+  "segments": [
+    {
+      "seed": 71340285,
+      "datetime": "20450115120948",
+      "nethackrc": "OPTIONS=name:V13Lamp,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": ". \u0017oil lamp\nai ai"
+    }
+  ]
+}

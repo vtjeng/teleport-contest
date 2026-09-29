@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v13 candidate for apply.c:doapply(GRAPPLING_HOOK) -> use_grapple. The planned surface-pull branch was not selected: C source RNG chose tohit==1, and the selected east square contained no object. C still reaches use_grapple’s object-target/no-object path and emits “Nothing happens.” Keep this observed source outcome; do not alter inputs based on JavaScript. The setup-miss runs and their exact source-observed corrections are in .cache/C47-provenance.",
+  "segments": [
+    {
+      "seed": 61073199,
+      "datetime": "20490926125839",
+      "nethackrc": "OPTIONS=name:GrappleC47,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizwish\ngrappling hook\nam l."
+    }
+  ]
+}
