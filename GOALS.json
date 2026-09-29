@@ -117312,7 +117312,7 @@
     {
       "id": "port-apply-leash-family-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port apply.c leash application and pet attachment family",
       "cFile": "apply.c",
       "sessions": [
@@ -117333,21 +117333,21 @@
           "name": "leashable",
           "line": 761,
           "endLine": 768,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "use_leash",
           "line": 769,
           "endLine": 820,
-          "declared": false,
+          "declared": true,
           "complete": false
         },
         {
           "name": "use_leash_core",
           "line": 821,
           "endLine": 879,
-          "declared": false,
+          "declared": true,
           "complete": false
         }
       ],
@@ -117526,7 +117526,69 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [],
+        "entryPointReview": "The primary active entry point is the hero applying an inventory leash through cmd.c:doapply -> apply.c:doapply -> use_leash -> use_leash_core. The independent Healer starting-dog recording reaches both successful attach and detach; the admitted v13 case matches through step 20 and reaches the attach path. `number_leashed` and `leashable` have source-pinned pure tests. The additional active predicate caller is mon.c:newcham when a leashed monster changes into an unleasable form. scripts/mon.test.mjs directly drives that production JS caller, pins the C predicate call, and verifies that the discarded void m_unleash dependency remains explicitly unported; there is no matching C recording for that form-change caller in this delivery. The downward mounted-steed branch in use_leash has no independent matching recording. The cursed-removal C trace reaches use_leash_core's cursed branch and set_bknown(), but full JS replay stops on the subsequent dogmove.c:dog_move simple-action boundary; its recipe remains blocked, with no nonmatching recording. A separate wizard-created-pet attempt reaches leash interactions but fails at monmove.c:distfleeck after the effects; it remains a blocked recipe. These do not invalidate the matching primary apply entry, but the newcham, mounted-steed, cursed-continuation, and wizard-created-pet variants remain uncovered. Existing downstream cleanup and movement gaps outside this family include apply.c:o_unleash, apply.c:m_unleash, apply.c:unleash_all, and dogmove.c:mleashed_next2u; where C discards m_unleash's result, JS calls note_unported('apply.c m_unleash') and never consumes the marker as data. Coordinator audit: no source unit is recorded complete while newcham, mounted-steed, and cursed continuation coverage remains incomplete. The primary attach/detach recording and v13 prefix establish only the cited apply entry.",
+        "entryPoints": [
+          {
+            "name": "Hero applies a leash to a visible adjacent tame pet; attach and detach through doapply",
+            "functions": [
+              "leashable",
+              "use_leash",
+              "use_leash_core"
+            ],
+            "recordings": [
+              "recordings/apply.c/leash-starting-pet-attach-detach-b56.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "pet-leash-attaches-to-tame-dog",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c:doapply(LEASH) -> apply.c:doapply() -> use_leash() -> use_leash_core()"
+              }
+            ]
+          },
+          {
+            "name": "A leashed monster changes into a form rejected by mon.c:newcham's leashable check",
+            "functions": [
+              "leashable"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Cursed leash removal through use_leash_core",
+            "functions": [
+              "use_leash_core"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hero applies a leash downward to a mounted steed",
+            "functions": [
+              "use_leash",
+              "use_leash_core"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c6a50520a55684515ff6188696cd94704cf47cc1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Primary doapply leash attach and detach entry matches the independent C recording and admitted v13 steps 0-20. Whole-source completion remains unverified for the active mon.c:newcham leashable entry (apply.c:m_unleash gap), downward mounted-steed leash entry, and cursed-removal continuation blocked by dogmove.c:dog_move. Preserve the committed cursed and wizard-created-pet blocked recipes; resume when those source entries have matching runtime evidence."
     }
   ]
 }

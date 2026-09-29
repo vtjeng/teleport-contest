@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T17:03:18.517Z",
+  "capturedAt": "2026-09-29T19:40:19.229Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9712,12 +9712,95 @@
         "type": "accepted",
         "at": "2026-09-29T17:02:16.792Z",
         "task": "B55"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-B55-098c8c8c-20260929",
+        "type": "published",
+        "at": "2026-09-29T17:05:25.060Z",
+        "task": "B55",
+        "commit": "098c8c8c4795b916aeecc528169ef85bfe58d196"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B56-apply-leash-20260929",
+        "type": "assign",
+        "at": "2026-09-29T17:28:58.578Z",
+        "task": "B56",
+        "worker": "B",
+        "goal": "port-apply-leash-family-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A51-display-monster-20260929",
+        "type": "assign",
+        "at": "2026-09-29T17:31:59.454Z",
+        "task": "A51",
+        "worker": "A2",
+        "goal": "port-display-monster-worm-tail-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-e5a4d0bb762ab1347e2bce1aa13616385a0a8a75",
+        "type": "ready",
+        "at": "2026-09-29T18:58:03.496Z",
+        "task": "B56",
+        "delivery": "e5a4d0bb762ab1347e2bce1aa13616385a0a8a75"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B56-e5a4d0bb-20260929",
+        "type": "received",
+        "at": "2026-09-29T18:58:50.073Z",
+        "task": "B56",
+        "delivery": "e5a4d0bb762ab1347e2bce1aa13616385a0a8a75"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B56-c6a50520-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T19:01:27.756Z",
+        "task": "B56",
+        "integration": "c6a50520a55684515ff6188696cd94704cf47cc1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-07353b9a473692e1051fae58a536a8c34ff98cbf",
+        "type": "ready",
+        "at": "2026-09-29T19:11:47.274Z",
+        "task": "A51",
+        "delivery": "07353b9a473692e1051fae58a536a8c34ff98cbf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B56-c6a50520-20260929",
+        "type": "validated",
+        "at": "2026-09-29T19:12:30.322Z",
+        "task": "B56",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A51-07353b9a-20260929",
+        "type": "received",
+        "at": "2026-09-29T19:12:38.581Z",
+        "task": "A51",
+        "delivery": "07353b9a473692e1051fae58a536a8c34ff98cbf"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B56-c6a50520-resume-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T19:40:18.769Z",
+        "task": "B56"
       }
     ]
   },
   "development": {
-    "executionCommit": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
-    "measuredAt": "2026-09-29T16:56:52.762Z",
+    "executionCommit": "c6a50520a55684515ff6188696cd94704cf47cc1",
+    "measuredAt": "2026-09-29T19:11:42.879Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
