@@ -113905,6 +113905,49 @@
         "rng": 792838
       },
       "parkedReason": "picklock source implementation and trapped-box apply/#loot entries match; Master Key disarm, trapped-door destruction, and door-autounlock runtime paths lack matching recordings; b_trapped and add_damage remain named void gaps"
+    },
+    {
+      "id": "port-trap-trapeffect-poly-trap-synthetic-v11-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port full trap.c polymorph-trap effect and hero activation",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v11/hero-polymorph-trap-transforms-form"
+      ],
+      "selectionReason": "Current v11 hero polymorph-trap case stops at the preflight refusal at step 20; C enters trap.c:trapeffect_poly_trap and polyself. The accepted A45 shieldeff caller removes the earlier dependency.",
+      "detail": "Port every hero and monster branch of trap.c:trapeffect_poly_trap (2453-2525) in source order, including iron shoes, Antimagic and Unchanging, ordinary steedintrap and polyself, monster resistance and newcham. Admit POLY_TRAP through hero preflight and wire dotrap/mintrap production dispatch. Preserve consumed mpickobj, poly_obj, and resist results, plus source-named discarded-void gaps; provide independent C-reaching recordings for active paths without copying v11 inputs.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_poly_trap",
+          "line": 2453,
+          "endLine": 2527,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2453,
+        "to": 2527
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-polymorph-trap-transforms-form": {
+          "session": "synthetic/v11/hero-polymorph-trap-transforms-form",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-polymorph-trap-transforms-form",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-polymorph-trap-transforms-form.session.json",
+          "recordingSha256": "a489a6cbf5d30018d1f82dc6f48b2c3579fd99d2541b656d0781237bb76f934a",
+          "evaluationPath": "challenges/evaluations/20260929075918-v11.json",
+          "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492"
+        }
+      }
     }
   ]
 }
