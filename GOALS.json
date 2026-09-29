@@ -111425,7 +111425,7 @@
     {
       "id": "port-trap-trapeffect-rocktrap-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port rock-trap hero activation while preserving monster behavior",
       "cFile": "trap.c",
       "sessions": [
@@ -111439,15 +111439,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "cd144c8466c0673e0a6804f830800623c8b9a139",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "trapeffect_rocktrap",
           "line": 1324,
           "endLine": 1402,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -111618,7 +111621,90 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_rocktrap",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_rocktrap",
+            "sourceReview": "Read the complete trap.c:trapeffect_rocktrap() definition (1324-1402) in C order. The hero arm preserves the mapped, already-fired rn2(15) wear-out branch; otherwise d(2,6) occurs before trap->once, feeltrap, t_missile, and place_object, followed by ceiling/object/body-part messages, the uarmh passes_rocks and hard_helmet branches, the no-helmet harmless passes_rocks branch, observe_object, stackobj, newsym, then losehp(Maybe_Half_Phys) and exercise only when harmful. The existing monster arm is retained in source order: its separate rn2(15) wear-out predicate, trap->once, t_missile, optional seetrap, then thitm with d(2,6) evaluated as the argument and the source return selected from killed/trapped/result. Removed the hero unsupported refusal and admitted ROCKTRAP through the dotrap preflight branches that otherwise refused seen or mounted states. Helpers whose results are consumed are implemented/source-backed: hard_helmet, passes_rocks, ceiling, xnameFresh/an/the, body_part, Maybe_Half_Phys; effect calls preserve await/return and output order. No new unported helper gaps are introduced.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:trapeffect_selector() has the ROCKTRAP case and returns trapeffect_rocktrap(mtmp, trap, trflags) (2937-2949); the JavaScript selector dispatches the same trap type to this function."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "hack.c:spoteffects() reaches trap.c:dotrap(), whose final dispatch calls trapeffect_selector(&gy.youmonst, trap, trflags) (trap.c:dotrap); JavaScript hack.js:spoteffects reaches trap_effects.js:dotrap, preflight_dotrap, then trapeffect_selector."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "mintrap",
+                "source": "monmove.c:m_move() returns through postmov(); trap.c:mintrap() then invokes trapeffect_selector(mtmp, trap, mintrapflags), reaching the existing monster arm. JavaScript monmove.js:m_move/postmov calls trap_effects.js:mintrap, which uses the same selector."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/hero-rock-trap.test.mjs",
+              "scripts/monster-rock-trap.test.mjs",
+              "scripts/trap-thitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/rocktrap-monster-independent-c44.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-rock-trap-ceiling-fall",
+                "segment": 0,
+                "fromStep": 23,
+                "throughStep": 23,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector(ROCKTRAP) -> trap.c:trapeffect_rocktrap(hero); C records d(2,6)=5 at trapeffect_rocktrap(trap.c:1339)."
+              }
+            ],
+            "checkedAt": "cd144c8466c0673e0a6804f830800623c8b9a139"
+          }
+        ],
+        "entryPointReview": "The active hero entry is stepping onto a floor ROCKTRAP: hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trapeffect_rocktrap. The v11 hero-rock-trap-ceiling-fall segment 0 matches through zero-based step 23 and records the hero-arm d(2,6) at trap.c:1339. The active monster entry is ordinary m_move/postmov movement onto ROCKTRAP: monmove.c:m_move -> postmov -> trap.c:mintrap -> trapeffect_selector -> trapeffect_rocktrap. The independent saved C recording uses the source-selected seed 4400107; at step 10 its trace records d(2,6)=7 at trap.c:1393 after m_move and rock-initialization calls, and strict C/JS parity covers all 40 search inputs. Tests pin helmet, passes_rocks, harmlessness, damage, preflight admission, and the retained monster behavior. A cheap pettype:dog/dog_move variation was explored with a port-only seed scan, but that scan hit the unrelated unsupported mattackm message-operation boundary before reaching the trap; it is not claimed as evidence. The ordinary m_move monster entry and the hero spoteffects entry are both covered. The task context's generic jsFile hint is not used as an implementation claim; the implementation is js/trap_effects.js as reserved in the C44 ledger scope.",
+        "entryPoints": [
+          {
+            "name": "Hero steps onto a floor rock trap",
+            "functions": [
+              "trapeffect_rocktrap"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "hero-rock-trap-ceiling-fall",
+                "segment": 0,
+                "fromStep": 23,
+                "throughStep": 23,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trap.c:trapeffect_selector -> trap.c:trapeffect_rocktrap(hero arm)"
+              }
+            ]
+          },
+          {
+            "name": "Ordinary monster movement enters a rock trap",
+            "functions": [
+              "trapeffect_rocktrap"
+            ],
+            "recordings": [
+              "recordings/trap.c/rocktrap-monster-independent-c44.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "cd144c8466c0673e0a6804f830800623c8b9a139",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-trap-mk-trap-statue-synthetic-v11-20260929",
