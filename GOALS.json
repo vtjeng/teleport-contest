@@ -111115,7 +111115,7 @@
     {
       "id": "port-trap-domagictrap-fates-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Complete every trap.c domagictrap fate and its production callers",
       "cFile": "trap.c",
       "sessions": [
@@ -111123,8 +111123,12 @@
       ],
       "selectionReason": "Corrected investigation investigations/synthetic/v11/hero-magic-trap-summons-monsters.json traces admitted v11 fate 19 taming at segment 0 step 16. Historical invisibility-only evidence marked the function complete while other fates still refused; invalidate it and port the whole function. Manifest SHA 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347; recording challenges/cases/v11/hero-magic-trap-summons-monsters.session.json SHA 73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052; evaluation challenges/evaluations/20260929013352-v11.json.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "ba5f7cac8084e5ca3e1f16f0a77f1d99bbfe9380",
+      "openStanding": {
+        "sha": "a149eb3605fe68acf848e20f8255850d22e83a3d",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -111153,7 +111157,159 @@
           "evaluationPath": "challenges/evaluations/20260929013352-v11.json",
           "evaluationCommit": "a149eb3605fe68acf848e20f8255850d22e83a3d"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "a149eb3605fe68acf848e20f8255850d22e83a3d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-magic-trap-summons-monsters",
+          "session": "synthetic/v11/hero-magic-trap-summons-monsters",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+          "recordingPath": "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+          "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
+          "recipe": "challenges/cases/v11/hero-magic-trap-summons-monsters.recipe.session.json",
+          "recipeSha256": "e31916913b95dc4a954960374a2d53142f3b9d3aca013d651f036083655a3394",
+          "replayInputSha256": "c4e61f718c9712520828c0261d3f667694e9bc9f6c90aef9635a5d5feba505ac",
+          "evaluationPath": "challenges/evaluations/20260929013352-v11.json",
+          "evaluationCommit": "a149eb3605fe68acf848e20f8255850d22e83a3d",
+          "evaluationArtifact": "challenges/evaluations/20260929013352-v11.json",
+          "evaluationUtc": "2026-09-29T01:34:02.228Z",
+          "remainingScreens": 1,
+          "recordedSteps": 17,
+          "previousScreensMatched": 16,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 16,
+              "total": 17
+            },
+            "rng": {
+              "matched": 2700,
+              "total": 2703
+            },
+            "cursors": {
+              "matched": 16,
+              "total": 17
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: magic trap tame monsters",
+            "step": 16
+          },
+          "step": 16,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: magic trap tame monsters",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/hero-magic-trap-summons-monsters.json",
+            "result": {
+              "session": "synthetic/v11/hero-magic-trap-summons-monsters",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "hero-magic-trap-summons-monsters",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
+              "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+              "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "remainingScreens": 1,
+              "recordedSteps": 17,
+              "status": "complete",
+              "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "hero-magic-trap-summons-monsters",
+                "session": "synthetic/v11/hero-magic-trap-summons-monsters",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+                "recordingPath": "challenges/cases/v11/hero-magic-trap-summons-monsters.session.json",
+                "recordingSha256": "73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052",
+                "recipe": "challenges/cases/v11/hero-magic-trap-summons-monsters.recipe.session.json",
+                "recipeSha256": "e31916913b95dc4a954960374a2d53142f3b9d3aca013d651f036083655a3394",
+                "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+                "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+                "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationUtc": "2026-09-28T23:47:35.564Z",
+                "remainingScreens": 1,
+                "recordedSteps": 17,
+                "previousScreensMatched": 16,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 16,
+                    "total": 17
+                  },
+                  "rng": {
+                    "matched": 2700,
+                    "total": 2703
+                  },
+                  "cursors": {
+                    "matched": 16,
+                    "total": 17
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: magic trap tame monsters",
+                  "step": 16
+                },
+                "step": 16,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: magic trap tame monsters",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the recorded hero magic-trap step, C draws rn2(30)=28 and domagictrap fate 19, which raises Charisma and tries to tame adjacent monsters. JavaScript reaches the partial domagictrap function but refuses that fate. Complete the whole source function, including its separately unported fate-below-10 monster-creation branch, while preserving every existing fate arm.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c:trapeffect_magic_trap hero arm (2294-2321) avoids its 1/30 explosion and calls domagictrap (4317-4451). The admitted v11 recording draws rnd(20)=19 at step 16 and takes the fate-19 taming arm (4418-4432): adjattrib(A_CHA,1,FALSE), then i/j ordered 3x3 isok and m_at checks, followed by tamedog(mon,NULL,TRUE) for each monster. A separate fate-below-10 arm draws rnd(4), applies blindness and deafness, creates monsters, then wakes them; it requires independent runtime evidence.",
+                "functions": [
+                  "domagictrap",
+                  "trapeffect_magic_trap"
+                ],
+                "callers": [
+                  "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_magic_trap(hero) -> domagictrap; js/trap_effects.js:domagictrap currently refuses recorded fate 19 after the C rn2(30)=28 and rnd(20)=19 draws.",
+                  "Other domagictrap fates remain production paths: fate 12 calls the C41-ported dofiretrap(NULL), and fate below 10 creates and wakes monsters. Preserve the shared function across every fate and wire trapeffect_magic_trap to call steedintrap after domagictrap as C does."
+                ],
+                "dependencies": [
+                  "For recorded fate 19, adjattrib(A_CHA,1,FALSE) and tamedog(mon,NULL,TRUE) have explicitly discarded results in C. Existing js/attrib.js:adjattrib and js/dog.js:tamedog are stateful and asynchronous; await them in source order while ignoring their results.",
+                  "For separate fate below 10, resists_blnd(&youmonst) is the consumed Boolean. Existing make_blinded, incr_itimeout, makemon_runtime, and wake_nearto cover state effects; preserve rnd(4), conditional rn1 ranges, cnt monster creations, and wake_nearto after all creations. Obtain an independent C recording that actually draws fate below 10.",
+                  "The admitted case name says summons, but its C recording exercises fate-19 taming. Select by the trace rather than the label; do not count the earlier fate-below-10 C probe as evidence for this admitted case."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 has 1 unmatched screen and stops at zero-based step 16 with 'unsupported hero move: magic trap tame monsters'. The immutable C recording challenges/cases/v11/hero-magic-trap-summons-monsters.session.json has SHA-256 73a95160a8551a70ada44253b683c4bb6b77f682c7dd61dc0adaf16908a5c052.",
+                "The recording step 16 RNG begins rn2(30)=28 @ trapeffect_magic_trap(trap.c:2300), then rnd(20)=19 @ domagictrap(trap.c:4319); upstream trap.c:4418-4432 defines the taming arm. js/trap_effects.js currently refuses fate 19 as magic trap tame monsters.",
+                "Upstream trap.c:4317-4451 also defines fate below 10 monster creation, which is a distinct unported arm and needs its own source-reaching C witness. C41 independently recorded fate 12 and wired dofiretrap; that does not establish fate 19 or fate below 10 completion."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-display-shieldeff-synthetic-v11-20260929",
