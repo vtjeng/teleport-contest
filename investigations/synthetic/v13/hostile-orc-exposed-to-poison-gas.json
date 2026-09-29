@@ -1,0 +1,119 @@
+{
+  "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+  "corpus": "synthetic",
+  "batch": "v13",
+  "caseId": "hostile-orc-exposed-to-poison-gas",
+  "manifestPath": "challenges/manifests/v13.json",
+  "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+  "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+  "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+  "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "remainingScreens": 1,
+  "recordedSteps": 70,
+  "status": "partial",
+  "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v13",
+    "caseId": "hostile-orc-exposed-to-poison-gas",
+    "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+    "manifestPath": "challenges/manifests/v13.json",
+    "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+    "recording": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+    "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+    "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+    "recipe": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.recipe.session.json",
+    "recipeSha256": "86806a32069a698c8e2d98b28ea2a369a5976bf1bfe7bc4b0c9cecdbfc2d66db",
+    "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+    "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+    "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationUtc": "2026-09-29T14:13:52.803Z",
+    "remainingScreens": 1,
+    "recordedSteps": 70,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 69,
+        "total": 70
+      },
+      "rng": {
+        "matched": 2940,
+        "total": 2940
+      },
+      "cursors": {
+        "matched": 69,
+        "total": 70
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 69,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 69,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 18,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 69,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 69,
+          "key": "."
+        },
+        "cCursor": [
+          78,
+          0,
+          1
+        ],
+        "jsCursor": [
+          26,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 69,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The final wait has a message-boundary mismatch while the hero regains sight inside a harmful gas cloud. C combines sight recovery, eye stinging, and burning-lung messages before its --More-- prompt; JavaScript shows --More-- immediately after sight recovery. The exact source owner is still unresolved: inspect blindness-expiration output, region callback order, and the TTY map-flush/message boundary before selecting a fix.",
+  "source": {
+    "file": "region.c",
+    "functions": [
+      "inside_gas_cloud"
+    ],
+    "branch": "A harmful gas cloud affects the hero and a hostile orc during the same elapsed turn. C allmain.c calls nh_timeout before run_regions; inside_gas_cloud emits hero and monster messages. The first visible divergence is at the transition from blindness-expiration output to gas-cloud output."
+  },
+  "evidence": [
+    "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 69/70 screens and cursors with all 2940 RNG values matching; first mismatch is segment 0 step 69, screen row 0 column 18 and cursor C [78,0,1] versus JS [26,0,1]. Immutable recording: challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json, SHA256 feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028.",
+    "Read-only replay at 3fdd3c65d0b811b96963e3e87b8ec41d83493e84 confirmed C’s final top line “You can see again.  Your eyes sting.  Something is burning your lungs!--More--” while JS has “You can see again.--More--”. Steps 64-68 match, each showing an unknown-space command; the final input is period. The JS runner emits 70 screens and leaves “You can see again.” as its pending message after input exhaustion.",
+    "Upstream allmain.c:273-274 orders nh_timeout before run_regions. region.c:1091-1165 defines inside_gas_cloud; its hero branch prints eye stinging, makes blinded, prints burning lungs, and may wake nearby creatures and damage the hero. JS js/allmain.js:893 and 938 preserves nh_timeout then run_regions; js/region.js:381-466 appears to preserve the hero branch’s message order. The mismatch may be in visibility redraw or the message-window flush between these source calls, but that is not yet proven.",
+    "Next probe: trace C potion.c:make_blinded and pline.c/win/tty topline behavior at the sight-recovery turn against js/potion.js:make_blinded and js/tty_message.js:ttyPlineCore/flush_screen. Find the first event that causes JavaScript to display --More-- before region.c’s next message; test a shorter independently recorded C case that isolates blindness expiration with and without an active gas cloud. Do not alter the frozen v13 recording."
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v13/glib-refuses-dual-wield-and-drops-secondary",
+  "corpus": "synthetic",
+  "batch": "v13",
+  "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+  "manifestPath": "challenges/manifests/v13.json",
+  "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+  "recordingSha256": "cb3edc91389f03c70595f030b6f94c4ef8c4ab688ba28a5001a01621182b8f04",
+  "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+  "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "remainingScreens": 1,
+  "recordedSteps": 91,
+  "status": "complete",
+  "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v13",
+    "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+    "session": "synthetic/v13/glib-refuses-dual-wield-and-drops-secondary",
+    "manifestPath": "challenges/manifests/v13.json",
+    "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+    "recording": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json",
+    "recordingPath": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json",
+    "recordingSha256": "cb3edc91389f03c70595f030b6f94c4ef8c4ab688ba28a5001a01621182b8f04",
+    "recipe": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.recipe.session.json",
+    "recipeSha256": "4095fb9e6eee8487a7c1a58ff81d1c65f6186d042919a4123d02e1e70cf17036",
+    "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+    "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+    "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+    "evaluationUtc": "2026-09-29T14:13:52.803Z",
+    "remainingScreens": 1,
+    "recordedSteps": 91,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 90,
+        "total": 91
+      },
+      "rng": {
+        "matched": 2291,
+        "total": 2291
+      },
+      "cursors": {
+        "matched": 90,
+        "total": 91
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: can_twoweapon()'s slippery-or-cursed refusal (wield.c:797-801)",
+      "step": 90
+    },
+    "step": 90,
+    "kind": "stop",
+    "sourceFile": "wield.c",
+    "function": "can_twoweapon",
+    "message": "unsupported hero command: an unported branch of this command: can_twoweapon()'s slippery-or-cursed refusal (wield.c:797-801)",
+    "cFile": "wield.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "A glib hero with two eligible weapons attempts #twoweapon. C can_twoweapon takes its Glib/cursed-secondary arm and drop_uswapwep prints the slip message, clears the secondary slot through do.c:dropz, and drops that weapon. JavaScript refuses at can_twoweapon; the source helper and the worn-slot drop path are both needed.",
+  "source": {
+    "file": "wield.c",
+    "branch": "After earlier form, hand, weapon, bimanual, shield, artifact, and corpse tests pass, can_twoweapon sees Glib or a cursed uswapwep. With Glib it skips set_bknown, calls drop_uswapwep, returns FALSE, and dotwoweapon returns ECMD_OK without a time-consuming draw. drop_uswapwep selects one of three messages from cursed and u.twoweap state, then calls do.c:dropx while the object is still uswapwep; do.c:dropz clears that slot before placing the object.",
+    "functions": [
+      "can_twoweapon",
+      "drop_uswapwep"
+    ],
+    "callers": [
+      "wield.c:dotwoweapon consumes can_twoweapon’s Boolean result before its success-only rnd(20); js/wield.js:dotwoweapon uses the same result.",
+      "mkobj.c:curse calls drop_uswapwep when a secondary weapon becomes cursed during active dual wielding; uhitm.c attack processing calls it when the secondary weapon is cursed after an attack. The helper must support these callers as well as can_twoweapon."
+    ],
+    "dependencies": [
+      "objnam.c:Yobjnam2 and yobjnam, plus otense and body_part, determine the three complete source messages; implement or wire the consumed naming results rather than hardcoding the selected short sword.",
+      "do.c:dropx/freeinv/dropz and worn setters must permit an inventory object currently in uswapwep, clear that slot at dropz’s source position, then place it and update encumbrance. js/do.js:preflight_dropx currently rejects worn or attached objects and its admitted ordinary tail calls dropzAdmitted without slot clearing.",
+      "A cursed secondary weapon calls set_bknown before dropping when Glib is false; preserve object-knowledge update and all three message branches.",
+      "The selected C step has no RNG; dotwoweapon must return without the success-only rnd(20) draw and preserve earlier wield behavior."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 90/91 screens and cursors, 2291/2291 RNG calls, and first stop at zero-based segment 0 step 90: can_twoweapon’s slippery-or-cursed refusal. The immutable recording is challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json, SHA256 cb3edc91389f03c70595f030b6f94c4ef8c4ab688ba28a5001a01621182b8f04.",
+    "At C segment 0 step 90, the newline accepting #twoweapon displays “Your short sword slips from your left hand!” with no RNG draw. The independent recipe reaches Glib with an eligible secondary short sword, then attempts the extended command; this verifies the Glib message branch but does not by itself verify the later floor and slot state.",
+    "Upstream nethack-c/upstream/src/wield.c:760-831 defines can_twoweapon and drop_uswapwep in order. Lines 797-801 set knowledge conditionally and call drop_uswapwep; lines 808-831 choose one of three messages and call dropx. Upstream do.c:785-842 shows dropx/freeinv and dropz, including setuswapwep(NULL) before floor placement. wield.c:843-864 calls can_twoweapon and skips rnd(20) on false. mkobj.c:1801 and uhitm.c:5843 are other drop_uswapwep call sites.",
+    "JavaScript js/wield.js:can_twoweapon around lines 260-270 throws for Glib/cursed secondary and has no drop_uswapwep. Its comment around lines 195-203 still claims Glib cannot arise, contradicted by this C-first v13 case. js/do.js:preflight_dropx around lines 1513-1555 rejects the attached slot and dropx’s admitted path reaches dropzAdmitted without clearing it; align that shared source path while preserving all existing drops."
+  ]
+}

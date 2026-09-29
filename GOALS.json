@@ -116311,7 +116311,7 @@
     {
       "id": "div-timeout-cleanup-burn-light-source-synthetic-v13-20260929",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore source-ordered object light and timer cleanup when ending burn",
       "cFile": "timeout.c",
       "sessions": [],
@@ -116323,8 +116323,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a15ccc8186107d725e21d41b73d4c0892c82eca5",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "cleanup_burn",
       "session": "synthetic/v13/extinguish-lit-oil-lamp",
       "step": 17,
@@ -116492,7 +116495,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a15ccc8186107d725e21d41b73d4c0892c82eca5",
+        "screens": 11405,
+        "rng": 792838
+      }
     },
     {
       "id": "port-apply-grapple-family-synthetic-v13-20260929",
