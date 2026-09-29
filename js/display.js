@@ -168,6 +168,7 @@ import {
     symbol_at,
     MAXPCHARS,
     SYM_OFF_O,
+    SYM_OFF_P,
     SYM_OFF_W,
     S_arrow_trap,
     S_digbeam,
@@ -281,7 +282,7 @@ import {
 } from './glyph_offsets.js';
 // C ref: drawing.c defsyms[].color, the last column of every defsym.h PCHAR
 // row, which display.c reads back through its cmap_color() macro.
-import { CMAP_COLORS } from './symbol_data.js';
+import { CMAP_COLORS, SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
 import { is_pool_or_lava, t_at } from './trap.js';
 import { is_ice } from './terrain.js';
 import { note_unported } from './unported.js';
@@ -2631,6 +2632,32 @@ export function show_glyph_cell(x, y, glyph) {
         previousGnew,
         game,
     );
+}
+
+// decl.c:97-100's shield_static[] order, resolving each source defsym through
+// generated defsym.h data rather than duplicating its numeric indices here.
+const SHIELD_STATIC_CMAP = Object.freeze([
+    's_ss1', 's_ss2', 's_ss3', 's_ss2', 's_ss1', 's_ss2', 's_ss4',
+    's_ss1', 's_ss2', 's_ss3', 's_ss2', 's_ss1', 's_ss2', 's_ss4',
+    's_ss1', 's_ss2', 's_ss3', 's_ss2', 's_ss1', 's_ss2', 's_ss4',
+].map((name) => SYMBOL_INDEX_BY_NAME[name] - SYM_OFF_P));
+
+// C ref: display.c shieldeff() (1110-1122). Put one shield-static cmap glyph
+// at the target, flush it, and wait once per source array entry, then redraw
+// the remembered location. This is only terminal animation: it uses no RNG
+// and changes no game state. As with flash_glyph_at(), planning clones must
+// not paint the live game's display buffer.
+export async function shieldeff(x, y, state = game) {
+    if (!state.flags?.sparkle || !cansee(x, y, state)) return;
+    if (state !== game || state.program_state?.planning) return;
+
+    for (const cmap of SHIELD_STATIC_CMAP) {
+        const glyph = cmap_to_glyph(cmap, state);
+        show_glyph_cell(x, y, map_glyphinfo(glyph, state));
+        await flush_screen(1);
+        await nh_delay_output(state);
+    }
+    newsym(x, y);
 }
 
 // C ref: display.c flash_glyph_at() (1305-1321). The caller supplies the

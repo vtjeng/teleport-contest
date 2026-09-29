@@ -206,21 +206,17 @@ test('search_special() finds the vault among the level\'s rooms', async () => {
     assert.equal(search_special(BEAR_TRAP + 1000, game), null);
 });
 
-test('preflight_dotrap() admits an unseen teleport trap and names its stops',
+test('preflight_dotrap() admits an unseen teleport trap for an antimagic hero',
     async () => {
         await runSegment(VAULT_NICHE_SEGMENT);
         const trap = teleportTraps().find((each) => each.once);
         trap.tseen = false;
         assert.equal(preflight_dotrap(trap, game), undefined);
 
-        // teleport.c:1503's shieldeff() is a tmp_at() animation, which is not
-        // ported; Antimagic is the only property that reaches it.
+        // teleport.c:1503's shieldeff() is display-only and does not stop
+        // teleport.c:tele_trap from proceeding.
         game.u.uprops[ANTIMAGIC].intrinsic = 1;
-        assert.throws(
-            () => preflight_dotrap(trap, game),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && /magic-resistant hero/u.test(error.message),
-        );
+        assert.equal(preflight_dotrap(trap, game), undefined);
         game.u.uprops[ANTIMAGIC].intrinsic = 0;
 
         // teleport.c:1516's rloc_to() moves the monster standing on a fixed

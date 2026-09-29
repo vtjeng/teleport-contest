@@ -55,6 +55,7 @@ import {
     map_invisible,
     map_monster_glyph_info,
     mon_to_glyph,
+    cmap_to_glyph,
     zapdir_to_glyph,
 } from '../js/display.js';
 import {
@@ -68,7 +69,8 @@ import { make_stoned } from '../js/potion.js';
 import { relocate_monster } from '../js/monst.js';
 import {
     AD_ACID, AD_COLD, AD_DISN, AD_DRLI, AD_DRST, AD_ELEC, AD_FIRE, AD_PHYS,
-    AD_SLEE, AD_STON, NUMMONS, PM_BABY_GRAY_DRAGON, PM_GIANT_RAT, PM_KNIGHT,
+    AD_BLND, AD_SLEE, AD_STON, NUMMONS, PM_BABY_GRAY_DRAGON, PM_GIANT_RAT,
+    PM_KNIGHT,
 } from '../js/monsters.js';
 import {
     ARMOR_CLASS,
@@ -94,7 +96,7 @@ import {
     WAN_SLEEP,
     WAND_CLASS,
 } from '../js/objects.js';
-import { ART_DRAGONBANE } from '../js/artifacts.js';
+import { ART_DRAGONBANE, ART_SUNSWORD } from '../js/artifacts.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 // Read straight out of the generated defsym.h index rather than through
 // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`
@@ -109,6 +111,7 @@ import {
     adtyp_to_prop,
     bounce_dir,
     dobuzz,
+    flashburn,
     flash_str,
     hit,
     inventory_resistance_check,
@@ -1711,25 +1714,67 @@ test('resist() does not halve damage when the roll exceeds MR', async () => {
     assert.equal(mon.mhp, 20, 'full damage 10 deducted without halving');
 });
 
-test('shieldeff_mon reports visible resistance after the shield gap', async () => {
+test('shieldeff() draws the shield-static sequence before shieldeff_mon text', async () => {
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
     });
     const monster = game.level.monlist;
     assert.ok(monster, 'the debug-wished ray fixture has a monster');
     game.viz_array[monster.my][monster.mx] |= IN_SIGHT;
+    const frames = [];
+    game._animationFrameHook = () => {
+        frames.push(game.level.at(monster.mx, monster.my).disp_glyph?.glyph);
+    };
     const messages = [];
-    await shieldeff_mon(monster, {
-        state: game,
-        message: async (text) => messages.push(text),
-    });
-    assert.equal(messages.length, 1,
-        'C shieldeff_mon() emits one visible resistance message');
-    assert.match(messages[0], /resists!$/u,
-        'the message keeps C\'s resistance suffix');
-    assert.ok(game.unported.has('display.c shieldeff'),
-        'display.c shieldeff() remains an explicit gap');
+    try {
+        await shieldeff_mon(monster, {
+            state: game,
+            message: async (text) => messages.push(text),
+        });
+        const oneCycle = [
+            's_ss1', 's_ss2', 's_ss3', 's_ss2', 's_ss1', 's_ss2', 's_ss4',
+        ].map((name) => cmap_to_glyph(SYMBOL_INDEX_BY_NAME[name]));
+        assert.deepEqual(frames, [...oneCycle, ...oneCycle, ...oneCycle],
+            'display.c shieldeff() follows shield_static[] source order');
+        assert.equal(messages.length, 1,
+            'C shieldeff_mon() emits one visible resistance message');
+        assert.match(messages[0], /resists!$/u,
+            'the message keeps C\'s resistance suffix');
+        assert.ok(!game.unported.has('display.c shieldeff'),
+            'the source-backed animation replaces the old display gap');
+    } finally {
+        game._animationFrameHook = null;
+    }
 });
+
+test('flashburn() animates artifact-resisted blindness after its guard',
+    async () => {
+        await runSegment({
+            ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+        });
+        const oldWeapon = game.uwep;
+        const oldSparkle = game.flags.sparkle;
+        const x = game.u.ux;
+        const y = game.u.uy;
+        const frames = [];
+        game.uwep = { oartifact: ART_SUNSWORD };
+        assert.equal(game.artilist[ART_SUNSWORD].defn.adtyp, AD_BLND,
+            'artifact.c defines the Sunsword defense as AD_BLND');
+        game.flags.sparkle = true;
+        game.viz_array[y][x] |= IN_SIGHT;
+        game._animationFrameHook = () => frames.push('frame');
+        try {
+            assert.equal(await flashburn(100, false, game), true);
+            assert.equal(frames.length, 21,
+                'zap.c:3076 calls display.c shieldeff()');
+            assert.ok(!game.unported.has('display.c shieldeff'),
+                'the artifact-defense branch uses the source-backed animation');
+        } finally {
+            game._animationFrameHook = null;
+            game.uwep = oldWeapon;
+            game.flags.sparkle = oldSparkle;
+        }
+    });
 
 test('flash_mon restores the original vision byte before newsym()', async () => {
     await runSegment({
@@ -1942,7 +1987,7 @@ test('zhitm() resistance keeps shieldeff visual-only in the monster arm',
         minvent: null,
     };
     const messages = [];
-    const state = { ...game, unported: new Set() };
+    const state = game;
     const result = await zhitm(mon, 0, 1, state, {
         d: () => 6,
         rn2: (bound) => bound - 1,
@@ -1951,8 +1996,8 @@ test('zhitm() resistance keeps shieldeff visual-only in the monster arm',
     assert.equal(result.damage, 0, 'magic-resistant monster takes no damage');
     assert.equal(mon.mhp, 30, 'resistance leaves monster HP unchanged');
     assert.deepEqual(messages, [], 'display shieldeff has no text message');
-    assert.ok(game.unported.has('display.c shieldeff'),
-        'the visual-only display gap remains explicit');
+    assert.ok(!state.unported.has('display.c shieldeff'),
+        'the visual-only source behavior no longer records a gap');
 });
 
 test('zhitm() death ray rechecks spell band after its source type changes',

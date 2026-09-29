@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent A45 chest_trap shock-resistance caller witness. Seed 97241063 and time were selected by a bounded source-directed branch scan. #wizintrinsic selects timed shock resistance, then a wished trapped chest is dropped and opened; one trailing space dismisses the charge pager. The C trace reaches the electric outcome, shieldeff animation, and resistance message.",
+  "segments": [
+    {
+      "seed": 97241063,
+      "datetime": "20361002142309",
+      "nethackrc": "OPTIONS=name:ShieldChestProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time\n",
+      "moves": " #wizintrinsic\n>m\n \u0017unlocked trapped chest\ndo#loot\n "
+    }
+  ]
+}

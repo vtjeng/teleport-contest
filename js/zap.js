@@ -246,6 +246,7 @@ import {
     glyph_is_warning,
     newsym,
     obj_to_glyph,
+    shieldeff,
     tmp_at,
     unmap_invisible,
     unmap_object,
@@ -1356,7 +1357,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case SPE_FORCE_BOLT:
         learn_it = true;
         if (heroHasProperty(state, ANTIMAGIC)) {
-            note_unported('display.c shieldeff');
+            await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline('Boing!', state);
             monstseesu(M_SEEN_MAGR, state);
         } else {
@@ -1381,7 +1382,7 @@ export async function zapyourself(obj, ordinary, state = game) {
             });
             monstunseesu(M_SEEN_ELEC, state);
         } else {
-            note_unported('display.c shieldeff');
+            await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline('You zap yourself, but seem unharmed.', state);
             monstseesu(M_SEEN_ELEC, state);
             await ugolemeffects(AD_ELEC, orig_dmg, state);
@@ -1402,7 +1403,7 @@ export async function zapyourself(obj, ordinary, state = game) {
         learn_it = true;
         orig_dmg = d(12, 6);
         if (heroHasProperty(state, FIRE_RES)) {
-            note_unported('display.c shieldeff');
+            await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline('You feel rather warm.', state);
             monstseesu(M_SEEN_FIRE, state);
             await ugolemeffects(AD_FIRE, orig_dmg, state);
@@ -1423,7 +1424,7 @@ export async function zapyourself(obj, ordinary, state = game) {
         learn_it = true;
         orig_dmg = d(12, 6);
         if (heroHasProperty(state, COLD_RES)) {
-            note_unported('display.c shieldeff');
+            await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline('You feel a little chill.', state);
             monstseesu(M_SEEN_COLD, state);
             await ugolemeffects(AD_COLD, orig_dmg, state);
@@ -1439,7 +1440,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case SPE_MAGIC_MISSILE:
         learn_it = true;
         if (heroHasProperty(state, ANTIMAGIC)) {
-            note_unported('display.c shieldeff');
+            await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline('The missiles bounce!', state);
             monstseesu(M_SEEN_MAGR, state);
         } else {
@@ -1507,7 +1508,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     case SPE_SLEEP:
         learn_it = true;
         if (heroResistsSleep(state)) {
-            note_unported('display.c shieldeff');
+            await shieldeff(state.u.ux, state.u.uy, state);
             await ttyPline("You don't feel sleepy!", state);
             monstseesu(M_SEEN_SLEEP, state);
         } else {
@@ -1992,10 +1993,7 @@ export async function zhitm(
     }
 
     if (sho_shieldeff) {
-        // C's shieldeff() is a visual animation with no resistance message;
-        // keep the display.c gap explicit without borrowing shieldeff_mon(),
-        // whose separate mon.c owner prints a visible "resists!" line.
-        note_unported('display.c shieldeff');
+        await shieldeff(mon.mx, mon.my, state);
     }
     // is_hero_spell(type) && Role_if(PM_KNIGHT) && u.uhave.questart => 2x.
     // For wand zaps (type 0-9), is_hero_spell is false so this never fires.
@@ -4771,7 +4769,7 @@ export async function flashburn(duration, viaLightning, state, env = {}) {
         return true;
     }
     if (!viaLightning && resists_blnd_by_arti(state.youmonst, state)) {
-        note_unported('zap.c shieldeff');
+        await shieldeff(state.u.ux, state.u.uy, state);
         return true;
     }
     return false;

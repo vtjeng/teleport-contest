@@ -137,7 +137,9 @@ import { placebc, unplacebc } from './ball.js';
 import {
     acurr, adjattrib, exercise, minuhpmax, poisoned, setuhpmax,
 } from './attrib.js';
-import { map_trap, newsym, obj_to_glyph, tmp_at } from './display.js';
+import {
+    map_trap, newsym, obj_to_glyph, shieldeff, tmp_at,
+} from './display.js';
 import { flooreffects, set_wounded_legs } from './do.js';
 import { del_engr_at } from './engrave.js';
 import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
@@ -2091,9 +2093,7 @@ export async function dofiretrap(box, rawEnv = {}) {
     );
 
     if (Fire_resistance(state)) {
-        // display.c:shieldeff() is void and changes presentation only. Keep
-        // its source position before monstseesu() and the half-damage roll.
-        note_unported('display.c shieldeff');
+        await shieldeff(u.ux, u.uy, state);
         monstseesu(M_SEEN_FIRE, state);
         num = random.rn2(2);
     } else if (Upolyd(u)) {
@@ -2227,9 +2227,7 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
 
     if (monster_resists_element(mtmp, FIRE_RES, state)) {
         if (inSight) {
-            // shieldeff() only animates the terminal and has no state or RNG
-            // result in this port; preserve the source gap explicitly.
-            note_unported('pager.c shieldeff');
+            await shieldeff(mtmp.mx, mtmp.my, state);
             await message(
                 messageAt(
                     `${capitalizedMonsterName(mtmp, state)} is uninjured.`,
@@ -2994,7 +2992,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
             if (shoes) note_unported('invent.c prinv');
         } else if (antimagicTrapHero(state)
             || unchangingTrapHero(state)) {
-            note_unported('display.c shieldeff');
+            await shieldeff(state.u.ux, state.u.uy, state);
             await message('You feel momentarily different.', state, env);
         } else {
             // C explicitly discards steedintrap() and polyself()'s results.
@@ -3830,8 +3828,6 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //   every type but BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, ANTI_MAGIC,
 //     FIRE_TRAP, SLP_GAS_TRAP, RUST_TRAP, LANDMINE, PIT, SPIKED_PIT,
 //     TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
-//   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
-//     animation, at teleport.c:1503;
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
@@ -3855,12 +3851,6 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== ROLLING_BOULDER_TRAP && !is_hole(trap.ttyp))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {
-        const antimagic = state.u?.uprops?.[ANTIMAGIC];
-        if (antimagic?.intrinsic || antimagic?.extrinsic) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'shieldeff() for a magic-resistant hero on a teleport trap',
-            );
-        }
         // tele_trap()'s fixed-destination arm calls settrack() before it can
         // discover that rloc_to() has no answer for the monster in the way,
         // so the question has to be asked here, ahead of that write.

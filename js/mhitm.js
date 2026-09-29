@@ -129,8 +129,7 @@ import { possibly_unwield } from './weapon.js';
 import { find_mac, which_armor } from './worn.js';
 import { finish_meating } from './dogmove.js';
 import { place_worm_tail_randomly, remove_worm } from './makemon_create.js';
-import { newsym, flush_screen } from './display.js';
-import { note_unported } from './unported.js';
+import { newsym, flush_screen, shieldeff } from './display.js';
 import { resist } from './zap.js';
 import { ttyPline } from './tty_message.js';
 
@@ -199,7 +198,7 @@ export async function sleep_monst(mtmp, amount, how, env = {}) {
         resisted = await resist(mtmp, how, 0, false, state, random);
     }
     if (resisted) {
-        note_unported('display.c shieldeff');
+        await shieldeff(mtmp.mx, mtmp.my, state);
         return false;
     }
     if (!mtmp.mcanmove) return false;

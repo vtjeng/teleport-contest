@@ -322,7 +322,7 @@ import {
 } from './vision.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
-import { newsym, bot } from './display.js';
+import { newsym, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { costly_spot, shop_keeper, shk_your } from './shk.js';
@@ -3515,15 +3515,18 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             const orig_dmg = dmg;
             await ttyPline('You are jolted by a surge of electricity!', state);
             if (Shock_resistance(state)) {
-                // C: shieldeff(u.ux, u.uy) -- visual animation.
-                note_unported('pager.c shieldeff');
+                // C trap.c:chest_trap -- animate before the resistance message.
+                await shieldeff(u.ux, u.uy, state);
                 await ttyPline("You don't seem to be affected.", state);
                 monstseesu(M_SEEN_ELEC, state);
                 dmg = 0;
             } else {
                 monstunseesu(M_SEEN_ELEC, state);
             }
-            await destroy_items(state.youmonst, AD_ELEC, orig_dmg, { state });
+            await destroy_items(state.youmonst, AD_ELEC, orig_dmg, {
+                state,
+                random: { d, rn1, rn2, rnd, rne, rnl },
+            });
             if (dmg)
                 await losehp(dmg, 'electric shock', KILLED_BY_AN, state);
             break;
