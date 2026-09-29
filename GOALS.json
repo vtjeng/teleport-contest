@@ -116402,6 +116402,37 @@
           "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b"
         }
       }
+    },
+    {
+      "id": "div-makemon-runtime-named-creation-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Align runtime named monster creation with makemon species handling and worm initialization",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "The complete investigation investigations/synthetic/v13/thrown-dagger-cuts-long-worm-segment.json traces 23 remaining screens to an initial-level JavaScript species preflight wrongly used for runtime #wizgenesis. The source-owned scope is makemon runtime relocation and long-worm initialization, with consumed enexto_core and worm helper returns; the later dagger cut is downstream.",
+      "detail": "At segment 0 step 19, v13 stops before C makemon handles a requested long worm. Evaluation challenges/evaluations/20260929141337-v13.json measures 19/42 screens under manifest digest ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d; immutable recording challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json. C makemon.c:1157-1185 relocates a runtime hero-square request through enexto_core and at 1405-1408 initializes PM_LONG_WORM using get_wormno, initworm, count_wsegs, and place_worm_tail_randomly. JS js/makemon_create.js:assertSupportedSpecies refuses species 114 using its initial-level allowlist before this C path. Correct the general runtime source behavior rather than adding a session or species-specific exception.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "makemon",
+      "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+      "step": 19,
+      "syntheticProvenance": {
+        "synthetic/v13/thrown-dagger-cuts-long-worm-segment": {
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+          "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b"
+        }
+      }
     }
   ]
 }

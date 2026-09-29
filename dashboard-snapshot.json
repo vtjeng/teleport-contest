@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T14:33:57.417Z",
+  "capturedAt": "2026-09-29T14:42:27.866Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9462,6 +9462,16 @@
         "at": "2026-09-29T14:22:24.151Z",
         "task": "C47",
         "commit": "3eb023fcb8b993ef132ef11b206962e6255f9874"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B55-grapple-family-v13-20260929",
+        "type": "assign",
+        "at": "2026-09-29T14:42:09.352Z",
+        "task": "B55",
+        "worker": "B",
+        "goal": "port-apply-grapple-family-synthetic-v13-20260929",
+        "kind": "implementation"
       }
     ]
   },
