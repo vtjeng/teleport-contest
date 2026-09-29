@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77901503,
+      "datetime": "20481117092300",
+      "nethackrc": "OPTIONS=name:MarkerProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizwish\ngrappling hook\nao $h.",
+      "comment": "Blocked independent C-first apply.c:doapply -> use_grapple recipe. The male Wizard wishes and wields the hook, toggles getpos valid-square highlights, and targets the west doorway. C selected tohit=3, reached the surface-pull arm, then called the unported void dothrow.c:hurtle; strict replay diverges in hurtle_step, so this recipe has no committed matching recording."
+    }
+  ]
+}
