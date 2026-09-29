@@ -119158,6 +119158,318 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-worm-cut-segment-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port worm segment cutting, shrinkage, and splitting",
+      "cFile": "worm.c",
+      "sessions": [
+        "synthetic/v13/thrown-dagger-cuts-long-worm-segment"
+      ],
+      "selectionReason": "The current v13 thrown-dagger case reaches worm.c:cutworm at step 41 with 42 matching screens and a remaining RNG gap. Its complete investigation traces the missing whole function and required worm/trap helpers. Port the complete cutworm definition, canonical source helpers, and production callers; retain unrelated mon.c partial branches as recorded gaps.",
+      "detail": "cutworm consumes rnd(20) before the no-cut return, then handles first-segment shrinkage, tail splitting, clone_mon failure or success, HP dice, occupancy, growth clock, and messages in C order. Supporting helper and caller coverage is enumerated in corrected immutable A52 packet 24429da8; the known out-of-sight multi-tail display defect remains separately blocked.",
+      "openedAt": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+      "openStanding": {
+        "sha": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "cutworm",
+          "line": 373,
+          "endLine": 486,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 373,
+        "to": 486
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/thrown-dagger-cuts-long-worm-segment": {
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "evaluationPath": "challenges/evaluations/20260929223311-v13.json",
+          "evaluationCommit": "b55fe3125b08dfa7eb4feaeb437a897fc7c8808c"
+        }
+      },
+      "activeStanding": {
+        "sha": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+          "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+          "replayInputSha256": "4b50228065e342fe4ab0394d53c18ad7c6413eefe451ee8d8879bc04f133df57",
+          "evaluationPath": "challenges/evaluations/20260929223311-v13.json",
+          "evaluationCommit": "b55fe3125b08dfa7eb4feaeb437a897fc7c8808c",
+          "evaluationArtifact": "challenges/evaluations/20260929223311-v13.json",
+          "evaluationUtc": "2026-09-29T22:33:31.095Z",
+          "remainingScreens": 0,
+          "recordedSteps": 42,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 42
+            },
+            "rng": {
+              "matched": 3819,
+              "total": 3826
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 3813,
+              "cEntry": "rnd(20)=15",
+              "cCaller": "cutworm(worm.c:388)",
+              "jsEntry": "rn2(19)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "j"
+              },
+              "stepIndex": 41
+            },
+            "cursor": null
+          },
+          "step": 41,
+          "kind": "rng",
+          "sourceFile": "worm.c",
+          "function": "cutworm",
+          "message": null,
+          "cFile": "worm.c",
+          "luaFile": null,
+          "line": 388,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/thrown-dagger-cuts-long-worm-segment.json",
+            "result": {
+              "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "thrown-dagger-cuts-long-worm-segment",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+              "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+              "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+              "remainingScreens": 0,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+                "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+                "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+                "replayInputSha256": "3cfc883da64f56b3faccd4e650d2d5b13852052d3c4d6dc55ed062e4fa7b83e1",
+                "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+                "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+                "evaluationArtifact": "challenges/evaluations/20260929201745-v13.json",
+                "evaluationUtc": "2026-09-29T20:18:19.894Z",
+                "remainingScreens": 0,
+                "recordedSteps": 42,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 3819,
+                    "total": 3826
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 3813,
+                    "cEntry": "rnd(20)=15",
+                    "cCaller": "cutworm(worm.c:388)",
+                    "jsEntry": "rn2(19)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "j"
+                    },
+                    "stepIndex": 41
+                  },
+                  "cursor": null
+                },
+                "step": 41,
+                "kind": "rng",
+                "sourceFile": "worm.c",
+                "function": "cutworm",
+                "message": null,
+                "cFile": "worm.c",
+                "luaFile": null,
+                "line": 388
+              },
+              "summary": "The worm-tail display now matches all 42 recorded screens and cursor positions. At segment 0 step 41, dothrow.c:thitmonst hits a live long-worm segment and calls worm.c:cutworm. C draws rnd(20)=15 before its no-cut return; JavaScript skips the call with note_unported, so the RNG log diverges. Port cutworm and its required tail-state helpers, then wire its production callers.",
+              "source": {
+                "file": "worm.c",
+                "functions": [
+                  "cutworm"
+                ],
+                "branch": "A thrown weapon hits a living monster with wormno at a tail square rather than its head. thitmonst preserves chopper=is_axe before hmon; for this dagger it is false. cutworm draws rnd(20), then returns when cut_chance<17. Other source branches shrink or split the tail and must be implemented with their required helpers.",
+                "callers": [
+                  "C dothrow.c:thitmonst lines 2195-2207 calls cutworm after hmon reports the monster alive. JS js/dothrow.js:thitmonst lines 2919-2920 records the missing call instead.",
+                  "C uhitm.c:known_hitum lines 599-642 remembers the weapon cutting property and calls cutworm after a successful hit; wire that direct caller in the same source task."
+                ],
+                "dependencies": [
+                  "worm.c tail-number, segment-list, removal, shrinking, split placement, and clone_mon dependencies; preserve C state and random draw order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/20260929201745-v13.json at f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6 reports 42/42 screens, 42/42 cursors, and 3819/3826 positional RNG matches for the unchanged recording. The current diagnostic first RNG mismatch is index 3813, segment 0 step 41: C rnd(20)=15 from cutworm(worm.c:388), JS rn2(19)=6. No runner error remains.",
+                "Upstream worm.c:373-475 cutworm rejects an absent worm number or a head hit before rnd(20); a cutting weapon adds 10, then cut_chance<17 returns. Later branches shrink the last segment or split the chain, call get_wormno/clone_mon/place_wsegs, adjust levels and HP, and emit the source messages. Port the whole function and required helpers rather than injecting the observed random draw.",
+                "A51 ported display.c:display_monster and wired newsym and feel_location; its independent recordings cover both callers. The earlier step-19 tail glyph mismatch is resolved, and the admitted v13 prefix through step 40 matches. Keep cutworm as a separate source task; the present RNG gap is not evidence of a remaining tail-glyph defect."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cutworm",
+            "implementation": "js/worm.js",
+            "symbol": "cutworm",
+            "sourceReview": "Compared the complete selected worm.c:cutworm definition (373-486), including early returns, rnd(20) before the cut threshold, cuttier adjustment, list search, first-segment shrink, clone slot selection, consumed clone_mon result, coordinate restoration on clone failure, both message branches, toss/redraw order, HP changes, and growtime initialization for a successful split. JS awaits clone_mon because its return chooses the source split branch. Removed the stale cut refusal at both active callers.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst (2207)"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "known_hitum",
+                "source": "uhitm.c:known_hitum (642)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/worm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worm.c/melee-long-worm-tail-independent-a52.session.json",
+              "recordings/worm.c/cuttier-tail-shrink-independent-a52.session.json",
+              "recordings/worm.c/middle-segment-split-independent-a52.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "makemon.c:makemon -> display.c:newsym creates the long worm; dothrow.c:thitmonst calls worm.c:cutworm for the thrown dagger hit"
+              }
+            ],
+            "checkedAt": "95b4cd0495f6f8aac44729f844c289a851f479f8"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the complete worm.c:cutworm definition (373-486), the sole function in task-context.functions. The task also ports supporting whole definitions in noncontiguous C positions: worm.c:get_wormno (96-119), initworm (120-145), toss_wsegs (146-174), shrink_worm (175-195), wormgone (308-343), place_wsegs (615-638), remove_worm (714-737), place_worm_tail_randomly (738-802), count_wsegs (836-851), create_worm_tail (852-882), worm_known (883-897), and wseg_at (946-967); and trap.c:rnd_nextto_goodpos (4947-4975). These are individually complete definitions, not one contiguous range. Pure helper behavior is pinned in scripts/worm.test.mjs and scripts/whatis-command.test.mjs.\n\nThe two active cutworm entry points are both exercised: dothrow.c:thitmonst calls worm.c:cutworm for a thrown weapon, matched by v13/thrown-dagger-cuts-long-worm-segment segment 0 steps 0-41. uhitm.c:known_hitum calls cutworm for melee, matched by recordings/worm.c/melee-long-worm-tail-independent-a52.session.json; the independent cuttier recipe exercises shrink_worm/toss_wsegs, and the middle-segment recipe exercises the split/place_wsegs path. The v13 trace reaches cutworm's rnd(20) no-cut branch at step 41; it does not claim a shrink or split.\n\nAdditional active caller paths have matching C recordings: apply.c:doapply -> insight.c:mstatusline -> count_wsegs/wseg_at (visible one-tail stethoscope witness); zap.c:probe_monster -> count_wsegs (wand probe); zap.c:weffects -> teleport.c:rloc_to_core -> remove_worm/place_worm_tail_randomly (wand teleport); read.c:do_class_genocide -> mon.c:mongone -> m_detach -> wormgone/toss_wsegs (genocide); and trap.c:drown -> rnd_nextto_goodpos (hero crawl). Each cited recording matched all RNG values, screens, and cursors. The visible-tail status witness establishes live worm creation and count display; the separate multi-tail out-of-sight recipe remains blocked by the known display.c:newsym visibility predicate defect, so it is not passing evidence.\n\nThe following active supporting callers are wired but lack an independent matching runtime recording in this delivery: mon.c:newcham worm creation/replacement; mon.c:replmon placement; mon.c:mon_leaving_level removal; mhitm.c:mdisplacem remove/place during monster displacement; mkmaze.c:movebubbles removal; mon.c:mm_displacement count; and trap.c:trapeffect_pit, trapeffect_hole, and trapeffect_web count branches. worm_known's canseemon and monkilled caller paths have source-pinned pure-function coverage but no separate caller recording. Do not treat those entry points as replay-verified.\n\nThe relocation-related mongone change remains explicitly partial: source-ordered ordinary object resistance calls in steal.c:mdrop_special_objs are preserved, unstuck is wired in C order, and the grddead guard plus protected/quest transfer branch remain recorded gaps because completing them needs the separate vault/awaited drop lifecycle. This delivery does not claim whole mongone completion. The existing hidden-monster rloc preflight remains in place. The synchronous m_detach path preserves thrown dependency failures and tests both ordinary synchronous completion and awaited due_to_death behavior.\n\nSequencing provenance: implementation preparations preceded the explicit A52 context steering. They were preserved to a scratch patch, the worktree paths were restored to the assigned base, the source-ordered A52 context was written, and the preparations were reapplied. Later read-genocide, probing, and trap-recording edits followed their atomic ledger scope expansions.",
+        "entryPoints": [
+          {
+            "name": "thrown weapon hits a worm segment",
+            "functions": [
+              "cutworm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "makemon.c:makemon -> dothrow.c:thitmonst -> worm.c:cutworm (rnd(20) no-cut branch at step 41)"
+              }
+            ]
+          },
+          {
+            "name": "melee hits a worm segment",
+            "functions": [
+              "cutworm"
+            ],
+            "recordings": [
+              "recordings/worm.c/melee-long-worm-tail-independent-a52.session.json",
+              "recordings/worm.c/cuttier-tail-shrink-independent-a52.session.json",
+              "recordings/worm.c/middle-segment-split-independent-a52.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cutting a worm tail shrinks the worm",
+            "functions": [
+              "cutworm"
+            ],
+            "recordings": [
+              "recordings/worm.c/cuttier-tail-shrink-independent-a52.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cutting a middle segment splits a worm",
+            "functions": [
+              "cutworm"
+            ],
+            "recordings": [
+              "recordings/worm.c/middle-segment-split-independent-a52.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
