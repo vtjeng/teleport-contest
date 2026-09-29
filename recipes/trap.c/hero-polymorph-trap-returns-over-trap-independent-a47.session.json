@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first Wizard Antimagic POLY_TRAP witness. The Wizard steps south off the upstairs square, wishes a trap there, returns north, then walks south onto it. Starting inventory equips the cloak of magic resistance; worn.c setworn() and worn.js addSlotEffects() expose its ANTIMAGIC extrinsic, so the trap reports momentarily different without polymorphing the hero.",
+  "segments": [
+    {
+      "seed": 4700147,
+      "datetime": "20421102131422",
+      "nethackrc": "OPTIONS=name:A47PolyReturn,role=Wizard,race=human,gender=male,align=neutral,playmode=debug,!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,!autopickup,!acoustics\n",
+      "moves": " j\u0017polymorph trap\nkj "
+    }
+  ]
+}
