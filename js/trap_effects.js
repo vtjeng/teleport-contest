@@ -78,6 +78,7 @@ import {
     M_SEEN_FIRE,
     PIT,
     PASSES_WALLS,
+    POLY_NOFLAGS,
     POLY_TRAP,
     RIGHT_SIDE,
     RECURSIVETRAP,
@@ -325,7 +326,7 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { encumber_msg } from './pickup.js';
-import { body_part, mbodypart } from './polyself.js';
+import { body_part, mbodypart, polyself } from './polyself.js';
 import { makeplural } from './fruit.js';
 import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl } from './rng.js';
 import {
@@ -1328,10 +1329,10 @@ export function mselftouch(mon, _arg, _byplayer, env) {
 }
 
 // C ref: trap.c steedintrap() (3102-3159). The helper is shared by the hero
-// arms of dart, bear, magic and land mines, and trapeffect_pit() consumes its
-// non-zero result before applying damage to the rider. Keep the return value
-// separate from the monster result constants: C returns 1 for a hit steed and
-// Trap_Killed_Mon only when the steed dies.
+// arms of dart, bear, magic, polymorph and land mines, and trapeffect_pit()
+// consumes its non-zero result before applying damage to the rider. Keep its
+// return separate from monster result constants: C returns 1 for a hit steed,
+// and Trap_Killed_Mon only when the steed dies.
 async function steedintrap(trap, otmp, env) {
     const { state } = env;
     const random = env.random;
@@ -2996,11 +2997,11 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
             await message('You feel momentarily different.', state, env);
         } else {
             // C explicitly discards steedintrap() and polyself()'s results.
-            note_unported('trap.c steedintrap');
+            await steedintrap(trap, null, env);
             deltrap(trap, state);
             newsym(state.u.ux, state.u.uy);
             await message('You feel a change coming over you.', state, env);
-            note_unported('polyself.c polyself');
+            await polyself(POLY_NOFLAGS, state);
         }
         return Trap_Effect_Finished;
     }
@@ -3825,7 +3826,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // that arrives another way.
 //
 // The stops, and what each of them needs:
-//   every type but BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, ANTI_MAGIC,
+//   every type but BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, POLY_TRAP,
+//     ANTI_MAGIC,
 //     FIRE_TRAP, SLP_GAS_TRAP, RUST_TRAP, LANDMINE, PIT, SPIKED_PIT,
 //     TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
 //   a fixed-destination teleport trap with a monster standing on the
@@ -3835,7 +3837,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     the "You escape ..." line at trap.c:3039 is outside those effects;
 //   a mounted hero where the effect has no corresponding source arm --
 //     s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509 (bear trap),
-//     while steedintrap() handles the dart, gas, magic, landmine and pit arms;
+//     while steedintrap() handles the dart, gas, magic, polymorph, landmine
+//     and pit arms;
 //     ROCKTRAP still targets the hero and ANTI_MAGIC acts directly on them;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game, trflags = 0) {
@@ -3848,6 +3851,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== TELEP_TRAP
         && trap.ttyp !== LANDMINE && !pitTrap
         && trap.ttyp !== WEB
+        && trap.ttyp !== POLY_TRAP
         && trap.ttyp !== ROLLING_BOULDER_TRAP && !is_hole(trap.ttyp))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {
@@ -3872,7 +3876,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== LANDMINE && trap.ttyp !== DART_TRAP
         && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
-        && trap.ttyp !== ANTI_MAGIC
+        && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== POLY_TRAP
         && !pitTrap) {
         // trap.c:1507-1511 names a bear-trap steed through
         // s_suffix(mon_nam()) and mbodypart(); the other mounted arms call
