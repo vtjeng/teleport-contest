@@ -415,6 +415,10 @@ export async function inside_gas_cloud(region, monster = null, rawEnv = {}) {
             if (blindfold?.otyp === TOWEL && blindfold.spe > 0)
                 damage = Math.trunc((damage + 1) / 2);
             await losehp(damage, 'gas cloud', KILLED_BY_AN, state, env);
+            // C done(DIED) never returns after finalizing the game. Recovery
+            // returns normally, so only finalized death skips this callback's
+            // following monster-belief update.
+            if (state.program_state?.gameover) return false;
             monstunseesu(M_SEEN_POISON, state);
             return false;
         }
@@ -559,7 +563,12 @@ export async function run_regions(rawEnv = {}) {
         const region = regions[index];
         if (region.ttl !== 0) continue;
         const expire = plans.get(region)?.expire ?? null;
-        if (!expire || await expire(region, null, env))
+        let shouldRemove = !expire;
+        if (expire) {
+            shouldRemove = await expire(region, null, env);
+            if (env.state.program_state?.gameover) return regions.length;
+        }
+        if (shouldRemove)
             remove_region(region, env.state, env);
     }
 
@@ -569,13 +578,21 @@ export async function run_regions(rawEnv = {}) {
         const inside = plans.get(region)?.inside
             ?? regionCallback(region.inside_f, env);
         if (!inside) continue;
-        if (region.hero_inside) await inside(region, null, env);
+        if (region.hero_inside) {
+            await inside(region, null, env);
+            if (env.state.program_state?.gameover) return regions.length;
+        }
 
         for (let monIndex = 0; monIndex < region.monsters.length; ++monIndex) {
             const id = region.monsters[monIndex];
             const monster = findMonsterById(id, env.state);
-            if (!monster || monster.mhp < 1
-                || await inside(region, monster, env)) {
+            let shouldRemove = !monster || monster.mhp < 1;
+            if (!shouldRemove) {
+                shouldRemove = await inside(region, monster, env);
+                if (env.state.program_state?.gameover)
+                    return regions.length;
+            }
+            if (shouldRemove) {
                 const last = region.monsters.length - 1;
                 region.monsters[monIndex] = region.monsters[last];
                 region.monsters.pop();

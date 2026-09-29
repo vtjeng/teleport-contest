@@ -171,7 +171,7 @@ import {
     Upolyd,
     plur,
 } from './const.js';
-import { get_mleash } from './apply.js';
+import { get_mleash, leashable } from './apply.js';
 import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
 import {
@@ -323,7 +323,6 @@ import {
     name_to_mon,
     name_to_monclass,
     nohands,
-    nolimbs,
     notake,
     noncorporeal,
     nonliving,
@@ -2676,12 +2675,6 @@ function mgender_from_permonst(monster, species, random) {
     }
 }
 
-function shapeLeashable(species) {
-    return species?.pmidx !== PM_LONG_WORM
-        && !unsolid(species)
-        && (!nolimbs(species) || has_head(species));
-}
-
 function shapeRedraw(x, y, normalized) {
     if (typeof normalized.redrawSquare === 'function') {
         normalized.redrawSquare(x, y, normalized.state, normalized);
@@ -2818,7 +2811,7 @@ function* apply_newcham_steps(
     set_mon_data(monster, target, state);
 
     if (monster.mleashed) {
-        if (!shapeLeashable(target)) {
+        if (!leashable(monster)) {
             // m_unleash() returns void in C; preserve the source boundary while
             // clearing the leash only through the caller supplied owner.
             if (typeof normalized.unleash === 'function')

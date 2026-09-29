@@ -1213,10 +1213,10 @@ test('dog_move makes a leashed pet whimper at a trap before moving',
 // returns what whimper() recorded, so each caller below sets one term of
 // youprop.h:125 `Deaf` and asserts the silence dogmove.c:1200 gives it.
 //
-// `mleashed` is state production never builds: apply.c use_leash() is C's only
-// writer and is unported, and js/unported_monster_actions.js:251 refuses a
-// leashed pet by name before dochugw() runs. These cases reach the arm
-// directly, which is why they are unit tests rather than a recording.
+// apply.c:use_leash() now creates the paired leash state in production, but
+// js/unported_monster_actions.js:251 still refuses a leashed pet before
+// dochugw() runs. These cases reach the dog_move arm directly, so they remain
+// focused unit tests rather than recorded full-turn behavior.
 async function leashedTrapWhimpers(state, monster) {
     monster.mleashed = true;
     const trap = {

@@ -650,6 +650,7 @@ function regionEffectEnv(state, random, { planning = false } = {}) {
     return {
         state,
         random,
+        planning,
         blockPoint: (x, y) => {
             if (planning) admitPlannedVisionChange(x, y, state);
             return block_point(x, y, state);
@@ -936,6 +937,12 @@ async function finishElapsedTurnAfterTimeout(
     // and messages so the live pass remains the first terminal write.
     const regionEnv = regionEffectEnv(state, random, { planning });
     await run_regions(regionEnv);
+    // C's done() does not return after finalizing the game. The JavaScript
+    // end-game path returns so the recorder can capture its last screen; stop
+    // the elapsed-turn tail at the same point after a live region callback.
+    // A wizard or life-saving recovery leaves gameover clear, so C's remaining
+    // callback and upkeep still run on the live state.
+    if (state.program_state?.gameover) return { gameover: true };
 
     if (state.u.ublesscnt) state.u.ublesscnt--;
     // Both regenerators reach allmain.c interrupt_multi() on the turn they top
@@ -1239,10 +1246,10 @@ async function planElapsedTurn(state, {
         boundary.reason = error.reason;
         throw boundary;
     }
-    // A planned MonsterDeathPlanningError is returned as heroDeath rather
-    // than caught above. Its presence is the atomic handoff: the live scan
-    // below intentionally replays the selected monster action, where the
-    // real state enters done_in_by() with the same DIED result.
+    // A planned lethal loss is returned as heroDeath rather than caught
+    // above. Its presence is the atomic handoff: the live scan below
+    // intentionally replays the source path, where done() can resolve death
+    // through life-saving or wizard recovery on the real state.
     // C reaches hunger and timeout work only after the current monster scans
     // leave both sides without a movement ration.  The cloned scan above
     // determines that gate without changing live state, so unsupported upkeep

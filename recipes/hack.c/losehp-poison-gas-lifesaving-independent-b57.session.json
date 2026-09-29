@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent live witness for hack.c:losehp reached from region.c:inside_gas_cloud. The debug Wizard wishes and wears a life-saving amulet, creates a stinking-cloud region on the hero square, and waits for the lethal second cloud tick. The amulet recovery returns through the region callback and elapsed-turn tail.",
+  "segments": [
+    {
+      "seed": 37029141,
+      "datetime": "20430618121933",
+      "nethackrc": "OPTIONS=name:GasSaveB57,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " .\u0017amulet of life saving\nWo\u0017scroll of stinking cloud\nrp    .    .    "
+    }
+  ]
+}

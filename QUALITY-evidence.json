@@ -17548,5 +17548,87 @@
       }
     },
     "recordedAt": "2026-09-27T04:08:54.716Z"
+  },
+  {
+    "kind": "review",
+    "head": "52db3b9f54547102e14a1b1872299a48baaabba4",
+    "auditedRange": "b6e1f0cfcf2f07101acc830f077bdbfc0e8b4b1b..52db3b9f54547102e14a1b1872299a48baaabba4",
+    "level": "full",
+    "areas": [
+      "objects",
+      "monsters"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 1 raw, 1 deduplicated, 1 confirmed, 1 applied, 0 deferred, 0 rejected, 0 unverified. Independent source review found no production defect. The confirmed test finding was fixed at 52db3b9f and reverified by the adjudicator; focused tests, lint, all-batch loss audit, and checkpoint passed. Optional concurrency finder ran for the awaited encumbrance continuation; performance trigger did not apply.",
+    "auditMetrics": {
+      "wallTimeSeconds": 420,
+      "counts": {
+        "raw": 1,
+        "deduplicated": 1,
+        "confirmed": 1,
+        "applied": 1,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 1,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "Reviewed makemon.c:makemon runtime named creation and dothrow.c:thitmonst exercise caller seam. The independent makemon.c runtime-named-long-worm-a50 recording executes creation; source-pinned wizard-genesis and dothrow-thitmonst tests execute the changed branches. The selected v13 worm case executes thitmonst after its earlier display mismatch.",
+        "sourceReview": "Compared changed makemon preflight, relocation, worm-tail gate, and thitmonst STR/DEX exercise call ordering and RNG against upstream makemon.c, read.c, worm.c, dothrow.c, attrib.c, and pickup.c. The existing worm.c cutworm note_unported is a later separate gap; the existing makemon preflight unsupported guards outside the named creation shape remain deliberate partial-port boundaries. The review found no other changed-branch note_unported or UnsupportedError path.",
+        "completeness": "No note_unported return value in the reviewed branches is used as data; the changed named creation and exercise caller branches preserve source-owned state, random draws, messages, and awaited completion."
+      }
+    },
+    "recordedAt": "2026-09-29T16:28:06.169Z"
+  },
+  {
+    "kind": "review",
+    "head": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+    "auditedRange": "202fc10e007b6ea7047aebf665adeb39d845e6c4..357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+    "level": "full",
+    "areas": [
+      "startup",
+      "monsters",
+      "world-effects",
+      "commands"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 1 raw, 1 deduplicated, 1 confirmed, 1 applied, 0 deferred, 0 rejected, 0 unverified. Frozen B57 source scope was reviewed by correctness, readability-risk, test-quality, variable-flow and concurrency finders, then an independent adjudicator. The confirmed test gap now has live polymorph-gas recovery coverage through moveloop_core; an early-stop mutation fails that test, and the adjudicator reverified the committed fix. Concurrency was enabled for cloned async elapsed-turn lifecycle changes; performance was omitted because the delta adds no amplified work beyond required source behavior. No warnings or unverified findings remain. Original readiness checkpoint passed; affected tests and lint passed after the test-only fix.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1498,
+      "counts": {
+        "raw": 1,
+        "deduplicated": 1,
+        "confirmed": 1,
+        "applied": 1,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 1,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "Frozen range 202fc10e007b6ea7047aebf665adeb39d845e6c4..8667be7c87313737e310aa0bdb4f0709d3a77dac. hack.js losehp, allmain.js regionEffectEnv/finishElapsedTurnAfterTimeout, region.js inside_gas_cloud/run_regions, and unported_monster_actions.js planningState/preflightElapsedTurnTail are exercised by all three independent hack.c poison-gas recordings. hack.test.mjs executes ordinary and polymorphed planned losehp; unported-monster-actions.test.mjs executes planningState and both preflight catches; allmain-turn.test.mjs executes planElapsedTurn plus fatal/recovered live callback continuation; region.test.mjs executes finalized versus recovered run_regions schedules. HeroDeathPlanningError is reached through both HP pools.",
+        "sourceReview": "Traced hack.c losehp, region.c inside_gas_cloud and run_regions, and the allmain.c moveloop_core timeout/region/upkeep order against changed JS state and RNG flow. Checked live done versus rehumanize handoff and cloned killer ownership. losehp, regionEffectEnv, run_regions, planningState, and both changed preflight functions have no direct note_unported calls or Unsupported throws. inside_gas_cloud retains the existing void monster-kill gap reporter note_unported(mon.c reason), with optional unsupported callback, outside the changed hero-death branch; region callback identity/operation preflight helpers retain existing UnsupportedRegionCallbackError/UnsupportedRegionOperationError refusals. allmain elapsed-turn tail/plan retains existing elapsedTurnBoundary refusals for unsupported automatic-search planning, turn limit, and other delegated boundaries. Full touched-file gap inventory retained in .cache/B57-source-gaps.txt; unrelated source families are not claimed complete.",
+        "completeness": "No note_unported call in this reviewed delta substitutes for a C return value. The existing inside_gas_cloud monster-kill reporter records discarded void gaps; the changed hero path uses the implemented losehp and live done/rehumanize functions. No new gap or refusal stands in for changed behavior."
+      }
+    },
+    "recordedAt": "2026-09-29T21:27:43.603Z"
   }
 ]

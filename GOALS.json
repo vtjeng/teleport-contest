@@ -116506,46 +116506,53 @@
     {
       "id": "port-apply-grapple-family-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "closed",
       "summary": "Port complete grappling-hook targeting and resolution helpers",
       "cFile": "apply.c",
       "sessions": [
         "synthetic/v13/grappling-hook-finds-no-object"
       ],
-      "selectionReason": "The complete investigation investigations/synthetic/v13/grappling-hook-finds-no-object.json traces the v13 four-screen mismatch to the unported apply.c:use_grapple family and doapply caller. Preserve the unwielded-tool queued-command path, targeting, RNG, and all trap/object/monster/surface/self branches; the related leash case is planned for this same worker in a separate source-range task.",
+      "selectionReason": "Current synthetic/v13/grappling-hook-finds-no-object remains 4 screens short in challenges/evaluations/20260929161024-v13.json; investigations/synthetic/v13/grappling-hook-finds-no-object.json traces apply.c use_grapple and its targeting helpers.",
       "detail": "At segment 0 step 27, the saved v13 evaluation stops in doapply after selecting GRAPPLING_HOOK; the C recording runs through step 30 and reaches the empty-object result. Batch manifest identity ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d, recording challenges/cases/v13/grappling-hook-finds-no-object.session.json, evaluation challenges/evaluations/20260929141337-v13.json. Port apply.c:grapple_range, can_grapple_location, display_grapple_positions, use_grapple (3685-3873) and wire doapply(GRAPPLING_HOOK); include consumed return dependencies and independent entry-point evidence.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "b61ffea542ed722b83dfe21597889bacebb1f882",
+      "openStanding": {
+        "sha": "b61ffea542ed722b83dfe21597889bacebb1f882",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "grapple_range",
           "line": 3686,
           "endLine": 3700,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "can_grapple_location",
           "line": 3701,
           "endLine": 3706,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "display_grapple_positions",
           "line": 3707,
           "endLine": 3728,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_grapple",
           "line": 3729,
           "endLine": 3875,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -116565,21 +116572,341 @@
           "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
           "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b"
         }
+      },
+      "activeStanding": {
+        "sha": "b61ffea542ed722b83dfe21597889bacebb1f882",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "grappling-hook-finds-no-object",
+          "session": "synthetic/v13/grappling-hook-finds-no-object",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+          "recordingPath": "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+          "recordingSha256": "0946fffe16c9be504bc681f00391c4840b447c138c08de78139469b4179bcb99",
+          "recipe": "challenges/cases/v13/grappling-hook-finds-no-object.recipe.session.json",
+          "recipeSha256": "05c63d046e719066629fb2f06fe6723fee4310beb47eab9cf042a466d4e26a81",
+          "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
+          "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+          "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+          "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
+          "evaluationUtc": "2026-09-29T16:10:43.240Z",
+          "remainingScreens": 4,
+          "recordedSteps": 31,
+          "previousScreensMatched": 27,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 27,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2902,
+              "total": 2917
+            },
+            "cursors": {
+              "matched": 27,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 260",
+            "step": 27
+          },
+          "step": 27,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 260",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/grappling-hook-finds-no-object.json",
+            "result": {
+              "session": "synthetic/v13/grappling-hook-finds-no-object",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "grappling-hook-finds-no-object",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "0946fffe16c9be504bc681f00391c4840b447c138c08de78139469b4179bcb99",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 4,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "d433aeafb7104c549bd58b19db2bc4c169c12d09",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "session": "synthetic/v13/grappling-hook-finds-no-object",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+                "recordingPath": "challenges/cases/v13/grappling-hook-finds-no-object.session.json",
+                "recordingSha256": "0946fffe16c9be504bc681f00391c4840b447c138c08de78139469b4179bcb99",
+                "recipe": "challenges/cases/v13/grappling-hook-finds-no-object.recipe.session.json",
+                "recipeSha256": "05c63d046e719066629fb2f06fe6723fee4310beb47eab9cf042a466d4e26a81",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 4,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 27,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2902,
+                    "total": 2917
+                  },
+                  "cursors": {
+                    "matched": 27,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 260",
+                  "step": 27
+                },
+                "step": 27,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 260",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The v13 replay stops at the named GRAPPLING_HOOK refusal in js/apply.js before C reaches apply.c:use_grapple. C uses the unwielded-hook arm to wield the tool and queue a repeated doapply; its later matching source trace reaches a selected empty-object target and prints “Nothing happens.” The implementation scope is the complete grapple helper family plus doapply caller wiring, with the existing getpos, wield, targeting, and movement dependencies preserved in C order.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For a selected GRAPPLING_HOOK, use_grapple returns without acting when swallowed. If the hook is not uwep, C calls wield_tool(obj, \"cast\"); on success it queues doapply and the object letter and returns ECMD_TIME. Once wielded, it prompts for a target, filters visible in-range squares, applies the weapon-skill menu/RNG branches, and resolves trap, object, monster, surface, or self targets. The selected case is a human Wizard who is not swallowed or blind: its first hook input is the unheld-tool arm, then its later target is an adjacent visible empty square and its source-selected tohit value is 1.",
+                "functions": [
+                  "grapple_range",
+                  "can_grapple_location",
+                  "display_grapple_positions",
+                  "use_grapple",
+                  "doapply"
+                ],
+                "callers": [
+                  "The #apply command dispatches to apply.c:doapply; its GRAPPLING_HOOK switch arm assigns the return from use_grapple(obj) to the command result.",
+                  "Within use_grapple, an unwielded hook that wield_tool accepts queues a repeated doapply and the hook inventory letter, so the next command reaches the wielded-target flow."
+                ],
+                "dependencies": [
+                  "wield_tool(obj, \"cast\") returns a Boolean consumed by the wield/queue branch.",
+                  "uwep_skill_type, grapple_range, and can_grapple_location provide the weapon skill, maximum range, and target eligibility; the latter two have consumed return values.",
+                  "getpos_sethilite and getpos mutate the target coordinate; use_grapple consumes getpos’s negative cancellation result.",
+                  "The skilled menu consumes select_menu’s count/selection and an RNG gate; preserve C menu and random-call order.",
+                  "The target branch consumes m_at’s monster pointer and enexto’s Boolean; pickup_object, attack_checks, and thitmonst effects are called with discarded return values in C.",
+                  "u_wipe_engr, hurtle, spoteffects, losehp, and the target-description/display helpers preserve source side effects and command results."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The examined evaluation challenges/evaluations/20260929141337-v13.json and queue entry report 4 remaining screens in a 31-step recording, with 27/31 screens, 2902/2917 RNG calls, and 27/31 cursors matched. The recorded input at zero-based step 27 is key m; evaluation stops because js/apply.js refuses object type 260 in doapply. The case manifest’s source trace associates that hook selection with apply.c:doapply(GRAPPLING_HOOK) -> use_grapple on an unwielded hook.",
+                "In nethack-c/upstream/src/apply.c:3685-3873, the complete contiguous helper family is grapple_range, can_grapple_location, display_grapple_positions, and use_grapple. In use_grapple, lines 3740-3751 check swallowed/unwielded state; the unwielded success path calls wield_tool, queues doapply and obj->invlet, then returns ECMD_TIME. Lines 3753-3810 perform the getpos, range/vision validation, RNG/menu selection, and engraving scuff; lines 3812-3872 resolve the target and common “Nothing happens.” result. The doapply GRAPPLING_HOOK arm at lines 4268-4269 consumes use_grapple’s return.",
+                "In js/apply.js, GRAPPLING_HOOK remains in DOAPPLY_UNPORTED_NAMED_ARMS (around line 2943) and the generic doapply default throws UnsupportedApplyError for the named arm (around lines 3999-4002). There is no JS implementation of grapple_range, can_grapple_location, display_grapple_positions, or use_grapple, so this is a source-port scope rather than a narrow output adjustment.",
+                "The C recording challenges/cases/v13/grappling-hook-finds-no-object.session.json has 31 steps. At step 27, key m, C reports “You now wield a grappling hook. Where do you want to hit?” after the wield_tool/queued-doapply path. The replay continues to select east with l and confirm with ., reaching step 30; C records rn2(5)=1 at use_grapple(apply.c:3776), then rn2(2)=0 and rnd(2)=2 at lines 3809-3810, takes the tohit==1 object branch, finds no object at the selected coordinate, and outputs “Nothing happens.” This establishes the later empty-object outcome but does not make it a JS match yet."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "grapple_range",
+            "implementation": "js/apply.js",
+            "symbol": "grapple_range",
+            "sourceReview": "Read apply.c:grapple_range() (3685-3698) in full. It reads uwep_skill_type once, then preserves the source thresholds: P_NONE or skill <= P_BASIC returns 4; exactly P_SKILLED returns 5; greater skill returns 8. This helper makes no C RNG call, message, screen write, or state change. The JavaScript uses the same expression order and square-distance consumers.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "can_grapple_location",
+                "source": "apply.c:can_grapple_location() calls grapple_range() after isok() and cansee()."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple() rechecks distu() against grapple_range() after getpos returns."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "apply.c:doapply(GRAPPLING_HOOK) -> use_grapple -> getpos valid-location callback -> grapple_range"
+              }
+            ],
+            "checkedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+          },
+          {
+            "name": "can_grapple_location",
+            "implementation": "js/apply.js",
+            "symbol": "can_grapple_location",
+            "sourceReview": "Read apply.c:can_grapple_location() (3700-3704) in full. Preserve short-circuit order isok(x,y), cansee(x,y), then distu(x,y) <= grapple_range(); distu is square distance, not Chebyshev distance. The helper has no C RNG, message, screen, or state mutation.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "display_grapple_positions",
+                "source": "apply.c:display_grapple_positions() calls can_grapple_location() for each dx/dy candidate."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple() installs can_grapple_location() through getpos_sethilite() for getpos selection validation."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "apply.c:use_grapple -> getpos_sethilite(can_grapple_location) -> getpos location validation"
+              }
+            ],
+            "checkedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+          },
+          {
+            "name": "display_grapple_positions",
+            "implementation": "js/apply.js",
+            "symbol": "display_grapple_positions",
+            "sourceReview": "Read apply.c:display_grapple_positions() (3706-3726) in full. On enable it emits DISP_BEAM/S_goodpos then scans dx outer and dy inner from -3 through 3, passing squares that satisfy can_grapple_location and are not occupied by the hero; on disable it emits DISP_END. JavaScript preserves this order and callback behavior.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple() passes display_grapple_positions to getpos_sethilite(); getpos.c invokes the callback for the valid-square toggle."
+              }
+            ],
+            "pure": false,
+            "tests": [],
+            "recordings": [
+              "recordings/apply.c/grappling-hook-valid-marker-independent-b55.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+          },
+          {
+            "name": "use_grapple",
+            "implementation": "js/apply.js",
+            "symbol": "use_grapple",
+            "sourceReview": "Read apply.c:use_grapple() (3728-3873) in full and preserve branch and evaluation order: swallowed and wield-tool/command-queue gates; getpos setup and cancellation; range, cansee, couldsee; base rn2(5), optional skilled PICK_ONE menu and its rn2 draws; C initializes any.a_int to 1 and increments it before each add_menu, so the three item IDs are 2/3/4 and selected.a_int - 1 maps to object/monster/surface switch values 1/2/3; the focused source-pinned test checks all three mappings through the pure menu helpers; engraving rn2/rnd; trap/object/monster/surface/self dispatch; monster enexto, attack_checks, check_caitiff, relocation/hit order; and ECMD results. The object branch discards pickup_object's result; the monster branches discard attack_checks/thitmonst/rloc_to results, and these are called with the same order. The hard-surface branch calls dothrow.c:hurtle(), an unported void callee, via note_unported('dothrow.c hurtle') and then calls spoteffects(TRUE); no movement or RNG is fabricated. Its active surface-pull result is not claimed as strictly matched: recipes/apply.c/grappling-hook-surface-pull-blocked-b55.session.json reaches C hurtle_step and differs there. Other branches in this source range are implemented without a substitute refusal.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() GRAPPLING_HOOK arm dispatches use_grapple(obj); if the hook is not wielded, use_grapple() calls wield_tool(), queues doapply and the hook invlet, then re-enters this arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/grappling-hook-valid-marker-independent-b55.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "apply.c:doapply(GRAPPLING_HOOK) -> use_grapple; selected visible east square produces the no-object result"
+              }
+            ],
+            "checkedAt": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+          }
+        ],
+        "entryPointReview": "The active production entry is the hero Apply command selecting GRAPPLING_HOOK: apply.c:doapply dispatches use_grapple. If the item is not wielded, the C helper wields it, queues doapply plus the item letter, and re-enters with obj == uwep; the selected v13 case and independent recording exercise this route. The selected v13 case is fully matched through segment 0 step 30 (all 31 screens, RNG calls and cursors) and reaches the no-object result. The independent male Wizard recording reaches display_grapple_positions through getpos's '$' valid-square toggle at step 29 and use_grapple's base roll at step 31; its complete 32-screen recording strictly matches with 2,117 RNG entries. A separate source-distinct C probe reaches the surface-pull arm but cannot strictly match because dothrow.c:hurtle is an unported void callee; the retained blocked recipe names that boundary and has no regression recording. No other production caller to use_grapple or the three helpers was found in apply.c. The four listed functions remain in the evidence; the active surface-pull effect is explicitly incomplete pending the hurtle source port.",
+        "entryPoints": [
+          {
+            "name": "Hero applies a grappling hook through doapply",
+            "functions": [
+              "grapple_range",
+              "can_grapple_location",
+              "display_grapple_positions",
+              "use_grapple"
+            ],
+            "recordings": [
+              "recordings/apply.c/grappling-hook-valid-marker-independent-b55.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "grappling-hook-finds-no-object",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "apply.c:doapply(GRAPPLING_HOOK) -> apply.c:use_grapple -> getpos"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+        "screens": 11405,
+        "rng": 792838
       }
     },
     {
       "id": "div-makemon-runtime-named-creation-synthetic-v13-20260929",
       "kind": "divergence-fix",
-      "status": "queued",
+      "status": "closed",
       "summary": "Align runtime named monster creation with makemon species handling and worm initialization",
       "cFile": "makemon.c",
       "sessions": [],
       "selectionReason": "The complete investigation investigations/synthetic/v13/thrown-dagger-cuts-long-worm-segment.json traces 23 remaining screens to an initial-level JavaScript species preflight wrongly used for runtime #wizgenesis. The source-owned scope is makemon runtime relocation and long-worm initialization, with consumed enexto_core and worm helper returns; the later dagger cut is downstream.",
       "detail": "At segment 0 step 19, v13 stops before C makemon handles a requested long worm. Evaluation challenges/evaluations/20260929141337-v13.json measures 19/42 screens under manifest digest ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d; immutable recording challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json. C makemon.c:1157-1185 relocates a runtime hero-square request through enexto_core and at 1405-1408 initializes PM_LONG_WORM using get_wormno, initworm, count_wsegs, and place_worm_tail_randomly. JS js/makemon_create.js:assertSupportedSpecies refuses species 114 using its initial-level allowlist before this C path. Correct the general runtime source behavior rather than adding a session or species-specific exception.",
-      "openedAt": null,
-      "openStanding": null,
-      "closedAt": null,
-      "delivered": null,
+      "openedAt": "14ba8b7d2f977b99c43311bbc9e774d555576421",
+      "openStanding": {
+        "sha": "a15ccc8186107d725e21d41b73d4c0892c82eca5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "52db3b9f54547102e14a1b1872299a48baaabba4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "makemon",
       "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
       "step": 19,
@@ -116596,6 +116923,1970 @@
           "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
           "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b"
         }
+      },
+      "activeStanding": {
+        "sha": "a15ccc8186107d725e21d41b73d4c0892c82eca5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+          "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+          "replayInputSha256": "e52392e022a773882191cacf655aa383a476f51a7e7f5667344079522d967f78",
+          "evaluationPath": "challenges/evaluations/20260929151313-v13.json",
+          "evaluationCommit": "a15ccc8186107d725e21d41b73d4c0892c82eca5",
+          "evaluationArtifact": "challenges/evaluations/20260929151313-v13.json",
+          "evaluationUtc": "2026-09-29T15:13:31.822Z",
+          "remainingScreens": 23,
+          "recordedSteps": 42,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 42
+            },
+            "rng": {
+              "matched": 3721,
+              "total": 3826
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 114",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "makemon.c",
+          "function": "makemon",
+          "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 114",
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/thrown-dagger-cuts-long-worm-segment.json",
+            "result": {
+              "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "thrown-dagger-cuts-long-worm-segment",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 23,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+                "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+                "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 23,
+                "recordedSteps": 42,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 3721,
+                    "total": 3826
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 114",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "makemon.c",
+                "function": "makemon",
+                "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 114",
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At segment 0, zero-based step 19, #wizgenesis asks C makemon.c:makemon to create named monster 114 (a long worm) on the hero square. C enters the ordinary runtime relocation and worm initialization path. JavaScript stops first in its initial-level species preflight because PM_LONG_WORM is absent from assertSupportedSpecies’ named-species allowlist, before the translated makemon body can reach that C behavior.",
+              "source": {
+                "file": "makemon.c",
+                "branch": "For an explicit runtime creation request at (u.ux,u.uy), when !gi.in_mklev and mdat is PM_LONG_WORM, makemon relocates the hero-square request through enexto_core (retrying without GP_CHECKSCARY only if needed), then creates the monster. At the PM_LONG_WORM tail arm it consumes a worm slot, initializes the worm with allowtail ? rn2(5) : 0, and calls place_worm_tail_randomly only when count_wsegs is nonzero. C has no corresponding species allowlist; JavaScript currently refuses the named create-particular species before these branches.",
+                "functions": [
+                  "makemon"
+                ],
+                "callers": [
+                  "C: wizcmds.c:wiz_genesis (203-210) calls read.c:create_particular (3372-3408), which reaches read.c:create_particular_creation (3252-3371) and calls makemon(whichpm,u.ux,u.uy,mmflags) at 3315; JS: js/wizcmds.js:wiz_genesis -> js/read.js:create_particular -> create_particular_creation -> makemon_runtime.",
+                  "The selected recording uses #wizgenesis with the named hostile long worm; create_particular_creation consumes the returned monster pointer, stops the named-species loop on NULL, and otherwise continues with hostility/visibility/saddle handling."
+                ],
+                "dependencies": [
+                  "teleport.c:enexto_core (Boolean result plus output coordinates); the first C-only draw at the mismatch is rn2(8) from collect_coords at teleport.c:700, reached by makemon.c:1180-1182.",
+                  "makemon.c:propagate (return is explicitly discarded at makemon.c:1233, but birth-state side effects still occur) and makemon.c:newmonhp (initializes hit points and consumes source RNG).",
+                  "worm.c:get_wormno (returned slot number gates the entire long-worm tail branch); worm.c:initworm (void, initializes the segment chain); worm.c:count_wsegs (returned count gates tail placement); worm.c:place_worm_tail_randomly (void, places/truncates segments and redraws).",
+                  "trap.c:rnd_nextto_goodpos is the consumed Boolean/output-coordinate helper called by worm.c:place_worm_tail_randomly for each segment placement; its false return truncates the remaining tail."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The exact v13 evaluation challenges/evaluations/20260929141337-v13.json at 35deeae3b45298577e919836bfad5c2da681ab6b reports 19/42 screens and cursors and 3721/3826 RNG calls. The first mismatch is the stop at zero-based segment 0 step 19 on newline: “unsupported initial-level monster creation: makemon() monster 114”; the first C-only RNG call is rn2(8)=7 @ collect_coords(teleport.c:700).",
+                "Upstream makemon.c:1157-1185 records byyou from the requested coordinates and, outside level generation, invokes enexto_core before construction. Lines 1405-1408 show the PM_LONG_WORM path: get_wormno return, initworm with the conditional rn2(5), then the count_wsegs return gates place_worm_tail_randomly.",
+                "The production source entry is wizcmds.c:wiz_genesis -> read.c:create_particular -> create_particular_creation -> makemon at read.c:3315. JavaScript preserves this route in js/wizcmds.js:wiz_genesis, js/read.js:create_particular_creation (3609-3612), and js/makemon_create.js:makemon_runtime.",
+                "The JavaScript refusal is in js/makemon_create.js:assertSupportedSpecies, called by preflightCreation at 1671. PM_LONG_WORM is absent from INITIAL_LEVEL_MONSTERS and the explicit create-particular exceptions, even though makemon translation already has a PM_LONG_WORM initialization branch (js/makemon_create.js:3322-3328). The first mismatch therefore precedes worm initialization: permit this source-supported runtime named-creation path, then verify the entire relocation and tail result against C.",
+                "The source inspection was confirmed in the clean merged A2 worktree at 8e51315368f217b55a83e02cc385b5fb25d2c7b3; the recorded v13 comparison and original queue provenance remain at evaluation commit 35deeae3b45298577e919836bfad5c2da681ab6b. The later dagger action reaches dothrow.c:thitmonst and worm.c:cutworm at step 41, so cutworm is downstream of and outside this first-mismatch scope."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+          "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+          "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
+          "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+          "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+          "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
+          "evaluationUtc": "2026-09-29T16:10:43.240Z",
+          "remainingScreens": 23,
+          "recordedSteps": 42,
+          "previousScreensMatched": 0,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 42
+            },
+            "rng": {
+              "matched": 3819,
+              "total": 3826
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 19,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 19,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 15,
+              "column": 30,
+              "cCell": {
+                "ch": "~",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "w",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3813,
+              "cEntry": "rnd(20)=15",
+              "cCaller": "cutworm(worm.c:388)",
+              "jsEntry": "rn2(19)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "j"
+              },
+              "stepIndex": 41
+            },
+            "cursor": null
+          },
+          "step": 19,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/thrown-dagger-cuts-long-worm-segment.json",
+            "result": {
+              "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "thrown-dagger-cuts-long-worm-segment",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 23,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+                "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+                "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 23,
+                "recordedSteps": 42,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 3721,
+                    "total": 3826
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 114",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "makemon.c",
+                "function": "makemon",
+                "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: makemon() monster 114",
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At segment 0, zero-based step 19, #wizgenesis asks C makemon.c:makemon to create named monster 114 (a long worm) on the hero square. C enters the ordinary runtime relocation and worm initialization path. JavaScript stops first in its initial-level species preflight because PM_LONG_WORM is absent from assertSupportedSpecies’ named-species allowlist, before the translated makemon body can reach that C behavior.",
+              "source": {
+                "file": "makemon.c",
+                "branch": "For an explicit runtime creation request at (u.ux,u.uy), when !gi.in_mklev and mdat is PM_LONG_WORM, makemon relocates the hero-square request through enexto_core (retrying without GP_CHECKSCARY only if needed), then creates the monster. At the PM_LONG_WORM tail arm it consumes a worm slot, initializes the worm with allowtail ? rn2(5) : 0, and calls place_worm_tail_randomly only when count_wsegs is nonzero. C has no corresponding species allowlist; JavaScript currently refuses the named create-particular species before these branches.",
+                "functions": [
+                  "makemon"
+                ],
+                "callers": [
+                  "C: wizcmds.c:wiz_genesis (203-210) calls read.c:create_particular (3372-3408), which reaches read.c:create_particular_creation (3252-3371) and calls makemon(whichpm,u.ux,u.uy,mmflags) at 3315; JS: js/wizcmds.js:wiz_genesis -> js/read.js:create_particular -> create_particular_creation -> makemon_runtime.",
+                  "The selected recording uses #wizgenesis with the named hostile long worm; create_particular_creation consumes the returned monster pointer, stops the named-species loop on NULL, and otherwise continues with hostility/visibility/saddle handling."
+                ],
+                "dependencies": [
+                  "teleport.c:enexto_core (Boolean result plus output coordinates); the first C-only draw at the mismatch is rn2(8) from collect_coords at teleport.c:700, reached by makemon.c:1180-1182.",
+                  "makemon.c:propagate (return is explicitly discarded at makemon.c:1233, but birth-state side effects still occur) and makemon.c:newmonhp (initializes hit points and consumes source RNG).",
+                  "worm.c:get_wormno (returned slot number gates the entire long-worm tail branch); worm.c:initworm (void, initializes the segment chain); worm.c:count_wsegs (returned count gates tail placement); worm.c:place_worm_tail_randomly (void, places/truncates segments and redraws).",
+                  "trap.c:rnd_nextto_goodpos is the consumed Boolean/output-coordinate helper called by worm.c:place_worm_tail_randomly for each segment placement; its false return truncates the remaining tail."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The exact v13 evaluation challenges/evaluations/20260929141337-v13.json at 35deeae3b45298577e919836bfad5c2da681ab6b reports 19/42 screens and cursors and 3721/3826 RNG calls. The first mismatch is the stop at zero-based segment 0 step 19 on newline: “unsupported initial-level monster creation: makemon() monster 114”; the first C-only RNG call is rn2(8)=7 @ collect_coords(teleport.c:700).",
+                "Upstream makemon.c:1157-1185 records byyou from the requested coordinates and, outside level generation, invokes enexto_core before construction. Lines 1405-1408 show the PM_LONG_WORM path: get_wormno return, initworm with the conditional rn2(5), then the count_wsegs return gates place_worm_tail_randomly.",
+                "The production source entry is wizcmds.c:wiz_genesis -> read.c:create_particular -> create_particular_creation -> makemon at read.c:3315. JavaScript preserves this route in js/wizcmds.js:wiz_genesis, js/read.js:create_particular_creation (3609-3612), and js/makemon_create.js:makemon_runtime.",
+                "The JavaScript refusal is in js/makemon_create.js:assertSupportedSpecies, called by preflightCreation at 1671. PM_LONG_WORM is absent from INITIAL_LEVEL_MONSTERS and the explicit create-particular exceptions, even though makemon translation already has a PM_LONG_WORM initialization branch (js/makemon_create.js:3322-3328). The first mismatch therefore precedes worm initialization: permit this source-supported runtime named-creation path, then verify the entire relocation and tail result against C.",
+                "The source inspection was confirmed in the clean merged A2 worktree at 8e51315368f217b55a83e02cc385b5fb25d2c7b3; the recorded v13 comparison and original queue provenance remain at evaluation commit 35deeae3b45298577e919836bfad5c2da681ab6b. The later dagger action reaches dothrow.c:thitmonst and worm.c:cutworm at step 41, so cutworm is downstream of and outside this first-mismatch scope."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "52db3b9f54547102e14a1b1872299a48baaabba4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-display-monster-worm-tail-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port display.c display_monster and pass worm-tail display coordinates through newsym",
+      "cFile": "display.c",
+      "sessions": [
+        "synthetic/v13/thrown-dagger-cuts-long-worm-segment"
+      ],
+      "selectionReason": "The saved v13 case, manifest ab0f5512 and recording 8e4169be, first differs at step 19: C draws PM_LONG_WORM_TAIL at a long-worm segment, while JS draws the head. The completed investigation identifies display.c display_monster and its newsym caller; port the whole display_monster source function and wire both newsym calls. The later worm.c cutworm RNG gap is separate.",
+      "detail": "",
+      "openedAt": "192464e910eedb84479827a8a3abda5e9636e1fc",
+      "openStanding": {
+        "sha": "c6a50520a55684515ff6188696cd94704cf47cc1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "display_monster",
+          "line": 514,
+          "endLine": 633,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 514,
+        "to": 633
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/thrown-dagger-cuts-long-worm-segment": {
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "evaluationPath": "challenges/evaluations/20260929165804-v13.json",
+          "evaluationCommit": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+        }
+      },
+      "activeStanding": {
+        "sha": "c6a50520a55684515ff6188696cd94704cf47cc1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+          "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+          "replayInputSha256": "1fdf90808f69b20d9f370cb887a693ce5ec0890db9df169664fb66d5fb11b4c3",
+          "evaluationPath": "challenges/evaluations/20260929191838-v13.json",
+          "evaluationCommit": "c6a50520a55684515ff6188696cd94704cf47cc1",
+          "evaluationArtifact": "challenges/evaluations/20260929191838-v13.json",
+          "evaluationUtc": "2026-09-29T19:19:11.176Z",
+          "remainingScreens": 23,
+          "recordedSteps": 42,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 42
+            },
+            "rng": {
+              "matched": 3819,
+              "total": 3826
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 19,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 19,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 15,
+              "column": 30,
+              "cCell": {
+                "ch": "~",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "w",
+                "color": 3,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3813,
+              "cEntry": "rnd(20)=15",
+              "cCaller": "cutworm(worm.c:388)",
+              "jsEntry": "rn2(19)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "j"
+              },
+              "stepIndex": 41
+            },
+            "cursor": null
+          },
+          "step": 19,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/thrown-dagger-cuts-long-worm-segment.json",
+            "result": {
+              "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "thrown-dagger-cuts-long-worm-segment",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+              "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+              "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+              "remainingScreens": 23,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "52db3b9f54547102e14a1b1872299a48baaabba4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+                "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+                "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+                "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
+                "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+                "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationUtc": "2026-09-29T16:10:43.240Z",
+                "remainingScreens": 23,
+                "recordedSteps": 42,
+                "previousScreensMatched": 0,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 3819,
+                    "total": 3826
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 19,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 19,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 15,
+                    "column": 30,
+                    "cCell": {
+                      "ch": "~",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "w",
+                      "color": 3,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3813,
+                    "cEntry": "rnd(20)=15",
+                    "cCaller": "cutworm(worm.c:388)",
+                    "jsEntry": "rn2(19)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "j"
+                    },
+                    "stepIndex": 41
+                  },
+                  "cursor": null
+                },
+                "step": 19,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 19, a newly created long worm has a visible tail tile. C display.c:newsym passes is_worm_tail to display_monster, which draws PM_LONG_WORM_TAIL (~) there; JavaScript draws the long-worm head glyph (w). Runtime named creation now proceeds through makemon. A separate later RNG gap at step 41 remains worm.c:cutworm when the thrown dagger strikes a segment.",
+              "source": {
+                "file": "display.c",
+                "functions": [
+                  "newsym",
+                  "display_monster"
+                ],
+                "branch": "For a visible long-worm segment at (x,y) different from the monster head (mx,my), newsym sets worm_tail and calls display_monster; its ordinary, pet, and detected arms choose PM_LONG_WORM_TAIL instead of the head monster glyph. The partial JavaScript newsym/display_monster path currently treats the segment as the head.",
+                "callers": [
+                  "C: makemon.c:makemon initializes and places long-worm tail segments, then display.c:newsym redraws the affected tiles; later movement and sensing also call newsym. JS: js/makemon_create.js:place_worm_tail_randomly calls js/display.js:newsym, which resolves the segment monster and renders its glyph."
+                ],
+                "dependencies": [
+                  "worm.c segment-to-monster lookup and head coordinates identify whether the tile is a tail; preserve the C glyph choice for visible, tame, and detected arms and their display RNG order.",
+                  "The later step-41 gap is worm.c:cutworm after dothrow.c:thitmonst strikes the segment; it remains a separate source task and must not be hidden by display changes."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current saved v13 evaluation challenges/evaluations/20260929161024-v13.json at f74689ea reports 19/42 screens, 42/42 cursors, and 3819/3826 RNG for the immutable case. At segment 0 step 19, C row 15 column 30 is ~ while JS is w; no runner error remains. The audit-fix descendant changed only a source-pinned test, so this replay input digest is current.",
+                "Upstream display.c:500 defines is_worm_tail(mon) as a segment location different from mon->mx,my. display.c:1027 calls display_monster with that value, and display_monster:590-615 selects PM_LONG_WORM_TAIL in the pet, detected, and ordinary glyph branches. js/display.js near newsym still documents that worm_tail is always false and draws the monster glyph at the segment.",
+                "A50 corrected read.c:create_particular_creation -> makemon.c:makemon and independently recorded the named-long-worm path at recordings/makemon.c/runtime-named-long-worm-a50.session.json. The selected v13 replay now proceeds beyond creation. At step 41, the remaining RNG divergence reaches existing note_unported(\"worm.c cutworm\") in js/dothrow.js, a separate later defect."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "display_monster",
+            "implementation": "js/display.js",
+            "symbol": "display_monster",
+            "sourceReview": "Compared the complete display.c:display_monster definition (514-621), including the physically-seen mimic switch and its source order, furniture topology/memory update, object mimic map_object arguments and corpse fallback, transient monster-mimic glyph, sensed-mimic fallthrough, and final pet/detected/ordinary glyph selection. Preserved the three distinct worm-tail glyph branches and their RNG behavior: pets use PM_LONG_WORM_TAIL directly, detected tails pass that species through what_mon before the detected glyph, and ordinary tails pass it through what_mon before monnum_to_glyph. The coordinate-based JS is_worm_tail_at implements display.c's is_worm_tail(mon) macro at line 500; it must receive the displayed square because long-worm tail squares refer to the head monster. Compared and wired both display.c callers: feel_location at 902-908 chooses PHYSICALLY_SEEN versus DETECTED from tp_sensemon/MATCH_WARN_OF_MON, while newsym calls at 1027-1029 and 1053-1054 pass their distinct see_it/sightflag state. The JavaScript show_mon_or_warn effects clear an invisible marker, remap a visible floor object, draw the monster, and set meverseen in C order. The only named helper gap retained is display.c:unmap_object's engraved-square memory branch; its result is discarded by C and the JS reports that gap without using note_unported as data. This task does not implement worm.c:see_wsegs or worm.c:cutworm; the selected v13 replay now reaches those later boundaries after display parity.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "feel_location",
+                "source": "display.c:feel_location lines 902-908"
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "newsym",
+                "source": "display.c:newsym lines 1027-1029 and 1053-1054"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [
+              "recordings/display.c/newsym-long-worm-tail-independent-a51.session.json",
+              "recordings/display.c/feel-location-sensed-worm-independent-a51.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 40,
+                "source": "makemon.c:makemon places the long worm and calls newsym; display.c:newsym calls display_monster for the visible tail square"
+              }
+            ],
+            "checkedAt": "34ab63c06ff6dce8f865873d36f4fc7aa1332c6b"
+          }
+        ],
+        "entryPointReview": "The selected source function is reached through two active production entries: display.c:feel_location (902-908) for a sensed monster over tactile memory, and display.c:newsym (1027-1029 visible redraw, 1053-1054 out-of-sight sensed redraw). Both JS callers are wired with their source sightflags and coordinate-derived worm-tail status. The blind-and-detect-monsters independent recording reaches feel_location -> display_monster at the adjacent monster; the visible-tail recording reaches newsym -> display_monster and shows the visible `~~` segment. The selected v13 case independently exercises makemon -> newsym -> display_monster at step 19 and matches through step 40. The separate worm.c:see_wsegs/cutworm movement and tail-generation behavior is outside A51; v13's first remaining RNG divergence is later in worm.c:cutworm.",
+        "entryPoints": [
+          {
+            "name": "newsym visible long-worm-tail redraw",
+            "functions": [
+              "display_monster"
+            ],
+            "recordings": [
+              "recordings/display.c/newsym-long-worm-tail-independent-a51.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 40,
+                "source": "makemon.c:makemon -> display.c:newsym -> display.c:display_monster"
+              }
+            ]
+          },
+          {
+            "name": "feel_location blind sensed-monster redraw",
+            "functions": [
+              "display_monster"
+            ],
+            "recordings": [
+              "recordings/display.c/feel-location-sensed-worm-independent-a51.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+          "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+          "replayInputSha256": "3cfc883da64f56b3faccd4e650d2d5b13852052d3c4d6dc55ed062e4fa7b83e1",
+          "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+          "evaluationArtifact": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationUtc": "2026-09-29T20:18:19.894Z",
+          "remainingScreens": 0,
+          "recordedSteps": 42,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 42
+            },
+            "rng": {
+              "matched": 3819,
+              "total": 3826
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 3813,
+              "cEntry": "rnd(20)=15",
+              "cCaller": "cutworm(worm.c:388)",
+              "jsEntry": "rn2(19)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "j"
+              },
+              "stepIndex": 41
+            },
+            "cursor": null
+          },
+          "step": 41,
+          "kind": "rng",
+          "sourceFile": "worm.c",
+          "function": "cutworm",
+          "message": null,
+          "cFile": "worm.c",
+          "luaFile": null,
+          "line": 388,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/thrown-dagger-cuts-long-worm-segment.json",
+            "result": {
+              "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "thrown-dagger-cuts-long-worm-segment",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+              "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+              "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+              "remainingScreens": 0,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+                "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+                "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+                "replayInputSha256": "3cfc883da64f56b3faccd4e650d2d5b13852052d3c4d6dc55ed062e4fa7b83e1",
+                "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+                "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+                "evaluationArtifact": "challenges/evaluations/20260929201745-v13.json",
+                "evaluationUtc": "2026-09-29T20:18:19.894Z",
+                "remainingScreens": 0,
+                "recordedSteps": 42,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 3819,
+                    "total": 3826
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 3813,
+                    "cEntry": "rnd(20)=15",
+                    "cCaller": "cutworm(worm.c:388)",
+                    "jsEntry": "rn2(19)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "j"
+                    },
+                    "stepIndex": 41
+                  },
+                  "cursor": null
+                },
+                "step": 41,
+                "kind": "rng",
+                "sourceFile": "worm.c",
+                "function": "cutworm",
+                "message": null,
+                "cFile": "worm.c",
+                "luaFile": null,
+                "line": 388
+              },
+              "summary": "The worm-tail display now matches all 42 recorded screens and cursor positions. At segment 0 step 41, dothrow.c:thitmonst hits a live long-worm segment and calls worm.c:cutworm. C draws rnd(20)=15 before its no-cut return; JavaScript skips the call with note_unported, so the RNG log diverges. Port cutworm and its required tail-state helpers, then wire its production callers.",
+              "source": {
+                "file": "worm.c",
+                "functions": [
+                  "cutworm"
+                ],
+                "branch": "A thrown weapon hits a living monster with wormno at a tail square rather than its head. thitmonst preserves chopper=is_axe before hmon; for this dagger it is false. cutworm draws rnd(20), then returns when cut_chance<17. Other source branches shrink or split the tail and must be implemented with their required helpers.",
+                "callers": [
+                  "C dothrow.c:thitmonst lines 2195-2207 calls cutworm after hmon reports the monster alive. JS js/dothrow.js:thitmonst lines 2919-2920 records the missing call instead.",
+                  "C uhitm.c:known_hitum lines 599-642 remembers the weapon cutting property and calls cutworm after a successful hit; wire that direct caller in the same source task."
+                ],
+                "dependencies": [
+                  "worm.c tail-number, segment-list, removal, shrinking, split placement, and clone_mon dependencies; preserve C state and random draw order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/20260929201745-v13.json at f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6 reports 42/42 screens, 42/42 cursors, and 3819/3826 positional RNG matches for the unchanged recording. The current diagnostic first RNG mismatch is index 3813, segment 0 step 41: C rnd(20)=15 from cutworm(worm.c:388), JS rn2(19)=6. No runner error remains.",
+                "Upstream worm.c:373-475 cutworm rejects an absent worm number or a head hit before rnd(20); a cutting weapon adds 10, then cut_chance<17 returns. Later branches shrink the last segment or split the chain, call get_wormno/clone_mon/place_wsegs, adjust levels and HP, and emit the source messages. Port the whole function and required helpers rather than injecting the observed random draw.",
+                "A51 ported display.c:display_monster and wired newsym and feel_location; its independent recordings cover both callers. The earlier step-19 tail glyph mismatch is resolved, and the admitted v13 prefix through step 40 matches. Keep cutworm as a separate source task; the present RNG gap is not evidence of a remaining tail-glyph defect."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-leash-family-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port apply.c leash application and pet attachment family",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v13/pet-leash-attaches-to-tame-dog"
+      ],
+      "selectionReason": "The saved v13 case, manifest ab0f5512 and recording e51da120, first stops at step 19 in doapply LEASH. The completed investigation traces the contiguous leashable through use_leash_core family and the doapply arm. Port complete number_leashed as a consumed return-valued dependency; wire mon.c newcham to the shared leashable predicate. Later unleashed cleanup callers remain separate.",
+      "detail": "",
+      "openedAt": "14ec08c418195f13623d326d6ef8e8cc5b42762e",
+      "openStanding": {
+        "sha": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "leashable",
+          "line": 761,
+          "endLine": 768,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "use_leash",
+          "line": 769,
+          "endLine": 820,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "use_leash_core",
+          "line": 821,
+          "endLine": 879,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 761,
+        "to": 879
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/pet-leash-attaches-to-tame-dog": {
+          "session": "synthetic/v13/pet-leash-attaches-to-tame-dog",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "pet-leash-attaches-to-tame-dog",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+          "recordingSha256": "e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a",
+          "evaluationPath": "challenges/evaluations/20260929165804-v13.json",
+          "evaluationCommit": "f2020aff8e90886a68bbb4c937df2cd6888f7344"
+        }
+      },
+      "activeStanding": {
+        "sha": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "pet-leash-attaches-to-tame-dog",
+          "session": "synthetic/v13/pet-leash-attaches-to-tame-dog",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+          "recordingPath": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+          "recordingSha256": "e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a",
+          "recipe": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.recipe.session.json",
+          "recipeSha256": "13d65c886416f72d7b6a0e540659530949c689435d8f5cdd4875ee88f19d904f",
+          "replayInputSha256": "02d0b0b51001745c43e2cca53010b45f93afd49bf05605ca6fa1dce9d4ad15cc",
+          "evaluationPath": "challenges/evaluations/20260929165804-v13.json",
+          "evaluationCommit": "f2020aff8e90886a68bbb4c937df2cd6888f7344",
+          "evaluationArtifact": "challenges/evaluations/20260929165804-v13.json",
+          "evaluationUtc": "2026-09-29T16:58:23.277Z",
+          "remainingScreens": 2,
+          "recordedSteps": 21,
+          "previousScreensMatched": 19,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 19,
+              "total": 21
+            },
+            "rng": {
+              "matched": 2981,
+              "total": 2989
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 236",
+            "step": 19
+          },
+          "step": 19,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 236",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/pet-leash-attaches-to-tame-dog.json",
+            "result": {
+              "session": "synthetic/v13/pet-leash-attaches-to-tame-dog",
+              "remainingScreens": 2,
+              "recordedSteps": 21,
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "pet-leash-attaches-to-tame-dog",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "pet-leash-attaches-to-tame-dog",
+                "session": "synthetic/v13/pet-leash-attaches-to-tame-dog",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+                "recordingPath": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.session.json",
+                "recordingSha256": "e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a",
+                "recipe": "challenges/cases/v13/pet-leash-attaches-to-tame-dog.recipe.session.json",
+                "recipeSha256": "13d65c886416f72d7b6a0e540659530949c689435d8f5cdd4875ee88f19d904f",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 2,
+                "recordedSteps": 21,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 19,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 2981,
+                    "total": 2989
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 236",
+                  "step": 19
+                },
+                "step": 19,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 236",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the unported LEASH arm of apply.c:doapply: JavaScript stops at step 19 before the direction prompt. Recorded C applies an unused leash to an adjacent visible tame dog, reaches use_leash_core’s successful attach branch at step 20, sets both the monster mleashed flag and object leashmon ID, wakes the dog, and updates inventory.",
+              "source": {
+                "file": "apply.c",
+                "branch": "doapply dispatches a selected LEASH to use_leash; for an unused leash with fewer than MAXLEASHED (2) attached pets, use_leash obtains an adjacent location, finds a visible tame solid monster with limbs or a head that is not already leashed, and use_leash_core attaches the leash. Other use_leash_core branches handle invisible or unspotted targets, non-tame monsters, invalid forms, and detaching an in-use leash.",
+                "functions": [
+                  "leashable (pure predicate; rejects long worms, unsolid forms, and forms with neither limbs nor a head)",
+                  "use_leash (returns ECMD_OK/ECMD_TIME; handles swallowed state, capacity, direction selection, mounted-self target, and absent/selected monster)",
+                  "use_leash_core (void helper; handles visibility, tame state, attach eligibility, and detach/cursed cases)",
+                  "doapply (LEASH switch arm consumes use_leash’s ECMD result)"
+                ],
+                "callers": [
+                  "cmd.c command table maps apply command key a to doapply; js/cmd.js:runApplyCommand dispatches the JavaScript apply command to doapply(state).",
+                  "apply.c:doapply LEASH arm calls use_leash(obj); use_leash calls use_leash_core for the selected monster, or for the steed when applying downward while mounted."
+                ],
+                "dependencies": [
+                  "get_adjacent_loc’s Boolean result and selected coordinate determine cancellation and target selection; number_leashed’s result is compared with MAXLEASHED=2 before attaching an unused leash.",
+                  "u_at, m_at, and canspotmon determine hero/monster targeting and the spotmon argument; use_leash_core also checks the target tile’s invisible glyph.",
+                  "unsolid, nolimbs, has_head, and leashable determine whether the leash fits. leashable is pure and needs source-pinned predicate tests if implemented.",
+                  "The successful attach writes mtmp->mleashed=1 and obj->leashmon=mtmp->m_id together, clears mtmp->msleeping, and calls update_inventory; detach also clears both fields together and updates inventory.",
+                  "unmap_invisible’s return is discarded in the empty-square branch; map_invisible is a void visibility side effect. set_bknown is used only by cursed-detach refusal.",
+                  "mleashed_next2u/next_to_u later read the paired monster state when leaving a level; this selected recording ends immediately after attachment and does not exercise that downstream path."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Source: nethack-c/upstream/src/apply.c:758-883 defines MAXLEASHED, pure leashable, use_leash, and the full use_leash_core branch tree. The successful branch requires an unused leash, available leash capacity, a selected adjacent visible tame monster not already leashed, a solid form with limbs or a head, and a species accepted by leashable; it emits the slip-leash message, links the monster and leash IDs, wakes the monster, then updates inventory.",
+                "Source: nethack-c/upstream/src/apply.c:4297-4298 dispatches case LEASH through res = use_leash(obj), so use_leash’s ECMD result is consumed by doapply while use_leash_core’s void result is discarded. nethack-c/upstream/src/cmd.c:1677-1678 maps command a to doapply.",
+                "Selected runtime evidence: challenges/evaluations/20260929141337-v13.json, synthetic/v13/pet-leash-attaches-to-tame-dog, segment 0. Through zero-based step 18 the apply inventory prompt matches; at step 19 C handles key p and displays “In what direction?”, but JavaScript stops with the unsupported doapply object-type-236 arm. At step 20 the C key j selects the adjacent dog and displays “You slip the leash around your dog.”, exercising apply.c:use_leash -> use_leash_core’s attach branch. Evaluation reports 19/21 matched screens and 2 remaining screens; recording has 21 steps and SHA256 e51da120b82de4e825e6f71bccc22a1bea35e4a586d68e4f1b955e0715b4a59a.",
+                "The independent recipe challenges/cases/v13/pet-leash-attaches-to-tame-dog.recipe.session.json uses seed 77433825, a debug Wizard with pettype:none and !autopickup, creates an adjacent tame dog, wishes an unused leash, then applies it with apj. The recorded C screen at step 20 verifies the successful branch’s message; paired flag/ID and wake updates are established by the cited C source."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [],
+        "entryPointReview": "The primary active entry point is the hero applying an inventory leash through cmd.c:doapply -> apply.c:doapply -> use_leash -> use_leash_core. The independent Healer starting-dog recording reaches both successful attach and detach; the admitted v13 case matches through step 20 and reaches the attach path. `number_leashed` and `leashable` have source-pinned pure tests. The additional active predicate caller is mon.c:newcham when a leashed monster changes into an unleasable form. scripts/mon.test.mjs directly drives that production JS caller, pins the C predicate call, and verifies that the discarded void m_unleash dependency remains explicitly unported; there is no matching C recording for that form-change caller in this delivery. The downward mounted-steed branch in use_leash has no independent matching recording. The cursed-removal C trace reaches use_leash_core's cursed branch and set_bknown(), but full JS replay stops on the subsequent dogmove.c:dog_move simple-action boundary; its recipe remains blocked, with no nonmatching recording. A separate wizard-created-pet attempt reaches leash interactions but fails at monmove.c:distfleeck after the effects; it remains a blocked recipe. These do not invalidate the matching primary apply entry, but the newcham, mounted-steed, cursed-continuation, and wizard-created-pet variants remain uncovered. Existing downstream cleanup and movement gaps outside this family include apply.c:o_unleash, apply.c:m_unleash, apply.c:unleash_all, and dogmove.c:mleashed_next2u; where C discards m_unleash's result, JS calls note_unported('apply.c m_unleash') and never consumes the marker as data. Coordinator audit: no source unit is recorded complete while newcham, mounted-steed, and cursed continuation coverage remains incomplete. The primary attach/detach recording and v13 prefix establish only the cited apply entry.",
+        "entryPoints": [
+          {
+            "name": "Hero applies a leash to a visible adjacent tame pet; attach and detach through doapply",
+            "functions": [
+              "leashable",
+              "use_leash",
+              "use_leash_core"
+            ],
+            "recordings": [
+              "recordings/apply.c/leash-starting-pet-attach-detach-b56.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "pet-leash-attaches-to-tame-dog",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c:doapply(LEASH) -> apply.c:doapply() -> use_leash() -> use_leash_core()"
+              }
+            ]
+          },
+          {
+            "name": "A leashed monster changes into a form rejected by mon.c:newcham's leashable check",
+            "functions": [
+              "leashable"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Cursed leash removal through use_leash_core",
+            "functions": [
+              "use_leash_core"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "Hero applies a leash downward to a mounted steed",
+            "functions": [
+              "use_leash",
+              "use_leash_core"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "c6a50520a55684515ff6188696cd94704cf47cc1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "Primary doapply leash attach and detach entry matches the independent C recording and admitted v13 steps 0-20. Whole-source completion remains unverified for the active mon.c:newcham leashable entry (apply.c:m_unleash gap), downward mounted-steed leash entry, and cursed-removal continuation blocked by dogmove.c:dog_move. Preserve the committed cursed and wizard-created-pet blocked recipes; resume when those source entries have matching runtime evidence."
+    },
+    {
+      "id": "fix-hack-losehp-planning-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Keep planned lethal gas damage off the live terminal",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "Source-traced terminal planning defect in implemented losehp behavior",
+      "detail": "synthetic/v13/hostile-orc-exposed-to-poison-gas, segment 0, step 69: screen and cursor mismatch with RNG 2940/2940 matching. C allmain.c moveloop_core reaches region.c run_regions and inside_gas_cloud, then hack.c losehp (4255-4292). The cloned elapsed-turn planner failed to forward planning, allowing urgent_pline and done to write the live terminal before replay. Preserve source HP and killer updates, hand off lethal planning before terminal operations, isolate the cloned killer record, and stop live region continuations only after finalized death; wizard and life-saving recovery continue. JavaScript owners: hack.js losehp, allmain.js regionEffectEnv/elapsed-turn tail, region.js callbacks, unported_monster_actions.js planningState and preflight catches.",
+      "openedAt": "202fc10e007b6ea7047aebf665adeb39d845e6c4",
+      "openStanding": {
+        "sha": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "losehp",
+      "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+      "step": 69,
+      "syntheticProvenance": {
+        "synthetic/v13/hostile-orc-exposed-to-poison-gas": {
+          "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "hostile-orc-exposed-to-poison-gas",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+          "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+          "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6"
+        }
+      },
+      "activeStanding": {
+        "sha": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "hostile-orc-exposed-to-poison-gas",
+          "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+          "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+          "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+          "recipe": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.recipe.session.json",
+          "recipeSha256": "86806a32069a698c8e2d98b28ea2a369a5976bf1bfe7bc4b0c9cecdbfc2d66db",
+          "replayInputSha256": "3cfc883da64f56b3faccd4e650d2d5b13852052d3c4d6dc55ed062e4fa7b83e1",
+          "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+          "evaluationArtifact": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationUtc": "2026-09-29T20:18:19.894Z",
+          "remainingScreens": 1,
+          "recordedSteps": 70,
+          "previousScreensMatched": 69,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 69,
+              "total": 70
+            },
+            "rng": {
+              "matched": 2940,
+              "total": 2940
+            },
+            "cursors": {
+              "matched": 69,
+              "total": 70
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 69,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 69,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 18,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 69,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 69,
+                "key": "."
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                26,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 69,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/hostile-orc-exposed-to-poison-gas.json",
+            "result": {
+              "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "hostile-orc-exposed-to-poison-gas",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+              "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+              "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+              "remainingScreens": 1,
+              "recordedSteps": 70,
+              "status": "complete",
+              "commit": "52db3b9f54547102e14a1b1872299a48baaabba4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "hostile-orc-exposed-to-poison-gas",
+                "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+                "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+                "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+                "recipe": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.recipe.session.json",
+                "recipeSha256": "86806a32069a698c8e2d98b28ea2a369a5976bf1bfe7bc4b0c9cecdbfc2d66db",
+                "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
+                "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+                "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationUtc": "2026-09-29T16:10:43.240Z",
+                "remainingScreens": 1,
+                "recordedSteps": 70,
+                "previousScreensMatched": 69,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 69,
+                    "total": 70
+                  },
+                  "rng": {
+                    "matched": 2940,
+                    "total": 2940
+                  },
+                  "cursors": {
+                    "matched": 69,
+                    "total": 70
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 69,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 69,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 18,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 69,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 69,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      26,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 69,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 69 blindness expires while the hero remains in fatal poison gas. C allmain.c runs nh_timeout, then run_regions and combines sight recovery with gas-cloud messages before the --More-- prompt. JavaScript dry-runs the region callback on a cloned state; hack.c:losehp still writes a live death prompt from that speculative pass, forcing --More-- before the live gas messages.",
+              "source": {
+                "file": "hack.c",
+                "functions": [
+                  "losehp"
+                ],
+                "branch": "When region.c:inside_gas_cloud applies damage that is fatal for the hero, the JavaScript elapsed-turn preflight clone reaches losehp. Its live ttyUrgentPline/done effects escape the clone before allmain.c reaches the real run_regions call. C has no speculative callback and emits the region messages in source order.",
+                "callers": [
+                  "C: allmain.c:moveloop_core calls nh_timeout then run_regions; region.c:inside_gas_cloud emits stinging/burning-lung messages and calls hack.c:losehp for hero gas damage.",
+                  "JS: js/unported_monster_actions.js:preflightElapsedTurnTail clones elapsed-turn state and reaches js/allmain.js:finishElapsedTurnAfterTimeout -> js/region.js:inside_gas_cloud -> js/hack.js:losehp before the live callback."
+                ],
+                "dependencies": [
+                  "The preflight fatal-damage result must be a read-only planning signal; all live tty output, gameover handling, and input prompts remain in the later source-ordered region path.",
+                  "Audit other preflight callers of losehp to preserve their existing fatal-damage and continuation behavior; do not special-case gas, this case, or its seed."
+                ]
+              },
+              "evidence": [
+                "The current saved v13 evaluation challenges/evaluations/20260929161024-v13.json reports 69/70 screens and cursors and 2940/2940 RNG for this immutable case; the first mismatch remains segment 0 step 69. C top line contains \"You can see again.  Your eyes sting.  Something is burning your lungs!--More--\" while JS has \"You can see again.--More--\".",
+                "Upstream allmain.c:moveloop_core orders nh_timeout before run_regions. region.c:inside_gas_cloud prints the eye and lung messages before its damage call. JS preserves that order in the live path, but unported_monster_actions.js preflightElapsedTurnTail speculatively invokes the cloned region path.",
+                "Read-only extra-key replay after the immutable input shows JS next printing \"You die...--More--\", then \"Die? [yn] (n)\". A further key exposes the stack js/hack.js:losehp -> js/region.js:inside_gas_cloud -> js/allmain.js:finishElapsedTurnAfterTimeout -> js/unported_monster_actions.js:preflightElapsedTurnTail. At HP 4/12, gas damage rnd(dam)+5 is certainly fatal, so the clone reaches losehp and leaks its terminal effects."
+              ],
+              "goalKind": "divergence-fix"
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-mkobj-hornoplenty-encumber-message-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Wire the carried-object horn encumbrance callback",
+      "cFile": "mkobj.c",
+      "sessions": [],
+      "selectionReason": "Current synthetic case stops after generated food is added because hornoplenty does not forward the implemented encumber_msg owner to hold_another_object.",
+      "detail": "v13/horn-of-plenty-generates-food, segment 0 step 28: current evaluation at 8667 has 28/29 screens and cursors before a missing encumberMessage refusal. C mkobj.c:hornoplenty charged non-tipping branch (2847-2936) calls invent.c:hold_another_object; retained objects trigger update_inventory then pickup.c:encumber_msg. JS obj.js forwards a bare apply environment and lacks the required hook. Repair only this default wiring while preserving caller hooks and source order; Doname2 floor-drop and dknown discover_object tails remain explicit gaps. Independent blindfolded Valkyrie recording matches all 48 screens/cursors and 3250 RNG.",
+      "openedAt": "88fd33f38d3db9c2895903ccc54796b253743bae",
+      "openStanding": {
+        "sha": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "hornoplenty",
+      "session": "synthetic/v13/horn-of-plenty-generates-food",
+      "step": 28,
+      "syntheticProvenance": {
+        "synthetic/v13/horn-of-plenty-generates-food": {
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "evaluationPath": "challenges/evaluations/20260929210140-v13.json",
+          "evaluationCommit": "8667be7c87313737e310aa0bdb4f0709d3a77dac"
+        }
+      },
+      "activeStanding": {
+        "sha": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+          "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+          "replayInputSha256": "c33480427042c3e0034d5ae79ac7e97dadf46ee6952408e18f65501eaf197b9c",
+          "evaluationPath": "challenges/evaluations/20260929210140-v13.json",
+          "evaluationCommit": "8667be7c87313737e310aa0bdb4f0709d3a77dac",
+          "evaluationArtifact": "challenges/evaluations/20260929210140-v13.json",
+          "evaluationUtc": "2026-09-29T21:02:12.830Z",
+          "remainingScreens": 1,
+          "recordedSteps": 29,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 29
+            },
+            "rng": {
+              "matched": 4197,
+              "total": 4203
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/horn-of-plenty-generates-food.json",
+            "result": {
+              "session": "synthetic/v13/horn-of-plenty-generates-food",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "horn-of-plenty-generates-food",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "horn-of-plenty-generates-food",
+                "session": "synthetic/v13/horn-of-plenty-generates-food",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+                "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+                "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 29,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 4197,
+                    "total": 4203
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A charged horn creates food and reaches mkobj.c:hornoplenty’s non-tipping inventory path. JavaScript stops after adding the food because its hold_another_object call has no encumberMessage callback; C continues through invent.c:hold_another_object to pickup.c:encumber_msg. The v13 manifest’s pickup.c:hold_another_object label is a file-name error; the source call chain here is authoritative.",
+              "source": {
+                "file": "mkobj.c",
+                "branch": "For a charged, applied horn of plenty with tipping false, hornoplenty consumes a charge, creates food, prints its spill message, and passes the generated object to invent.c:hold_another_object. Once the object remains in inventory, that function calls pickup.c:encumber_msg before returning to hornoplenty.",
+                "functions": [
+                  "hornoplenty"
+                ],
+                "callers": [
+                  "apply.c:doapply(HORN_OF_PLENTY) -> mkobj.c:hornoplenty; js/apply.js:doapply calls js/obj.js:hornoplenty with only {state}.",
+                  "mkobj.c:hornoplenty -> invent.c:hold_another_object; js/obj.js:hornoplenty forwards the unaugmented env to js/invent.js:hold_another_object."
+                ],
+                "dependencies": [
+                  "invent.c:hold_another_object is implemented in js/invent.js but currently demands hooks.encumberMessage at its successful-inventory tail; the source calls the linked pickup.c function directly.",
+                  "pickup.c:encumber_msg is implemented and already imported in js/obj.js. Wire the C callback generally for hornoplenty’s non-tipping path and preserve the complete source branch, including the generated-object return and PRNG order.",
+                  "A matching horn witness can complete one previously unevidenced active caller in parked goal port-invent-hold-another-object-synthetic-v10-20260928."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b matches 28/29 screens and stops at zero-based step 28 with UnsupportedHeroCommandBoundaryError: encumberMessage unavailable for generated tripe otyp 264.",
+                "Upstream mkobj.c:hornoplenty (2847-2936) calls invent.c:hold_another_object (1208-1311) on its non-tipping generated-object branch; the latter calls pickup.c:encumber_msg (1978 onward) once the object stays in inventory. The v13 prepared manifest attributes hold_another_object to pickup.c, which is a source-file label error and is corrected here without changing the frozen recording.",
+                "js/apply.js:doapply calls js/obj.js:hornoplenty with {state}; js/obj.js forwards that env unchanged to js/invent.js:hold_another_object, which calls requiredHook(encumberMessage) and refuses. js/obj.js already imports js/pickup.js:encumber_msg for its target-box path, so the missing production connection is in this caller route rather than a new C effect."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+          "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+          "replayInputSha256": "085e483fa652fbcf7255226f83527b8bc127d9519929e9fd5dec2924d5070674",
+          "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+          "evaluationArtifact": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationUtc": "2026-09-29T21:48:15.376Z",
+          "remainingScreens": 0,
+          "recordedSteps": 29,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 29
+            },
+            "rng": {
+              "matched": 4198,
+              "total": 4203
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 4197,
+              "cEntry": "rn2(19)=18",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(12)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": "n"
+              },
+              "stepIndex": 28
+            },
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/horn-of-plenty-generates-food.json",
+            "result": {
+              "session": "synthetic/v13/horn-of-plenty-generates-food",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "horn-of-plenty-generates-food",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+              "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+              "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+              "remainingScreens": 0,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "horn-of-plenty-generates-food",
+                "session": "synthetic/v13/horn-of-plenty-generates-food",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+                "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+                "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+                "replayInputSha256": "085e483fa652fbcf7255226f83527b8bc127d9519929e9fd5dec2924d5070674",
+                "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+                "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+                "evaluationArtifact": "challenges/evaluations/20260929214754-v13.json",
+                "evaluationUtc": "2026-09-29T21:48:15.376Z",
+                "remainingScreens": 0,
+                "recordedSteps": 29,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 4198,
+                    "total": 4203
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 4197,
+                    "cEntry": "rn2(19)=18",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(12)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 28,
+                      "key": "n"
+                    },
+                    "stepIndex": 28
+                  },
+                  "cursor": null
+                },
+                "step": 28,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The applied horn now completes its inventory callback and matches all 29 screens and cursors. Its next RNG mismatch is the omitted makeknown call at the end of mkobj.c:hornoplenty: JavaScript records a discover_object gap even though js/o_init.js implements that callee. The sighted-horn path must update discovery state and exercise wisdom in source order.",
+              "source": {
+                "file": "mkobj.c",
+                "functions": [
+                  "hornoplenty"
+                ],
+                "branch": "After a charged horn has generated and placed an object, hornoplenty decrements iflags.suppress_price and, when horn->dknown is true, calls makeknown(HORN_OF_PLENTY). The macro invokes discover_object(HORN_OF_PLENTY, TRUE, TRUE, TRUE); when the type is newly known, discover_object updates disco and object knowledge, exercises A_WIS, and updates inventory during live play.",
+                "callers": [
+                  "apply.c:doapply(HORN_OF_PLENTY) -> mkobj.c:hornoplenty; the live JavaScript route is js/apply.js -> js/obj.js:hornoplenty.",
+                  "mkobj.c:hornoplenty -> o_init.c:discover_object via makeknown; js/obj.js still skips this call with note_unported."
+                ],
+                "dependencies": [
+                  "js/o_init.js:discover_object already implements knowledge changes, exercise_nonphysical(A_WIS, true), and live update_inventory. Verify its real environment and caller prerequisites before wiring it.",
+                  "The selected missing branch belongs to a whole hornoplenty source port; the floor-placement Doname2 message remains a separate missing branch in the same function.",
+                  "The resolved inventory path retains the encumber_msg callback in js/obj.js. Do not undo its source-order behavior or treat the blind recording as evidence for sighted discovery."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "At 2f36445470f66c6ebc8234436abf21f324c0b46f, challenges/evaluations/20260929214754-v13.json reports 29/29 screens and cursors, 4198/4203 matching RNG calls, and no runtime error. The case is still not a complete match.",
+                "Fresh diagnostic .cache/B58-horn-diagnostic.json places the first RNG divergence at segment 0, zero-based step 28, key n, RNG index 4197: C rn2(19)=18 from exercise(attrib.c:509), versus JavaScript rn2(12)=3. Its only recorded gap is o_init.c discover_object.",
+                "Upstream mkobj.c:hornoplenty (2847–2936), at 2933–2934, calls makeknown after placement and suppress_price restoration when horn->dknown is true. o_init.c:discover_object (454–496) calls exercise(A_WIS, TRUE) at 483; attrib.c:exercise uses rn2(19) at 509.",
+                "js/obj.js:hornoplenty still records note_unported for this call at its final dknown branch. js/o_init.js:discover_object (417 onward) already implements this callee; the missing source branch is in the horn caller.",
+                "B58 resolved the preceding missing encumberMessage callback. Its independent blindfolded Valkyrie recording under recordings/mkobj.c/hornoplenty-applied-inventory-b58.session.json matches all 48 screens/cursors and 3250 RNG calls; blindness leaves dknown false, so this witness does not cover makeknown.",
+                "The earlier v13 manifest labels hold_another_object as pickup.c, but its actual source owner is invent.c (1208–1311), with update_inventory followed by pickup.c:encumber_msg. This source-file correction does not alter the frozen recording."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-wield-ready-weapon-shielded-bimanual-refusal-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Return the shielded two-handed wield refusal",
+      "cFile": "wield.c",
+      "sessions": [],
+      "selectionReason": "The admitted v13 shield case reaches the implemented ready_weapon predicate and stops instead of returning the C refusal.",
+      "detail": "v13/shield-refuses-two-handed-wield segment 0 step 49: 49/50 screens and cursors, 2793/2793 RNG at accepted B58 evaluation 2f36445470f66c6ebc8234436abf21f324c0b46f. In wield.c ready_weapon lines 186–192, uarms && bimanual(wep) prints sword, axe, or weapon wording, sets ECMD_FAIL, bypasses retouch/setuwep, and reaches the common tail. js/wield.js throws UnsupportedWieldError at this same predicate. Packet 610bf28f supplies typed-wield runtime evidence and swap restoration tests; other ready_weapon branches remain incomplete.",
+      "openedAt": "4c09c5a273949c1c020c212e3b24fc35df5d6713",
+      "openStanding": {
+        "sha": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "ready_weapon",
+      "session": "synthetic/v13/shield-refuses-two-handed-wield",
+      "step": 49,
+      "syntheticProvenance": {
+        "synthetic/v13/shield-refuses-two-handed-wield": {
+          "session": "synthetic/v13/shield-refuses-two-handed-wield",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "shield-refuses-two-handed-wield",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+          "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+          "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f"
+        }
+      },
+      "activeStanding": {
+        "sha": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "shield-refuses-two-handed-wield",
+          "session": "synthetic/v13/shield-refuses-two-handed-wield",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+          "recordingPath": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+          "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+          "recipe": "challenges/cases/v13/shield-refuses-two-handed-wield.recipe.session.json",
+          "recipeSha256": "12d7fcda5c6f6efc55d415d8ca5e8b3c1239118e7c06a2aef85fc36b67c38c38",
+          "replayInputSha256": "085e483fa652fbcf7255226f83527b8bc127d9519929e9fd5dec2924d5070674",
+          "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+          "evaluationArtifact": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationUtc": "2026-09-29T21:48:15.376Z",
+          "remainingScreens": 1,
+          "recordedSteps": 50,
+          "previousScreensMatched": 49,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 49,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2793,
+              "total": 2793
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+            "step": 49
+          },
+          "step": 49,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/shield-refuses-two-handed-wield.json",
+            "result": {
+              "session": "synthetic/v13/shield-refuses-two-handed-wield",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "shield-refuses-two-handed-wield",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "shield-refuses-two-handed-wield",
+                "session": "synthetic/v13/shield-refuses-two-handed-wield",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+                "recordingPath": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+                "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+                "recipe": "challenges/cases/v13/shield-refuses-two-handed-wield.recipe.session.json",
+                "recipeSha256": "12d7fcda5c6f6efc55d415d8ca5e8b3c1239118e7c06a2aef85fc36b67c38c38",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 50,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 49,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 2793,
+                    "total": 2793
+                  },
+                  "cursors": {
+                    "matched": 49,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+                  "step": 49
+                },
+                "step": 49,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A shielded hero selects a two-handed sword through wield.c:ready_weapon. JavaScript reaches the correct branch but throws instead of printing the C refusal and returning ECMD_FAIL. The branch must classify swords, battle axes, and other two-handed weapons by source predicates without changing equipment or consuming a turn.",
+              "source": {
+                "file": "wield.c",
+                "branch": "When ready_weapon receives non-null wep, does not take the corpse arm, and uarms is set while bimanual(wep) is true, C prints the type-specific two-handed refusal, sets res=ECMD_FAIL, skips retouch and setuwep, then reaches the common status condition and returns res. The selected C case is a shielded hero selecting a two-handed sword.",
+                "functions": [
+                  "ready_weapon"
+                ],
+                "callers": [
+                  "wield.c:dowield calls ready_weapon(wep) and returns its consumed ECMD result; js/wield.js:dowield calls ready_weapon with the chosen inventory object.",
+                  "wield.c:doswapweapon also calls ready_weapon(oldswap), so the same source branch must behave correctly for a two-handed swap target under a shield."
+                ],
+                "dependencies": [
+                  "bimanual(wep) and is_sword(wep) are source predicates with existing JavaScript implementations; BATTLE_AXE selects the alternate noun, and all other bimanual weapons use the generic noun.",
+                  "Do not mutate uwep, uarms, or the selected object in the refusal arm. Preserve the common post-branch status update condition and ECMD_FAIL return, with no RNG draw."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 49/50 screens and cursors, 2793/2793 RNG calls, and first stop at zero-based segment 0 step 49: “wield.c reached a two-handed weapon under a shield.” The immutable recording is challenges/cases/v13/shield-refuses-two-handed-wield.session.json, SHA256 c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6.",
+                "The C recording step 49 follows the wield selection key p and displays “You cannot wield a two-handed sword while wearing a shield.” It records no RNG for that step. The prior step is the wield inventory prompt; the shield and sword were established by the independent recipe.",
+                "Upstream nethack-c/upstream/src/wield.c:169-273 defines ready_weapon. Lines 186-190 test uarms && bimanual(wep), select sword/axe/weapon wording using is_sword and BATTLE_AXE, set ECMD_FAIL, and bypass retouch/setuwep. Lines 268-273 retain the common status condition and return. Lines 451 and 483 are the dowield and doswapweapon callers.",
+                "JavaScript js/wield.js:ready_weapon around lines 548-568 reaches the same uarms/bimanual branch but throws UnsupportedWieldError. js/obj.js exports is_sword, js/objects.js exports BATTLE_AXE, and js/wield.js already uses ECMD_FAIL in adjacent wield command branches. Replace the refusal with the full source branch rather than a sword-only literal."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

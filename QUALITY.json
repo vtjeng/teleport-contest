@@ -3162,6 +3162,32 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-09-27T04:08:54.716Z"
+    },
+    {
+      "kind": "review",
+      "head": "52db3b9f54547102e14a1b1872299a48baaabba4",
+      "auditedRange": "b6e1f0cfcf2f07101acc830f077bdbfc0e8b4b1b..52db3b9f54547102e14a1b1872299a48baaabba4",
+      "level": "full",
+      "areas": [
+        "objects",
+        "monsters"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-09-29T16:28:06.169Z"
+    },
+    {
+      "kind": "review",
+      "head": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+      "auditedRange": "202fc10e007b6ea7047aebf665adeb39d845e6c4..357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+      "level": "full",
+      "areas": [
+        "startup",
+        "monsters",
+        "world-effects",
+        "commands"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-09-29T21:27:43.603Z"
     }
   ]
 }
