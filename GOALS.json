@@ -115578,6 +115578,49 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dokick-container-impact-dmg-synthetic-v12-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port container impact damage for dropped, thrown, and kicked contents",
+      "cFile": "dokick.c",
+      "sessions": [
+        "synthetic/v12/levitating-sack-impact-keeps-content"
+      ],
+      "selectionReason": "The current v12 levitating-sack-impact-keeps-content case has matched screens but an eight-call RNG mismatch at step 86. investigations/synthetic/v12/levitating-sack-impact-keeps-content.json traces it to dokick.c:container_impact_dmg: C do.c:dropz calls this discarded void helper after an impacted drop, while js/do.js skips it. The queue inherited an older zap.c attribution; the complete source trace establishes dokick.c. The v12 floor bhito screens are reserved by B54, and the v11 statue screens were resolved by A48.",
+      "detail": "Source dokick.c:412-483 checks normal containers, calls obj_resists for glass non-gem contents and rn2(3) for eggs, updates luck, sound, shop loss, cknown and weight; C callers are do.c:dropz, dothrow.c:throwit and dokick.c:really_kick_object. JS gaps are js/do.js:dropz and js/dothrow.js:throwit, with kick caller review needed. Selected recording challenges/cases/v12/levitating-sack-impact-keeps-content.session.json and current saved challenges/evaluations/20260929104811-v12.json at 9a964783937ab73e829933e56ca729283c899594; full trace in investigations/synthetic/v12/levitating-sack-impact-keeps-content.json.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "container_impact_dmg",
+          "line": 412,
+          "endLine": 488,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 412,
+        "to": 488
+      },
+      "syntheticProvenance": {
+        "synthetic/v12/levitating-sack-impact-keeps-content": {
+          "session": "synthetic/v12/levitating-sack-impact-keeps-content",
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "levitating-sack-impact-keeps-content",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recordingPath": "challenges/cases/v12/levitating-sack-impact-keeps-content.session.json",
+          "recordingSha256": "83a15039c873173ef1746abf2e1d28a15c6f6b2f711de653ae7db715999f3110",
+          "evaluationPath": "challenges/evaluations/20260929104811-v12.json",
+          "evaluationCommit": "9a964783937ab73e829933e56ca729283c899594"
+        }
+      }
     }
   ]
 }
