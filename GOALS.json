@@ -118693,6 +118693,192 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-wield-ready-weapon-shielded-bimanual-refusal-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Return the shielded two-handed wield refusal",
+      "cFile": "wield.c",
+      "sessions": [],
+      "selectionReason": "The admitted v13 shield case reaches the implemented ready_weapon predicate and stops instead of returning the C refusal.",
+      "detail": "v13/shield-refuses-two-handed-wield segment 0 step 49: 49/50 screens and cursors, 2793/2793 RNG at accepted B58 evaluation 2f36445470f66c6ebc8234436abf21f324c0b46f. In wield.c ready_weapon lines 186–192, uarms && bimanual(wep) prints sword, axe, or weapon wording, sets ECMD_FAIL, bypasses retouch/setuwep, and reaches the common tail. js/wield.js throws UnsupportedWieldError at this same predicate. Packet 610bf28f supplies typed-wield runtime evidence and swap restoration tests; other ready_weapon branches remain incomplete.",
+      "openedAt": "4c09c5a273949c1c020c212e3b24fc35df5d6713",
+      "openStanding": {
+        "sha": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "ready_weapon",
+      "session": "synthetic/v13/shield-refuses-two-handed-wield",
+      "step": 49,
+      "syntheticProvenance": {
+        "synthetic/v13/shield-refuses-two-handed-wield": {
+          "session": "synthetic/v13/shield-refuses-two-handed-wield",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "shield-refuses-two-handed-wield",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+          "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+          "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f"
+        }
+      },
+      "activeStanding": {
+        "sha": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "shield-refuses-two-handed-wield",
+          "session": "synthetic/v13/shield-refuses-two-handed-wield",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+          "recordingPath": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+          "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+          "recipe": "challenges/cases/v13/shield-refuses-two-handed-wield.recipe.session.json",
+          "recipeSha256": "12d7fcda5c6f6efc55d415d8ca5e8b3c1239118e7c06a2aef85fc36b67c38c38",
+          "replayInputSha256": "085e483fa652fbcf7255226f83527b8bc127d9519929e9fd5dec2924d5070674",
+          "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+          "evaluationArtifact": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationUtc": "2026-09-29T21:48:15.376Z",
+          "remainingScreens": 1,
+          "recordedSteps": 50,
+          "previousScreensMatched": 49,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 49,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2793,
+              "total": 2793
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+            "step": 49
+          },
+          "step": 49,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/shield-refuses-two-handed-wield.json",
+            "result": {
+              "session": "synthetic/v13/shield-refuses-two-handed-wield",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "shield-refuses-two-handed-wield",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "shield-refuses-two-handed-wield",
+                "session": "synthetic/v13/shield-refuses-two-handed-wield",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+                "recordingPath": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+                "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+                "recipe": "challenges/cases/v13/shield-refuses-two-handed-wield.recipe.session.json",
+                "recipeSha256": "12d7fcda5c6f6efc55d415d8ca5e8b3c1239118e7c06a2aef85fc36b67c38c38",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 50,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 49,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 2793,
+                    "total": 2793
+                  },
+                  "cursors": {
+                    "matched": 49,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+                  "step": 49
+                },
+                "step": 49,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A shielded hero selects a two-handed sword through wield.c:ready_weapon. JavaScript reaches the correct branch but throws instead of printing the C refusal and returning ECMD_FAIL. The branch must classify swords, battle axes, and other two-handed weapons by source predicates without changing equipment or consuming a turn.",
+              "source": {
+                "file": "wield.c",
+                "branch": "When ready_weapon receives non-null wep, does not take the corpse arm, and uarms is set while bimanual(wep) is true, C prints the type-specific two-handed refusal, sets res=ECMD_FAIL, skips retouch and setuwep, then reaches the common status condition and returns res. The selected C case is a shielded hero selecting a two-handed sword.",
+                "functions": [
+                  "ready_weapon"
+                ],
+                "callers": [
+                  "wield.c:dowield calls ready_weapon(wep) and returns its consumed ECMD result; js/wield.js:dowield calls ready_weapon with the chosen inventory object.",
+                  "wield.c:doswapweapon also calls ready_weapon(oldswap), so the same source branch must behave correctly for a two-handed swap target under a shield."
+                ],
+                "dependencies": [
+                  "bimanual(wep) and is_sword(wep) are source predicates with existing JavaScript implementations; BATTLE_AXE selects the alternate noun, and all other bimanual weapons use the generic noun.",
+                  "Do not mutate uwep, uarms, or the selected object in the refusal arm. Preserve the common post-branch status update condition and ECMD_FAIL return, with no RNG draw."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 49/50 screens and cursors, 2793/2793 RNG calls, and first stop at zero-based segment 0 step 49: “wield.c reached a two-handed weapon under a shield.” The immutable recording is challenges/cases/v13/shield-refuses-two-handed-wield.session.json, SHA256 c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6.",
+                "The C recording step 49 follows the wield selection key p and displays “You cannot wield a two-handed sword while wearing a shield.” It records no RNG for that step. The prior step is the wield inventory prompt; the shield and sword were established by the independent recipe.",
+                "Upstream nethack-c/upstream/src/wield.c:169-273 defines ready_weapon. Lines 186-190 test uarms && bimanual(wep), select sword/axe/weapon wording using is_sword and BATTLE_AXE, set ECMD_FAIL, and bypass retouch/setuwep. Lines 268-273 retain the common status condition and return. Lines 451 and 483 are the dowield and doswapweapon callers.",
+                "JavaScript js/wield.js:ready_weapon around lines 548-568 reaches the same uarms/bimanual branch but throws UnsupportedWieldError. js/obj.js exports is_sword, js/objects.js exports BATTLE_AXE, and js/wield.js already uses ECMD_FAIL in adjacent wield command branches. Replace the refusal with the full source branch rather than a sword-only literal."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
