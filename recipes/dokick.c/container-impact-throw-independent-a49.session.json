@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C witness for dothrow.c:throwit landing a content-bearing sack on a hard room floor before dokick.c:container_impact_dmg. The debug Wizard wishes an empty sack, drops it using the observed inventory letter, inserts one starting potion, picks it up, and throws it east. This seed, date, identity, and throw history differ from the admitted levitating-drop case.",
+  "segments": [
+    {
+      "seed": 81427563,
+      "datetime": "20481205090700",
+      "nethackrc": "OPTIONS=name:A49ThrowCheck,role:Wizard,race:human,gender:female,align:chaotic\nOPTIONS=playmode:debug,menustyle:traditional,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,time,!autopickup\n",
+      "moves": "  #wizwish\nempty unlocked sack\ndo #loot\ni!\ny nnn,tol"
+    }
+  ]
+}
