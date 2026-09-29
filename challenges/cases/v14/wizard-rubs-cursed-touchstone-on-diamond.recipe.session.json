@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for apply.c:use_stone cursed TOUCHSTONE applied to a wished diamond. This is the non-graystone gem branch that calls obj_resists(obj,80,100) and may destroy the gem.",
+  "segments": [
+    {
+      "seed": 80013821,
+      "datetime": "20571001090000",
+      "nethackrc": "OPTIONS=name:V14Stone,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\ncursed touchstone\n#wizwish\ndiamond\naop"
+    }
+  ]
+}

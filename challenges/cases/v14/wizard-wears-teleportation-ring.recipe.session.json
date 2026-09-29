@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for allmain.c:moveloop_core Teleportation check. Wearing the wished brass ring activates Teleportation; C executes rn2(85) at the end of the wear turn. No extra waiting inputs are needed.",
+  "segments": [
+    {
+      "seed": 73458129,
+      "datetime": "20560929121500",
+      "nethackrc": "OPTIONS=name:V14TeleCheck,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nring of teleportation\nPor"
+    }
+  ]
+}

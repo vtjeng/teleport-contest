@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for pray.c:doturn via the Knight #turn command. A fresh lawful human Knight creates one hostile zombie with a source debug command, then turns undead once. V13’s orc poison exposure is a monster-region action, not a hero turning command.",
+  "segments": [
+    {
+      "seed": 43179052,
+      "datetime": "20490930124115",
+      "nethackrc": "OPTIONS=name:V14TurnUndead,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#wizgenesis\nhostile zombie\n#turn\n"
+    }
+  ]
+}

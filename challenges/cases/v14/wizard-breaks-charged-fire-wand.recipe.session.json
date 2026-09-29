@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for apply.c:do_break_wand WAN_FIRE with one positive charge. The Wizard wears a wished ring of fire resistance, then breaks the charged wand; C must show the fire-explosion branch while the hero survives.",
+  "segments": [
+    {
+      "seed": 48391728,
+      "datetime": "20571102113000",
+      "nethackrc": "OPTIONS=name:V14BreakWand,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nring of fire resistance\nPor#wizwish\nwand of fire\napy "
+    }
+  ]
+}

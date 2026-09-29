@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for do_wear.c:Amulet_on. A human Tourist wears a wished cursed amulet of strangulation and reaches the source breathing/strangulation state change. C observed the wished item at inventory slot m; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 86532317,
+      "datetime": "20520902130000",
+      "nethackrc": "OPTIONS=name:V14Strangle,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\ncursed amulet of strangulation\nPm "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first apply.c:doapply -> makemon.c:bagotricks case. A Wizard moves off the upstairs, wishes an uncursed +3 bag of tricks so the charge is positive, applies it on ordinary floor, and records the monster-generation result. The closest v1 containers case uses sacks and a bag of holding, not this charged bag source.",
+  "segments": [
+    {
+      "seed": 77420519,
+      "datetime": "20571202094000",
+      "nethackrc": "OPTIONS=name:V14BagTricks,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "l#wizwish\nuncursed +3 bag of tricks\nao"
+    }
+  ]
+}

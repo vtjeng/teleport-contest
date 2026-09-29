@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for read.c:seffect_magic_mapping cursed dispatch. A sighted Rogue reads a cursed scroll on ordinary D:1; the C trace should reach the nonstandard cursed mapping branch and its map-knowledge result. C observed the wished item at inventory slot h; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 40693127,
+      "datetime": "20510224074500",
+      "nethackrc": "OPTIONS=name:V14CursedMap,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\ncursed scroll of magic mapping\nrh "
+    }
+  ]
+}

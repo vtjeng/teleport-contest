@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first apply.c:use_trap -> set_trap case. The Wizard starts at the upstairs, moves one square onto ordinary floor, wishes an uncursed disarmed beartrap, applies it, and supplies occupation turns until the trap is armed. Closest prior v6 beartrap cases wish an armed trap or trigger it by sitting; neither applies a carried beartrap to complete set_trap.",
+  "segments": [
+    {
+      "seed": 92468137,
+      "datetime": "20571204113000",
+      "nethackrc": "OPTIONS=name:V14TrapSet,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "l#wizwish\nuncursed beartrap\nao"
+    }
+  ]
+}
