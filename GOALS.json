@@ -112164,16 +112164,20 @@
     {
       "id": "port-eat-lesshungry-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port satiation warnings, continuation prompt, and hunger transitions in eat.c lesshungry",
       "cFile": "eat.c",
       "sessions": [
         "synthetic/v12/tourist-rations-reach-satiated-choke"
       ],
-      "selectionReason": "The v12 Tourist rations case first stops at step 5 in eat.c lesshungry, where a chokable meal crosses the 1500 warning and asks paranoid_query before newuhs. The complete source investigation is investigations/synthetic/v12/tourist-rations-reach-satiated-choke.json. A45 owns display shield effects and B51 owns trap statue creation; eat.c lesshungry and its meal state are independently assignable to worker C.",
+      "selectionReason": "Selected v12/tourist-rations-reach-satiated-choke at eat.c lesshungry warning; port the whole function and its four direct callers, retaining the separate choke and polyself dependencies.",
       "detail": "Port the whole lesshungry function and production callers in C order. cmd.c paranoid_query and eat.c reset_eat/newuhs are present; audit their active behavior. The separate void eat.c choke callee must be source-ported or left as an explicit note_unported gap under AGENTS.md, with no substituted effects.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "46b1813d486326e424b7975f3433781ef62c59b1",
+      "openStanding": {
+        "sha": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -112202,7 +112206,159 @@
           "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
           "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "tourist-rations-reach-satiated-choke",
+          "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+          "recipe": "challenges/cases/v12/tourist-rations-reach-satiated-choke.recipe.session.json",
+          "recipeSha256": "8e13f8173888d47f6181e3e874c434292c94a446fbe1d7de6dc99822ff9a886c",
+          "replayInputSha256": "0e05889a028c13499e0cfe75609194f08d9bf77158580f2373663c0ca3d34c8e",
+          "evaluationPath": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationCommit": "479b6515bc2e15eb4c415070af2b4180d2dc7531",
+          "evaluationArtifact": "challenges/evaluations/20260929051319-v12.json",
+          "evaluationUtc": "2026-09-29T05:13:34.828Z",
+          "remainingScreens": 14,
+          "recordedSteps": 19,
+          "previousScreensMatched": 5,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 5,
+              "total": 19
+            },
+            "rng": {
+              "matched": 4404,
+              "total": 4416
+            },
+            "cursors": {
+              "matched": 5,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: eating requires lesshungry()'s paranoid_query() for continued eating",
+            "step": 5
+          },
+          "step": 5,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "lesshungry",
+          "message": "unsupported hero command: an unported branch of this command: eating requires lesshungry()'s paranoid_query() for continued eating",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/tourist-rations-reach-satiated-choke.json",
+            "result": {
+              "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "tourist-rations-reach-satiated-choke",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+              "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+              "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+              "remainingScreens": 14,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+                "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+                "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+                "recipe": "challenges/cases/v12/tourist-rations-reach-satiated-choke.recipe.session.json",
+                "recipeSha256": "8e13f8173888d47f6181e3e874c434292c94a446fbe1d7de6dc99822ff9a886c",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18",
+                "evaluationPath": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+                "evaluationArtifact": "challenges/evaluations/20260929033350-v12.json",
+                "evaluationUtc": "2026-09-29T03:34:04.588Z",
+                "remainingScreens": 14,
+                "recordedSteps": 19,
+                "previousScreensMatched": 5,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 5,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 4404,
+                    "total": 4416
+                  },
+                  "cursors": {
+                    "matched": 5,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: eating requires lesshungry()'s paranoid_query() for continued eating",
+                  "step": 5
+                },
+                "step": 5,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "lesshungry",
+                "message": "unsupported hero command: an unported branch of this command: eating requires lesshungry()'s paranoid_query() for continued eating",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At the first nearly-full bite of Tourist rations, eat.c:lesshungry asks whether to continue when victual.canchoke is true and more than one bite remains. js/eat.js refuses this prompt branch before reading the answer or updating meal state. Port the whole lesshungry function, preserving its hunger, warning, reset, prompt, and newuhs order; keep any unported choke callee explicit.",
+              "source": {
+                "file": "eat.c",
+                "branch": "lesshungry: u.uhunger reaches 1500 but remains below 2000, Hunger is off, victual.eating is true, fullwarn is false, canchoke is true, and reqtime-usedtime exceeds one; ask ParanoidEating before newuhs.",
+                "functions": [
+                  "lesshungry"
+                ],
+                "callers": [
+                  "eat.c:bite -> eat.c:lesshungry during eatfood occupation",
+                  "eat.c:opentin and other nutrition paths -> eat.c:lesshungry"
+                ],
+                "dependencies": [
+                  "cmd.c:paranoid_query is already ported in js/cmd.js and returns the yes/no result",
+                  "eat.c:reset_eat and newuhs are already ported in js/eat.js",
+                  "eat.c:choke remains a separate source callee for the >=2000 arm; its return is discarded"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C eat.c:3289-3334 increments hunger, checks >=2000 choking first, then emits the >=1500 warning and calls paranoid_query(ParanoidEating, \"Continue eating?\") when a chokable meal has more than one bite left. A negative answer resets eating and clears nomovemsg; newuhs(FALSE) runs afterward.",
+                "JS js/eat.js:1912-1960 increments hunger and reaches an UnsupportedEatError at lines 1945-1953 before invoking the already ported cmd.c:paranoid_query, reset_eat, or newuhs. Other refusal arms in the same function require whole-function source review.",
+                "The independently recorded v12 Tourist recipe has 19 steps; the saved C44 evaluation stops at zero-based step 5 after five matched screens, with 14 remaining screens and the unsupported continued-eating prompt. C provenance is challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json and challenges/evaluations/20260929033350-v12.json.",
+                "C cmd.c:5655-5658 defines paranoid_query as a boolean wrapper over paranoid_ynq; js/cmd.js:955 already implements it. C eat.c:245-287 choke is a separate void callee when hunger reaches 2000; it must be source-ported in a later task or marked as an explicit unported call without inventing its result."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "div-engrave-read-engr-at-surface-synthetic-v12-20260929",
