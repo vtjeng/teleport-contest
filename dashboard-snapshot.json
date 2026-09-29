@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T22:43:42.765Z",
+  "capturedAt": "2026-09-29T23:03:30.493Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -10197,12 +10197,79 @@
         "type": "accepted",
         "at": "2026-09-29T22:43:23.911Z",
         "task": "C49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C49-published-ed2a7503",
+        "type": "published",
+        "at": "2026-09-29T22:44:00.774Z",
+        "task": "C49",
+        "commit": "ed2a7503864a7641aad52cc1cc12e32762a2d307"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B61-pickup-object-20260929",
+        "type": "assign",
+        "at": "2026-09-29T22:47:26.128Z",
+        "task": "B61",
+        "worker": "B",
+        "goal": "port-pickup-object-scare-scroll-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C50-assign-20260929",
+        "type": "assign",
+        "at": "2026-09-29T22:51:09.451Z",
+        "task": "C50",
+        "worker": "C",
+        "goal": "port-mkobj-hornoplenty-discovery-synthetic-v13-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-43a744cce473827e90a517a31f7980cb57cc16ca",
+        "type": "ready",
+        "at": "2026-09-29T22:53:32.773Z",
+        "task": "A52",
+        "delivery": "43a744cce473827e90a517a31f7980cb57cc16ca"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-received-43a744cc",
+        "type": "received",
+        "at": "2026-09-29T22:55:10.962Z",
+        "task": "A52",
+        "delivery": "43a744cce473827e90a517a31f7980cb57cc16ca"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-feedback-stethoscope-log",
+        "type": "feedback",
+        "at": "2026-09-29T23:00:31.102Z",
+        "task": "A52",
+        "delivery": "43a744cce473827e90a517a31f7980cb57cc16ca"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A52-stethoscope-check-correction",
+        "type": "resume",
+        "at": "2026-09-29T23:02:10.841Z",
+        "task": "A52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-3afef69d89b0ee18e264337d4342b02390c52e9f",
+        "type": "ready",
+        "at": "2026-09-29T23:03:17.997Z",
+        "task": "A52",
+        "delivery": "3afef69d89b0ee18e264337d4342b02390c52e9f"
       }
     ]
   },
   "development": {
-    "executionCommit": "d1cc494dfc658d9f65b25565ca8d5f836d0c3194",
-    "measuredAt": "2026-09-29T22:42:29.125Z",
+    "executionCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+    "measuredAt": "2026-09-29T23:03:05.442Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
