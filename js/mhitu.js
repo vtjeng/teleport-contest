@@ -72,6 +72,7 @@ import {
     flush_screen,
     map_invisible,
     newsym,
+    shieldeff,
     swallowed,
     tp_sensemon,
 } from './display.js';
@@ -1955,7 +1956,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
             return M_ATTK_HIT;
         case M.AD_COLD:
             if (monster_resists_element(mtmp, COLD_RES, state)) {
-                note_unported('display.c shieldeff');
+                await shieldeff(mtmp.mx, mtmp.my, state);
                 await message(
                     messageAt(`${Monnam(mtmp, state, env)} is mildly chilly.`,
                         mtmp.mx, mtmp.my, state),
@@ -2007,7 +2008,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
             break;
         case M.AD_FIRE:
             if (monster_resists_element(mtmp, FIRE_RES, state)) {
-                note_unported('display.c shieldeff');
+                await shieldeff(mtmp.mx, mtmp.my, state);
                 await message(
                     messageAt(`${Monnam(mtmp, state, env)} is mildly warm.`,
                         mtmp.mx, mtmp.my, state),
@@ -2031,7 +2032,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
             break;
         case M.AD_ELEC:
             if (monster_resists_element(mtmp, SHOCK_RES, state)) {
-                note_unported('display.c shieldeff');
+                await shieldeff(mtmp.mx, mtmp.my, state);
                 await message(
                     messageAt(
                         `${Monnam(mtmp, state, env)} is slightly tingled.`,

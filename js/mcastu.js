@@ -38,6 +38,7 @@ import {
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { sgn } from './hacklib.js';
+import { shieldeff } from './display.js';
 import { healmon } from './mon.js';
 import {
     cvt_adtyp_to_mseenres,
@@ -505,7 +506,7 @@ async function mcast_psi_bolt(dmg, env = {}) {
     const message = env.message;
 
     if (heroProperty(state, ANTIMAGIC)) {
-        // shieldeff(u.ux, u.uy) -- display animation, no game state change
+        await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         dmg = Math.trunc((dmg + 1) / 2);
     } else {
@@ -540,7 +541,7 @@ async function mcast_open_wounds(dmg, env = {}) {
     const message = env.message;
 
     if (heroProperty(state, ANTIMAGIC)) {
-        // shieldeff(u.ux, u.uy) -- display animation, no game state change
+        await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         dmg = Math.trunc((dmg + 1) / 2);
     } else {
@@ -603,7 +604,7 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
         await message('A pillar of fire strikes all around you!', state);
     const origDmg = dmg = random.d(8, 6);
     if (heroProperty(state, FIRE_RES)) {
-        recordMcastGap('display.c shieldeff', env);
+        await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_FIRE, state);
         dmg = 0;
     } else {
@@ -638,7 +639,7 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
         : await ureflects('It bounces off your %s%s.', '', state, env);
     const origDmg = dmg = random.d(8, 6);
     if (reflects || heroProperty(state, SHOCK_RES)) {
-        recordMcastGap('display.c shieldeff', env);
+        await shieldeff(state.u.ux, state.u.uy, state);
         dmg = 0;
         if (reflects) {
             monstseesu(M_SEEN_REFL, state);
@@ -674,7 +675,7 @@ async function mcast_paralyze(mtmp, env = {}) {
     const freeAction = heroProperty(state, FREE_ACTION);
     let dmg = 0;
     if (antimagic || freeAction) {
-        recordMcastGap('display.c shieldeff', env);
+        await shieldeff(state.u.ux, state.u.uy, state);
         monstseesu(M_SEEN_MAGR, state);
         if ((state.multi ?? 0) >= 0 && typeof env.message === 'function')
             await env.message('You stiffen briefly.', state);

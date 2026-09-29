@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T05:36:55.028Z",
+  "capturedAt": "2026-09-29T06:05:51.528Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -8843,12 +8843,69 @@
         "type": "accepted",
         "at": "2026-09-29T05:36:45.906Z",
         "task": "C45"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C45-published-20260929",
+        "type": "published",
+        "at": "2026-09-29T05:38:19.467Z",
+        "task": "C45",
+        "commit": "4d2796cf4e0a36960efed7dbbedc9a4fef707719"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-5306b60856ab13ff24946827e4bbb51ebdeec397",
+        "type": "ready",
+        "at": "2026-09-29T05:47:13.991Z",
+        "task": "A45",
+        "delivery": "5306b60856ab13ff24946827e4bbb51ebdeec397"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A45-correction-received-20260929",
+        "type": "received",
+        "at": "2026-09-29T05:48:10.497Z",
+        "task": "A45",
+        "delivery": "5306b60856ab13ff24946827e4bbb51ebdeec397"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A45-integrating-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T05:51:31.326Z",
+        "task": "A45",
+        "integration": "327800a84ddedb020167a65bd3683401f516fea3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B53-assign-20260929",
+        "type": "assign",
+        "at": "2026-09-29T05:58:33.078Z",
+        "task": "B53",
+        "worker": "B",
+        "goal": "port-zap-bhitm-monster-wands-synthetic-v12-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A45-validated-20260929",
+        "type": "validated",
+        "at": "2026-09-29T06:04:52.260Z",
+        "task": "A45",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A45-accepted-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T06:05:16.021Z",
+        "task": "A45"
       }
     ]
   },
   "development": {
-    "executionCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe",
-    "measuredAt": "2026-09-29T05:29:49.906Z",
+    "executionCommit": "327800a84ddedb020167a65bd3683401f516fea3",
+    "measuredAt": "2026-09-29T05:59:46.244Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

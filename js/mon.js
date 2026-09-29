@@ -181,6 +181,7 @@ import {
     mon_to_glyph,
     newsym,
     see_monsters,
+    shieldeff,
     swallowed,
     unmap_object,
 } from './display.js';
@@ -6751,11 +6752,10 @@ export async function usmellmon(mdat, rawEnv = {}) {
 
 // C ref: mon.c shieldeff_mon() (6058-6065). A monster's magic resistance
 // always invokes the shield animation first; the visible message is the only
-// non-display effect owned by this file. display.c shieldeff() remains a gap,
-// so record that call without manufacturing its glyph frames or delays.
+// non-display effect owned by this file.
 export async function shieldeff_mon(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    note_unported('display.c shieldeff');
+    await shieldeff(mtmp.mx, mtmp.my, state);
     if (!cansee(mtmp.mx, mtmp.my, state)) return;
 
     const message = rawEnv.message

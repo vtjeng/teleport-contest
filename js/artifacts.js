@@ -217,7 +217,7 @@ import {
 import { In_hell, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
 import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { glyph_at, glyph_is_trap, newsym } from './display.js';
+import { glyph_at, glyph_is_trap, newsym, shieldeff } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
 import { float_down, float_up, t_at } from './trap.js';
 import { level_tele } from './teleport.js';
@@ -1880,7 +1880,11 @@ export async function Mb_hit(
             await ttyPline(
                 `${hittee.value} ${vtense(fakename[fakeidx], 'resist')}!`,
                 state);
-            note_unported('pager.c shieldeff');
+            await shieldeff(
+                youdefend ? state.u.ux : mdef.mx,
+                youdefend ? state.u.uy : mdef.my,
+                state,
+            );
         }
         if ((do_stun || do_confuse) && state.flags?.verbose) {
             let buf = '';

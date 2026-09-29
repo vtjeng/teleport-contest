@@ -90,7 +90,7 @@ import {
 } from './artifacts.js';
 // js/display.js imports acurr() from this file; both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
-import { see_monsters } from './display.js';
+import { see_monsters, shieldeff } from './display.js';
 import { game } from './gstate.js';
 import { strstri } from './hacklib.js';
 // js/invent.js does not import from this file, so no cycle.
@@ -1660,8 +1660,7 @@ export async function poisoned(
     // Poison resistance blocks the effect entirely.
     const poisonRes = state.u?.uprops?.[POISON_RES];
     if (poisonRes?.intrinsic || poisonRes?.extrinsic) {
-        // shieldeff() is a display-only shield animation; the tty build this
-        // port targets writes nothing for it. Omitted for blast path.
+        if (blast) await shieldeff(state.u.ux, state.u.uy, state);
         await message('The poison doesn\'t seem to affect you.', state);
         return;
     }

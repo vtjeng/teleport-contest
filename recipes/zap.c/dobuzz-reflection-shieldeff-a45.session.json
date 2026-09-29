@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent attempt for zap.c:dobuzz visible-monster reflection. It diverges before dobuzz at step 59: C reaches read.c:create_particular -> makemon.c:makemon -> teleport.c:collect_coords while creating the silver dragon, but JS does not produce those setup draws. Keep as blocked setup evidence only; there is no matching recording or monster-reflection runtime coverage.",
+  "segments": [
+    {
+      "seed": 8704931,
+      "datetime": "20260929141000",
+      "nethackrc": "OPTIONS=name:RayProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " #wizwish\nwand of fire\n #wizgenesis\nhostile silver dragon\nz e k     "
+    }
+  ]
+}

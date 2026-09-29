@@ -56,6 +56,7 @@ import { read_tribute } from './files.js';
 import { makeplural } from './fruit.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
+import { shieldeff } from './display.js';
 import { check_capacity, invocation_pos, losehp, nomul } from './hack.js';
 import { dist2, isqrt, sgn } from './hacklib.js';
 import { obfree, update_inventory, useup } from './invent.js';
@@ -347,7 +348,7 @@ export async function cursed_book(book, state = game, env = {}) {
         }
     case 6:
         if (spellPropertyActive(ANTIMAGIC, state)) {
-            if (state === game) note_unported('zap.c shieldeff');
+            await shieldeff(state.u.ux, state.u.uy, state);
             await message(
                 'The book radiates explosive energy, but you are unharmed!',
                 state,

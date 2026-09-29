@@ -116,6 +116,7 @@ import { dirtocoord, xytodir } from './cmd.js';
 import {
     cls, display_self, docrt, flush_screen, map_invisible,
     map_monster_glyph_info, newsym, show_glyph_cell,
+    shieldeff,
 } from './display.js';
 import { canletgo, dropy, trycall } from './do.js';
 import { migrate_to_level } from './dog.js';
@@ -2183,7 +2184,7 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
             );
             if (hasAntimagic) {
                 monstseesu(M_SEEN_MAGR, state);
-                note_unported('display.c shieldeff');
+                await shieldeff(state.u.ux, state.u.uy, state);
                 // Soundeffect is a no-op in the tty build.
                 await message('Boing!', state);
                 learnit = true;
@@ -2219,7 +2220,7 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
             await stop_occupation(state);
             nomul(0, state);
         } else if (resists_magm(mtmp, state)) {
-            note_unported('display.c shieldeff');
+            await shieldeff(mtmp.mx, mtmp.my, state);
             // Soundeffect is a no-op in the tty build.
             await message('Boing!', state);
             learnit = true;
