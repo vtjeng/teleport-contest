@@ -110674,7 +110674,7 @@
     {
       "id": "port-lock-doorlock-synthetic-v11-20260928",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port complete door magic and wire player and monster wand rays",
       "cFile": "lock.c",
       "sessions": [
@@ -110695,8 +110695,8 @@
           "name": "doorlock",
           "line": 1103,
           "endLine": 1275,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -110936,7 +110936,93 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doorlock",
+            "implementation": "js/lock.js",
+            "symbol": "doorlock",
+            "sourceReview": "Read lock.c:doorlock() (1103-1275) in full and preserve source evaluation order. Covered every effect arm: secret-door conversion for opening/knock/striking/force-bolt and refusal for locking/wizard-lock; Rogue doorway concealment and obstruction; normal obstruction through the consumed lock.c:obstructed() callee and trap refusal; the doormask switch for locking; unlocking; normal and trapped breaking; visibility snapshots, vision recalculation, messages, wake_nearto(), and pick-occupation cancellation/reset. Preserve C's true return when a trapped door changes even though trap.c:mb_trapped()'s result is discarded. Record and skip the discarded void calls to trap.c:mb_trapped() and shk.c:add_damage() via note_unported; shop billing tail gaps remain named. JS writes both generated door-mask aliases to preserve C struct rm.doormask semantics.",
+            "callers": [
+              {
+                "path": "js/zap.js",
+                "symbol": "bhit",
+                "source": "zap.c:bhit() calls doorlock() when a hero ray reaches a door for WAN_OPENING, WAN_LOCKING, WAN_STRIKING, SPE_KNOCK, SPE_WIZARD_LOCK, or SPE_FORCE_BOLT; it consumes the Boolean for wand discovery and broken-shop-door handling"
+              },
+              {
+                "path": "js/muse.js",
+                "symbol": "mbhit",
+                "source": "muse.c:mbhit() calls doorlock() for monster WAN_OPENING, WAN_LOCKING, and WAN_STRIKING; it consumes the Boolean for object discovery and broken-shop-door handling"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/lock.test.mjs"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-wand-locking-independent-b49.session.json",
+              "recordings/lock.c/striking-wand-breaks-locked-door-independent-b49.session.json",
+              "recordings/lock.c/force-bolt-breaks-door-independent-b49.session.json",
+              "recordings/lock.c/opening-wand-unlocks-door-independent-b49.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-locking-closes-open-door",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 42,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:bhit(WAN_LOCKING) -> lock.c:doorlock closes and locks the open door, then zap.c:bhit consumes the true return to learn the wand"
+              }
+            ],
+            "checkedAt": "a149eb3605fe68acf848e20f8255850d22e83a3d"
+          }
+        ],
+        "entryPointReview": "The active hero entry is cmd.c:dozap or spell.c:spelleffects -> zap.c:weffects -> zap.c:bhit when a wand or ray spell reaches a door. Matching C runs cover WAN_LOCKING on an open door, WAN_OPENING on a locked door, WAN_STRIKING on a locked door, and SPE_FORCE_BOLT on a locked door; the admitted v11 prefix independently covers the selected WAN_LOCKING path through its final matching step 42. zap.c:bhit consumes doorlock's Boolean to identify wands and handle shop damage. The active monster entry is muse.c:use_offensive -> muse.c:mbhit when a monster with a usable striking wand targets the hero across a door; js/muse.js wires the same helper and Boolean, but no matching C recording reaches this door arm. The blocked recipe and cache-only attempts show the setup gate: read.c:create_particular_creation() places the unique Dispater adjacent to the hero without establishing a closed door on the monster ray. A final sleeping-monster route tried to cross the observed doorway and wake the monster, but the C input stream was diverted by a hostile ranged attack and repeated pager before closing the door; it still did not reach muse.c:mbhit. The attempts are cache-only under .cache/B49-attempts/. No muse.c:mbhit door call is claimed. Other named void gaps are trap.c:mb_trapped and shk.c:add_damage; no return from note_unported is used.",
+        "entryPoints": [
+          {
+            "name": "Hero wand or ray spell reaches a door through zap.c:bhit",
+            "functions": [
+              "doorlock"
+            ],
+            "recordings": [
+              "recordings/lock.c/open-door-wand-locking-independent-b49.session.json",
+              "recordings/lock.c/striking-wand-breaks-locked-door-independent-b49.session.json",
+              "recordings/lock.c/force-bolt-breaks-door-independent-b49.session.json",
+              "recordings/lock.c/opening-wand-unlocks-door-independent-b49.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v11",
+                "caseId": "wand-locking-closes-open-door",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 42,
+                "source": "cmd.c:dozap -> zap.c:weffects -> zap.c:bhit(WAN_LOCKING) -> lock.c:doorlock"
+              }
+            ]
+          },
+          {
+            "name": "Monster WAN_STRIKING ray reaches a door through muse.c:mbhit",
+            "functions": [
+              "doorlock"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "a149eb3605fe68acf848e20f8255850d22e83a3d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The hero zap.c:bhit entry is verified by four independent C recordings and admitted v11; the active monster muse.c:mbhit door ray still lacks a matching C recording. Resume when a source-reaching monster wand ray crosses a closed door and matches through doorlock, using a geometry-aligned hostile wand carrier rather than the blocked Dispater setup."
     },
     {
       "id": "port-trap-domagictrap-synthetic-v11-20260928",
