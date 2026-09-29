@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only source-guided correction: C generated the shield at slot o, but the Wizard began wielding a blessed +1 quarterstaff, so wearing the shield was refused before the target branch. The w- command explicitly unwields that starter weapon before wearing the shield. Do not compare with JS until C confirms the ready_weapon shield/bimanual refusal and an independent C rerecord is byte-identical.",
+  "segments": [
+    {
+      "seed": 64021837,
+      "datetime": "20490118102600",
+      "nethackrc": "OPTIONS=name:ShieldWieldC47,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nshield\nw-Wo#wizwish\ntwo-handed sword\nwp"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for apply.c:doapply(CANDELABRUM_OF_INVOCATION) -> use_candelabrum. The frozen target is the unlit spe==0, non-invocation, not-underwater, not-swallowed branch with no candles carried. Confirm the item letter and C output before citing source reach; do not substitute lighting, snuffing, attachment, or invocation behavior.",
+  "segments": [
+    {
+      "seed": 58430217,
+      "datetime": "20500219093125",
+      "nethackrc": "OPTIONS=name:EmptyCandelabrumC47,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\ncandelabrum of invocation\nan"
+    }
+  ]
+}

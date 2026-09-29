@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for do_wear.c:Boots_on(LEVITATION_BOOTS). A lawful Valkyrie independently wishes and wears levitation boots on ordinary floor; retain only after C shows Boots_on activating levitation and an independent byte-identical C replay. This is a distinct wear transition from v10 removing a levitation ring.",
+  "segments": [
+    {
+      "seed": 71340281,
+      "datetime": "20450111120948",
+      "nethackrc": "OPTIONS=name:V13Boots,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": ". \u0017levitation boots\nWe"
+    }
+  ]
+}

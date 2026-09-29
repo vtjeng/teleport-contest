@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first replacement for the repeatedly unreached monster web target. An independently selected debug Wizard creates an adjacent tame dog, wishes an unused leash, and applies it to the dog. Retain only if the C trace enters apply.c:use_leash_core and establishes the paired leash state.",
+  "segments": [
+    {
+      "seed": 77433825,
+      "datetime": "20461005090000",
+      "nethackrc": "OPTIONS=name:LeashWitnessC47,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0007tame dog\n\u0017leash\napj"
+    }
+  ]
+}

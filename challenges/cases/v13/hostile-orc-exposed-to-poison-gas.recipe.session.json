@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for region.c:inside_gas_cloud monster pointer arm. Corrected C selector is o. The independent debug Wizard summons a hostile orc before creating a gas region; retained only if C output/state proves monster exposure (not scroll selection).",
+  "segments": [
+    {
+      "seed": 71340288,
+      "datetime": "20450118120948",
+      "nethackrc": "OPTIONS=name:V13GasOrc,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\nhostile orc\n\u0017scroll of stinking cloud\nro    .          ."
+    }
+  ]
+}

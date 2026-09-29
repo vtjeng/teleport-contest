@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only source-guided correction: the getobj prompt consumes its selector immediately after E; inserting a space first cancels the command. The corrected input is E, slot l, space to dismiss the action pager, then Elbereth at the text prompt. Prior canceled/moved probes remain in .cache/C47-provenance and are not challenge cases.",
+  "segments": [
+    {
+      "seed": 45819321,
+      "datetime": "20471209110800",
+      "nethackrc": "OPTIONS=name:MarkerC47,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#wizwish\nmagic marker\nEl Elbereth\n"
+    }
+  ]
+}

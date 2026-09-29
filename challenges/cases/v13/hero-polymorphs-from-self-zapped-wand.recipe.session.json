@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for zap.c:dozap -> zapyourself(WAN_POLYMORPH) -> polyself. An uncursed self-targeted wand reaches polyself.c system shock: this seed’s rn2(20)=18 exceeds the Wizard’s Constitution, so rnd(30)=24 is fatal. This is distinct from cursed wand backfire, a monster ray, and floor-object polymorph.",
+  "segments": [
+    {
+      "seed": 76293105,
+      "datetime": "20471123091800",
+      "nethackrc": "OPTIONS=name:C47Polyself,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nuncursed wand of polymorph\nzp. "
+    }
+  ]
+}
