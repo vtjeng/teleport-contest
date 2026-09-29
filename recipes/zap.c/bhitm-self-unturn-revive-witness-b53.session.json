@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent B53 source-directed witness for zap.c:unturn_dead -> revive_egg and revive through zapyourself/unturn_you. Wizard wishes an undead-turning wand, a troll corpse, and a cockatrice egg, then zaps self. C reaches both helper calls; awaiting pickup.c:encumber_msg before unturn_you preserves the C screen/cursor sequence.",
+  "segments": [{
+    "seed": 53101941,
+    "datetime": "20491114120538",
+    "nethackrc": "OPTIONS=name:B53ReviveWitness,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+    "moves": " \u0017wand of undead turning\n\u0017troll corpse\n\u0017cockatrice egg\nz?o.  "
+  }]
+}

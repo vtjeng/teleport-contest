@@ -58,6 +58,7 @@ import {
     rloc,
     rloc_to,
     rloc_to_flag,
+    u_teleport_mon,
 } from '../js/teleport.js';
 import { resetGame } from '../js/gstate.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -1126,6 +1127,23 @@ test('random_teleport_level clamps and adjusts at the bottom level', () => {
     enableRngLog();
     assert.equal(random_teleport_level(state), 7);
     assert.deepEqual(getRngLog(), ['rn2(5)=4', 'rn2(12)=9', 'rnd(3)=3']);
+});
+
+test('u_teleport_mon returns false before relocation on a stasis level', async () => {
+    // teleport.c:2263-2302 returns FALSE at the stasis gate before any RNG or
+    // relocation call, and zap.c:bhitm consumes that result for visibility.
+    const state = positionState();
+    state.moves = 1;
+    state.level.flags.stasis_until = 1;
+    const monster = { mx: 11, my: 10, ispriest: false };
+    const draws = [];
+    const result = await u_teleport_mon(monster, false, {
+        state,
+        random: { rn2: (bound) => { draws.push(bound); return 0; } },
+    });
+    assert.equal(result, false);
+    assert.deepEqual(draws, []);
+    assert.deepEqual([monster.mx, monster.my], [11, 10]);
 });
 
 test('teleds drags the punished ball through the holdout teleport', async () => {

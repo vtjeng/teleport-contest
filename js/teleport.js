@@ -54,6 +54,7 @@ import {
     RLOC_MSG,
     RLOC_NOMSG,
     ROWNO,
+    TEMPLE,
     SLT_ENCUMBER,
     STONE,
     STRAT_APPEARMSG,
@@ -75,6 +76,7 @@ import {
     Is_botlevel,
     is_pit,
     is_hole,
+    engulfing_u,
     isok,
 } from './const.js';
 import {
@@ -110,6 +112,7 @@ import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import { addinv, prinv } from './invent.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { in_rooms } from './rooms.js';
 import { learnscroll } from './read.js';
 import { drag_ball, move_bc, placebc, unplacebc } from './ball.js';
 import {
@@ -165,6 +168,8 @@ import {
     maybe_unhide_at,
     mon_offmap,
     set_ustuck,
+    unstuck,
+    m_into_limbo,
 } from './mon.js';
 import { carried, mksobj, sobj_at } from './obj.js';
 import {
@@ -477,6 +482,69 @@ export function rloc(monster, rlocflags = 0, rawEnv = {}) {
     return backup
         ? finishRandomRelocation(monster, backup.x, backup.y, env)
         : false;
+}
+
+// C ref: teleport.c u_teleport_mon(). Its Boolean return is consumed by
+// zap.c:bhitm to decide whether an invisible target's square should be
+// revealed. Keep level restrictions, engulfing escape, controlled placement,
+// and ordinary random relocation in the C branch order.
+export async function u_teleport_mon(monster, giveFeedback, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    const message = rawEnv.message ?? ttyPline;
+    const now = Math.trunc(state.moves ?? 0);
+    if (Math.trunc(state.level?.flags?.stasis_until ?? 0) >= now) {
+        if (giveFeedback)
+            await message(
+                `A mysterious force prevents you teleporting ${mon_nam(monster, state, rawEnv)}!`,
+                state,
+                rawEnv,
+            );
+        return false;
+    }
+    if (monster.ispriest
+        && in_rooms(monster.mx, monster.my, TEMPLE, state).length) {
+        if (giveFeedback)
+            await message(
+                `${Monnam(monster, state, rawEnv)} resists your magic!`,
+                state,
+                rawEnv,
+            );
+        return false;
+    }
+    if (engulfing_u(monster, state) && noteleport_level(monster, state)) {
+        if (giveFeedback)
+            await message(
+                `You are no longer inside ${mon_nam(monster, state, rawEnv)}!`,
+                state,
+                rawEnv,
+            );
+        await unstuck(monster, state, { ...rawEnv, random });
+        if (!await rloc(monster, RLOC_MSG, { ...rawEnv, state, random }))
+            await m_into_limbo(monster, state, { ...rawEnv, random });
+        return true;
+    }
+    if ((is_rider(monster.data) || control_teleport(monster.data))
+        && random.rn2(13)) {
+        const destination = enexto(
+            state.u.ux,
+            state.u.uy,
+            monster.data,
+            { ...rawEnv, state, random },
+        );
+        if (destination) {
+            await rloc_to(
+                monster,
+                destination.x,
+                destination.y,
+                { ...rawEnv, state, random },
+            );
+            return true;
+        }
+    }
+    if (!await rloc(monster, RLOC_MSG, { ...rawEnv, state, random }))
+        return false;
+    return true;
 }
 
 function closedDoor(location) {

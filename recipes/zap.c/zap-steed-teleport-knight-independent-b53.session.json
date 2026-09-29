@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent B53 zap.c:weffects -> zap.c:zap_steed(WAN_TELEPORTATION) witness. A Knight waits for the starting pony, mounts east with #ride, wishes a teleportation wand, and zaps downward into the steed.",
+  "segments": [{
+    "seed": 52093323,
+    "datetime": "20481013122538",
+    "nethackrc": "OPTIONS=name:B53KnightTeleport,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+    "moves": ".#ride\nl\u0017wand of teleportation\nz? i>"
+  }]
+}

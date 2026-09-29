@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Blocked B53 witness for zap.c:weffects' active u.uswallow branch, which calls bhitm(u.ustuck, obj). A Valkyrie creates a non-digesting hostile trapper and lets it engulf the hero, then attempts to zap it with a wished cancellation wand. The C trace reaches the engulf, but the strict replay first diverges at segment 0 step 56 while C continues mhitu.c:gulpum into monmove.c:distfleeck (C rn2(5)=4; JS has no boundary). This is not a matching bhitm recording; keep swallowed-caller completion open until the gulpum continuation matches.",
+  "segments": [{
+    "seed": 43091996,
+    "datetime": "20491014131521",
+    "nethackrc": "OPTIONS=name:B53SwallowedProbe5,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+    "moves": " \u0017wand of cancellation\n#wizgenesis\nhostile trapper\nm.m. z? e."
+  }]
+}
