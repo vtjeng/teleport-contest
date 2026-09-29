@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for zap.c:bhit/WAN_DIGGING. The actual wished wand inventory letter is j in this seed; aim east at ordinary wall terrain. Retain only if the C trace confirms the beam reaches the wall-digging action, not merely wand selection.",
+  "segments": [
+    {
+      "seed": 71340286,
+      "datetime": "20450116120948",
+      "nethackrc": "OPTIONS=name:V13Dig,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": ". \u0017wand of digging\nzjl"
+    }
+  ]
+}

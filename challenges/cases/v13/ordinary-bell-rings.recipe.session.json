@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for apply.c:doapply(BELL) -> use_bell(). Wish an explicitly uncursed ordinary bell, then apply it from the C-observed inventory letter. The C trace must confirm ordinary, audible, non-swallowed behavior and reach Hero_playnotes, the ring message, wakem=true, and wake_nearby; do not substitute Bell of Opening behavior. The first bounded attempt used `p` and C reported “You don’t have that object”; its trace showed the wished bell at inventory letter `n`. This corrected recipe changes only the selector to `n`.",
+  "segments": [
+    {
+      "seed": 43815729,
+      "datetime": "20490926093125",
+      "nethackrc": "OPTIONS=name:OrdinaryBellC47,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed bell\nan"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for mkobj.c:hornoplenty source food-generation branch. A fresh debug Wizard independently wishes a horn of plenty and applies the actual generated inventory entry; source output must show a generated food item (not merely the wishing/tipping behavior).",
+  "segments": [
+    {
+      "seed": 71340284,
+      "datetime": "20450114120948",
+      "nethackrc": "OPTIONS=name:V13Horn,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": "  #wizwish\nhorn of plenty\nan"
+    }
+  ]
+}

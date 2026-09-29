@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for muse.c:find_defensive/use_defensive MUSE_POT_HEALING. The seed puts the generated sergeant southeast of the hero; step south, then attack east to avoid the prior non-hostile/pass-through setup miss. Require the C potion-use/restored-HP branch.",
+  "segments": [
+    {
+      "seed": 71340290,
+      "datetime": "20450120120948",
+      "nethackrc": "OPTIONS=name:V13Muse,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ". \u0007sergeant\njl l l l  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for muse.c:find_defensive/use_defensive MUSE_UNICORN_HORN. Seed 71340293 places unicorn west of hero; throw the wished blindness potion west, dismiss the two resulting pagers, then use `m.` for a forced rest so the unicorn receives an actual monster turn. Require its source self-cure output.",
+  "segments": [
+    {
+      "seed": 71340293,
+      "datetime": "20450123120948",
+      "nethackrc": "OPTIONS=name:V13Unicorn,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\nhostile white unicorn\n\u0017potion of blindness\ntoh  m."
+    }
+  ]
+}

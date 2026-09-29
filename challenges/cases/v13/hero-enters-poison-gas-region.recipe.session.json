@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for region.c:inside_gas_cloud hero (p2==NULL) arm. This independent Ranger setup uses the C-observed scroll letter g, reads and centers the cloud on the hero, then advances one turn in the active region; require sensory/HP source output, not wish setup only.",
+  "segments": [
+    {
+      "seed": 71340287,
+      "datetime": "20450117120948",
+      "nethackrc": "OPTIONS=name:V13GasHero,role:Ranger,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": " \u0017scroll of stinking cloud\nrg    ."
+    }
+  ]
+}

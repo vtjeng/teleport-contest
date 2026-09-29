@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only source-guided state correction: the base Human form has one AT_WEAP attack, so could_twoweap rejects it before GLIB handling. The corrected recipe first uses #polyself to enter ettin form, whose source monster definition has two AT_WEAP attacks; it then establishes the two one-handed weapon slots, grants GLIB, and invokes #twoweapon. Do not compare with JS until C reaches can_twoweapon’s GLIB arm and drop_uswapwep.",
+  "segments": [
+    {
+      "seed": 28170463,
+      "datetime": "20480413093100",
+      "nethackrc": "OPTIONS=name:DualGripEttinC47,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pushweapon\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nshort sword\n#wizwish\nmace\n#polyself\nettin\nw-\nwo\nwp\n#wizintrinsic\n1l\n #twoweapon\n"
+    }
+  ]
+}

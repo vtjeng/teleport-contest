@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v13 candidate for muse.c:find_offensive/use_offensive. The source debug command requires explicit y to force the unique Asmodeus; after confirmation allow the monster its in-range turn. Require source-generated wand use in C trace/output.",
+  "segments": [
+    {
+      "seed": 71340291,
+      "datetime": "20450121120948",
+      "nethackrc": "OPTIONS=name:V13Asmo,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\nhostile Asmodeus\ny. . ."
+    }
+  ]
+}
