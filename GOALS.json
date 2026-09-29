@@ -111382,16 +111382,20 @@
     {
       "id": "port-display-shieldeff-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port shield flash display for magic-resistant trap effects",
       "cFile": "display.c",
       "sessions": [
         "synthetic/v11/hero-teleport-trap-displaces-hero"
       ],
-      "selectionReason": "The complete investigation investigations/synthetic/v11/hero-teleport-trap-displaces-hero.json traces a magic-resistant Wizard stepping onto TELEP_TRAP: teleport.c tele_trap calls display.c shieldeff before its wrenching-sensation message, and JS refuses the helper. This shared display source helper also serves anti-magic and polymorph trap effects; wire its active callers without overlapping the domagictrap source function reserved by C43. Admitted v11 manifest SHA 7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347; saved evaluation challenges/evaluations/20260929013352-v11.json.",
+      "selectionReason": "Selected v11/hero-teleport-trap-displaces-hero Antimagic flash at step 24; implement complete display.c shieldeff and source-wire reachable existing callers. Keep unported caller families and monster reflection setup as explicit dependencies.",
       "detail": "",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "1620dad1074988564482eff8578f23da99da5d5a",
+      "openStanding": {
+        "sha": "1620dad1074988564482eff8578f23da99da5d5a",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -111420,7 +111424,159 @@
           "evaluationPath": "challenges/evaluations/20260929013352-v11.json",
           "evaluationCommit": "a149eb3605fe68acf848e20f8255850d22e83a3d"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "1620dad1074988564482eff8578f23da99da5d5a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-teleport-trap-displaces-hero",
+          "session": "synthetic/v11/hero-teleport-trap-displaces-hero",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+          "recordingPath": "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+          "recordingSha256": "5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7",
+          "recipe": "challenges/cases/v11/hero-teleport-trap-displaces-hero.recipe.session.json",
+          "recipeSha256": "75877d8e71ef50dcb66370df72397c34948b2ed908665e0ae7bef42b0d7bed9b",
+          "replayInputSha256": "0193a80a9551d8df290fd66e5d6b9b1373e1be3cb2b6ba414187c5676df93687",
+          "evaluationPath": "challenges/evaluations/20260929053037-v11.json",
+          "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe",
+          "evaluationArtifact": "challenges/evaluations/20260929053037-v11.json",
+          "evaluationUtc": "2026-09-29T05:30:47.306Z",
+          "remainingScreens": 2,
+          "recordedSteps": 26,
+          "previousScreensMatched": 24,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 24,
+              "total": 26
+            },
+            "rng": {
+              "matched": 2466,
+              "total": 2489
+            },
+            "cursors": {
+              "matched": 24,
+              "total": 26
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap",
+            "step": 24
+          },
+          "step": 24,
+          "kind": "stop",
+          "sourceFile": "display.c",
+          "function": "shieldeff",
+          "message": "unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap",
+          "cFile": "display.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/hero-teleport-trap-displaces-hero.json",
+            "result": {
+              "session": "synthetic/v11/hero-teleport-trap-displaces-hero",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "hero-teleport-trap-displaces-hero",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7",
+              "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+              "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "remainingScreens": 2,
+              "recordedSteps": 26,
+              "status": "complete",
+              "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "hero-teleport-trap-displaces-hero",
+                "session": "synthetic/v11/hero-teleport-trap-displaces-hero",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+                "recordingPath": "challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json",
+                "recordingSha256": "5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7",
+                "recipe": "challenges/cases/v11/hero-teleport-trap-displaces-hero.recipe.session.json",
+                "recipeSha256": "75877d8e71ef50dcb66370df72397c34948b2ed908665e0ae7bef42b0d7bed9b",
+                "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+                "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+                "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationUtc": "2026-09-28T23:47:35.564Z",
+                "remainingScreens": 2,
+                "recordedSteps": 26,
+                "previousScreensMatched": 24,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 24,
+                    "total": 26
+                  },
+                  "rng": {
+                    "matched": 2466,
+                    "total": 2489
+                  },
+                  "cursors": {
+                    "matched": 24,
+                    "total": 26
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap",
+                  "step": 24
+                },
+                "step": 24,
+                "kind": "stop",
+                "sourceFile": "display.c",
+                "function": "shieldeff",
+                "message": "unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap",
+                "cFile": "display.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The Wizard steps on a teleport trap while magic resistant. C teleport.c:tele_trap calls display.c:shieldeff, then reports a wrenching sensation without moving the hero. JavaScript preflight refuses this branch because shieldeff is unported. Port the complete display.c helper, then admit the existing teleport.c branch and preserve its guard and effect order.",
+              "source": {
+                "file": "display.c",
+                "branch": "teleport.c:tele_trap (1492-1535) takes Antimagic before displacement, calls display.c:shieldeff(u.ux,u.uy), and prints a wrenching sensation. display.c:shieldeff (1110-1123) checks flags.sparkle and cansee, displays SHIELD_COUNT source glyphs with flush/delay, then restores newsym.",
+                "functions": [
+                  "shieldeff",
+                  "tele_trap",
+                  "trapeffect_telep_trap"
+                ],
+                "callers": [
+                  "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_telep_trap(hero) -> teleport.c:tele_trap -> display.c:shieldeff when Antimagic; the JS path is refused by js/trap_effects.js:preflight_dotrap before game state changes.",
+                  "Other active C shieldeff callers are trap.c:trapeffect_fire_trap(monster), trap.c:trapeffect_anti_magic, trap.c:dofiretrap, and trap.c:chest_trap; wire the display helper to source paths as each is ported."
+                ],
+                "dependencies": [
+                  "Use source SHIELD_COUNT/shield_static glyph sequence, show_glyph, flush_screen(1), nh_delay_output, newsym, flags.sparkle, and cansee in the same order; this impure helper needs complete recorded-play evidence.",
+                  "js/teleport.js:tele_trap already has the Antimagic and recursive-entry guard but throws in the shieldeff branch; js/trap_effects.js preflight rejects this case before teleport dispatch. Remove the refusal only when the complete effect can run.",
+                  "The v11 recording name describes a hoped-for displacement, but this Wizard is magic resistant and the C source outcome is a wrenching sensation; preserve C behavior rather than the case label."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 has 2 unmatched screens and stops at zero-based step 24 with 'unsupported hero move: shieldeff() for a magic-resistant hero on a teleport trap'. The C recording challenges/cases/v11/hero-teleport-trap-displaces-hero.session.json has SHA-256 5d1e3a409ffee9a4f5ed5b2dbdac37221233b049b4508031f1dd42c7b5103bd7.",
+                "Upstream teleport.c:1492-1535 and display.c:1110-1123 establish the Antimagic effect and animation; trap.c:2070-2087 supplies the hero caller. js/trap_effects.js:3585-3592 and js/teleport.js:1763-1776 show the matching refusal boundaries."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-trap-trapeffect-rocktrap-synthetic-v11-20260929",
