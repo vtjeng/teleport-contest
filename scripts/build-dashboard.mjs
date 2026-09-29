@@ -8,6 +8,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+// The history and per-case challenge data can exceed execSync's 1 MiB default.
+const DASHBOARD_DATA_MAX_BYTES = 64 * 1024 * 1024;
 
 // JSON is placed inside a classic script element. Escape characters that can
 // be interpreted as markup or JavaScript line terminators at that boundary.
@@ -30,7 +32,7 @@ export function injectDashboardData(template, data, queueData) {
 
 function main() {
   const data = execSync('node scripts/dashboard-data.mjs', {
-    encoding: 'utf8', maxBuffer: 10 * 1024 * 1024,
+    encoding: 'utf8', maxBuffer: DASHBOARD_DATA_MAX_BYTES,
   });
 
   // Fixed regressions and synthetic diagnostics share the work queue. Synthetic
@@ -38,7 +40,7 @@ function main() {
   let queueData = 'null';
   try {
     queueData = execSync('node scripts/mismatch-queue.mjs --work --json', {
-      encoding: 'utf8', timeout: 600000, maxBuffer: 10 * 1024 * 1024,
+      encoding: 'utf8', timeout: 600000, maxBuffer: DASHBOARD_DATA_MAX_BYTES,
     });
   } catch {
     console.error('Warning: mismatch queue unavailable; completion is unknown');
