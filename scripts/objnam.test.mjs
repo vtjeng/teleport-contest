@@ -69,6 +69,7 @@ import {
     distant_name,
     doname_with_price,
     isPoisonable,
+    killer_xname,
     just_an,
     obj_typename,
     simpleonames,
@@ -2347,6 +2348,52 @@ test('aobjnam names the object and agrees the verb with it', () => {
     assert.equal(cxname(corpse, state), 'newt corpse');
     corpse.quan = 2;
     assert.equal(cxname(corpse, state), 'newt corpses');
+});
+
+// objnam.c killer_xname() (1942-2005). Death text temporarily exposes the
+// object's identifying name while suppressing incidental properties, then
+// restores both the object and its object-type discovery fields.
+test('killer_xname formats source special cases and restores temporary ID', () => {
+    const state = namingState();
+    const rationType = state.objects[FOOD_RATION];
+    rationType.oc_name_known = 0;
+    rationType.oc_uname = 'traveler food';
+    const ration = objectOf(state, FOOD_RATION, {
+        known: false,
+        dknown: false,
+        bknown: true,
+        rknown: true,
+        greased: true,
+        blessed: true,
+        cursed: false,
+        opoisoned: true,
+        oextra: { oname: 'emergency meal', timed: 9 },
+    });
+    const rationBefore = structuredClone(ration);
+    assert.equal(killer_xname(ration, state), 'a food ration');
+    assert.deepEqual(ration, rationBefore);
+    assert.equal(rationType.oc_name_known, 0);
+    assert.equal(rationType.oc_uname, 'traveler food');
+
+    // Water is the exception to clearing BUC: bknown is turned on so holy
+    // water stays distinguishable in the tombstone reason.
+    const holyWater = objectOf(state, POT_WATER, {
+        known: false, dknown: false, bknown: false, blessed: true,
+    });
+    assert.equal(killer_xname(holyWater, state), 'a potion of holy water');
+
+    // C uses corpse_xname() and a dedicated slime-mold name instead of xname.
+    const corpse = objectOf(state, CORPSE, { corpsenm: PM_NEWT });
+    assert.equal(killer_xname(corpse, state), 'a newt corpse');
+    const slime = objectOf(state, SLIME_MOLD, { quan: 2 });
+    assert.equal(killer_xname(slime, state), 'deadly slime molds');
+
+    // Artifacts bypass temporary object identification entirely.
+    const excalibur = objectOf(state, LONG_SWORD, {
+        oartifact: ART_EXCALIBUR,
+        oextra: { oname: 'Excalibur' },
+    });
+    assert.equal(killer_xname(excalibur, state), 'Excalibur');
 });
 
 // objnam.c yobjnam() (2262-2276) and Yobjnam2() (2280-2285). pleased()

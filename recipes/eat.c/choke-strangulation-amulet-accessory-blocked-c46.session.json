@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C46 entry-point probe for eat.c:choke through eataccessory(). A fresh Wizard changes action order by becoming a Xorn before wishing and eating a strangulation amulet. C reaches eataccessory(eat.c:2280) at step 45 and takes rn2(5)=1, returning before choke(); the separate wish-then-polymorph probe took rn2(5)=4 at the same gate. Preserve these as bounded selector-gate evidence, not matching recordings of choke().",
+  "segments": [
+    {
+      "seed": 46092825,
+      "datetime": "20411003114300",
+      "nethackrc": "OPTIONS=name:StoneThroat,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": ".#polyself\nxorn\n\u0017amulet of strangulation\n.mep"
+    }
+  ]
+}

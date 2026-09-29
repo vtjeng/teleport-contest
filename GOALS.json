@@ -113300,7 +113300,7 @@
     {
       "id": "port-eat-choke-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "parked",
       "summary": "Port complete eat.c choke and every eating caller continuation",
       "cFile": "eat.c",
       "sessions": [
@@ -113308,8 +113308,12 @@
       ],
       "selectionReason": "Current v12 Tourist ration case matches seven screens then first diverges at step 7 when C enters eat.c:choke; investigations/synthetic/v12/tourist-rations-reach-satiated-choke.json traces the source, and challenges/evaluations/20260929060025-v12.json preserves the 7/19 screens and 4415/4416 RNG baseline.",
       "detail": "Port whole eat.c:choke (245-287) and wire direct callers eataccessory, bite, and both overfull lesshungry arms. Preserve bite return 1 and its consumed eatfood/start_eating continuations. Match exercise/adjalign, rn2, foodword, done(CHOKING), messages and state in source order; vomit is a separate discarded-void callee gap if not ported.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "cf7fde20c323f1ec652ea962df49b4ea6fe1c036",
+      "openStanding": {
+        "sha": "afef1b4502cba283f93a95c53757b2184efa38c9",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -113317,8 +113321,8 @@
           "name": "choke",
           "line": 245,
           "endLine": 291,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -113338,7 +113342,265 @@
           "evaluationPath": "challenges/evaluations/20260929060025-v12.json",
           "evaluationCommit": "327800a84ddedb020167a65bd3683401f516fea3"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "afef1b4502cba283f93a95c53757b2184efa38c9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v12",
+          "caseId": "tourist-rations-reach-satiated-choke",
+          "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+          "manifestPath": "challenges/manifests/v12.json",
+          "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+          "recording": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+          "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+          "recipe": "challenges/cases/v12/tourist-rations-reach-satiated-choke.recipe.session.json",
+          "recipeSha256": "8e13f8173888d47f6181e3e874c434292c94a446fbe1d7de6dc99822ff9a886c",
+          "replayInputSha256": "26e194a8e9c34460ab16ca1086e4b4cd74f1de0c20de48727cb6b09cd5c498cc",
+          "evaluationPath": "challenges/evaluations/20260929074021-v12.json",
+          "evaluationCommit": "afef1b4502cba283f93a95c53757b2184efa38c9",
+          "evaluationArtifact": "challenges/evaluations/20260929074021-v12.json",
+          "evaluationUtc": "2026-09-29T07:40:35.151Z",
+          "remainingScreens": 12,
+          "recordedSteps": 19,
+          "previousScreensMatched": 7,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 7,
+              "total": 19
+            },
+            "rng": {
+              "matched": 4415,
+              "total": 4416
+            },
+            "cursors": {
+              "matched": 7,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "an occupation reached eating requires choke()",
+            "step": 7
+          },
+          "step": 7,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "choke",
+          "message": "an occupation reached eating requires choke()",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v12/tourist-rations-reach-satiated-choke.json",
+            "result": {
+              "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+              "corpus": "synthetic",
+              "batch": "v12",
+              "caseId": "tourist-rations-reach-satiated-choke",
+              "manifestPath": "challenges/manifests/v12.json",
+              "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+              "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+              "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+              "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe",
+              "remainingScreens": 12,
+              "recordedSteps": 19,
+              "status": "complete",
+              "commit": "5bec5e6fc6c44e54506108fd983dada3f5f1ef00",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "session": "synthetic/v12/tourist-rations-reach-satiated-choke",
+                "manifestPath": "challenges/manifests/v12.json",
+                "manifestSha256": "b79b0b2acc26b740395c7780683c5f29dcca989fee9937cc95a77b45ce8c6fef",
+                "recording": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+                "recordingPath": "challenges/cases/v12/tourist-rations-reach-satiated-choke.session.json",
+                "recordingSha256": "dd3fd5e746f2a522b67c84d8a2af45e7aab6a9516c0a30afb59add338591a85e",
+                "recipe": "challenges/cases/v12/tourist-rations-reach-satiated-choke.recipe.session.json",
+                "evaluationPath": "challenges/evaluations/20260929053037-v12.json",
+                "evaluationCommit": "9c273f47f2c3033b4383f4c0f64eed6faae179fe",
+                "evaluationUtc": "2026-09-29T05:30:52.340Z",
+                "remainingScreens": 12,
+                "recordedSteps": 19,
+                "previousScreensMatched": 7,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 7,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 4415,
+                    "total": 4416
+                  },
+                  "cursors": {
+                    "matched": 7,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "rng",
+                  "message": "At segment 0, step 7 (`y`), C next calls rn2(2)=1 from exercise(attrib.c:509); JavaScript next calls rn2(5)=1 from distfleeck(monmove.c:538). C then calls rn2(20)=12 in choke(eat.c:258) and prints “You choke over your food.”",
+                  "step": 7,
+                  "sourceFile": "eat.c",
+                  "function": "choke",
+                  "line": 258,
+                  "cFile": "eat.c",
+                  "cFunction": "choke",
+                  "luaFile": null
+                },
+                "recipeSha256": "8e13f8173888d47f6181e3e874c434292c94a446fbe1d7de6dc99822ff9a886c",
+                "replayInputSha256": "5681abec385ff2130eae3bab84ed1952210f3922671eb2522f5adc8d1a08ab18"
+              },
+              "summary": "C45 removed the earlier continued-eating prompt mismatch: the v12 case now matches through the `Continue eating?` screen and the answer `y`. On the next bite, eat.c:lesshungry crosses 2000 nutrition while `victual.canchoke` is true and calls eat.c:choke with the meal. C first calls exercise(A_CON,FALSE), producing rn2(2)=1 @ exercise(attrib.c:509), then rn2(20)=12 @ choke(eat.c:258) selects the fatal branch and `done(CHOKING)`; JS instead continues into monster movement and has no screen at step 7. Port the whole choke helper and wire its active meal, tin, and strangulation-amulet caller, preserving bite()’s nonzero return when choking is survived.",
+              "source": {
+                "file": "eat.c",
+                "branch": "choke(struct obj *food), complete body at eat.c:245-287.",
+                "functions": [
+                  "choke"
+                ],
+                "callers": [
+                  "eat.c:eataccessory (2265-2404), AMULET_OF_STRANGULATION case calls choke(otmp) at line 2387; result discarded.",
+                  "eat.c:bite (3133-3161), canchoke && u.uhunger >= 2000 calls choke(victual.piece), then returns 1; eatfood (517-541) and start_eating (2021-2074) consume that return.",
+                  "eat.c:lesshungry (3289-3334), active meal overfull arm calls choke(victual.piece), then reset_eat(); result discarded.",
+                  "eat.c:lesshungry (3289-3334), opentin overfull arm calls choke(tin), with no reset_eat(); result discarded."
+                ],
+                "dependencies": [
+                  "attrib.c:exercise(A_CON,FALSE) is already implemented in js/attrib.js; choke discards its return, while its RNG and possible encumber_msg side effect must remain ordered.",
+                  "Role_if(PM_KNIGHT), u.ualign.type, adjalign(-1), You_feel, You, Hunger, Breathless, and Strangled are source state/format predicates. Hunger checks intrinsic or extrinsic HUNGER; Breathless checks magical breathing or current-form breathlessness; Strangled is exactly the intrinsic STRANGLED value. The corresponding state/message helpers are present in js/eat.js and js/attrib.js.",
+                  "eat.c:morehungry is already implemented in js/eat.js; it calls newuhs after lowering u.uhunger.",
+                  "eat.c:vomit is a separate partial helper in js/eat.js. choke discards its result; for unsupported vomit branches preserve an exact note_unported gap rather than simulating effects.",
+                  "eat.c:foodword is already implemented in js/eat.js; objnam.c:killer_xname is already implemented for ordinary non-artifact, non-corpse food and its string is consumed to populate svk.killer.name.",
+                  "end.c:done(CHOKING) is already implemented in js/end.js; its return value is not consumed by choke. Preserve its awaited life-saving/game-over behavior."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current post-C45 evaluation challenges/evaluations/20260929053037-v12.json (source commit 9c273f47f2c3033b4383f4c0f64eed6faae179fe, 2026-09-29T05:30:52.340Z) reports 7/19 screens, 4415/4416 RNG values, and 7/19 cursors; no error is recorded.",
+                "The C recording uses seed 58016493, date/time 2047-12-15 12:25:17, Tourist, and moves `eb eb y.......... `. At zero-based step 5 it emits the nearly-full warning; step 6 is the continued-eating prompt; step 7 input `y` starts the overfull bite. C RNG at that step includes rn2(2)=1 @ exercise(attrib.c:509), then rn2(20)=12 @ choke(eat.c:258); the screen is `You choke over your food.--More--`.",
+                "JS-only replay against the committed C recording has 4428 RNG entries versus C 4416 and 7/19 screens. Its first RNG mismatch is index 4414 at segment 0, step 7, key `y`: C entry `rn2(2)=1`, caller exercise(attrib.c:509); JS entry `rn2(5)=1`, caller distfleeck(monmove.c:538). JS has no screen at that step.",
+                "The previous evaluation 20260929033350-v12.json stopped at step 5 in lesshungry because the continued-eating paranoid_query branch was unsupported. C45 implemented that branch; the latest evaluation advances two screens and exposes the later choke call. Treat the old lesshungry mismatch as resolved, not the current first cause.",
+                "Current JS gap sites are js/eat.js:1928 (`lesshungry` calls note_unported for choke), js/eat.js:1973 (`bite` throws UnsupportedEatError for choke), and js/eat.js:3641 (`eataccessory` calls note_unported for choke). Wire all these direct sites; bite must return nonzero after choke so eatfood/start_eating take C’s survived-choking continuation."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "choke",
+            "implementation": "js/eat.js",
+            "symbol": "choke",
+            "sourceReview": "Read all of eat.c:choke (245-291) and compared the branches, state changes, and evaluation order. The initial non-satiated return admits only an amulet of strangulation; the Knight/lawful penalty runs before exercise(A_CON,FALSE), then Breathless, Hunger, and the conditional rn2(20) are checked in C order. The nonfatal amulet path returns after its recovery message. Other safe chokes call morehungry with u.uhunger-60 under Hunger or 1000 otherwise, then record the discarded void vomit() call as note_unported('eat.c vomit'). The fatal path sets killer format/name, calls done(CHOKING), and does not return to the C caller. JS preserves that continuation for bite/start_eating and lesshungry. The consumed objnam.c:killer_xname dependency is fully source-ported in js/objnam.js, including artifact bypass, corpse and slime-mold forms, holy-water BUC handling, temporary object/type identification, and restoration; scripts/objnam.test.mjs pins those source branches. No RNG, output, or state-changing C callee is silently replaced.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "lesshungry",
+                "source": "eat.c:lesshungry:3299-3303 calls choke with the active meal piece, or with the open tin/null in its non-meal branch."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "bite",
+                "source": "eat.c:bite:3139 calls choke before nutrition when canchoke is set and hunger is already at least 2000; its survived result is consumed by start_eating/eatfood."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eataccessory",
+                "source": "eat.c:eataccessory:2387 calls choke for AMULET_OF_STRANGULATION after its rn2(5) effect selector chooses the effect arm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/eat-occupation.test.mjs",
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/eat.c/choke-archeologist-start-bite-c46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 7,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry -> choke"
+              }
+            ],
+            "checkedAt": "e46682624a2ecd3200df8975e3c64e1ac4cfc492"
+          }
+        ],
+        "entryPointReview": "The matching meal entry is ordinary doeat/start_eating nutrition: the independent Archeologist recipe reaches choke through bite's lesshungry call when the satiated meal crosses the overfull threshold, and the admitted v12 Tourist case reaches the same eat.c:choke draw at segment 0 step 7. start_eating now consumes bite's survived-choke return and stops if done(CHOKING) reaches game over. Three active caller paths remain without matching runtime evidence and are deliberately unverified: (1) bite's direct precheck when canchoke is true and u.uhunger is already >=2000 at bite entry; the two matching meal traces enter choke later through lesshungry instead. (2) lesshungry's non-meal overfull arm, including go.occupation == opentin passing svc.context.tin.tin; the existing recipes/eat.c/lesshungry-cpostfx-polymorph-tin-blocked-c45.session.json documents a separate polymorphing-tin nutrition route, but its replay diverges in polyself and is not choke evidence. (3) eataccessory's strangulation-amulet effect arm. The committed recipes/eat.c/choke-strangulation-amulet-accessory-blocked-c46.session.json reaches eataccessory at eat.c:2280 but the selector rn2(5) returns 4 and 1 on its two bounded variations, both before choke; no mismatching output was added to recordings/. Keep the source function verified through the matching meal route, but keep the goal parked until these active caller paths have matching evidence.",
+        "entryPoints": [
+          {
+            "name": "satiated meal crosses the overfull threshold through lesshungry",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [
+              "recordings/eat.c/choke-archeologist-start-bite-c46.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "tourist-rations-reach-satiated-choke",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 7,
+                "source": "eat.c:doeat -> start_eating -> bite -> lesshungry -> choke"
+              }
+            ]
+          },
+          {
+            "name": "bite direct precheck when already overfull",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "non-meal or opentin overfull nutrition through lesshungry",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [],
+            "synthetic": []
+          },
+          {
+            "name": "eat a strangulation amulet through eataccessory",
+            "functions": [
+              "choke"
+            ],
+            "recordings": [],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e46682624a2ecd3200df8975e3c64e1ac4cfc492",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "choke meal lesshungry path and killer naming now match; direct bite precheck, opentin/non-meal lesshungry, and strangulation-amulet eataccessory callers lack matching C runtime evidence; amulet effect blocked at rn2(5), tin setup at polyself"
     },
     {
       "id": "port-lock-picklock-trapped-chest-synthetic-v12-20260929",
@@ -113643,6 +113905,49 @@
         "rng": 792838
       },
       "parkedReason": "picklock source implementation and trapped-box apply/#loot entries match; Master Key disarm, trapped-door destruction, and door-autounlock runtime paths lack matching recordings; b_trapped and add_damage remain named void gaps"
+    },
+    {
+      "id": "port-trap-trapeffect-poly-trap-synthetic-v11-20260929",
+      "kind": "file-port",
+      "status": "queued",
+      "summary": "Port full trap.c polymorph-trap effect and hero activation",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v11/hero-polymorph-trap-transforms-form"
+      ],
+      "selectionReason": "Current v11 hero polymorph-trap case stops at the preflight refusal at step 20; C enters trap.c:trapeffect_poly_trap and polyself. The accepted A45 shieldeff caller removes the earlier dependency.",
+      "detail": "Port every hero and monster branch of trap.c:trapeffect_poly_trap (2453-2525) in source order, including iron shoes, Antimagic and Unchanging, ordinary steedintrap and polyself, monster resistance and newcham. Admit POLY_TRAP through hero preflight and wire dotrap/mintrap production dispatch. Preserve consumed mpickobj, poly_obj, and resist results, plus source-named discarded-void gaps; provide independent C-reaching recordings for active paths without copying v11 inputs.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "trapeffect_poly_trap",
+          "line": 2453,
+          "endLine": 2527,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2453,
+        "to": 2527
+      },
+      "syntheticProvenance": {
+        "synthetic/v11/hero-polymorph-trap-transforms-form": {
+          "session": "synthetic/v11/hero-polymorph-trap-transforms-form",
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-polymorph-trap-transforms-form",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recordingPath": "challenges/cases/v11/hero-polymorph-trap-transforms-form.session.json",
+          "recordingSha256": "a489a6cbf5d30018d1f82dc6f48b2c3579fd99d2541b656d0781237bb76f934a",
+          "evaluationPath": "challenges/evaluations/20260929075918-v11.json",
+          "evaluationCommit": "e46682624a2ecd3200df8975e3c64e1ac4cfc492"
+        }
+      }
     }
   ]
 }
