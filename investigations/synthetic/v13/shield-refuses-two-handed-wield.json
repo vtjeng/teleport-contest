@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v13.json",
   "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
   "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
-  "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
-  "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
-  "remainingScreens": 1,
+  "evaluationPath": "challenges/evaluations/20260929220352-v13.json",
+  "evaluationCommit": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+  "remainingScreens": 0,
   "recordedSteps": 50,
   "status": "complete",
-  "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+  "commit": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v13",
@@ -63,7 +63,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "A shielded hero selects a two-handed sword through wield.c:ready_weapon. JavaScript reaches the correct branch but throws instead of printing the C refusal and returning ECMD_FAIL. The branch must classify swords, battle axes, and other two-handed weapons by source predicates without changing equipment or consuming a turn.",
+  "summary": "The shielded two-handed refusal now follows wield.c:ready_weapon: it prints the source noun, returns ECMD_FAIL, and preserves equipment. The admitted case fully matches all 50 screens/cursors and 2793 RNG calls. This fixes the refusal branch; other ready_weapon branches remain incomplete.",
   "source": {
     "file": "wield.c",
     "branch": "When ready_weapon receives non-null wep, does not take the corpse arm, and uarms is set while bimanual(wep) is true, C prints the type-specific two-handed refusal, sets res=ECMD_FAIL, skips retouch and setuwep, then reaches the common status condition and returns res. The selected C case is a shielded hero selecting a two-handed sword.",
@@ -72,7 +72,8 @@
     ],
     "callers": [
       "wield.c:dowield calls ready_weapon(wep) and returns its consumed ECMD result; js/wield.js:dowield calls ready_weapon with the chosen inventory object.",
-      "wield.c:doswapweapon also calls ready_weapon(oldswap), so the same source branch must behave correctly for a two-handed swap target under a shield."
+      "wield.c:doswapweapon also calls ready_weapon(oldswap), so the same source branch must behave correctly for a two-handed swap target under a shield.",
+      "wield.c:wield_tool has its own earlier uarms && bimanual(obj) guard, so it cannot reach this ready_weapon refusal branch."
     ],
     "dependencies": [
       "bimanual(wep) and is_sword(wep) are source predicates with existing JavaScript implementations; BATTLE_AXE selects the alternate noun, and all other bimanual weapons use the generic noun.",
@@ -81,9 +82,10 @@
   },
   "goalKind": "divergence-fix",
   "evidence": [
-    "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 49/50 screens and cursors, 2793/2793 RNG calls, and first stop at zero-based segment 0 step 49: “wield.c reached a two-handed weapon under a shield.” The immutable recording is challenges/cases/v13/shield-refuses-two-handed-wield.session.json, SHA256 c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6.",
-    "The C recording step 49 follows the wield selection key p and displays “You cannot wield a two-handed sword while wearing a shield.” It records no RNG for that step. The prior step is the wield inventory prompt; the shield and sword were established by the independent recipe.",
-    "Upstream nethack-c/upstream/src/wield.c:169-273 defines ready_weapon. Lines 186-190 test uarms && bimanual(wep), select sword/axe/weapon wording using is_sword and BATTLE_AXE, set ECMD_FAIL, and bypass retouch/setuwep. Lines 268-273 retain the common status condition and return. Lines 451 and 483 are the dowield and doswapweapon callers.",
-    "JavaScript js/wield.js:ready_weapon around lines 548-568 reaches the same uarms/bimanual branch but throws UnsupportedWieldError. js/obj.js exports is_sword, js/objects.js exports BATTLE_AXE, and js/wield.js already uses ECMD_FAIL in adjacent wield command branches. Replace the refusal with the full source branch rather than a sword-only literal."
+    "The preserved original mismatch was a stop at segment 0, zero-based step 49 with 49/50 screens/cursors and 2793/2793 RNG calls. Its original queue entry remains in mismatch as provenance.",
+    "At 06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0, challenges/evaluations/20260929220352-v13.json reports this case fully passing: 50/50 screens and cursors, 2793/2793 RNG calls. A fresh-process replay at the same candidate in .cache/B59-replay.log confirms these totals and zero animation frames.",
+    "Upstream wield.c:ready_weapon (169–273), specifically 186–192, chooses sword/axe/weapon wording under uarms && bimanual(wep), sets ECMD_FAIL, and skips retouch_object and setuwep before the common status tail. js/wield.js implements the same branch with existing source predicates and no RNG.",
+    "The admitted v13 recording reaches ready_weapon through dowield at step 49. scripts/ready-weapon.test.mjs pins sword, battle-axe and generic wording, unchanged equipment, and doswapweapon restoration of the secondary slot after refusal; all 244 affected tests pass at the combined candidate.",
+    "This task does not establish whole ready_weapon completion. Corpse petrification, cursed weapon welding, artifact-light startup, and unpaid merchandise still contain refusals. recipes/wield.c/ready-weapon-cursed-weld-blocked-b59.session.json preserves an independent input for the will_weld branch without claiming a passing recording."
   ]
 }

@@ -118697,7 +118697,7 @@
     {
       "id": "fix-wield-ready-weapon-shielded-bimanual-refusal-synthetic-v13-20260929",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Return the shielded two-handed wield refusal",
       "cFile": "wield.c",
       "sessions": [],
@@ -118709,8 +118709,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "ready_weapon",
       "session": "synthetic/v13/shield-refuses-two-handed-wield",
       "step": 49,
@@ -118878,7 +118881,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
