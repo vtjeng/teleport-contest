@@ -115582,7 +115582,7 @@
     {
       "id": "port-dokick-container-impact-dmg-synthetic-v12-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port container impact damage for dropped, thrown, and kicked contents",
       "cFile": "dokick.c",
       "sessions": [
@@ -115596,15 +115596,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "container_impact_dmg",
           "line": 412,
           "endLine": 488,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -115800,7 +115803,56 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "container_impact_dmg",
+            "implementation": "js/dokick.js",
+            "symbol": "container_impact_dmg",
+            "sourceReview": "Compared all of dokick.c:container_impact_dmg (412-488), preserving the container/contents/magic-bag guard, shop/insider/from-inventory state, saved next-child pointer, glass non-gem obj_resists(33,100) before egg rn2(3), luck changes, muffled You_hear message, stolen_value return accumulation, stack use or extraction/free, cknown clearing, final weight recomputation, and post-loop damage/owe messages. The helper calls obj_resists and awaits the return-valued shk.c:stolen_value; skipped void sounds.c:Soundeffect and shk.c:make_angry_shk remain named gaps. The production dropz and throwit callers pass the pre-impact hero coordinates and preserve C order. dokick.c:really_kick_object is a separate, currently refused caller family and is not claimed as wired here.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dropzAdmitted",
+                "source": "do.c:dropz calls container_impact_dmg after place_object and before impact_disturbs_zombies, ball handling, sale and stackobj"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit calls container_impact_dmg after hard-surface place_object and before impact_disturbs_zombies"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dokick-shipping.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dokick.c/container-impact-drop-independent-a49.session.json",
+              "recordings/dokick.c/container-impact-throw-independent-a49.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v12",
+                "caseId": "levitating-sack-impact-keeps-content",
+                "segment": 0,
+                "fromStep": 86,
+                "throughStep": 86,
+                "source": "do.c:drop -> dropx -> dropz(with_impact) -> dokick.c:container_impact_dmg -> zap.c:obj_resists"
+              }
+            ],
+            "checkedAt": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f"
+          }
+        ],
+        "entryPointReview": "This helper-only source range has an empty entryPoints array; production callers and their evidence are described here. The selected v12 case’s step 86 reaches do.c:dropz(with_impact) and exercises the glass-child obj_resists call. The independent drop recording reaches dropz(with_impact) at zero-based step 84, and the independent throw recording reaches dothrow.c:throwit’s hard-surface impact at step 52; both strictly match C and JS. Kicking calls the helper only from dokick.c:really_kick_object (dokick.c:655); js/dokick.js still refuses the entire object-pile arm because kick_object/really_kick_object are unported. This A49 task does not claim that caller, which remains a separate source task. The helper skips the void sounds.c:Soundeffect and shk.c:make_angry_shk calls with named note_unported markers.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
