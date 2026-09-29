@@ -32,6 +32,7 @@ import {
     CONFUSION,
     DART_TRAP,
     DEAF,
+    DRAIN_RES,
     DISP_END,
     DISP_FLASH,
     D_CLOSED,
@@ -72,6 +73,7 @@ import {
     MAGIC_TRAP,
     INVIS,
     NOWEBMSG,
+    M_SEEN_FIRE,
     PIT,
     PASSES_WALLS,
     POLY_TRAP,
@@ -82,6 +84,7 @@ import {
     ROLL,
     ROLLING_BOULDER_TRAP,
     RUST_TRAP,
+    SLIMED,
     SLEEP_RES,
     SEE_INVIS,
     M_SEEN_SLEEP,
@@ -129,7 +132,9 @@ import {
 } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { placebc, unplacebc } from './ball.js';
-import { acurr, exercise, poisoned } from './attrib.js';
+import {
+    acurr, exercise, minuhpmax, poisoned, setuhpmax,
+} from './attrib.js';
 import { map_trap, newsym, obj_to_glyph, tmp_at } from './display.js';
 import { flooreffects, set_wounded_legs } from './do.js';
 import { del_engr_at } from './engrave.js';
@@ -147,6 +152,7 @@ import {
     x_monnam,
 } from './do_name.js';
 import { game } from './gstate.js';
+import { losexp } from './exper.js';
 import { youHear as plineYouHear } from './pline.js';
 import { setmangry } from './mon.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
@@ -306,6 +312,7 @@ import {
     just_an,
     otense,
     suit_simple_name,
+    the,
     Yname2,
     yname,
     xnameFresh,
@@ -333,16 +340,17 @@ import {
     set_utrap,
     t_at,
     trapname,
+    is_pool,
 } from './trap.js';
 import { mlevel_tele_trap, mtele_trap, tele_trap } from './teleport.js';
-import { poly_obj, resist } from './zap.js';
+import { Fire_resistance, poly_obj, resist } from './zap.js';
 import { Punished } from './steed.js';
 import { ttyPline } from './tty_message.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { is_ice } from './terrain.js';
-import { end_burn, fall_asleep } from './timeout.js';
+import { burn_away_slime, end_burn, fall_asleep } from './timeout.js';
 import { self_invis_message, split_mon } from './potion.js';
 import { note_unported } from './unported.js';
 import { dmgval } from './weapon.js';
@@ -1587,7 +1595,7 @@ function Hallucination(state) {
 //     make_blinded, incr_itimeout, Soundeffect, makemon, wake_nearto).
 //   fate 10: no-op.
 //   fate 11: toggle HInvis, including self_invis_message() and redraw.
-//   fate 12: dofiretrap() -- refused (not ported).
+//   fate 12: dofiretrap() -- the hero-only tower-of-flame effect.
 //   fate 13-18: odd-feelings messages, fully ported.
 //   fate 19: tame nearby monsters -- refused (needs adjattrib, tamedog).
 //   fate 20: uncurse items through read.c:seffects(SPE_REMOVE_CURSE).
@@ -1667,9 +1675,8 @@ async function domagictrap(env) {
             );
             break;
         case 12: /* a flash of fire */
-            // Needs dofiretrap(), which is not ported.
-            unsupported('magic trap fire');
-            break; // unreachable
+            await dofiretrap(null, env);
+            break;
         /* odd feelings */
         case 13:
             await message(
@@ -1903,20 +1910,143 @@ async function trapeffect_magic_portal(mtmp, trap, trflags, env) {
     return trapeffect_level_telep(mtmp, trap, trflags, env);
 }
 
-// C ref: trap.c trapeffect_fire_trap() (1729-1821), monster arm
-// (1738-1819). The hero arm still stops at dofiretrap(), because dotrap()'s
-// preflight rejects FIRE_TRAP. The monster arm is live through mintrap() and
-// is also the return-valued callee of trapeffect_magic_trap().
+// C ref: trap.c dofiretrap() (4233-4314). The object argument is null for a
+// floor fire trap and non-null for a trapped chest. Keep its damage, max-HP,
+// armor, inventory, floor-object and ice effects in C order.
+export async function dofiretrap(box, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const message = rawEnv.message ?? ttyPline;
+    const env = { ...rawEnv, state, random, message };
+    const u = state.u;
+    const seeIt = !heroIsBlind(state);
+    const origDmg = random.d(2, 4);
+    let num = origDmg;
+    const towerOfFlame = 'tower of flame'; // trap.c:79 static const.
+    const boxOnFloor = Boolean(box && !carried(box));
+    const x = box ? box.ox : u.ux;
+    const y = box ? box.oy : u.uy;
+
+    if ((boxOnFloor && is_pool(box.ox, box.oy, state))
+        || (!boxOnFloor && u.uinwater)) {
+        const source = box ? xnameFresh(box, state) : surface(u.ux, u.uy, state);
+        await message(
+            `A cascade of steamy bubbles erupts from ${the(source, state)}!`,
+            state,
+            env,
+        );
+        if (Fire_resistance(state)) {
+            await message('You are uninjured.', state, env);
+        } else {
+            await losehp(random.rnd(3), 'boiling water', KILLED_BY, state, env);
+        }
+        return;
+    }
+
+    const source = box ? xnameFresh(box, state) : surface(u.ux, u.uy, state);
+    await message(
+        `A ${towerOfFlame} ${box ? 'bursts' : 'erupts'} from ${the(source, state)}!`,
+        state,
+        env,
+    );
+
+    if (Fire_resistance(state)) {
+        // display.c:shieldeff() is void and changes presentation only. Keep
+        // its source position before monstseesu() and the half-damage roll.
+        note_unported('display.c shieldeff');
+        monstseesu(M_SEEN_FIRE, state);
+        num = random.rn2(2);
+    } else if (Upolyd(u)) {
+        let alt = 0;
+        switch (u.umonnum) {
+        case PM_PAPER_GOLEM:
+            alt = u.mhmax;
+            break;
+        case PM_STRAW_GOLEM:
+            alt = Math.trunc(u.mhmax / 2);
+            break;
+        case PM_WOOD_GOLEM:
+            alt = Math.trunc(u.mhmax / 4);
+            break;
+        case PM_LEATHER_GOLEM:
+            alt = Math.trunc(u.mhmax / 8);
+            break;
+        default:
+            break;
+        }
+        if (alt > num) num = alt;
+        if (u.mhmax > state.mons[u.umonnum].mlevel) {
+            u.mhmax -= random.rn2(Math.min(u.mhmax, num + 1));
+            state.disp.botl = true;
+        }
+        if (u.mh > u.mhmax) {
+            u.mh = u.mhmax;
+            state.disp.botl = true;
+        }
+        monstunseesu(M_SEEN_FIRE, state);
+    } else {
+        const uhpmin = minuhpmax(1, state);
+        const oldUhpmax = u.uhpmax;
+
+        num = random.d(2, 4);
+        if (u.uhpmax > uhpmin) {
+            u.uhpmax -= random.rn2(Math.min(u.uhpmax, num + 1));
+            state.disp.botl = true;
+        }
+        if (u.uhpmax < uhpmin) {
+            setuhpmax(Math.min(oldUhpmax, uhpmin), false, state);
+            const drainResistance = u.uprops?.[DRAIN_RES];
+            if (!drainResistance?.intrinsic && !drainResistance?.extrinsic)
+                await losexp(null, state, env);
+        }
+        if (u.uhp > u.uhpmax) {
+            u.uhp = u.uhpmax;
+            state.disp.botl = true;
+        }
+        monstunseesu(M_SEEN_FIRE, state);
+    }
+
+    if (!num)
+        await message('You are uninjured.', state, env);
+    else
+        await losehp(num, towerOfFlame, KILLED_BY_AN, state, env);
+
+    // timeout.c:burn_away_slime() is a void helper. Its ordinary path is a
+    // no-op; the active make_slimed() branch remains a named source gap.
+    if (u.uprops?.[SLIMED]?.intrinsic)
+        note_unported('timeout.c burn_away_slime');
+    else
+        burn_away_slime(state);
+
+    if (await burnarmor(state.youmonst, env)
+        || random.rn2(3)) {
+        await destroy_items(state.youmonst, AD_FIRE, origDmg, env);
+        await ignite_items(state.invent, env);
+    }
+    if (!box && await burn_floor_objects(u.ux, u.uy, seeIt, true, {
+        ...env,
+        igniteItems: ignite_items,
+    }) && !seeIt) {
+        await message('You smell paper burning.', state, env);
+    }
+    // C's final ice check and melt_ice() use the hero's coordinates even
+    // when dofiretrap() was entered from a trapped chest elsewhere.
+    if (is_ice(u.ux, u.uy))
+        note_unported('zap.c melt_ice()');
+}
+
+// C ref: trap.c trapeffect_fire_trap() (1729-1821). The monster arm
+// (1738-1819) is also the return-valued callee of trapeffect_magic_trap(); its
+// hero arm delegates to dofiretrap() and returns Trap_Effect_Finished.
 async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
     const message = requireTrapOperation(env, 'message');
-    const unsupported = requireTrapOperation(env, 'unsupported');
 
     if (mtmp === state.youmonst) {
         seetrap(trap, env);
-        unsupported('dofiretrap()');
-        return Trap_Effect_Finished; // unreachable
+        await dofiretrap(null, env);
+        return Trap_Effect_Finished;
     }
 
     const tx = trap.tx;
@@ -3557,8 +3687,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // that arrives another way.
 //
 // The stops, and what each of them needs:
-//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, ANTI_MAGIC, SLP_GAS_TRAP,
-//     RUST_TRAP,
+//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, ANTI_MAGIC, FIRE_TRAP,
+//     SLP_GAS_TRAP, RUST_TRAP,
 //     LANDMINE, PIT, SPIKED_PIT, TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP --
 //     its own trapeffect_*() arm;
 //   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
@@ -3576,7 +3706,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 export function preflight_dotrap(trap, state = game, trflags = 0) {
     const pitTrap = is_pit(trap.ttyp);
     if (trap.ttyp !== BEAR_TRAP && trap.ttyp !== DART_TRAP
-        && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== SLP_GAS_TRAP
+        && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== FIRE_TRAP
+        && trap.ttyp !== SLP_GAS_TRAP
         && trap.ttyp !== ANTI_MAGIC
         && trap.ttyp !== RUST_TRAP && trap.ttyp !== TELEP_TRAP
         && trap.ttyp !== LANDMINE && !pitTrap

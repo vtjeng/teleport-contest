@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C41 magic-trap fire caller. This debug Wizard clears the welcome pager, moves off the stair, wishes a magic trap on the adjacent square, returns, waits, and triggers it. Seed 38170647 was found in a bounded C-only seed sweep and selects domagictrap fate 12.",
+  "segments": [
+    {
+      "seed": 38170647,
+      "datetime": "20360704101238",
+      "nethackrc": "OPTIONS=name:FireProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,time\n",
+      "moves": " h\u0017magic trap\nl.h"
+    }
+  ]
+}

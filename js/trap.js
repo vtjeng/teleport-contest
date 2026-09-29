@@ -308,7 +308,7 @@ import { trap_to_defsym } from './symbols.js';
 import { halu_trapnames } from './trap_names_data.js';
 import { is_ice, set_levltyp } from './terrain.js';
 import { spot_stop_timers } from './timeout.js';
-import { dotrap, feeltrap, mintrap } from './trap_effects.js';
+import { dofiretrap, dotrap, feeltrap, mintrap } from './trap_effects.js';
 import {
     displayPendingTtyMessageWindow, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
@@ -3430,8 +3430,11 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
             break;
         case 12: case 11: case 10: case 9:
             // Fire trap.
-            // C: dofiretrap(obj). trap.c, not ported.
-            note_unported('trap.c dofiretrap');
+            await dofiretrap(obj, {
+                state,
+                random: { d, rn1, rn2, rnd, rne, rnl },
+                message: ttyPline,
+            });
             break;
         case 8: case 7: case 6: {
             // Electricity.
