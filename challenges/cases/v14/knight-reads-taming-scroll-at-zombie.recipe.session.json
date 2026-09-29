@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for read.c:seffect_taming. A Knight reads an uncursed taming scroll with a newly created visible hostile zombie nearby; C should test magic resistance and change its disposition. C observed the wished item at inventory slot i; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 91820461,
+      "datetime": "20540108152000",
+      "nethackrc": "OPTIONS=name:V14TamingScroll,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizgenesis\n hostile zombie\n#wizwish\nscroll of taming\nri "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for apply.c:use_stethoscope downward-mounted-steed arm into insight.c:mstatusline. A female lawful Knight mounts the role's saddled pony to the northeast, wishes for a stethoscope, and directs it downward while riding.",
+  "segments": [
+    {
+      "seed": 47139821,
+      "datetime": "20511020091500",
+      "nethackrc": "OPTIONS=name:V14SteedListen,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #ride\nuy#wizwish\nstethoscope\nai>"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for sit.c:dosit on throne terrain. A distinct debug setup places throne furniture at the hero square, then uses the sit command once; dismiss the sitting message, choose effect 3 at the source debug prompt, and capture electric-chair damage/exercise. This differs from v10’s forced effect 5/take-gold throne case; v13 has no throne sit case.",
+  "segments": [
+    {
+      "seed": 62540813,
+      "datetime": "20490930115140",
+      "nethackrc": "OPTIONS=name:V14ThroneSit,role:Monk,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "#wizwish\nthrone\n#sit\n 3\n"
+    }
+  ]
+}

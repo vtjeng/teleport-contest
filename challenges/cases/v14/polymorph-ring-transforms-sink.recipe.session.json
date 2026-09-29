@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for do.c:dosinkring -> polymorph_sink. A newly wished, initially unidentified polymorph ring is dropped into an independently wished sink; this reaches the RIN_POLYMORPH sink-transformation branch, unlike v4's levitation/searching-ring drain reactions. The two spaces dismiss the ring-drain and terrain-transformation pagers.",
+  "segments": [
+    {
+      "seed": 91374001,
+      "datetime": "20410307121700",
+      "nethackrc": "OPTIONS=name:V14Sink,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017sink\n\u0017uncursed ring of polymorph\nd?o  "
+    }
+  ]
+}

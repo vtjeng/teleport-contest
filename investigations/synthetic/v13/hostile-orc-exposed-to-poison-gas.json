@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v13.json",
   "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
   "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
-  "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
-  "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
-  "remainingScreens": 1,
+  "evaluationPath": "challenges/evaluations/20260929210140-v13.json",
+  "evaluationCommit": "8667be7c87313737e310aa0bdb4f0709d3a77dac",
+  "remainingScreens": 0,
   "recordedSteps": 70,
   "status": "complete",
-  "commit": "52db3b9f54547102e14a1b1872299a48baaabba4",
+  "commit": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v13",
@@ -25,19 +25,19 @@
     "recipe": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.recipe.session.json",
     "recipeSha256": "86806a32069a698c8e2d98b28ea2a369a5976bf1bfe7bc4b0c9cecdbfc2d66db",
     "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
-    "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
-    "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
-    "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
-    "evaluationUtc": "2026-09-29T16:10:43.240Z",
-    "remainingScreens": 1,
+    "evaluationPath": "challenges/evaluations/20260929210140-v13.json",
+    "evaluationCommit": "8667be7c87313737e310aa0bdb4f0709d3a77dac",
+    "evaluationArtifact": "challenges/evaluations/20260929210140-v13.json",
+    "evaluationUtc": "2026-09-29T21:02:12.830Z",
+    "remainingScreens": 0,
     "recordedSteps": 70,
-    "previousScreensMatched": 69,
+    "previousScreensMatched": 70,
     "regression": false,
-    "passed": false,
+    "passed": true,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 69,
+        "matched": 70,
         "total": 70
       },
       "rng": {
@@ -45,56 +45,12 @@
         "total": 2940
       },
       "cursors": {
-        "matched": 69,
+        "matched": 70,
         "total": 70
       }
     },
-    "firstMismatch": {
-      "screen": {
-        "index": 69,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 69,
-          "key": "."
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 18,
-        "cCell": {
-          "ch": " ",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": "-",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
-      "rng": null,
-      "cursor": {
-        "index": 69,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 69,
-          "key": "."
-        },
-        "cCursor": [
-          78,
-          0,
-          1
-        ],
-        "jsCursor": [
-          26,
-          0,
-          1
-        ]
-      }
-    },
-    "step": 69,
-    "kind": "screen",
+    "step": null,
+    "kind": null,
     "sourceFile": null,
     "function": null,
     "message": null,
@@ -102,7 +58,7 @@
     "luaFile": null,
     "line": null
   },
-  "summary": "At step 69 blindness expires while the hero remains in fatal poison gas. C allmain.c runs nh_timeout, then run_regions and combines sight recovery with gas-cloud messages before the --More-- prompt. JavaScript dry-runs the region callback on a cloned state; hack.c:losehp still writes a live death prompt from that speculative pass, forcing --More-- before the live gas messages.",
+  "summary": "B57 resolves the fatal-gas planning divergence: all 70 recorded screens and cursors and all 2940 RNG calls match. Cloned losehp preserves HP and killer writes, then hands off before terminal output or done/rehumanize; the live callback owns recovery or final death. Finalized death stops enclosing region/upkeep work, while surviving recovery continues in C order.",
   "source": {
     "file": "hack.c",
     "functions": [
@@ -121,7 +77,9 @@
   "evidence": [
     "The current saved v13 evaluation challenges/evaluations/20260929161024-v13.json reports 69/70 screens and cursors and 2940/2940 RNG for this immutable case; the first mismatch remains segment 0 step 69. C top line contains \"You can see again.  Your eyes sting.  Something is burning your lungs!--More--\" while JS has \"You can see again.--More--\".",
     "Upstream allmain.c:moveloop_core orders nh_timeout before run_regions. region.c:inside_gas_cloud prints the eye and lung messages before its damage call. JS preserves that order in the live path, but unported_monster_actions.js preflightElapsedTurnTail speculatively invokes the cloned region path.",
-    "Read-only extra-key replay after the immutable input shows JS next printing \"You die...--More--\", then \"Die? [yn] (n)\". A further key exposes the stack js/hack.js:losehp -> js/region.js:inside_gas_cloud -> js/allmain.js:finishElapsedTurnAfterTimeout -> js/unported_monster_actions.js:preflightElapsedTurnTail. At HP 4/12, gas damage rnd(dam)+5 is certainly fatal, so the clone reaches losehp and leaks its terminal effects."
+    "Read-only extra-key replay after the immutable input shows JS next printing \"You die...--More--\", then \"Die? [yn] (n)\". A further key exposes the stack js/hack.js:losehp -> js/region.js:inside_gas_cloud -> js/allmain.js:finishElapsedTurnAfterTimeout -> js/unported_monster_actions.js:preflightElapsedTurnTail. At HP 4/12, gas damage rnd(dam)+5 is certainly fatal, so the clone reaches losehp and leaks its terminal effects.",
+    "Saved v13 evaluation challenges/evaluations/20260929210140-v13.json at 8667be7c87313737e310aa0bdb4f0709d3a77dac passes this unchanged case completely: 70/70 screens and cursors, 2940/2940 RNG. The test-only audit descendant 357779387bfa90a30b84c49fd9bf9b3e82b6f942 leaves all game, scorer and manifest inputs unchanged. Three independent hack.c recordings cover wizard recovery, final death and life-saving.",
+    "The full correctness review confirmed one test gap, fixed by an integration test through moveloop_core that rehumanizes a poison-susceptible form and verifies surviving turn continuation. An intentional early return at the planning handoff makes that test fail; the independent adjudicator verified the committed fix. No whole-function source-port completion is claimed by this divergence task."
   ],
   "goalKind": "divergence-fix"
 }

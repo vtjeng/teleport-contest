@@ -63,6 +63,7 @@ import { on_level } from './dungeon.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
+    HeroDeathPlanningError,
     losehp,
     end_running,
     may_dig,
@@ -754,6 +755,10 @@ export function planningState(state) {
         iflags: structuredClone(state.iflags),
         level,
         mvitals,
+        // hack.c losehp() writes decl.h svk.killer before its planned-death
+        // handoff. The clone owns that record so its source-ordered write is
+        // discarded with the plan instead of changing the live killer.
+        killer: state.killer ? { ...state.killer } : state.killer,
         program_state: structuredClone(state.program_state),
         svm: state.svm ? {
             ...state.svm,
@@ -1938,14 +1943,24 @@ export async function preflightSimpleMonsterActions(
             upkeepCount = scan.upkeepCount;
             deferredGoto = scan.deferredGoto;
         } catch (error) {
-            if (!(error instanceof MonsterDeathPlanningError)) throw error;
-            // The live pass must replay the same monster turn against the real
-            // state. Keep the source result and attacker identity in the
-            // preflight result rather than treating this as an unsupported
-            // branch and discarding the matching prefix.
+            if (!(error instanceof MonsterDeathPlanningError)
+                && !(error instanceof HeroDeathPlanningError)) {
+                throw error;
+            }
+            // The live pass must replay the source path against the real
+            // state. Monster attacks retain their attacker identity; losehp()
+            // carries its source killer record for planned elapsed-turn damage
+            // reached by advanceRound().
             heroDeath = {
-                monsterId: error.monsterId,
+                monsterId: error.monsterId ?? null,
                 how: error.how,
+                ...(error instanceof HeroDeathPlanningError
+                    ? {
+                        killerName: error.killerName,
+                        killerFormat: error.killerFormat,
+                        fromMonster: error.fromMonster,
+                    }
+                    : {}),
             };
         }
     } finally {
@@ -1986,6 +2001,19 @@ export async function preflightElapsedTurnTail(state, advanceTail) {
     const random = clonedRandom(planned);
     try {
         return await advanceTail(planned, random);
+    } catch (error) {
+        if (!(error instanceof HeroDeathPlanningError)) throw error;
+        // This tail runs after a live timeout, so run_regions() is replayed
+        // immediately on live state. The dry run identifies the source
+        // boundary; done() and any recovery remain live.
+        return {
+            heroDeath: {
+                how: error.how,
+                killerName: error.killerName,
+                killerFormat: error.killerFormat,
+                fromMonster: error.fromMonster,
+            },
+        };
     } finally {
         if (planned._plannedVisionChange) {
             const { x, y } = planned._plannedVisionChange;

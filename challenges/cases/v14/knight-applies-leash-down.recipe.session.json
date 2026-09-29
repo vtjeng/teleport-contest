@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for apply.c:use_leash mounted-steed downward arm (u_at && u.usteed && u.dz > 0). A female lawful Knight mounts the role's saddled pony with #ride, wishes for a leash, then selects its inventory slot and directs it downward at herself while mounted.",
+  "segments": [
+    {
+      "seed": 23091947,
+      "datetime": "20550914133000",
+      "nethackrc": "OPTIONS=name:V14LeashDown,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "#ride\njy#wizwish\nleash\nai>"
+    }
+  ]
+}

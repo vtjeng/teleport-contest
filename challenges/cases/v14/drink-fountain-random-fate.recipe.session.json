@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v14 candidate for fountain.c:drinkfountain. A debug Wizard creates an ordinary unblessed fountain at the current square with the source wizard terrain command, then drinks once to capture the source-selected fate and fountain state transition. This differs from v13's carried horn food generation and candelabrum application.",
+  "segments": [
+    {
+      "seed": 35128547,
+      "datetime": "20490930104530",
+      "nethackrc": "OPTIONS=name:V14FountainDrink,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017fountain\nqy"
+    }
+  ]
+}

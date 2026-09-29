@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for read.c:seffect_earth. A lawful Knight reads an uncursed scroll on an ordinary level; the C observation is the rumble and boulder-on-player effect. C observed the wished item at inventory slot i; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 98415637,
+      "datetime": "20530617143000",
+      "nethackrc": "OPTIONS=name:V14EarthScroll,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nscroll of earth\nri "
+    }
+  ]
+}

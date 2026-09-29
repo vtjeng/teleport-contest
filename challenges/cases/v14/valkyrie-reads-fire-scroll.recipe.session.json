@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for read.c:seffect_fire. A nonconfused Valkyrie reads an uncursed scroll; C should consume it and resolve the source-centered fire explosion at the hero. C observed the wished item at inventory slot e; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 12796483,
+      "datetime": "20521119170500",
+      "nethackrc": "OPTIONS=name:V14FireScroll,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nscroll of fire\nre "
+    }
+  ]
+}

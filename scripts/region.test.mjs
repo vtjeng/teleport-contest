@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 
 import {
     DB_FLOOR,
@@ -31,6 +32,8 @@ import {
     run_regions,
     valid_cloud_pos,
 } from '../js/region.js';
+
+const REGION_SOURCE = readFileSync('nethack-c/upstream/src/region.c', 'utf8');
 
 function regionState(overrides = {}) {
     return {
@@ -410,6 +413,80 @@ test('run_regions ages then runs harmless hero and monster callbacks in ID order
         gas_cloud_diss_seen: 0,
     });
 });
+
+test('run_regions stops after finalized hero death before later callbacks',
+    async () => {
+        const cRunRegionsStart = REGION_SOURCE.indexOf('\nrun_regions(void)');
+        const cRunRegionsEnd = REGION_SOURCE.indexOf(
+            '\n/*\n * check whether player enters/leaves one or more regions.',
+            cRunRegionsStart,
+        );
+        const cRunRegions = REGION_SOURCE.slice(
+            cRunRegionsStart,
+            cRunRegionsEnd,
+        );
+        const cGasStart = REGION_SOURCE.indexOf(
+            '\ninside_gas_cloud(genericptr_t p1',
+        );
+        const cGasEnd = REGION_SOURCE.indexOf(
+            '\nstaticfn boolean\nis_hero_inside_gas_cloud',
+            cGasStart,
+        );
+        const cGasCloud = REGION_SOURCE.slice(cGasStart, cGasEnd);
+        assert.match(
+            cGasCloud,
+            /losehp\(dam, "gas cloud", KILLED_BY_AN\);\s*monstunseesu\(M_SEEN_POISON\);/,
+        );
+        assert.match(
+            cRunRegions,
+            /hero_inside\(gr\.regions\[i\]\)[\s\S]*?\(\*callbacks\[f_indx\]\)\(gr\.regions\[i\], \(genericptr_t\) 0\);[\s\S]*?for \(j = 0; j < gr\.regions\[i\]->n_monst; j\+\+\)[\s\S]*?if \(gg\.gas_cloud_diss_within\)/,
+        );
+
+        // The hero starts inside this cloud. Its callback marks final gameover;
+        // one listed live monster and a second region expose later callbacks.
+        const state = regionState({ program_state: {} });
+        const watcher = newMonster({
+            m_id: 7001,
+            mhp: 5,
+        });
+        state.level.monlist = watcher;
+        const events = [];
+        const fatalInside = async (_region, monster) => {
+            events.push(monster ? 'monster' : 'hero');
+            if (!monster) {
+                state.program_state.gameover = true;
+                state.gg.gas_cloud_diss_within = true;
+                state.gg.gas_cloud_diss_seen = 1;
+            }
+            return false;
+        };
+        const laterInside = () => {
+            events.push('later-region');
+            return false;
+        };
+        const lethal = pointRegion(2, 2, {
+            hero_inside: true,
+            inside_f: fatalInside,
+            monsters: [7001],
+        });
+        const later = pointRegion(3, 2, {
+            hero_inside: true,
+            inside_f: laterInside,
+        });
+        state.level.regions = [lethal, later];
+
+        await run_regions({
+            state,
+            async message(text) {
+                events.push(`message:${text}`);
+            },
+        });
+
+        assert.deepEqual(events, ['hero']);
+        assert.deepEqual(lethal.monsters, [7001]);
+        assert.equal(state.gg.gas_cloud_diss_within, true);
+        assert.equal(state.gg.gas_cloud_diss_seen, 1);
+    });
 
 test('inside_gas_cloud treats the null callback subject as the hero monster', async () => {
     const state = regionState({

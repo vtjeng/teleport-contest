@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Replacement C-first v14 branch for read.c:seffect_confuse_monster. Unlike v8's ordinary uncursed hand-glow/umconf increment, the source sees a cursed scroll on an initially unconfused human and calls make_confused(HConfusion + rnd(100), FALSE).",
+  "segments": [
+    {
+      "seed": 61782341,
+      "datetime": "20411108112000",
+      "nethackrc": "OPTIONS=name:V14CursedConfuse,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\ncursed scroll of confuse monster\nrn "
+    }
+  ]
+}

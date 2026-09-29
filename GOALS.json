@@ -118056,6 +118056,1108 @@
         "rng": 792838
       },
       "parkedReason": "Primary doapply leash attach and detach entry matches the independent C recording and admitted v13 steps 0-20. Whole-source completion remains unverified for the active mon.c:newcham leashable entry (apply.c:m_unleash gap), downward mounted-steed leash entry, and cursed-removal continuation blocked by dogmove.c:dog_move. Preserve the committed cursed and wizard-created-pet blocked recipes; resume when those source entries have matching runtime evidence."
+    },
+    {
+      "id": "fix-hack-losehp-planning-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Keep planned lethal gas damage off the live terminal",
+      "cFile": "hack.c",
+      "sessions": [],
+      "selectionReason": "Source-traced terminal planning defect in implemented losehp behavior",
+      "detail": "synthetic/v13/hostile-orc-exposed-to-poison-gas, segment 0, step 69: screen and cursor mismatch with RNG 2940/2940 matching. C allmain.c moveloop_core reaches region.c run_regions and inside_gas_cloud, then hack.c losehp (4255-4292). The cloned elapsed-turn planner failed to forward planning, allowing urgent_pline and done to write the live terminal before replay. Preserve source HP and killer updates, hand off lethal planning before terminal operations, isolate the cloned killer record, and stop live region continuations only after finalized death; wizard and life-saving recovery continue. JavaScript owners: hack.js losehp, allmain.js regionEffectEnv/elapsed-turn tail, region.js callbacks, unported_monster_actions.js planningState and preflight catches.",
+      "openedAt": "202fc10e007b6ea7047aebf665adeb39d845e6c4",
+      "openStanding": {
+        "sha": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "losehp",
+      "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+      "step": 69,
+      "syntheticProvenance": {
+        "synthetic/v13/hostile-orc-exposed-to-poison-gas": {
+          "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "hostile-orc-exposed-to-poison-gas",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+          "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+          "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6"
+        }
+      },
+      "activeStanding": {
+        "sha": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "hostile-orc-exposed-to-poison-gas",
+          "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+          "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+          "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+          "recipe": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.recipe.session.json",
+          "recipeSha256": "86806a32069a698c8e2d98b28ea2a369a5976bf1bfe7bc4b0c9cecdbfc2d66db",
+          "replayInputSha256": "3cfc883da64f56b3faccd4e650d2d5b13852052d3c4d6dc55ed062e4fa7b83e1",
+          "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+          "evaluationArtifact": "challenges/evaluations/20260929201745-v13.json",
+          "evaluationUtc": "2026-09-29T20:18:19.894Z",
+          "remainingScreens": 1,
+          "recordedSteps": 70,
+          "previousScreensMatched": 69,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 69,
+              "total": 70
+            },
+            "rng": {
+              "matched": 2940,
+              "total": 2940
+            },
+            "cursors": {
+              "matched": 69,
+              "total": 70
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 69,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 69,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 18,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 69,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 69,
+                "key": "."
+              },
+              "cCursor": [
+                78,
+                0,
+                1
+              ],
+              "jsCursor": [
+                26,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 69,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/hostile-orc-exposed-to-poison-gas.json",
+            "result": {
+              "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "hostile-orc-exposed-to-poison-gas",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+              "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+              "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+              "remainingScreens": 1,
+              "recordedSteps": 70,
+              "status": "complete",
+              "commit": "52db3b9f54547102e14a1b1872299a48baaabba4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "hostile-orc-exposed-to-poison-gas",
+                "session": "synthetic/v13/hostile-orc-exposed-to-poison-gas",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+                "recordingPath": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.session.json",
+                "recordingSha256": "feb5051b45974360d89bb56d7c552f7ccd3ac70dcf901162511a6bdf8daee028",
+                "recipe": "challenges/cases/v13/hostile-orc-exposed-to-poison-gas.recipe.session.json",
+                "recipeSha256": "86806a32069a698c8e2d98b28ea2a369a5976bf1bfe7bc4b0c9cecdbfc2d66db",
+                "replayInputSha256": "5b106d07dcf7bfe375b787c32408a6bc98571688de07f1a1e5d1049cef757128",
+                "evaluationPath": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationCommit": "f74689ea9cf82afe93669e4dddb5e259acb7c057",
+                "evaluationArtifact": "challenges/evaluations/20260929161024-v13.json",
+                "evaluationUtc": "2026-09-29T16:10:43.240Z",
+                "remainingScreens": 1,
+                "recordedSteps": 70,
+                "previousScreensMatched": 69,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 69,
+                    "total": 70
+                  },
+                  "rng": {
+                    "matched": 2940,
+                    "total": 2940
+                  },
+                  "cursors": {
+                    "matched": 69,
+                    "total": 70
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 69,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 69,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 18,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 69,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 69,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      78,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      26,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 69,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 69 blindness expires while the hero remains in fatal poison gas. C allmain.c runs nh_timeout, then run_regions and combines sight recovery with gas-cloud messages before the --More-- prompt. JavaScript dry-runs the region callback on a cloned state; hack.c:losehp still writes a live death prompt from that speculative pass, forcing --More-- before the live gas messages.",
+              "source": {
+                "file": "hack.c",
+                "functions": [
+                  "losehp"
+                ],
+                "branch": "When region.c:inside_gas_cloud applies damage that is fatal for the hero, the JavaScript elapsed-turn preflight clone reaches losehp. Its live ttyUrgentPline/done effects escape the clone before allmain.c reaches the real run_regions call. C has no speculative callback and emits the region messages in source order.",
+                "callers": [
+                  "C: allmain.c:moveloop_core calls nh_timeout then run_regions; region.c:inside_gas_cloud emits stinging/burning-lung messages and calls hack.c:losehp for hero gas damage.",
+                  "JS: js/unported_monster_actions.js:preflightElapsedTurnTail clones elapsed-turn state and reaches js/allmain.js:finishElapsedTurnAfterTimeout -> js/region.js:inside_gas_cloud -> js/hack.js:losehp before the live callback."
+                ],
+                "dependencies": [
+                  "The preflight fatal-damage result must be a read-only planning signal; all live tty output, gameover handling, and input prompts remain in the later source-ordered region path.",
+                  "Audit other preflight callers of losehp to preserve their existing fatal-damage and continuation behavior; do not special-case gas, this case, or its seed."
+                ]
+              },
+              "evidence": [
+                "The current saved v13 evaluation challenges/evaluations/20260929161024-v13.json reports 69/70 screens and cursors and 2940/2940 RNG for this immutable case; the first mismatch remains segment 0 step 69. C top line contains \"You can see again.  Your eyes sting.  Something is burning your lungs!--More--\" while JS has \"You can see again.--More--\".",
+                "Upstream allmain.c:moveloop_core orders nh_timeout before run_regions. region.c:inside_gas_cloud prints the eye and lung messages before its damage call. JS preserves that order in the live path, but unported_monster_actions.js preflightElapsedTurnTail speculatively invokes the cloned region path.",
+                "Read-only extra-key replay after the immutable input shows JS next printing \"You die...--More--\", then \"Die? [yn] (n)\". A further key exposes the stack js/hack.js:losehp -> js/region.js:inside_gas_cloud -> js/allmain.js:finishElapsedTurnAfterTimeout -> js/unported_monster_actions.js:preflightElapsedTurnTail. At HP 4/12, gas damage rnd(dam)+5 is certainly fatal, so the clone reaches losehp and leaks its terminal effects."
+              ],
+              "goalKind": "divergence-fix"
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-mkobj-hornoplenty-encumber-message-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Wire the carried-object horn encumbrance callback",
+      "cFile": "mkobj.c",
+      "sessions": [],
+      "selectionReason": "Current synthetic case stops after generated food is added because hornoplenty does not forward the implemented encumber_msg owner to hold_another_object.",
+      "detail": "v13/horn-of-plenty-generates-food, segment 0 step 28: current evaluation at 8667 has 28/29 screens and cursors before a missing encumberMessage refusal. C mkobj.c:hornoplenty charged non-tipping branch (2847-2936) calls invent.c:hold_another_object; retained objects trigger update_inventory then pickup.c:encumber_msg. JS obj.js forwards a bare apply environment and lacks the required hook. Repair only this default wiring while preserving caller hooks and source order; Doname2 floor-drop and dknown discover_object tails remain explicit gaps. Independent blindfolded Valkyrie recording matches all 48 screens/cursors and 3250 RNG.",
+      "openedAt": "88fd33f38d3db9c2895903ccc54796b253743bae",
+      "openStanding": {
+        "sha": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "hornoplenty",
+      "session": "synthetic/v13/horn-of-plenty-generates-food",
+      "step": 28,
+      "syntheticProvenance": {
+        "synthetic/v13/horn-of-plenty-generates-food": {
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "evaluationPath": "challenges/evaluations/20260929210140-v13.json",
+          "evaluationCommit": "8667be7c87313737e310aa0bdb4f0709d3a77dac"
+        }
+      },
+      "activeStanding": {
+        "sha": "357779387bfa90a30b84c49fd9bf9b3e82b6f942",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+          "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+          "replayInputSha256": "c33480427042c3e0034d5ae79ac7e97dadf46ee6952408e18f65501eaf197b9c",
+          "evaluationPath": "challenges/evaluations/20260929210140-v13.json",
+          "evaluationCommit": "8667be7c87313737e310aa0bdb4f0709d3a77dac",
+          "evaluationArtifact": "challenges/evaluations/20260929210140-v13.json",
+          "evaluationUtc": "2026-09-29T21:02:12.830Z",
+          "remainingScreens": 1,
+          "recordedSteps": 29,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 29
+            },
+            "rng": {
+              "matched": 4197,
+              "total": 4203
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/horn-of-plenty-generates-food.json",
+            "result": {
+              "session": "synthetic/v13/horn-of-plenty-generates-food",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "horn-of-plenty-generates-food",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "horn-of-plenty-generates-food",
+                "session": "synthetic/v13/horn-of-plenty-generates-food",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+                "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+                "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 29,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 4197,
+                    "total": 4203
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: encumberMessage is not available for otyp 264",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A charged horn creates food and reaches mkobj.c:hornoplenty’s non-tipping inventory path. JavaScript stops after adding the food because its hold_another_object call has no encumberMessage callback; C continues through invent.c:hold_another_object to pickup.c:encumber_msg. The v13 manifest’s pickup.c:hold_another_object label is a file-name error; the source call chain here is authoritative.",
+              "source": {
+                "file": "mkobj.c",
+                "branch": "For a charged, applied horn of plenty with tipping false, hornoplenty consumes a charge, creates food, prints its spill message, and passes the generated object to invent.c:hold_another_object. Once the object remains in inventory, that function calls pickup.c:encumber_msg before returning to hornoplenty.",
+                "functions": [
+                  "hornoplenty"
+                ],
+                "callers": [
+                  "apply.c:doapply(HORN_OF_PLENTY) -> mkobj.c:hornoplenty; js/apply.js:doapply calls js/obj.js:hornoplenty with only {state}.",
+                  "mkobj.c:hornoplenty -> invent.c:hold_another_object; js/obj.js:hornoplenty forwards the unaugmented env to js/invent.js:hold_another_object."
+                ],
+                "dependencies": [
+                  "invent.c:hold_another_object is implemented in js/invent.js but currently demands hooks.encumberMessage at its successful-inventory tail; the source calls the linked pickup.c function directly.",
+                  "pickup.c:encumber_msg is implemented and already imported in js/obj.js. Wire the C callback generally for hornoplenty’s non-tipping path and preserve the complete source branch, including the generated-object return and PRNG order.",
+                  "A matching horn witness can complete one previously unevidenced active caller in parked goal port-invent-hold-another-object-synthetic-v10-20260928."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b matches 28/29 screens and stops at zero-based step 28 with UnsupportedHeroCommandBoundaryError: encumberMessage unavailable for generated tripe otyp 264.",
+                "Upstream mkobj.c:hornoplenty (2847-2936) calls invent.c:hold_another_object (1208-1311) on its non-tipping generated-object branch; the latter calls pickup.c:encumber_msg (1978 onward) once the object stays in inventory. The v13 prepared manifest attributes hold_another_object to pickup.c, which is a source-file label error and is corrected here without changing the frozen recording.",
+                "js/apply.js:doapply calls js/obj.js:hornoplenty with {state}; js/obj.js forwards that env unchanged to js/invent.js:hold_another_object, which calls requiredHook(encumberMessage) and refuses. js/obj.js already imports js/pickup.js:encumber_msg for its target-box path, so the missing production connection is in this caller route rather than a new C effect."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+          "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+          "replayInputSha256": "085e483fa652fbcf7255226f83527b8bc127d9519929e9fd5dec2924d5070674",
+          "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+          "evaluationArtifact": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationUtc": "2026-09-29T21:48:15.376Z",
+          "remainingScreens": 0,
+          "recordedSteps": 29,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 29
+            },
+            "rng": {
+              "matched": 4198,
+              "total": 4203
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 4197,
+              "cEntry": "rn2(19)=18",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(12)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": "n"
+              },
+              "stepIndex": 28
+            },
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/horn-of-plenty-generates-food.json",
+            "result": {
+              "session": "synthetic/v13/horn-of-plenty-generates-food",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "horn-of-plenty-generates-food",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+              "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+              "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+              "remainingScreens": 0,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "horn-of-plenty-generates-food",
+                "session": "synthetic/v13/horn-of-plenty-generates-food",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+                "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+                "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+                "replayInputSha256": "085e483fa652fbcf7255226f83527b8bc127d9519929e9fd5dec2924d5070674",
+                "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+                "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+                "evaluationArtifact": "challenges/evaluations/20260929214754-v13.json",
+                "evaluationUtc": "2026-09-29T21:48:15.376Z",
+                "remainingScreens": 0,
+                "recordedSteps": 29,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 4198,
+                    "total": 4203
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 4197,
+                    "cEntry": "rn2(19)=18",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(12)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 28,
+                      "key": "n"
+                    },
+                    "stepIndex": 28
+                  },
+                  "cursor": null
+                },
+                "step": 28,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The applied horn now completes its inventory callback and matches all 29 screens and cursors. Its next RNG mismatch is the omitted makeknown call at the end of mkobj.c:hornoplenty: JavaScript records a discover_object gap even though js/o_init.js implements that callee. The sighted-horn path must update discovery state and exercise wisdom in source order.",
+              "source": {
+                "file": "mkobj.c",
+                "functions": [
+                  "hornoplenty"
+                ],
+                "branch": "After a charged horn has generated and placed an object, hornoplenty decrements iflags.suppress_price and, when horn->dknown is true, calls makeknown(HORN_OF_PLENTY). The macro invokes discover_object(HORN_OF_PLENTY, TRUE, TRUE, TRUE); when the type is newly known, discover_object updates disco and object knowledge, exercises A_WIS, and updates inventory during live play.",
+                "callers": [
+                  "apply.c:doapply(HORN_OF_PLENTY) -> mkobj.c:hornoplenty; the live JavaScript route is js/apply.js -> js/obj.js:hornoplenty.",
+                  "mkobj.c:hornoplenty -> o_init.c:discover_object via makeknown; js/obj.js still skips this call with note_unported."
+                ],
+                "dependencies": [
+                  "js/o_init.js:discover_object already implements knowledge changes, exercise_nonphysical(A_WIS, true), and live update_inventory. Verify its real environment and caller prerequisites before wiring it.",
+                  "The selected missing branch belongs to a whole hornoplenty source port; the floor-placement Doname2 message remains a separate missing branch in the same function.",
+                  "The resolved inventory path retains the encumber_msg callback in js/obj.js. Do not undo its source-order behavior or treat the blind recording as evidence for sighted discovery."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "At 2f36445470f66c6ebc8234436abf21f324c0b46f, challenges/evaluations/20260929214754-v13.json reports 29/29 screens and cursors, 4198/4203 matching RNG calls, and no runtime error. The case is still not a complete match.",
+                "Fresh diagnostic .cache/B58-horn-diagnostic.json places the first RNG divergence at segment 0, zero-based step 28, key n, RNG index 4197: C rn2(19)=18 from exercise(attrib.c:509), versus JavaScript rn2(12)=3. Its only recorded gap is o_init.c discover_object.",
+                "Upstream mkobj.c:hornoplenty (2847–2936), at 2933–2934, calls makeknown after placement and suppress_price restoration when horn->dknown is true. o_init.c:discover_object (454–496) calls exercise(A_WIS, TRUE) at 483; attrib.c:exercise uses rn2(19) at 509.",
+                "js/obj.js:hornoplenty still records note_unported for this call at its final dknown branch. js/o_init.js:discover_object (417 onward) already implements this callee; the missing source branch is in the horn caller.",
+                "B58 resolved the preceding missing encumberMessage callback. Its independent blindfolded Valkyrie recording under recordings/mkobj.c/hornoplenty-applied-inventory-b58.session.json matches all 48 screens/cursors and 3250 RNG calls; blindness leaves dknown false, so this witness does not cover makeknown.",
+                "The earlier v13 manifest labels hold_another_object as pickup.c, but its actual source owner is invent.c (1208–1311), with update_inventory followed by pickup.c:encumber_msg. This source-file correction does not alter the frozen recording."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-wield-ready-weapon-shielded-bimanual-refusal-synthetic-v13-20260929",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Return the shielded two-handed wield refusal",
+      "cFile": "wield.c",
+      "sessions": [],
+      "selectionReason": "The admitted v13 shield case reaches the implemented ready_weapon predicate and stops instead of returning the C refusal.",
+      "detail": "v13/shield-refuses-two-handed-wield segment 0 step 49: 49/50 screens and cursors, 2793/2793 RNG at accepted B58 evaluation 2f36445470f66c6ebc8234436abf21f324c0b46f. In wield.c ready_weapon lines 186–192, uarms && bimanual(wep) prints sword, axe, or weapon wording, sets ECMD_FAIL, bypasses retouch/setuwep, and reaches the common tail. js/wield.js throws UnsupportedWieldError at this same predicate. Packet 610bf28f supplies typed-wield runtime evidence and swap restoration tests; other ready_weapon branches remain incomplete.",
+      "openedAt": "4c09c5a273949c1c020c212e3b24fc35df5d6713",
+      "openStanding": {
+        "sha": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "ready_weapon",
+      "session": "synthetic/v13/shield-refuses-two-handed-wield",
+      "step": 49,
+      "syntheticProvenance": {
+        "synthetic/v13/shield-refuses-two-handed-wield": {
+          "session": "synthetic/v13/shield-refuses-two-handed-wield",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "shield-refuses-two-handed-wield",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+          "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+          "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f"
+        }
+      },
+      "activeStanding": {
+        "sha": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "shield-refuses-two-handed-wield",
+          "session": "synthetic/v13/shield-refuses-two-handed-wield",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+          "recordingPath": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+          "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+          "recipe": "challenges/cases/v13/shield-refuses-two-handed-wield.recipe.session.json",
+          "recipeSha256": "12d7fcda5c6f6efc55d415d8ca5e8b3c1239118e7c06a2aef85fc36b67c38c38",
+          "replayInputSha256": "085e483fa652fbcf7255226f83527b8bc127d9519929e9fd5dec2924d5070674",
+          "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+          "evaluationArtifact": "challenges/evaluations/20260929214754-v13.json",
+          "evaluationUtc": "2026-09-29T21:48:15.376Z",
+          "remainingScreens": 1,
+          "recordedSteps": 50,
+          "previousScreensMatched": 49,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 49,
+              "total": 50
+            },
+            "rng": {
+              "matched": 2793,
+              "total": 2793
+            },
+            "cursors": {
+              "matched": 49,
+              "total": 50
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+            "step": 49
+          },
+          "step": 49,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/shield-refuses-two-handed-wield.json",
+            "result": {
+              "session": "synthetic/v13/shield-refuses-two-handed-wield",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "shield-refuses-two-handed-wield",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 50,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "shield-refuses-two-handed-wield",
+                "session": "synthetic/v13/shield-refuses-two-handed-wield",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+                "recordingPath": "challenges/cases/v13/shield-refuses-two-handed-wield.session.json",
+                "recordingSha256": "c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6",
+                "recipe": "challenges/cases/v13/shield-refuses-two-handed-wield.recipe.session.json",
+                "recipeSha256": "12d7fcda5c6f6efc55d415d8ca5e8b3c1239118e7c06a2aef85fc36b67c38c38",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 50,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 49,
+                    "total": 50
+                  },
+                  "rng": {
+                    "matched": 2793,
+                    "total": 2793
+                  },
+                  "cursors": {
+                    "matched": 49,
+                    "total": 50
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+                  "step": 49
+                },
+                "step": 49,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: wield.c reached a two-handed weapon under a shield",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A shielded hero selects a two-handed sword through wield.c:ready_weapon. JavaScript reaches the correct branch but throws instead of printing the C refusal and returning ECMD_FAIL. The branch must classify swords, battle axes, and other two-handed weapons by source predicates without changing equipment or consuming a turn.",
+              "source": {
+                "file": "wield.c",
+                "branch": "When ready_weapon receives non-null wep, does not take the corpse arm, and uarms is set while bimanual(wep) is true, C prints the type-specific two-handed refusal, sets res=ECMD_FAIL, skips retouch and setuwep, then reaches the common status condition and returns res. The selected C case is a shielded hero selecting a two-handed sword.",
+                "functions": [
+                  "ready_weapon"
+                ],
+                "callers": [
+                  "wield.c:dowield calls ready_weapon(wep) and returns its consumed ECMD result; js/wield.js:dowield calls ready_weapon with the chosen inventory object.",
+                  "wield.c:doswapweapon also calls ready_weapon(oldswap), so the same source branch must behave correctly for a two-handed swap target under a shield."
+                ],
+                "dependencies": [
+                  "bimanual(wep) and is_sword(wep) are source predicates with existing JavaScript implementations; BATTLE_AXE selects the alternate noun, and all other bimanual weapons use the generic noun.",
+                  "Do not mutate uwep, uarms, or the selected object in the refusal arm. Preserve the common post-branch status update condition and ECMD_FAIL return, with no RNG draw."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 49/50 screens and cursors, 2793/2793 RNG calls, and first stop at zero-based segment 0 step 49: “wield.c reached a two-handed weapon under a shield.” The immutable recording is challenges/cases/v13/shield-refuses-two-handed-wield.session.json, SHA256 c9b77f8370672a55badb62b32c5c696642973b577df8607868edaa07fb8e1fc6.",
+                "The C recording step 49 follows the wield selection key p and displays “You cannot wield a two-handed sword while wearing a shield.” It records no RNG for that step. The prior step is the wield inventory prompt; the shield and sword were established by the independent recipe.",
+                "Upstream nethack-c/upstream/src/wield.c:169-273 defines ready_weapon. Lines 186-190 test uarms && bimanual(wep), select sword/axe/weapon wording using is_sword and BATTLE_AXE, set ECMD_FAIL, and bypass retouch/setuwep. Lines 268-273 retain the common status condition and return. Lines 451 and 483 are the dowield and doswapweapon callers.",
+                "JavaScript js/wield.js:ready_weapon around lines 548-568 reaches the same uarms/bimanual branch but throws UnsupportedWieldError. js/obj.js exports is_sword, js/objects.js exports BATTLE_AXE, and js/wield.js already uses ECMD_FAIL in adjacent wield command branches. Replace the refusal with the full source branch rather than a sword-only literal."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-apply-candelabrum-empty-no-candles-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port complete candelabrum application and wire its command caller",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v13/empty-candelabrum-no-candles"
+      ],
+      "selectionReason": "The v13 empty candelabrum case stops at the named doapply arm; use_candelabrum is missing, so the task covers the whole source function.",
+      "detail": "Port apply.c:use_candelabrum (1319-1386) in source order and wire doapply (4337-4338). The selected v13 case diverges at segment 0 step 38, with 38/39 screens and cursors and 2386/2395 RNG. Cover all snuff, empty, water, swallowed, cursed, blind, candle-count, invocation, fuel and burn branches; verify typed apply with the admitted range and an independent attach/light/snuff recording. The worker initially labelled this a narrow divergence task; central classification reflects its completed whole-function scope.",
+      "openedAt": "ed4ac80581033cb62759d9d7040f57f6390aef2f",
+      "openStanding": {
+        "sha": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b55fe3125b08dfa7eb4feaeb437a897fc7c8808c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "use_candelabrum",
+          "line": 1319,
+          "endLine": 1386,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1319,
+        "to": 1386
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/empty-candelabrum-no-candles": {
+          "session": "synthetic/v13/empty-candelabrum-no-candles",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "empty-candelabrum-no-candles",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/empty-candelabrum-no-candles.session.json",
+          "recordingSha256": "908560d51b03dad77ab684349353c3c6bd2057e6b90f131e6cd651a5fc2b75b3",
+          "evaluationPath": "challenges/evaluations/20260929220352-v13.json",
+          "evaluationCommit": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0"
+        }
+      },
+      "activeStanding": {
+        "sha": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "empty-candelabrum-no-candles",
+          "session": "synthetic/v13/empty-candelabrum-no-candles",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/empty-candelabrum-no-candles.session.json",
+          "recordingPath": "challenges/cases/v13/empty-candelabrum-no-candles.session.json",
+          "recordingSha256": "908560d51b03dad77ab684349353c3c6bd2057e6b90f131e6cd651a5fc2b75b3",
+          "recipe": "challenges/cases/v13/empty-candelabrum-no-candles.recipe.session.json",
+          "recipeSha256": "dc023a8acbe0738ba0d25e369dd51d4fcbf123417f594fec00e8cea4a8624cea",
+          "replayInputSha256": "c7e8610ae30df07687a36f3c72ef5042b581b5543609e0bb65f483dd789641f0",
+          "evaluationPath": "challenges/evaluations/20260929220352-v13.json",
+          "evaluationCommit": "06f2185f3d03ceba1e4eeffb4173a22e4e11d5d0",
+          "evaluationArtifact": "challenges/evaluations/20260929220352-v13.json",
+          "evaluationUtc": "2026-09-29T22:04:11.752Z",
+          "remainingScreens": 1,
+          "recordedSteps": 39,
+          "previousScreensMatched": 38,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 38,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2386,
+              "total": 2395
+            },
+            "cursors": {
+              "matched": 38,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 262",
+            "step": 38
+          },
+          "step": 38,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 262",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/empty-candelabrum-no-candles.json",
+            "result": {
+              "session": "synthetic/v13/empty-candelabrum-no-candles",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "empty-candelabrum-no-candles",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "908560d51b03dad77ab684349353c3c6bd2057e6b90f131e6cd651a5fc2b75b3",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "empty-candelabrum-no-candles",
+                "session": "synthetic/v13/empty-candelabrum-no-candles",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/empty-candelabrum-no-candles.session.json",
+                "recordingPath": "challenges/cases/v13/empty-candelabrum-no-candles.session.json",
+                "recordingSha256": "908560d51b03dad77ab684349353c3c6bd2057e6b90f131e6cd651a5fc2b75b3",
+                "recipe": "challenges/cases/v13/empty-candelabrum-no-candles.recipe.session.json",
+                "recipeSha256": "dc023a8acbe0738ba0d25e369dd51d4fcbf123417f594fec00e8cea4a8624cea",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 39,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 38,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2386,
+                    "total": 2395
+                  },
+                  "cursors": {
+                    "matched": 38,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 262",
+                  "step": 38
+                },
+                "step": 38,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 262",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying an empty candelabrum reaches an unported doapply arm. C use_candelabrum reports that it has no candles and, when the inventory contains a candle, adds a source-specific attachment tip. The complete function also owns extinguishing, underwater/cursed refusals, invocation fuel behavior, and lighting.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For a CANDELABRUM_OF_INVOCATION with spe<=0 and lamplit false, use_candelabrum prints the no-candles message, scans inventory for Is_candle, optionally prints the apply-candles tip, and returns without a turn-specific RNG call. Other branches snuff a lit candelabrum via end_burn, refuse underwater or cursed/swallowed lighting, adjust age outside invocation position, mark known at invocation, and call begin_burn.",
+                "functions": [
+                  "use_candelabrum",
+                  "doapply (CANDELABRUM_OF_INVOCATION arm)"
+                ],
+                "callers": [
+                  "apply.c:doapply(CANDELABRUM_OF_INVOCATION) calls use_candelabrum; js/apply.js:doapply currently includes the type in its named unported arms.",
+                  "apply.c:use_candle can attach candles to a carried candelabrum; source state written there determines use_candelabrum’s spe and age branches."
+                ],
+                "dependencies": [
+                  "Is_candle is a consumed object-type predicate for the inventory-tip branch; walk inventory in source order.",
+                  "timeout.c:end_burn and begin_burn own timer/light state for lit and lighting branches, including consumed outcomes where used.",
+                  "invocation_pos, On_stairs, Underwater, Blind, and u.uswallow select output, knowledge, and fuel behavior; preserve integer age rounding (age+1)/2 and source message order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 38/39 screens and cursors and first stop at zero-based segment 0 step 38 in the doapply object-type-262 arm. The immutable recording is challenges/cases/v13/empty-candelabrum-no-candles.session.json.",
+                "The C recording’s final selected input n displays “This candelabrum has no candles.” It records no use_candelabrum RNG call. This establishes the empty branch, while other active branches still need independent runtime evidence.",
+                "Upstream nethack-c/upstream/src/apply.c:1319-1381 defines the complete use_candelabrum branches in source order; lines 1328-1339 scan inventory for a candle on the empty path, and lines 4337-4338 wire doapply. JavaScript js/apply.js has CANDELABRUM_OF_INVOCATION only in the named unported arms."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_candelabrum",
+            "implementation": "js/apply.js",
+            "symbol": "use_candelabrum",
+            "sourceReview": "Read the complete upstream apply.c:use_candelabrum definition (1319-1386) and compared every branch, message, predicate, state write, return, and call order. The JS keeps the lit snuff path first, then empty inventory scan/tip, underwater refusal, swallowed/cursed visible failure, candle-count and dim/bright wording, rapid consumption with upward age rounding and zero-age repair, and the invocation-position path. C sets obj->known for every positive candle count at the invocation position; source-pinned tests cover the three-candle and exactly-seven-candle cases, with only the latter receiving the warmth/glow message. The final begin_burn call and earlier end_burn call use the existing timeout.c ports. The discarded pline.c impossible() result remains note_unported('pline.c impossible'); its following age repair still runs, and no note_unported result is used. The complete apply.c:doapply candelabrum arm (4337-4338) is wired and retains ECMD_TIME.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply CANDELABRUM_OF_INVOCATION switch arm calls use_candelabrum(obj) and retains its initial ECMD_TIME result."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c command-table entry for 'a' invokes doapply(); JS runApplyCommand dispatches to apply.js:doapply."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-candelabrum.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/candelabrum-light-and-snuff-independent-b60.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "empty-candelabrum-no-candles",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c command 'a' -> apply.c:doapply CANDELABRUM_OF_INVOCATION arm -> apply.c:use_candelabrum"
+              }
+            ],
+            "checkedAt": "da87960493b3c5abe1d9841adae193df6340d9f3"
+          }
+        ],
+        "entryPointReview": "The selected active entry is the typed apply command: cmd.c maps 'a' to doapply, whose CANDELABRUM_OF_INVOCATION arm is the only direct C caller of use_candelabrum. The independent recording reaches it after attaching a tallow candle, then lights and snuffs the carried candelabrum; the admitted v13 case reaches the empty-candelabrum branch through step 38. apply.c:use_candle can establish the candle count before a later apply command but is not a caller of use_candelabrum. No other direct use_candelabrum caller is present in the source tree.",
+        "entryPoints": [
+          {
+            "name": "Typed apply of the carried candelabrum",
+            "functions": [
+              "use_candelabrum"
+            ],
+            "recordings": [
+              "recordings/apply.c/candelabrum-light-and-snuff-independent-b60.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "empty-candelabrum-no-candles",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 38,
+                "source": "cmd.c command 'a' -> apply.c:doapply CANDELABRUM_OF_INVOCATION arm -> apply.c:use_candelabrum"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b55fe3125b08dfa7eb4feaeb437a897fc7c8808c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

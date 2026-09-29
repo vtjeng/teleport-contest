@@ -762,6 +762,20 @@ export class UnsupportedHeroMoveBoundaryError extends Error {
     }
 }
 
+// A planned hit-point loss has crossed the active HP pool's lethal boundary.
+// The live replay owns end.c done() and polyself.c rehumanize(), which decide
+// whether life-saving, wizard recovery, or an ordinary death follows.
+export class HeroDeathPlanningError extends Error {
+    constructor(knam, k_format, { fromMonster = false } = {}) {
+        super('planned lethal hero hit-point loss');
+        this.name = 'HeroDeathPlanningError';
+        this.how = DIED;
+        this.killerName = knam ?? '';
+        this.killerFormat = k_format;
+        this.fromMonster = Boolean(fromMonster);
+    }
+}
+
 // C ref: hack.c rounddiv() (4549-4573). Integer division that rounds a
 // remainder of exactly half away from zero, and carries the sign of the
 // quotient rather than C's truncation. eat.c doeat() divides a meal's
@@ -1208,26 +1222,34 @@ export async function showdamage(dmg, state, env = {}) {
 // back.
 //
 // `env.message` reaches showdamage() and maybe_wail(), the two lines this
-// prints short of death. The death branch keeps its urgent_pline(): the one
-// monster-turn caller refuses a fatal loss before calling here.
+// prints short of death. A planned lethal loss stops after the source state
+// writes and before rehumanize(), urgent_pline(), or done(); those terminal
+// operations belong to the live replay.
 export async function losehp(n, knam, k_format, state = game, env = {}) {
+    const effectEnv = env.planning && typeof env.message !== 'function'
+        ? { ...env, message: async () => {} }
+        : env;
     state.disp ??= {};
     state.disp.botl = true; /* u.uhp or u.mh is changing */
     end_running(true, state);
     if (Upolyd(state.u)) {
         state.u.mh -= n;
-        await showdamage(n, state, env);
+        await showdamage(n, state, effectEnv);
         if (state.u.mhmax < state.u.mh)
             state.u.mhmax = state.u.mh;
-        if (state.u.mh < 1)
+        if (state.u.mh < 1) {
+            if (env.planning)
+                throw new HeroDeathPlanningError(knam, k_format, env);
             await rehumanize(state);
-        else if (n > 0 && state.u.mh * 10 < state.u.mhmax && Unchanging(state))
-            await maybe_wail(state, env);
+        } else if (n > 0 && state.u.mh * 10 < state.u.mhmax
+            && Unchanging(state)) {
+            await maybe_wail(state, effectEnv);
+        }
         return;
     }
 
     state.u.uhp -= n;
-    await showdamage(n, state, env);
+    await showdamage(n, state, effectEnv);
     // Widening this comparison to >= would assign u.uhpmax to itself, so no
     // test can tell the two apart.
     if (state.u.uhp > state.u.uhpmax)
@@ -1243,6 +1265,8 @@ export async function losehp(n, knam, k_format, state = game, env = {}) {
         // svk.killer.name itself. Assigning the same string is that same
         // no-op here.
         state.killer.name = knam ?? '';
+        if (env.planning)
+            throw new HeroDeathPlanningError(knam, k_format, env);
         // urgent_pline() rather than pline(): win/tty/topl.c update_topl():265
         // refuses to let a line starting "You die" share the top line with the
         // message before it, so this is the --More-- the player answers before
@@ -1255,7 +1279,7 @@ export async function losehp(n, knam, k_format, state = game, env = {}) {
         // at.
         await done(DIED, state, env.fromMonster ? { fromMonster: true } : {});
     } else if (n > 0 && state.u.uhp * 10 < state.u.uhpmax) {
-        await maybe_wail(state, env);
+        await maybe_wail(state, effectEnv);
     }
 }
 

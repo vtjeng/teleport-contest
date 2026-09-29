@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first candidate for potion.c:peffect_confusion. A human Ranger quaffs an uncursed potion while initially unconfused; C should set the timed confusion property and emit its ordinary feedback. C observed the wished item at inventory slot g; this corrected recipe selects that source-reported letter.",
+  "segments": [
+    {
+      "seed": 64782109,
+      "datetime": "20491127102500",
+      "nethackrc": "OPTIONS=name:V14ConfusePotion,role:Ranger,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\npotion of confusion\nqg "
+    }
+  ]
+}

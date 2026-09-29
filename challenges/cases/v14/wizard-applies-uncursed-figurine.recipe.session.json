@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first apply.c:use_figurine -> make_familiar case. A Wizard moves off the entrance stairs, wishes an uncursed figurine of a gnome, applies it, and selects the valid adjacent floor square east of the hero. Closest v1-v13 cases create or transform other monsters but do not apply a figurine.",
+  "segments": [
+    {
+      "seed": 76351029,
+      "datetime": "20571201102000",
+      "nethackrc": "OPTIONS=name:V14Figurine,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "l#wizwish\nuncursed figurine of a gnome\naol "
+    }
+  ]
+}
