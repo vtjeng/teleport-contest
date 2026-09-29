@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73329114,
+      "datetime": "20491217131522",
+      "nethackrc": "OPTIONS=name:B54LightSnake,role=Wizard,race=human,gender=female,align=neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "DaA\n\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020\u0020#polyself\ngarter snake\n  #monster\nZa<"
+    }
+  ],
+  "comment": "B54 blocked recipe for zap.c:zap_updown()'s concealed-hero upward branch. C confirms that the drop categories command selects all types with lowercase a and auto-drops them with uppercase A; the worn cloak falls to the floor when polymorphing. The garter snake is M1_CONCEAL and MS_HISS, passes can_chant(), hides under the cloak, and a Force Bolt `<` reaches the upward zap_updown path. Strict replay stops at input step 2 because JavaScript does not admit the C `D`/`droptype` command (`do.c:doddrop()`) used to unload inventory; no matching recording is claimed. The earlier attempt used `k` and reached only the northward weffects path."
+}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T12:41:40.004Z",
+  "capturedAt": "2026-09-29T13:08:47.127Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -9329,12 +9329,90 @@
         "type": "accepted",
         "at": "2026-09-29T12:40:49.606Z",
         "task": "A49"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "published-A49-9ffaed47",
+        "type": "published",
+        "at": "2026-09-29T12:43:29.843Z",
+        "task": "A49",
+        "commit": "9ffaed470fc76ea15c1d1c541347b8ed7a8b01a3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B54-2b0791bb",
+        "type": "received",
+        "at": "2026-09-29T12:45:02.724Z",
+        "task": "B54",
+        "delivery": "2b0791bbe56fb1e480b3d04f092b5c145b6d3767"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B54-bc384f03",
+        "type": "integrating",
+        "at": "2026-09-29T12:47:41.844Z",
+        "task": "B54",
+        "integration": "bc384f03d9fe73a8691d4f02f085b110b2a9e8b2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "feedback-B54-zapyourself-tests-20260929",
+        "type": "feedback",
+        "at": "2026-09-29T12:50:36.990Z",
+        "task": "B54",
+        "delivery": "2b0791bbe56fb1e480b3d04f092b5c145b6d3767"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B54-resume-zapyourself-20260929",
+        "type": "resume",
+        "at": "2026-09-29T12:51:53.375Z",
+        "task": "B54"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-337b016759a90a9fa2acb7b0731829b75faaa31a",
+        "type": "ready",
+        "at": "2026-09-29T12:56:49.802Z",
+        "task": "B54",
+        "delivery": "337b016759a90a9fa2acb7b0731829b75faaa31a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-B54-test-correction-20260929",
+        "type": "received",
+        "at": "2026-09-29T12:57:21.770Z",
+        "task": "B54",
+        "delivery": "337b016759a90a9fa2acb7b0731829b75faaa31a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "integrating-B54-test-correction-20260929",
+        "type": "integrating",
+        "at": "2026-09-29T12:58:43.532Z",
+        "task": "B54",
+        "integration": "08fd66ac08b24c2f477b1e36fedd4b8766836751"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "validated-B54-20260929",
+        "type": "validated",
+        "at": "2026-09-29T13:08:26.802Z",
+        "task": "B54",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "accepted-B54-20260929",
+        "type": "accepted",
+        "at": "2026-09-29T13:08:36.664Z",
+        "task": "B54"
       }
     ]
   },
   "development": {
-    "executionCommit": "97cc557adf3a397c494f7f8a5ec6ed5d64c8ee4f",
-    "measuredAt": "2026-09-29T12:34:05.651Z",
+    "executionCommit": "08fd66ac08b24c2f477b1e36fedd4b8766836751",
+    "measuredAt": "2026-09-29T13:03:40.385Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
