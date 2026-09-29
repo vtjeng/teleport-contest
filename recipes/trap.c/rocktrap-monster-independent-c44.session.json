@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary monster-step witness for trap.c:trapeffect_rocktrap's existing monster arm. A source-directed port-only scan over seeds 4400001-4405000 with datetime 20320405060708, a human female Valkyrie, pettype:none, and forty searches first reached an already-fired ROCKTRAP at seed 4400107 (107 replays). The segment keeps the hero stationary while a level monster steps on the generated trap.",
+  "segments": [
+    {
+      "seed": 4400107,
+      "datetime": "20320405060708",
+      "nethackrc": "OPTIONS=name:RockProbe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,time\n",
+      "moves": "ssssssssssssssssssssssssssssssssssssssss"
+    }
+  ]
+}

@@ -144,6 +144,7 @@ import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
 import {
     at_dgn_entrance,
     Can_fall_thru,
+    ceiling,
     on_level,
     surface,
 } from './dungeon.js';
@@ -157,6 +158,7 @@ import { game } from './gstate.js';
 import { losexp } from './exper.js';
 import { youHear as plineYouHear } from './pline.js';
 import { setmangry } from './mon.js';
+import { hard_helmet } from './do_wear.js';
 import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
 import {
     UnsupportedHeroMoveBoundaryError,
@@ -981,29 +983,96 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
         : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
 }
 
-// C ref: trap.c trapeffect_rocktrap() (1322-1399), monster arm (1375-1398).
-//
-// The hero arm (1332-1374) stops the scan, and preflight_dotrap() refuses
-// ROCKTRAP ahead of the hero's move so that nothing reaches the stop here: the
-// arm needs uarmh, passes_rocks() over the hero's form, hard_helmet(),
-// helm_simple_name() and Yname2() for the three helmet lines, and
-// losehp(Maybe_Half_Phys(dmg)) after them.
-//
-// The monster arm is the dart trap's monster arm with a rock instead of a
-// dart, no poison roll, and a forced d(2, 6) of damage rather than a to-hit
-// roll at attack level 7. C evaluates that d(2, 6) as thitm()'s argument, so
-// the draw lands before anything inside thitm(); the port spends it in the
-// same place.
+// C ref: trap.c trapeffect_rocktrap() (1322-1399), complete hero arm
+// (1332-1374) and monster arm (1375-1398). The hero rolls d(2,6) before
+// setting once, feeling the trap, or creating the rock. It then places and
+// names that rock before applying the form/helmet branch, observation,
+// stacking, redraw and damage. The monster branch retains its independent
+// source order: its d(2,6) is evaluated as thitm()'s argument after the rock
+// is created and the trap is revealed.
 async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
-    const unsupported = requireTrapOperation(env, 'unsupported');
     const message = requireTrapOperation(env, 'message');
     const redraw = requireTrapOperation(env, 'redraw');
     const objectEnv = objectGenerationEnv({ state, random });
 
-    if (mtmp === state.youmonst)
-        unsupported('a rock falling on the hero');
+    if (mtmp === state.youmonst) {
+        if (trap.once && trap.tseen && !random.rn2(15)) {
+            await message(
+                `A trap door in ${the(ceiling(state.u.ux, state.u.uy), state)}`
+                    + ' opens, but nothing falls out!',
+                state,
+                env,
+            );
+            deltrap(trap, state);
+            redraw(state.u.ux, state.u.uy);
+            return Trap_Effect_Finished;
+        }
+
+        // C rolls damage before either the trap latch or t_missile()'s
+        // mkobj.c initialization sequence.
+        let damage = random.d(2, 6);
+        trap.once = true;
+        feeltrap(trap, env);
+        const otmp = t_missile(ROCK, trap, { ...env, objectEnv });
+        place_object(otmp, state.u.ux, state.u.uy, objectEnv);
+        await message(
+            `A trap door in ${the(ceiling(state.u.ux, state.u.uy), state)}`
+                + ` opens and ${an(xnameFresh(otmp, state))} falls on your `
+                + `${body_part(HEAD, state.youmonst)}!`,
+            state,
+            env,
+        );
+
+        let harmless = false;
+        if (state.uarmh) {
+            // passes_rocks() ordinarily protects, but the helmet takes
+            // precedence over that form protection in the source.
+            if (passes_rocks(state.youmonst.data)) {
+                await message(
+                    `Unfortunately, you are wearing `
+                        + `${an(helm_simple_name(state.uarmh, state))}.`,
+                    state,
+                    env,
+                );
+                damage = 2;
+            } else if (hard_helmet(state.uarmh, state)) {
+                await message(
+                    'Fortunately, you are wearing a hard helmet.',
+                    state,
+                    env,
+                );
+                damage = 2;
+            } else if (state.flags?.verbose) {
+                await message(
+                    `${Yname2(state.uarmh, state)} does not protect you.`,
+                    state,
+                    env,
+                );
+            }
+        } else if (passes_rocks(state.youmonst.data)) {
+            await message('It passes harmlessly through you.', state, env);
+            harmless = true;
+        }
+        if (!heroIsBlind(state)) observe_object(otmp, state);
+        stackobj(otmp, objectEnv);
+        redraw(state.u.ux, state.u.uy);
+
+        if (!harmless) {
+            await losehp(
+                Maybe_Half_Phys(damage, state),
+                'falling rock',
+                KILLED_BY_AN,
+                state,
+                env,
+            );
+            await exercise(A_STR, false, state, random, {
+                encumberMessage: (subject) => encumber_msg(subject),
+            });
+        }
+        return Trap_Effect_Finished;
+    }
 
     // ── monster arm (C 1375-1398) ──
     const in_sight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
@@ -3758,21 +3827,20 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 // that arrives another way.
 //
 // The stops, and what each of them needs:
-//   every type but BEAR_TRAP, DART_TRAP, MAGIC_TRAP, ANTI_MAGIC, FIRE_TRAP,
-//     SLP_GAS_TRAP, RUST_TRAP,
-//     LANDMINE, PIT, SPIKED_PIT, TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP --
-//     its own trapeffect_*() arm;
+//   every type but BEAR_TRAP, DART_TRAP, ROCKTRAP, MAGIC_TRAP, ANTI_MAGIC,
+//     FIRE_TRAP, SLP_GAS_TRAP, RUST_TRAP, LANDMINE, PIT, SPIKED_PIT,
+//     TELEP_TRAP, WEB and ROLLING_BOULDER_TRAP -- its own trapeffect_*() arm;
 //   a magic-resistant hero on a teleport trap -- shieldeff(), a tmp_at()
 //     animation, at teleport.c:1503;
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
-//   a trap other than WEB, PIT and SPIKED_PIT the hero has already seen -- the
-//     "You step over ..." line at trap.c:3028 and the "You escape ..." line at
-//     :3039 are outside those effects;
-//   a mounted hero -- s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509
-//     (bear trap), while steedintrap() handles the dart, gas, magic, landmine
-//     and pit arms admitted below; ANTI_MAGIC acts directly on the hero;
+//   a seen trap except WEB, LANDMINE, ROCKTRAP, ANTI_MAGIC and pits/holes --
+//     the "You escape ..." line at trap.c:3039 is outside those effects;
+//   a mounted hero where the effect has no corresponding source arm --
+//     s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509 (bear trap),
+//     while steedintrap() handles the dart, gas, magic, landmine and pit arms;
+//     ROCKTRAP still targets the hero and ANTI_MAGIC acts directly on them;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518 (bear trap only).
 export function preflight_dotrap(trap, state = game, trflags = 0) {
     const pitTrap = is_pit(trap.ttyp);
@@ -3780,7 +3848,8 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== MAGIC_TRAP && trap.ttyp !== FIRE_TRAP
         && trap.ttyp !== SLP_GAS_TRAP
         && trap.ttyp !== ANTI_MAGIC
-        && trap.ttyp !== RUST_TRAP && trap.ttyp !== TELEP_TRAP
+        && trap.ttyp !== RUST_TRAP && trap.ttyp !== ROCKTRAP
+        && trap.ttyp !== TELEP_TRAP
         && trap.ttyp !== LANDMINE && !pitTrap
         && trap.ttyp !== WEB
         && trap.ttyp !== ROLLING_BOULDER_TRAP && !is_hole(trap.ttyp))
@@ -3803,6 +3872,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         }
     }
     if (trap.tseen && trap.ttyp !== WEB && trap.ttyp !== LANDMINE
+        && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== ANTI_MAGIC && !pitTrap && !is_hole(trap.ttyp)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
@@ -3810,6 +3880,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
     }
     if (state.u.usteed && trap.ttyp !== WEB
         && trap.ttyp !== LANDMINE && trap.ttyp !== DART_TRAP
+        && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
         && trap.ttyp !== ANTI_MAGIC
         && !pitTrap) {
@@ -3831,8 +3902,9 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
 }
 
 // C ref: trap.c dotrap() (2995-3060). The hero's counterpart to mintrap():
-// hack.c spoteffects() calls it for the trap under the hero's feet. The pit
-// and spiked-pit arms are admitted here because trapeffect_pit() is complete.
+// hack.c spoteffects() calls it for the trap under the hero's feet. Its
+// ROCKTRAP dispatch reaches trapeffect_rocktrap() after the source's escape
+// check, including for already-seen rock traps.
 export async function dotrap(trap, trflags, state = game) {
     // First, and before nomul(0): a refusal has to precede the state change,
     // not follow it.
