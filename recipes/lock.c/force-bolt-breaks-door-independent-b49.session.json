@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 681117,
+      "datetime": "20340817141500",
+      "nethackrc": "OPTIONS=name:DoorSpell,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode=debug,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " jjllllllZal"
+    }
+  ],
+  "_comment": "Independent spell.c:spelleffects -> zap.c:weffects -> zap.c:bhit -> lock.c:doorlock witness. A Wizard's starting Force Bolt spell targets the known locked east door with a new character and time."
+}

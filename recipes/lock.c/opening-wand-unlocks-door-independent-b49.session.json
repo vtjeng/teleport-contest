@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 681117,
+      "datetime": "20340817160000",
+      "nethackrc": "OPTIONS=name:DoorUnlock,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode=debug,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " \u0017wand of opening\njjllllllzol"
+    }
+  ],
+  "_comment": "Independent hero zap.c:bhit -> lock.c:doorlock WAN_OPENING witness. A newly wished opening wand targets the generated locked east door; inputs and clock are distinct from the other B49 wand and spell cases."
+}
