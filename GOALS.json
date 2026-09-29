@@ -111709,7 +111709,7 @@
     {
       "id": "port-trap-mk-trap-statue-synthetic-v11-20260929",
       "kind": "file-port",
-      "status": "queued",
+      "status": "open",
       "summary": "Port statue-trap creation for every trap creator",
       "cFile": "trap.c",
       "sessions": [
@@ -111717,8 +111717,12 @@
       ],
       "selectionReason": "v11 hero-statue-trap-animates-statue first diverges at step 35 during trap.c:maketrap STATUE_TRAP creation: the existing level-only mk_trap_statue hook is skipped by the wizard wish caller. Port the whole helper and wire maketrap for all callers; the later activation path is a separate source task if still unmatched.",
       "detail": "See investigations/synthetic/v11/hero-statue-trap-animates-statue.json; C trap.c:390-418, 508-509 and objnam.c:3573. Preserve generated monster/statue inventory transfer, placement and RNG order. The observed rndmonst_adj discrepancy follows missing helper invocation, not a seed-specific random fix.",
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "19413bceae818ef6f99b90690305b070fd86f336",
+      "openStanding": {
+        "sha": "cd144c8466c0673e0a6804f830800623c8b9a139",
+        "screens": 11405,
+        "rng": 792838
+      },
       "closedAt": null,
       "delivered": null,
       "functions": [
@@ -111747,7 +111751,229 @@
           "evaluationPath": "challenges/evaluations/20260929023139-v11.json",
           "evaluationCommit": "c64c3fa1121e1a2ad5dad3a8ea4bf9c49df51586"
         }
-      }
+      },
+      "activeStanding": {
+        "sha": "cd144c8466c0673e0a6804f830800623c8b9a139",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v11",
+          "caseId": "hero-statue-trap-animates-statue",
+          "session": "synthetic/v11/hero-statue-trap-animates-statue",
+          "manifestPath": "challenges/manifests/v11.json",
+          "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+          "recording": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingPath": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+          "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+          "recipe": "challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json",
+          "recipeSha256": "676e93c84bc911489e707abbf9a80a1e53d46dfd99c12b8f848e04625d12964d",
+          "replayInputSha256": "179a68b02a749abceba90b4059df5d1a341422603e9ebed71fa68753e076437f",
+          "evaluationPath": "challenges/evaluations/20260929033350-v11.json",
+          "evaluationCommit": "cd144c8466c0673e0a6804f830800623c8b9a139",
+          "evaluationArtifact": "challenges/evaluations/20260929033350-v11.json",
+          "evaluationUtc": "2026-09-29T03:33:59.894Z",
+          "remainingScreens": 3,
+          "recordedSteps": 39,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2240,
+              "total": 2433
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 36,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 36,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 16,
+              "column": 27,
+              "cCell": {
+                "ch": "f",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": ":",
+                "color": 15,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2240,
+              "cEntry": "rn2(3)=0",
+              "cCaller": "rndmonst_adj(makemon.c:1716)",
+              "jsEntry": "rn2(5)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 35,
+                "key": "\n"
+              },
+              "stepIndex": 35
+            },
+            "cursor": null
+          },
+          "step": 35,
+          "kind": "rng",
+          "sourceFile": "makemon.c",
+          "function": "rndmonst_adj",
+          "message": null,
+          "cFile": "makemon.c",
+          "luaFile": null,
+          "line": 1716,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v11/hero-statue-trap-animates-statue.json",
+            "result": {
+              "session": "synthetic/v11/hero-statue-trap-animates-statue",
+              "corpus": "synthetic",
+              "batch": "v11",
+              "caseId": "hero-statue-trap-animates-statue",
+              "manifestPath": "challenges/manifests/v11.json",
+              "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+              "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+              "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+              "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "remainingScreens": 3,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v11",
+                "caseId": "hero-statue-trap-animates-statue",
+                "session": "synthetic/v11/hero-statue-trap-animates-statue",
+                "manifestPath": "challenges/manifests/v11.json",
+                "manifestSha256": "7b80a66ca2659fab5f6012dfef09f8f1b46fe94a80716d5a8637af3b9e638347",
+                "recording": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+                "recordingPath": "challenges/cases/v11/hero-statue-trap-animates-statue.session.json",
+                "recordingSha256": "a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91",
+                "recipe": "challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json",
+                "recipeSha256": "676e93c84bc911489e707abbf9a80a1e53d46dfd99c12b8f848e04625d12964d",
+                "replayInputSha256": "05db0e445b8e2179d31b784031623bb1d984f9c3af1155abde4fe0455af8fbd5",
+                "evaluationPath": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationCommit": "b8414122a83c8057895ab04b23b7f5c6876b3328",
+                "evaluationArtifact": "challenges/evaluations/20260928234726-v11.json",
+                "evaluationUtc": "2026-09-28T23:47:35.564Z",
+                "remainingScreens": 3,
+                "recordedSteps": 39,
+                "previousScreensMatched": 36,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2240,
+                    "total": 2433
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 36,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 36,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 16,
+                    "column": 27,
+                    "cCell": {
+                      "ch": "f",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": ":",
+                      "color": 15,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2240,
+                    "cEntry": "rn2(3)=0",
+                    "cCaller": "rndmonst_adj(makemon.c:1716)",
+                    "jsEntry": "rn2(5)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 35,
+                      "key": "\n"
+                    },
+                    "stepIndex": 35
+                  },
+                  "cursor": null
+                },
+                "step": 35,
+                "kind": "rng",
+                "sourceFile": "makemon.c",
+                "function": "rndmonst_adj",
+                "message": null,
+                "cFile": "makemon.c",
+                "luaFile": null,
+                "line": 1716
+              },
+              "summary": "The wizard wishes for a statue trap. C trap.c:maketrap calls mk_trap_statue and immediately creates a random living statue with its generated contents. The JavaScript wizard-wish caller reaches maketrap without the level-generation hook and skips that helper. Later, the hero activation arm is still refused before calling the already ported activate_statue_trap.",
+              "source": {
+                "file": "trap.c",
+                "branch": "trap.c:maketrap STATUE_TRAP arm (508-509) calls mk_trap_statue (390-418) for every creator, including objnam.c:readobjnam wizard trap wishes (3573). The C replay first differs on the source rndmonst_adj choice at zero-based step 35, then shows the created statue. Hero entry later follows trapeffect_statue_trap (2279-2292) and activate_statue_trap (908-932).",
+                "functions": [
+                  "mk_trap_statue",
+                  "maketrap",
+                  "trapeffect_statue_trap",
+                  "activate_statue_trap"
+                ],
+                "callers": [
+                  "objnam.c:readobjnam wizard trap wish calls trap.c:maketrap; js/objnam_readobjnam.js calls js/trap.js:maketrap without makeTrapStatue capability.",
+                  "trap.c:maketrap directly calls mk_trap_statue on STATUE_TRAP; js/trap.js currently calls the helper only when a caller supplies a hook from js/mktrap.js, otherwise records note_unported.",
+                  "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_statue_trap(hero) -> activate_statue_trap; js/trap_effects.js preflight and hero arm refuse this path although activate_statue_trap exists in js/trap.js."
+                ],
+                "dependencies": [
+                  "Existing js/mktrap.js:mk_trap_statue covers much of source trap.c:mk_trap_statue but is local to level creation; make the source helper callable from trap.c:maketrap for every trap creator and preserve its monster-inventory transfer and RNG order.",
+                  "mk_trap_statue consumes rndmonnum_adj, mkcorpstat, makemon, add_to_container, and weight results; confirm each source return and side effect. The C creates an additional statue even when one was wished and dropped on the same square.",
+                  "trapeffect_statue_trap discards activate_statue_trap return and returns Trap_Effect_Finished; the existing js/trap.js:activate_statue_trap consumes animate_statue result and must retain pile order and uniqueness retry.",
+                  "This source family shares js/trap.js and js/trap_effects.js with the separately assigned fire-trap port, so defer implementation until that worker scope is released."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20260928234726-v11.json at b8414122a83c8057895ab04b23b7f5c6876b3328 has 3 unmatched screens. The first RNG divergence is C rn2(3)=0 in makemon.c:rndmonst_adj at step 35, while JS draws rn2(5); the following screen has a C monster where JS still shows a statue.",
+                "Independent C recording challenges/cases/v11/hero-statue-trap-animates-statue.session.json has SHA-256 a6fba47c059202a851314f47e0d38ef04bbdbddc7552722d8b26193d0b47dc91; recipe challenges/cases/v11/hero-statue-trap-animates-statue.recipe.session.json wishes and drops a newt statue, wishes a statue trap, then returns to activate it.",
+                "Upstream trap.c:390-418, :508-509, :908-932, :2279-2292 and objnam.c:3573 establish the missing creation and activation paths. js/mktrap.js:416 has a level-only mk_trap_statue helper, js/trap.js:877 skips it without a hook, and js/trap_effects.js:3453 refuses the hero arm."
+              ]
+            }
+          }
+        }
+      ]
     },
     {
       "id": "port-eat-lesshungry-synthetic-v12-20260929",
