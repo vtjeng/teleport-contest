@@ -119780,7 +119780,7 @@
     {
       "id": "port-pickup-object-scare-scroll-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "parked",
+      "status": "closed",
       "summary": "Port pickup-object handling and its corpse-check dependency",
       "cFile": "pickup.c",
       "sessions": [
@@ -119794,8 +119794,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pickup_object",
@@ -119824,7 +119827,7 @@
         }
       },
       "activeStanding": {
-        "sha": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+        "sha": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
         "screens": 11405,
         "rng": 792838
       },
@@ -120089,7 +120092,13 @@
         "screens": 11405,
         "rng": 792838
       },
-      "parkedReason": "The combined checkpoint preserves all 44 fixed sessions and 709 regression recordings but fails an obsolete pet-swap pickup-refusal assertion. Automatic approval review rejected the isolated correction worktree and prohibited workarounds. Preserve the candidate and source evidence pending direct user clarification."
+      "parkedReason": "The combined checkpoint preserves all 44 fixed sessions and 709 regression recordings but fails an obsolete pet-swap pickup-refusal assertion. Automatic approval review rejected the isolated correction worktree and prohibited workarounds. Preserve the candidate and source evidence pending direct user clarification.",
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
