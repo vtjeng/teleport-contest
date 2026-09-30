@@ -34,6 +34,7 @@ import {
     NO_MINVENT,
     NO_MM_FLAGS,
     OBJ_MINVENT,
+    OBJ_FLOOR,
     OROOM,
     P_POLEARMS,
     PIT,
@@ -72,7 +73,7 @@ import {
     startsPermanentlyInvisible,
     UnsupportedMonsterCreationError,
 } from '../js/makemon_create.js';
-import { mongone } from '../js/mon.js';
+import { m_detach, mongone } from '../js/mon.js';
 import {
     is_dprince,
     is_giant,
@@ -97,6 +98,7 @@ import {
     NON_PM,
     PM_ARCH_LICH,
     PM_AMOROUS_DEMON,
+    PM_AIR_ELEMENTAL,
     PM_ARCHEOLOGIST,
     PM_BARROW_WIGHT,
     PM_ELF,
@@ -2010,6 +2012,113 @@ test('mongone marks a monster dead before discarding worn wrapping', () => {
     assert.equal(monster.misc_worn_check, I_SPECIAL);
     assert.equal(monster.invis_blkd, true);
     assert.equal(monster.minvis, false);
+});
+
+test('mongone waits for swallowed release before inventory RNG and detach', async () => {
+    const state = initialLevelState();
+    // This independently constructed air elemental supplies AT_ENGL. Its ID
+    // 47 and 18 HP only keep the fixture distinct and alive; neither chooses
+    // a behavior branch, and the fixed object seed supplies a plain item.
+    const monster = newMonster({
+        data: state.mons[PM_AIR_ELEMENTAL],
+        mnum: PM_AIR_ELEMENTAL,
+        m_id: 47,
+        mhp: 18,
+    });
+    state.level.monlist = monster;
+    place_monster(monster, MON_X, MON_Y, state);
+    state.u.ustuck = monster;
+    state.u.uswallow = 1;
+    state.gm = { mswallower: monster };
+    const armor = mksobj(LEATHER_ARMOR, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    add_to_minv(monster, armor, { state });
+
+    let releaseVision;
+    let signalVision;
+    const visionGate = new Promise((resolve) => { releaseVision = resolve; });
+    const visionEntered = new Promise((resolve) => { signalVision = resolve; });
+    const random = scriptedRandom([
+        // mon.c:unstuck's rnd(2) cooldown follows the swallowed redraw.
+        step('rnd', [2], 1),
+        // steal.c:mdrop_special_objs queries obj_resists before inventory is
+        // discarded, so its rn2(100) follows the cooldown; 99 keeps the plain
+        // leather armor and pins that source-backed resistance call.
+        step('rn2', [100], 99),
+    ]);
+    const removal = mongone(monster, {
+        state,
+        random: random.random,
+        visionRecalc: async (mode) => {
+            if (mode === 2) {
+                // mode 2 is mon.c:unstuck's full vision recalculation. C has
+                // already cleared u.ustuck/uswallow here; docrt(), the second
+                // recalc, overlay, and rnd(2) cooldown still follow this gate.
+                signalVision();
+                await visionGate;
+            }
+        },
+        docrt: async () => {},
+    });
+
+    assert.equal(typeof removal?.then, 'function');
+    await visionEntered;
+    assert.equal(state.u.ustuck, null);
+    assert.equal(state.u.uswallow, 0);
+    assert.equal(monster.minvent, armor);
+    // mongone must still be waiting: no detach flag, purge count, or object
+    // resistance draw can advance until the swallowed redraw gate is released.
+    assert.equal(Boolean(monster.mstate & MON_DETACH), false);
+    assert.equal(state.iflags?.purge_monsters ?? 0, 0);
+    assert.equal(random.consumedCount(), 0);
+
+    releaseVision();
+    await removal;
+    random.assertExhausted();
+    assert.equal(monster.minvent, null);
+    assert.ok(monster.mstate & MON_DETACH);
+    // The single source monster is detached once after the cooldown and its
+    // ordinary inventory resistance draw.
+    assert.equal(state.iflags.purge_monsters, 1);
+});
+
+test('m_detach death waits for relobj before marking and purging the monster', async () => {
+    const state = initialLevelState();
+    // The newt's ID 48 and 4 HP only distinguish an ordinary live carrier;
+    // leather armor gives relobj a normal floor-drop path without a special
+    // death branch. Fixed object randomness keeps object construction inert.
+    const monster = newMonster({
+        data: state.mons[PM_NEWT],
+        mnum: PM_NEWT,
+        m_id: 48,
+        mhp: 4,
+    });
+    state.level.monlist = monster;
+    place_monster(monster, MON_X, MON_Y, state);
+    const armor = mksobj(LEATHER_ARMOR, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    add_to_minv(monster, armor, { state });
+
+    const detach = m_detach(monster, monster.data, true, state, {
+        unsupported(branch) {
+            throw new Error(`unexpected unsupported m_detach branch: ${branch}`);
+        },
+    });
+    assert.equal(typeof detach?.then, 'function');
+    assert.equal(Boolean(monster.mstate & MON_DETACH), false);
+    assert.equal(state.iflags?.purge_monsters ?? 0, 0);
+
+    await detach;
+    assert.ok(monster.mstate & MON_DETACH);
+    // relobj finishes this one item's floor drop before C's detach marker and
+    // one purge-count increment become visible.
+    assert.equal(state.iflags.purge_monsters, 1);
+    assert.equal(monster.minvent, null);
+    assert.equal(armor.where, OBJ_FLOOR);
 });
 
 test('mongone exposes a synchronous m_detach redraw failure to its caller', () => {

@@ -2752,7 +2752,7 @@ const GENOCIDE_ONTHRONE = 4;
 // retry accounting, eligibility scan, and self-genocide order follow C. Its
 // wizard `*` branch calls the admitted mon.c:mongone() path; the distinct
 // kill_genocided_monsters() calls remain a named source gap.
-export async function do_class_genocide(state = game) {
+export async function do_class_genocide(state = game, env = {}) {
     let llDone = false;
     let feelDead = false;
     let gameover = false;
@@ -2825,8 +2825,12 @@ export async function do_class_genocide(state = game) {
                     const next = monster.nmon;
                     if (monster.mhp >= 1) {
                         // C saves nmon before mongone() detaches this monster.
-                        // This non-death m_detach() path completes synchronously.
-                        mongone(monster, { state });
+                        // Ordinary removal stays synchronous; releasing a
+                        // swallowed hero must finish its redraw/cooldown before
+                        // this loop counts the monster or visits the next one.
+                        const removal = mongone(monster, { ...env, state });
+                        if (removal && typeof removal.then === 'function')
+                            await removal;
                         ++count;
                     }
                     monster = next;
