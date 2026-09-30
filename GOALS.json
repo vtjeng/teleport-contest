@@ -122158,6 +122158,309 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-read-seffect-magic-mapping-synthetic-v14-20260930",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete magic mapping for scrolls and spells and wire its mapping callers",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll"
+      ],
+      "selectionReason": "Select synthetic/v14/rogue-reads-cursed-magic-mapping-scroll from the complete accepted A57 evaluations at 5e82414bddf1cc5c4346e7b0948ff9f187439574, whose game inputs remain current at 420707b9. The investigation traces the cursed mapping refusal to read.c:seffect_magic_mapping and detect.c:show_map_spot. Complete the whole read helper, its scroll/spell dispatch and consumed mapping dependencies; wire lateral/downward probing callers and their inventory display dependency. A56/A57 dependencies are accepted. Root completes the ordinary throne case10 mapping caller with an independently frozen C recipe in this same task. Supporting branch changes do not establish completion of their entire outer functions.",
+      "detail": "Whole read.c seffect_magic_mapping; complete detect mapping helpers and invent display_binventory/only_here; source-specific spell, probing wand and throne mapping callers. Preserve confusion, secret-door, map display, inventory query and Wisdom RNG order. Clairvoyance outer caller and other zap arms remain outside scope.",
+      "openedAt": "420707b9da62a03889225de76765107ba972df17",
+      "openStanding": {
+        "sha": "b4e637be43b2daa5d2244eac8b6f177fbc70f4c6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "seffect_magic_mapping",
+          "line": 2102,
+          "endLine": 2156,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 2102,
+        "to": 2156
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll": {
+          "session": "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+          "recordingSha256": "0eaa6735468ab5367ddbcf1c7c7677c279a1d666780dffb54c10697cbd333ba4",
+          "evaluationPath": "challenges/evaluations/20260930053417-v14.json",
+          "evaluationCommit": "5e82414bddf1cc5c4346e7b0948ff9f187439574"
+        }
+      },
+      "activeStanding": {
+        "sha": "b4e637be43b2daa5d2244eac8b6f177fbc70f4c6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+          "session": "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+          "recordingPath": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+          "recordingSha256": "0eaa6735468ab5367ddbcf1c7c7677c279a1d666780dffb54c10697cbd333ba4",
+          "recipe": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.recipe.session.json",
+          "recipeSha256": "2a9f836bba05254d15aacc51181ec556e0fafa180a63429baba21a6f7b34481d",
+          "replayInputSha256": "8198f08228dbbf171703327eda15ff81586bea38077db30f8da29f212371988a",
+          "evaluationPath": "challenges/evaluations/20260930053417-v14.json",
+          "evaluationCommit": "5e82414bddf1cc5c4346e7b0948ff9f187439574",
+          "evaluationArtifact": "challenges/evaluations/20260930053417-v14.json",
+          "evaluationUtc": "2026-09-30T05:34:42.508Z",
+          "remainingScreens": 2,
+          "recordedSteps": 45,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 45
+            },
+            "rng": {
+              "matched": 2758,
+              "total": 4425
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 45
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2758,
+              "cEntry": "rn2(7)=5",
+              "cCaller": "show_map_spot(detect.c:1379)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "h"
+              },
+              "stepIndex": 43
+            },
+            "cursor": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "h"
+              },
+              "cCursor": [
+                77,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 43,
+          "kind": "rng",
+          "sourceFile": "detect.c",
+          "function": "show_map_spot",
+          "message": null,
+          "cFile": "detect.c",
+          "luaFile": null,
+          "line": 1379,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/rogue-reads-cursed-magic-mapping-scroll.json",
+            "result": {
+              "session": "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "0eaa6735468ab5367ddbcf1c7c7677c279a1d666780dffb54c10697cbd333ba4",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 2,
+              "recordedSteps": 45,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+                "session": "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+                "recordingPath": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+                "recordingSha256": "0eaa6735468ab5367ddbcf1c7c7677c279a1d666780dffb54c10697cbd333ba4",
+                "recipe": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.recipe.session.json",
+                "recipeSha256": "2a9f836bba05254d15aacc51181ec556e0fafa180a63429baba21a6f7b34481d",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 2,
+                "recordedSteps": 45,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 45
+                  },
+                  "rng": {
+                    "matched": 2758,
+                    "total": 4425
+                  },
+                  "cursors": {
+                    "matched": 43,
+                    "total": 45
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2758,
+                    "cEntry": "rn2(7)=5",
+                    "cCaller": "show_map_spot(detect.c:1379)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "h"
+                    },
+                    "stepIndex": 43
+                  },
+                  "cursor": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      77,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 43,
+                "kind": "rng",
+                "sourceFile": "detect.c",
+                "function": "show_map_spot",
+                "message": null,
+                "cFile": "detect.c",
+                "luaFile": null,
+                "line": 1379
+              },
+              "summary": "The queue points to detect.c:show_map_spot because its rn2(7) is the first unmatched C draw, but the frozen JavaScript never reaches that helper: read.js:seffects() records note_unported(\"read.c seffect_magic_mapping\") for the cursed scroll. C’s whole read.c:seffect_magic_mapping() branch sets temporary confusion, calls detect.c:do_mapping(), and passes Confusion into detect.c:show_map_spot(). Frozen JS also hardcodes false in do_mapping() and refuses cnf=true in show_map_spot(). Matching this case requires the read effect and dispatch plus the dependent confused map path.",
+              "source": {
+                "file": "read.c",
+                "branch": "A sighted Rogue on an ordinary mappable level reads a cursed SCR_MAGIC_MAPPING scroll while not already confused. C sets gk.known, temporarily sets HConfusion to 1, runs do_mapping() so every map cell reaches show_map_spot(..., Confusion), restores HConfusion to 0, then reports that the details cannot be grasped. The complete source function also handles blessed scrolls, already-confused reads, spellbook effects, and nommap levels.",
+                "functions": [
+                  "seffect_magic_mapping"
+                ],
+                "callers": [
+                  "C direct caller: read.c:seffects() (2194-2290), SCR_MAGIC_MAPPING/SPE_MAGIC_MAPPING arm at 2263-2266. The target path is cmd.c read command at 1816 -> read.c:doread() -> seffects() at 635 -> seffect_magic_mapping(). Frozen JS follows js/cmd.js:runReadCommand -> js/read.js:doread() -> js/read.js:seffects(); the cursed-scroll arm at read.js:3322-3329 records note_unported instead of calling the helper.",
+                  "C spell caller: spell.c:spelleffects() sends SPE_MAGIC_MAPPING through seffects() at 1528-1530. Frozen JS spell.js:spelleffects() omits SPE_MAGIC_MAPPING from its scroll-duplicate cases and reaches UnsupportedSpellCastError, so the spellbook entry point also needs caller wiring when the whole helper is ported.",
+                  "C map path: read.c:seffect_magic_mapping() calls detect.c:do_mapping() at 2147; do_mapping() calls show_map_spot() with Confusion at detect.c:1430. The target recording reaches this path by reading the wished cursed scroll (input suffix \"rh \")."
+                ],
+                "dependencies": [
+                  "detect.c:do_mapping() (1422-1444): C passes Confusion to every show_map_spot() call and chooses browse_map()/redisplay versus reconstrain based on hero_memory and unconstrain_map(). Frozen js/detect.js supports only the hero-memory branch and passes false at 1627; the cursed path requires the temporary confusion state to reach this loop.",
+                  "detect.c:show_map_spot() (1372-1419): the existing JavaScript port handles ordinary unconfused mapping, but throws UnsupportedSearchError for cnf=true. C first evaluates if (cnf && rn2(7)) at 1379; on successful cells it updates seen terrain and displays mapped terrain/traps/objects, while confused mapping skips engraving and room-discovery updates.",
+                  "read.c:seffects() (2194-2290): its pre-dispatch exercise(A_WIS, TRUE) is already ported in js/read.js; the mapping effect does not clear *sobjp, so seffects() returns the unconsumed-scroll result and doread() performs normal discovery/useup handling.",
+                  "attrib.c:exercise() is called before the effect and by detect.c:do_mapping() after the map loop; both calls use Wisdom and must preserve their source-order RNG/state changes. Its JavaScript port is in js/attrib.js.",
+                  "read.c:seffect_magic_mapping() nommap arms call potion.c:make_confused() and polyself.c:body_part(); the mapping display path uses detect.c:unconstrain_map/reconstrain_map and display.c map, trap, engraving, redraw, flush, and browse helpers.",
+                  "Other direct C callers of show_map_spot() are detect.c:do_vicinity_map() at 1504 and zap.c:zap_over_floor() at 3731. do_vicinity_map() is reached from spell.c:spelleffects() at 1576 and allmain.c:moveloop_core() at 412. Other direct C callers of do_mapping() are wizcmds.c:wiz_map() at 192 and sit.c throne handling at 153; this assigned scroll recording does not cover those entry points."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry .cache/v14-baseline-work-queue.json reports 2 unmatched screens out of 45, with the first mismatch at step 43 on key h: C calls rn2(7)=5 from show_map_spot(detect.c:1379), the first map cell differs, and cursor positions diverge. The assigned scan .cache/synthetic-scans/v14/rogue-reads-cursed-magic-mapping-scroll.json records read.c seffect_magic_mapping as unported.",
+                "The admitted manifest challenges/manifests/v14.json identifies the path read.c:seffect_magic_mapping cursed dispatch -> detect.c:show_map_spot and records the outcome “A map coalesces in your mind!” followed by “Unfortunately, you can’t grasp the details.” The C trace begins the per-cell rn2(7) sequence at step 43; the recipe is a Rogue reading a cursed mapping scroll, with the final input keys selecting the item.",
+                "nethack-c/upstream/src/read.c:2102-2153 is the whole effect: it distinguishes scroll/spellbook, blessed/cursed, existing confusion, and nommap; for cursed unconfused mapping it sets HConfusion temporarily, calls do_mapping(), restores it, and emits the final message. read.c:2194-2266 dispatches both SCR_MAGIC_MAPPING and SPE_MAGIC_MAPPING; doread() uses seffects() at 635-645 and cmd.c maps the read command to doread() at 1816.",
+                "nethack-c/upstream/src/detect.c:1372-1419 and 1422-1444 establish the downstream state/RNG contract: show_map_spot() conditionally consumes rn2(7), updates map state/display on non-skipped cells, and do_mapping() passes Confusion through the complete x/y loop before its Wisdom exercise. Frozen js/detect.js:1585-1617 rejects cnf=true; js/detect.js:1619-1631 hardcodes false and implements only the ordinary hero-memory arm.",
+                "Frozen examined JavaScript at 3212f9f07c3fdf3f00c5c204885f51834f0b6448: js/read.js:2306-2321 restricts seffect_magic_mapping() to an uncursed scroll on a mappable level; js/read.js:3322-3329 routes the cursed branch to note_unported. js/spell.js:1429-1441 also omits SPE_MAGIC_MAPPING from its seffects caller cases.",
+                "Source reachability for this assigned case is cmd.c read command -> read.c:doread() -> read.c:seffects() -> read.c:seffect_magic_mapping() -> detect.c:do_mapping() -> detect.c:show_map_spot(). The current recording diverges at step 43, so it is not yet matching runtime evidence for the effect; after the port, verify the full replay. This case covers the cursed-scroll path only, not spellbook casting, clairvoyance/vicinity mapping, wand probing, wizard mapping, or the throne mapping caller."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
