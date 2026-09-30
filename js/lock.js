@@ -74,7 +74,7 @@ import {
 } from './invent.js';
 import { m_at } from './monst.js';
 import { wake_nearby, wake_nearto } from './mon.js';
-import { nohands, verysmall } from './mondata.js';
+import { breathless, haseyes, nohands, verysmall } from './mondata.js';
 import { PM_ROGUE, PM_WIZARD } from './monsters.js';
 import { obj_resists } from './bury.js';
 import {
@@ -92,6 +92,7 @@ import {
     CREDIT_CARD,
     LARGE_BOX,
     PAPER,
+    POTION_CLASS,
     LOCK_PICK,
     ROCK_CLASS,
     SKELETON_KEY,
@@ -247,10 +248,22 @@ export function maybe_reset_pick(container, state = game) {
         reset_pick(state);
 }
 
-// C ref: lock.c chest_shatter_msg() (1275-1318). This slice reaches the PAPER
-// arm only; the remaining material messages and potion breathing stay at the
-// source boundary until their owning slices are selected.
+// C ref: lock.c chest_shatter_msg() (1275-1318). The potion arm dynamically
+// imports potion helpers to avoid making lock.js and potion.js a static cycle.
 async function chest_shatter_msg(otmp, state = game) {
+    if (otmp.oclass === POTION_CLASS) {
+        const { bottlename, potionbreathe } = await import('./potion.js');
+        await ttyPline(
+            `You ${heroIsBlind(state) ? 'hear' : 'see'} `
+                + `${an(bottlename(state), state)} shatter!`,
+            state,
+        );
+        if (!breathless(state.youmonst.data)
+            || haseyes(state.youmonst.data)) {
+            await potionbreathe(otmp, state);
+        }
+        return;
+    }
     if (objectType(otmp, state).oc_material !== PAPER) {
         throw new UnsupportedLockError(
             'chest_shatter_msg() for a non-PAPER object',
@@ -285,9 +298,9 @@ async function chest_shatter_msg(otmp, state = game) {
 // cleans up the lock-picking context.
 //
 // Covered: the destroyit=false arm and the destroyit=true arm for an ordinary
-// non-shop CHEST with PAPER contents, including quantity-one obfree(), the
-// survivor placement/stacking path, chest deletion, and lock cleanup.
-// Deferred: shop billing, potion breathing, other material messages, ICE_BOX
+// non-shop CHEST with PAPER or potion contents, including potion vapor effects,
+// quantity-one obfree(), the survivor placement/stacking path, chest deletion,
+// and lock cleanup. Deferred: shop billing, other material messages, ICE_BOX
 // corpse timers, and the multi-quantity useup branch.
 async function breakchestlock(box, destroyit, state = game) {
     if (destroyit) {
@@ -310,7 +323,9 @@ async function breakchestlock(box, destroyit, state = game) {
             // destroyed object is free for obfree() and a survivor is ready
             // for place_object().
             obj_extract_self(otmp, { state });
-            if (!rn2(3)) {
+            // lock.c:186 evaluates the random destruction gate first, but
+            // potion-class contents shatter even when that gate is false.
+            if (!rn2(3) || otmp.oclass === POTION_CLASS) {
                 await chest_shatter_msg(otmp, state);
                 if (otmp.quan === 1) {
                     obfree(otmp, null, { state });

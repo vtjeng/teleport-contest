@@ -122158,6 +122158,1481 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-read-seffect-magic-mapping-synthetic-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete magic mapping for scrolls and spells and wire its mapping callers",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll"
+      ],
+      "selectionReason": "Select synthetic/v14/rogue-reads-cursed-magic-mapping-scroll from the complete accepted A57 evaluations at 5e82414bddf1cc5c4346e7b0948ff9f187439574, whose game inputs remain current at 420707b9. The investigation traces the cursed mapping refusal to read.c:seffect_magic_mapping and detect.c:show_map_spot. Complete the whole read helper, its scroll/spell dispatch and consumed mapping dependencies; wire lateral/downward probing callers and their inventory display dependency. A56/A57 dependencies are accepted. Root completes the ordinary throne case10 mapping caller with an independently frozen C recipe in this same task. Supporting branch changes do not establish completion of their entire outer functions.",
+      "detail": "Whole read.c seffect_magic_mapping; complete detect mapping helpers and invent display_binventory/only_here; source-specific spell, probing wand and throne mapping callers. Preserve confusion, secret-door, map display, inventory query and Wisdom RNG order. Clairvoyance outer caller and other zap arms remain outside scope.",
+      "openedAt": "420707b9da62a03889225de76765107ba972df17",
+      "openStanding": {
+        "sha": "b4e637be43b2daa5d2244eac8b6f177fbc70f4c6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "59c6d2c744d2726680451254f6a938764c4b36b4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "seffect_magic_mapping",
+          "line": 2102,
+          "endLine": 2156,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2102,
+        "to": 2156
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll": {
+          "session": "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+          "recordingSha256": "0eaa6735468ab5367ddbcf1c7c7677c279a1d666780dffb54c10697cbd333ba4",
+          "evaluationPath": "challenges/evaluations/20260930053417-v14.json",
+          "evaluationCommit": "5e82414bddf1cc5c4346e7b0948ff9f187439574"
+        }
+      },
+      "activeStanding": {
+        "sha": "b4e637be43b2daa5d2244eac8b6f177fbc70f4c6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+          "session": "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+          "recordingPath": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+          "recordingSha256": "0eaa6735468ab5367ddbcf1c7c7677c279a1d666780dffb54c10697cbd333ba4",
+          "recipe": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.recipe.session.json",
+          "recipeSha256": "2a9f836bba05254d15aacc51181ec556e0fafa180a63429baba21a6f7b34481d",
+          "replayInputSha256": "8198f08228dbbf171703327eda15ff81586bea38077db30f8da29f212371988a",
+          "evaluationPath": "challenges/evaluations/20260930053417-v14.json",
+          "evaluationCommit": "5e82414bddf1cc5c4346e7b0948ff9f187439574",
+          "evaluationArtifact": "challenges/evaluations/20260930053417-v14.json",
+          "evaluationUtc": "2026-09-30T05:34:42.508Z",
+          "remainingScreens": 2,
+          "recordedSteps": 45,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 45
+            },
+            "rng": {
+              "matched": 2758,
+              "total": 4425
+            },
+            "cursors": {
+              "matched": 43,
+              "total": 45
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 38,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2758,
+              "cEntry": "rn2(7)=5",
+              "cCaller": "show_map_spot(detect.c:1379)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "h"
+              },
+              "stepIndex": 43
+            },
+            "cursor": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "h"
+              },
+              "cCursor": [
+                77,
+                0,
+                1
+              ],
+              "jsCursor": [
+                46,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 43,
+          "kind": "rng",
+          "sourceFile": "detect.c",
+          "function": "show_map_spot",
+          "message": null,
+          "cFile": "detect.c",
+          "luaFile": null,
+          "line": 1379,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/rogue-reads-cursed-magic-mapping-scroll.json",
+            "result": {
+              "session": "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "0eaa6735468ab5367ddbcf1c7c7677c279a1d666780dffb54c10697cbd333ba4",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 2,
+              "recordedSteps": 45,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+                "session": "synthetic/v14/rogue-reads-cursed-magic-mapping-scroll",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+                "recordingPath": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.session.json",
+                "recordingSha256": "0eaa6735468ab5367ddbcf1c7c7677c279a1d666780dffb54c10697cbd333ba4",
+                "recipe": "challenges/cases/v14/rogue-reads-cursed-magic-mapping-scroll.recipe.session.json",
+                "recipeSha256": "2a9f836bba05254d15aacc51181ec556e0fafa180a63429baba21a6f7b34481d",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 2,
+                "recordedSteps": 45,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 45
+                  },
+                  "rng": {
+                    "matched": 2758,
+                    "total": 4425
+                  },
+                  "cursors": {
+                    "matched": 43,
+                    "total": 45
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 38,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2758,
+                    "cEntry": "rn2(7)=5",
+                    "cCaller": "show_map_spot(detect.c:1379)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "h"
+                    },
+                    "stepIndex": 43
+                  },
+                  "cursor": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      77,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      46,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 43,
+                "kind": "rng",
+                "sourceFile": "detect.c",
+                "function": "show_map_spot",
+                "message": null,
+                "cFile": "detect.c",
+                "luaFile": null,
+                "line": 1379
+              },
+              "summary": "The queue points to detect.c:show_map_spot because its rn2(7) is the first unmatched C draw, but the frozen JavaScript never reaches that helper: read.js:seffects() records note_unported(\"read.c seffect_magic_mapping\") for the cursed scroll. C’s whole read.c:seffect_magic_mapping() branch sets temporary confusion, calls detect.c:do_mapping(), and passes Confusion into detect.c:show_map_spot(). Frozen JS also hardcodes false in do_mapping() and refuses cnf=true in show_map_spot(). Matching this case requires the read effect and dispatch plus the dependent confused map path.",
+              "source": {
+                "file": "read.c",
+                "branch": "A sighted Rogue on an ordinary mappable level reads a cursed SCR_MAGIC_MAPPING scroll while not already confused. C sets gk.known, temporarily sets HConfusion to 1, runs do_mapping() so every map cell reaches show_map_spot(..., Confusion), restores HConfusion to 0, then reports that the details cannot be grasped. The complete source function also handles blessed scrolls, already-confused reads, spellbook effects, and nommap levels.",
+                "functions": [
+                  "seffect_magic_mapping"
+                ],
+                "callers": [
+                  "C direct caller: read.c:seffects() (2194-2290), SCR_MAGIC_MAPPING/SPE_MAGIC_MAPPING arm at 2263-2266. The target path is cmd.c read command at 1816 -> read.c:doread() -> seffects() at 635 -> seffect_magic_mapping(). Frozen JS follows js/cmd.js:runReadCommand -> js/read.js:doread() -> js/read.js:seffects(); the cursed-scroll arm at read.js:3322-3329 records note_unported instead of calling the helper.",
+                  "C spell caller: spell.c:spelleffects() sends SPE_MAGIC_MAPPING through seffects() at 1528-1530. Frozen JS spell.js:spelleffects() omits SPE_MAGIC_MAPPING from its scroll-duplicate cases and reaches UnsupportedSpellCastError, so the spellbook entry point also needs caller wiring when the whole helper is ported.",
+                  "C map path: read.c:seffect_magic_mapping() calls detect.c:do_mapping() at 2147; do_mapping() calls show_map_spot() with Confusion at detect.c:1430. The target recording reaches this path by reading the wished cursed scroll (input suffix \"rh \")."
+                ],
+                "dependencies": [
+                  "detect.c:do_mapping() (1422-1444): C passes Confusion to every show_map_spot() call and chooses browse_map()/redisplay versus reconstrain based on hero_memory and unconstrain_map(). Frozen js/detect.js supports only the hero-memory branch and passes false at 1627; the cursed path requires the temporary confusion state to reach this loop.",
+                  "detect.c:show_map_spot() (1372-1419): the existing JavaScript port handles ordinary unconfused mapping, but throws UnsupportedSearchError for cnf=true. C first evaluates if (cnf && rn2(7)) at 1379; on successful cells it updates seen terrain and displays mapped terrain/traps/objects, while confused mapping skips engraving and room-discovery updates.",
+                  "read.c:seffects() (2194-2290): its pre-dispatch exercise(A_WIS, TRUE) is already ported in js/read.js; the mapping effect does not clear *sobjp, so seffects() returns the unconsumed-scroll result and doread() performs normal discovery/useup handling.",
+                  "attrib.c:exercise() is called before the effect and by detect.c:do_mapping() after the map loop; both calls use Wisdom and must preserve their source-order RNG/state changes. Its JavaScript port is in js/attrib.js.",
+                  "read.c:seffect_magic_mapping() nommap arms call potion.c:make_confused() and polyself.c:body_part(); the mapping display path uses detect.c:unconstrain_map/reconstrain_map and display.c map, trap, engraving, redraw, flush, and browse helpers.",
+                  "Other direct C callers of show_map_spot() are detect.c:do_vicinity_map() at 1504 and zap.c:zap_over_floor() at 3731. do_vicinity_map() is reached from spell.c:spelleffects() at 1576 and allmain.c:moveloop_core() at 412. Other direct C callers of do_mapping() are wizcmds.c:wiz_map() at 192 and sit.c throne handling at 153; this assigned scroll recording does not cover those entry points."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry .cache/v14-baseline-work-queue.json reports 2 unmatched screens out of 45, with the first mismatch at step 43 on key h: C calls rn2(7)=5 from show_map_spot(detect.c:1379), the first map cell differs, and cursor positions diverge. The assigned scan .cache/synthetic-scans/v14/rogue-reads-cursed-magic-mapping-scroll.json records read.c seffect_magic_mapping as unported.",
+                "The admitted manifest challenges/manifests/v14.json identifies the path read.c:seffect_magic_mapping cursed dispatch -> detect.c:show_map_spot and records the outcome “A map coalesces in your mind!” followed by “Unfortunately, you can’t grasp the details.” The C trace begins the per-cell rn2(7) sequence at step 43; the recipe is a Rogue reading a cursed mapping scroll, with the final input keys selecting the item.",
+                "nethack-c/upstream/src/read.c:2102-2153 is the whole effect: it distinguishes scroll/spellbook, blessed/cursed, existing confusion, and nommap; for cursed unconfused mapping it sets HConfusion temporarily, calls do_mapping(), restores it, and emits the final message. read.c:2194-2266 dispatches both SCR_MAGIC_MAPPING and SPE_MAGIC_MAPPING; doread() uses seffects() at 635-645 and cmd.c maps the read command to doread() at 1816.",
+                "nethack-c/upstream/src/detect.c:1372-1419 and 1422-1444 establish the downstream state/RNG contract: show_map_spot() conditionally consumes rn2(7), updates map state/display on non-skipped cells, and do_mapping() passes Confusion through the complete x/y loop before its Wisdom exercise. Frozen js/detect.js:1585-1617 rejects cnf=true; js/detect.js:1619-1631 hardcodes false and implements only the ordinary hero-memory arm.",
+                "Frozen examined JavaScript at 3212f9f07c3fdf3f00c5c204885f51834f0b6448: js/read.js:2306-2321 restricts seffect_magic_mapping() to an uncursed scroll on a mappable level; js/read.js:3322-3329 routes the cursed branch to note_unported. js/spell.js:1429-1441 also omits SPE_MAGIC_MAPPING from its seffects caller cases.",
+                "Source reachability for this assigned case is cmd.c read command -> read.c:doread() -> read.c:seffects() -> read.c:seffect_magic_mapping() -> detect.c:do_mapping() -> detect.c:show_map_spot(). The current recording diverges at step 43, so it is not yet matching runtime evidence for the effect; after the port, verify the full replay. This case covers the cursed-scroll path only, not spellbook casting, clairvoyance/vicinity mapping, wand probing, wizard mapping, or the throne mapping caller."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_magic_mapping",
+            "implementation": "js/read.js",
+            "symbol": "seffect_magic_mapping",
+            "sourceReview": "Read the whole read.c:seffect_magic_mapping definition, lines 2102-2153. Verified the scroll-only nommap return, blessed-scroll secret-door loop, knowledge assignment, shared spell/scroll nommap return, map message, cursed temporary HConfusion set/reset, notice_mon_off/do_mapping/notice_mon_on order, and final cursed message. do_mapping, make_confused, cvt_sdoor_to_door, unblock_point and the notice helpers are implemented callees; there is no substitute refusal in this function. Supporting functions in the task packet are documented separately as bounded caller branches, not whole-function completion claims.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects SCR_MAGIC_MAPPING and SPE_MAGIC_MAPPING arms, lines 2263-2265"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects SPE_MAGIC_MAPPING arm, lines 1528-1530, dispatches the pseudo spellbook through read.c:seffects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-command.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "cmd.c read dispatch -> read.c:doread -> read.c:seffects -> read.c:seffect_magic_mapping -> detect.c:do_mapping"
+              }
+            ],
+            "checkedAt": "5490ebfa34d52dca730308d59c7fde7b547c7a97"
+          }
+        ],
+        "entryPointReview": "Active selected entry paths are: (1) read a cursed magic-mapping scroll through doread/seffects/seffect_magic_mapping/do_mapping/show_map_spot; (2) cast SPE_MAGIC_MAPPING through dowizcast/spelleffects/seffects and the same effect; (3) lateral WAN_PROBING through bhit/zap_map/show_map_spot; (4) downward WAN_PROBING through zap_updown/bhitpile/zap_map/show_map_spot/display_binventory; and (5) the existing wiz_map caller of do_mapping. Each has matching recorded play, and the cursed scroll also has an admitted v14 prefix. sit.c:throne_sit_effect case 10 is active; root has wired and verified its do_mapping call with the independent throne recording. detect.c:do_vicinity_map also calls show_map_spot for clairvoyance, but its outer caller remains unported and is excluded from this task. Within zap.c, other zap_map/zap_updown effect arms are not selected. The selected source functions are active in the recorder build; there is no compile-time-excluded selected helper. invent.c:only_here is pure and source-pinned; display_binventory is impure and executes through the downward probe caller. Existing B40 step 11 attributes rn2(73)=62 to C seffect_create_monster(read.c:1616), and step 12 reports the jackal. This exercises the adjacent spelleffects dispatcher arm, not create-monster effect completion. Supporting functions and caller branches were compared with upstream C in this integration: seffects: Read the full read.c:seffects switch, lines 2194-2290, and ported the SCR_MAGIC_MAPPING/SPE_MAGIC_MAPPING dispatch arms. Both arms call seffect_magic_mapping with the source-owned object-pointer consumption behavior; the C call to seffect_magic_mapping is no longer replaced by note_unported. Other seffects arms remain governed by their existing source-specific implementations or named gaps. Production callers: js/read.js:doread (read.c:doread calls seffects for the selected scroll at line 635); js/spell.js:spelleffects (spell.c:spelleffects constructs the pseudo spellbook and calls seffects for SPE_MAGIC_MAPPING at lines 1528-1530). Runtime recordings: recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json. show_map_spot: Read the whole detect.c:show_map_spot definition, lines 1372-1419. Verified the confusion rn2(7) early return before mutation, seenv and secret-corridor conversion, remembered versus temporary map background, furniture/trap/engraving/object precedence, memory-glyph update, and the non-confused room-discovery condition in source order. The helper has no unported result-bearing callee. Production callers: js/detect.js:do_mapping (detect.c:do_mapping calls show_map_spot in its x/y loop at line 1430); js/zap.js:zap_map (zap.c:zap_map WAN_PROBING arm calls show_map_spot before inspecting the mapped square at line 3731). Runtime recordings: recordings/zap.c/probing-wand-lateral-a58-independent.session.json, recordings/zap.c/probing-wand-downward-a58-independent.session.json. do_mapping: Read the whole detect.c:do_mapping definition, lines 1422-1444. Verified unconstrain_map precedes the x-major/y-minor traversal, every square receives current Confusion, lack of hero memory or a successful unconstrain selects flush_screen/browse_map/map_redisplay, the other branch calls reconstrain_map, and Wisdom exercise follows either branch. These called functions are implemented; map_redisplay owns its source reconstrain/docrt sequence. Production callers: js/read.js:seffect_magic_mapping (read.c:seffect_magic_mapping calls do_mapping at line 2147); js/wizcmds.js:wiz_map (wizcmds.c:wiz_map calls do_mapping at line 191); js/sit.js:throne_sit_effect (sit.c:throne_sit_effect case 10 calls do_mapping at line 153; root wired and verified this caller during integration). Runtime recordings: recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json, recordings/wizcmds.c/wizmap-ordinary-extended.session.json. spelleffects: Read spell.c:spelleffects around lines 1385-1603 and ported the SPE_MAGIC_MAPPING and adjacent SPE_CREATE_MONSTER dispatch arms at lines 1528-1530. C applies the Skilled/Expert blessed-scroll equivalent only to the preceding spell group; mapping and create-monster fall through without that assignment. The mapping arm passes its pseudo spellbook to read.c:seffects. Supporting B40 recording step 11 contains C RNG attribution rn2(73)=62 @ seffect_create_monster(read.c:1616), and step 12 reports the jackal result; this checks the adjacent dispatcher path only, not completion of the create-monster effect. Production callers: js/spell.js:dowizcast (cmd.c #wizcast command dispatch calls spell.c:dowizcast; dowizcast selects the spell and invokes spelleffects, which dispatches SPE_MAGIC_MAPPING at lines 1528-1530). Runtime recordings: recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json, recordings/spell.c/create-monster-spell-independent-b40.session.json. zap_map: Read the whole zap.c:zap_map definition, lines 3628-3825, and implemented only its WAN_PROBING arm at lines 3720-3817. Verified old map/glyph snapshot before show_map_spot, post-map secret-door/corridor and ICE/furniture behavior, discarded draft_message(FALSE) as note_unported('dig.c draft_message'), trap discovery and article selection, then learnwand. The caller awaits force_decor before later source-ordered work. Other zap_map arms remain outside this task. Production callers: js/zap.js:bhit (zap.c:bhit invokes zap_map after its immediate-hit step; the lateral WAN_PROBING recording reaches this call); js/zap.js:zap_updown (zap.c:zap_updown downward WAN_PROBING arm calls zap_map after bhitpile and the SURFACE_AT snapshot at lines 3243-3248). Runtime recordings: recordings/zap.c/probing-wand-lateral-a58-independent.session.json, recordings/zap.c/probing-wand-downward-a58-independent.session.json. zap_updown: Read the full zap.c:zap_updown definition, lines 3219-3410, and implemented its WAN_PROBING arm at lines 3236-3262. Verified ptmp starts at zero, the upward-only message branch, downward update_mapseen_for then bhitpile then SURFACE_AT capture then zap_map, ICE/furniture versus surface naming, awaited probe message, display_binventory count, and final reveals-nothing condition followed by the source early return. The async caller preserves completion order; other zap_updown effect arms remain outside this task. Production callers: js/zap.js:weffects (zap.c:weffects dispatches WAN_PROBING to zap_updown; the independent downward recipe reaches this arm). Runtime recordings: recordings/zap.c/probing-wand-downward-a58-independent.session.json. only_here: Read the complete invent.c:only_here definition, lines 5476-5480. It returns the conjunction of object ox/oy equality with go.only.x/y and has no RNG, output, or mutation. JS reads the corresponding canonical state.go.only fields, which display_binventory sets and resets at the C call site. Production callers: js/invent.js:display_binventory (invent.c:display_binventory passes only_here as the buried-object query predicate at lines 5539-5541). Runtime recordings: source-pinned pure test. display_binventory: Read the whole invent.c:display_binventory definition, lines 5489-5545. Verified the underwater/liquid pile eligibility and single-versus-multiple descriptions, buried-object count and optional observe_object call, go.only target assignment immediately before the query and zero reset after it, and return n+n2. zap_updown consumes the returned count. No result-bearing callee is omitted; C's menu cleanup is represented by the existing query_objlist path. Production callers: js/zap.js:zap_updown (zap.c:zap_updown WAN_PROBING downward arm adds display_binventory(x,y,TRUE) to ptmp at line 3258). Runtime recordings: recordings/zap.c/probing-wand-downward-a58-independent.session.json. Root wired ordinary sit.c:throne_sit_effect case10 after its image message to await detect.c:do_mapping. Independent recipes/sit.c/throne-magic-mapping-a58-independent.session.json and matching recordings/sit.c/throne-magic-mapping-a58-independent.session.json execute the case at segment 0 step 37 and match through step 38, all 39 screens/cursors and 2852 random calls (run-rvHMJa). The final space is an ordinary input, not a pager reply. Probing zap_map reads surface_typ(location) to match rm.h SURFACE_AT for raised drawbridges; scripts/zap-command.test.mjs pins the caller and scripts/dungeon.test.mjs pins ice/lava/water substitution. Supporting branch ports do not establish completion of their entire outer source functions. do_vicinity_map remains an unported outer caller, outside this task. The combined focused check found an obsolete Skilled create-monster spell fixture. Correction 348aef8a pins spell.c dispatch order and the source draw bounds [19,19,73]; its read tests pass 30/30. No production behavior or C inputs changed in the correction.",
+        "entryPoints": [
+          {
+            "name": "read cursed magic-mapping scroll",
+            "functions": [
+              "seffect_magic_mapping"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "doread -> seffects(SCR_MAGIC_MAPPING) -> seffect_magic_mapping -> do_mapping -> show_map_spot"
+              }
+            ]
+          },
+          {
+            "name": "cast magic-mapping spellbook",
+            "functions": [
+              "seffect_magic_mapping"
+            ],
+            "recordings": [
+              "recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "59c6d2c744d2726680451254f6a938764c4b36b4",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-do-polymorph-sink-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete sink transformations and wire sink dipping",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v14/polymorph-ring-transforms-sink"
+      ],
+      "selectionReason": "Select synthetic/v14/polymorph-ring-transforms-sink from current complete A58 evaluations at 59c6d2c744d2726680451254f6a938764c4b36b4. Its investigation traces the missing terrain transformation to whole do.c:polymorph_sink. Complete that function and dosinkring ring caller; port the required fountain.c:dipsink and sink_backs_up support, correct wash_hands state reads, and wire potion.c:dodip sink dispatch. C52 is independent of A58; its submitted source and independent C recordings were reviewed against accepted main. Outer potion pool and kick_nondoor sink callers remain outside scope.",
+      "detail": "Whole polymorph_sink plus sink potion, hand and ring callers; preserve terrain fields, loot bits, messages and RNG order. Supporting potion recordings reach effects and stop at naming prompts.",
+      "openedAt": "29daefbafb84aad8e32cf139810df0048bebe227",
+      "openStanding": {
+        "sha": "59c6d2c744d2726680451254f6a938764c4b36b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "649d96643c728ad672d0e1795e15b58b69ed5220",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "polymorph_sink",
+          "line": 404,
+          "endLine": 459,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 404,
+        "to": 459
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/polymorph-ring-transforms-sink": {
+          "session": "synthetic/v14/polymorph-ring-transforms-sink",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "polymorph-ring-transforms-sink",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+          "recordingSha256": "ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d",
+          "evaluationPath": "challenges/evaluations/20260930085026-v14.json",
+          "evaluationCommit": "59c6d2c744d2726680451254f6a938764c4b36b4"
+        }
+      },
+      "activeStanding": {
+        "sha": "59c6d2c744d2726680451254f6a938764c4b36b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "polymorph-ring-transforms-sink",
+          "session": "synthetic/v14/polymorph-ring-transforms-sink",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+          "recordingPath": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+          "recordingSha256": "ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d",
+          "recipe": "challenges/cases/v14/polymorph-ring-transforms-sink.recipe.session.json",
+          "recipeSha256": "6e64026f870444897365e2c45696735a55d5f1e3b8cfd80abeb4ce42370acc4d",
+          "replayInputSha256": "f1b20fc36c573ad6f8aade6b8d474b7ff9537f5cb6d7c36611a8fbd5ee74434e",
+          "evaluationPath": "challenges/evaluations/20260930085026-v14.json",
+          "evaluationCommit": "59c6d2c744d2726680451254f6a938764c4b36b4",
+          "evaluationArtifact": "challenges/evaluations/20260930085026-v14.json",
+          "evaluationUtc": "2026-09-30T08:50:49.766Z",
+          "remainingScreens": 2,
+          "recordedSteps": 40,
+          "previousScreensMatched": 38,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 38,
+              "total": 40
+            },
+            "rng": {
+              "matched": 2285,
+              "total": 2287
+            },
+            "cursors": {
+              "matched": 38,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2285,
+              "cEntry": "rn2(4)=2",
+              "cCaller": "polymorph_sink(do.c:416)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "o"
+              },
+              "stepIndex": 37
+            },
+            "cursor": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": " "
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                21,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 37,
+          "kind": "rng",
+          "sourceFile": "do.c",
+          "function": "polymorph_sink",
+          "message": null,
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": 416,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/polymorph-ring-transforms-sink.json",
+            "result": {
+              "session": "synthetic/v14/polymorph-ring-transforms-sink",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "polymorph-ring-transforms-sink",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 2,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "polymorph-ring-transforms-sink",
+                "session": "synthetic/v14/polymorph-ring-transforms-sink",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+                "recordingPath": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+                "recordingSha256": "ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d",
+                "recipe": "challenges/cases/v14/polymorph-ring-transforms-sink.recipe.session.json",
+                "recipeSha256": "6e64026f870444897365e2c45696735a55d5f1e3b8cfd80abeb4ce42370acc4d",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 2,
+                "recordedSteps": 40,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 38,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 2285,
+                    "total": 2287
+                  },
+                  "cursors": {
+                    "matched": 38,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2285,
+                    "cEntry": "rn2(4)=2",
+                    "cCaller": "polymorph_sink(do.c:416)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "o"
+                    },
+                    "stepIndex": 37
+                  },
+                  "cursor": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      42,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      21,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 37,
+                "kind": "rng",
+                "sourceFile": "do.c",
+                "function": "polymorph_sink",
+                "message": null,
+                "cFile": "do.c",
+                "luaFile": null,
+                "line": 416
+              },
+              "summary": "Dropping a polymorph ring onto a sink reaches the implemented js/do.js:dosinkring path, but its RIN_POLYMORPH arm records note_unported(\"do.c polymorph_sink\") and skips the entire C transformation. do.c:polymorph_sink consumes rn2(4), changes the sink into a fountain, throne, altar or room/grave, carries over the looted state where C does, sets altar or fountain fields, prints the transformation result and redraws the square. In this case C chooses an altar and consumes a second rn2(3); JavaScript leaves the terrain as a sink, causing the RNG mismatch at segment 0 step 37 and the screen/cursor mismatches at step 38. The whole missing do.c function is the source owner. C also calls it from fountain.c:dipsink, while the JavaScript sink-dipping path remains fail-closed in potion.js.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "polymorph_sink"
+                ],
+                "branch": "At the hero square, do.c:polymorph_sink proceeds only when the terrain is SINK. do.c:dosinkring reaches it for a dropped RIN_POLYMORPH; fountain.c:dipsink reaches it for POT_POLYMORPH. Implement its complete guard, sink-state capture and clear, all four rn2(4) transformations, the altar alignment and Inhell branch, the room-to-grave attempt, terrain-specific message, and newsym call. The v14 case reaches outcome 2 (altar), with rn2(4)=2 followed by rn2(3)=1.",
+                "callers": [
+                  "C cmd.c drop command -> do.c:dodrop -> do.c:drop (713-780) -> dosinkring (497-661) -> polymorph_sink (582-585). At the examined commit, JS cmd.js:runDropCommand (3432-3437) -> do.js:dodrop (1303) -> internal drop (1405), which calls do.js:dosinkring (1040) for a ring on a sink; its RIN_POLYMORPH arm at do.js:1144-1149 currently records the missing call and skips it.",
+                  "C potion.c:dodip (2321-2331) -> fountain.c:dipsink (716-745) -> polymorph_sink (582-585). At the examined commit JS potion.js dodip throws UnsupportedDipError for at_sink; fountain.js has no dipsink implementation, so this separate C caller is not wired in JavaScript yet."
+                ],
+                "dependencies": [
+                  "mkmaze.c:set_levltyp updates sink and fountain feature counts. The examined JS already imports js/terrain.js:set_levltyp, which performs that count update.",
+                  "RNG rn2; Inhell and Align2amask; terrain and feature state fields typ, flags/looted, blessedftn and altarmask; and the defsyms explanation used in the transformation message. The examined JS already has rng, In_hell, Align2amask, terrain mutation, symbol and display/message facilities for these dependencies.",
+                  "engrave.c:make_grave is missing from examined js/engrave.js. In polymorph_sink case 3, make_grave mutates terrain/engraving and can call get_rnd_text (including rn2); polymorph_sink immediately reads the resulting terrain type to choose its symbol and message. This dependency must be implemented or otherwise completed from source; skipping it would leave the whole-function port incomplete."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned queue entry in .cache/v14-baseline-work-queue.json records remainingScreens=2, recordedSteps=40, manifest corpus SHA-256 a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0, recording SHA-256 ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d, and evaluation challenges/evaluations/20260929225551-v14.json at de8f73ddf16241bca4e484fef2ab099b3f133a2d. That evaluation reports 38/40 screens, 38/40 cursors, and 2285/2287 RNG calls matched; its first mismatch is C rn2(4)=2 from polymorph_sink(do.c:416) at segment 0 step 37, followed by a screen and cursor mismatch at step 38.",
+                "The assigned scan .cache/synthetic-scans/v14/polymorph-ring-transforms-sink.json has no command refusal and records do.c polymorph_sink in JS unported state. Its first RNG divergence is the missing C rn2(4)=2 from do.c:416; the next screen differs at row 0, column 0, and its segment end remains input-boundary mismatched. challenges/manifests/v14.json sourceTraceEvidence identifies the two C calls at do.c:416 and :436.",
+                "At frozen source commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, js/do.js:1144-1149 handles RIN_POLYMORPH by calling note_unported(\"do.c polymorph_sink\"), then continues with the unchanged sink terrain. The C caller at do.c:582-586 instead calls polymorph_sink before reading the resulting terrain. The full C definition at nethack-c/upstream/src/do.c:401-456 establishes the source scope: sink guard; save looted status and clear flags; rn2(4) switch for fountain, throne, altar or room/grave; outcome-specific feature fields; transformation/vanishing message; and newsym. The observed altar case consumes rn2(3) at do.c:436 after the first draw.",
+                "The C body also depends on engrave.c:make_grave for outcome 3, which may change terrain, add a headstone engraving and draw randomness for an epitaph. The JS implementation at the examined commit has make_engr_at/engr_at but no make_grave or get_rnd_text implementation; because polymorph_sink reads the terrain after this call, that dependency cannot be silently skipped. The other C caller, fountain.c:dipsink, is downstream of a JavaScript sink-dipping refusal in potion.js and is not the path reached by this challenge."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "polymorph_sink",
+            "implementation": "js/do.js",
+            "symbol": "polymorph_sink",
+            "sourceReview": "Read the full do.c:polymorph_sink (404-456). It guards current terrain, snapshots nonzero sink looted flags, clears flags, then takes exactly one rn2(4) branch. Fountain resets blessedftn/horizontal and restores F_LOOTED; throne restores T_LOOTED; altar draws rn2(3)-1 and short-circuits the Gehennom rn2(3) into the altar mask; room changes type before make_grave(NULL) and chooses the message from the final type. All branches then message and newsym. Existing JS readers keep altar alignment in location.altarmask; flags remain cleared rather than duplicating the mask. Reuses the existing make_grave/get_rnd_text chain.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dosinkring",
+                "source": "do.c:dosinkring RIN_POLYMORPH case"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipsink",
+                "source": "fountain.c:dipsink POT_POLYMORPH case"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/polymorph-sink-dip-grave-c52-confirmed.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "polymorph-ring-transforms-sink",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 38,
+                "source": "do.c:dosinkring RIN_POLYMORPH -> do.c:polymorph_sink; JS js/do.js dosinkring -> polymorph_sink"
+              }
+            ],
+            "checkedAt": "d4c70124a4341518bb20dcfd4fc803b54656c86e"
+          }
+        ],
+        "entryPointReview": "Primary source unit: whole do.c:polymorph_sink. Its ring-on-sink caller reaches the admitted v14 synthetic range, and its #dip caller reaches the independent grave recording. The complete source review and runtime evidence for dosinkring wiring, fountain.c:dipsink/sink_backs_up/wash_hands, potion.c:dodip, and the sink hand/levitation entries are preserved in supportingSourceEvidence and supportingRuntime. Supporting implementations and caller branches: dosinkring: The surrounding ported function is retained; this task replaces only the RIN_POLYMORPH case gap with an awaited polymorph_sink() call and preserves the source-order nosink and ideed decisions afterward. The admitted v14 ring case reaches the production caller. Source callers: js/do.js:dropx (do.c dropx -> dosinkring when a ring is dropped on a sink). dipsink: Read the full fountain.c:dipsink (716-801). Preserve the first S_LRING-dependent rn2(25)/rn2(15) gate and early breaksink return; route hands/uarmg before non-potions; retain each potion arm and the object-detection fallthrough; run trycall only under try_call && dknown, then useup. The source-discarded potionbreathe call remains a named note_unported gap under its original breathless/eyes condition because the partial JS helper can refuse and its result is discarded by C. Source callers: js/potion.js:dodip (potion.c:dodip at_sink yes branch calls dipsink and returns ECMD_TIME). Runtime records: recordings/fountain.c/polymorph-sink-dip-grave-c52-confirmed.session.json, recordings/fountain.c/levitation-sink-backs-up-c52-confirmed.session.json, recordings/fountain.c/sink-wash-hands-glib-c52-clean.session.json. sink_backs_up: Read fountain.c:sink_backs_up (805-831). Message selection follows Blind/Deaf order. If S_LRING is clear, print the ring notice only when visible, create the ring, newsym, exercise DEX then WIS, and set S_LRING last. Reuses the existing mkobj_at/exercise/display helpers. Source callers: js/fountain.js:dipsink (fountain.c:dipsink POT_LEVITATION case). Runtime records: recordings/fountain.c/levitation-sink-backs-up-c52-confirmed.session.json. wash_hands: Read fountain.c:wash_hands (557-577). Capture Glib before output; use body_part(HAND,youmonst) and global uarmg for the first message; if Glib remains set, clear it then call do_wear.c:fingers_or_gloves(TRUE); if uarmg exists, pass that item to water_damage; return ER_GREASED only when Glib was initially set and water_damage returned ER_NOTHING. JavaScript uses Glib(state), state.youmonst and state.uarmg, preserving each C value in its existing owner. Source callers: js/fountain.js:dipsink (fountain.c:dipsink is_hands/uarmg branch). Runtime records: recordings/fountain.c/sink-wash-hands-glib-c52-clean.session.json. dodip: The existing potion.c:dodip implementation gains its whole sink dispatch branch: the at_sink prompt follows object-name construction; a yes response clears pickup_prev only for a non-hands object, calls dipsink, and returns ECMD_TIME; a declined prompt falls through as before. The hands prompt uses body_part(HAND,youmonst). Pool and potion-into-potion branches remain their prior explicit refusals and are outside this task. Source callers: js/cmd.js:runDipCommand (cmd.c:1702 dip command row dispatches dodip). Runtime records: recordings/fountain.c/polymorph-sink-dip-grave-c52-confirmed.session.json, recordings/fountain.c/levitation-sink-backs-up-c52-confirmed.session.json, recordings/fountain.c/sink-wash-hands-glib-c52-clean.session.json. Other active supporting callers: fountain.c:dipfountain calls wash_hands at line 449 and is already wired; potion.c:dodip pool arm calls wash_hands at line 2350, but that outer JS pool branch remains unported and is outside this task. dokick.c:kick_nondoor SINK arm calls sink_backs_up at line 1236, but that outer JS branch remains unported and is outside this task. These source paths are active in the reference build. Only do.c:polymorph_sink receives selected whole-function completion credit. The grave and levitation recordings execute polymorph_sink and sink_backs_up fully, then end at trycall naming boundaries steps 45/47; they do not execute dipsink useup after naming. The hand recording clears Glib through step 33; wash_hands adds no RNG on this clean-gloves path, but ordinary end-of-turn RNG follows. Supplemental post-correction hand differential run-upnhKr matches 34 screens/cursors and 1999 RNG calls; receipts are preserved in .cache/C52-supplemental-receipt-verification.json.",
+        "entryPoints": [
+          {
+            "name": "drop RIN_POLYMORPH on a sink through dosinkring",
+            "functions": [
+              "polymorph_sink"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "polymorph-ring-transforms-sink",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 38,
+                "source": "do.c:dosinkring RIN_POLYMORPH -> do.c:polymorph_sink"
+              }
+            ]
+          },
+          {
+            "name": "#dip polymorph potion at sink through dipsink",
+            "functions": [
+              "polymorph_sink"
+            ],
+            "recordings": [
+              "recordings/fountain.c/polymorph-sink-dip-grave-c52-confirmed.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "649d96643c728ad672d0e1795e15b58b69ed5220",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pickup-do-boh-explosion-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete bag explosions and wire insertion and tipping",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding"
+      ],
+      "selectionReason": "Select synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding from the complete accepted C52 evaluations at 649d96643c728ad672d0e1795e15b58b69ed5220. Its source trace identifies the whole pickup.c:do_boh_explosion and four explosion caller arms in in_container and tipcontainer. Complete the helper, preserve content order and retained-item scatter effects, fix required supporting scatter arithmetic and ordering, and wire floor bag deletion. All three active command families have independent matching C recordings. The selected case advances into the downstream potion.c:potionbreathe gap; that remains out of scope and is not matching helper evidence.",
+      "detail": "Whole do_boh_explosion with four caller arms, floor useupf deletion and required scatter corrections; all three command families recorded. No whole in_container, tipcontainer or scatter credit.",
+      "openedAt": "2e771e91a6940c0580826d0817b0967c975ead84",
+      "openStanding": {
+        "sha": "649d96643c728ad672d0e1795e15b58b69ed5220",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "do_boh_explosion",
+          "line": 2518,
+          "endLine": 2536,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2518,
+        "to": 2536
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding": {
+          "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+          "evaluationPath": "challenges/evaluations/20260930090412-v14.json",
+          "evaluationCommit": "649d96643c728ad672d0e1795e15b58b69ed5220"
+        }
+      },
+      "activeStanding": {
+        "sha": "649d96643c728ad672d0e1795e15b58b69ed5220",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+          "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+          "recipe": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.recipe.session.json",
+          "recipeSha256": "dc12e38e33d55103ee75c75d917500eeb37045647601ae3019457d5f0bc4438f",
+          "replayInputSha256": "c76174bfc036f2a6edea4dfbd379b1938d9365851b435893bd4f0cf7ea2a4271",
+          "evaluationPath": "challenges/evaluations/20260930090412-v14.json",
+          "evaluationCommit": "649d96643c728ad672d0e1795e15b58b69ed5220",
+          "evaluationArtifact": "challenges/evaluations/20260930090412-v14.json",
+          "evaluationUtc": "2026-09-30T09:04:35.642Z",
+          "remainingScreens": 1,
+          "recordedSteps": 83,
+          "previousScreensMatched": 82,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 82,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2204,
+              "total": 2215
+            },
+            "cursors": {
+              "matched": 82,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 219",
+            "step": 82
+          },
+          "step": 82,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 219",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding.json",
+            "result": {
+              "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 1,
+              "recordedSteps": 83,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+                "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+                "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+                "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+                "recipe": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.recipe.session.json",
+                "recipeSha256": "dc12e38e33d55103ee75c75d917500eeb37045647601ae3019457d5f0bc4438f",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 83,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 82,
+                    "total": 83
+                  },
+                  "rng": {
+                    "matched": 2204,
+                    "total": 2215
+                  },
+                  "cursors": {
+                    "matched": 82,
+                    "total": 83
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 219",
+                  "step": 82
+                },
+                "step": 82,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 219",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The assigned nested bag-of-holding path crosses the guaranteed mbag_explodes gate, but frozen JS records pickup.c do_boh_explosion as unported instead of scattering or destroying each contained object. C then reaches is_boh_item_gone (already represented in JS) for each affected bag item; the assigned trace records rn2(13)=3 and rn2(13)=10 there. The missing whole source owner is pickup.c:do_boh_explosion. Its direct callers are in_container and tipcontainer; wiring both tipcontainer call sites intersects C50’s reserved function, although this case itself runs through in_container.",
+              "source": {
+                "file": "pickup.c",
+                "functions": [
+                  "do_boh_explosion"
+                ],
+                "branch": "Port all of pickup.c:do_boh_explosion (2515-2534). It sets the bag in-use flag, walks its contents while saving each next pointer before mutation, and makes one is_boh_item_gone() draw per item. A lost item is extracted and passed to mbag_item_gone(!on_floor, item, TRUE); otherwise its coordinates are moved to the hero and scatter() is called with blast force 4 and MAY_HIT | MAY_DESTROY. The function is void and does not clear in_use because its caller deletes the bag. In the assigned nested-bag path, mbag_explodes() at depth 0 uses rn2(1), making the explosion gate certain; C then invokes do_boh_explosion on the inserted inner bag and on the current outer bag. The trace records rn2(13)=3 and rn2(13)=10 at is_boh_item_gone. Frozen JS already has is_boh_item_gone() and mbag_explodes(), but its in_container explosion arm records note_unported(\"pickup.c do_boh_explosion\") at the calls instead of performing this function.",
+                "callers": [
+                  "C pickup.c:in_container (2658-2693) calls do_boh_explosion(obj, obj->where == OBJ_FLOOR) for an inserted bag of holding at 2668, then calls do_boh_explosion(gc.current_container, floor_container) at 2683. This is the assigned #loot insertion route. At frozen JS commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, pickup.js:in_container has named missing calls at 2883-2886. The caller then deletes the outer container and applies d(6,6) damage.",
+                  "C pickup.c:tipcontainer (3688-3841) calls do_boh_explosion(otmp, !srcheld) at 3789 for an inserted bag and do_boh_explosion(targetbox, !dstheld) at 3795 for the target bag. Frozen JS pickup.js:tipcontainer records those missing calls at 3726-3730. This is a separate production entry path from the assigned case, but whole caller wiring must cover it too."
+                ],
+                "dependencies": [
+                  "Keep the on_floor argument meaning intact: callers pass the object floor/carried state, and do_boh_explosion uses !on_floor as mbag_item_gone() held status.",
+                  "Preserve the bag object list order and save nobj before obj_extract_self() or mbag_item_gone() mutates/frees the current object.",
+                  "Call the existing is_boh_item_gone() once for each member, in source order; it draws rn2(13) and returns true only on zero.",
+                  "Call mbag_item_gone(!on_floor, item, true) for lost items. Its long loss result is discarded here; its object deletion and any applicable shop accounting still occur.",
+                  "For retained items set ox/oy to the hero and invoke the existing explode.c scatter() with blast force 4 and MAY_HIT | MAY_DESTROY. Preserve scatter’s random calls, floor-object extraction/placement lifecycle hooks, hit effects, and messages.",
+                  "Set boh.in_use before any scatter call so bones creation during scatter sees the correct bag state; leave it set because the caller deletes the bag.",
+                  "Both callers discard this function’s return and perform their own subsequent bag deletion, shop accounting, damage, and status updates; preserve each caller’s source order when wiring the helper."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned queue entry in .cache/v14-baseline-work-queue.json fixes this result to one remaining screen and 83 recorded steps, manifest corpus SHA-256 a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0, recording SHA-256 5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2, and evaluation challenges/evaluations/20260929225551-v14.json at de8f73ddf16241bca4e484fef2ab099b3f133a2d. The evaluation reports 82/83 screens, 82/83 cursors, and 2204/2215 RNG entries matched; the last input stops with an unsupported `extractExternalObject` operation for object type 219.",
+                "The assigned scan .cache/synthetic-scans/v14/wizard-puts-nonempty-bag-in-bag-of-holding.json records pickup.c do_boh_explosion in the unported set and the same step-82 operation boundary. The assigned manifest sourceTraceEvidence records rn2(1)=0 at mbag_explodes(pickup.c:2497), then rn2(13)=3 and rn2(13)=10 at is_boh_item_gone(pickup.c:2512), followed by obj_resists calls and d(6,6)=25 in in_container. The manifest identifies pickup.c:in_container -> mbag_explodes -> do_boh_explosion as the reached behavior.",
+                "The authoritative C implementation is pickup.c:2515-2534. At frozen JS commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, js/pickup.js already implements is_boh_item_gone() at 2312-2316 and records note_unported(\"pickup.c do_boh_explosion\") in in_container at 2883-2886 and in tipcontainer at 3726-3730.",
+                "A source search finds exactly two direct production callers with four call sites: pickup.c:in_container (2668, 2683) and pickup.c:tipcontainer (3789, 3795). The in_container route is the assigned case. C50’s reserved caller is tipcontainer: its explosion call sites need wiring for whole-caller completion, while the reported C50 changes are confined to the separate hornbindings path in that function. The assigned bag path does not call pickup_object or fatal_corpse_mistake: in_container checks fatal_corpse_mistake before reaching the explosion branch, and the input is a bag; do_boh_explosion itself uses neither helper. No B61-owned pickup_object/fatal-corpse code needs editing for this diagnosis."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_boh_explosion",
+            "implementation": "js/pickup.js",
+            "symbol": "do_boh_explosion",
+            "sourceReview": "Read the complete pickup.c:do_boh_explosion (2518-2536). It sets boh->in_use before iterating, saves each nobj link before the item is extracted or scattered, makes one is_boh_item_gone() decision per item, calls obj_extract_self() then mbag_item_gone(!on_floor, item, TRUE) on loss, and otherwise sets the object coordinates to u.ux/u.uy and calls scatter(u.ux,u.uy,4,MAY_HIT|MAY_DESTROY,item). The consumed is_boh_item_gone Boolean supplies the branch predicate. C discards mbag_item_gone’s long shop-loss result; its existing implementation performs the source deletion and shop side effects. C returns from scatter as long, but do_boh_explosion discards that value; JavaScript awaits its asynchronous effects and discards the total. The caller deletes the bag, so in_use remains set.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "pickup.c:in_container callsites at 2668 and 2683; C53 wires both explosion arms and does not claim all of in_container() complete."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer",
+                "source": "pickup.c:tipcontainer callsites at 3789 and 3795; C53 wires both explosion arms and does not claim all of tipcontainer() complete."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/loot-command.test.mjs",
+              "scripts/pickup-tip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/boh-loot-empty-nested-bags-c53.session.json",
+              "recordings/pickup.c/boh-loot-sack-nested-bag-c53-corrected2.session.json",
+              "recordings/pickup.c/boh-tip-nested-bag-c53-complete.session.json",
+              "recordings/pickup.c/boh-apply-carried-empty-nested-bags-c53.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "4d8db3f9017a5dfb8164ca79cd5ca83e07721051"
+          }
+        ],
+        "entryPointReview": "All three active C53 entry points now have matching production runtime evidence for the selected do_boh_explosion helper. The independent #loot cases reach in_container -> do_boh_explosion and complete floor useupf cleanup: one uses empty nested bags; the other retains a nonfragile sack and reaches scatter. The independent #tip case reaches tipcontainer -> do_boh_explosion -> scatter and terminal continuation. The selected admitted v14 #loot trace remains blocked after step 81 by the out-of-scope dothrow.c:breaks -> potion.c:potionbreathe helper; that setup and mismatch are preserved as provenance, not counted as matching helper evidence. Caller descriptions name in_container() and tipcontainer() only for their wired source arms; neither enclosing C caller and no whole scatter completion is claimed. A supplemental independently replayed #apply recording exercises the carried-container arm: it reaches do_boh_explosion, follows held useup at pickup.c:2686, then takes damage and the Wizard death-refusal continuation. This complements the floor useupf #loot cases and the #tip case; it does not expand whole-function completion beyond do_boh_explosion.",
+        "entryPoints": [
+          {
+            "name": "#loot insertion of nested bags into a floor Bag of Holding",
+            "functions": [
+              "do_boh_explosion"
+            ],
+            "recordings": [
+              "recordings/pickup.c/boh-loot-empty-nested-bags-c53.session.json",
+              "recordings/pickup.c/boh-loot-sack-nested-bag-c53-corrected2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#tip explosion with a bag-of-holding container",
+            "functions": [
+              "do_boh_explosion"
+            ],
+            "recordings": [
+              "recordings/pickup.c/boh-tip-nested-bag-c53-complete.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#apply insertion of a wished empty carried Bag of Holding into another carried Bag of Holding",
+            "functions": [
+              "do_boh_explosion"
+            ],
+            "recordings": [
+              "recordings/pickup.c/boh-apply-carried-empty-nested-bags-c53.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+          "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+          "recipe": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.recipe.session.json",
+          "recipeSha256": "dc12e38e33d55103ee75c75d917500eeb37045647601ae3019457d5f0bc4438f",
+          "replayInputSha256": "ea384df939472d8cb950f089b969a041e2c4564bdf142903ca808b90c055faba",
+          "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+          "evaluationArtifact": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationUtc": "2026-09-30T10:50:54.556Z",
+          "remainingScreens": 0,
+          "recordedSteps": 83,
+          "previousScreensMatched": 82,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 83,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2212,
+              "total": 2215
+            },
+            "cursors": {
+              "matched": 83,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2211,
+              "cEntry": "rn2(19)=6",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(100)=68",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 82,
+                "key": " "
+              },
+              "stepIndex": 82
+            },
+            "cursor": null
+          },
+          "step": 82,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding.json",
+            "previousRemainingScreens": 1
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-potion-potionbreathe-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete potion vapor effects and their implemented callers",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding"
+      ],
+      "selectionReason": "Continue synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding from its complete investigation and accepted C53 evaluation challenges/evaluations/20260930105031-v14.json at 6566320f433e40cb8c40e13bcc489dbbd21aa450. The case matches 83 screens and cursors but retains three RNG mismatches because dothrow.c:breakobj skips potion.c:potionbreathe. Complete whole potionbreathe and wire its five implemented caller families; correct the source potion-class override in lock.c:breakchestlock. The outer dip_potion_explosion route remains blocked by the unported potion_dip path and receives no completion credit.",
+      "detail": "Whole potionbreathe; potionhit, dipsink, breakobj, maybe_destroy_item and chest_shatter_msg runtime coverage; caller-only breakchestlock potion override. Preserve discarded were transformation gaps and explicit outer potion-dip boundary.",
+      "openedAt": "6f2f6b6ab292dc47a31779aa46522c997170d248",
+      "openStanding": {
+        "sha": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8e2a9bf2a1135bf0c405464105a115373ede466b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "potionbreathe",
+          "line": 1932,
+          "endLine": 2121,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1932,
+        "to": 2121
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding": {
+          "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+          "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450"
+        }
+      },
+      "activeStanding": {
+        "sha": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+          "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+          "recipe": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.recipe.session.json",
+          "recipeSha256": "dc12e38e33d55103ee75c75d917500eeb37045647601ae3019457d5f0bc4438f",
+          "replayInputSha256": "ea384df939472d8cb950f089b969a041e2c4564bdf142903ca808b90c055faba",
+          "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+          "evaluationArtifact": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationUtc": "2026-09-30T10:50:54.556Z",
+          "remainingScreens": 0,
+          "recordedSteps": 83,
+          "previousScreensMatched": 82,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 83,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2212,
+              "total": 2215
+            },
+            "cursors": {
+              "matched": 83,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2211,
+              "cEntry": "rn2(19)=6",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(100)=68",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 82,
+                "key": " "
+              },
+              "stepIndex": 82
+            },
+            "cursor": null
+          },
+          "step": 82,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding.json",
+            "result": {
+              "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+              "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+              "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+              "remainingScreens": 0,
+              "recordedSteps": 83,
+              "status": "complete",
+              "commit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+                "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+                "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+                "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+                "recipe": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.recipe.session.json",
+                "recipeSha256": "dc12e38e33d55103ee75c75d917500eeb37045647601ae3019457d5f0bc4438f",
+                "replayInputSha256": "ea384df939472d8cb950f089b969a041e2c4564bdf142903ca808b90c055faba",
+                "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+                "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+                "evaluationArtifact": "challenges/evaluations/20260930105031-v14.json",
+                "evaluationUtc": "2026-09-30T10:50:54.556Z",
+                "remainingScreens": 0,
+                "recordedSteps": 83,
+                "previousScreensMatched": 82,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 83,
+                    "total": 83
+                  },
+                  "rng": {
+                    "matched": 2212,
+                    "total": 2215
+                  },
+                  "cursors": {
+                    "matched": 83,
+                    "total": 83
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2211,
+                    "cEntry": "rn2(19)=6",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(100)=68",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 82,
+                      "key": " "
+                    },
+                    "stepIndex": 82
+                  },
+                  "cursor": null
+                },
+                "step": 82,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The bag explosion now runs through content scattering and floor-bag cleanup. Its final step shatters a healing potion beside the hero. C potionbreathe heals one HP and exercises Constitution; JavaScript breakobj still records the named potionbreathe gap, so the next RNG call differs. Complete whole potion.c:potionbreathe and wire its active vapor callers.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "potionbreathe"
+                ],
+                "branch": "A potion of healing breaks next to a hero who can breathe or has eyes. dothrow.c:breakobj calls potionbreathe after the odor message. The healing arm increments injured normal and polymorph HP, applies its blessed blind/deaf cure, then exercise(A_CON, TRUE), preserving C fallthrough for extra/full healing and object in_use restoration before identification.",
+                "callers": [
+                  "dothrow.c:breakobj at 2517 calls potionbreathe when a potion breaks next to an eligible hero.",
+                  "potion.c:potionhit at 1906–1911; fountain.c:dipsink at 795; lock.c:chest_shatter_msg at 1285; zap.c:maybe_destroy_item at 5917 are other production vapor caller families.",
+                  "potion.c:dip_potion_explosion at 2431 is the sixth C caller; its existing outer JavaScript dip path remains unported and must be documented as a boundary."
+                ],
+                "dependencies": [
+                  "Reuse source-aligned property, status, exercise, identification and monster-observation helpers in source order.",
+                  "Preserve obj.in_use across all vapor effects and restore it before dknown naming or discovery.",
+                  "Were-form vapor transformations use discarded void calls; retain exact source-named gaps if still unported."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C53 completes pickup.c:do_boh_explosion with all four in_container/tipcontainer callsites. Four independent C recordings cover #loot floor cleanup, retained-object scatter, #tip and #apply carried cleanup; they establish bag-helper execution without claiming the selected synthetic step is matching.",
+                "At the selected v14 final step 82, the C trace reaches a healing-potion break through explode.c:scatter -> dothrow.c:breaks -> breakobj -> potionbreathe. C exercise(attrib.c:509) consumes rn2(19)=6 after the HP increment; JavaScript still skips the vapor helper and next calls obj_resists with rn2(100)=68. The setup-only matching prefix through step81 does not establish potionbreathe execution.",
+                "Authoritative potion.c:potionbreathe (1932–2118) temporarily sets the potion in_use flag, implements all vapor effect branches, restores the flag and then identifies or offers a call name when dknown. The healing arm at 1989–2003 supplies the exposed missing behavior.",
+                "The former extractExternalObject refusal and missing do_boh_explosion call are superseded by C53. No session or seed special case is needed; the next task ports the whole vapor helper and its active caller arms."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "potionbreathe",
+            "implementation": "js/potion.js",
+            "symbol": "potionbreathe",
+            "sourceReview": "Read the complete potion.c:potionbreathe definition (1932-2118). The implementation follows Half_gas_damage towel selection, all active switch cases and fallthroughs, the no-op effects, RNG and state update order, messages, timeout changes, and the dknown naming tail. It sets obj.in_use before effects and restores the saved value before makeknown/trycall; it does not free the object. potionhit supplies its planning-aware message operation so monster-turn cloning does not write hero-only feedback. split_mon is implemented; the source-discarded void calls to were.c:you_unwere and were.c:you_were remain named note_unported gaps. The upstream no-op labels at 2096-2104 are commented out in C and do not execute.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potionhit",
+                "source": "potion.c:potionhit, call at 1909 after its impact and vapor conditions."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipsink",
+                "source": "fountain.c:dipsink, call at 795 after sink object-use and breath/eye conditions."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "dothrow.c:breakobj, potion impact arm at 2517."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "maybe_destroy_item",
+                "source": "zap.c:maybe_destroy_item, call at 5917 after the destruction message; this caller is audited and has matching runtime evidence, but no JS source edit was needed."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "chest_shatter_msg",
+                "source": "lock.c:chest_shatter_msg, potion-class branch at 1285."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/fountain.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/lock.test.mjs",
+              "scripts/monster-hurls-potion.test.mjs",
+              "scripts/zap-destroy-items.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-hurls-potion-sleeping-c54.session.json",
+              "recordings/potion.c/monster-hurls-potion-paralysis-c54.session.json",
+              "recordings/fountain.c/potionbreathe-sickness-dipsink-c54.session.json",
+              "recordings/dothrow.c/potionbreathe-speed-toss-up-c54-final.session.json",
+              "recordings/lock.c/potionbreathe-empty-chest-sickness-c54-complete.session.json",
+              "recordings/zap.c/potionbreathe-fire-zapyourself-sickness-intrinsic-c54.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 82,
+                "source": "pickup.c:in_container -> pickup.c:do_boh_explosion -> explode.c:scatter -> dothrow.c:breaks -> dothrow.c:breakobj -> potion.c:potionbreathe"
+              }
+            ],
+            "checkedAt": "54cb0ef14f43db6186a986e1089f1caeb3d62a16"
+          }
+        ],
+        "entryPointReview": "C has five active caller families in the task plan: potion.c:potionhit, fountain.c:dipsink, dothrow.c:breakobj, zap.c:maybe_destroy_item, and lock.c:chest_shatter_msg. Each has a matching C recording and a strict fresh C/JavaScript run below. The selected v14 #loot case now matches through step 82, where a healing potion shatters and reaches potionbreathe through dothrow.c:breaks -> breakobj. C also calls potionbreathe from potion.c:dip_potion_explosion at 2431, reached through potion-dip callers; JS potion_dip still raises UnsupportedDipError at js/potion.js:2855, so that outer C route remains explicitly incomplete and is not counted as an exercised entry point. potionbreathe’s cursed or blessed water arms still record the discarded void transformations as note_unported('were.c you_were') and note_unported('were.c you_unwere'). The lock task corrects only breakchestlock’s potion-class destruction condition; it does not claim whole breakchestlock completion. Non-PAPER, non-potion chest contents remain outside this task: the preserved nonempty-chest trace stops at JS’s UnsupportedLockError for a non-PAPER object.",
+        "entryPoints": [
+          {
+            "name": "Monster-hurled sleeping or paralysis potion reaches potionhit and potionbreathe",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-hurls-potion-sleeping-c54.session.json",
+              "recordings/potion.c/monster-hurls-potion-paralysis-c54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#dip into a sink reaches dipsink and potionbreathe",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/fountain.c/potionbreathe-sickness-dipsink-c54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Ceiling-hit thrown speed potion reaches breakobj and potionbreathe",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/potionbreathe-speed-toss-up-c54-final.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fire damage destroys a carried potion through maybe_destroy_item",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/zap.c/potionbreathe-fire-zapyourself-sickness-intrinsic-c54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#force destroys a chest and reaches the potion branch of chest_shatter_msg",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/lock.c/potionbreathe-empty-chest-sickness-c54-complete.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Admitted v14 bag explosion reaches potionbreathe through breakobj",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 82,
+                "source": "pickup.c:in_container -> pickup.c:do_boh_explosion -> explode.c:scatter -> dothrow.c:breaks -> dothrow.c:breakobj -> potion.c:potionbreathe"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8e2a9bf2a1135bf0c405464105a115373ede466b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

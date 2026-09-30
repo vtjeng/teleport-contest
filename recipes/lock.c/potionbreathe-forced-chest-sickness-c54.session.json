@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Wizard C54 recipe for lock.c:breakchestlock(destroyit=TRUE) -> chest_shatter_msg(POTION_CLASS) -> potion.c:potionbreathe. It wishes a locked chest and sickness potion, arranges the potion in the chest, then forces destruction. Inputs frozen before C recording or JavaScript comparison. C run-A0MY7X is retained as a setup miss: the wished mace was assigned inventory letter n, but the frozen wield input used o. The resulting pager text consumed the following wish command; #force reports no proper weapon, so chest destruction and potionbreathe were not reached.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChest,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": "  s#wizwish\nmace\nwo#wizwish\nlocked chest\ndp#wizwish\npotion of sickness\n#loot\ni+\nnny #force\ny   "
+    }
+  ]
+}

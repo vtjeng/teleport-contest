@@ -258,15 +258,6 @@ import { aobjnam, an } from './objnam.js';
 import { m_at } from './monst.js';
 import { monster_detect } from './detect.js';
 
-// Thrown where potion.c reaches a vapor effect this port has not ported.
-export class UnsupportedPotionError extends Error {
-    constructor(branch) {
-        super(`a potion's vapors require ${branch}`);
-        this.name = 'UnsupportedPotionError';
-        this.branch = branch;
-    }
-}
-
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
 // ported, such as an unported potion type.
 export class UnsupportedQuaffError extends Error {
@@ -2473,39 +2464,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
         && (!breathless(state.youmonst.data)
             || haseyes(state.youmonst.data));
     if (breathe) {
-        // potion.c calls the void potionbreathe() unconditionally here, but
-        // the JavaScript helper has only the arms listed below. Skip its
-        // unsupported arms by source name so potionhit() still reaches its
-        // shop and object-release tail; never swallow its refusal generally.
-        const vaporType = Half_gas_damage(state) ? TOWEL : obj.otyp;
-        let vaporArmPorted = true;
-        switch (vaporType) {
-        case POT_INVISIBILITY:
-        case POT_PARALYSIS:
-        case POT_BLINDNESS:
-        case POT_ACID:
-        case POT_POLYMORPH:
-        case POT_GAIN_LEVEL:
-        case POT_GAIN_ENERGY:
-        case POT_LEVITATION:
-        case POT_FRUIT_JUICE:
-        case POT_MONSTER_DETECTION:
-        case POT_OBJECT_DETECTION:
-        case POT_OIL:
-        case POT_SEE_INVISIBLE:
-        case POT_ENLIGHTENMENT:
-            break;
-        case POT_SLEEPING:
-            vaporArmPorted = !Free_action(state) && !Sleep_resistance(state);
-            break;
-        default:
-            vaporArmPorted = false;
-            break;
-        }
-        if (vaporArmPorted)
-            await potionbreathe(obj, state, env);
-        else
-            note_unported('potion.c potionbreathe');
+        await potionbreathe(obj, state, env);
     } else if (obj.dknown && cansee(tx, ty, state)) {
         await trycall(obj, state);
     }
@@ -2527,34 +2486,21 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
     obfree(obj, null, env);
 }
 
-// C ref: potion.c potionbreathe() (1931-2118), "vapors are inhaled or get in
-// your eyes".
+// C ref: potion.c potionbreathe() (1932-2118). Preserve every vapor arm,
+// fallthrough, random call, hero update and naming step. The discarded void
+// calls to were.c transformations remain named gaps.
 //
-// The switch runs over `Half_gas_damage ? TOWEL : obj->otyp`, so a hero wearing
-// a wet towel takes the TOWEL arm whatever the potion is. Of its eighteen case
-// labels five are ported -- POT_INVISIBILITY (2033-2040), POT_PARALYSIS
-// (2041-2051), POT_SLEEPING (2052-2064), POT_BLINDNESS (2071-2079), and the
-// shared POT_ACID/POT_POLYMORPH arm (2092-2095). POT_CONFUSION remains a
-// named gap; other unported labels stop by name before changing state, drawing,
-// or printing.
-//
-// Nine potion types carry no case label at all and fall straight out of the
-// switch to the naming tail. C's commented-out block at 2096-2105 names seven
-// of them; POT_SEE_INVISIBLE and POT_ENLIGHTENMENT are absent from that comment
-// but reach the same nothing, because the switch has no `default:`. Both are
-// listed below, so this port falls through exactly where C does and refuses
-// only where C has a body.
-//
-// `obj` stays in the caller's inventory: C sets in_use so that a wielded potion
-// of unholy water cannot be dropped out from under maybe_destroy_item(), and
-// restores it here. There is no obfree() -- zap.c:5919's comment says that is
-// the caller's job.
+// obj stays in the caller's inventory: C sets in_use so that a wielded
+// potion of unholy water cannot be dropped out from under maybe_destroy_item(),
+// then restores the flag before makeknown() or trycall(). There is no obfree();
+// zap.c:5919 leaves object release to the caller.
 export async function potionbreathe(obj, state = game, env = {}) {
     let kn = 0;
+    let cureblind = false;
     const already_in_use = obj.in_use;
     const random = env.random ?? { rn2, rnd };
-    // The hero's own turn writes straight to the terminal. potionhit() reaches
-    // this from a monster's turn, whose planning clone must stay silent.
+    // potionhit() can call this inside a monster planning clone, which must
+    // send feedback through its own message operation.
     const message = env.message ?? ttyPline;
 
     /* potion of unholy water might be wielded; prevent
@@ -2567,36 +2513,118 @@ export async function potionbreathe(obj, state = game, env = {}) {
        naming opportunity in case potion was thrown at hero by a monster */
     switch (Half_gas_damage(state) ? TOWEL : obj.otyp) {
     case TOWEL:
-        throw new UnsupportedPotionError(
-            'the wet towel that wards off a potion\'s vapors',
-        );
+        await message('Some vapor passes harmlessly around you.', state);
+        break;
     case POT_RESTORE_ABILITY:
     case POT_GAIN_ABILITY:
-        throw new UnsupportedPotionError(
-            'the ability vapors that sting the eyes or raise an attribute',
-        );
+        if (obj.cursed) {
+            if (!breathless(state.youmonst.data)) {
+                await message('Ulch!  That potion smells terrible!', state);
+            } else if (haseyes(state.youmonst.data)) {
+                let eyes = body_part(EYE, state.youmonst);
+                const species = state.youmonst.data;
+                const eyeCount = species.pmidx === PM_CYCLOPS
+                    || species.pmidx === PM_FLOATING_EYE ? 1 : 2;
+                if (eyeCount !== 1) eyes = makeplural(eyes);
+                await message(
+                    'Your ' + eyes + ' ' + vtense(eyes, 'sting') + '!',
+                    state,
+                );
+            }
+            break;
+        }
+        {
+            let index = random.rn2(A_MAX);
+            let isdone = false;
+            for (let attempt = 0; !isdone && attempt < A_MAX; attempt++) {
+                if (state.u.acurr.a[index] < state.u.amax.a[index]) {
+                    state.u.acurr.a[index]++;
+                    isdone = !obj.blessed;
+                    state.disp.botl = true;
+                }
+                if (++index >= A_MAX) index = 0;
+            }
+        }
+        break;
     case POT_FULL_HEALING:
+        if (Upolyd(state.u) && state.u.mh < state.u.mhmax) {
+            state.u.mh++;
+            state.disp.botl = true;
+        }
+        if (state.u.uhp < state.u.uhpmax) {
+            state.u.uhp++;
+            state.disp.botl = true;
+        }
+        cureblind = true;
+        // C falls through to the extra-healing and healing arms.
     case POT_EXTRA_HEALING:
+        if (Upolyd(state.u) && state.u.mh < state.u.mhmax) {
+            state.u.mh++;
+            state.disp.botl = true;
+        }
+        if (state.u.uhp < state.u.uhpmax) {
+            state.u.uhp++;
+            state.disp.botl = true;
+        }
+        if (!obj.cursed) cureblind = true;
+        // C falls through to the healing arm.
     case POT_HEALING:
-        throw new UnsupportedPotionError(
-            'the healing vapors, over make_blinded() and make_deaf()',
-        );
+        if (Upolyd(state.u) && state.u.mh < state.u.mhmax) {
+            state.u.mh++;
+            state.disp.botl = true;
+        }
+        if (state.u.uhp < state.u.uhpmax) {
+            state.u.uhp++;
+            state.disp.botl = true;
+        }
+        if (obj.blessed) cureblind = true;
+        if (cureblind) {
+            await make_blinded(0, !state.u.ucreamed, state, {
+                ...env, random, message,
+            });
+            await make_deaf(0, true, state, { ...env, random, message });
+        }
+        await exercise(A_CON, true, state, random, {
+            encumberMessage: env.encumberMessage ?? encumber_msg,
+        });
+        break;
     case POT_SICKNESS:
-        throw new UnsupportedPotionError('the sickness vapors that cost 5 HP');
+        if (state.urole?.mnum !== PM_HEALER) {
+            if (Upolyd(state.u))
+                state.u.mh = state.u.mh <= 5 ? 1 : state.u.mh - 5;
+            else
+                state.u.uhp = state.u.uhp <= 5 ? 1 : state.u.uhp - 5;
+            state.disp.botl = true;
+            await exercise(A_CON, false, state, random, {
+                encumberMessage: env.encumberMessage ?? encumber_msg,
+            });
+        }
+        break;
     case POT_HALLUCINATION:
-        throw new UnsupportedPotionError('the momentary vision');
+        await message('You have a momentary vision.', state);
+        break;
     case POT_CONFUSION:
     case POT_BOOZE:
-        throw new UnsupportedPotionError(
-            'the dizzying vapors, over make_confused()',
-        );
+        {
+            const confusion = state.u.uprops[CONFUSION];
+            if (!(confusion.intrinsic || confusion.extrinsic))
+                await message('You feel somewhat dizzy.', state);
+            await make_confused(
+                itimeout_incr(confusion.intrinsic, random.rnd(5)),
+                false,
+                state,
+                { ...env, random, message },
+            );
+        }
+        break;
     case POT_INVISIBILITY:
         if (!heroIsBlind(state) && !Invis(state)) {
             kn++;
             await message(
-                `For an instant you ${See_invisible(state)
-                    ? 'could see right through yourself'
-                    : "couldn't see yourself"}!`,
+                'For an instant you '
+                    + (See_invisible(state)
+                        ? 'could see right through yourself'
+                        : "couldn't see yourself") + '!',
                 state,
             );
         }
@@ -2604,7 +2632,6 @@ export async function potionbreathe(obj, state = game, env = {}) {
     case POT_PARALYSIS:
         kn++;
         if (!Free_action(state)) {
-            // C's Something is "something" capitalized by the format.
             await message('Something seems to be holding you.', state);
             nomul(-random.rnd(5), state);
             state.multi_reason = 'frozen by a potion';
@@ -2623,18 +2650,19 @@ export async function potionbreathe(obj, state = game, env = {}) {
             state.nomovemsg = You_can_move_again;
             await exercise(A_DEX, false, state, random);
         } else {
-            // C follows the yawn with monstseesu(M_SEEN_SLEEP), which records
-            // the resistance on every monster that can see the hero. Nothing
-            // in this port reads that record back for sleep yet.
-            throw new UnsupportedPotionError(
-                'the yawn that tells watching monsters the hero resists sleep',
-            );
+            await message('You yawn.', state);
+            monstseesu(M_SEEN_SLEEP, state);
         }
         break;
     case POT_SPEED:
-        throw new UnsupportedPotionError(
-            'the speed vapors, over incr_itimeout(&HFast)',
-        );
+        {
+            const fast = state.u.uprops[FAST];
+            if (!(fast.intrinsic || fast.extrinsic))
+                await message('Your knees seem more flexible now.', state);
+            incr_itimeout(fast, random.rnd(5));
+            await exercise(A_DEX, true, state, random);
+        }
+        break;
     case POT_BLINDNESS:
         {
             const unaware = Unaware(state);
@@ -2654,24 +2682,26 @@ export async function potionbreathe(obj, state = game, env = {}) {
             break;
         }
     case POT_WATER:
-        throw new UnsupportedPotionError(
-            'the water vapors, over split_mon() and you_were()',
-        );
+        if (state.u.umonnum === PM_GREMLIN) {
+            await split_mon(state.youmonst, null, {
+                ...env, state, random, message,
+            });
+        } else if (ismnum(state.u.ulycn)) {
+            if (obj.blessed
+                && state.youmonst.data === state.mons[state.u.ulycn]) {
+                note_unported('were.c you_unwere');
+            } else if (obj.cursed && !Upolyd(state.u)) {
+                note_unported('were.c you_were');
+            }
+        }
+        break;
     case POT_ACID:
     case POT_POLYMORPH:
         await exercise(A_CON, false, state, random, {
-            // exercise() runs encumber_msg() for A_CON once play has begun.
-            // The hero's own turn -- zap.c destroy_items() -- lets it print;
-            // potionhit()'s monster-turn caller supplies a planning-aware one.
             encumberMessage: env.encumberMessage ?? encumber_msg,
         });
         break;
     /*
-     * C's own comment lists the first seven of these as the types whose
-     * vapors deliberately do nothing. POT_SEE_INVISIBLE and POT_ENLIGHTENMENT
-     * are not in that comment and have no case label either, so they reach the
-     * same nothing.
-     */
     case POT_GAIN_LEVEL:
     case POT_GAIN_ENERGY:
     case POT_LEVITATION:
@@ -2679,13 +2709,8 @@ export async function potionbreathe(obj, state = game, env = {}) {
     case POT_MONSTER_DETECTION:
     case POT_OBJECT_DETECTION:
     case POT_OIL:
-    case POT_SEE_INVISIBLE:
-    case POT_ENLIGHTENMENT:
         break;
-    default:
-        throw new UnsupportedPotionError(
-            `potionbreathe() for object type ${obj.otyp}`,
-        );
+     */
     }
 
     if (!already_in_use)
@@ -2693,9 +2718,9 @@ export async function potionbreathe(obj, state = game, env = {}) {
     /* note: no obfree() -- that's our caller's responsibility */
     if (obj.dknown) {
         // hack.h:1530 makeknown(x) is discover_object(x, TRUE, TRUE, TRUE).
-        // `kn` counts the arms whose message told the hero what the potion
+        // kn counts the arms whose message told the hero what the potion
         // was; every other arm offers the naming prompt instead.
-        if (kn) discover_object(obj.otyp, true, true, true, state, env);
+        if (kn) await discover_object(obj.otyp, true, true, true, state, env);
         else await trycall(obj, state);
     }
 }
@@ -2739,9 +2764,8 @@ export async function healup(nhp, nxtra, curesick, cureblind, state = game) {
 // Asks which object to dip, then checks terrain (fountain, sink, pool)
 // or asks which potion to dip into.
 //
-// Fail-closed arms: sink (dipsink), pool (water_damage/wash_hands),
-// and potion-into-potion (potion_dip). The witness session exercises
-// only the fountain path.
+// Fail-closed arms: pool (water_damage/wash_hands) and potion-into-potion
+// (potion_dip). Sink dipping is wired through fountain.c:dipsink().
 export async function dodip(state = game) {
     const message = ttyPline;
     const hero = state.u;
@@ -2784,7 +2808,8 @@ export async function dodip(state = game) {
             .length;
     let obuf;
     if (is_hands) {
-        obuf = `your ${makeplural(body_part(HAND, state))}`;
+        // C body_part(HAND) reads youmonst; pass the monster explicitly.
+        obuf = `your ${makeplural(body_part(HAND, state.youmonst))}`;
     } else {
         // C ref: potion.c:2301-2305. short_oname() tries doname first;
         // if the result is too long, strips bknown/rknown/erosion and
@@ -2811,7 +2836,16 @@ export async function dodip(state = game) {
             // Hero declined; drink_ok_extra would be incremented in C
             // but dodrink keeps its own local copy, so this has no effect.
         } else if (at_sink) {
-            throw new UnsupportedDipError('the sink dipping path (dipsink)');
+            const { y_n } = await import('./cmd.js');
+            const verbose = state.flags?.verbose !== false;
+            const prompt = `Dip ${verbose ? obuf : shortestname}`
+                + ' into the sink?';
+            if (await y_n(prompt, state) === 'y'.charCodeAt(0)) {
+                if (!is_hands) obj.pickup_prev = 0;
+                const { dipsink } = await import('./fountain.js');
+                await dipsink(obj, state);
+                return ECMD_TIME;
+            }
         } else if (at_pool) {
             throw new UnsupportedDipError('the pool dipping path');
         }

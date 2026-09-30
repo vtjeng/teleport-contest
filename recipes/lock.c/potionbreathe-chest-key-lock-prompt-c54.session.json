@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C54 continuation of the independent single-potion chest setup. C observed the wished skeleton key at inventory slot q; this frozen C-only prefix applies it to the closed unlocked chest and captures the exact lock prompt before freezing the lock/force continuation.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nunlocked chest\ndo#wizwish\npotion of sickness\n#loot\nsp#wizwish\nskeleton key\naq."
+    }
+  ]
+}

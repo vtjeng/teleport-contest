@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Wizard input for dothrow.c:throwit -> toss_up -> breakobj -> potion.c:potionbreathe(POT_SPEED). Frozen before the C recording or any JavaScript comparison. C attempt run-tz85ZC is retained as a target miss: the wish created the potion in slot n, but frozen moves threw from slot p, so dothrow.c:toss_up/breakobj and potionbreathe were not reached.",
+  "segments": [
+    {
+      "seed": 812639,
+      "datetime": "20470419083052",
+      "nethackrc": "OPTIONS=name:SpeedUp,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizwish\npotion of speed\ntp<"
+    }
+  ]
+}

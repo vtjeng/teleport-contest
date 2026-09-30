@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first final continuation frozen after the exact C `You see a flagon shatter!--More--` boundary. One space dismisses that observed pager; the following blank line answers the already C-observed trycall query for an unknown potion without assigning a user name.",
+  "segments": [
+    {
+      "seed": 8421103,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwo#wizwish\nempty unlocked chest\ndp#wizwish\npotion of sickness\n#loot\nsq#wizwish\nskeleton key\nar.y#force\ny   \n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after the corrected seed-8421103 C trace reached forcelock(lock.c:252), rng(3)=0, and ended at the observed --More-- after the success message. The final space advances that recorded pager so the complete chest_shatter_msg/potionbreathe and destruction cleanup can be observed.",
+  "segments": [
+    {
+      "seed": 8421103,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwo#wizwish\nunlocked chest\ndp#wizwish\npotion of sickness\n#loot\nsq#wizwish\nskeleton key\nar.y#force\ny "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Third C-observed pager continuation. The preceding C trace displayed “You see a flagon shatter!” with --More-- after the chest destruction. One frozen space continues the same uninterrupted source action to capture the vapor helper’s output.",
+  "segments": [
+    {
+      "seed": 8421103,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwo#wizwish\nunlocked chest\ndp#wizwish\npotion of sickness\n#loot\nsq#wizwish\nskeleton key\nar.y#force\ny   "
+    }
+  ]
+}

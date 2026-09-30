@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent zap.c:maybe_destroy_item → potionbreathe caller recipe, frozen before its C record and all JS comparison. A debug-wished ring of fire resistance protects the Wizard from the direct wand-of-fire self hit while zap.c:zapyourself still processes inventory against AD_FIRE. An independently wished potion of invisibility supplies the candidate vapor object; the seed and sequence were chosen without a JavaScript result. The prior C-only recording showed the item-comparison tutorial pager immediately after the potion wish, so this independent confirmation adds exactly one space at that source-observed boundary before requesting the wand. This frozen continuation also uses the inventory letter C showed for the silver fire wand (`p`), replacing the prior unobserved `q` selection.",
+  "segments": [
+    {
+      "seed": 8421104,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporZap,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nring of fire resistance\nPor#wizwish\npotion of invisibility\n #wizwish\nwand of fire\nzp."
+    }
+  ]
+}

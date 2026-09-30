@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after the empty-chest trace reached forcelock with rn2(3)=0 and stopped at the observed force-success --More-- prompt. One space advances the frozen pager.",
+  "segments": [
+    {
+      "seed": 8421103,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwo#wizwish\nempty unlocked chest\ndp#wizwish\npotion of sickness\n#loot\nsq#wizwish\nskeleton key\nar.y#force\ny "
+    }
+  ]
+}

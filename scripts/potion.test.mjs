@@ -1,10 +1,6 @@
-// potion.c potionbreathe() and do.c trycall().
-//
-// potionbreathe()'s eighteen case labels carry no operator a mutation can
-// move, and the witness reaches exactly one of them. The tests below read the
-// label list out of potion.c and then separate the three groups it falls into:
-// the arm this port runs, the arms that stop by name, and the types that have
-// no label at all and fall out of the switch.
+// potion.c potionbreathe() and do.c trycall(). The source-pinned switch test
+// checks executable C labels against the JavaScript cases, while the behavior
+// tests pin branch-specific updates, RNG order and naming-tail behavior.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -70,7 +66,6 @@ import {
     SPE_DETECT_MONSTERS,
 } from '../js/objects.js';
 import {
-    UnsupportedPotionError,
     UnsupportedQuaffError,
     bottlename,
     dip_ok,
@@ -1256,8 +1251,7 @@ for (const [name, property, seed] of [
         });
 }
 
-test('potion.c still labels the arms this port refuses and none it skips',
-    () => {
+test('potionbreathe has the executable case labels from potion.c', () => {
     const { code, comments } = breatheSwitchBody();
     const labelled = new Set(
         [...code.matchAll(/case (POT_[A-Z_]+|TOWEL):/gu)].map(([, n]) => n),
@@ -1293,30 +1287,38 @@ test('potion.c still labels the arms this port refuses and none it skips',
             `${name} is accounted for`,
         );
     }
+
+    const js = readFileSync(
+        new URL('../js/potion.js', import.meta.url),
+        'utf8',
+    );
+    const signature = js.indexOf('export async function potionbreathe(');
+    const jsEnd = js.indexOf('if (!already_in_use)', signature);
+    assert.ok(signature > 0 && jsEnd > signature);
+    const switchStart = js.indexOf('    switch (Half_gas_damage', signature);
+    const switchEnd = js.indexOf('    if (!already_in_use)', switchStart);
+    const jsBody = js.slice(switchStart, switchEnd)
+        .replace(/\/\*[\s\S]*?\*\//gu, '')
+        .replace(/^\s*\/\/.*$/gmu, '');
+    const jsLabels = new Set(
+        [...jsBody.matchAll(/case (POT_[A-Z_]+|TOWEL):/gu)]
+            .map(([, name]) => name),
+    );
+    assert.deepEqual([...jsLabels].sort(), [...labelled].sort());
 });
 
-// The labels whose bodies this port runs. POT_INVISIBILITY came with the
-// quaffing work; these vapor arms are reached when a thrown potion breaks on
-// a hero or monster.
-const PORTED_LABELS = [
-    'POT_INVISIBILITY', 'POT_PARALYSIS', 'POT_SLEEPING', 'POT_ACID',
-    'POT_POLYMORPH', 'POT_BLINDNESS',
-];
-
-test('the labelled arms this port has not reached stop by name', async () => {
-    await startedGame(771001, 'VaporRefuse');
-    const labelled = [
-        ...breatheSwitchBody().code.matchAll(/case (POT_[A-Z_]+):/gu),
-    ].map(([, name]) => name);
-    for (const name of labelled) {
-        if (PORTED_LABELS.includes(name)) continue;
-        const otyp = POTION_TYPES[name];
-        assert.equal(typeof otyp, 'number', name);
-        await assert.rejects(
-            () => potionbreathe(vaporPotion(otyp), game),
-            /a potion's vapors require /u,
-            name,
-        );
+test('the potion no-op types fall through and keep the in-use guard', async () => {
+    await startedGame(771001, 'VaporNoop');
+    for (const name of NO_OP_TYPES) {
+        const obj = vaporPotion(POTION_TYPES[name]);
+        // The source tail calls trycall() for dknown objects, so mark these
+        // types known to keep this check on the switch fall-through itself.
+        discover_object(obj.otyp, true, true, false, game);
+        obj.in_use = true;
+        clearTopline();
+        await potionbreathe(obj, game);
+        assert.equal(toplines(), '', name);
+        assert.equal(obj.in_use, true, name);
     }
 });
 
@@ -1380,13 +1382,11 @@ test('free action turns the paralysis vapors into a momentary stiffening',
 });
 
 // potion.c:2060-2062. Either property takes the sleeping arm's else branch,
-// whose monstseesu(M_SEEN_SLEEP) has no reader yet, so the port stops before
-// the yawn and before any draw or state change. QUALITY.json carries the
-// deferral with a recorded C case.
+// which yawn-messages and marks watching monsters as seeing the hero.
 for (const [label, property] of [
     ['free action', FREE_ACTION], ['sleep resistance', SLEEP_RES],
 ]) {
-    test(`${label} stops the sleeping vapors at the yawn`, async () => {
+    test(`${label} lets the sleeping vapors yawn without a timeout`, async () => {
         await startedGame(771014, 'VaporSleepRes');
         clearTopline();
         game.u.uprops[property].intrinsic = FROMOUTSIDE;
@@ -1395,15 +1395,11 @@ for (const [label, property] of [
             rnd: (bound) => { drawn.push(['rnd', bound]); return 2; },
             rn2: (bound) => { drawn.push(['rn2', bound]); return 1; },
         };
-        await assert.rejects(
-            () => potionbreathe(vaporPotion(POT_SLEEPING), game, { random }),
-            (error) => error instanceof UnsupportedPotionError
-                && error.branch === 'the yawn that tells watching monsters the'
-                    + ' hero resists sleep',
-        );
-        assert.equal(toplines(), '');
+        await potionbreathe(vaporPotion(POT_SLEEPING), game, { random });
+        assert.equal(toplines(), 'You yawn.');
         assert.equal(game.multi ?? 0, 0);
-        assert.deepEqual(drawn, []);
+        assert.deepEqual(drawn, [['rn2', 19]],
+            'kn identifies the sleeping potion through makeknown()');
     });
 }
 
@@ -1811,16 +1807,24 @@ test('potionhit uses distu squared range before deciding whether vapors reach th
             'no nearby-vapor rn2 is drawn for C distu() distance 5');
     });
 
-test('potionhit skips an unported void vapor arm and continues through obfree',
+test('potionhit applies sickness vapors before continuing through obfree',
     async () => {
-        await startedGame(771030, 'PotionUnsupportedVaporTail');
+        await startedGame(771030, 'PotionSicknessVaporTail', 'Wizard');
         clearTopline();
+        discover_object(POT_SICKNESS, true, true, false, game);
         const obj = vaporPotion(POT_SICKNESS);
         obj.unpaid = 1;
         const freed = [];
+        const hp = game.u.uhp;
+        const conExercise = game.u.aexe[A_CON];
+        const draws = [];
+        const rnds = [];
         await potionhit(game.youmonst, obj, POTHIT_MONST_THROW, {
             state: game,
-            random: { rn2: () => 1, rnd: () => 1 },
+            random: {
+                rn2: (bound) => { draws.push(bound); return 1; },
+                rnd: (bound) => { rnds.push(bound); return 1; },
+            },
             message: async () => {},
             hooks: {
                 obfreeShopBill: (freedObject) => {
@@ -1830,9 +1834,15 @@ test('potionhit skips an unported void vapor arm and continues through obfree',
             },
         });
 
-        assert.ok(game.unported.has('potion.c potionbreathe'));
+        assert.equal(game.u.uhp, hp - 6,
+            'the impact costs 1 HP, then potionbreathe costs 5 more');
+        assert.equal(game.u.aexe[A_CON], conExercise - 1);
+        assert.deepEqual(draws, [7, 2],
+            'bottlename draws before exercise(A_CON, FALSE)');
+        assert.deepEqual(rnds, [2], 'potionhit rolls the impact damage first');
+        assert.equal(game.unported.has('potion.c potionbreathe'), false);
         assert.deepEqual(freed, [obj],
-            'the caller reaches its shop/object-release tail after skipping the void gap');
+            'the caller reaches its shop/object-release tail after the vapor effect');
     });
 
 test('the unlabelled types reach the naming tail and nothing else', async () => {
@@ -1934,10 +1944,12 @@ test('a wet towel takes the TOWEL arm whatever the potion is', async () => {
     // youprop.h:405 Half_gas_damage needs the towel damp: `spe > 0`. One
     // charge is the smallest amount that qualifies and zero the largest that
     // does not, which is the pair that fixes the comparison.
-    await assert.rejects(
-        () => potionbreathe(vaporPotion(POT_INVISIBILITY), game),
-        /the wet towel/u,
-    );
+    clearTopline();
+    const protectedPotion = vaporPotion(POT_INVISIBILITY);
+    await potionbreathe(protectedPotion, game);
+    assert.equal(toplines(), 'Some vapor passes harmlessly around you.');
+    assert.equal(game.u.uprops[INVIS].intrinsic, 0);
+    assert.equal(protectedPotion.in_use, false);
     towel.spe = 0;
     clearTopline();
     await potionbreathe(vaporPotion(POT_INVISIBILITY), game);
@@ -2002,14 +2014,12 @@ test('a message that names the potion identifies its type', async () => {
     assert.deepEqual(drawn, [19]);
 });
 
-test('the potion refusals are ones the command seam converts', () => {
+test('the command seam keeps refusals for still-unported potion effects', () => {
     // js/cmd.js failClosedCommandRefusals() decides whether a refusal ends the
     // segment on its last matching screen or escapes and loses every screen
-    // the command earned. Both classes below are raised under dozap(), so
-    // dropping either from that list would turn a clean stop into a lost
-    // segment with nothing failing.
+    // the command earned. The quaff refusal still needs conversion under
+    // #quaff while vapor effects now run through potionbreathe().
     const listed = failClosedCommandRefusals();
-    assert.ok(listed.includes(UnsupportedPotionError));
     // UnsupportedQuaffError is raised by dodrink/dopotion/peffects for
     // unported branches. Dropping it would lose every screen the quaff
     // command earned before the refusal.

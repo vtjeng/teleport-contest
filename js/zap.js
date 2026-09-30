@@ -4227,7 +4227,7 @@ export async function zap_map(
         }
 
         const location = state.level.at(x, y);
-        const type = location.typ;
+        const type = surface_typ(location);
         if (type === SDOOR) {
             cvt_sdoor_to_door(location, state);
             recalc_block_point(x, y, state);

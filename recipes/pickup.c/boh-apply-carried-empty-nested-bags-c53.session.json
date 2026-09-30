@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C53 supplemental #apply carried-container route, frozen before recording and JavaScript comparison. Use the C `empty ` wish qualifier: objnam.c:readobjnam marks TIN_EMPTY and deletes generated contents for containers (4099, 5311-5321), so random mkbox_cnts contents cannot divert this path into potionbreathe. Apply the carried outer Bag of Holding, choose single-item stash, and select the second carried empty Bag of Holding. Expected path: apply.c:doapply -> pickup.c:use_container(held=TRUE) -> in_container -> do_boh_explosion -> useup cleanup.",
+  "segments": [
+    {
+      "seed": 104729,
+      "datetime": "20361102103400",
+      "nethackrc": "OPTIONS=name:C53ApplyHeldEmpty,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizwish\nempty uncursed bag of holding\n#wizwish\nempty uncursed bag of holding\naosp   "
+    }
+  ]
+}

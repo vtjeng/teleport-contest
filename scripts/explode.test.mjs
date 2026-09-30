@@ -49,7 +49,16 @@ import {
     PM_GAS_SPORE,
     PM_NEWT,
 } from '../js/monsters.js';
-import { LEATHER_ARMOR, ROCK, SCROLL_CLASS, WAND_CLASS } from '../js/objects.js';
+import {
+    BOULDER,
+    EGG,
+    GOLD_PIECE,
+    LEATHER_ARMOR,
+    ROCK,
+    SCROLL_CLASS,
+    STATUE,
+    WAND_CLASS,
+} from '../js/objects.js';
 import { zap_over_floor } from '../js/zap.js';
 import { getRngLog } from '../js/rng.js';
 import { decodeScreen } from '../frozen/screen-decode.mjs';
@@ -372,6 +381,239 @@ test('scatter preserves C direction, range, landing, and total order', async () 
     assert.deepEqual(landed, [[7, 3]]);
     assert.deepEqual(state.gb.bhitpos, { x: 7, y: 3 });
     assert.equal(state.gt.thrownobj, null);
+});
+
+test('scatter reaches the C egg destruction arm without a glass lookup', async () => {
+    // The source coordinates are off the hero so the final uncover check is
+    // inert; SCATTER_MAY_DESTROY makes C test the egg after one rn2(10) draw.
+    const sx = 5;
+    const sy = 5;
+    const state = {
+        u: { ux: 1, uy: 1, uundetected: false, urooms: '' },
+        youmonst: { data: {} },
+        level: {
+            objects: Array.from({ length: 80 }, () => Array(22).fill(null)),
+            traps: [],
+            objlist: null,
+        },
+        gb: { bhitpos: { x: sx, y: sy } },
+        gt: {},
+    };
+    const egg = {
+        otyp: EGG,
+        oclass: 2,
+        quan: 1,
+        owt: 1,
+        ox: sx,
+        oy: sy,
+    };
+    const randomCalls = [];
+    const broken = [];
+    const effects = [];
+    const total = await scatter(
+        sx,
+        sy,
+        4, // A positive blast force reaches scatter's object pass.
+        SCATTER_MAY_DESTROY,
+        egg,
+        state,
+        {
+            random: {
+                rn2: (bound) => {
+                    randomCalls.push(`rn2(${bound})`);
+                    return 1; // The egg branch, rather than chance, destroys it.
+                },
+            },
+            shopOrigin: false,
+            monsterAt: () => null,
+            extractObject: () => {},
+            objectMaterial: () => {
+                effects.push('material');
+                return 0; // Non-glass allows C's following EGG test to run.
+            },
+            breakObject: async (object) => {
+                effects.push('break');
+                broken.push(object);
+                return true;
+            },
+            newsym: () => {},
+            maybeUnhideAt: () => {},
+        },
+    );
+
+    assert.deepEqual(randomCalls, ['rn2(10)']);
+    assert.deepEqual(effects, ['material', 'break']);
+    assert.deepEqual(broken, [egg]);
+    assert.equal(total, 0);
+});
+
+test('scatter divides unsigned object weight before subtracting range', async () => {
+    // Weights 20 and 60 distinguish integer owt / 40 from fractional math.
+    for (const [weight, expectedRange] of [[20, 4], [60, 3]]) {
+        const sx = 5;
+        const sy = 5;
+        const state = {
+            u: { ux: 1, uy: 1, uundetected: false, urooms: '' },
+            youmonst: { data: {} },
+            level: {
+                objects: Array.from({ length: 80 }, () => Array(22).fill(null)),
+                traps: [],
+                objlist: null,
+            },
+            gb: { bhitpos: { x: sx, y: sy } },
+            gt: {},
+        };
+        const object = {
+            otyp: ROCK,
+            quan: 1,
+            owt: weight,
+            ox: sx,
+            oy: sy,
+        };
+        const randomCalls = [];
+        const total = await scatter(sx, sy, 4, 0, object, state, {
+            random: {
+                rn2: (bound) => {
+                    randomCalls.push(`rn2(${bound})`);
+                    return 3; // xdir[3], ydir[3] moves the item one step.
+                },
+                rnd: (bound) => {
+                    randomCalls.push(`rnd(${bound})`);
+                    return 1; // One movement step keeps landing assertions small.
+                },
+            },
+            shopOrigin: false,
+            extractObject: (value) => { value.where = 0; },
+            placeObject: (value, x, y) => {
+                value.where = 1;
+                value.ox = x;
+                value.oy = y;
+            },
+            stackObject: () => {},
+            floorEffects: () => false,
+            terrainAt: () => 100,
+            closedDoor: () => false,
+            isSink: () => false,
+            monsterAt: () => null,
+            heroAt: () => false,
+            canSee: () => false,
+            newsym: () => {},
+            maybeUnhideAt: () => {},
+        });
+
+        assert.equal(total, 1);
+        assert.deepEqual(randomCalls, ['rn2(8)', `rnd(${expectedRange})`]);
+    }
+});
+
+test('scatter identifies source boulder and statue fracture branches', async () => {
+    for (const [otyp, expectedHelper] of [
+        [BOULDER, 'fractureRock'],
+        [STATUE, 'breakStatue'],
+    ]) {
+        const sx = 5;
+        const sy = 5;
+        const state = {
+            u: { ux: 1, uy: 1, uundetected: false, urooms: '' },
+            youmonst: { data: {} },
+            level: {
+                objects: Array.from({ length: 80 }, () => Array(22).fill(null)),
+                traps: [],
+                objlist: null,
+            },
+            gb: { bhitpos: { x: sx, y: sy } },
+            gt: {},
+        };
+        const object = { otyp, quan: 1, owt: 1, ox: sx, oy: sy };
+        const called = [];
+        const total = await scatter(
+            sx,
+            sy,
+            2,
+            SCATTER_MAY_FRACTURE,
+            object,
+            state,
+            {
+                random: { rn2: () => 1 },
+                shopOrigin: false,
+                extractObject: () => {},
+                placeObject: () => {},
+                objectAt: () => null,
+                fractureRock: async () => called.push('fractureRock'),
+                breakStatue: async () => called.push('breakStatue'),
+                soundEffect: async () => {},
+                message: async () => {},
+                canSee: () => false,
+                monsterAt: () => null,
+                newsym: () => {},
+                maybeUnhideAt: () => {},
+            },
+        );
+
+        assert.equal(total, 0);
+        assert.deepEqual(called, [expectedHelper]);
+    }
+});
+
+test('scatter bills gold that leaves a shop after the source landing step', async () => {
+    const sx = 5;
+    const sy = 5;
+    const keeper = {};
+    const state = {
+        u: { ux: 1, uy: 1, uundetected: false, urooms: '' },
+        youmonst: { data: {} },
+        level: {
+            objects: Array.from({ length: 80 }, () => Array(22).fill(null)),
+            traps: [],
+            objlist: null,
+        },
+        gb: { bhitpos: { x: sx, y: sy } },
+        gt: {},
+    };
+    const gold = {
+        otyp: GOLD_PIECE,
+        quan: 1, // One coin avoids the independent splitobj quantity branch.
+        owt: 1,
+        ox: sx,
+        oy: sy,
+    };
+    const bills = [];
+    const reports = [];
+    const floorChecks = [];
+    const total = await scatter(sx, sy, 4, 0, gold, state, {
+        random: { rn2: () => 3, rnd: () => 1 },
+        shopOrigin: true,
+        shopkeeper: keeper,
+        inRooms: () => [1],
+        creditReport: async (...args) => reports.push(args),
+        costlySpot: (x, y) => x === sx && y === sy,
+        heroInShop: () => true,
+        extractObject: (object) => { object.where = 0; },
+        placeObject: (object, x, y) => {
+            object.where = 1;
+            object.ox = x;
+            object.oy = y;
+        },
+        stackObject: () => {},
+        floorEffects: async () => {
+            floorChecks.push(bills.length);
+            return false;
+        },
+        terrainAt: () => 100,
+        closedDoor: () => false,
+        isSink: () => false,
+        monsterAt: () => null,
+        heroAt: () => false,
+        canSee: () => false,
+        addToBill: async (...args) => bills.push(args),
+        newsym: () => {},
+        maybeUnhideAt: () => {},
+    });
+
+    assert.equal(total, 1);
+    assert.deepEqual(floorChecks, [0]); // C bills only after floor effects return false.
+    assert.deepEqual(bills, [[gold, false, false, true]]);
+    assert.deepEqual(reports, [[keeper, 0, true], [keeper, 1, false]]);
 });
 
 test('scatter gives a monster the source one-step hit boundary', async () => {

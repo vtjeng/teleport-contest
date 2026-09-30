@@ -83,6 +83,25 @@ function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
 }
 
+test('probing reads the surface beneath a raised drawbridge', () => {
+    // C zap_map uses SURFACE_AT: rm.h substitutes db_under_typ for
+    // DRAWBRIDGE_UP. dungeon.test.mjs pins its ice, lava and water results.
+    const source = readFileSync(
+        new URL('../js/zap.js', import.meta.url), 'utf8',
+    );
+    const arm = source.slice(
+        source.indexOf('export async function zap_map('),
+        source.indexOf('export async function bhit('),
+    );
+    assert.ok(arm.includes('const type = surface_typ(location);'));
+    const zapC = readFileSync(
+        new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
+    );
+    assert.ok(zapC.slice(zapC.indexOf('zap_map(\n')).includes(
+        'ltyp = SURFACE_AT(x, y);',
+    ));
+});
+
 // The top line a call made outside moveloop_core() produced. Nothing has
 // flushed the screen yet, so the grid still holds the previous frame; this is
 // the text the next flush would paint onto row 0.

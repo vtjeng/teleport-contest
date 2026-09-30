@@ -14,6 +14,7 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 
 import {
     BLINDED,
+    CONFUSION,
     DISCLOSE_NO_WITHOUT_PROMPT,
     FIRE_RES,
     FROMOUTSIDE,
@@ -435,21 +436,20 @@ test('a boiling potion names its row before its vapors reach the hero',
         [5, 4], // 5 % 5 == 0 loses; limit is 1
         [6, 1], // rnd(6) at zap.c:5842, the potion's damage
         [3, 0], // the stack's single potion is destroyed
+        [5, 1], // potion.c:2014 rnd(5) extends the confusion timeout
+        [2, 1], // zap.c:5949 exercise(A_STR, FALSE)
     ];
 
-    // zap.c:5909-5917 prints before it breathes, and 5941-5949 pays the damage
-    // after. POT_BOOZE's vapor arm is unported, so the stop lands between the
-    // two and pins that order: the message is on the top line and the hit
-    // points have not moved.
-    await assert.rejects(
-        () => destroy_items(game.youmonst, AD_FIRE, 5, {
-            random: scriptedRandom(script, drawn),
-            state: game,
-        }),
-        /the dizzying vapors/u,
-    );
-    assert.equal(toplines(), 'Your potion of booze boils and explodes!');
-    assert.equal(game.u.uhp, 12);
+    // zap.c:5909-5917 prints then calls potionbreathe(); 5941-5949 consumes
+    // the potion, applies damage and exercises strength. The confusion timer
+    // and the damage exercise now both run after the explosion message.
+    await destroy_items(game.youmonst, AD_FIRE, 5, {
+        random: scriptedRandom(script, drawn),
+        state: game,
+    });
+    assert.match(toplines(), /Your potion of booze boils and explodes!/u);
+    assert.match(toplines(), /You feel somewhat dizzy\./u);
+    assert.equal(game.u.uhp, 11);
     assert.equal(script.length, 0);
 });
 
@@ -787,16 +787,19 @@ test('the vapors reach a hero who breathes or a hero who has eyes',
         game.u.uhpmax = 12;
         game.youmonst.data = game.mons[pm];
         const script = [[5, 4], [6, 1], [3, 0]];
-        if (!breathes) script.push([2, 1]); // no vapors, so losehp runs
+        if (breathes) script.push([5, 1]); // potionbreathe() rnd(5)
+        script.push([2, 1]); // losehp()'s exercise(A_STR, FALSE)
         const call = () => destroy_items(game.youmonst, AD_FIRE, 5, {
             random: scriptedRandom(script, []),
             state: game,
         });
-        // POT_BOOZE's vapor arm is unported, so reaching potionbreathe() is
-        // visible as that stop and skipping it is visible as a completed call.
-        if (breathes) await assert.rejects(call, /the dizzying vapors/u);
-        else await call();
+        await call();
         assert.equal(script.length, 0, `${pm}`);
+        assert.equal(
+            game.u.uprops[CONFUSION].intrinsic !== 0,
+            breathes,
+            `${pm} reaches the vapor effect only when it breathes or has eyes`,
+        );
     }
 });
 
@@ -1051,17 +1054,15 @@ test('worn fire resistance protects a stack before anything is drawn for it',
     assert.equal(damage, 0);
     assert.equal(toplines(), '');
     assert.equal(carriedStacks().includes(potion), true);
-    // A roll of 99 loses to the 99% and the stack is destroyed as usual. Its
-    // vapors then stop this port, which is one call past the message.
+    // A roll of 99 loses to the 99% and the stack is destroyed as usual. The
+    // vapor timeout and later explosion damage now complete in source order.
     clearTopline();
-    await assert.rejects(
-        () => destroy_items(game.youmonst, AD_FIRE, 5, {
-            random: scriptedRandom([[5, 4], [100, 99], [6, 1], [3, 0]], []),
-            state: game,
-        }),
-        /the dizzying vapors/u,
-    );
-    assert.equal(toplines(), 'Your potion of booze boils and explodes!');
+    await destroy_items(game.youmonst, AD_FIRE, 5, {
+        random: scriptedRandom(
+            [[5, 4], [100, 99], [6, 1], [3, 0], [5, 1], [2, 1]], []),
+        state: game,
+    });
+    assert.match(toplines(), /Your potion of booze boils and explodes!/u);
     game.u.uprops[FIRE_RES].extrinsic = 0;
 });
 
