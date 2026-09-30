@@ -17743,5 +17743,44 @@
       "scope": "Changed supporting worm/lifecycle callers in the frozen range, as recorded in readiness; active cutworm entry points already have matching runtime evidence."
     },
     "recordedAt": "2026-09-30T00:09:06.431Z"
+  },
+  {
+    "kind": "review",
+    "head": "d7c9ac66a35f3c6641c24100ba1001faaeba7272",
+    "auditedRange": "193933f31f03c2f9a3a81680e040912a38cbbed0..d7c9ac66a35f3c6641c24100ba1001faaeba7272",
+    "level": "full",
+    "areas": [
+      "monsters"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 1 raw, 1 deduplicated, 1 confirmed, 1 applied, 0 deferred, 0 rejected, 0 unverified. Reviewed the correction to swallowed mongone ordering, its wizard genocide caller, and the pending-removal and worm-collection tests with five independent finders and one independent adjudicator. The second-monster audit fix matches the confirmed finding and passes all 29 focused read tests; lint passes. The earlier deferred cleanup findings were addressed by worker correction 79dc7686. Ordinary and worm caller recordings match; the swallowed C witness remains blocked before its input boundary and is not runtime completion evidence. All selected cutworm entries remain verified. No workflow warnings.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1937,
+      "counts": {
+        "raw": 1,
+        "deduplicated": 1,
+        "confirmed": 1,
+        "applied": 1,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 1,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "Frozen range 193933f31f03c2f9a3a81680e040912a38cbbed0..0728c58d9d72f083058ba401d3eb67c0d1bc0c04. mon.js:mongone and read.js:do_class_genocide ordinary/pet and worm paths are exercised by existing matching independent genocide recordings; the swallowed continuation has the new gated tests but lacks matching JS recorded play. scripts/makemon-create.test.mjs pins both swallowed pending state and due-to-death pending relobj; scripts/read.test.mjs pins the wizard-star caller wait; scripts/mkmaze-span.test.mjs pins worm collection before water-bubble relocation. The selected cutworm caller entries remain runtime verified. No test or blocked recipe is claimed as swallowed production replay evidence.",
+        "sourceReview": "Compared mon.c:mongone and unstuck state/PRNG/redraw order, m_detach due_to_death relobj ordering, read.c:do_class_genocide wizard-star saved-next/count loop, mkmaze.c:movebubbles collection order and worm.c:remove_worm wx-only clearing. Existing source gaps in scope: mongone vault.c:grddead return blocker remains an explicit refusal; apply.c:m_unleash and protected/quest steal.c:mdrop_special_objs transfers remain explicitly named discarded-void gaps. Dependencies retain their existing named gaps; source inventory will be saved before launch.",
+        "completeness": "No note_unported() in the changed cleanup continuation or wizard-star caller supplies a return consumed by C. The consumed vault guard return remains an explicit blocker, not fabricated data. The changed tests inject controlled scheduling and RNG but do not replace the production callers."
+      }
+    },
+    "recordedAt": "2026-09-30T01:30:11.322Z"
   }
 ]

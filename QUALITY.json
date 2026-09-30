@@ -3205,6 +3205,17 @@
       ],
       "outcome": "no-change",
       "recordedAt": "2026-09-30T00:09:06.431Z"
+    },
+    {
+      "kind": "review",
+      "head": "d7c9ac66a35f3c6641c24100ba1001faaeba7272",
+      "auditedRange": "193933f31f03c2f9a3a81680e040912a38cbbed0..d7c9ac66a35f3c6641c24100ba1001faaeba7272",
+      "level": "full",
+      "areas": [
+        "monsters"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-09-30T01:30:11.322Z"
     }
   ]
 }
