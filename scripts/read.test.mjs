@@ -676,8 +676,19 @@ test('read.c wizard genocide waits for swallowed mongone before continuing',
             m_id: 702,
             mhp: 18,
         });
+        // A live newt follows the holder in C's fmon chain. Its distinct ID
+        // 703 and 4 HP identify the next removal; the adjacent square keeps
+        // the ordinary monster separate from the swallowed holder.
+        const nextMonster = newMonster({
+            data: state.mons[PM_NEWT],
+            mnum: PM_NEWT,
+            m_id: 703,
+            mhp: 4,
+        });
+        holder.nmon = nextMonster;
         state.level.monlist = holder;
         place_monster(holder, state.u.ux, state.u.uy, state);
+        place_monster(nextMonster, state.u.ux + 1, state.u.uy, state);
         // C's swallowed-holder fields let unstuck() release this monster;
         // wizard plus the queued `*` and newline select/confirm all monsters.
         state.u.ustuck = holder;
@@ -714,6 +725,10 @@ test('read.c wizard genocide waits for swallowed mongone before continuing',
         // The caller must not count the monster or print the genocide summary
         // until mongone has completed its redraw/cooldown continuation.
         assert.equal(Boolean(holder.mstate & MON_DETACH), false);
+        // read.c must finish the holder before starting the next monster.
+        assert.equal(nextMonster.mhp, 4);
+        assert.equal(Boolean(nextMonster.mstate & MON_DETACH), false);
+        assert.equal(holder.nmon, nextMonster);
         assert.equal(state.iflags?.purge_monsters ?? 0, 0);
         assert.doesNotMatch(state._pending_message, /Eliminated/u);
 
@@ -721,10 +736,10 @@ test('read.c wizard genocide waits for swallowed mongone before continuing',
         await operation;
         random.assertExhausted();
         assert.ok(holder.mstate & MON_DETACH);
-        // This fixture contains one selected monster, so C's summary count and
-        // the single detach's purge count are both exactly one.
-        assert.equal(state.iflags.purge_monsters, 1);
-        assert.match(state._pending_message, /Eliminated 1 monster\./u);
+        assert.ok(nextMonster.mstate & MON_DETACH);
+        // Both selected monsters now count towards C's summary and purge.
+        assert.equal(state.iflags.purge_monsters, 2);
+        assert.match(state._pending_message, /Eliminated 2 monsters\./u);
     });
 
 test('read.c wizard genocide recipe reaches mongone through blessed scroll input',
