@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C54 source-target recipe for lock.c:breakchestlock(destroyit=TRUE) -> chest_shatter_msg(POTION_CLASS) -> potion.c:potionbreathe. It wishes a mace, an unlocked chest and a sickness potion, stashes the potion, locks the chest with a skeleton key, and forces it with the blunt mace. Frozen before the C recording and all JS comparisons.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nunlocked chest\ndo#wizwish\npotion of sickness\n#loot\nsp#wizwish\nskeleton key\naq.y#force\ny"
+    }
+  ]
+}

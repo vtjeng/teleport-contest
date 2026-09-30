@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C54 source-continuation with the C-observed #loot prompt: choose put-in, enter the potion class selector `!`, submit it, then choose the wished potion in its inventory-selection prompt. Frozen before C recording and JS comparison.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nunlocked chest\ndo#wizwish\npotion of sickness\n#loot\ni!\np"
+    }
+  ]
+}

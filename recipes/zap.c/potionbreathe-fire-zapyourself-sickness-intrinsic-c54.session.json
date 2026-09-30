@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first source-based zap.c:maybe_destroy_item → potionbreathe confirmation, frozen before its C record and any JavaScript comparison. #wizintrinsic sets timed FIRE_RES so the Wizard can survive zap.c:zapyourself without the equipped-resistance-item inventory protection in zap.c:u_adtyp_resistance_obj. A wished sickness potion gives the vapor helper a visible HP/exercise path if C destroys it; inventory letter p for the wand is based on the earlier C-only inventory trace and will be verified again.",
+  "segments": [
+    {
+      "seed": 8421105,
+      "datetime": "20480826103841",
+      "nethackrc": "OPTIONS=name:IntrinsZap,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizintrinsic\n>i\n#wizwish\npotion of sickness\n#wizwish\nwand of fire\nzp."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C54 continuation after the C-observed unlocked chest containing two items. Apply the C-observed skeleton key slot q, select the underfoot chest and confirm lock; this frozen C-only prompt capture precedes the #force destruction attempt.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nunlocked chest\ndo#wizwish\npotion of sickness\n#loot\nsp#wizwish\nskeleton key\naq.y"
+    }
+  ]
+}

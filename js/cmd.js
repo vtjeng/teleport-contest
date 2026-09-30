@@ -181,7 +181,6 @@ import {
     dodrink,
     dodip,
     UnsupportedDipError,
-    UnsupportedPotionError,
     UnsupportedQuaffError,
 } from './potion.js';
 import { UnsupportedFountainError } from './fountain.js';
@@ -2946,16 +2945,13 @@ export function failClosedCommandRefusals() {
         // and for the wet towel a hero's own fire would dry. zhitu()'s fire
         // arm is the ported caller, one frame below UnsupportedZapError.
         UnsupportedErosionError,
-        // The three classes zhitu()'s destroy_items() call reaches below
+        // The two classes zhitu()'s destroy_items() call reaches below
         // UnsupportedErosionError, each after the bolt has been drawn and the
         // items it destroyed have been announced. zap.c maybe_destroy_item()
         // raises the first from its AD_COLD and AD_ELEC cases and from a worn
-        // or wielded object; potion.c potionbreathe() raises the second from
-        // the sixteen vapor arms this port leaves unported; do_name.c docall()
-        // raises the third for an object type the hero has neither identified
-        // nor already called something.
+        // or wielded object; do_name.c docall() raises the second for an
+        // object type the hero has neither identified nor already called.
         UnsupportedItemDestructionError,
-        UnsupportedPotionError,
         // potion.c dodrink()/dopotion()/peffects() still raises this for
         // unported potion-effect arms. dodrink()'s unported void helpers use
         // named note_unported gaps and continue in source order instead.

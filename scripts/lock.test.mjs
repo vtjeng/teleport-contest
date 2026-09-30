@@ -39,6 +39,8 @@ import {
     CREDIT_CARD,
     LOCK_PICK,
     LARGE_BOX,
+    POTION_CLASS,
+    POT_SICKNESS,
     SKELETON_KEY,
     SPE_KNOCK,
     WAN_LOCKING,
@@ -52,6 +54,10 @@ const PICKLOCK_OCCUPATION_RECIPE = JSON.parse(readFileSync(new URL(
 ), 'utf8'));
 const PICKLOCK_LOOT_RECIPE = JSON.parse(readFileSync(new URL(
     '../recipes/lock.c/lock-pick-through-loot-independent-a46.session.json',
+    import.meta.url,
+), 'utf8'));
+const FORCE_POTION_SHATTER_RECIPE = JSON.parse(readFileSync(new URL(
+    '../recipes/lock.c/potionbreathe-forced-chest-sickness-c54-seed-8421103-complete.session.json',
     import.meta.url,
 ), 'utf8'));
 
@@ -803,4 +809,23 @@ test('#loot autounlock enters the same picklock occupation callback', async () =
         'picklock retains the box pointer as C does');
     assert.equal(game.xlock.usedtime, 0,
         'the callback clears the occupation counter');
+});
+
+test('destroying a locked chest always shatters potion contents', async () => {
+    // lock.c:186 consumes rn2(3) before its POTION_CLASS override. This
+    // independently chosen C recipe draws a nonzero value for that gate; the
+    // sickness vapor still reaches potionbreathe() and costs five of the
+    // Wizard's source-observed 12 HP. A random-only condition leaves HP 12.
+    const [segment] = FORCE_POTION_SHATTER_RECIPE.segments;
+    assert.equal(Object.hasOwn(segment, 'steps'), false,
+        'the test replays only the frozen input');
+
+    await runSegment(segment);
+
+    assert.equal(game.u.uhp, 7,
+        'the potion was breathed after the failed rn2(3) destruction gate');
+    assert.equal(game.objects[POT_SICKNESS].oc_name_known, 0,
+        'the blank trycall response does not identify the potion');
+    assert.equal(POTION_CLASS, game.objects[POT_SICKNESS].oc_class,
+        'the tested object belongs to the forced-shatter class');
 });

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent seed variation frozen before C recording: repeat the already C-observed unlocked-chest → stash sickness potion → skeleton-key lock → blunt-force route, changing only the seed to test the forcelock destruction gate. A prior independently recorded input reached forcelock but missed rn2(3)==0; this variation is not tuned from a JavaScript result.",
+  "segments": [
+    {
+      "seed": 8421103,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nunlocked chest\ndo#wizwish\npotion of sickness\n#loot\nsp#wizwish\nskeleton key\naq.y#force\ny"
+    }
+  ]
+}

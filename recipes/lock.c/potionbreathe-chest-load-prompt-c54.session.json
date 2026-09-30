@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C54 source-setup continuation for a potion-loaded chest: wish a mace and wield it, wish and drop an unlocked chest, wish a sickness potion, then enter #loot and choose put-in. This source-planned partial input is frozen before its C-only prompt capture; the follow-up item choice will be frozen before its own recording and before JS comparison.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nunlocked chest\ndo#wizwish\npotion of sickness\n#loot\ni"
+    }
+  ]
+}

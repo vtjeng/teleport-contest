@@ -61,7 +61,6 @@ import {
 import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
 import { UnsupportedObjectNameError } from './objnam.js';
-import { UnsupportedPotionError } from './potion.js';
 import { remove_object, UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedMonsterPickupOperationError } from './steal.js';
 import { objectGenerationHooks } from './object_generation.js';
@@ -1158,12 +1157,6 @@ function elapsedTurnPlanningRefusals() {
         UnsupportedObjectNameError,
         UnsupportedObjectOperationError,
         UnsupportedMonsterPickupOperationError,
-        // muse.c use_offensive() hurls a potion that potion.c potionhit()
-        // breaks on the hero, so its potionbreathe() tail now runs inside the
-        // monster scan. The vapor arms this port leaves unported raise the
-        // first class; the trycall() below them raises the second for a type
-        // the hero has neither identified nor already called something.
-        UnsupportedPotionError,
         // mon.c mondead() forgets the invisible-monster marker through
         // display.c unmap_object(), which refuses an engraved square. A
         // monster dying on a square that carries both reaches that refusal
