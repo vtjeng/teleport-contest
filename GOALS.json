@@ -121527,6 +121527,637 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-insight-mstatusline-synthetic-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete monster status lines for held and mounted creatures",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v14/knight-listens-to-mounted-steed"
+      ],
+      "selectionReason": "Select synthetic/v14/knight-listens-to-mounted-steed from accepted A55 evaluation challenges/evaluations/20260930045045-v14.json at786c4d92, still current after the independently checkpointed favicon-only change. Its complete investigation identifies insight.c mstatusline steed status as missing. Finish the entire mstatusline3275–3398 and all four existing mounted/swallowed stethoscope call sites, preserving accepted A52 worm and probe behavior. The source-pinned fixtures cover holder, swallowing and wounded-leg clauses; admitted mounted range through33 and accepted A52 stethoscope/probe recordings cover both production entry families. A54 and A55 dependencies are accepted; unrelated A57 and A58 work is excluded.",
+      "detail": "Whole status helper preserves source clause order, worm/visibility/condition formatting, swallowed priority, sticky holder ownership and steed wounded-leg source union and BOTH_SIDES mask. All four apply use_stethoscope sites await output; existing zap probe_monster caller already awaits it. No whole use_stethoscope or probe_monster completion claim.",
+      "openedAt": "beb71da2678f9efd7335b2cce826a8ba47f76362",
+      "openStanding": {
+        "sha": "beb71da2678f9efd7335b2cce826a8ba47f76362",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "fe56a2470de71a05608a44994be2c6aa98b95246",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mstatusline",
+          "line": 3275,
+          "endLine": 3401,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3275,
+        "to": 3401
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/knight-listens-to-mounted-steed": {
+          "session": "synthetic/v14/knight-listens-to-mounted-steed",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-listens-to-mounted-steed",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+          "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+          "evaluationPath": "challenges/evaluations/20260930045045-v14.json",
+          "evaluationCommit": "786c4d928c3b6cd957078f24028114223abc92f8"
+        }
+      },
+      "activeStanding": {
+        "sha": "beb71da2678f9efd7335b2cce826a8ba47f76362",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-listens-to-mounted-steed",
+          "session": "synthetic/v14/knight-listens-to-mounted-steed",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+          "recordingPath": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+          "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+          "recipe": "challenges/cases/v14/knight-listens-to-mounted-steed.recipe.session.json",
+          "recipeSha256": "ea28faf3f3ce71012f053b7f311ea21265136dd193b999a41b811fdf6c60e114",
+          "replayInputSha256": "e80dc358c1f7d434d8a8409fee59869ce463c06e8f5f752d1a6446eb334ee58f",
+          "evaluationPath": "challenges/evaluations/20260930045045-v14.json",
+          "evaluationCommit": "786c4d928c3b6cd957078f24028114223abc92f8",
+          "evaluationArtifact": "challenges/evaluations/20260930045045-v14.json",
+          "evaluationUtc": "2026-09-30T04:51:09.180Z",
+          "remainingScreens": 1,
+          "recordedSteps": 34,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 34
+            },
+            "rng": {
+              "matched": 2126,
+              "total": 2126
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "S",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": ">"
+              },
+              "cCursor": [
+                50,
+                1,
+                1
+              ],
+              "jsCursor": [
+                70,
+                16,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/knight-listens-to-mounted-steed.json",
+            "result": {
+              "session": "synthetic/v14/knight-listens-to-mounted-steed",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "knight-listens-to-mounted-steed",
+              "remainingScreens": 1,
+              "recordedSteps": 34,
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "knight-listens-to-mounted-steed",
+                "session": "synthetic/v14/knight-listens-to-mounted-steed",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+                "recordingPath": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+                "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+                "recipe": "challenges/cases/v14/knight-listens-to-mounted-steed.recipe.session.json",
+                "recipeSha256": "ea28faf3f3ce71012f053b7f311ea21265136dd193b999a41b811fdf6c60e114",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 34,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 2126,
+                    "total": 2126
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "S",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": ">"
+                    },
+                    "cCursor": [
+                      50,
+                      1,
+                      1
+                    ],
+                    "jsCursor": [
+                      70,
+                      16,
+                      1
+                    ]
+                  }
+                },
+                "step": 33,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This is a distinct status-output gap from knight-applies-leash-down's leash-turn handling. At segment 0, step 33, the downward stethoscope use while mounted should print the pony's status; the saved scan has 33/34 screens and cursors matched, all 2126 RNG calls matched, and no refusal or input-boundary stop. In C, apply.c:use_stethoscope takes the u.usteed && u.dz > 0 arm and calls mstatusline(u.usteed). Frozen JS instead records note_unported('insight.c mstatusline') there, and its partial mstatusline also refuses the u.usteed clause. The missing source behavior is insight.c:mstatusline's mounted-steed clause: append ', carrying you' and, when Wounded_legs applies, append the injured leg name(s) using EWounded_legs, mbodypart, and makeplural before printing the common status line. This is a distinct branch from the leash case but overlaps A52's ownership of the same whole mstatusline function for worm counts, so any implementation should be coordinated/grouped with that function owner rather than treated as an independent function task.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "mstatusline"
+                ],
+                "branch": "For a monster passed as u.usteed from apply.c:use_stethoscope when u.usteed is non-null and u.dz > 0 without the whirly-swallow interference path; report carrying-you state and injured legs when Wounded_legs is true, then emit the common status line.",
+                "callers": [
+                  "apply.c:use_stethoscope (called by apply.c:doapply STETHOSCOPE arm); the mounted-down branch passes u.usteed to mstatusline",
+                  "zap.c:probe_monster (wand-of-probing report; passes the probed monster to mstatusline)"
+                ],
+                "dependencies": [
+                  "apply.c:use_stethoscope must call mstatusline in the mounted-down path; its frozen JS path currently records note_unported instead",
+                  "priest.c:mon_aligntyp; insight.c:align_str and size_str; worn.c:find_mac; pline.c:pline for the common output line",
+                  "worm.c:count_wsegs and wseg_at; hacklib.c:ordin for the long-worm status clause",
+                  "pager.c:mhidden_description and region.c:visible_region_at for hidden and visible-region clauses",
+                  "mondata.h:digests, is_animal and enfolds; mondata.c:sticks for the u.ustuck clause",
+                  "youprop.h:Wounded_legs and EWounded_legs; polyself.c:mbodypart and objnam.c:makeplural for the mounted injured-leg clause",
+                  "do_name.c:x_monnam for the monster name; mextra.h:EDOG data for wizard-mode tame-pet detail"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/apply.c:345-359: use_stethoscope routes the mounted-down branch to mstatusline(u.usteed), and sends the swallowed-interference alternative to mstatusline(u.ustuck); apply.c:4327-4329 dispatches the STETHOSCOPE arm from doapply.",
+                "nethack-c/upstream/src/insight.c:3273-3398: whole mstatusline builds the status clauses in order; lines 3373-3385 handle mtmp == u.usteed by adding \", carrying you\" and optionally the injured-leg clause, then lines 3392-3397 format and print the status line.",
+                "Frozen examined JS at 3212f9f07c3fdf3f00c5c204885f51834f0b6448: js/apply.js:2413-2420 records note_unported(\"insight.c mstatusline\") in the mounted-down arm; js/insight.js:3079-3084 throws UnsupportedEnlightenmentError for mtmp === state.u.usteed.",
+                "Saved assigned scan .cache/synthetic-scans/v14/knight-listens-to-mounted-steed.json: screensEmitted=34, recordedSteps=34, first screen/cursor mismatch at segment 0 step 33 key \">\", boundary=null, commandRefusal=false, unported=[\"insight.c mstatusline\"].",
+                "Saved assigned evaluation challenges/evaluations/20260929225551-v14.json: case knight-listens-to-mounted-steed has 33/34 screens, 2126/2126 RNG calls, and 33/34 cursors matched. No replay was needed.",
+                "Comparison with the already investigated synthetic/v14/knight-applies-leash-down source finding: that case reaches apply.c:use_leash and the monster-turn dog_goal path; this case reaches apply.c:use_stethoscope -> insight.c:mstatusline. Their C functions and failure mechanisms differ. The present mstatusline function is also the function A52 owns for its long-worm count changes, so this branch shares a whole-function reservation with A52."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mstatusline",
+            "implementation": "js/insight.js",
+            "symbol": "mstatusline",
+            "sourceReview": "Read the complete insight.c:mstatusline definition at 3275-3398 and the source macros/helpers it calls. Retained the existing source-order pet, worm, shapechanger, mimic, visibility, condition, and formatting clauses. Implemented the complete u.ustuck branch: while swallowed, test digests first, then is_animal and not enfolds, then general engulfing; while not swallowed, test sticks(gy.youmonst.data) to choose holding-you versus held-by-you. Implemented the complete u.usteed branch: append carrying-you, evaluate Wounded_legs as intrinsic timeout OR extrinsic bits, mask EWounded_legs by BOTH_SIDES, use mbodypart(LEG), and pluralize only when both side bits remain. The awaited ttyPline is the final output. Traced mondata.c sticks and dmgtype_fromattack, mondata.h digests/enfolds/is_animal, youprop.h wounded-leg macros, and the already-ported count_wsegs, wseg_at, visible_region_at, mhidden_description, x_monnam, body-part, alignment, size, and armor helpers. No return-valued unported callee or refusal remains in the selected whole function.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stethoscope",
+                "source": "apply.c:use_stethoscope:348-357 has four calls: mounted-with-interference to u.ustuck, mounted-without-interference to u.usteed, swallowed-directional to u.ustuck, and swallowed-stationary-interference to u.ustuck. The JS sites await the helper after the source-ordered interference line when present. apply.c:doapply:4328 dispatches the STETHOSCOPE arm to use_stethoscope."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "probe_monster",
+                "source": "zap.c:probe_monster:626-638 calls mstatusline before the notonhead return; js/zap.js already awaits it in that order. zap.c invokes probe_monster for both a targeted monster and the mounted steed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worm.c/mstatusline-long-worm-tail-independent-a52.session.json",
+              "recordings/worm.c/wand-probe-long-worm-independent-a52.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "knight-listens-to-mounted-steed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "allmain.c command loop -> apply.c:doapply STETHOSCOPE arm -> apply.c:use_stethoscope mounted-down branch -> insight.c:mstatusline(u.usteed); step 33 is the source status line that was blank before this port."
+              }
+            ],
+            "checkedAt": "f033cc8821b25945fa1bcc0dfcf0176405c0413f"
+          }
+        ],
+        "entryPointReview": "The active production entry paths for the selected mstatusline unit are the stethoscope command and wand of probing. apply.c:doapply dispatches the command to use_stethoscope; the four mounted/swallowed source calls are now awaited in their original order, with interference output preserved first. The admitted v14 mounted-steed case matches through segment 0 step 33 and reaches the mounted-down call. The accepted A52 mstatusline recording reaches the stethoscope monster arm, and the accepted A52 wand-probe recording reaches zap.c:probe_monster; the existing JS zap caller awaits mstatusline before its notonhead return. The source-pinned tests exercise digestion, engulfing, sticky versus non-sticky holder priority, interference ordering, and singular/plural injured-leg formatting. A52's existing long-worm counting remains intact. Upward cant_reach_floor and center-direction ustatusline branches remain named gaps in use_stethoscope; zap.c probe_objchain and display_minventory remain outside this selected unit.",
+        "entryPoints": [
+          {
+            "name": "stethoscope mounted-down and swallowed status",
+            "functions": [
+              "mstatusline"
+            ],
+            "recordings": [
+              "recordings/worm.c/mstatusline-long-worm-tail-independent-a52.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "knight-listens-to-mounted-steed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "apply.c:doapply -> apply.c:use_stethoscope -> insight.c:mstatusline(u.usteed); admitted step 33 is the mounted-down status result."
+              }
+            ]
+          },
+          {
+            "name": "wand of probing monster status",
+            "functions": [
+              "mstatusline"
+            ],
+            "recordings": [
+              "recordings/worm.c/wand-probe-long-worm-independent-a52.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fe56a2470de71a05608a44994be2c6aa98b95246",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-light-cocktail-potion-oil-v13-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Light and snuff potions of oil through the apply command",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v13/apply-lights-potion-of-oil"
+      ],
+      "selectionReason": "Select synthetic/v13/apply-lights-potion-of-oil from complete A56 evidence challenges/evaluations/20260930051943-v13.json at fe56a247. Investigation investigations/synthetic/v13/apply-lights-potion-of-oil.json identifies the missing POT_OIL doapply arm and whole apply.c light_cocktail1703–1758. Finish that helper and sole dispatcher caller; preserve source pointer replacement, timer and discovery order. A54/A55/A56 dependencies are accepted. Original ba938d2a plus immutable f62a0278 correction explicitly record the discarded unported shop-fee call without invoking or swallowing its partial refusal. Admitted range0–35 covers the active command; remaining clauses have source-pinned fixtures, with no unpaid-fee or floor-drop parity claim.",
+      "detail": "Whole light_cocktail preserves swallowed/lit/underwater priority, inventory merge and split pointers, lighting output, costly-shop voice and dummy billing order, makeknown before begin_burn, and hold_another_object return. The unported void check_unpaid_usage fee remains an explicit gap. doapply POT_OIL awaits the helper and retains ECMD_TIME.",
+      "openedAt": "b7ff455ccd1f287de99c0a50f7dc8d8aec2a6283",
+      "openStanding": {
+        "sha": "fe56a2470de71a05608a44994be2c6aa98b95246",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5e82414bddf1cc5c4346e7b0948ff9f187439574",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "light_cocktail",
+          "line": 1703,
+          "endLine": 1769,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1703,
+        "to": 1769
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/apply-lights-potion-of-oil": {
+          "session": "synthetic/v13/apply-lights-potion-of-oil",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "apply-lights-potion-of-oil",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+          "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+          "evaluationPath": "challenges/evaluations/20260930051943-v13.json",
+          "evaluationCommit": "fe56a2470de71a05608a44994be2c6aa98b95246"
+        }
+      },
+      "activeStanding": {
+        "sha": "fe56a2470de71a05608a44994be2c6aa98b95246",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "apply-lights-potion-of-oil",
+          "session": "synthetic/v13/apply-lights-potion-of-oil",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+          "recordingPath": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+          "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+          "recipe": "challenges/cases/v13/apply-lights-potion-of-oil.recipe.session.json",
+          "recipeSha256": "af0d15830b4b00bd6db624c1898b460fb05132fcb440c67300180c0e9471fa69",
+          "replayInputSha256": "ff46601629b2482ab0c208229c4296a665f0a7aa970d73a169e52ad61171a870",
+          "evaluationPath": "challenges/evaluations/20260930051943-v13.json",
+          "evaluationCommit": "fe56a2470de71a05608a44994be2c6aa98b95246",
+          "evaluationArtifact": "challenges/evaluations/20260930051943-v13.json",
+          "evaluationUtc": "2026-09-30T05:20:04.044Z",
+          "remainingScreens": 1,
+          "recordedSteps": 36,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2773,
+              "total": 2782
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/apply-lights-potion-of-oil.json",
+            "result": {
+              "session": "synthetic/v13/apply-lights-potion-of-oil",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "apply-lights-potion-of-oil",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "apply-lights-potion-of-oil",
+                "session": "synthetic/v13/apply-lights-potion-of-oil",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+                "recordingPath": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+                "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+                "recipe": "challenges/cases/v13/apply-lights-potion-of-oil.recipe.session.json",
+                "recipeSha256": "af0d15830b4b00bd6db624c1898b460fb05132fcb440c67300180c0e9471fa69",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 36,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2773,
+                    "total": 2782
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+                  "step": 35
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a potion of oil reaches an unported doapply arm before C light_cocktail can light it. C first handles swallowed, already-lit, and underwater branches; the selected unlit inventory potion is named, learned, and passed to begin_burn. The complete function also handles split stacks, billing, and re-merging a snuffed potion.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For an unlit POT_OIL with the hero unswallowed and not underwater, light_cocktail optionally splits one potion from a stack, prints the source-specific light message, performs shop billing when unpaid at a costly spot, calls makeknown, then begin_burn. A split potion is extracted and passed through hold_another_object before updating the caller’s object pointer. Lit potions instead call end_burn and remerge if not worn.",
+                "functions": [
+                  "light_cocktail",
+                  "doapply (POT_OIL arm)"
+                ],
+                "callers": [
+                  "apply.c:doapply(POT_OIL) passes &obj to light_cocktail so the object pointer can change after a split or remerge; js/apply.js:doapply currently refuses POT_OIL in its named unported arms."
+                ],
+                "dependencies": [
+                  "obj.c:splitobj returns the single potion for stacked inventory; freeinv/addinv and obj_extract_self/hold_another_object return or mutate objects consumed by light_cocktail.",
+                  "timeout.c:begin_burn and end_burn own oil potion timer and light state. Preserve call order relative to makeknown and shop billing.",
+                  "shk_your returns source wording; costly_spot/in_rooms/shop_keeper and check_unpaid/bill_dummy_object handle the unpaid shop branch.",
+                  "The selected C step includes rn2(19) from exercise after lighting; compare full RNG and subsequent turn order, not only the printed message."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 35/36 screens and cursors and first stop at zero-based segment 0 step 35 in the doapply object-type-321 arm. The immutable recording is challenges/cases/v13/apply-lights-potion-of-oil.session.json.",
+                "The C recording’s final selected input n displays “You light your potion.  It gives off a dim light.” The step includes a later rn2(19) exercise draw; source review must preserve the begin_burn and turn-processing order.",
+                "Upstream nethack-c/upstream/src/apply.c:1703-1758 defines light_cocktail, including pointer mutation, burning, shop, and split-stack paths; lines 4349-4350 wire doapply(POT_OIL). JavaScript js/apply.js lists POT_OIL only in its named unported arms."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "light_cocktail",
+            "implementation": "js/apply.js",
+            "symbol": "light_cocktail",
+            "sourceReview": "Read and ported the complete apply.c:light_cocktail definition at 1703-1758. Preserved swallowed-before-lit, lit-before-underwater, the unworn end_burn/freeinv/addinv pointer update (using the awaited live addinv_runtime counterpart), split-before-message, the exact light line, optional costly-shop voice/verbalize/bill_dummy_object order, makeknown before begin_burn, and split-object extraction/nomerge/hold_another_object return pointer. C check_unpaid() discards the void check_unpaid_usage() result; because its JS fee tail is unported and its existing helper throws at that tail, the corrected callsite records note_unported('shk.c check_unpaid_usage') without invoking the helper, then continues in source order. Existing do.c dropx/dropy gaps inside hold remain outside this function's completed behavior.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply POT_OIL arm at 4349-4350 calls light_cocktail(&obj); the JS arm awaits it, reads back objp.obj, and keeps ECMD_TIME."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c's a-command dispatcher enters doapply; runApplyCommand reaches the same JS doapply selection path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-light-cocktail.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "apply-lights-potion-of-oil",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 35,
+                "source": "cmd.c a command -> apply.c:doapply POT_OIL -> apply.c:light_cocktail, including makeknown/discover_object and begin_burn"
+              }
+            ],
+            "checkedAt": "f332f40155d3cd3881fb6d7cf7a5863cdadb4871"
+          }
+        ],
+        "entryPointReview": "The active entry point is apply.c:doapply's POT_OIL case, reached from the a command through cmd.c and JS cmd.js:runApplyCommand -> apply.js:doapply. The admitted v13 case reaches this arm at segment 0 step 35; helper parity is cited only through that step. apply.c:light_cocktail has no other production callers. The swallowed, underwater, already-lit, stacked, and unpaid-costly-shop branches are source-pinned by the order test where not reached by the recording; the v13 runtime range covers only the unlit, quantity-one, dry, unswallowed, non-shop branch. At the optional shop call, the unported void shk.c:check_unpaid_usage fee is explicitly recorded without calling its partial refusal; no fee parity is claimed. do.c:dropx/dropy floor-drop effects reached inside hold_another_object remain separate void gaps.",
+        "entryPoints": [
+          {
+            "name": "doapply POT_OIL via the a command",
+            "functions": [
+              "light_cocktail"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "apply-lights-potion-of-oil",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 35,
+                "source": "cmd.c a command -> apply.c:doapply POT_OIL -> apply.c:light_cocktail"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5e82414bddf1cc5c4346e7b0948ff9f187439574",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

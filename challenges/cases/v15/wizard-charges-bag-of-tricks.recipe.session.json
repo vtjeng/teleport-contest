@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for read.c:seffect_charging -> charge_ok -> recharge. Wizard creates a known +1 BAG_OF_TRICKS and reads an uncursed charging scroll so the TOOL_CLASS recharge branch can be observed.",
+  "segments": [
+    {
+      "seed": 19640327,
+      "datetime": "20591205135500",
+      "nethackrc": "OPTIONS=name:V15ChargeBag,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\n+1 bag of tricks\n#wizwish\nuncursed scroll of charging\nrp o"
+    }
+  ]
+}

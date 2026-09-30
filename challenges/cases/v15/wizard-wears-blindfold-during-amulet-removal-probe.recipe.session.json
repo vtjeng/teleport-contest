@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for do_wear.c:dotakeoff -> armor_or_accessory_off -> Amulet_off. A Wizard wishes and wears an uncursed amulet of reflection, then takes it off to exercise the source-owned amulet removal path.",
+  "segments": [
+    {
+      "seed": 42170863,
+      "datetime": "20590817113200",
+      "nethackrc": "OPTIONS=name:V15AmuletOff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed amulet of reflection\nPoTo"
+    }
+  ]
+}

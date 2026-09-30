@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for eat.c:eatcorpse poisonous(&mons[mnum]) && rn2(5) with Poison_resistance. A Healer independently wishes and wears a poison-resistance ring, wishes a fresh kobold corpse, then eats it through occupation completion.",
+  "segments": [
+    {
+      "seed": 97430281,
+      "datetime": "20520809073500",
+      "nethackrc": "OPTIONS=name:V15Kobold,role:Healer,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nring of poison resistance\nPlr#wizwish\nkobold corpse\n em  "
+    }
+  ]
+}

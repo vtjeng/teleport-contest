@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 31069151,
+      "datetime": "20591012101300",
+      "nethackrc": "OPTIONS=name:V15Altar,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizlevelport\n?\n>z  \u0006\u0014  lllllllllllllllllllllllllllllllllllllllllllllllllkkkkkkkkkkk. #wizwish\nwhite unicorn corpse\n #offer\ny  ",
+      "recorderIsDst": true
+    }
+  ],
+  "_comment": "C-first source mission for pray.c:dosacrifice -> offer_corpse. A lawful Archeologist reaches Arc-loca, selects the upper lawful altar, and offers a white-unicorn corpse after acknowledging the wish pager."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 source-led corrected follow-up for wizcmds.c:wiz_intrinsic SICK. The preceding frozen input selected SICK but a space paged the PICK_ANY menu without committing; this input uses Enter to commit the selected row.",
+  "segments": [
+    {
+      "seed": 82731941,
+      "datetime": "20620611091500",
+      "nethackrc": "OPTIONS=name:V15SickConfirm,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizintrinsic\ne\n"
+    }
+  ]
+}

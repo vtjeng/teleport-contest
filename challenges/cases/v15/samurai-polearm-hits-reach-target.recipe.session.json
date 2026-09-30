@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for apply.c:use_pole. A male Samurai wishes and wields a glaive, creates a sleeping peaceful orc adjacent to him, then moves one square away and applies the polearm at the visible target coordinate.",
+  "segments": [
+    {
+      "seed": 40469137,
+      "datetime": "20560305104000",
+      "nethackrc": "OPTIONS=name:V15Pole,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\nglaive\nwf#wizgenesis\nsleeping peaceful orc\nlljaf  hh.y"
+    }
+  ]
+}

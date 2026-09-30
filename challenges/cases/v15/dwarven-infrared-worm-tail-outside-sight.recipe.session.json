@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for display.c:newsym dwarf infrared tail rendering. A lawful dwarven Archeologist creates a sleeping hostile long worm, moves east through the room doorway and south into the dark corridor while it follows, then checks whether the still-infrared-visible head enables tail rendering beyond physical sight.",
+  "segments": [
+    {
+      "seed": 90497183,
+      "datetime": "20590518111000",
+      "nethackrc": "OPTIONS=name:V15WormView,role:Archeologist,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizgenesis\nsleeping hostile long worm\nljjjjjj"
+    }
+  ]
+}

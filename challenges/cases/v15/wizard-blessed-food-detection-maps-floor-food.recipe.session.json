@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for read.c:seffect_food_detection -> detect.c:food_detect. A Wizard places two foods on visible floor squares, moves away, and reads a blessed scroll so ct>0 reaches floor-food mapping rather than the ctu-only smell branch.",
+  "segments": [
+    {
+      "seed": 2026092917,
+      "datetime": "20590116122500",
+      "nethackrc": "OPTIONS=name:V15FoodMap,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nblessed scroll of food detection\n#wizwish\nfood ration\n#wizwish\napple\ndpdqjro "
+    }
+  ]
+}

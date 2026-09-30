@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first corrected-slot probe for dothrow.c:throwit calling apply.c:snuff_candle. The earlier n-slot attempt selected a different starting item; this independently wishes a lit wax candle assigned to slot o and throws that candle east.",
+  "segments": [
+    {
+      "seed": 42801371,
+      "datetime": "20581203135500",
+      "nethackrc": "OPTIONS=name:V15CandleO,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nlit wax candle\ntol"
+    }
+  ]
+}
