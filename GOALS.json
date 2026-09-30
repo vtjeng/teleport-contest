@@ -121553,7 +121553,7 @@
           "line": 3275,
           "endLine": 3401,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -121809,7 +121809,80 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mstatusline",
+            "implementation": "js/insight.js",
+            "symbol": "mstatusline",
+            "sourceReview": "Read the complete insight.c:mstatusline definition at 3275-3398 and the source macros/helpers it calls. Retained the existing source-order pet, worm, shapechanger, mimic, visibility, condition, and formatting clauses. Implemented the complete u.ustuck branch: while swallowed, test digests first, then is_animal and not enfolds, then general engulfing; while not swallowed, test sticks(gy.youmonst.data) to choose holding-you versus held-by-you. Implemented the complete u.usteed branch: append carrying-you, evaluate Wounded_legs as intrinsic timeout OR extrinsic bits, mask EWounded_legs by BOTH_SIDES, use mbodypart(LEG), and pluralize only when both side bits remain. The awaited ttyPline is the final output. Traced mondata.c sticks and dmgtype_fromattack, mondata.h digests/enfolds/is_animal, youprop.h wounded-leg macros, and the already-ported count_wsegs, wseg_at, visible_region_at, mhidden_description, x_monnam, body-part, alignment, size, and armor helpers. No return-valued unported callee or refusal remains in the selected whole function.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stethoscope",
+                "source": "apply.c:use_stethoscope:348-357 has four calls: mounted-with-interference to u.ustuck, mounted-without-interference to u.usteed, swallowed-directional to u.ustuck, and swallowed-stationary-interference to u.ustuck. The JS sites await the helper after the source-ordered interference line when present. apply.c:doapply:4328 dispatches the STETHOSCOPE arm to use_stethoscope."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "probe_monster",
+                "source": "zap.c:probe_monster:626-638 calls mstatusline before the notonhead return; js/zap.js already awaits it in that order. zap.c invokes probe_monster for both a targeted monster and the mounted steed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worm.c/mstatusline-long-worm-tail-independent-a52.session.json",
+              "recordings/worm.c/wand-probe-long-worm-independent-a52.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "knight-listens-to-mounted-steed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "allmain.c command loop -> apply.c:doapply STETHOSCOPE arm -> apply.c:use_stethoscope mounted-down branch -> insight.c:mstatusline(u.usteed); step 33 is the source status line that was blank before this port."
+              }
+            ],
+            "checkedAt": "f033cc8821b25945fa1bcc0dfcf0176405c0413f"
+          }
+        ],
+        "entryPointReview": "The active production entry paths for the selected mstatusline unit are the stethoscope command and wand of probing. apply.c:doapply dispatches the command to use_stethoscope; the four mounted/swallowed source calls are now awaited in their original order, with interference output preserved first. The admitted v14 mounted-steed case matches through segment 0 step 33 and reaches the mounted-down call. The accepted A52 mstatusline recording reaches the stethoscope monster arm, and the accepted A52 wand-probe recording reaches zap.c:probe_monster; the existing JS zap caller awaits mstatusline before its notonhead return. The source-pinned tests exercise digestion, engulfing, sticky versus non-sticky holder priority, interference ordering, and singular/plural injured-leg formatting. A52's existing long-worm counting remains intact. Upward cant_reach_floor and center-direction ustatusline branches remain named gaps in use_stethoscope; zap.c probe_objchain and display_minventory remain outside this selected unit.",
+        "entryPoints": [
+          {
+            "name": "stethoscope mounted-down and swallowed status",
+            "functions": [
+              "mstatusline"
+            ],
+            "recordings": [
+              "recordings/worm.c/mstatusline-long-worm-tail-independent-a52.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "knight-listens-to-mounted-steed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "apply.c:doapply -> apply.c:use_stethoscope -> insight.c:mstatusline(u.usteed); admitted step 33 is the mounted-down status result."
+              }
+            ]
+          },
+          {
+            "name": "wand of probing monster status",
+            "functions": [
+              "mstatusline"
+            ],
+            "recordings": [
+              "recordings/worm.c/wand-probe-long-worm-independent-a52.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
