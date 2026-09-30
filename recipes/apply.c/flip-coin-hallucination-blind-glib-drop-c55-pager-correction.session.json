@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73518641,
+      "datetime": "20591107064328",
+      "nethackrc": "OPTIONS=name:CoinDropC55,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u001737 gold pieces\n#wizintrinsic\n20h20i20l\n   a*$ "
+    }
+  ],
+  "comment": "C-first pager correction for the preserved C55 setup miss in flip-coin-hallucination-blind-glib-drop-c55.session.json. The original C-only trace confirmed that Hallucination, Blindness and slippery fingers were set, then showed the final slippery-fingers More prompt consumed the first apply-command key. This frozen continuation adds one space to dismiss that confirmed pager before invoking apply; all seed, clock, role, wish and intrinsic choices remain unchanged. Frozen before the corrected C recording and any JavaScript comparison."
+}

@@ -15,6 +15,8 @@ import {
     GETOBJ_SUGGEST,
     GLIB,
     IN_SIGHT,
+    HALLUC,
+    OBJ_FLOOR,
     P_BASIC,
     P_EXPERT,
     P_FLAIL,
@@ -51,6 +53,7 @@ import { heroIsBlind } from '../js/startup_a11y.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     COIN_CLASS,
+    GOLD_PIECE,
     BLINDFOLD,
     GEM_CLASS,
     GRAPPLING_HOOK,
@@ -65,6 +68,41 @@ import {
 const APPLY_C = readFileSync(
     new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
 );
+
+test('apply.c flip_coin drops a lost coin under Hallucination', async () => {
+    // apply.c:doapply() dispatches COIN_CLASS to flip_coin(); the lose_coin
+    // arm splits one coin, calls dropx(), and returns ECMD_TIME.
+    assert.match(APPLY_C, /if \(obj->oclass == COIN_CLASS\)\s*return flip_coin\(obj\);/);
+    assert.match(APPLY_C, /if \(lose_coin\) \{\s*if \(otmp->quan > 1L\)\s*otmp = splitobj\(otmp, 1L\);\s*dropx\(otmp\);\s*return ECMD_TIME;/);
+
+    const recipe = JSON.parse(readFileSync(
+        new URL('../recipes/apply.c/flip-coin-hallucination-blind-glib-drop-c55-pager-correction.session.json',
+            import.meta.url),
+        'utf8',
+    ));
+    let boundary = null;
+    await runSegment(recipe.segments[0], {
+        onBoundary: (error) => { boundary = error; },
+    });
+
+    assert.equal(boundary, null);
+    assert.ok(game.u.uprops[HALLUC].intrinsic & TIMEOUT);
+    assert.ok(game.u.uprops[BLINDED].intrinsic & TIMEOUT);
+    assert.ok(game.u.uprops[GLIB].intrinsic & TIMEOUT);
+
+    let carriedGold = game.invent;
+    while (carriedGold && carriedGold.otyp !== GOLD_PIECE)
+        carriedGold = carriedGold.nobj;
+    assert.ok(carriedGold);
+    assert.equal(carriedGold.quan, 36); // The C recipe starts with 37 and loses one.
+
+    let floorGold = game.level.objects[game.u.ux][game.u.uy];
+    while (floorGold && floorGold.otyp !== GOLD_PIECE)
+        floorGold = floorGold.nexthere;
+    assert.ok(floorGold, 'the lost coin remains on the hero floor square');
+    assert.equal(floorGold.quan, 1); // flip_coin() splits one coin before dropx().
+    assert.equal(floorGold.where, OBJ_FLOOR);
+});
 
 function stateAtCharisma(charisma, female = false) {
     const state = resetGame();

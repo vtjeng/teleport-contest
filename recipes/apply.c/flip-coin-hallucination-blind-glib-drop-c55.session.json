@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73518641,
+      "datetime": "20591107064328",
+      "nethackrc": "OPTIONS=name:CoinDropC55,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u001737 gold pieces\n#wizintrinsic\n20h20i20l\n  a*$ "
+    }
+  ],
+  "comment": "C-first C55 recipe for apply.c:doapply -> flip_coin -> do.c:dropx. It wishes a new gold-coin stack, then grants timed Hallucination, Blindness, and slippery fingers through #wizintrinsic before using the apply command and selecting the coin class. Hallucination exercises the former caller skip; Blindness suppresses the separate visible-Hallucination map redraw; Glib selects the lose_coin path that calls dropx. Seed, clock, role, race, duration, and coin quantity were independently chosen. Frozen before its C recording and any JavaScript comparison; confirm C reaches splitobj/dropx before comparing."
+}

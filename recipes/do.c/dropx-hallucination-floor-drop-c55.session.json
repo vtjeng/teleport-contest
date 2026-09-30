@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Frozen independent C-first recipe for do.c:dropx under active Hallucination. The debug Archeologist receives timed Hallucination from #wizintrinsic, then drops an ordinary starting food ration. Seed 82061493 and clock 20560114081224 were chosen independently; the C recording must confirm the intrinsic choice and item letter before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 82061493,
+      "datetime": "20560114081224",
+      "nethackrc": "OPTIONS=name:DropHalluC55,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizintrinsic\nh\n dd"
+    }
+  ]
+}
