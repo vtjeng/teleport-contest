@@ -122162,7 +122162,7 @@
     {
       "id": "port-read-seffect-magic-mapping-synthetic-v14-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete magic mapping for scrolls and spells and wire its mapping callers",
       "cFile": "read.c",
       "sessions": [
@@ -122176,8 +122176,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "59c6d2c744d2726680451254f6a938764c4b36b4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_magic_mapping",
@@ -122531,6 +122534,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "59c6d2c744d2726680451254f6a938764c4b36b4",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
