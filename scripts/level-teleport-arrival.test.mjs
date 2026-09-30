@@ -588,7 +588,7 @@ test('conscious immobilization does not prevent random arrival',
         assert.equal(state.multi, -1);
     });
 
-test('random arrival preflights the complete ordinary pickup transaction',
+test('random arrival defers corpse effects to the source pickup caller',
     async () => {
         await runSegment({
             seed: 7632401,
@@ -621,10 +621,11 @@ test('random arrival preflights the complete ordinary pickup transaction',
             false,
             objectGenerationEnv({ state: game }),
         );
-        // A bare-handed Wizard reaching pickup.c fatal_corpse_mistake() with
-        // a species that petrifies on touch: every term of
-        // u_safe_from_fatal_corpse() fails, so the arm that instapetrifies
-        // her is what the arrival refuses.
+        // A bare-handed Wizard and cockatrice select the impure
+        // pickup.c:fatal_corpse_mistake path. Arrival admission must leave
+        // that path for pickup_object at its source call site. Its
+        // instapetrify continuation remains a named void gap, so this test
+        // establishes admission ordering, not matching fatal-touch behavior.
         corpse.corpsenm = PM_COCKATRICE;
         game.uarmg = null;
         game.dndest = {
@@ -655,10 +656,14 @@ test('random arrival preflights the complete ordinary pickup transaction',
             ],
         };
 
-        await assert.rejects(
-            () => place_random_arrival(0, game),
-            /petrifying corpse/u,
-        );
+        // do.c:goto_level reaches pickup(1) after placement. Admission uses
+        // an isolated destination projection before those live effects.
+        const projected = {
+            ...game,
+            gw: { ...game.gw },
+            u: { ...game.u, ux: destination.x, uy: destination.y },
+        };
+        preflight_projected_random_arrival_pickup(projected);
 
         assert.deepEqual(game.u, before.hero);
         assert.deepEqual(game.coreCtx, before.rng);
@@ -680,10 +685,8 @@ test('random arrival preflights the complete ordinary pickup transaction',
             game.nhDisplay.cursorVisible,
         ], before.cursor);
 
-        // With autopickup disabled, the same corpse belongs to look_here()
-        // rather than pickup_object(). Both source terms independently select
-        // that description-only arm.
-        game.flags.pickup = false;
+        // Source-ordered corpse handling no longer refuses placement before
+        // the production pickup caller can run.
         await place_random_arrival(0, game);
         assert.deepEqual([game.u.ux, game.u.uy], [
             destination.x,

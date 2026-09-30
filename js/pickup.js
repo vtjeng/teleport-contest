@@ -24,6 +24,8 @@ import {
     BY_NEXTHERE,
     CHOOSE_ALL,
     CONFUSION,
+    CXN_ARTICLE,
+    CXN_SINGULAR,
     ECMD_OK,
     ECMD_TIME,
     ECMD_CANCEL,
@@ -94,6 +96,7 @@ import {
     W_ACCESSORY,
     W_ARMOR,
     W_WEP,
+    engulfing_u,
     plur,
     something,
     is_pit,
@@ -113,7 +116,7 @@ import { autokey, pick_lock } from './lock.js';
 import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling, surface, surface_typ } from './dungeon.js';
-import { doaltarobj, dropy, revive_corpse } from './do.js';
+import { doaltarobj, dropy, revive_corpse, trycall } from './do.js';
 import { exercise } from './attrib.js';
 import { can_reach_floor, freehand, read_engr_at } from './engrave.js';
 import { makesingular } from './fruit.js';
@@ -164,13 +167,14 @@ import {
     will_feel_cockatrice,
 } from './invent.js';
 import {
-    bigmonst, is_rider, nohands, nolimbs, notake, throws_rocks,
-    hides_under, touch_petrifies,
+    bigmonst, hides_under, is_rider, nohands, nolimbs, notake,
+    poly_when_stoned, throws_rocks, touch_petrifies,
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
     carried, hasContents, isBox, isCandle, isContainer, obj_no_longer_held,
     remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
+    unbless,
 } from './obj.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { get_obj_location } from './light.js';
@@ -191,13 +195,14 @@ import {
     STATUE, VENOM_CLASS,
     WAN_CANCELLATION,
 } from './objects.js';
-import { PM_HOUSECAT } from './monsters.js';
+import { PM_HOUSECAT, PM_STONE_GOLEM } from './monsters.js';
 import {
-    an, ansimpleoname, Doname2, Tobjnam, Yname2, Ysimple_name2, assertObjectNameable,
-    donameFresh, doname_with_price, otense, safe_qbuf, the, The, thesimpleoname,
-    vtense, xnameFresh, yname, ysimple_name,
+    an, ansimpleoname, corpse_xname, Doname2, killer_xname, Tobjnam, Yname2,
+    Ysimple_name2, assertObjectNameable, donameFresh, doname_with_price,
+    otense, safe_qbuf, the, The, thesimpleoname, vtense, xnameFresh, yname,
+    ysimple_name,
 } from './objnam.js';
-import { body_part } from './polyself.js';
+import { body_part, polymon } from './polyself.js';
 import {
     addtobill, costly_spot, pick_pick, remote_burglary,
     sellobj_state, shop_keeper, shk_your, stolen_value, subfrombill,
@@ -479,15 +484,25 @@ export function u_safe_from_fatal_corpse(obj, tests, state = game) {
     );
 }
 
-// C ref: pickup.c fatal_corpse_mistake() (284-299). Only the FALSE result is
-// ported. Its other arm polymorphs a stone-golem-capable hero or runs
-// instapetrify(), neither of which has an owner, so a bare-handed touch of a
-// petrifying corpse refuses instead of returning TRUE.
-function fatal_corpse_mistake(obj, remotely, state) {
+// C ref: pickup.c fatal_corpse_mistake() (284-299). Its two void callees
+// remain explicit gaps, but the stone-golem recovery and fatal return are
+// source-ordered around them.
+async function fatal_corpse_mistake(obj, remotely, state) {
     if (u_safe_from_fatal_corpse(obj, st_all, state) || remotely) return false;
-    throw new UnsupportedPickupError(
-        'bare-handed touch of a petrifying corpse',
+    if (poly_when_stoned(state.youmonst?.data, state)
+        && await polymon(PM_STONE_GOLEM, state)) {
+        note_unported('windows.c display_nhwindow');
+        return false;
+    }
+    await ttyPline(
+        `Touching ${corpse_xname(
+            obj, null, CXN_SINGULAR | CXN_ARTICLE, state,
+        )} is a fatal mistake.`,
+        state,
     );
+    killer_xname(obj, state);
+    note_unported('trap.c instapetrify');
+    return true;
 }
 
 // C ref: pickup.c rider_corpse_revival() (302-313). A Rider's corpse moves,
@@ -879,7 +894,16 @@ export async function query_category(
 function preflightPickupObjects(selected, state) {
     let addedWeight = 0;
     let projectedGold = money_cnt(state.invent);
-    const actionable = selected.filter(({ obj }) =>
+    // pickup_object() touches artifacts, checks fatal/Rider corpses, and may
+    // split, unbless, identify, or destroy scare-scroll stacks at the source
+    // position. Plans for those objects and everything after the first one
+    // would describe inventory state before those effects run.
+    const sourceOrderedIndex = selected.findIndex(({ obj }) =>
+        obj.oartifact || obj.otyp === CORPSE
+        || obj.otyp === SCR_SCARE_MONSTER);
+    const planSafePrefix = sourceOrderedIndex < 0
+        ? selected : selected.slice(0, sourceOrderedIndex);
+    const actionable = planSafePrefix.filter(({ obj }) =>
         obj !== state.uchain
         // pickup.c:1830-1831 returns from pickup_object() after the Rider
         // revival, before any lift or inventory planning. Keep that corpse
@@ -895,22 +919,6 @@ function preflightPickupObjects(selected, state) {
             throw new UnsupportedPickupError(
                 'pickup() malformed floor object or monster object',
             );
-        }
-        // pickup.c:1826 and :1832, the two type arms of pickup_object() that
-        // stay refused. touch_artifact() prints and can blast the hero, and
-        // the scare-scroll arm rewrites obj->spe or turns the stack to dust.
-        if (obj.oartifact)
-            throw new UnsupportedPickupError('pickup() of an artifact');
-        if (obj.otyp === SCR_SCARE_MONSTER) {
-            throw new UnsupportedPickupError(
-                'pickup() of a scroll of scare monster',
-            );
-        }
-        // pickup.c:1828-1829. Fatal corpse handling is checked again at the
-        // source-position caller; Rider corpses are excluded above because
-        // that helper is impure and runs at pickup_object()'s commit point.
-        if (obj.otyp === CORPSE) {
-            fatal_corpse_mistake(obj, false, state);
         }
         assertObjectNameable(obj, state);
         let objectWeight = Math.trunc(obj.owt);
@@ -956,8 +964,13 @@ function preflightPickupObjects(selected, state) {
     );
     const addPlans = [];
     let planIndex = 0;
+    let sourceOrderedHandling = false;
     for (const { obj } of selected) {
-        if (actionable.some((item) => item.obj === obj))
+        if (obj.oartifact || obj.otyp === CORPSE
+            || obj.otyp === SCR_SCARE_MONSTER)
+            sourceOrderedHandling = true;
+        if (!sourceOrderedHandling
+            && actionable.some((item) => item.obj === obj))
             addPlans.push(computedPlans[planIndex++]);
         else
             addPlans.push(null);
@@ -979,17 +992,19 @@ function preflightPickupObjects(selected, state) {
         }
     }
     for (const plan of computedPlans) {
-        // pickup.c:1881-1882 raises gm.mrg_to_wielded across pickup_prinv()
-        // when the lifted stack merged into the wielded weapon, and
-        // objnam.c:1561 reads it to drop the "(weapon in hand)" suffix that
-        // would otherwise describe the whole merged stack. Nothing owns that
-        // flag here, so a merge into the wielded slot refuses instead.
-        if ((plan.projectedResult.owornmask ?? 0) & W_WEP) {
-            throw new UnsupportedPickupError(
-                'pickup() merging into the wielded weapon',
-            );
-        }
-        assertObjectNameable(plan.projectedResult, state);
+        // pickup.c sets gm.mrg_to_wielded around pickup_prinv() when this
+        // object merges into uwep, and objnam.c reads it while naming the
+        // carried result.
+        const mergedIntoWielded = state.uwep
+            && plan.projectedResult.o_id === state.uwep.o_id
+            && ((plan.projectedResult.owornmask ?? 0) & W_WEP);
+        const nameState = mergedIntoWielded
+            ? {
+                ...state,
+                gm: { ...(state.gm ?? {}), mrg_to_wielded: true },
+            }
+            : state;
+        assertObjectNameable(plan.projectedResult, nameState);
     }
     return { addPlans, env };
 }
@@ -1217,20 +1232,12 @@ export function preflight_projected_random_arrival_pickup(state) {
     }
 }
 
-// C ref: pickup.c pickup_object() (1803-1888). lift_object() and pick_obj()
-// run at their source sites; pickup_prinv()'s encumbrance-prefix ladder and
-// prinv() remain folded into the final block below.
+// C ref: pickup.c pickup_object() (1803-1888). lift_object(), pick_obj(), and
+// pickup_prinv() run at their source sites.
 //
-// The uchain and worn-engulfer arms return from pickup_object() without an
-// inventory transfer. Artifact and scare-scroll behavior remains at its
-// existing source-attributed preflight boundary; ordinary floor and corpse
-// arms continue through lift_object()/pick_obj().
-//
-// The two lines pickup.c runs around pick_obj() that this port does not:
-// disp.botl for gold, because invent.c addinv_core1() sets the same flag on
-// the same object a moment later and js/invent.js addinv_core1() already
-// carries it; and fix_ghostly_obj(), which needs an object read from a bones
-// file, and getbones() never loads one.
+// The uchain, engulfed worn-item, artifact, corpse, and scare-scroll arms all
+// run here in C's order. Only the discarded impossible(), display_nhwindow(),
+// instapetrify(), and fix_ghostly_obj() operations remain named gaps.
 export async function pickup_object(
     obj, count, telekinesis, rawEnv = {}, plan = null,
 ) {
@@ -1244,46 +1251,71 @@ export async function pickup_object(
         // C's impossible() reports and returns 0. Both callers pass the
         // object's own quantity, so a smaller one means the plan and the pile
         // have gone out of step.
-        throw new Error(
-            `pickup_object: count ${count} > quan ${obj.quan}`,
-        );
+        note_unported('pline.c impossible');
+        return 0;
     }
     observe_pickup_object(obj, state);
     // pickup.c:1824-1829. The attached punishment chain and an engulfer's
     // worn item are tried objects, but neither is transferred to inventory.
     if (obj === state.uchain) return 0;
-    if (obj.where === OBJ_MINVENT && obj.owornmask && state.u.uswallow) {
+    if (obj.where === OBJ_MINVENT && obj.owornmask
+        && engulfing_u(obj.ocarry, state)) {
         await ttyPline(`You can't pick ${ysimple_name(obj, state)} up.`, state);
         return 0;
     }
+    if (obj.oartifact || obj.otyp === CORPSE
+        || obj.otyp === SCR_SCARE_MONSTER)
+        plan = null;
+    if (obj.oartifact
+        && !await touch_artifact(obj, state.youmonst, { ...env, state }))
+        return 0;
     if (obj.otyp === CORPSE
-        && (fatal_corpse_mistake(obj, telekinesis, state)
+        && (await fatal_corpse_mistake(obj, telekinesis, state)
             || await rider_corpse_revival(obj, telekinesis, state)))
         return -1;
+    if (obj.otyp === SCR_SCARE_MONSTER) {
+        const carried = carry_count(
+            obj, null, count || obj.quan, false, state,
+        );
+        if (carried.count < 1) return -1;
+        count = carried.count;
+        if (count > 0 && count < obj.quan)
+            obj = splitobj(obj, count, env);
+
+        if (obj.blessed) {
+            await unbless(obj, env);
+        } else if (!obj.spe && !obj.cursed) {
+            obj.spe = 1;
+        } else {
+            await ttyPline(
+                `The scroll${plur(obj.quan)} ${otense(obj, 'turn')} to dust `
+                    + `as you ${telekinesis ? 'raise' : 'pick'} `
+                    + `${obj.quan === 1 ? 'it' : 'them'} up.`,
+                state,
+            );
+            await trycall(obj, state);
+            await useupf(obj, obj.quan, env);
+            return 1;
+        }
+    }
 
     const lifted = await lift_object(obj, null, count, telekinesis, state);
     if (lifted.result <= 0) return lifted.result;
     count = lifted.count;
+    if (obj.oclass === COIN_CLASS)
+        state.disp.botl = true;
     if (obj.quan !== count && obj.otyp !== LOADSTONE) {
         obj = splitobj(obj, count, env);
         plan = null;
     }
-    const carried = await pick_obj(obj, state, env, plan);
-
-    const nearload = near_capacity(state);
-    let prefix = null;
-    if (nearload !== state.gp.pickup_encumbrance) {
-        state.gp.pickup_encumbrance = nearload;
-        if (nearload >= EXT_ENCUMBER)
-            prefix = 'You have extreme difficulty lifting';
-        else if (nearload >= HVY_ENCUMBER)
-            prefix = 'You have much trouble lifting';
-        else if (nearload >= MOD_ENCUMBER)
-            prefix = 'You have trouble lifting';
-        else if (nearload >= SLT_ENCUMBER)
-            prefix = 'You have a little trouble lifting';
-    }
-    await prinv(prefix, carried, count, env);
+    obj = await pick_obj(obj, state, env, plan);
+    state.gm ??= {};
+    if (state.uwep && state.uwep === obj)
+        state.gm.mrg_to_wielded = true;
+    await pickup_prinv(obj, count, 'lifting', state);
+    if (obj.ghostly)
+        note_unported('bones.c fix_ghostly_obj');
+    state.gm.mrg_to_wielded = false;
     return 1;
 }
 
@@ -2835,7 +2867,7 @@ async function in_container(obj, state) {
         setuqwep(null, setwornEnv(state));
     }
 
-    if (fatal_corpse_mistake(obj, false, state))
+    if (await fatal_corpse_mistake(obj, false, state))
         return -1;
 
     // boxes, boulders, and big statues can't fit into any container
@@ -2995,7 +3027,7 @@ async function out_container(obj, state) {
     if (obj.oartifact && !touch_artifact(obj, state.youmonst, { state }))
         return 0;
 
-    if (fatal_corpse_mistake(obj, false, state))
+    if (await fatal_corpse_mistake(obj, false, state))
         return -1;
 
     let count = obj.quan;

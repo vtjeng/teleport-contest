@@ -1189,6 +1189,20 @@ function dualWieldState(primaryOtyp = LONG_SWORD, primaryOverrides = {}) {
     return state;
 }
 
+test('pickup merge naming honors gm.mrg_to_wielded for one message only', () => {
+    const state = dualWieldState();
+    state.gm ??= { mrg_to_wielded: false };
+    assert.equal(state.gm.mrg_to_wielded, false);
+    assert.match(donameFresh(state.uwep, state), / \(weapon in right hand\)$/u);
+
+    // pickup.c:1881-1886 holds the flag only while pickup_prinv() calls
+    // doname(), omitting the suffix that would describe the merged stack.
+    state.gm.mrg_to_wielded = true;
+    assert.doesNotMatch(donameFresh(state.uwep, state), /\((?:wielded|weapon in)/u);
+    state.gm.mrg_to_wielded = false;
+    assert.match(donameFresh(state.uwep, state), / \(weapon in right hand\)$/u);
+});
+
 test('a dual-wielded pair names one hand each', () => {
     const state = dualWieldState();
 

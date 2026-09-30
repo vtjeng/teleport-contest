@@ -119776,6 +119776,320 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pickup-object-scare-scroll-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "parked",
+      "summary": "Port pickup-object handling and its corpse-check dependency",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use"
+      ],
+      "selectionReason": "Select synthetic/v13/uncursed-scare-scroll-pickup-reveals-use from current complete evaluation challenges/evaluations/20260930020937-v13.json at 755a067c. Manifest ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d; immutable recording 8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e. Its step-46 pickup preflight refuses a scare scroll before pickup.c:pickup_object. The investigation traces the missing whole helper, rather than the queue annotation pickup. Port complete pickup_object and its consumed fatal_corpse_mistake helper, existing pickup/whip/grapple and direct container wiring, and the consumed objnam.c doname mrg_to_wielded branch.",
+      "detail": "Complete pickup.c pickup_object 1803-1888 and required fatal_corpse_mistake 284-299; source-ordered scare-scroll, artifact, corpse, lift, inventory and naming behavior. Four independent regression recordings cover pickup, safe corpse pickup/stash/take, bullwhip and grappling-hook calls. Bare-handed fatal and stone-golem recovery continuations retain named void callee gaps and blocked recipes; no matching unsafe continuation is claimed.",
+      "openedAt": "415e4392503692da8bc3a0d019453fe3224c0e1a",
+      "openStanding": {
+        "sha": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pickup_object",
+          "line": 1803,
+          "endLine": 1896,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1803,
+        "to": 1896
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use": {
+          "session": "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+          "recordingSha256": "8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e",
+          "evaluationPath": "challenges/evaluations/20260930020937-v13.json",
+          "evaluationCommit": "755a067c86960dfb3bf98555d805c0d31408f4ea"
+        }
+      },
+      "activeStanding": {
+        "sha": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+          "session": "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+          "recordingPath": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+          "recordingSha256": "8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e",
+          "recipe": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.recipe.session.json",
+          "recipeSha256": "ff6a251886229abad3dad1925aa5d2dd59ca662233308f28bb0aec5673b71702",
+          "replayInputSha256": "eca8ea4f4efd6f35e6487ed931d2de92a3b4cebd797449d227cc89a82056f11a",
+          "evaluationPath": "challenges/evaluations/20260930020937-v13.json",
+          "evaluationCommit": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+          "evaluationArtifact": "challenges/evaluations/20260930020937-v13.json",
+          "evaluationUtc": "2026-09-30T02:10:07.285Z",
+          "remainingScreens": 1,
+          "recordedSteps": 47,
+          "previousScreensMatched": 46,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 46,
+              "total": 47
+            },
+            "rng": {
+              "matched": 2548,
+              "total": 2556
+            },
+            "cursors": {
+              "matched": 46,
+              "total": 47
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() of a scroll of scare monster",
+            "step": 46
+          },
+          "step": 46,
+          "kind": "stop",
+          "sourceFile": "pickup.c",
+          "function": "pickup",
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() of a scroll of scare monster",
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/uncursed-scare-scroll-pickup-reveals-use.json",
+            "result": {
+              "session": "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 47,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+                "session": "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+                "recordingPath": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+                "recordingSha256": "8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e",
+                "recipe": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.recipe.session.json",
+                "recipeSha256": "ff6a251886229abad3dad1925aa5d2dd59ca662233308f28bb0aec5673b71702",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 47,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 46,
+                    "total": 47
+                  },
+                  "rng": {
+                    "matched": 2548,
+                    "total": 2556
+                  },
+                  "cursors": {
+                    "matched": 46,
+                    "total": 47
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() of a scroll of scare monster",
+                  "step": 46
+                },
+                "step": 46,
+                "kind": "stop",
+                "sourceFile": "pickup.c",
+                "function": "pickup",
+                "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() of a scroll of scare monster",
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The comma command selects an uncursed floor scroll of scare monster, but a JavaScript pickup preflight refuses the type before pickup.c:pickup_object can run its source branch. C counts a liftable subset first, marks an uncursed unused scroll as picked up once, then continues through lift_object and pick_obj. The full pickup_object source function also handles blessed and dusting scrolls, split stacks, corpses, artifacts, and ordinary objects.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "After pickup_object observes a visible floor object and passes chain, engulfer, artifact, and corpse checks, SCR_SCARE_MONSTER first calls carry_count with a consumed count and weight outputs. It returns -1 for an unliftable stack, splits a liftable subset before state change, unblesses a blessed scroll, changes spe from 0 to 1 for an uncursed unused scroll, or turns other scrolls to dust through trycall/useupf and returns 1. The selected case is the uncursed spe=0 path, followed by the ordinary lift_object/pick_obj/inventory message tail.",
+                "functions": [
+                  "pickup_object"
+                ],
+                "callers": [
+                  "pickup.c:pickup explicit floor-selection loop calls pickup_object and consumes its return to decide whether to continue; js/pickup.js:pickup calls js/pickup.js:pickup_object after preflightPickupObjects.",
+                  "apply.c:use_whip and other pickup.c paths also call pickup_object, so special scroll behavior belongs in the source helper rather than a comma-command exception."
+                ],
+                "dependencies": [
+                  "pickup.c:carry_count returns the liftable count and writes old_wt/new_wt; js/pickup.js has carry_count, but the preflight currently blocks SCR_SCARE_MONSTER before it can be used.",
+                  "obj.c:splitobj, obj.c:unbless, do.c:trycall, and invent.c:useupf provide consumed object/count or side-effect dependencies. Verify their current JavaScript signatures and caller order.",
+                  "pickup.c:lift_object and pick_obj return decisions/objects consumed by pickup_object, and the ordinary pickup tail must remain aligned for every previously matching object class.",
+                  "Remove the type refusal in preflightPickupObjects once the complete branch is in pickup_object; preserve sight-gated observe_object, artifact/corpse branches, telekinesis wording, object knowledge, and RNG order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 46/47 screens and cursors, 2548/2556 RNG calls, and first stop at zero-based segment 0 step 46: “unsupported pickup: pickup() of a scroll of scare monster.” The immutable recording is challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json, SHA256 8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e.",
+                "The independent recipe wishes an explicitly uncursed scroll, drops its observed inventory letter p, then presses comma. The C recording step 46 shows the floor selector for a scroll labeled MAPIRO MAHAMA DIROMAT. Its setup comment and source trace identify the intended spe=1 arm; the screen alone does not expose spe, so implementation must verify state through source and focused replay.",
+                "Upstream nethack-c/upstream/src/pickup.c:1803-1888 defines pickup_object. The SCR_SCARE_MONSTER branch at 1832-1857 consumes carry_count, splits a liftable subset, handles blessed and uncursed-first-pickup states, or dusts the scroll. The shared tail at 1868-1888 lifts, extracts, prints, and returns. pickup.c explicit pickup callers at 784, 815, and 886 consume the return.",
+                "JavaScript js/pickup.js:preflightPickupObjects around lines 898-906 rejects SCR_SCARE_MONSTER before js/pickup.js:pickup_object, whose current source port skips the scroll arm and reaches lift_object directly. Existing helpers include carry_count, splitobj, unbless, trycall, and useupf; integrate them in C order and preserve all existing pickup behavior."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pickup_object",
+            "implementation": "js/pickup.js",
+            "symbol": "pickup_object",
+            "sourceReview": "Read complete upstream pickup.c:pickup_object (1803-1888), pickup_prinv (1948-1972), and fatal_corpse_mistake (284-299). Matched count diagnostics, sight-gated observe, chain and engulfed-worn early returns, artifact touch, corpse/Rider order, scare-scroll carry_count/split/unbless/unused-spe/dust-call-useupf order, lift result, gold disp.botl, loadstone split exception, pick_obj pointer, temporary gm.mrg_to_wielded around pickup_prinv, ghostly-object note, and return. The consumed fatal_corpse_mistake results and the return-valued helpers are implemented in source order. Its discarded void windows.c:display_nhwindow and trap.c:instapetrify effects remain source-named gaps on the unverified stone-golem recovery and bare-handed fatal continuations; sourceTrace.blockedBranches records them. Checked the consumed objnam.c:doname wielded suffix branch (1561-1594), its false-initialized state owner, and the matching set/reset around pickup_prinv. Supporting consumed helper source/caller/runtime review (not a separately counted source unit in this goal): Read all of pickup.c:fatal_corpse_mistake (284-299) and its u_safe_from_fatal_corpse guard. Matched the safe-or-remote false return; the poly_when_stoned result followed by polymon(PM_STONE_GOLEM), with the display_nhwindow call and false return only after successful transformation; and the fatal corpse message, killer_xname argument evaluation, instapetrify call, and true return otherwise. The consumed Boolean results from u_safe_from_fatal_corpse, poly_when_stoned, and polymon are implemented. The discarded-void windows.c:display_nhwindow and trap.c:instapetrify effects remain explicit note_unported gaps. The fresh ordinary-newt recording verifies only the safe-corpse guard through each direct production caller; it does not establish matching behavior for stone-golem recovery or bare-handed fatal touch. recipes/pickup.c/fatal-cockatrice-corpse-terminal-blocked-b61.session.json remains a blocked recipe, not passing evidence. Direct callers: pickup.c:pickup_object at 1829 calls fatal_corpse_mistake(obj, telekinesis) and consumes its Boolean in the corpse branch. pickup.c:in_container at 2612 calls fatal_corpse_mistake(obj, FALSE) and consumes its Boolean before storing the object. pickup.c:out_container at 2744 calls fatal_corpse_mistake(obj, FALSE) and consumes its Boolean before lifting the object.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "cmd.c pickup dispatch reaches pickup.c:dopickup; its menu, counted-single-object, and traditional traversal loops call pickup_object at pickup.c:784, 815, and 886."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_whip",
+                "source": "apply.c:use_whip at 3052 calls pickup_object after its rnl(6) test and consumes the return to decide whether the item slips free."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple at 3820 calls pickup_object for an object hit and discards its result before redrawing the target square."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs",
+              "scripts/pickup-command.test.mjs",
+              "scripts/apply-pole-whip.test.mjs",
+              "scripts/apply.test.mjs",
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/ordinary-newt-corpse-pickup-and-container-b61.session.json",
+              "recordings/pickup.c/uncursed-scare-scroll-independent-b61.session.json",
+              "recordings/apply.c/bullwhip-snags-floor-item-independent-b61.session.json",
+              "recordings/apply.c/grappling-hook-snags-floor-item-independent-b61.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "cmd.c pickup command -> pickup.c:dopickup -> pickup.c:pickup_object scare-scroll branch"
+              }
+            ],
+            "checkedAt": "f8fe1c5b3b1e16a1fd9d562ec621d1899e2afc1a"
+          }
+        ],
+        "entryPointReview": "pickup_object has three active caller families: the pickup command reaches its menu, counted-object, and traditional call sites; apply.c:use_whip consumes its result; apply.c:use_grapple discards it. fatal_corpse_mistake has three active direct callers: pickup_object at pickup.c:1829, in_container at 2612, and out_container at 2744. The independent safe-newt recording reaches all three direct helper call sites: ordinary pickup, #loot stash, and #loot take-out. It verifies the safe-corpse guard only. The bare-handed cockatrice fatal continuation and stone-golem recovery continuation remain uncovered because their C source calls trap.c:instapetrify and windows.c:display_nhwindow, respectively, whose effects remain named gaps. recipes/pickup.c/fatal-cockatrice-corpse-terminal-blocked-b61.session.json remains blocked and does not count as passing evidence; no unsafe continuation is claimed as replay-matched. The selected goal range is pickup_object only. The required fatal_corpse_mistake body and its safe pickup/stash/take production routes were also source-reviewed and replayed in the same independent newt recording; this supporting dependency receives no separate verified-source-unit credit in this goal. Unsafe continuations remain unverified. Container helper caller evidence: Container stash safe-corpse path calls fatal_corpse_mistake from in_container: recordings/pickup.c/ordinary-newt-corpse-pickup-and-container-b61.session.json; Container take-out safe-corpse path calls fatal_corpse_mistake from out_container: recordings/pickup.c/ordinary-newt-corpse-pickup-and-container-b61.session.json",
+        "entryPoints": [
+          {
+            "name": "Pickup command carries an unused scare scroll",
+            "functions": [
+              "pickup_object"
+            ],
+            "recordings": [
+              "recordings/pickup.c/uncursed-scare-scroll-independent-b61.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "cmd.c pickup command -> pickup.c:dopickup -> pickup.c:pickup_object scare-scroll branch"
+              }
+            ]
+          },
+          {
+            "name": "Pickup command safe-corpse path calls fatal_corpse_mistake from pickup_object",
+            "functions": [
+              "pickup_object"
+            ],
+            "recordings": [
+              "recordings/pickup.c/ordinary-newt-corpse-pickup-and-container-b61.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Bullwhip floor snag calls pickup_object",
+            "functions": [
+              "pickup_object"
+            ],
+            "recordings": [
+              "recordings/apply.c/bullwhip-snags-floor-item-independent-b61.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Grappling-hook object snag calls pickup_object",
+            "functions": [
+              "pickup_object"
+            ],
+            "recordings": [
+              "recordings/apply.c/grappling-hook-snags-floor-item-independent-b61.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e40858944e01bb3c8f6c2ad47ff7781a59b63d02",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The combined checkpoint preserves all 44 fixed sessions and 709 regression recordings but fails an obsolete pet-swap pickup-refusal assertion. Automatic approval review rejected the isolated correction worktree and prohibited workarounds. Preserve the candidate and source evidence pending direct user clarification."
     }
   ]
 }

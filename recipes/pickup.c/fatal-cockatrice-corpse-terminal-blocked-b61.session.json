@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6107127,
+      "datetime": "20330517091123",
+      "nethackrc": "OPTIONS=name:FatalCorpseB61,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\ncockatrice corpse\n,.",
+      "comment": "Blocked pickup.c:fatal_corpse_mistake witness. The debug Wizard wishes for a bare-handed cockatrice corpse, which C materializes on the floor, then selects it with the pickup command. C calls trap.c:instapetrify after its fatal-touch message and finalizes death; that source-named dependency remains unported, so this recipe has no matching JS recording."
+    }
+  ]
+}
