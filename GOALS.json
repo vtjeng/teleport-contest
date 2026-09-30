@@ -123270,7 +123270,7 @@
     {
       "id": "port-potion-potionbreathe-v14-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete potion vapor effects and their implemented callers",
       "cFile": "potion.c",
       "sessions": [
@@ -123284,8 +123284,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8e2a9bf2a1135bf0c405464105a115373ede466b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "potionbreathe",
@@ -123623,6 +123626,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8e2a9bf2a1135bf0c405464105a115373ede466b",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
