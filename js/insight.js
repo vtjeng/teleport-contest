@@ -281,7 +281,9 @@ import {
     is_flyer,
     is_swimmer,
     dmgtype,
+    dmgtype_fromattack,
     haseyes,
+    is_animal,
     sticks,
     is_vampire,
     is_vampshifter,
@@ -296,6 +298,8 @@ import {
     AD_DISN,
     AD_ELEC,
     AD_FIRE,
+    AD_WRAP,
+    AT_ENGL,
     M2_DEMON,
     M2_ELF,
     M2_HUMAN,
@@ -2973,17 +2977,10 @@ const UNPORTED_USTATUS_CONDITIONS = Object.freeze([
 //
 // C builds `info` by appending in source order and interpolates the finished
 // string after the armor class, so a monster carrying two conditions needs
-// both fragments in that sequence. Every fragment whose wording is a literal
-// is ported. The three that need source this port does not have stop instead,
-// each from C's own position in the sequence, so a monster carrying one stops
-// where C would have appended it rather than printing a line short a clause:
-//
-//   the long-worm segment count   worm.c count_wsegs() and wseg_at()
-//   the u.ustuck clause           digests(), enfolds() and sticks()
-//   the u.usteed clause           Wounded_legs and EWounded_legs
-//
-// That split follows ustatusline() above, whose UNPORTED_USTATUS_CONDITIONS
-// rows are the clauses needing unported wording rather than every clause.
+// both fragments in that sequence. This function now covers each source
+// clause, including the worm, holder, and steed clauses; `enfolds` is the
+// mondata.h macro over dmgtype_fromattack(), and Wounded_legs is the OR of its
+// intrinsic timeout and extrinsic leg-side bits.
 //
 // The tame arm's wizard-mode detail is not a debugging aside that can be
 // dropped: playmode:debug sets `wizard`, and a listen at a pet in a debug game
@@ -3073,14 +3070,37 @@ export async function mstatusline(mtmp, state = game) {
     if (mtmp.minvis)
         info += ', invisible';
     if (mtmp === state.u.ustuck) {
-        throw new UnsupportedEnlightenmentError(
-            "mstatusline()'s u.ustuck clause",
-        );
+        const species = state.u.ustuck.data;
+        if (state.u.uswallow) {
+            if (digests(species))
+                info += ', digesting you';
+            else if (is_animal(species)
+                && !dmgtype_fromattack(species, AD_WRAP, AT_ENGL)) {
+                // insight.c:3360-3367 notes this animal branch cannot occur
+                // for a valid engulfer: animals either digest or enfold.
+                info += ', swallowing you';
+            } else {
+                info += ', engulfing you';
+            }
+        } else {
+            // The swallowed branch takes precedence over this current-form
+            // test, as insight.c:3356-3371 explicitly requires.
+            info += !sticks(state.youmonst.data)
+                ? ', holding you' : ', held by you';
+        }
     }
     if (mtmp === state.u.usteed) {
-        throw new UnsupportedEnlightenmentError(
-            "mstatusline()'s u.usteed clause",
-        );
+        info += ', carrying you';
+        const woundedLegs = state.u.uprops?.[WOUNDED_LEGS] ?? {};
+        if (woundedLegs.intrinsic || woundedLegs.extrinsic) {
+            // youprop.h:136-138 keeps the timeout and worn-ring sides in the
+            // same property; the status line masks EWounded_legs and names
+            // both legs only when both C side bits are set.
+            const legs = Number(woundedLegs.extrinsic ?? 0) & BOTH_SIDES;
+            let what = mbodypart(mtmp, LEG);
+            if (legs === BOTH_SIDES) what = makeplural(what);
+            info += `, injured ${what}`;
+        }
     }
     if (mtmp.mleashed)
         info += ', leashed';
