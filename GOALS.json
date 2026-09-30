@@ -120301,7 +120301,7 @@
     {
       "id": "port-climb-pit-synthetic-v14-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pit escape and wire both hero callers",
       "cFile": "trap.c",
       "sessions": [
@@ -120315,8 +120315,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "climb_pit",
@@ -120637,6 +120640,233 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-moveloop-teleportation-ring-v14-20260930",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore the source-ordered periodic teleportation check",
+      "cFile": "allmain.c",
+      "sessions": [],
+      "selectionReason": "Select synthetic/v14/wizard-wears-teleportation-ring from accepted B62 evaluation challenges/evaluations/20260930040057-v14.json at b20abe03. Its complete investigation traces the step34 RNG mismatch to the omitted Teleportation chance gate in allmain.c moveloop_core, after regen_pw and before hunger and engraving upkeep. Correct invulnerability and intrinsic/extrinsic predicates and consume rn2(85) in source order. Preserve the named discarded tele gap at zero and source-conditional coordinate aftermath; no whole moveloop_core or teleport function completion claim. A52 dependencies are accepted; exact A54 delivery is independent of A55–A57.",
+      "detail": "Segment0 step34: 35/35 screens and cursors, 2778/2781 RNG before correction. C moveloop_core307–320 checks Teleportation and rn2(85) before later upkeep; JS finishElapsedTurnAfterTimeout omitted it. Exact delivery36cc restores the gate and matches through step34. An independent source-commented recipe reaches the zero-result controlled teleport prompt in C; teleport.c tele remains an explicit discarded-void gap in this planning context and the recipe is blocked outside recordings. No full source-unit completion is claimed.",
+      "openedAt": "c1327498bb0c13d8f7f50c8c37243b0a286d9dc5",
+      "openStanding": {
+        "sha": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "618b18c5cce114da5fb033fef57eb551ce7f87bf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "moveloop_core",
+      "session": "synthetic/v14/wizard-wears-teleportation-ring",
+      "step": 34,
+      "syntheticProvenance": {
+        "synthetic/v14/wizard-wears-teleportation-ring": {
+          "session": "synthetic/v14/wizard-wears-teleportation-ring",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-wears-teleportation-ring",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+          "recordingSha256": "4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d",
+          "evaluationPath": "challenges/evaluations/20260930040057-v14.json",
+          "evaluationCommit": "b20abe038e0cb3e172186f6d7190f2b388a93b54"
+        }
+      },
+      "activeStanding": {
+        "sha": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-wears-teleportation-ring",
+          "session": "synthetic/v14/wizard-wears-teleportation-ring",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+          "recordingSha256": "4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d",
+          "recipe": "challenges/cases/v14/wizard-wears-teleportation-ring.recipe.session.json",
+          "recipeSha256": "5d06b54b8ab0a327812c5423c252a8301d3f4859f86ee1cc26360d2501b19a59",
+          "replayInputSha256": "0f0d54afd2a83ebf9d905afad5e7f18df67b36bdbd4f9d1d8389bdd6fa3f721c",
+          "evaluationPath": "challenges/evaluations/20260930040057-v14.json",
+          "evaluationCommit": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+          "evaluationArtifact": "challenges/evaluations/20260930040057-v14.json",
+          "evaluationUtc": "2026-09-30T04:01:21.492Z",
+          "remainingScreens": 0,
+          "recordedSteps": 35,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2778,
+              "total": 2781
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2778,
+              "cEntry": "rn2(85)=48",
+              "cCaller": "moveloop_core(allmain.c:308)",
+              "jsEntry": "rn2(20)=13",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": "r"
+              },
+              "stepIndex": 34
+            },
+            "cursor": null
+          },
+          "step": 34,
+          "kind": "rng",
+          "sourceFile": "allmain.c",
+          "function": "moveloop_core",
+          "message": null,
+          "cFile": "allmain.c",
+          "luaFile": null,
+          "line": 308,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/wizard-wears-teleportation-ring.json",
+            "result": {
+              "session": "synthetic/v14/wizard-wears-teleportation-ring",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "wizard-wears-teleportation-ring",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 0,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "wizard-wears-teleportation-ring",
+                "session": "synthetic/v14/wizard-wears-teleportation-ring",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+                "recordingPath": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+                "recordingSha256": "4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d",
+                "recipe": "challenges/cases/v14/wizard-wears-teleportation-ring.recipe.session.json",
+                "recipeSha256": "5d06b54b8ab0a327812c5423c252a8301d3f4859f86ee1cc26360d2501b19a59",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 0,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2778,
+                    "total": 2781
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2778,
+                    "cEntry": "rn2(85)=48",
+                    "cCaller": "moveloop_core(allmain.c:308)",
+                    "jsEntry": "rn2(20)=13",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 34,
+                      "key": "r"
+                    },
+                    "stepIndex": 34
+                  },
+                  "cursor": null
+                },
+                "step": 34,
+                "kind": "rng",
+                "sourceFile": "allmain.c",
+                "function": "moveloop_core",
+                "message": null,
+                "cFile": "allmain.c",
+                "luaFile": null,
+                "line": 308
+              },
+              "summary": "The ring setup is correct; the first RNG divergence is the missing Teleportation check in allmain.c:moveloop_core. The assigned final C step has an active teleportation ring, so C draws rn2(85)=48 before gethungry’s rn2(20)=1 and the engraving check’s rn2(94)=23. Since 48 is nonzero, C does not teleport. Frozen JS moveloop_core omits the source check, so its first draw at that position is gethungry’s rn2(20)=13. This shifts the following engraving draw as well, while all 35 screens and cursors still match.",
+              "source": {
+                "file": "allmain.c",
+                "functions": [
+                  "moveloop_core"
+                ],
+                "branch": "Repair the Teleportation block in allmain.c:moveloop_core (307-320), after regen_pw and before the polymorph/lycanthropy checks and later once-per-turn work. The source draws rn2(85) only when the hero is not invulnerable and Teleportation is active (intrinsic or extrinsic). On zero it calls tele(); if the hero moved, it checks leash state when the destination is not next to the old square and clears canned and repeat command queues. In the assigned case the wished ring is worn in the right slot, so its extrinsic TELEPORT property activates the gate; rn2(85)=48 prevents tele(). C then reaches gethungry’s rn2(20)=1 followed by the engraving gate rn2(94)=23 (40 + 3*DEX with DEX 18), which is not zero, so no rnd(3) engraving wear draw follows. Frozen JS has the later gethungry and maybeWipeHeroEngraving calls but omits this earlier Teleportation block.",
+                "callers": [
+                  "The sole direct C production caller of moveloop_core is allmain.c:moveloop (586-597), which loops through moveloop_core at 595. The frozen JS direct counterpart is js/allmain.js:moveloop, which calls moveloop_core at 1718. The assigned step follows a timed P put-on action, so both loops enter the elapsed-turn body before reading the next key.",
+                  "Assigned state setup is C do_wear.c:doputon -> accessory_or_armor_on (2452-2468, 2209-2428), which calls setworn(obj, mask) before Ring_on(obj) at 2410-2411. worn.c:setworn adds the ring slot bit to u.uprops[TELEPORT].extrinsic; do_wear.c:Ring_on treats RIN_TELEPORTATION as a no-op. Frozen JS do_wear.js:accessory_or_armor_on similarly calls setworn before Ring_on at 3516-3517; worn.js:setworn adds the slot effects, and do_wear.js:Ring_on groups RIN_TELEPORTATION among no-op types. This establishes that the ring property is set correctly before the missing moveloop check."
+                ],
+                "dependencies": [
+                  "Read C Teleportation as the union of intrinsic and extrinsic TELEPORT property state; the assigned ring supplies the W_RINGR extrinsic bit through setworn. Preserve the u.uinvulnerable short-circuit and do not draw rn2(85) when either guard fails.",
+                  "Consume the core random rn2(85) at the exact source position after regen_pw and before Polymorph and lycanthropy checks, searching, warning, sound, hunger, and engraving upkeep.",
+                  "On a zero result, call the existing teleport.c tele() behavior. Compare the resulting u.ux/u.uy to their old coordinates; if changed, call next_to_u(), check_leash(old_ux,old_uy) when not adjacent, then clear CQ_CANNED and CQ_REPEAT in source order.",
+                  "After the check, retain the neighboring source RNG order. The assigned Wizard’s DEX is 18, so the later engraving gate is rn2(40 + 18*3), or rn2(94); because it returns 23, u_wipe_engr(rnd(3)) is not reached.",
+                  "The ring activation caller does not draw random numbers: setworn establishes the extrinsic property before Ring_on, whose RIN_TELEPORTATION case is empty in C and JS."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The assigned queue entry in .cache/v14-baseline-work-queue.json fixes this result to zero remaining screens and 35 recorded steps, manifest corpus SHA-256 a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0, recording SHA-256 4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d, and evaluation challenges/evaluations/20260929225551-v14.json at de8f73ddf16241bca4e484fef2ab099b3f133a2d. The evaluation reports 35/35 screens and cursors matched and 2778/2781 RNG entries matched. Its first mismatch is C rn2(85)=48 at allmain.c:308 versus JS rn2(20)=13 at segment 0 step 34.",
+                "The assigned scan .cache/synthetic-scans/v14/wizard-wears-teleportation-ring.json confirms no refusal or unported operation, no screen or cursor divergence, and the same RNG mismatch at step 34. The assigned manifest sourceTraceEvidence places rn2(85)=48 and rn2(94)=23 in moveloop_core; its setup says the ring is wished and put on before the end-of-turn teleport check.",
+                "The assigned recording’s final step (key r) captures the right-hand brass ring and its final ordered draws: rn2(12)=9 at mcalcmove, rn2(70)=44 at maybe_generate_rnd_mon, rn2(85)=48 at moveloop_core, rn2(20)=1 at gethungry, and rn2(94)=23 at moveloop_core. This pins the C ordering; the 48 result means the teleport action is not taken in this case.",
+                "At frozen JS commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, js/do_wear.js:accessory_or_armor_on sets the worn slot before Ring_on, and both JS operations match C’s no-random ring setup. In contrast, js/allmain.js:finishElapsedTurnAfterTimeout calls gethungry and then maybeWipeHeroEngraving without a Teleportation gate; C allmain.c:moveloop_core has that gate at 307-320 before its later per-turn work. The JS gethungry draw is consequently paired against C’s omitted rn2(85) and receives the shifted value.",
+                "C allmain.c:moveloop calls moveloop_core at 595, and frozen js/allmain.js:moveloop calls its port at 1718. The assigned P command path is C do_wear.c:doputon -> accessory_or_armor_on -> setworn -> Ring_on, mirrored in js/do_wear.js; worn.c:setworn and js/worn.js:setworn both install the ring’s TELEPORT extrinsic before the elapsed-turn caller runs."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "618b18c5cce114da5fb033fef57eb551ce7f87bf",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
