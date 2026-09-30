@@ -121896,7 +121896,7 @@
     {
       "id": "port-apply-light-cocktail-potion-oil-v13-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Light and snuff potions of oil through the apply command",
       "cFile": "apply.c",
       "sessions": [
@@ -121910,8 +121910,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5e82414bddf1cc5c4346e7b0948ff9f187439574",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "light_cocktail",
@@ -122148,6 +122151,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5e82414bddf1cc5c4346e7b0948ff9f187439574",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
