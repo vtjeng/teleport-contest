@@ -123292,7 +123292,7 @@
           "line": 1932,
           "endLine": 2121,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -123487,7 +123487,143 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "potionbreathe",
+            "implementation": "js/potion.js",
+            "symbol": "potionbreathe",
+            "sourceReview": "Read the complete potion.c:potionbreathe definition (1932-2118). The implementation follows Half_gas_damage towel selection, all active switch cases and fallthroughs, the no-op effects, RNG and state update order, messages, timeout changes, and the dknown naming tail. It sets obj.in_use before effects and restores the saved value before makeknown/trycall; it does not free the object. potionhit supplies its planning-aware message operation so monster-turn cloning does not write hero-only feedback. split_mon is implemented; the source-discarded void calls to were.c:you_unwere and were.c:you_were remain named note_unported gaps. The upstream no-op labels at 2096-2104 are commented out in C and do not execute.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potionhit",
+                "source": "potion.c:potionhit, call at 1909 after its impact and vapor conditions."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipsink",
+                "source": "fountain.c:dipsink, call at 795 after sink object-use and breath/eye conditions."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "dothrow.c:breakobj, potion impact arm at 2517."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "maybe_destroy_item",
+                "source": "zap.c:maybe_destroy_item, call at 5917 after the destruction message; this caller is audited and has matching runtime evidence, but no JS source edit was needed."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "chest_shatter_msg",
+                "source": "lock.c:chest_shatter_msg, potion-class branch at 1285."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/fountain.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/lock.test.mjs",
+              "scripts/monster-hurls-potion.test.mjs",
+              "scripts/zap-destroy-items.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-hurls-potion-sleeping-c54.session.json",
+              "recordings/potion.c/monster-hurls-potion-paralysis-c54.session.json",
+              "recordings/fountain.c/potionbreathe-sickness-dipsink-c54.session.json",
+              "recordings/dothrow.c/potionbreathe-speed-toss-up-c54-final.session.json",
+              "recordings/lock.c/potionbreathe-empty-chest-sickness-c54-complete.session.json",
+              "recordings/zap.c/potionbreathe-fire-zapyourself-sickness-intrinsic-c54.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 82,
+                "source": "pickup.c:in_container -> pickup.c:do_boh_explosion -> explode.c:scatter -> dothrow.c:breaks -> dothrow.c:breakobj -> potion.c:potionbreathe"
+              }
+            ],
+            "checkedAt": "54cb0ef14f43db6186a986e1089f1caeb3d62a16"
+          }
+        ],
+        "entryPointReview": "C has five active caller families in the task plan: potion.c:potionhit, fountain.c:dipsink, dothrow.c:breakobj, zap.c:maybe_destroy_item, and lock.c:chest_shatter_msg. Each has a matching C recording and a strict fresh C/JavaScript run below. The selected v14 #loot case now matches through step 82, where a healing potion shatters and reaches potionbreathe through dothrow.c:breaks -> breakobj. C also calls potionbreathe from potion.c:dip_potion_explosion at 2431, reached through potion-dip callers; JS potion_dip still raises UnsupportedDipError at js/potion.js:2855, so that outer C route remains explicitly incomplete and is not counted as an exercised entry point. potionbreathe’s cursed or blessed water arms still record the discarded void transformations as note_unported('were.c you_were') and note_unported('were.c you_unwere'). The lock task corrects only breakchestlock’s potion-class destruction condition; it does not claim whole breakchestlock completion. Non-PAPER, non-potion chest contents remain outside this task: the preserved nonempty-chest trace stops at JS’s UnsupportedLockError for a non-PAPER object.",
+        "entryPoints": [
+          {
+            "name": "Monster-hurled sleeping or paralysis potion reaches potionhit and potionbreathe",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-hurls-potion-sleeping-c54.session.json",
+              "recordings/potion.c/monster-hurls-potion-paralysis-c54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#dip into a sink reaches dipsink and potionbreathe",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/fountain.c/potionbreathe-sickness-dipsink-c54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Ceiling-hit thrown speed potion reaches breakobj and potionbreathe",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/potionbreathe-speed-toss-up-c54-final.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fire damage destroys a carried potion through maybe_destroy_item",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/zap.c/potionbreathe-fire-zapyourself-sickness-intrinsic-c54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#force destroys a chest and reaches the potion branch of chest_shatter_msg",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/lock.c/potionbreathe-empty-chest-sickness-c54-complete.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Admitted v14 bag explosion reaches potionbreathe through breakobj",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 82,
+                "source": "pickup.c:in_container -> pickup.c:do_boh_explosion -> explode.c:scatter -> dothrow.c:breaks -> dothrow.c:breakobj -> potion.c:potionbreathe"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
