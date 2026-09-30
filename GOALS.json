@@ -122545,7 +122545,7 @@
     {
       "id": "port-do-polymorph-sink-v14-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete sink transformations and wire sink dipping",
       "cFile": "do.c",
       "sessions": [
@@ -122559,8 +122559,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "649d96643c728ad672d0e1795e15b58b69ed5220",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "polymorph_sink",
@@ -122907,6 +122910,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "649d96643c728ad672d0e1795e15b58b69ed5220",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
