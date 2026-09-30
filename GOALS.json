@@ -121917,8 +121917,8 @@
           "name": "light_cocktail",
           "line": 1703,
           "endLine": 1769,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -122090,7 +122090,65 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "light_cocktail",
+            "implementation": "js/apply.js",
+            "symbol": "light_cocktail",
+            "sourceReview": "Read and ported the complete apply.c:light_cocktail definition at 1703-1758. Preserved swallowed-before-lit, lit-before-underwater, the unworn end_burn/freeinv/addinv pointer update (using the awaited live addinv_runtime counterpart), split-before-message, the exact light line, optional costly-shop voice/verbalize/bill_dummy_object order, makeknown before begin_burn, and split-object extraction/nomerge/hold_another_object return pointer. C check_unpaid() discards the void check_unpaid_usage() result; because its JS fee tail is unported and its existing helper throws at that tail, the corrected callsite records note_unported('shk.c check_unpaid_usage') without invoking the helper, then continues in source order. Existing do.c dropx/dropy gaps inside hold remain outside this function's completed behavior.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply POT_OIL arm at 4349-4350 calls light_cocktail(&obj); the JS arm awaits it, reads back objp.obj, and keeps ECMD_TIME."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c's a-command dispatcher enters doapply; runApplyCommand reaches the same JS doapply selection path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-light-cocktail.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "apply-lights-potion-of-oil",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 35,
+                "source": "cmd.c a command -> apply.c:doapply POT_OIL -> apply.c:light_cocktail, including makeknown/discover_object and begin_burn"
+              }
+            ],
+            "checkedAt": "f332f40155d3cd3881fb6d7cf7a5863cdadb4871"
+          }
+        ],
+        "entryPointReview": "The active entry point is apply.c:doapply's POT_OIL case, reached from the a command through cmd.c and JS cmd.js:runApplyCommand -> apply.js:doapply. The admitted v13 case reaches this arm at segment 0 step 35; helper parity is cited only through that step. apply.c:light_cocktail has no other production callers. The swallowed, underwater, already-lit, stacked, and unpaid-costly-shop branches are source-pinned by the order test where not reached by the recording; the v13 runtime range covers only the unlit, quantity-one, dry, unswallowed, non-shop branch. At the optional shop call, the unported void shk.c:check_unpaid_usage fee is explicitly recorded without calling its partial refusal; no fee parity is claimed. do.c:dropx/dropy floor-drop effects reached inside hold_another_object remain separate void gaps.",
+        "entryPoints": [
+          {
+            "name": "doapply POT_OIL via the a command",
+            "functions": [
+              "light_cocktail"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "apply-lights-potion-of-oil",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 35,
+                "source": "cmd.c a command -> apply.c:doapply POT_OIL -> apply.c:light_cocktail"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
