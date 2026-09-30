@@ -120322,8 +120322,8 @@
           "name": "climb_pit",
           "line": 4183,
           "endLine": 4232,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -120562,7 +120562,82 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "climb_pit",
+            "implementation": "js/trap.js",
+            "symbol": "climb_pit",
+            "sourceReview": "Read the complete upstream trap.c:climb_pit definition (4183-4230), comparing every branch and effect in source order: no-op unless held in TT_PIT; trapname before Passes_walls; unconditional rn2(2) before the boulder test; boulder crevice output and message-window flush/clear; flying or clinger escape outside Sokoban; predecremented u.utrap and m_easy_escape_pit short-circuit; reset_utrap/fill_pit/vision_full_recalc ordering; then verbose or downward-look Norep with the steed and hallucination variants. The flying branch passes lowercase \"climb\" to hack.c:u_locomotion; C preserves that case and emits \"You fly from the pit.\", confirmed by a source-pinned output assertion and a fresh Wizard-to-vampire recording. JS uses the existing tty message-window helpers for C display_nhwindow/clear_nhwindow semantics. The existing fill_pit path retains its discarded-result note_unported for do.c:flooreffects when a boulder settles; no return value from that gap is used. No new game state was introduced.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "doup",
+                "source": "do.c:doup (1308-1311) calls climb_pit for u.utrap && TT_PIT, then returns ECMD_TIME; the command path is cmd.c '<' -> js/cmd.js:runUpCommand -> js/do.js:doup."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "trapmove",
+                "source": "hack.c:trapmove TT_PIT arm (1580-1586) keeps the visible adjacent-pit exception, otherwise calls climb_pit and returns FALSE; held movement reaches it through hack.c:domove_core and js/hack.js:domove."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap.test.mjs",
+              "scripts/doup.test.mjs",
+              "scripts/hero-bear-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/climb-pit-trapmove-independent-b62.session.json",
+              "recordings/trap.c/climb-pit-flying-independent-b62.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "hero-climbs-out-of-wished-pit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c '<' command -> do.c:doup -> trap.c:climb_pit"
+              }
+            ],
+            "checkedAt": "f727d64380b19e9dec2fd2e2c897c47a7809f795"
+          }
+        ],
+        "entryPointReview": "The selected function has two active production entry points. The typed < command dispatches through cmd.c and js/cmd.js:runUpCommand to do.c:doup/js/do.js:doup; the admitted v14 case executes the ordinary escape path through step 10, and the independent flying recording transforms the held hero into a vampire before typing < to execute climb_pit's Flying branch. A held-hero movement command dispatches through hack.c:domove_core/js/hack.js:domove into hack.c:trapmove/js/hack.js:trapmove; the original independent recording reaches its TT_PIT arm and matches the complete C replay. trapmove retains C's exception that movement into a visible adjacent pit proceeds without calling climb_pit. Other held trap types remain outside this task. The boulder-settle fill_pit -> do.c:flooreffects call remains an existing discarded-result gap, not invented behavior.",
+        "entryPoints": [
+          {
+            "name": "Typed '<' command while held in a pit",
+            "functions": [
+              "climb_pit"
+            ],
+            "recordings": [
+              "recordings/trap.c/climb-pit-flying-independent-b62.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "hero-climbs-out-of-wished-pit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c '<' command -> do.c:doup -> trap.c:climb_pit"
+              }
+            ]
+          },
+          {
+            "name": "Held-hero movement while trapped in a pit",
+            "functions": [
+              "climb_pit"
+            ],
+            "recordings": [
+              "recordings/trap.c/climb-pit-trapmove-independent-b62.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
