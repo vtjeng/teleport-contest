@@ -1,0 +1,143 @@
+{
+  "session": "synthetic/v14/archeologist-lawful-digs-grave",
+  "corpus": "synthetic",
+  "batch": "v14",
+  "caseId": "archeologist-lawful-digs-grave",
+  "manifestPath": "challenges/manifests/v14.json",
+  "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+  "recordingSha256": "acede4070b9383ec00c99179f6c414be9d14d1f4923d16a10add7ded901a3d19",
+  "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+  "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+  "remainingScreens": 5,
+  "recordedSteps": 23,
+  "status": "complete",
+  "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v14",
+    "caseId": "archeologist-lawful-digs-grave",
+    "session": "synthetic/v14/archeologist-lawful-digs-grave",
+    "manifestPath": "challenges/manifests/v14.json",
+    "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+    "recording": "challenges/cases/v14/archeologist-lawful-digs-grave.session.json",
+    "recordingPath": "challenges/cases/v14/archeologist-lawful-digs-grave.session.json",
+    "recordingSha256": "acede4070b9383ec00c99179f6c414be9d14d1f4923d16a10add7ded901a3d19",
+    "recipe": "challenges/cases/v14/archeologist-lawful-digs-grave.recipe.session.json",
+    "recipeSha256": "f37845effca62e0a8a7940357cdb1873a5df213395cad1d3c71e646fa49105d3",
+    "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+    "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+    "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+    "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+    "evaluationUtc": "2026-09-29T22:55:51.622Z",
+    "remainingScreens": 5,
+    "recordedSteps": 23,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 18,
+        "total": 23
+      },
+      "rng": {
+        "matched": 2275,
+        "total": 2294
+      },
+      "cursors": {
+        "matched": 19,
+        "total": 23
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 17,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 17,
+          "key": " "
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "A",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2273,
+        "cEntry": "rn2(2)=0",
+        "cCaller": "exercise(attrib.c:509)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 17,
+          "key": " "
+        },
+        "stepIndex": 17
+      },
+      "cursor": {
+        "index": 17,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 17,
+          "key": " "
+        },
+        "cCursor": [
+          41,
+          0,
+          1
+        ],
+        "jsCursor": [
+          19,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 17,
+    "kind": "rng",
+    "sourceFile": "attrib.c",
+    "function": "exercise",
+    "message": null,
+    "cFile": "attrib.c",
+    "luaFile": null,
+    "line": 509
+  },
+  "summary": "The first mismatch is in the grave-dig branch: C calls dig_up_grave(cc), whose first state/RNG effect is exercise(A_WIS, FALSE), while the JavaScript dighole() branch records note_unported(\"dig.c dig_up_grave\") and returns. This omits the Wisdom exercise and the helper’s role/alignment messages, grave outcome, tile cleanup, engraving removal, and redraw. The existing attrib.c exercise() port already implements the required rn2(2) draw; the source owner is the whole dig.c dig_up_grave() function and its dighole() caller wiring.",
+  "source": {
+    "file": "dig.c",
+    "branch": "In dighole(), when old_typ is a grave, C first calls digactualhole(..., PIT), then dig_up_grave(cc). This case reaches the hero-tile path (cc == NULL) as a lawful Archeologist; because the grave is not marked empty, dig_up_grave() draws rn2(5), with the recorded result selecting the unoccupied-grave message.",
+    "functions": [
+      "dig_up_grave"
+    ],
+    "callers": [
+      "C: dig.c:dighole() (883-1024), IS_GRAVE(old_typ) branch at 959-962, calls dig_up_grave(cc); the production path reaches dighole() from dig.c:dig() after the downward-dig occupation reaches its effort threshold.",
+      "JavaScript: js/dig.js:dighole() partial port, IS_GRAVE(oldType) branch at 1292-1295, calls digactualhole() then note_unported(\"dig.c dig_up_grave\"); replace this gap with the ported helper call."
+    ],
+    "dependencies": [
+      "attrib.c:exercise (already ported in js/attrib.js; false Wisdom exercise updates AEXE and consumes rn2(2), the first mismatching C draw).",
+      "attrib.c:adjalign (already ported in js/attrib.js; used by the Archeologist, Samurai, and lawful branches).",
+      "mkobj.c:mk_tt_object (already ported in js/mkroom.js; the corpse branch checks and ages its returned object).",
+      "makemon.c:mkclass (already ported in js/makemon.js) and makemon.c:makemon (already ported in js/makemon_create.js; mkclass supplies the species and makemon’s result is discarded).",
+      "engrave.c:del_engr_at and display.c:newsym (already ported in js/engrave.js and js/display.js; required for the final grave cleanup and map redraw)."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The selected v14 manifest entry records archeologist-lawful-digs-grave as reaching dig.c:use_pick_axe -> digactualhole -> dig_up_grave; its C outcome is the grave-robber warning followed by “The grave is unoccupied. Strange...”. The recording has 23 steps and the queue/evaluation report 5 unmatched screens.",
+    "The assigned scanner trace .cache/synthetic-scans/v14/archeologist-lawful-digs-grave.json and saved queue entry .cache/v14-baseline-work-queue.json place the first mismatch at step 17, key space: C calls rn2(2)=0 from exercise(attrib.c:509), while JS calls rn2(5)=2; the first screen cell and cursor also differ. The later C grave draw is recorded as rn2(5)=4 at dig_up_grave(dig.c:1058).",
+    "nethack-c/upstream/src/dig.c:959-962 establishes the direct IS_GRAVE caller. The whole helper at dig.c:1026-1088 calls exercise(A_WIS, FALSE) at 1044 before role/alignment effects, then selects the grave outcome at 1058 and resets typ/emptygrave/disturbed, deletes the engraving, and redraws at 1083-1087.",
+    "nethack-c/upstream/src/attrib.c:488-518 shows that exercise() uses rn2(2) for a false Wisdom exercise when |AEXE(WIS)| < 50. The frozen JavaScript implementation is js/attrib.js:946-994; the missing behavior is its call from dig_up_grave(), not exercise() itself.",
+    "Frozen examined source at 3212f9f07c3fdf3f00c5c204885f51834f0b6448: js/dig.js:1292-1295 contains note_unported(\"dig.c dig_up_grave\") immediately after digactualhole(), confirming the source gap and production wiring point."
+  ]
+}

@@ -154,7 +154,7 @@ import {
     getobj, hands_obj, learn_unseen_invent, obfree, update_inventory, useup,
 } from './invent.js';
 import { clone_mon, set_malign } from './makemon.js';
-import { makemon_runtime, mongone } from './makemon_create.js';
+import { makemon_runtime } from './makemon_create.js';
 import {
     breathless, dmgtype, has_head, haseyes, is_human, is_silent,
     is_vampshifter, is_were, likes_fire, mon_hates_blessings,
@@ -247,7 +247,7 @@ import {
     GLYPH_INVISIBLE, map_invisible, map_invisible_planning, unmap_object,
 } from './display.js';
 import {
-    healmon, killed, monkilled, new_were, wake_nearto, wakeup,
+    healmon, killed, mongone, monkilled, new_were, wake_nearto, wakeup,
 } from './mon.js';
 import { paralyze_monst, sleep_monst, slept_monst } from './mhitm.js';
 import { which_armor, mon_adjust_speed, mon_set_minvis } from './worn.js';

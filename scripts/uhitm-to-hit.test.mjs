@@ -159,6 +159,17 @@ function placedTarget(pmidx = PM_LICHEN, overrides = {}) {
     return mtmp;
 }
 
+// uhitm.c:do_attack() owns gb.bhitpos before hitum(). These direct hitum()
+// tests reproduce that caller setup from the current aimed square.
+async function hitumFromDoAttack(mon, uattk, env) {
+    game.gb ??= {};
+    game.gb.bhitpos = {
+        x: game.u.ux + game.u.dx,
+        y: game.u.uy + game.u.dy,
+    };
+    return hitum(mon, uattk, game, env);
+}
+
 const REFUSING = {
     unsupported: (reason) => { throw new Error(reason); },
     nearCapacity: () => 0,
@@ -1034,7 +1045,7 @@ test('the second swing stops when the aimed square no longer holds the target',
         game.u.dx = -1;
         assert.notEqual(m_at(game.u.ux - 1, game.u.uy, game), elsewhere);
         const empty = meleeEnv({ dieroll: 1 });
-        await hitum(elsewhere, uattk(), game, empty);
+        await hitumFromDoAttack(elsewhere, uattk(), empty);
         assert.deepEqual(empty.bounds, [
             'rnd(20)', 'rn2(19)', 'rnd(10)', 'rn2(25)', 'rn2(3)',
         ]);
@@ -1049,7 +1060,7 @@ test('the second swing stops when the aimed square no longer holds the target',
         // placedTarget() aimed the step at the second monster it placed.
         assert.equal(m_at(game.u.ux + game.u.dx, game.u.uy, game), bystander);
         const occupied = meleeEnv({ dieroll: 1 });
-        await hitum(struck, uattk(), game, occupied);
+        await hitumFromDoAttack(struck, uattk(), occupied);
         assert.deepEqual(occupied.bounds, [
             'rnd(20)', 'rn2(19)', 'rnd(10)', 'rn2(25)', 'rn2(3)',
         ]);
@@ -1086,7 +1097,7 @@ test('the second swing compares its roll with the off hand\'s number',
             const env = meleeEnv({
                 dieroll: (_bound, index) => index === 0 ? firstRoll : nextRoll,
             });
-            await hitum(mtmp, uattk, game, env);
+            await hitumFromDoAttack(mtmp, uattk, env);
             game.u.uswallow = 0;
             return env.bounds;
         };
@@ -1137,7 +1148,7 @@ test('a double punch swings a fist while the swap slot still holds a weapon',
             // `skl_lvl - P_BASIC`, which is 1 at Skilled.
             rn2Result: (bound) => (bound === 5 ? 0 : 1),
         });
-        await hitum(mtmp, uattk, game, env);
+        await hitumFromDoAttack(mtmp, uattk, env);
         assert.deepEqual(env.bounds, [
             // double_punch()'s draw comes before the first to-hit roll.
             'rn2(5)', 'rnd(20)',
@@ -1191,7 +1202,7 @@ test('hitum compares the roll with the number find_roll_to_hit returned',
         // uhitm.c:780-781, `mhit = (tmp > dieroll)`. At tmp the roll is not
         // beaten, so this is a miss and Dexterity is not exercised.
         const equal = meleeEnv({ dieroll: tmp });
-        await hitum(target(), uattk, game, equal);
+        await hitumFromDoAttack(target(), uattk, equal);
         assert.deepEqual(equal.lines, ['You miss the lichen.']);
         assert.deepEqual(equal.bounds,
             [`rnd(20)`, 'rn2(3)']);
@@ -1206,7 +1217,7 @@ test('hitum compares the roll with the number find_roll_to_hit returned',
         // with passive().
         const beaten = meleeEnv({ dieroll: tmp - 1 });
         const survivor = target(PM_LICHEN, { mhp: 99, mhpmax: 99 });
-        await hitum(survivor, uattk, game, beaten);
+        await hitumFromDoAttack(survivor, uattk, beaten);
         assert.deepEqual(beaten.bounds, [
             'rnd(20)', 'rn2(19)', 'rnd(6)', 'rn2(3)', 'rn2(6)', 'rn2(25)',
             'rn2(3)',
@@ -1217,8 +1228,8 @@ test('hitum compares the roll with the number find_roll_to_hit returned',
         // and rn2(19) is absent from the sequence below.
         game.u.uswallow = 1;
         const swallowed = meleeEnv({ dieroll: tmp });
-        await hitum(
-            target(PM_LICHEN, { mhp: 99, mhpmax: 99 }), uattk, game, swallowed,
+        await hitumFromDoAttack(
+            target(PM_LICHEN, { mhp: 99, mhpmax: 99 }), uattk, swallowed,
         );
         assert.deepEqual(swallowed.bounds, [
             'rnd(20)', 'rnd(6)', 'rn2(3)', 'rn2(6)', 'rn2(25)', 'rn2(3)',
@@ -1248,7 +1259,7 @@ test('hitum frees a paralyzed target between the to-hit number and the roll',
         // miss against a frozen lichen and the sequence is rn2(10) first.
         const stuck = meleeEnv({ dieroll: frozen });
         const stillFrozen = target(PM_LICHEN, { mcanmove: 0, mfrozen: 4 });
-        await hitum(stillFrozen, uattk, game, stuck);
+        await hitumFromDoAttack(stillFrozen, uattk, stuck);
         assert.deepEqual(stuck.bounds, ['rn2(10)', 'rnd(20)', 'rn2(3)']);
         assert.deepEqual([stillFrozen.mcanmove, stillFrozen.mfrozen], [0, 4]);
 
@@ -1262,7 +1273,7 @@ test('hitum frees a paralyzed target between the to-hit number and the roll',
         const shakenLoose = target(PM_LICHEN, {
             mcanmove: 0, mfrozen: 4, mhp: 99, mhpmax: 99,
         });
-        await hitum(shakenLoose, uattk, game, freed);
+        await hitumFromDoAttack(shakenLoose, uattk, freed);
         assert.deepEqual([shakenLoose.mcanmove, shakenLoose.mfrozen], [1, 0]);
         // rn2(10) frees it, rnd(20) is the roll and rn2(19) is the Dexterity
         // exercise a hit earns; rnd(6) is the spear's damage die and the last

@@ -8,7 +8,9 @@
 // keeps its own name because it also holds zap.c obj_resists().
 
 import {
+    AM_MASK,
     AM_SANCTUM,
+    A_LAWFUL,
     A_CHA,
     A_CON,
     A_DEX,
@@ -73,7 +75,6 @@ import {
     IS_FOUNTAIN,
     IS_FURNITURE,
     IS_ROOM,
-    IS_STWALL,
     isok,
     IS_OBSTRUCTED,
     IS_GRAVE,
@@ -114,6 +115,8 @@ import {
     HALF_PHDAM,
     MM_NOMSG,
     RIGHT_SIDE,
+    TAINT_AGE,
+    Amask2align,
 } from './const.js';
 import { game } from './gstate.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -122,7 +125,12 @@ import { objectGenerationEnv } from './object_generation.js';
 import {
     in_town, losehp, may_dig, nomul, spot_checks, switch_terrain,
 } from './hack.js';
-import { can_reach_floor, cant_reach_floor, u_wipe_engr } from './engrave.js';
+import {
+    can_reach_floor,
+    cant_reach_floor,
+    del_engr_at,
+    u_wipe_engr,
+} from './engrave.js';
 import {
     cmd_from_dir,
     cmdq_add_ec,
@@ -155,7 +163,7 @@ import { cvt_sdoor_to_door } from './detect.js';
 import { feel_newsym, newsym } from './display.js';
 import { verbalize } from './pline.js';
 import { in_rooms } from './rooms.js';
-import { acurr, adjalign } from './attrib.js';
+import { acurr, adjalign, exercise } from './attrib.js';
 import {
     greatest_erosion,
     is_axe,
@@ -166,7 +174,7 @@ import {
     sobj_at,
 } from './obj.js';
 import { cansee, canseemon, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
-import { d, rn1, rn2, rnl, rnd } from './rng.js';
+import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { set_voice } from './sounds.js';
 import {
     Flying, Levitation, conjoined_pits, deltrap, is_lava, is_pool,
@@ -188,12 +196,23 @@ import {
 } from './objnam.js';
 import { altar_wrath, altarmask_at } from './pray.js';
 import { note_unported } from './unported.js';
+import { heroIsBlind } from './startup_a11y.js';
+import { mk_tt_object } from './mkroom.js';
+import { mkclass } from './makemon.js';
+import {
+    PM_ARCHEOLOGIST,
+    PM_SAMURAI,
+    S_MUMMY,
+    S_ZOMBIE,
+} from './monsters.js';
+import { CORPSE } from './objects.js';
 import {
     PM_DWARF, PM_EARTH_ELEMENTAL, PM_ELF, PM_RANGER, PM_XORN,
 } from './monsters.js';
 import { dogushforth, dryup, breaksink } from './fountain.js';
 import { find_drawbridge, is_db_wall, is_drawbridge_wall } from './dbridge.js';
 import { hliquid, mon_nam } from './do_name.js';
+import { align_str } from './insight.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
 // negative multi represents unconsciousness or fainting.
@@ -355,7 +374,7 @@ function resetDigging(digging) {
 export async function dig(state = game, rawEnv = {}) {
     const { u } = state;
     const digging = state.context?.digging;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnl, rnd };
+    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
     const message = rawEnv.message ?? ttyPline;
     const weapon = state.uwep;
     const ispick = Boolean(weapon && is_pick(weapon, state));
@@ -1161,13 +1180,15 @@ export async function furniture_handled(
 
 // C ref: dig.c digactualhole() (640-832). The hero-created pit arm is ported
 // through trap creation, messages, terrain switching and the hero's pit
-// state. Non-hero migration, hole descent, and special furniture aftermath
-// remain source gaps; this void function never fabricates a return value.
+// state. The visible furniture label is captured before maketrap, as in C.
+// Non-hero and hole aftermath, the impossible-trap fallback,
+// pray.c:desecrate_altar, and shk.c:add_damage remain source gaps; this void
+// function never fabricates a return value.
 export async function digactualhole(
     x, y, madeby, trapType, state = game, rawEnv = {},
 ) {
     const message = rawEnv.message ?? ttyPline;
-    const random = rawEnv.random ?? { rn1, rn2 };
+    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
     const madebyU = madeby === state.youmonst;
     if (await furniture_handled(x, y, madebyU, state, rawEnv)) return;
     if (trapType !== PIT || !madebyU || !u_at(x, y, state)) {
@@ -1183,6 +1204,18 @@ export async function digactualhole(
     const surfaceType = IS_FURNITURE(oldType)
         ? (IS_ROOM(oldType) && !Is_earthlevel(state.u.uz) ? 'floor' : 'ground')
         : surface(x, y, state);
+    // C captures this label before maketrap changes the square. The altar
+    // alignment comes from the old altarmask; surface() supplies the same
+    // furniture word used by the source's later fall message.
+    let furniture = '';
+    if (IS_FURNITURE(oldType)) {
+        if (IS_ALTAR(oldType)) {
+            const oldMask = location.altarmask ?? location.flags ?? 0;
+            const alignment = Amask2align(oldMask & AM_MASK);
+            furniture = `${align_str(alignment)} `;
+        }
+        furniture += surface(x, y, state);
+    }
     const oldObjects = state.level.objects?.[x]?.[y] ?? null;
     const trap = maketrap(x, y, trapType, { ...rawEnv, state, random });
     if (!trap) return;
@@ -1199,9 +1232,7 @@ export async function digactualhole(
         ? `You dig an adjacent ${name}.`
         : `You dig a ${name} in the ${surfaceType}.`, state, rawEnv);
     if (IS_FURNITURE(oldType) && cansee(x, y, state)) {
-        await message(IS_STWALL(oldType)
-            ? `The ${surfaceType} crumbles into a pit.`
-            : `A pit appears in the ${surfaceType}.`, state, rawEnv);
+        await message(`The ${furniture} falls into the ${name}!`, state, rawEnv);
     }
 
     if (oldType === ALTAR) {
@@ -1227,6 +1258,130 @@ export async function digactualhole(
     }
 }
 
+// C ref: dig.c dig_up_grave() (1027-1089). This is called after dighole has
+// made a pit on a grave, and keeps the source's exercise, alignment, outcome,
+// and cleanup order.
+async function dig_up_grave(coordinate, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
+    const message = rawEnv.message ?? ttyPline;
+    let x;
+    let y;
+    if (coordinate === null || coordinate === undefined) {
+        x = state.u.ux;
+        y = state.u.uy;
+    } else {
+        x = coordinate.x;
+        y = coordinate.y;
+        if (!isok(x, y)) return;
+    }
+
+    const location = state.level.at(x, y);
+    await exercise(A_WIS, false, state, random);
+    if (state.urole?.mnum === PM_ARCHEOLOGIST) {
+        adjalign(-Math.sign(state.u.ualign.type) * 3, state);
+        await message('You feel like a despicable grave-robber!', state, rawEnv);
+    } else if (state.urole?.mnum === PM_SAMURAI) {
+        adjalign(-Math.sign(state.u.ualign.type), state);
+        await message('You disturb the honorable dead!', state, rawEnv);
+    } else if (state.u.ualign.type === A_LAWFUL) {
+        if (state.u.ualign.record > -10) adjalign(-1, state);
+        await message('You have violated the sanctity of this grave!', state, rawEnv);
+    }
+
+    const hallucinating = Boolean(
+        state.u?.uprops?.[HALLUC]?.intrinsic
+        && !state.u?.uprops?.[HALLUC_RES]?.intrinsic
+        && !state.u?.uprops?.[HALLUC_RES]?.extrinsic,
+    );
+    const whatHappens = location.emptygrave ? -1 : random.rn2(5);
+    switch (whatHappens) {
+    case 0:
+    case 1: {
+        await message('You unearth a corpse.', state, rawEnv);
+        const corpse = mk_tt_object(CORPSE, x, y, { state, random });
+        if (corpse) corpse.age -= TAINT_AGE + 1;
+        break;
+    }
+    case 2: {
+        if (!heroIsBlind(state)) {
+            const surprise = hallucinating
+                ? 'Dude!  The living dead'
+                : "The grave's owner is very upset";
+            await message(`${surprise}!`, state, rawEnv);
+        }
+        const { makemon_runtime } = await import('./makemon_create.js');
+        const { stop_occupation } = await import('./allmain.js');
+        await makemon_runtime(
+            mkclass(S_ZOMBIE, 0, { state, random }),
+            x,
+            y,
+            MM_NOMSG,
+            {
+                ...rawEnv,
+                state,
+                random,
+                message,
+                hooks: {
+                    ...(rawEnv.hooks ?? {}),
+                    // C makemon.c:1504 runs dochugw() for a new monster
+                    // while an occupation is active; it may stop that
+                    // occupation if the monster is a threat.
+                    stopOccupation: rawEnv.hooks?.stopOccupation
+                        ?? ((_monster, hookEnv) => stop_occupation(
+                            hookEnv.state,
+                            { ...hookEnv, message },
+                        )),
+                },
+            },
+        );
+        break;
+    }
+    case 3: {
+        if (!heroIsBlind(state)) {
+            const surprise = hallucinating
+                ? 'I want my mummy'
+                : "You've disturbed a tomb";
+            await message(`${surprise}!`, state, rawEnv);
+        }
+        const { makemon_runtime } = await import('./makemon_create.js');
+        const { stop_occupation } = await import('./allmain.js');
+        await makemon_runtime(
+            mkclass(S_MUMMY, 0, { state, random }),
+            x,
+            y,
+            MM_NOMSG,
+            {
+                ...rawEnv,
+                state,
+                random,
+                message,
+                hooks: {
+                    ...(rawEnv.hooks ?? {}),
+                    // Keep C makemon.c:1504's occupation/monster continuation
+                    // available through the existing runtime hook.
+                    stopOccupation: rawEnv.hooks?.stopOccupation
+                        ?? ((_monster, hookEnv) => stop_occupation(
+                            hookEnv.state,
+                            { ...hookEnv, message },
+                        )),
+                },
+            },
+        );
+        break;
+    }
+    default:
+        await message('The grave is unoccupied.  Strange...', state, rawEnv);
+        break;
+    }
+
+    location.typ = ROOM;
+    location.emptygrave = 0;
+    location.disturbed = 0;
+    del_engr_at(x, y, state);
+    newsym(x, y, state);
+}
+
 // C ref: dig.c dighole() (885-1022). Its Boolean is consumed by dig(), so all
 // exits after coordinate validation converge on C's trailing spot_checks().
 // Calls whose C results are discarded but whose source owners remain absent
@@ -1236,7 +1391,7 @@ export async function dighole(
 ) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
-    const random = rawEnv.random ?? { rn2 };
+    const random = { d, rn1, rn2, rne, rnl, rnd, rnz, ...(rawEnv.random ?? {}) };
     const x = coordinate?.x ?? state.u.ux;
     const y = coordinate?.y ?? state.u.uy;
     if (!isok(x, y)) return false;
@@ -1291,7 +1446,7 @@ export async function dighole(
         delobj(boulder, { ...rawEnv, state });
     } else if (IS_GRAVE(oldType)) {
         await digactualhole(x, y, state.youmonst, PIT, state, rawEnv);
-        note_unported('dig.c dig_up_grave');
+        await dig_up_grave(coordinate, { ...rawEnv, state, random, message });
         retval = true;
     } else if (oldType === DRAWBRIDGE_UP) {
         const liquidType = fillholetyp(x, y, false, state, random);

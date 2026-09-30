@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -13,6 +14,7 @@ import {
     u_calc_moveamt,
 } from '../js/allmain.js';
 import {
+    A_STR,
     A_DEX,
     BURN_OBJECT,
     COULD_SEE,
@@ -53,8 +55,10 @@ import {
     ROOM,
     ROT_CORPSE,
     RUN_STEP,
+    STRANGLED,
     SATIATED,
     SEARCHING,
+    TELEPORT,
     DOOR,
     SLT_ENCUMBER,
     SV0,
@@ -149,6 +153,11 @@ import {
     loadDelayedActionRecipes,
     verifyDelayedActionSegment,
 } from './run-delayed-actions.mjs';
+
+const C_ALLMAIN = readFileSync('nethack-c/upstream/src/allmain.c', 'utf8');
+const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
+const C_ATTRIB = readFileSync('nethack-c/upstream/src/attrib.c', 'utf8');
+const JS_ALLMAIN = readFileSync('js/allmain.js', 'utf8');
 
 function movementState(speed = 12, umovement = 0) {
     const uprops = [];
@@ -2422,6 +2431,87 @@ test('burdened multi-cycle upkeep stops before search and overexertion work',
         }
     });
 
+test('active strangling hands planning off before the timeout and its later RNG',
+    async () => {
+        assert.match(C_ALLMAIN,
+            /if \(Glib\)\s+glibr\(\);\s+nh_timeout\(\);\s+run_regions\(\);/u);
+        assert.match(C_TIMEOUT,
+            /if \(Strangled\)\s+choke_dialogue\(\);/u);
+        assert.match(C_ATTRIB,
+            /AEXE\(i\) \+= \(inc_or_dec\) \? \(rn2\(19\) > ACURR\(i\)\) : -rn2\(2\);/u);
+        assert.match(JS_ALLMAIN,
+            /const liveTimeout = nh_timeout_requires_live_state\(state\);\s+if \(planning && liveTimeout\) return \{ beforeTimeout: true \};/u);
+
+        await runSegment({
+            // This independent bootstrap supplies a human whose map is
+            // irrelevant to timeout ordering; the seed and date only make
+            // initialization repeatable.
+            seed: 2026093003,
+            datetime: '20260930120400',
+            nethackrc: 'OPTIONS=name:StrangledHandoff,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.regions = [];
+        game.head_engr = null;
+        // A burdened hero makes advanceElapsedTurn() run the once-per-turn
+        // plan that calls finishElapsedTurn() before its live replay.
+        game.invent = {
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: weight_cap(game) * 2,
+            nobj: null,
+        };
+        assert.ok(projected_capacity(game) > 0,
+            'the fixture must take the complete elapsed-turn planning path');
+        // do_wear.c sets Strangled to 6 when an amulet starts the effect. This
+        // active count is above one and outside choke_dialogue's five text rows.
+        game.u.uprops[STRANGLED] = {
+            intrinsic: 6,
+            // The amulet countdown is the only active source in this fixture.
+            extrinsic: 0,
+            blocked: 0,
+        };
+        // attrib.c:exercise() draws rn2(2) while |AEXE(A_STR)| is below 50;
+        // zero keeps this independent fixture on that source branch.
+        game.u.aexe[A_STR] = 0;
+        // These far-future deadlines keep capacity feedback and periodic
+        // attribute work from adding unrelated messages or draws in this turn.
+        game.go = { ...(game.go ?? {}), oldcap: near_capacity(game) };
+        game.context.seer_turn = 100000;
+        game.context.next_attrib_check = 100000;
+        // The named unported region callback is a barrier after nh_timeout. If
+        // the dry run misses the strangling handoff, it fails here before live
+        // timeout; the correct handoff reaches it after the live draw.
+        const unsupportedRegion = create_region([{
+            lx: game.u.ux,
+            ly: game.u.uy,
+            hx: game.u.ux,
+            hy: game.u.uy,
+        }]);
+        unsupportedRegion.inside_f = 'unported-region-callback';
+        game.level.regions.push(unsupportedRegion);
+        // No prior movement remains, so moveloop_core() must enter elapsed
+        // upkeep when this consuming command starts.
+        game.u.umovement = 0;
+        game.context.move = 1;
+        const rngBefore = getRngLog().length;
+
+        await assert.rejects(
+            () => moveloop_core(),
+            /unsupported region callback unported-region-callback/u,
+        );
+
+        assert.equal(game.u.uprops[STRANGLED].intrinsic, 5,
+            'live nh_timeout decremented the source countdown once');
+        const calls = getRngLog().slice(rngBefore);
+        assert.equal(calls.filter((entry) => entry.startsWith('rn2(2)')).length, 1,
+            'live choke_dialogue reached exercise(A_STR, FALSE) exactly once');
+    });
+
 // C ref: allmain.c moveloop_core()'s once-per-turn nh_timeout() call.
 // timeout.c:774-776 reaches do.c heal_legs(0) when a WOUNDED_LEGS countdown
 // runs out, and that function writes a line. finishElapsedTurn() hands the
@@ -3879,4 +3969,73 @@ test('a hero the monster scan kills reaches no once-per-turn upkeep',
         assert.equal(game.program_state.in_really_done, false);
         // finishElapsedTurn() would have advanced moves past the death turn.
         assert.equal(game.moves, deathTurn);
+    });
+
+test('moveloop_core checks an active teleport ring before hunger upkeep',
+    async () => {
+        // This admitted v14 C recipe independently wished and wore the ring.
+        // At its last key, C records rn2(85)=48 at allmain.c:308, then
+        // gethungry's rn2(20)=1, then the engraving gate rn2(94)=23. The
+        // nonzero 48 keeps teleport.c:tele out of this check, so the fixture
+        // isolates the missing source-ordered gate without claiming tele.
+        const recipe = JSON.parse(readFileSync(new URL(
+            '../challenges/cases/v14/'
+                + 'wizard-wears-teleportation-ring.recipe.session.json',
+            import.meta.url,
+        ), 'utf8'));
+        const replay = await runSegment(recipe.segments[0]);
+        const log = replay.getRngLog();
+        const hungerIndex = log.lastIndexOf('rn2(20)=1');
+
+        // Three C calls lead into hunger: monster movement, random creation,
+        // and the periodic teleport check.
+        assert.ok(hungerIndex >= 3, 'the source hunger roll was recorded');
+        assert.deepEqual(log.slice(hungerIndex - 3, hungerIndex + 2), [
+            'rn2(12)=9', // mcalcmove(mon.c:1164)
+            'rn2(70)=44', // maybe_generate_rnd_mon(allmain.c:166)
+            'rn2(85)=48', // Teleportation check (allmain.c:308)
+            'rn2(20)=1', // gethungry(eat.c:3191)
+            'rn2(94)=23', // engraving gate (allmain.c:360)
+        ]);
+    });
+
+test('invulnerability suppresses the periodic teleport chance draw',
+    async () => {
+        // This fresh Healer start uses a fixed seed/date only to initialize a
+        // valid game. The test then constructs C's u.uinvulnerable and active
+        // intrinsic Teleportation preconditions directly; no random outcome
+        // from this startup is part of the assertion.
+        await runSegment(firstTurnInput({
+            seed: 2026093001,
+            datetime: '20260930120000',
+            name: 'InvulnerableTeleportGuard',
+            role: 'Healer',
+            race: 'human',
+            gender: 'female',
+            align: 'neutral',
+            command: '',
+        }));
+        clearTtyMessageWindow(game);
+        game.u.uinvulnerable = true;
+        game.u.uprops[TELEPORT] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+
+        const bounds = [];
+        await finishElapsedTurn(game, {
+            rn1,
+            rn2(bound) {
+                bounds.push(bound);
+                return rn2(bound);
+            },
+            rnd,
+        });
+
+        assert.equal(
+            bounds.includes(85),
+            false,
+            'allmain.c:308 suppresses rn2(85) while invulnerable',
+        );
     });

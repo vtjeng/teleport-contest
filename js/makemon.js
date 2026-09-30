@@ -47,8 +47,8 @@ import {
     discard_minvent,
     makemon,
     makemon_runtime,
-    mongone,
 } from './makemon_create.js';
+import { mongone } from './mon.js';
 import { newemin } from './minion.js';
 import {
     always_hostile,

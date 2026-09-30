@@ -63,10 +63,10 @@ import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { dist2, highc } from './hacklib.js';
 import { record_achievement } from './insight.js';
-import { makemon, mongets, mongone } from './makemon_create.js';
+import { makemon, mongets } from './makemon_create.js';
 import { set_malign } from './makemon.js';
 import { m_next2u } from './mhitu.js';
-import { mon_allowflags } from './mon.js';
+import { mon_allowflags, mongone } from './mon.js';
 import {
     amphibious,
     is_flyer,

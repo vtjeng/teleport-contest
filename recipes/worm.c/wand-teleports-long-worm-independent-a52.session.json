@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent teleport.c:rloc_to_core -> worm.c:remove_worm entry. A debug-created adjacent long worm is hit with a wished wand of teleportation; seed 71029568 was chosen to place its head east of the hero so the zap reaches that worm.",
+  "segments": [
+    {
+      "seed": 71029568,
+      "datetime": "20420506070809",
+      "nethackrc": "OPTIONS=name:A52WormTeleport,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "  .\u0007long worm\n\u0017wand of teleportation\nzpl"
+    }
+  ]
+}

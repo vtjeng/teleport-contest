@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6107133,
+      "datetime": "20330518091123",
+      "nethackrc": "OPTIONS=name:CorpsePathB61,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nunlocked large box\ndo#wizwish\nnewt corpse\ndp,a\n#loot\nsp#loot\noa\n",
+      "comment": "Independent safe-corpse path. The comma pickup executes pickup.c:pickup_object -> fatal_corpse_mistake; #loot then exercises in_container and out_container, which call the same helper directly. This does not cover the blocked cockatrice terminal path."
+    }
+  ]
+}

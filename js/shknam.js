@@ -33,8 +33,8 @@ import {
     makemon,
     mkmonmoney,
     mongets,
-    mongone,
 } from './makemon_create.js';
+import { mongone } from './mon.js';
 import { mkclass, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
 import { NON_PM, PM_LICHEN, PM_SHOPKEEPER, S_MIMIC } from './monsters.js';

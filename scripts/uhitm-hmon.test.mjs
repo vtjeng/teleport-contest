@@ -188,6 +188,13 @@ function target(pmidx = PM_LICHEN, overrides = {}) {
     });
 }
 
+// known_hitum() consumes C's global gb.bhitpos, which its attack caller has
+// already set. Direct unit calls supply that caller-owned coordinate here.
+function setKnownHitPosition(mon) {
+    game.gb ??= {};
+    game.gb.bhitpos = { x: mon.mx, y: mon.my };
+}
+
 // `rolls` supplies each random-number call in order, so a test can put the
 // damage die and the knockback pair exactly where it wants them; anything past
 // the end of the list falls back to `fallback`.
@@ -990,6 +997,7 @@ test('known_hitum counts the weapon conduct and downgrades a no-damage hit',
         const mhit = { value: true };
         const env = hitEnv({ rolls: [2, 1, 1, 24] });
         const mon = target();
+        setKnownHitPosition(mon);
         const alive = await known_hitum(
             mon, game.uwep, mhit, 15, 0, game.youmonst.data.mattk[0], 10,
             game, env,
@@ -1015,6 +1023,7 @@ test('known_hitum counts the weapon conduct and downgrades a no-damage hit',
         const kept = { value: true };
         const blunted = hitEnv({ rolls: [-4], fallback: 24 });
         const unhurt = target();
+        setKnownHitPosition(unhurt);
         await known_hitum(
             unhurt, game.uwep, kept, 15, 0, game.youmonst.data.mattk[0], 10,
             game, blunted,
@@ -1044,6 +1053,7 @@ test('known_hitum uses source-ordered survivor morale and flight state', async (
     // the source morale rn2(25), duration-choice rn2(3), and rnd(100) draws.
     const nervous = target(PM_LICHEN, { mhp: 10, mhpmax: 99 });
     game.u.ustuck = nervous;
+    setKnownHitPosition(nervous);
     const flight = hitEnv({
         rolls: [3, 1, 1, 0, 0, 37],
         canSeeMonster: () => false,
@@ -1065,6 +1075,7 @@ test('known_hitum uses source-ordered survivor morale and flight state', async (
     const healthy = { value: true };
     const stout = target();
     const noFlight = hitEnv({ rolls: [3, 1, 1, 0, 0] });
+    setKnownHitPosition(stout);
     await known_hitum(stout, game.uwep, healthy, 15, 0,
                       game.youmonst.data.mattk[0], 10, game,
                       noFlight);
@@ -1077,6 +1088,7 @@ test('known_hitum uses source-ordered survivor morale and flight state', async (
     const halved = { value: true };
     const even = target(PM_LICHEN, { mhp: 12, mhpmax: 20 });
     const boundary = hitEnv({ rolls: [2, 1, 1, 0, 0] });
+    setKnownHitPosition(even);
     await known_hitum(even, game.uwep, halved, 15, 0,
                       game.youmonst.data.mattk[0], 10, game,
                       boundary);
@@ -1100,6 +1112,7 @@ test('known_hitum records the discarded Vrock gas callback gap', async () => {
         rolls: [3, 1, 1, 0, 0, 37],
         canSeeMonster: () => false,
     });
+    setKnownHitPosition(vrock);
     await known_hitum(
         vrock, game.uwep, { value: true }, 15, 0,
         game.youmonst.data.mattk[0], 10, game, env,

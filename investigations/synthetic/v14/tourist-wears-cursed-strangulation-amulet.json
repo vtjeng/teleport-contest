@@ -1,0 +1,105 @@
+{
+  "session": "synthetic/v14/tourist-wears-cursed-strangulation-amulet",
+  "corpus": "synthetic",
+  "batch": "v14",
+  "caseId": "tourist-wears-cursed-strangulation-amulet",
+  "manifestPath": "challenges/manifests/v14.json",
+  "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+  "recordingSha256": "f525cf70007b4897168b46c951c44b89b833a0c785caf0e303a19a539f2d32bc",
+  "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+  "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+  "remainingScreens": 0,
+  "recordedSteps": 45,
+  "status": "complete",
+  "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v14",
+    "caseId": "tourist-wears-cursed-strangulation-amulet",
+    "session": "synthetic/v14/tourist-wears-cursed-strangulation-amulet",
+    "manifestPath": "challenges/manifests/v14.json",
+    "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+    "recording": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json",
+    "recordingPath": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json",
+    "recordingSha256": "f525cf70007b4897168b46c951c44b89b833a0c785caf0e303a19a539f2d32bc",
+    "recipe": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.recipe.session.json",
+    "recipeSha256": "ef23cde87ea558ea034c970f1da538cb76c2b2324392bd7eb6ff8e816ce5e314",
+    "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+    "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+    "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+    "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+    "evaluationUtc": "2026-09-29T22:55:51.622Z",
+    "remainingScreens": 0,
+    "recordedSteps": 45,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 45,
+        "total": 45
+      },
+      "rng": {
+        "matched": 2586,
+        "total": 2591
+      },
+      "cursors": {
+        "matched": 45,
+        "total": 45
+      }
+    },
+    "firstMismatch": {
+      "screen": null,
+      "rng": {
+        "index": 2586,
+        "cEntry": "rn2(2)=1",
+        "cCaller": "exercise(attrib.c:509)",
+        "jsEntry": "rn2(400)=167",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 44,
+          "key": " "
+        },
+        "stepIndex": 44
+      },
+      "cursor": null
+    },
+    "step": 44,
+    "kind": "rng",
+    "sourceFile": "attrib.c",
+    "function": "exercise",
+    "message": null,
+    "cFile": "attrib.c",
+    "luaFile": null,
+    "line": 509
+  },
+  "summary": "The queue attributes the first RNG mismatch to attrib.c:exercise(), but that helper is already ported with the matching A_STR decrease draw. The C caller reached on step 44 is timeout.c:choke_dialogue(): after Amulet_on sets Strangled to 6 on step 43, nh_timeout() enters choke_dialogue(), whose i=6 value skips both dialogue arrays and unconditionally calls exercise(A_STR, FALSE). Frozen JS nh_timeout() records note_unported(\"timeout.c choke_dialogue\") at this point, so it skips the rn2(2) draw and AEXE[STR] decrement; later dosounds consumes the next random value instead. The whole choke_dialogue() function, including its five-step message branches and caller wiring, is missing and is a file-port in timeout.c.",
+  "source": {
+    "file": "timeout.c",
+    "branch": "Port the whole static choke_dialogue() function and its two file-local message arrays (278-314). It reads the Strangled timeout; when it is 1 through 5 it selects alternate or ordinary choking text, conditionally draws rn2(50), may stop occupation, and then always calls exercise(A_STR, FALSE). On this assigned path Amulet_on has just set Strangled to 6, so the i > 0 && i <= SIZE(choke_texts) branch is skipped; the unconditional strength exercise still draws rn2(2) and updates AEXE(STR). The frozen nh_timeout() callsite currently notes timeout.c choke_dialogue as unported, so the missing source unit requires both the helper and wiring from that callsite.",
+    "functions": [
+      "choke_dialogue"
+    ],
+    "callers": [
+      "C direct caller: timeout.c:nh_timeout() (629-630) calls choke_dialogue() whenever Strangled is nonzero. Frozen JS js/timeout.js:nh_timeout() (899-900) instead records note_unported(\"timeout.c choke_dialogue\") for the live strangled state; replace this gap with the complete helper call.",
+      "C turn caller: allmain.c:moveloop_core() (270-274) invokes nh_timeout() during the elapsed-turn sequence. Frozen JS js/allmain.js:advanceElapsedTurn() (892-905) awaits nh_timeout() after turn resolution, which is the production path reached by the assigned space key.",
+      "Assigned setup path: do_wear.c:Amulet_on() (1036-1045), reached through accessory_or_armor_on(), identifies the newly worn strangulation amulet, sets Strangled=6, and prints the constriction message. Frozen JS js/do_wear.js:Amulet_on() (1001-1011) mirrors this setup, then the next elapsed turn reaches nh_timeout()."
+    ],
+    "dependencies": [
+      "attrib.c:exercise() (489-518) is already implemented in frozen js/attrib.js:exercise() (977-993). For this call, exercise(A_STR, FALSE) uses rn2(2), updates the Strength exercise accumulator, and after moves > 0 reaches C encumber_msg(); the JS exercise API therefore needs its encumberMessage hook. Frozen js/timeout.js already imports exercise and encumber_msg.",
+      "The C-only static arrays choke_texts and choke_texts2 (timeout.c:278-292) supply all five countdown messages. The assigned Strangled=6 state bypasses these arrays, but the complete source port must retain their i=1..5 behavior.",
+      "timeout.c:choke_dialogue() may call urgent_pline(), body_part(NECK), hcolor(NH_BLUE), and stop_occupation() in its in-range dialogue branches. Frozen timeout.js already imports ttyUrgentPline/urgent message support, body_part, hcolor, and stop_occupation; the assigned i=6 path does not enter those branches.",
+      "The first draw is setup, not the defect: do_wear.c:Amulet_on() calls makeknown(), which expands to discover_object(..., TRUE, TRUE, TRUE); o_init.c:discover_object() (454-484) calls exercise(A_WIS, TRUE) at 483. Frozen js/do_wear.js calls discover_object(), whose frozen js/o_init.js implementation invokes exercise_nonphysical(A_WIS, true) at 469. The saved trace shows matching rn2(19)=6 at step 43 before the later missing choke_dialogue draw."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved queue entry reports 45/45 screens and cursors, but 2586/2591 random calls; its first mismatch at step 44 is C rn2(2)=1 @ exercise(attrib.c:509) against JS rn2(400)=167 from dosounds. The assigned scan .cache/synthetic-scans/v14/tourist-wears-cursed-strangulation-amulet.json confirms 45 screens emitted, 45 recorded steps, and unported timeout.c choke_dialogue.",
+    "The immutable manifest challenges/manifests/v14.json traces do_wear.c:Amulet_on -> attrib.c:exercise and records the C call sequence: rn2(19)=6 at step 43, then rn2(2)=1 at step 44. The recording challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json confirms step 43 wears the amulet and displays the strangulation status; step 44 advances the turn and has the rn2(2) exercise draw.",
+    "C nethack-c/upstream/src/do_wear.c:1036-1045 calls makeknown(), sets Strangled=6, and reports “It constricts your throat!”; C nethack-c/upstream/src/o_init.c:454-484 shows that makeknown() credits Wisdom through exercise(A_WIS, TRUE). This explains the preceding rn2(19) draw, which frozen JS also performs through discover_object() and exercise_nonphysical().",
+    "The actual missing source owner is nethack-c/upstream/src/timeout.c:choke_dialogue() (278-314), not attrib.c:exercise(). At assigned step 44, i=(Strangled & TIMEOUT)=6, larger than the five text rows, so the dialogue/rn2(50)/stop-occupation branch is skipped and the unconditional exercise(A_STR, FALSE) at line 313 consumes rn2(2). nethack-c/upstream/src/timeout.c:nh_timeout() calls it at 629-630.",
+    "Frozen examined JS at 3212f9f07c3fdf3f00c5c204885f51834f0b6448 already ports attrib.c:exercise() in js/attrib.js. Frozen js/timeout.js:nh_timeout() instead skips the helper at 899-900 with note_unported(\"timeout.c choke_dialogue\"); the next JS draw is dosounds rn2(400), explaining the queue mismatch without attributing it to a defect in exercise().",
+    "Production reachability is allmain.c:moveloop_core() -> timeout.c:nh_timeout() -> timeout.c:choke_dialogue(); the assigned recording reaches it after the cursed amulet is put on and the following turn advances. It currently matches every screen/cursor but not RNG; after the whole helper is ported and the gap wired, this case can provide runtime evidence for the i=6 branch through zero-based segment 0, step 44. The i=1..5 dialogue branches remain unexercised."
+  ]
+}

@@ -119158,6 +119158,3006 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-worm-cut-segment-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port worm segment cutting, shrinkage, and splitting",
+      "cFile": "worm.c",
+      "sessions": [
+        "synthetic/v13/thrown-dagger-cuts-long-worm-segment"
+      ],
+      "selectionReason": "The current v13 thrown-dagger case reaches worm.c:cutworm at step 41 with 42 matching screens and a remaining RNG gap. Its complete investigation traces the missing whole function and required worm/trap helpers. Port the complete cutworm definition, canonical source helpers, and production callers; retain unrelated mon.c partial branches as recorded gaps.",
+      "detail": "cutworm consumes rnd(20) before the no-cut return, then handles first-segment shrinkage, tail splitting, clone_mon failure or success, HP dice, occupancy, growth clock, and messages in C order. Supporting helper and caller coverage is enumerated in corrected immutable A52 packet 24429da8; the known out-of-sight multi-tail display defect remains separately blocked.",
+      "openedAt": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+      "openStanding": {
+        "sha": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "cutworm",
+          "line": 373,
+          "endLine": 486,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 373,
+        "to": 486
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/thrown-dagger-cuts-long-worm-segment": {
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "evaluationPath": "challenges/evaluations/20260929223311-v13.json",
+          "evaluationCommit": "b55fe3125b08dfa7eb4feaeb437a897fc7c8808c"
+        }
+      },
+      "activeStanding": {
+        "sha": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "thrown-dagger-cuts-long-worm-segment",
+          "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+          "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+          "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+          "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+          "replayInputSha256": "4b50228065e342fe4ab0394d53c18ad7c6413eefe451ee8d8879bc04f133df57",
+          "evaluationPath": "challenges/evaluations/20260929223311-v13.json",
+          "evaluationCommit": "b55fe3125b08dfa7eb4feaeb437a897fc7c8808c",
+          "evaluationArtifact": "challenges/evaluations/20260929223311-v13.json",
+          "evaluationUtc": "2026-09-29T22:33:31.095Z",
+          "remainingScreens": 0,
+          "recordedSteps": 42,
+          "previousScreensMatched": 42,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 42,
+              "total": 42
+            },
+            "rng": {
+              "matched": 3819,
+              "total": 3826
+            },
+            "cursors": {
+              "matched": 42,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 3813,
+              "cEntry": "rnd(20)=15",
+              "cCaller": "cutworm(worm.c:388)",
+              "jsEntry": "rn2(19)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 41,
+                "key": "j"
+              },
+              "stepIndex": 41
+            },
+            "cursor": null
+          },
+          "step": 41,
+          "kind": "rng",
+          "sourceFile": "worm.c",
+          "function": "cutworm",
+          "message": null,
+          "cFile": "worm.c",
+          "luaFile": null,
+          "line": 388,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/thrown-dagger-cuts-long-worm-segment.json",
+            "result": {
+              "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "thrown-dagger-cuts-long-worm-segment",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+              "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+              "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+              "remainingScreens": 0,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "session": "synthetic/v13/thrown-dagger-cuts-long-worm-segment",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingPath": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.session.json",
+                "recordingSha256": "8e4169be406df58cf1e91ec04f7b1aeb1fc9cb9032ecf100977496d594065df2",
+                "recipe": "challenges/cases/v13/thrown-dagger-cuts-long-worm-segment.recipe.session.json",
+                "recipeSha256": "5d62dba93db14a8d8851ff836628ad89dc852aef52baefe149f03c40ea44bdd8",
+                "replayInputSha256": "3cfc883da64f56b3faccd4e650d2d5b13852052d3c4d6dc55ed062e4fa7b83e1",
+                "evaluationPath": "challenges/evaluations/20260929201745-v13.json",
+                "evaluationCommit": "f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6",
+                "evaluationArtifact": "challenges/evaluations/20260929201745-v13.json",
+                "evaluationUtc": "2026-09-29T20:18:19.894Z",
+                "remainingScreens": 0,
+                "recordedSteps": 42,
+                "previousScreensMatched": 19,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 42,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 3819,
+                    "total": 3826
+                  },
+                  "cursors": {
+                    "matched": 42,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 3813,
+                    "cEntry": "rnd(20)=15",
+                    "cCaller": "cutworm(worm.c:388)",
+                    "jsEntry": "rn2(19)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 41,
+                      "key": "j"
+                    },
+                    "stepIndex": 41
+                  },
+                  "cursor": null
+                },
+                "step": 41,
+                "kind": "rng",
+                "sourceFile": "worm.c",
+                "function": "cutworm",
+                "message": null,
+                "cFile": "worm.c",
+                "luaFile": null,
+                "line": 388
+              },
+              "summary": "The worm-tail display now matches all 42 recorded screens and cursor positions. At segment 0 step 41, dothrow.c:thitmonst hits a live long-worm segment and calls worm.c:cutworm. C draws rnd(20)=15 before its no-cut return; JavaScript skips the call with note_unported, so the RNG log diverges. Port cutworm and its required tail-state helpers, then wire its production callers.",
+              "source": {
+                "file": "worm.c",
+                "functions": [
+                  "cutworm"
+                ],
+                "branch": "A thrown weapon hits a living monster with wormno at a tail square rather than its head. thitmonst preserves chopper=is_axe before hmon; for this dagger it is false. cutworm draws rnd(20), then returns when cut_chance<17. Other source branches shrink or split the tail and must be implemented with their required helpers.",
+                "callers": [
+                  "C dothrow.c:thitmonst lines 2195-2207 calls cutworm after hmon reports the monster alive. JS js/dothrow.js:thitmonst lines 2919-2920 records the missing call instead.",
+                  "C uhitm.c:known_hitum lines 599-642 remembers the weapon cutting property and calls cutworm after a successful hit; wire that direct caller in the same source task."
+                ],
+                "dependencies": [
+                  "worm.c tail-number, segment-list, removal, shrinking, split placement, and clone_mon dependencies; preserve C state and random draw order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/20260929201745-v13.json at f4a7ca9e7a5d1559bf6d961caecf8f0b96aaddc6 reports 42/42 screens, 42/42 cursors, and 3819/3826 positional RNG matches for the unchanged recording. The current diagnostic first RNG mismatch is index 3813, segment 0 step 41: C rnd(20)=15 from cutworm(worm.c:388), JS rn2(19)=6. No runner error remains.",
+                "Upstream worm.c:373-475 cutworm rejects an absent worm number or a head hit before rnd(20); a cutting weapon adds 10, then cut_chance<17 returns. Later branches shrink the last segment or split the chain, call get_wormno/clone_mon/place_wsegs, adjust levels and HP, and emit the source messages. Port the whole function and required helpers rather than injecting the observed random draw.",
+                "A51 ported display.c:display_monster and wired newsym and feel_location; its independent recordings cover both callers. The earlier step-19 tail glyph mismatch is resolved, and the admitted v13 prefix through step 40 matches. Keep cutworm as a separate source task; the present RNG gap is not evidence of a remaining tail-glyph defect."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cutworm",
+            "implementation": "js/worm.js",
+            "symbol": "cutworm",
+            "sourceReview": "Compared the complete selected worm.c:cutworm definition (373-486), including early returns, rnd(20) before the cut threshold, cuttier adjustment, list search, first-segment shrink, clone slot selection, consumed clone_mon result, coordinate restoration on clone failure, both message branches, toss/redraw order, HP changes, and growtime initialization for a successful split. JS awaits clone_mon because its return chooses the source split branch. Removed the stale cut refusal at both active callers.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst (2207)"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "known_hitum",
+                "source": "uhitm.c:known_hitum (642)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/worm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worm.c/melee-long-worm-tail-independent-a52.session.json",
+              "recordings/worm.c/cuttier-tail-shrink-independent-a52.session.json",
+              "recordings/worm.c/middle-segment-split-independent-a52.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "makemon.c:makemon -> display.c:newsym creates the long worm; dothrow.c:thitmonst calls worm.c:cutworm for the thrown dagger hit"
+              }
+            ],
+            "checkedAt": "0c7fd069e4d1deddafd26b6dc7cd0910b0e3552a"
+          }
+        ],
+        "entryPointReview": "The selected source unit is the complete worm.c:cutworm definition (373-486), the sole function in task-context.functions. The task also ports supporting whole definitions in noncontiguous C positions: worm.c:get_wormno (96-119), initworm (120-145), toss_wsegs (146-174), shrink_worm (175-195), wormgone (308-343), place_wsegs (615-638), remove_worm (714-737), place_worm_tail_randomly (738-802), count_wsegs (836-851), create_worm_tail (852-882), worm_known (883-897), and wseg_at (946-967); and trap.c:rnd_nextto_goodpos (4947-4975). These are individually complete definitions, not one contiguous range. Pure helper behavior is pinned in scripts/worm.test.mjs and scripts/whatis-command.test.mjs.\n\nThe two active cutworm entry points are both exercised: dothrow.c:thitmonst calls worm.c:cutworm for a thrown weapon, matched by v13/thrown-dagger-cuts-long-worm-segment segment 0 steps 0-41. uhitm.c:known_hitum calls cutworm for melee, matched by recordings/worm.c/melee-long-worm-tail-independent-a52.session.json; the independent cuttier recipe exercises shrink_worm/toss_wsegs, and the middle-segment recipe exercises the split/place_wsegs path. The v13 trace reaches cutworm's rnd(20) no-cut branch at step 41; it does not claim a shrink or split.\n\nAdditional active caller paths have matching C recordings: apply.c:doapply -> insight.c:mstatusline -> count_wsegs/wseg_at (visible one-tail stethoscope witness); zap.c:probe_monster -> count_wsegs (wand probe); zap.c:weffects -> teleport.c:rloc_to_core -> remove_worm/place_worm_tail_randomly (wand teleport); read.c:do_class_genocide -> mon.c:mongone -> m_detach -> wormgone/toss_wsegs (genocide); and trap.c:drown -> rnd_nextto_goodpos (hero crawl). Each cited recording matched all RNG values, screens, and cursors. The visible-tail status witness establishes live worm creation and count display; the separate multi-tail out-of-sight recipe remains blocked by the known display.c:newsym visibility predicate defect, so it is not passing evidence.\n\nThe following active supporting callers are wired but lack an independent matching runtime recording in this delivery: mon.c:newcham worm creation/replacement; mon.c:replmon placement; mon.c:mon_leaving_level removal; mhitm.c:mdisplacem remove/place during monster displacement; mkmaze.c:movebubbles removal; mon.c:mm_displacement count; and trap.c:trapeffect_pit, trapeffect_hole, and trapeffect_web count branches. worm_known's canseemon and monkilled caller paths have source-pinned pure-function coverage but no separate caller recording. Do not treat those entry points as replay-verified.\n\nThe relocation-related mongone change remains explicitly partial: source-ordered ordinary object resistance calls in steal.c:mdrop_special_objs are preserved, unstuck is wired in C order, and the grddead guard plus protected/quest transfer branch remain recorded gaps because completing them needs the separate vault/awaited drop lifecycle. This delivery does not claim whole mongone completion. The existing hidden-monster rloc preflight remains in place. The synchronous m_detach path preserves thrown dependency failures and tests both ordinary synchronous completion and awaited due_to_death behavior.\n\nSequencing provenance: implementation preparations preceded the explicit A52 context steering. They were preserved to a scratch patch, the worktree paths were restored to the assigned base, the source-ordered A52 context was written, and the preparations were reapplied. Later read-genocide, probing, and trap-recording edits followed their atomic ledger scope expansions.\n\nPost-integration correction: the newcham worm arm now calls wormgone directly before re-placing the head, matching mon.c:newcham and worm.c:wormgone. scripts/mon.test.mjs source-pins that order and observes wormno already cleared during the tail redraw, with the worm slot and growth clock still present until toss completion. The test also asserts the explicit sewer-rat morph random sequence from mon.c:mgender_from_permonst and makemon.c:newmonhp. This direct unit witness is not a matching production recording; mon.c:newcham remains an unverified active entry point. Direct known_hitum/hitum tests now supply the caller-owned gb.bhitpos from uhitm.c:do_attack, including each current aimed square in the off-target second-swing cases.\n\nThe trap.c:trapeffect_hole caller now passes its supplied state to count_wsegs, consistent with the other selected trap callers. scripts/trap.test.mjs proves the live singleton has four tails while the planning clone has six, and invokes the active selector with source-pinned dispatch. To expose that conjunct, it lowers only a copied long-worm msize below MZ_HUGE. The real C long worm is already at least MZ_HUGE, so the later size arm independently blocks falling; this expression-level fixture does not show a valid-input production divergence and does not count as trap entry-point replay evidence.\n\nCorrection limit: the independent C-only recipe at recipes/read.c/wizard-genocide-removes-swallowed-holder-blocked-a52.session.json reaches mon.c:unstuck, records rnd(2) after redraw, and removes the swallowed holder with wizard genocide. The matching JavaScript attempt stops before C step 60 because C next calls monmove.c:distfleeck (538), rn2(5)=2, while JS has no corresponding movement call; see .cache/A52-swallowed-c-recording.json and the exact diff-fresh log in task context. This blocked branch is not replay-verified. Existing matching genocide recordings prove only ordinary/pet or worm removal. The A52 correction keeps apply.c:m_unleash, protected/quest steal.c:mdrop_special_objs transfer branches, and the vault.c:grddead return guard as named gaps.",
+        "entryPoints": [
+          {
+            "name": "thrown weapon hits a worm segment",
+            "functions": [
+              "cutworm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "thrown-dagger-cuts-long-worm-segment",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 41,
+                "source": "makemon.c:makemon -> dothrow.c:thitmonst -> worm.c:cutworm (rnd(20) no-cut branch at step 41)"
+              }
+            ]
+          },
+          {
+            "name": "melee hits a worm segment",
+            "functions": [
+              "cutworm"
+            ],
+            "recordings": [
+              "recordings/worm.c/melee-long-worm-tail-independent-a52.session.json",
+              "recordings/worm.c/cuttier-tail-shrink-independent-a52.session.json",
+              "recordings/worm.c/middle-segment-split-independent-a52.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cutting a worm tail shrinks the worm",
+            "functions": [
+              "cutworm"
+            ],
+            "recordings": [
+              "recordings/worm.c/cuttier-tail-shrink-independent-a52.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "cutting a middle segment splits a worm",
+            "functions": [
+              "cutworm"
+            ],
+            "recordings": [
+              "recordings/worm.c/middle-segment-split-independent-a52.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-mkobj-hornoplenty-discovery-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port horn-of-plenty generation, discovery, and tipping",
+      "cFile": "mkobj.c",
+      "sessions": [
+        "synthetic/v13/horn-of-plenty-generates-food"
+      ],
+      "selectionReason": "Integrate queued C50 whole mkobj.c:hornoplenty port and its apply/tipcontainer callers from immutable delivery de22a56f. Current admitted v13 horn-of-plenty-generates-food remains at the source-traced missing discovery tail recorded in investigations/synthetic/v13/horn-of-plenty-generates-food.json. The queue annotates attrib.c:exercise, but mkobj.c:hornoplenty owns the omitted makeknown call. Current v13 evaluation is challenges/evaluations/20260930014026-v13.json; frozen manifest digest ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d and recording digest acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2 remain unchanged. Three independent C recordings establish apply, floor-tip, and container-tip entry points.",
+      "detail": "",
+      "openedAt": "d6b99f235b50441fffd7905d28089be8951c1a46",
+      "openStanding": {
+        "sha": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "hornoplenty",
+          "line": 2847,
+          "endLine": 2948,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2847,
+        "to": 2948
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/horn-of-plenty-generates-food": {
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "evaluationPath": "challenges/evaluations/20260930014026-v13.json",
+          "evaluationCommit": "bdd594d88c4001a3d70c51b086bcf718ace62d36"
+        }
+      },
+      "activeStanding": {
+        "sha": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+          "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+          "replayInputSha256": "6551568a13d4286cb4a2a223987a35e56bb6b38b173c5c8d46bb5f4691e76a43",
+          "evaluationPath": "challenges/evaluations/20260930014026-v13.json",
+          "evaluationCommit": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+          "evaluationArtifact": "challenges/evaluations/20260930014026-v13.json",
+          "evaluationUtc": "2026-09-30T01:40:54.892Z",
+          "remainingScreens": 0,
+          "recordedSteps": 29,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 29
+            },
+            "rng": {
+              "matched": 4198,
+              "total": 4203
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 4197,
+              "cEntry": "rn2(19)=18",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(12)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": "n"
+              },
+              "stepIndex": 28
+            },
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/horn-of-plenty-generates-food.json",
+            "result": {
+              "session": "synthetic/v13/horn-of-plenty-generates-food",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "horn-of-plenty-generates-food",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+              "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+              "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+              "remainingScreens": 0,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "horn-of-plenty-generates-food",
+                "session": "synthetic/v13/horn-of-plenty-generates-food",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+                "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+                "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+                "replayInputSha256": "085e483fa652fbcf7255226f83527b8bc127d9519929e9fd5dec2924d5070674",
+                "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+                "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+                "evaluationArtifact": "challenges/evaluations/20260929214754-v13.json",
+                "evaluationUtc": "2026-09-29T21:48:15.376Z",
+                "remainingScreens": 0,
+                "recordedSteps": 29,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 4198,
+                    "total": 4203
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 4197,
+                    "cEntry": "rn2(19)=18",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(12)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 28,
+                      "key": "n"
+                    },
+                    "stepIndex": 28
+                  },
+                  "cursor": null
+                },
+                "step": 28,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The applied horn now completes its inventory callback and matches all 29 screens and cursors. Its next RNG mismatch is the omitted makeknown call at the end of mkobj.c:hornoplenty: JavaScript records a discover_object gap even though js/o_init.js implements that callee. The sighted-horn path must update discovery state and exercise wisdom in source order.",
+              "source": {
+                "file": "mkobj.c",
+                "functions": [
+                  "hornoplenty"
+                ],
+                "branch": "After a charged horn has generated and placed an object, hornoplenty decrements iflags.suppress_price and, when horn->dknown is true, calls makeknown(HORN_OF_PLENTY). The macro invokes discover_object(HORN_OF_PLENTY, TRUE, TRUE, TRUE); when the type is newly known, discover_object updates disco and object knowledge, exercises A_WIS, and updates inventory during live play.",
+                "callers": [
+                  "apply.c:doapply(HORN_OF_PLENTY) -> mkobj.c:hornoplenty; the live JavaScript route is js/apply.js -> js/obj.js:hornoplenty.",
+                  "mkobj.c:hornoplenty -> o_init.c:discover_object via makeknown; js/obj.js still skips this call with note_unported."
+                ],
+                "dependencies": [
+                  "js/o_init.js:discover_object already implements knowledge changes, exercise_nonphysical(A_WIS, true), and live update_inventory. Verify its real environment and caller prerequisites before wiring it.",
+                  "The selected missing branch belongs to a whole hornoplenty source port; the floor-placement Doname2 message remains a separate missing branch in the same function.",
+                  "The resolved inventory path retains the encumber_msg callback in js/obj.js. Do not undo its source-order behavior or treat the blind recording as evidence for sighted discovery."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "At 2f36445470f66c6ebc8234436abf21f324c0b46f, challenges/evaluations/20260929214754-v13.json reports 29/29 screens and cursors, 4198/4203 matching RNG calls, and no runtime error. The case is still not a complete match.",
+                "Fresh diagnostic .cache/B58-horn-diagnostic.json places the first RNG divergence at segment 0, zero-based step 28, key n, RNG index 4197: C rn2(19)=18 from exercise(attrib.c:509), versus JavaScript rn2(12)=3. Its only recorded gap is o_init.c discover_object.",
+                "Upstream mkobj.c:hornoplenty (2847–2936), at 2933–2934, calls makeknown after placement and suppress_price restoration when horn->dknown is true. o_init.c:discover_object (454–496) calls exercise(A_WIS, TRUE) at 483; attrib.c:exercise uses rn2(19) at 509.",
+                "js/obj.js:hornoplenty still records note_unported for this call at its final dknown branch. js/o_init.js:discover_object (417 onward) already implements this callee; the missing source branch is in the horn caller.",
+                "B58 resolved the preceding missing encumberMessage callback. Its independent blindfolded Valkyrie recording under recordings/mkobj.c/hornoplenty-applied-inventory-b58.session.json matches all 48 screens/cursors and 3250 RNG calls; blindness leaves dknown false, so this witness does not cover makeknown.",
+                "The earlier v13 manifest labels hold_another_object as pickup.c, but its actual source owner is invent.c (1208–1311), with update_inventory followed by pickup.c:encumber_msg. This source-file correction does not alter the frozen recording."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hornoplenty",
+            "implementation": "js/mkobj_hornoplenty.js",
+            "symbol": "hornoplenty",
+            "sourceReview": "Read and translated the complete mkobj.c:2847-2936 body. Preserved the invalid-object diagnostic-only arm; the empty-charge message, cknown update and inventory refresh; charged use and its ordering before rn2(13); potion generation, magic-potion reroll until not POT_SICKNESS, POT_OIL fixup, food generation, ration-to-royal-jelly rn2(7), BUC copying and weight calculation; unpaid billing; suppress_price lifetime; carried-object hold and its surface-dependent message; target-container insertion, weight refresh, carried encumbrance and inventory refresh; unreachable-floor hitfloor branch; altar drop; Doname2/otense/surface floor message and drop; and the dknown makeknown tail. The makeknown macro in hack.h:1530 expands to discover_object(HORN_OF_PLENTY, TRUE, TRUE, TRUE), whose existing JS port supplies the Wisdom exercise side effect. Kept C evaluation and RNG order. Replaced the prior thrown bad-horn refusal, skipped Doname2 message and skipped discover_object tail. The only unported callee is pline.c:impossible on the invalid-object branch: its return is void, so note_unported records the diagnostic gap without changing control flow or supplying a value. Existing dependencies remain read-only: mkobj.c:add_to_container (definition at 2676), invent.c:update_inventory (2782), and the already-ported generation, billing, pickup, naming, floor, altar and discovery helpers.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply, HORN_OF_PLENTY arm at 4386 calls hornoplenty(obj, FALSE, NULL); JS dispatches the same non-tipping operation."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer_checks",
+                "source": "pickup.c:tipcontainer, horn/bag emptying loop at 4014-4019 calls hornoplenty(box, TRUE, targetbox); JS preserves the result-driven repeat-until-empty loop through this helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkobj-hornoplenty.test.mjs",
+              "scripts/object-substrate.test.mjs",
+              "scripts/pickup-tip.test.mjs",
+              "scripts/mkobj-fixup-oil.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-applied-c50.session.json",
+              "recordings/pickup.c/hornoplenty-tip-floor-c50.session.json",
+              "recordings/pickup.c/hornoplenty-tip-targetbox-c50.session.json"
+            ],
+            "checkedAt": "28c84b481a73bb12c30706d94c4088a5cd288a34"
+          }
+        ],
+        "entryPointReview": "Reviewed both active C call sites for mkobj.c:hornoplenty. apply.c:doapply reaches it from the apply command HORN_OF_PLENTY arm; pickup.c:tipcontainer reaches it from the #tip operation while emptying a charged horn, either onto the floor or into a selected carried container. The three independent C recordings execute those routes through command dispatch: applied horn, #tip to floor, and #tip to carried chest. No other C call sites exist (rg of upstream/src reports only apply.c:4386 and pickup.c:4016).",
+        "entryPoints": [
+          {
+            "name": "Apply a charged horn of plenty",
+            "functions": [
+              "hornoplenty"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-applied-c50.session.json"
+            ]
+          },
+          {
+            "name": "Tip a charged horn onto the floor",
+            "functions": [
+              "hornoplenty"
+            ],
+            "recordings": [
+              "recordings/pickup.c/hornoplenty-tip-floor-c50.session.json"
+            ]
+          },
+          {
+            "name": "Tip a charged horn into a carried container",
+            "functions": [
+              "hornoplenty"
+            ],
+            "recordings": [
+              "recordings/pickup.c/hornoplenty-tip-targetbox-c50.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-pickup-object-scare-scroll-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port pickup-object handling and its corpse-check dependency",
+      "cFile": "pickup.c",
+      "sessions": [
+        "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use"
+      ],
+      "selectionReason": "Select synthetic/v13/uncursed-scare-scroll-pickup-reveals-use from current complete evaluation challenges/evaluations/20260930020937-v13.json at 755a067c. Manifest ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d; immutable recording 8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e. Its step-46 pickup preflight refuses a scare scroll before pickup.c:pickup_object. The investigation traces the missing whole helper, rather than the queue annotation pickup. Port complete pickup_object and its consumed fatal_corpse_mistake helper, existing pickup/whip/grapple and direct container wiring, and the consumed objnam.c doname mrg_to_wielded branch.",
+      "detail": "Complete pickup.c pickup_object 1803-1888 and required fatal_corpse_mistake 284-299; source-ordered scare-scroll, artifact, corpse, lift, inventory and naming behavior. Four independent regression recordings cover pickup, safe corpse pickup/stash/take, bullwhip and grappling-hook calls. Bare-handed fatal and stone-golem recovery continuations retain named void callee gaps and blocked recipes; no matching unsafe continuation is claimed.",
+      "openedAt": "415e4392503692da8bc3a0d019453fe3224c0e1a",
+      "openStanding": {
+        "sha": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "pickup_object",
+          "line": 1803,
+          "endLine": 1896,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1803,
+        "to": 1896
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use": {
+          "session": "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+          "recordingSha256": "8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e",
+          "evaluationPath": "challenges/evaluations/20260930020937-v13.json",
+          "evaluationCommit": "755a067c86960dfb3bf98555d805c0d31408f4ea"
+        }
+      },
+      "activeStanding": {
+        "sha": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+          "session": "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+          "recordingPath": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+          "recordingSha256": "8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e",
+          "recipe": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.recipe.session.json",
+          "recipeSha256": "ff6a251886229abad3dad1925aa5d2dd59ca662233308f28bb0aec5673b71702",
+          "replayInputSha256": "eca8ea4f4efd6f35e6487ed931d2de92a3b4cebd797449d227cc89a82056f11a",
+          "evaluationPath": "challenges/evaluations/20260930020937-v13.json",
+          "evaluationCommit": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+          "evaluationArtifact": "challenges/evaluations/20260930020937-v13.json",
+          "evaluationUtc": "2026-09-30T02:10:07.285Z",
+          "remainingScreens": 1,
+          "recordedSteps": 47,
+          "previousScreensMatched": 46,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 46,
+              "total": 47
+            },
+            "rng": {
+              "matched": 2548,
+              "total": 2556
+            },
+            "cursors": {
+              "matched": 46,
+              "total": 47
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() of a scroll of scare monster",
+            "step": 46
+          },
+          "step": 46,
+          "kind": "stop",
+          "sourceFile": "pickup.c",
+          "function": "pickup",
+          "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() of a scroll of scare monster",
+          "cFile": "pickup.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/uncursed-scare-scroll-pickup-reveals-use.json",
+            "result": {
+              "session": "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 47,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+                "session": "synthetic/v13/uncursed-scare-scroll-pickup-reveals-use",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+                "recordingPath": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json",
+                "recordingSha256": "8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e",
+                "recipe": "challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.recipe.session.json",
+                "recipeSha256": "ff6a251886229abad3dad1925aa5d2dd59ca662233308f28bb0aec5673b71702",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 47,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 46,
+                    "total": 47
+                  },
+                  "rng": {
+                    "matched": 2548,
+                    "total": 2556
+                  },
+                  "cursors": {
+                    "matched": 46,
+                    "total": 47
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() of a scroll of scare monster",
+                  "step": 46
+                },
+                "step": 46,
+                "kind": "stop",
+                "sourceFile": "pickup.c",
+                "function": "pickup",
+                "message": "unsupported hero command: an unported branch of this command: unsupported pickup: pickup() of a scroll of scare monster",
+                "cFile": "pickup.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The comma command selects an uncursed floor scroll of scare monster, but a JavaScript pickup preflight refuses the type before pickup.c:pickup_object can run its source branch. C counts a liftable subset first, marks an uncursed unused scroll as picked up once, then continues through lift_object and pick_obj. The full pickup_object source function also handles blessed and dusting scrolls, split stacks, corpses, artifacts, and ordinary objects.",
+              "source": {
+                "file": "pickup.c",
+                "branch": "After pickup_object observes a visible floor object and passes chain, engulfer, artifact, and corpse checks, SCR_SCARE_MONSTER first calls carry_count with a consumed count and weight outputs. It returns -1 for an unliftable stack, splits a liftable subset before state change, unblesses a blessed scroll, changes spe from 0 to 1 for an uncursed unused scroll, or turns other scrolls to dust through trycall/useupf and returns 1. The selected case is the uncursed spe=0 path, followed by the ordinary lift_object/pick_obj/inventory message tail.",
+                "functions": [
+                  "pickup_object"
+                ],
+                "callers": [
+                  "pickup.c:pickup explicit floor-selection loop calls pickup_object and consumes its return to decide whether to continue; js/pickup.js:pickup calls js/pickup.js:pickup_object after preflightPickupObjects.",
+                  "apply.c:use_whip and other pickup.c paths also call pickup_object, so special scroll behavior belongs in the source helper rather than a comma-command exception."
+                ],
+                "dependencies": [
+                  "pickup.c:carry_count returns the liftable count and writes old_wt/new_wt; js/pickup.js has carry_count, but the preflight currently blocks SCR_SCARE_MONSTER before it can be used.",
+                  "obj.c:splitobj, obj.c:unbless, do.c:trycall, and invent.c:useupf provide consumed object/count or side-effect dependencies. Verify their current JavaScript signatures and caller order.",
+                  "pickup.c:lift_object and pick_obj return decisions/objects consumed by pickup_object, and the ordinary pickup tail must remain aligned for every previously matching object class.",
+                  "Remove the type refusal in preflightPickupObjects once the complete branch is in pickup_object; preserve sight-gated observe_object, artifact/corpse branches, telekinesis wording, object knowledge, and RNG order."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 46/47 screens and cursors, 2548/2556 RNG calls, and first stop at zero-based segment 0 step 46: “unsupported pickup: pickup() of a scroll of scare monster.” The immutable recording is challenges/cases/v13/uncursed-scare-scroll-pickup-reveals-use.session.json, SHA256 8d33dbd7f0e6a96a67141a7f29a30a2bd997dfe3218cda779f7e34adde9db32e.",
+                "The independent recipe wishes an explicitly uncursed scroll, drops its observed inventory letter p, then presses comma. The C recording step 46 shows the floor selector for a scroll labeled MAPIRO MAHAMA DIROMAT. Its setup comment and source trace identify the intended spe=1 arm; the screen alone does not expose spe, so implementation must verify state through source and focused replay.",
+                "Upstream nethack-c/upstream/src/pickup.c:1803-1888 defines pickup_object. The SCR_SCARE_MONSTER branch at 1832-1857 consumes carry_count, splits a liftable subset, handles blessed and uncursed-first-pickup states, or dusts the scroll. The shared tail at 1868-1888 lifts, extracts, prints, and returns. pickup.c explicit pickup callers at 784, 815, and 886 consume the return.",
+                "JavaScript js/pickup.js:preflightPickupObjects around lines 898-906 rejects SCR_SCARE_MONSTER before js/pickup.js:pickup_object, whose current source port skips the scroll arm and reaches lift_object directly. Existing helpers include carry_count, splitobj, unbless, trycall, and useupf; integrate them in C order and preserve all existing pickup behavior."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pickup_object",
+            "implementation": "js/pickup.js",
+            "symbol": "pickup_object",
+            "sourceReview": "Read complete upstream pickup.c:pickup_object (1803-1888), pickup_prinv (1948-1972), and fatal_corpse_mistake (284-299). Matched count diagnostics, sight-gated observe, chain and engulfed-worn early returns, artifact touch, corpse/Rider order, scare-scroll carry_count/split/unbless/unused-spe/dust-call-useupf order, lift result, gold disp.botl, loadstone split exception, pick_obj pointer, temporary gm.mrg_to_wielded around pickup_prinv, ghostly-object note, and return. The consumed fatal_corpse_mistake results and the return-valued helpers are implemented in source order. Its discarded void windows.c:display_nhwindow and trap.c:instapetrify effects remain source-named gaps on the unverified stone-golem recovery and bare-handed fatal continuations; sourceTrace.blockedBranches records them. Checked the consumed objnam.c:doname wielded suffix branch (1561-1594), its false-initialized state owner, and the matching set/reset around pickup_prinv. Supporting consumed helper source/caller/runtime review (not a separately counted source unit in this goal): Read all of pickup.c:fatal_corpse_mistake (284-299) and its u_safe_from_fatal_corpse guard. Matched the safe-or-remote false return; the poly_when_stoned result followed by polymon(PM_STONE_GOLEM), with the display_nhwindow call and false return only after successful transformation; and the fatal corpse message, killer_xname argument evaluation, instapetrify call, and true return otherwise. The consumed Boolean results from u_safe_from_fatal_corpse, poly_when_stoned, and polymon are implemented. The discarded-void windows.c:display_nhwindow and trap.c:instapetrify effects remain explicit note_unported gaps. The fresh ordinary-newt recording verifies only the safe-corpse guard through each direct production caller; it does not establish matching behavior for stone-golem recovery or bare-handed fatal touch. recipes/pickup.c/fatal-cockatrice-corpse-terminal-blocked-b61.session.json remains a blocked recipe, not passing evidence. Direct callers: pickup.c:pickup_object at 1829 calls fatal_corpse_mistake(obj, telekinesis) and consumes its Boolean in the corpse branch. pickup.c:in_container at 2612 calls fatal_corpse_mistake(obj, FALSE) and consumes its Boolean before storing the object. pickup.c:out_container at 2744 calls fatal_corpse_mistake(obj, FALSE) and consumes its Boolean before lifting the object.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "pickup",
+                "source": "cmd.c pickup dispatch reaches pickup.c:dopickup; its menu, counted-single-object, and traditional traversal loops call pickup_object at pickup.c:784, 815, and 886."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_whip",
+                "source": "apply.c:use_whip at 3052 calls pickup_object after its rnl(6) test and consumes the return to decide whether the item slips free."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_grapple",
+                "source": "apply.c:use_grapple at 3820 calls pickup_object for an object hit and discards its result before redrawing the target square."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pickup.test.mjs",
+              "scripts/pickup-command.test.mjs",
+              "scripts/apply-pole-whip.test.mjs",
+              "scripts/apply.test.mjs",
+              "scripts/objnam.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/ordinary-newt-corpse-pickup-and-container-b61.session.json",
+              "recordings/pickup.c/uncursed-scare-scroll-independent-b61.session.json",
+              "recordings/apply.c/bullwhip-snags-floor-item-independent-b61.session.json",
+              "recordings/apply.c/grappling-hook-snags-floor-item-independent-b61.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "cmd.c pickup command -> pickup.c:dopickup -> pickup.c:pickup_object scare-scroll branch"
+              }
+            ],
+            "checkedAt": "f8fe1c5b3b1e16a1fd9d562ec621d1899e2afc1a"
+          }
+        ],
+        "entryPointReview": "pickup_object has three active caller families: the pickup command reaches its menu, counted-object, and traditional call sites; apply.c:use_whip consumes its result; apply.c:use_grapple discards it. fatal_corpse_mistake has three active direct callers: pickup_object at pickup.c:1829, in_container at 2612, and out_container at 2744. The independent safe-newt recording reaches all three direct helper call sites: ordinary pickup, #loot stash, and #loot take-out. It verifies the safe-corpse guard only. The bare-handed cockatrice fatal continuation and stone-golem recovery continuation remain uncovered because their C source calls trap.c:instapetrify and windows.c:display_nhwindow, respectively, whose effects remain named gaps. recipes/pickup.c/fatal-cockatrice-corpse-terminal-blocked-b61.session.json remains blocked and does not count as passing evidence; no unsafe continuation is claimed as replay-matched. The selected goal range is pickup_object only. The required fatal_corpse_mistake body and its safe pickup/stash/take production routes were also source-reviewed and replayed in the same independent newt recording; this supporting dependency receives no separate verified-source-unit credit in this goal. Unsafe continuations remain unverified. Container helper caller evidence: Container stash safe-corpse path calls fatal_corpse_mistake from in_container: recordings/pickup.c/ordinary-newt-corpse-pickup-and-container-b61.session.json; Container take-out safe-corpse path calls fatal_corpse_mistake from out_container: recordings/pickup.c/ordinary-newt-corpse-pickup-and-container-b61.session.json",
+        "entryPoints": [
+          {
+            "name": "Pickup command carries an unused scare scroll",
+            "functions": [
+              "pickup_object"
+            ],
+            "recordings": [
+              "recordings/pickup.c/uncursed-scare-scroll-independent-b61.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "uncursed-scare-scroll-pickup-reveals-use",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "cmd.c pickup command -> pickup.c:dopickup -> pickup.c:pickup_object scare-scroll branch"
+              }
+            ]
+          },
+          {
+            "name": "Pickup command safe-corpse path calls fatal_corpse_mistake from pickup_object",
+            "functions": [
+              "pickup_object"
+            ],
+            "recordings": [
+              "recordings/pickup.c/ordinary-newt-corpse-pickup-and-container-b61.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Bullwhip floor snag calls pickup_object",
+            "functions": [
+              "pickup_object"
+            ],
+            "recordings": [
+              "recordings/apply.c/bullwhip-snags-floor-item-independent-b61.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Grappling-hook object snag calls pickup_object",
+            "functions": [
+              "pickup_object"
+            ],
+            "recordings": [
+              "recordings/apply.c/grappling-hook-snags-floor-item-independent-b61.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e40858944e01bb3c8f6c2ad47ff7781a59b63d02",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The combined checkpoint preserves all 44 fixed sessions and 709 regression recordings but fails an obsolete pet-swap pickup-refusal assertion. Automatic approval review rejected the isolated correction worktree and prohibited workarounds. Preserve the candidate and source evidence pending direct user clarification.",
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-mounted-steed-leash-turn-v14-20260929",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Allow the mounted steed through the pet action guard",
+      "cFile": "dogmove.c",
+      "sessions": [],
+      "selectionReason": "Select synthetic/v14/knight-applies-leash-down from current accepted B61 evaluation challenges/evaluations/20260930032552-v14.json at b7eb778f. Its complete investigation attributes step 26 refusal to the starting-pet guard rejecting the current mounted leashed pony. C dogmove.c dog_goal returns -2 for u.usteed before any goal state or RNG; dog_move preserves hunger and inventory handling before this return. Correct the guard to admit exactly that already ported branch, preserving ordinary leashed-pet refusal and clone identity. A52 dependencies are accepted; A53 is independent of later A54-A57.",
+      "detail": "Segment 0 step 26: 26/27 screens, 2771/2784 RNG calls at worker base. Source dog_goal current-steed early return and dog_move ordering already match C. Fix only assertSimpleActionState in js/unported_monster_actions.js; no whole dog_goal source-unit completion claim. Immutable delivery fbf58b41 has production replay through the final step and source-pinned clone/live tests.",
+      "openedAt": "7ddf2d5db0e06d4bd3cd7c72a62dd3348cc582f8",
+      "openStanding": {
+        "sha": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "59b29f40d6ae99ac332e2f3f3cc5aaa8ad71258f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dog_goal",
+      "session": "synthetic/v14/knight-applies-leash-down",
+      "step": 26,
+      "syntheticProvenance": {
+        "synthetic/v14/knight-applies-leash-down": {
+          "session": "synthetic/v14/knight-applies-leash-down",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-applies-leash-down",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/knight-applies-leash-down.session.json",
+          "recordingSha256": "b3961cd1521b10a9075a045f3dd65e03b98e0af8e3c467271cf7fd40f3bb6543",
+          "evaluationPath": "challenges/evaluations/20260930032552-v14.json",
+          "evaluationCommit": "b7eb778fd13a99a4fccdb347a0e537840810d8fd"
+        }
+      },
+      "activeStanding": {
+        "sha": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-applies-leash-down",
+          "session": "synthetic/v14/knight-applies-leash-down",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/knight-applies-leash-down.session.json",
+          "recordingPath": "challenges/cases/v14/knight-applies-leash-down.session.json",
+          "recordingSha256": "b3961cd1521b10a9075a045f3dd65e03b98e0af8e3c467271cf7fd40f3bb6543",
+          "recipe": "challenges/cases/v14/knight-applies-leash-down.recipe.session.json",
+          "recipeSha256": "74b427c49b1ef2147b6d7f8d5e9a3ef1fa453fd07cc74f29e27f7cc6884ea347",
+          "replayInputSha256": "56235698fc90df932af7d95071357365d15181d50f0b1eaf63bcaa56600579ef",
+          "evaluationPath": "challenges/evaluations/20260930032552-v14.json",
+          "evaluationCommit": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+          "evaluationArtifact": "challenges/evaluations/20260930032552-v14.json",
+          "evaluationUtc": "2026-09-30T03:26:16.368Z",
+          "remainingScreens": 1,
+          "recordedSteps": 27,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 27
+            },
+            "rng": {
+              "matched": 2771,
+              "total": 2784
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 27
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires special starting-pet state",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires special starting-pet state",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/knight-applies-leash-down.json",
+            "result": {
+              "session": "synthetic/v14/knight-applies-leash-down",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "knight-applies-leash-down",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "b3961cd1521b10a9075a045f3dd65e03b98e0af8e3c467271cf7fd40f3bb6543",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 1,
+              "recordedSteps": 27,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "knight-applies-leash-down",
+                "session": "synthetic/v14/knight-applies-leash-down",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/knight-applies-leash-down.session.json",
+                "recordingPath": "challenges/cases/v14/knight-applies-leash-down.session.json",
+                "recordingSha256": "b3961cd1521b10a9075a045f3dd65e03b98e0af8e3c467271cf7fd40f3bb6543",
+                "recipe": "challenges/cases/v14/knight-applies-leash-down.recipe.session.json",
+                "recipeSha256": "74b427c49b1ef2147b6d7f8d5e9a3ef1fa453fd07cc74f29e27f7cc6884ea347",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 27,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 26,
+                    "total": 27
+                  },
+                  "rng": {
+                    "matched": 2771,
+                    "total": 2784
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 27
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires special starting-pet state",
+                  "step": 26
+                },
+                "step": 26,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires special starting-pet state",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved JavaScript trace reaches the final screen after the Knight successfully leashes the ridden pony, then stops at the monster-turn boundary. apply.c:use_leash() already implements the mounted-down case and sets the pony m_leashed. C sends the steed through dogmove.c:dog_move(), where dog_goal() returns -2 immediately for u.usteed. Frozen JavaScript has matching dog_move() and dog_goal() branches, but unported_monster_actions.js:assertSimpleActionState() rejects every leashed starting pet before dog_move(), including the currently ridden steed. The actionable source-traced defect is this overbroad preflight refusal; the remaining screen and turn RNG are skipped because of it.",
+              "source": {
+                "file": "dogmove.c",
+                "functions": [
+                  "dog_move",
+                  "dog_goal"
+                ],
+                "branch": "After a downward apply-leash action on a mounted, moving Knight, the saddled pony is the hero's u.usteed and has m_leashed set. On its normal post-command monster turn, dog_move() performs its ordinary hunger and inventory checks; absent starvation or conflict, dog_goal() sees mtmp == u.usteed and returns -2, so the steed does not move. The JavaScript preflight must admit this mounted-steed state while retaining refusals for other unsupported leashed pets.",
+                "callers": [
+                  "C setup path: cmd.c maps the a/apply command to apply.c:doapply(); its LEASH arm calls use_leash() (apply.c:4297-4299). When the target is u_at() and u.usteed exists with u.dz > 0, use_leash() calls use_leash_core() on u.usteed and returns ECMD_TIME (apply.c:796-801); use_leash_core() sets mtmp->mleashed and obj->leashmon (apply.c:854-859). The frozen JS apply.js doapply()/use_leash() path already performs this state change.",
+                  "C monster turn: monmove.c:m_move() sends a tame, non-worm monster to dogmove.c:dog_move() (monmove.c:1771-1774); dog_move() calls dog_goal() after its steed, hunger and inventory setup (dogmove.c:1011-1044). The corresponding JS path is allmain.js turn preflight -> unported_monster_actions.js:assertSimpleActionState(), then monmove.js:movePet() -> dogmove.js:dog_move() -> dog_goal(). The guard currently stops execution before the source-supported steed branch.",
+                  "dogmove.c:dog_move() is called by monmove.c:m_move(); dogmove.c:dog_goal() is called only through dog_move() for this runtime path. Frozen JS dogmove.js exports both functions and mirrors the mounted-steed return path."
+                ],
+                "dependencies": [
+                  "apply.c:use_leash() and use_leash_core() establish the leashed-steed state that exposes the turn path; the frozen JS implementations match their mounted-down C branch, so they are setup rather than the remaining stop owner.",
+                  "dogmove.c:dog_hunger() and dog_invent() run before dog_goal() in dog_move(); both are already present in frozen js/dogmove.js. For the recorded fresh pony state they pass through to dog_goal().",
+                  "dogmove.c:dog_goal() checks mtmp == u.usteed before goal calculation and returns -2 without a goal draw (lines 494-496); frozen js/dogmove.js has the same check (line 892). This early return makes the selected leashed-steed state source-supported without opening ordinary leashed-pet movement."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved diagnostic .cache/synthetic-scans/v14/knight-applies-leash-down.json reports 26 emitted screens of 27 and stops on key > with “simple monster action requires special starting-pet state”; the last displayed message is “You slip the leash around your saddled pony.” The saved evaluation challenges/evaluations/20260929225551-v14.json reports 26/27 screens and 2771/2784 RNG calls. The manifest labels the preceding source action apply.c:use_leash mounted-steed downward arm; source tracing below identifies the later turn gate that actually stops replay.",
+                "C state setup: nethack-c/upstream/src/apply.c:769-817 implements use_leash(); at lines 796-801 the mounted-down branch applies the leash to u.usteed and spends a turn. apply.c:821-876 use_leash_core() sets mtmp->mleashed and obj->leashmon for a tame leashable monster (lines 833-860).",
+                "C turn path: nethack-c/upstream/src/monmove.c:1771-1774 dispatches tame monsters to dog_move(). dogmove.c:1011-1044 runs hunger/inventory handling, calls dog_goal(), then returns MMOVE_NOTHING when dog_goal() answers -2. dogmove.c:494-496 documents and implements that answer for mtmp == u.usteed.",
+                "Frozen JavaScript cause and counter-evidence: js/unported_monster_actions.js:297-305 admits starting-pet species but throws for monster.mleashed at lines 300-301; the same assertSimpleActionState() gates runSimpleMonsterAction() at line 1577 and the preflight action path. Yet js/dogmove.js:1314-1368 already handles the usteed setup and dog_goal() early return at lines 882-893. js/allmain.js:1219-1224 invokes preflightSimpleMonsterActions() before the live monster pass. Thus the unsupported-state check masks an implemented C-matching early return; the owner is the JavaScript guard, with dogmove.c:dog_move()/dog_goal() defining the safe exception."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "59b29f40d6ae99ac332e2f3f3cc5aaa8ad71258f",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-climb-pit-synthetic-v14-20260929",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port pit escape and wire both hero callers",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v14/hero-climbs-out-of-wished-pit"
+      ],
+      "selectionReason": "Select synthetic/v14/hero-climbs-out-of-wished-pit from complete current accepted A53 evaluation challenges/evaluations/20260930034045-v14.json at 59b29f40. Its step-10 first mismatch is the omitted trap.c climb_pit call through do.c doup. Port whole climb_pit 4183-4230 and both source caller arms doup and hack.c trapmove. Corrected immutable delivery f37c78e2 preserves source RNG and lowercase Flying output; the B61 dependency and its original ancestors are accepted. Independent ordinary movement and flying-vampire recordings cover both active entries.",
+      "detail": "Complete climb_pit no-op, wall-pass, boulder, flying/clinger, timer/easy escape and Norep branches in C order. Wire doup and trapmove, preserving visible adjacent pit movement. Existing fill_pit discards flooreffects return and retains that source-named gap. Independent records cover held movement and flying command; the raven recipe remains blocked by polyself break_armor dropx/flooreffects.",
+      "openedAt": "e845cfd78dab03fc4853f788c703570b4af831c6",
+      "openStanding": {
+        "sha": "59b29f40d6ae99ac332e2f3f3cc5aaa8ad71258f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "climb_pit",
+          "line": 4183,
+          "endLine": 4232,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 4183,
+        "to": 4232
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/hero-climbs-out-of-wished-pit": {
+          "session": "synthetic/v14/hero-climbs-out-of-wished-pit",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "hero-climbs-out-of-wished-pit",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/hero-climbs-out-of-wished-pit.session.json",
+          "recordingSha256": "e0e03fcff3f2a2a6479b3c1cc87cae7507a5aee9c6c7d69c76239b3775d92231",
+          "evaluationPath": "challenges/evaluations/20260930034045-v14.json",
+          "evaluationCommit": "59b29f40d6ae99ac332e2f3f3cc5aaa8ad71258f"
+        }
+      },
+      "activeStanding": {
+        "sha": "59b29f40d6ae99ac332e2f3f3cc5aaa8ad71258f",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "hero-climbs-out-of-wished-pit",
+          "session": "synthetic/v14/hero-climbs-out-of-wished-pit",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/hero-climbs-out-of-wished-pit.session.json",
+          "recordingPath": "challenges/cases/v14/hero-climbs-out-of-wished-pit.session.json",
+          "recordingSha256": "e0e03fcff3f2a2a6479b3c1cc87cae7507a5aee9c6c7d69c76239b3775d92231",
+          "recipe": "challenges/cases/v14/hero-climbs-out-of-wished-pit.recipe.session.json",
+          "recipeSha256": "09292b2249d2b495a54d0d46395f8fd434ae981d936e97aa72777ed4c67accf8",
+          "replayInputSha256": "18746d839f80ec47007a5e73e12a6ab4df7a903b8513102025392c2dad7c72c5",
+          "evaluationPath": "challenges/evaluations/20260930034045-v14.json",
+          "evaluationCommit": "59b29f40d6ae99ac332e2f3f3cc5aaa8ad71258f",
+          "evaluationArtifact": "challenges/evaluations/20260930034045-v14.json",
+          "evaluationUtc": "2026-09-30T03:41:10.705Z",
+          "remainingScreens": 1,
+          "recordedSteps": 11,
+          "previousScreensMatched": 10,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 10,
+              "total": 11
+            },
+            "rng": {
+              "matched": 2680,
+              "total": 2691
+            },
+            "cursors": {
+              "matched": 11,
+              "total": 11
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 10,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 10,
+                "key": "<"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2679,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "climb_pit(trap.c:4197)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 10,
+                "key": "<"
+              },
+              "stepIndex": 10
+            },
+            "cursor": null
+          },
+          "step": 10,
+          "kind": "rng",
+          "sourceFile": "trap.c",
+          "function": "climb_pit",
+          "message": null,
+          "cFile": "trap.c",
+          "luaFile": null,
+          "line": 4197,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/hero-climbs-out-of-wished-pit.json",
+            "result": {
+              "session": "synthetic/v14/hero-climbs-out-of-wished-pit",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "hero-climbs-out-of-wished-pit",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "e0e03fcff3f2a2a6479b3c1cc87cae7507a5aee9c6c7d69c76239b3775d92231",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 1,
+              "recordedSteps": 11,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "hero-climbs-out-of-wished-pit",
+                "session": "synthetic/v14/hero-climbs-out-of-wished-pit",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/hero-climbs-out-of-wished-pit.session.json",
+                "recordingPath": "challenges/cases/v14/hero-climbs-out-of-wished-pit.session.json",
+                "recordingSha256": "e0e03fcff3f2a2a6479b3c1cc87cae7507a5aee9c6c7d69c76239b3775d92231",
+                "recipe": "challenges/cases/v14/hero-climbs-out-of-wished-pit.recipe.session.json",
+                "recipeSha256": "09292b2249d2b495a54d0d46395f8fd434ae981d936e97aa72777ed4c67accf8",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 11,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 10,
+                    "total": 11
+                  },
+                  "rng": {
+                    "matched": 2680,
+                    "total": 2691
+                  },
+                  "cursors": {
+                    "matched": 11,
+                    "total": 11
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 10,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 10,
+                      "key": "<"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2679,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "climb_pit(trap.c:4197)",
+                    "jsEntry": "rn2(5)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 10,
+                      "key": "<"
+                    },
+                    "stepIndex": 10
+                  },
+                  "cursor": null
+                },
+                "step": 10,
+                "kind": "rng",
+                "sourceFile": "trap.c",
+                "function": "climb_pit",
+                "message": null,
+                "cFile": "trap.c",
+                "luaFile": null,
+                "line": 4197
+              },
+              "summary": "After falling into a wished pit, the < command reaches do.c:doup and calls trap.c:climb_pit. The examined js/do.js:doup branch records note_unported(\"trap.c climb_pit\") and returns, so it leaves the trap timer and pit state unchanged and skips climb_pit's source-ordered rn2(2) draw. The C draw at trap.c:4197 is the first RNG divergence at segment 0 step 10; the up-command screen then differs while all 11 cursors still match. The source owner is the whole trap.c:climb_pit function. A second C caller is hack.c:trapmove when a held hero tries to move from a pit; its JS TT_PIT path currently stops at an unsupported held-movement boundary.",
+              "source": {
+                "file": "trap.c",
+                "functions": [
+                  "climb_pit"
+                ],
+                "branch": "The function acts only when u.utrap is nonzero and u.utraptype is TT_PIT. In the assigned case, a normal human Healer presses < after falling into a wished pit: Passes_walls is false, the function draws rn2(2) before testing for a boulder, then decrements u.utrap and reports “You are still in a pit.” The complete source scope also includes wall-pass, boulder-crevice, flying/clinger, timer-expiry/easy-escape, Sokoban/levitation, steed, verbose and hallucination arms.",
+                "callers": [
+                  "C do.c:doup (1298-1311) calls climb_pit when u.utrap is nonzero and u.utraptype is TT_PIT, then returns ECMD_TIME. The assigned < key follows cmd.js:runUpCommand -> do.js:doup; at frozen commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, do.js:doup lines 2036-2040 records note_unported(\"trap.c climb_pit\") and returns ECMD_TIME without calling it.",
+                  "C hack.c:trapmove (1549-1691), called from hack.c:domove_core, calls climb_pit for TT_PIT unless the destination is a visible adjacent pit (1580-1587). The corresponding JS hack.js:domove_core -> trapmove path reaches an UnsupportedHeroMoveBoundaryError at the generic non-TT_BEARTRAP guard (frozen hack.js:3777-3791), before any TT_PIT source arm. Wire this caller to the same ported function while preserving the adjacent-visible-pit exception."
+                ],
+                "dependencies": [
+                  "trap.c:trapname is called before the branch and may use display RNG for a hallucinated trap name; thread the same display/core random sources and source order.",
+                  "The C return value from static trap.c:m_easy_escape_pit (3724-3730) is consumed by the timer branch. An equivalent JS helper exists at js/trap_effects.js:m_easy_escape_pit; verify it against the source before relying on it.",
+                  "trap.c:reset_utrap, fill_pit, and the hero trap state u.utrap/u.utraptype. JS reset_utrap and fill_pit exist in js/trap.js; fill_pit still records note_unported(\"do.c flooreffects\") after extracting a boulder, so an escape while a boulder fills the pit remains a dependency gap.",
+                  "Source predicates and output include Passes_walls, Flying, is_clinger, Sokoban, Levitation, steed state, body_part(LEG), sobj_at(BOULDER), u_locomotion(\"climb\"), You/Your/Norep, and the message-window display/clear calls in the boulder-crevice arm. Successful escapes also set the full-vision-recalculation flag."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned queue entry in .cache/v14-baseline-work-queue.json records remainingScreens=1, recordedSteps=11, manifest corpus SHA-256 a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0, recording SHA-256 e0e03fcff3f2a2a6479b3c1cc87cae7507a5aee9c6c7d69c76239b3775d92231, and evaluation challenges/evaluations/20260929225551-v14.json at de8f73ddf16241bca4e484fef2ab099b3f133a2d. The evaluation reports 10/11 screens, 11/11 cursors and 2680/2691 RNG entries matched; its first RNG mismatch is C rn2(2)=0 from climb_pit(trap.c:4197) versus JS rn2(5)=0 at segment 0 step 10, followed by the only screen mismatch at step 10.",
+                "The assigned scan .cache/synthetic-scans/v14/hero-climbs-out-of-wished-pit.json confirms no command refusal and names trap.c climb_pit in the unported set. The scan locates the C draw at step 10, the screen mismatch at row 0, column 0 (C “Y”, JS space), and all 11 cursors matching. challenges/manifests/v14.json sourceTraceEvidence and reachedBehavior identify the intended path as do.c:doup -> trap.c:climb_pit and C reports “You are still in a pit.”",
+                "At frozen examined commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, js/do.js:doup lines 2036-2040 skips the call with note_unported. The full C definition at nethack-c/upstream/src/trap.c:4181-4225 contains the missing rn2(2) at :4197, the ordered boulder test, escape and timer branches, and the repeated “still in a pit” message. In the assigned Healer case the source therefore consumes rn2(2) before checking for a boulder; the JavaScript caller leaves u.utrap unchanged and proceeds without the function.",
+                "The scanner also records trap.c selftouch as unported during the earlier pit-entry sequence, through trap_effects.js. That is a separate source gap: the assigned first mismatch is the later < input and is specifically attributed to do.c:doup -> climb_pit; the existing scan has no screen or cursor divergence before step 10. The other production C call site is hack.c:trapmove (1580-1587), whose JS counterpart currently refuses held non-beartrap movement before a TT_PIT branch can call climb_pit."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "climb_pit",
+            "implementation": "js/trap.js",
+            "symbol": "climb_pit",
+            "sourceReview": "Read the complete upstream trap.c:climb_pit definition (4183-4230), comparing every branch and effect in source order: no-op unless held in TT_PIT; trapname before Passes_walls; unconditional rn2(2) before the boulder test; boulder crevice output and message-window flush/clear; flying or clinger escape outside Sokoban; predecremented u.utrap and m_easy_escape_pit short-circuit; reset_utrap/fill_pit/vision_full_recalc ordering; then verbose or downward-look Norep with the steed and hallucination variants. The flying branch passes lowercase \"climb\" to hack.c:u_locomotion; C preserves that case and emits \"You fly from the pit.\", confirmed by a source-pinned output assertion and a fresh Wizard-to-vampire recording. JS uses the existing tty message-window helpers for C display_nhwindow/clear_nhwindow semantics. The existing fill_pit path retains its discarded-result note_unported for do.c:flooreffects when a boulder settles; no return value from that gap is used. No new game state was introduced.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "doup",
+                "source": "do.c:doup (1308-1311) calls climb_pit for u.utrap && TT_PIT, then returns ECMD_TIME; the command path is cmd.c '<' -> js/cmd.js:runUpCommand -> js/do.js:doup."
+              },
+              {
+                "path": "js/hack.js",
+                "symbol": "trapmove",
+                "source": "hack.c:trapmove TT_PIT arm (1580-1586) keeps the visible adjacent-pit exception, otherwise calls climb_pit and returns FALSE; held movement reaches it through hack.c:domove_core and js/hack.js:domove."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap.test.mjs",
+              "scripts/doup.test.mjs",
+              "scripts/hero-bear-trap.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/climb-pit-trapmove-independent-b62.session.json",
+              "recordings/trap.c/climb-pit-flying-independent-b62.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "hero-climbs-out-of-wished-pit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c '<' command -> do.c:doup -> trap.c:climb_pit"
+              }
+            ],
+            "checkedAt": "f727d64380b19e9dec2fd2e2c897c47a7809f795"
+          }
+        ],
+        "entryPointReview": "The selected function has two active production entry points. The typed < command dispatches through cmd.c and js/cmd.js:runUpCommand to do.c:doup/js/do.js:doup; the admitted v14 case executes the ordinary escape path through step 10, and the independent flying recording transforms the held hero into a vampire before typing < to execute climb_pit's Flying branch. A held-hero movement command dispatches through hack.c:domove_core/js/hack.js:domove into hack.c:trapmove/js/hack.js:trapmove; the original independent recording reaches its TT_PIT arm and matches the complete C replay. trapmove retains C's exception that movement into a visible adjacent pit proceeds without calling climb_pit. Other held trap types remain outside this task. The boulder-settle fill_pit -> do.c:flooreffects call remains an existing discarded-result gap, not invented behavior.",
+        "entryPoints": [
+          {
+            "name": "Typed '<' command while held in a pit",
+            "functions": [
+              "climb_pit"
+            ],
+            "recordings": [
+              "recordings/trap.c/climb-pit-flying-independent-b62.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "hero-climbs-out-of-wished-pit",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 10,
+                "source": "cmd.c '<' command -> do.c:doup -> trap.c:climb_pit"
+              }
+            ]
+          },
+          {
+            "name": "Held-hero movement while trapped in a pit",
+            "functions": [
+              "climb_pit"
+            ],
+            "recordings": [
+              "recordings/trap.c/climb-pit-trapmove-independent-b62.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "div-moveloop-teleportation-ring-v14-20260930",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore the source-ordered periodic teleportation check",
+      "cFile": "allmain.c",
+      "sessions": [],
+      "selectionReason": "Select synthetic/v14/wizard-wears-teleportation-ring from accepted B62 evaluation challenges/evaluations/20260930040057-v14.json at b20abe03. Its complete investigation traces the step34 RNG mismatch to the omitted Teleportation chance gate in allmain.c moveloop_core, after regen_pw and before hunger and engraving upkeep. Correct invulnerability and intrinsic/extrinsic predicates and consume rn2(85) in source order. Preserve the named discarded tele gap at zero and source-conditional coordinate aftermath; no whole moveloop_core or teleport function completion claim. A52 dependencies are accepted; exact A54 delivery is independent of A55–A57.",
+      "detail": "Segment0 step34: 35/35 screens and cursors, 2778/2781 RNG before correction. C moveloop_core307–320 checks Teleportation and rn2(85) before later upkeep; JS finishElapsedTurnAfterTimeout omitted it. Exact delivery36cc restores the gate and matches through step34. An independent source-commented recipe reaches the zero-result controlled teleport prompt in C; teleport.c tele remains an explicit discarded-void gap in this planning context and the recipe is blocked outside recordings. No full source-unit completion is claimed.",
+      "openedAt": "c1327498bb0c13d8f7f50c8c37243b0a286d9dc5",
+      "openStanding": {
+        "sha": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "618b18c5cce114da5fb033fef57eb551ce7f87bf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "moveloop_core",
+      "session": "synthetic/v14/wizard-wears-teleportation-ring",
+      "step": 34,
+      "syntheticProvenance": {
+        "synthetic/v14/wizard-wears-teleportation-ring": {
+          "session": "synthetic/v14/wizard-wears-teleportation-ring",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-wears-teleportation-ring",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+          "recordingSha256": "4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d",
+          "evaluationPath": "challenges/evaluations/20260930040057-v14.json",
+          "evaluationCommit": "b20abe038e0cb3e172186f6d7190f2b388a93b54"
+        }
+      },
+      "activeStanding": {
+        "sha": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-wears-teleportation-ring",
+          "session": "synthetic/v14/wizard-wears-teleportation-ring",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+          "recordingSha256": "4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d",
+          "recipe": "challenges/cases/v14/wizard-wears-teleportation-ring.recipe.session.json",
+          "recipeSha256": "5d06b54b8ab0a327812c5423c252a8301d3f4859f86ee1cc26360d2501b19a59",
+          "replayInputSha256": "0f0d54afd2a83ebf9d905afad5e7f18df67b36bdbd4f9d1d8389bdd6fa3f721c",
+          "evaluationPath": "challenges/evaluations/20260930040057-v14.json",
+          "evaluationCommit": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+          "evaluationArtifact": "challenges/evaluations/20260930040057-v14.json",
+          "evaluationUtc": "2026-09-30T04:01:21.492Z",
+          "remainingScreens": 0,
+          "recordedSteps": 35,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 35
+            },
+            "rng": {
+              "matched": 2778,
+              "total": 2781
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 35
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2778,
+              "cEntry": "rn2(85)=48",
+              "cCaller": "moveloop_core(allmain.c:308)",
+              "jsEntry": "rn2(20)=13",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 34,
+                "key": "r"
+              },
+              "stepIndex": 34
+            },
+            "cursor": null
+          },
+          "step": 34,
+          "kind": "rng",
+          "sourceFile": "allmain.c",
+          "function": "moveloop_core",
+          "message": null,
+          "cFile": "allmain.c",
+          "luaFile": null,
+          "line": 308,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/wizard-wears-teleportation-ring.json",
+            "result": {
+              "session": "synthetic/v14/wizard-wears-teleportation-ring",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "wizard-wears-teleportation-ring",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 0,
+              "recordedSteps": 35,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "wizard-wears-teleportation-ring",
+                "session": "synthetic/v14/wizard-wears-teleportation-ring",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+                "recordingPath": "challenges/cases/v14/wizard-wears-teleportation-ring.session.json",
+                "recordingSha256": "4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d",
+                "recipe": "challenges/cases/v14/wizard-wears-teleportation-ring.recipe.session.json",
+                "recipeSha256": "5d06b54b8ab0a327812c5423c252a8301d3f4859f86ee1cc26360d2501b19a59",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 0,
+                "recordedSteps": 35,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 35
+                  },
+                  "rng": {
+                    "matched": 2778,
+                    "total": 2781
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 35
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2778,
+                    "cEntry": "rn2(85)=48",
+                    "cCaller": "moveloop_core(allmain.c:308)",
+                    "jsEntry": "rn2(20)=13",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 34,
+                      "key": "r"
+                    },
+                    "stepIndex": 34
+                  },
+                  "cursor": null
+                },
+                "step": 34,
+                "kind": "rng",
+                "sourceFile": "allmain.c",
+                "function": "moveloop_core",
+                "message": null,
+                "cFile": "allmain.c",
+                "luaFile": null,
+                "line": 308
+              },
+              "summary": "The ring setup is correct; the first RNG divergence is the missing Teleportation check in allmain.c:moveloop_core. The assigned final C step has an active teleportation ring, so C draws rn2(85)=48 before gethungry’s rn2(20)=1 and the engraving check’s rn2(94)=23. Since 48 is nonzero, C does not teleport. Frozen JS moveloop_core omits the source check, so its first draw at that position is gethungry’s rn2(20)=13. This shifts the following engraving draw as well, while all 35 screens and cursors still match.",
+              "source": {
+                "file": "allmain.c",
+                "functions": [
+                  "moveloop_core"
+                ],
+                "branch": "Repair the Teleportation block in allmain.c:moveloop_core (307-320), after regen_pw and before the polymorph/lycanthropy checks and later once-per-turn work. The source draws rn2(85) only when the hero is not invulnerable and Teleportation is active (intrinsic or extrinsic). On zero it calls tele(); if the hero moved, it checks leash state when the destination is not next to the old square and clears canned and repeat command queues. In the assigned case the wished ring is worn in the right slot, so its extrinsic TELEPORT property activates the gate; rn2(85)=48 prevents tele(). C then reaches gethungry’s rn2(20)=1 followed by the engraving gate rn2(94)=23 (40 + 3*DEX with DEX 18), which is not zero, so no rnd(3) engraving wear draw follows. Frozen JS has the later gethungry and maybeWipeHeroEngraving calls but omits this earlier Teleportation block.",
+                "callers": [
+                  "The sole direct C production caller of moveloop_core is allmain.c:moveloop (586-597), which loops through moveloop_core at 595. The frozen JS direct counterpart is js/allmain.js:moveloop, which calls moveloop_core at 1718. The assigned step follows a timed P put-on action, so both loops enter the elapsed-turn body before reading the next key.",
+                  "Assigned state setup is C do_wear.c:doputon -> accessory_or_armor_on (2452-2468, 2209-2428), which calls setworn(obj, mask) before Ring_on(obj) at 2410-2411. worn.c:setworn adds the ring slot bit to u.uprops[TELEPORT].extrinsic; do_wear.c:Ring_on treats RIN_TELEPORTATION as a no-op. Frozen JS do_wear.js:accessory_or_armor_on similarly calls setworn before Ring_on at 3516-3517; worn.js:setworn adds the slot effects, and do_wear.js:Ring_on groups RIN_TELEPORTATION among no-op types. This establishes that the ring property is set correctly before the missing moveloop check."
+                ],
+                "dependencies": [
+                  "Read C Teleportation as the union of intrinsic and extrinsic TELEPORT property state; the assigned ring supplies the W_RINGR extrinsic bit through setworn. Preserve the u.uinvulnerable short-circuit and do not draw rn2(85) when either guard fails.",
+                  "Consume the core random rn2(85) at the exact source position after regen_pw and before Polymorph and lycanthropy checks, searching, warning, sound, hunger, and engraving upkeep.",
+                  "On a zero result, call the existing teleport.c tele() behavior. Compare the resulting u.ux/u.uy to their old coordinates; if changed, call next_to_u(), check_leash(old_ux,old_uy) when not adjacent, then clear CQ_CANNED and CQ_REPEAT in source order.",
+                  "After the check, retain the neighboring source RNG order. The assigned Wizard’s DEX is 18, so the later engraving gate is rn2(40 + 18*3), or rn2(94); because it returns 23, u_wipe_engr(rnd(3)) is not reached.",
+                  "The ring activation caller does not draw random numbers: setworn establishes the extrinsic property before Ring_on, whose RIN_TELEPORTATION case is empty in C and JS."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The assigned queue entry in .cache/v14-baseline-work-queue.json fixes this result to zero remaining screens and 35 recorded steps, manifest corpus SHA-256 a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0, recording SHA-256 4f93968add2a21331e1cccc9218d44eb2afebe757c2682ff5eaabc46c4228d2d, and evaluation challenges/evaluations/20260929225551-v14.json at de8f73ddf16241bca4e484fef2ab099b3f133a2d. The evaluation reports 35/35 screens and cursors matched and 2778/2781 RNG entries matched. Its first mismatch is C rn2(85)=48 at allmain.c:308 versus JS rn2(20)=13 at segment 0 step 34.",
+                "The assigned scan .cache/synthetic-scans/v14/wizard-wears-teleportation-ring.json confirms no refusal or unported operation, no screen or cursor divergence, and the same RNG mismatch at step 34. The assigned manifest sourceTraceEvidence places rn2(85)=48 and rn2(94)=23 in moveloop_core; its setup says the ring is wished and put on before the end-of-turn teleport check.",
+                "The assigned recording’s final step (key r) captures the right-hand brass ring and its final ordered draws: rn2(12)=9 at mcalcmove, rn2(70)=44 at maybe_generate_rnd_mon, rn2(85)=48 at moveloop_core, rn2(20)=1 at gethungry, and rn2(94)=23 at moveloop_core. This pins the C ordering; the 48 result means the teleport action is not taken in this case.",
+                "At frozen JS commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, js/do_wear.js:accessory_or_armor_on sets the worn slot before Ring_on, and both JS operations match C’s no-random ring setup. In contrast, js/allmain.js:finishElapsedTurnAfterTimeout calls gethungry and then maybeWipeHeroEngraving without a Teleportation gate; C allmain.c:moveloop_core has that gate at 307-320 before its later per-turn work. The JS gethungry draw is consequently paired against C’s omitted rn2(85) and receives the shifted value.",
+                "C allmain.c:moveloop calls moveloop_core at 595, and frozen js/allmain.js:moveloop calls its port at 1718. The assigned P command path is C do_wear.c:doputon -> accessory_or_armor_on -> setworn -> Ring_on, mirrored in js/do_wear.js; worn.c:setworn and js/worn.js:setworn both install the ring’s TELEPORT extrinsic before the elapsed-turn caller runs."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "618b18c5cce114da5fb033fef57eb551ce7f87bf",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-dig-up-grave-synthetic-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port grave excavation and its production helper caller",
+      "cFile": "dig.c",
+      "sessions": [
+        "synthetic/v14/archeologist-lawful-digs-grave"
+      ],
+      "selectionReason": "Select synthetic/v14/archeologist-lawful-digs-grave from complete current accepted A54 evaluation challenges/evaluations/20260930041307-v14.json at618b18c5. Its complete investigation traces step17 missing Wisdom exercise to the omitted dig.c dig_up_grave helper in dighole IS_GRAVE. Port the whole helper1027–1088 in source order and wire its unique direct C caller. Include only the existing digactualhole hero-PIT furniture-message correction674–718; no whole digactualhole completion claim. B61 and B62 dependencies are accepted. Exact B63 delivery81f0f13 contains independent ordinary-dig and downward-wand records, including two zombie creation variants, and source-pinned mummy selection without runtime parity claim.",
+      "detail": "Whole grave helper preserves coordinate guard, Wisdom exercise, role/alignment effects, corpse age, zombie/mummy creation, unoccupied and empty-grave paths, terrain flags, engraving and redraw. Helper-only entry review explains its dighole caller and matching ordinary-dig and downward-wand runtime paths. Companion furniture text uses its pre-trap label. The doorway HOLE continuation remains blocked in an independently recorded recipe outside the passing corpus.",
+      "openedAt": "1c3730cef119d1294b28e7decf050faa1b64f3bf",
+      "openStanding": {
+        "sha": "618b18c5cce114da5fb033fef57eb551ce7f87bf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "2719e412e73284cf41b8d02827637bd3f2de3979",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "dig_up_grave",
+          "line": 1027,
+          "endLine": 1091,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1027,
+        "to": 1091
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/archeologist-lawful-digs-grave": {
+          "session": "synthetic/v14/archeologist-lawful-digs-grave",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "archeologist-lawful-digs-grave",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/archeologist-lawful-digs-grave.session.json",
+          "recordingSha256": "acede4070b9383ec00c99179f6c414be9d14d1f4923d16a10add7ded901a3d19",
+          "evaluationPath": "challenges/evaluations/20260930041307-v14.json",
+          "evaluationCommit": "618b18c5cce114da5fb033fef57eb551ce7f87bf"
+        }
+      },
+      "activeStanding": {
+        "sha": "618b18c5cce114da5fb033fef57eb551ce7f87bf",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "archeologist-lawful-digs-grave",
+          "session": "synthetic/v14/archeologist-lawful-digs-grave",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/archeologist-lawful-digs-grave.session.json",
+          "recordingPath": "challenges/cases/v14/archeologist-lawful-digs-grave.session.json",
+          "recordingSha256": "acede4070b9383ec00c99179f6c414be9d14d1f4923d16a10add7ded901a3d19",
+          "recipe": "challenges/cases/v14/archeologist-lawful-digs-grave.recipe.session.json",
+          "recipeSha256": "f37845effca62e0a8a7940357cdb1873a5df213395cad1d3c71e646fa49105d3",
+          "replayInputSha256": "ebed12d141e2c8bd87ad3344df9bc43c1b742a5b762cf5e445c59ffcc64af6a3",
+          "evaluationPath": "challenges/evaluations/20260930041307-v14.json",
+          "evaluationCommit": "618b18c5cce114da5fb033fef57eb551ce7f87bf",
+          "evaluationArtifact": "challenges/evaluations/20260930041307-v14.json",
+          "evaluationUtc": "2026-09-30T04:13:32.067Z",
+          "remainingScreens": 5,
+          "recordedSteps": 23,
+          "previousScreensMatched": 18,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 18,
+              "total": 23
+            },
+            "rng": {
+              "matched": 2275,
+              "total": 2294
+            },
+            "cursors": {
+              "matched": 19,
+              "total": 23
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "A",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2273,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": " "
+              },
+              "stepIndex": 17
+            },
+            "cursor": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": " "
+              },
+              "cCursor": [
+                41,
+                0,
+                1
+              ],
+              "jsCursor": [
+                19,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 17,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/archeologist-lawful-digs-grave.json",
+            "result": {
+              "session": "synthetic/v14/archeologist-lawful-digs-grave",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "archeologist-lawful-digs-grave",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "acede4070b9383ec00c99179f6c414be9d14d1f4923d16a10add7ded901a3d19",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 5,
+              "recordedSteps": 23,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "archeologist-lawful-digs-grave",
+                "session": "synthetic/v14/archeologist-lawful-digs-grave",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/archeologist-lawful-digs-grave.session.json",
+                "recordingPath": "challenges/cases/v14/archeologist-lawful-digs-grave.session.json",
+                "recordingSha256": "acede4070b9383ec00c99179f6c414be9d14d1f4923d16a10add7ded901a3d19",
+                "recipe": "challenges/cases/v14/archeologist-lawful-digs-grave.recipe.session.json",
+                "recipeSha256": "f37845effca62e0a8a7940357cdb1873a5df213395cad1d3c71e646fa49105d3",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 5,
+                "recordedSteps": 23,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 18,
+                    "total": 23
+                  },
+                  "rng": {
+                    "matched": 2275,
+                    "total": 2294
+                  },
+                  "cursors": {
+                    "matched": 19,
+                    "total": 23
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "A",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2273,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(5)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": " "
+                    },
+                    "stepIndex": 17
+                  },
+                  "cursor": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      41,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      19,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 17,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The first mismatch is in the grave-dig branch: C calls dig_up_grave(cc), whose first state/RNG effect is exercise(A_WIS, FALSE), while the JavaScript dighole() branch records note_unported(\"dig.c dig_up_grave\") and returns. This omits the Wisdom exercise and the helper’s role/alignment messages, grave outcome, tile cleanup, engraving removal, and redraw. The existing attrib.c exercise() port already implements the required rn2(2) draw; the source owner is the whole dig.c dig_up_grave() function and its dighole() caller wiring.",
+              "source": {
+                "file": "dig.c",
+                "branch": "In dighole(), when old_typ is a grave, C first calls digactualhole(..., PIT), then dig_up_grave(cc). This case reaches the hero-tile path (cc == NULL) as a lawful Archeologist; because the grave is not marked empty, dig_up_grave() draws rn2(5), with the recorded result selecting the unoccupied-grave message.",
+                "functions": [
+                  "dig_up_grave"
+                ],
+                "callers": [
+                  "C: dig.c:dighole() (883-1024), IS_GRAVE(old_typ) branch at 959-962, calls dig_up_grave(cc); the production path reaches dighole() from dig.c:dig() after the downward-dig occupation reaches its effort threshold.",
+                  "JavaScript: js/dig.js:dighole() partial port, IS_GRAVE(oldType) branch at 1292-1295, calls digactualhole() then note_unported(\"dig.c dig_up_grave\"); replace this gap with the ported helper call."
+                ],
+                "dependencies": [
+                  "attrib.c:exercise (already ported in js/attrib.js; false Wisdom exercise updates AEXE and consumes rn2(2), the first mismatching C draw).",
+                  "attrib.c:adjalign (already ported in js/attrib.js; used by the Archeologist, Samurai, and lawful branches).",
+                  "mkobj.c:mk_tt_object (already ported in js/mkroom.js; the corpse branch checks and ages its returned object).",
+                  "makemon.c:mkclass (already ported in js/makemon.js) and makemon.c:makemon (already ported in js/makemon_create.js; mkclass supplies the species and makemon’s result is discarded).",
+                  "engrave.c:del_engr_at and display.c:newsym (already ported in js/engrave.js and js/display.js; required for the final grave cleanup and map redraw)."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The selected v14 manifest entry records archeologist-lawful-digs-grave as reaching dig.c:use_pick_axe -> digactualhole -> dig_up_grave; its C outcome is the grave-robber warning followed by “The grave is unoccupied. Strange...”. The recording has 23 steps and the queue/evaluation report 5 unmatched screens.",
+                "The assigned scanner trace .cache/synthetic-scans/v14/archeologist-lawful-digs-grave.json and saved queue entry .cache/v14-baseline-work-queue.json place the first mismatch at step 17, key space: C calls rn2(2)=0 from exercise(attrib.c:509), while JS calls rn2(5)=2; the first screen cell and cursor also differ. The later C grave draw is recorded as rn2(5)=4 at dig_up_grave(dig.c:1058).",
+                "nethack-c/upstream/src/dig.c:959-962 establishes the direct IS_GRAVE caller. The whole helper at dig.c:1026-1088 calls exercise(A_WIS, FALSE) at 1044 before role/alignment effects, then selects the grave outcome at 1058 and resets typ/emptygrave/disturbed, deletes the engraving, and redraws at 1083-1087.",
+                "nethack-c/upstream/src/attrib.c:488-518 shows that exercise() uses rn2(2) for a false Wisdom exercise when |AEXE(WIS)| < 50. The frozen JavaScript implementation is js/attrib.js:946-994; the missing behavior is its call from dig_up_grave(), not exercise() itself.",
+                "Frozen examined source at 3212f9f07c3fdf3f00c5c204885f51834f0b6448: js/dig.js:1292-1295 contains note_unported(\"dig.c dig_up_grave\") immediately after digactualhole(), confirming the source gap and production wiring point."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dig_up_grave",
+            "implementation": "js/dig.js",
+            "symbol": "dig_up_grave",
+            "sourceReview": "Compared all of dig.c:dig_up_grave (1027-1089) with js/dig.js in source order. Both default a null coordinate to the hero square and return before effects for an invalid non-null coordinate. Both call exercise(A_WIS,FALSE) before Archeologist/Samurai/lawful alignment changes and messages. C forces the default selector -1 for emptygrave without rn2; otherwise it calls rn2(5). Selectors 0 and 1 create an old corpse with mk_tt_object and subtract TAINT_AGE+1; selector 2 calls mkclass(S_ZOMBIE,0) and makemon(...,MM_NOMSG); selector 3 calls mkclass(S_MUMMY,0) and makemon(...,MM_NOMSG); default prints the unoccupied message. Both then change the tile to ROOM, clear emptygrave and disturbed, remove the engraving and redraw. The JS selector test cross-checks C and JS branch symbols and MM_NOMSG call shape. Matching C recordings execute corpse, unoccupied, and zombie cases through the production dighole caller; the final independent downward-wand recording also reaches dighole from dig.c:zap_dig at 1606 and executes selector 1. No mummy runtime is claimed. Required returned callee values are supplied by existing exercise, mk_tt_object, and mkclass ports. C discards makemon’s return; JS preserves its creation effects with the existing makemon_runtime operation and source-required occupation hook. The companion change to digactualhole is limited to capturing the old furniture label before maketrap and printing the C fall message after the maker line; tests pin grave and altar text, and C recordings exercise the grave furniture branch.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "dighole",
+                "source": "The sole direct C call site is dig.c:dighole (885-1024), IS_GRAVE arm at 959-962; it calls digactualhole, then dig_up_grave, then sets retval=true. JS js/dig.js:dighole has the matching arm."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "C dig.c:dig (374,433) calls dighole after completed downward/pit-only digging; the admitted v14 case and independent recipes use this chain."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_dig",
+                "source": "The independent downward-wand route follows C dig.c:zap_dig (1606) -> dighole(FALSE, TRUE, NULL) -> the IS_GRAVE arm -> dig_up_grave; JS js/zap.js:zap_dig calls dighole at 6232 and the final C recording replays completely."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/archeologist-neutral-corpse-grave-b63.session.json",
+              "recordings/dig.c/archeologist-neutral-grave-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-branch-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-01-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-02-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-03-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-05-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-06-b63.session.json",
+              "recordings/dig.c/downward-wand-grave-final-b63.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "archeologist-lawful-digs-grave",
+                "segment": 0,
+                "fromStep": 17,
+                "throughStep": 22,
+                "source": "dig.c:dig -> dig.c:dighole(IS_GRAVE) -> dig.c:dig_up_grave"
+              }
+            ],
+            "checkedAt": "e83abe9cb45cc5dd7dbc7ffedf6374751f0dbfe6"
+          }
+        ],
+        "entryPointReview": "This task selects the helper-only range dig.c:dig_up_grave, so entryPoints is empty as allowed by validation.md. The helper has one direct C caller: dig.c:dighole’s IS_GRAVE arm. Matching recorded play reaches that helper through ordinary digging (the admitted v14 case and independent recipes) and through the independent downward-wand path dig.c:zap_dig -> dighole(FALSE, TRUE, NULL) -> dig_up_grave (recording downward-wand-grave-final-b63; selector 1 corpse). Independent recordings cover corpse selectors 0 and 1, unoccupied selector 4, and selector 2 zombie creation; two selector-2 recordings replay completely through the existing makemon.c:mkclass/makemon runtime path. scripts/dig.test.mjs pins selector 3 to S_MUMMY and selector 2 to S_ZOMBIE from C source, but no mummy runtime recording is claimed. dig.c:zap_dig also calls dighole for an adjacent-pit operation and dig.c:escape_tomb calls it for a separate escape path; those outer commands are outside this helper-only task and are not claimed as ports or runtime entry points. The companion digactualhole change covers only the existing hero-created PIT furniture-message branch, not that whole function. The sixth seed variation is retained but excluded from helper evidence because mhitu.c:mattacku interrupts the downward dig before dighole. A separate doorway setup attempt reaches dig.c:zap_dig’s hole-descent continuation after creating a hole; that JS continuation is unported and the exact C artifact is kept in .cache, outside the passing recordings corpus.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2719e412e73284cf41b8d02827637bd3f2de3979",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-timeout-choke-dialogue-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port strangulation timeout dialogue and its live turn handoff",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v14/tourist-wears-cursed-strangulation-amulet"
+      ],
+      "selectionReason": "Select synthetic/v14/tourist-wears-cursed-strangulation-amulet from accepted B63 evaluation challenges/evaluations/20260930042657-v14.json at2719e412. Its complete investigation traces step44 missing Strength exercise to timeout.c choke_dialogue. Port the complete function294–314 and its two static text tables278–292, wiring nh_timeout and the existing allmain elapsed-turn caller. The corrected delivery routes every nonzero Strangled value through live nh_timeout before subsequent planning, matching the unconditional exercise call. A54 is accepted; A56 and A57 are unrelated pending work and are excluded.",
+      "detail": "Whole helper preserves both countdown tables, Breathless short-circuit, rn2(50), urgent text, hcolor display RNG, occupation stop and unconditional Strength exercise. Admitted segment0 steps0–44 executes i=6 through nh_timeout. Source-pinned fixtures cover i=1–5; the production moveloop_core test pins live planning handoff. No whole nh_timeout or moveloop_core completion claim.",
+      "openedAt": "68d24a9607e95e396a2c144534729255984fde50",
+      "openStanding": {
+        "sha": "2719e412e73284cf41b8d02827637bd3f2de3979",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "786c4d928c3b6cd957078f24028114223abc92f8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "choke_dialogue",
+          "line": 295,
+          "endLine": 322,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 295,
+        "to": 322
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/tourist-wears-cursed-strangulation-amulet": {
+          "session": "synthetic/v14/tourist-wears-cursed-strangulation-amulet",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "tourist-wears-cursed-strangulation-amulet",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json",
+          "recordingSha256": "f525cf70007b4897168b46c951c44b89b833a0c785caf0e303a19a539f2d32bc",
+          "evaluationPath": "challenges/evaluations/20260930042657-v14.json",
+          "evaluationCommit": "2719e412e73284cf41b8d02827637bd3f2de3979"
+        }
+      },
+      "activeStanding": {
+        "sha": "2719e412e73284cf41b8d02827637bd3f2de3979",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "tourist-wears-cursed-strangulation-amulet",
+          "session": "synthetic/v14/tourist-wears-cursed-strangulation-amulet",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json",
+          "recordingPath": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json",
+          "recordingSha256": "f525cf70007b4897168b46c951c44b89b833a0c785caf0e303a19a539f2d32bc",
+          "recipe": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.recipe.session.json",
+          "recipeSha256": "ef23cde87ea558ea034c970f1da538cb76c2b2324392bd7eb6ff8e816ce5e314",
+          "replayInputSha256": "7cb900ce31d8742ddfcfd3866a2090b6cb9937cc6d5cc4a0224774b6ced605c8",
+          "evaluationPath": "challenges/evaluations/20260930042657-v14.json",
+          "evaluationCommit": "2719e412e73284cf41b8d02827637bd3f2de3979",
+          "evaluationArtifact": "challenges/evaluations/20260930042657-v14.json",
+          "evaluationUtc": "2026-09-30T04:27:20.809Z",
+          "remainingScreens": 0,
+          "recordedSteps": 45,
+          "previousScreensMatched": 45,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 45,
+              "total": 45
+            },
+            "rng": {
+              "matched": 2586,
+              "total": 2591
+            },
+            "cursors": {
+              "matched": 45,
+              "total": 45
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2586,
+              "cEntry": "rn2(2)=1",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(400)=167",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 44,
+                "key": " "
+              },
+              "stepIndex": 44
+            },
+            "cursor": null
+          },
+          "step": 44,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/tourist-wears-cursed-strangulation-amulet.json",
+            "result": {
+              "session": "synthetic/v14/tourist-wears-cursed-strangulation-amulet",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "tourist-wears-cursed-strangulation-amulet",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "f525cf70007b4897168b46c951c44b89b833a0c785caf0e303a19a539f2d32bc",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 0,
+              "recordedSteps": 45,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "tourist-wears-cursed-strangulation-amulet",
+                "session": "synthetic/v14/tourist-wears-cursed-strangulation-amulet",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json",
+                "recordingPath": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json",
+                "recordingSha256": "f525cf70007b4897168b46c951c44b89b833a0c785caf0e303a19a539f2d32bc",
+                "recipe": "challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.recipe.session.json",
+                "recipeSha256": "ef23cde87ea558ea034c970f1da538cb76c2b2324392bd7eb6ff8e816ce5e314",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 0,
+                "recordedSteps": 45,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 45,
+                    "total": 45
+                  },
+                  "rng": {
+                    "matched": 2586,
+                    "total": 2591
+                  },
+                  "cursors": {
+                    "matched": 45,
+                    "total": 45
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2586,
+                    "cEntry": "rn2(2)=1",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(400)=167",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 44,
+                      "key": " "
+                    },
+                    "stepIndex": 44
+                  },
+                  "cursor": null
+                },
+                "step": 44,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The queue attributes the first RNG mismatch to attrib.c:exercise(), but that helper is already ported with the matching A_STR decrease draw. The C caller reached on step 44 is timeout.c:choke_dialogue(): after Amulet_on sets Strangled to 6 on step 43, nh_timeout() enters choke_dialogue(), whose i=6 value skips both dialogue arrays and unconditionally calls exercise(A_STR, FALSE). Frozen JS nh_timeout() records note_unported(\"timeout.c choke_dialogue\") at this point, so it skips the rn2(2) draw and AEXE[STR] decrement; later dosounds consumes the next random value instead. The whole choke_dialogue() function, including its five-step message branches and caller wiring, is missing and is a file-port in timeout.c.",
+              "source": {
+                "file": "timeout.c",
+                "branch": "Port the whole static choke_dialogue() function and its two file-local message arrays (278-314). It reads the Strangled timeout; when it is 1 through 5 it selects alternate or ordinary choking text, conditionally draws rn2(50), may stop occupation, and then always calls exercise(A_STR, FALSE). On this assigned path Amulet_on has just set Strangled to 6, so the i > 0 && i <= SIZE(choke_texts) branch is skipped; the unconditional strength exercise still draws rn2(2) and updates AEXE(STR). The frozen nh_timeout() callsite currently notes timeout.c choke_dialogue as unported, so the missing source unit requires both the helper and wiring from that callsite.",
+                "functions": [
+                  "choke_dialogue"
+                ],
+                "callers": [
+                  "C direct caller: timeout.c:nh_timeout() (629-630) calls choke_dialogue() whenever Strangled is nonzero. Frozen JS js/timeout.js:nh_timeout() (899-900) instead records note_unported(\"timeout.c choke_dialogue\") for the live strangled state; replace this gap with the complete helper call.",
+                  "C turn caller: allmain.c:moveloop_core() (270-274) invokes nh_timeout() during the elapsed-turn sequence. Frozen JS js/allmain.js:advanceElapsedTurn() (892-905) awaits nh_timeout() after turn resolution, which is the production path reached by the assigned space key.",
+                  "Assigned setup path: do_wear.c:Amulet_on() (1036-1045), reached through accessory_or_armor_on(), identifies the newly worn strangulation amulet, sets Strangled=6, and prints the constriction message. Frozen JS js/do_wear.js:Amulet_on() (1001-1011) mirrors this setup, then the next elapsed turn reaches nh_timeout()."
+                ],
+                "dependencies": [
+                  "attrib.c:exercise() (489-518) is already implemented in frozen js/attrib.js:exercise() (977-993). For this call, exercise(A_STR, FALSE) uses rn2(2), updates the Strength exercise accumulator, and after moves > 0 reaches C encumber_msg(); the JS exercise API therefore needs its encumberMessage hook. Frozen js/timeout.js already imports exercise and encumber_msg.",
+                  "The C-only static arrays choke_texts and choke_texts2 (timeout.c:278-292) supply all five countdown messages. The assigned Strangled=6 state bypasses these arrays, but the complete source port must retain their i=1..5 behavior.",
+                  "timeout.c:choke_dialogue() may call urgent_pline(), body_part(NECK), hcolor(NH_BLUE), and stop_occupation() in its in-range dialogue branches. Frozen timeout.js already imports ttyUrgentPline/urgent message support, body_part, hcolor, and stop_occupation; the assigned i=6 path does not enter those branches.",
+                  "The first draw is setup, not the defect: do_wear.c:Amulet_on() calls makeknown(), which expands to discover_object(..., TRUE, TRUE, TRUE); o_init.c:discover_object() (454-484) calls exercise(A_WIS, TRUE) at 483. Frozen js/do_wear.js calls discover_object(), whose frozen js/o_init.js implementation invokes exercise_nonphysical(A_WIS, true) at 469. The saved trace shows matching rn2(19)=6 at step 43 before the later missing choke_dialogue draw."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved queue entry reports 45/45 screens and cursors, but 2586/2591 random calls; its first mismatch at step 44 is C rn2(2)=1 @ exercise(attrib.c:509) against JS rn2(400)=167 from dosounds. The assigned scan .cache/synthetic-scans/v14/tourist-wears-cursed-strangulation-amulet.json confirms 45 screens emitted, 45 recorded steps, and unported timeout.c choke_dialogue.",
+                "The immutable manifest challenges/manifests/v14.json traces do_wear.c:Amulet_on -> attrib.c:exercise and records the C call sequence: rn2(19)=6 at step 43, then rn2(2)=1 at step 44. The recording challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json confirms step 43 wears the amulet and displays the strangulation status; step 44 advances the turn and has the rn2(2) exercise draw.",
+                "C nethack-c/upstream/src/do_wear.c:1036-1045 calls makeknown(), sets Strangled=6, and reports “It constricts your throat!”; C nethack-c/upstream/src/o_init.c:454-484 shows that makeknown() credits Wisdom through exercise(A_WIS, TRUE). This explains the preceding rn2(19) draw, which frozen JS also performs through discover_object() and exercise_nonphysical().",
+                "The actual missing source owner is nethack-c/upstream/src/timeout.c:choke_dialogue() (278-314), not attrib.c:exercise(). At assigned step 44, i=(Strangled & TIMEOUT)=6, larger than the five text rows, so the dialogue/rn2(50)/stop-occupation branch is skipped and the unconditional exercise(A_STR, FALSE) at line 313 consumes rn2(2). nethack-c/upstream/src/timeout.c:nh_timeout() calls it at 629-630.",
+                "Frozen examined JS at 3212f9f07c3fdf3f00c5c204885f51834f0b6448 already ports attrib.c:exercise() in js/attrib.js. Frozen js/timeout.js:nh_timeout() instead skips the helper at 899-900 with note_unported(\"timeout.c choke_dialogue\"); the next JS draw is dosounds rn2(400), explaining the queue mismatch without attributing it to a defect in exercise().",
+                "Production reachability is allmain.c:moveloop_core() -> timeout.c:nh_timeout() -> timeout.c:choke_dialogue(); the assigned recording reaches it after the cursed amulet is put on and the following turn advances. It currently matches every screen/cursor but not RNG; after the whole helper is ported and the gap wired, this case can provide runtime evidence for the i=6 branch through zero-based segment 0, step 44. The i=1..5 dialogue branches remain unexercised."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "choke_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "choke_dialogue",
+            "sourceReview": "Read timeout.c:278-314, including both complete static text arrays and the whole choke_dialogue definition. The port masks Strangled with TIMEOUT, indexes each table with SIZE(table)-i, evaluates Breathless before rn2(50), interpolates body_part(NECK) or hcolor(NH_BLUE) only for matching templates, sends urgent output before stopping occupation on the ordinary table, and always awaits exercise(A_STR,FALSE). The correction also makes nh_timeout_requires_live_state() hand every nonzero Strangled value to the live caller because timeout.c:629-630 invokes choke_dialogue whenever Strangled is nonzero and choke_dialogue always calls exercise. Existing helpers preserve source order; no unported callee or refusal remains on this path.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout:629-630 calls choke_dialogue() for Strangled after the invulnerability return; the helper now defers every nonzero value from a planning clone."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurn",
+                "source": "allmain.c:moveloop_core:273 calls nh_timeout() after glibr() and before run_regions(); finishElapsedTurn() uses nh_timeout_requires_live_state() to return before planning reaches the live-only call, then the production caller replays the timeout live."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "tourist-wears-cursed-strangulation-amulet",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> timeout.c:choke_dialogue -> attrib.c:exercise(A_STR,FALSE); the cursed amulet sets Strangled=6 at step 43, and step 44 reaches the active-count planning handoff and i=6 exercise path."
+              }
+            ],
+            "checkedAt": "b054266a0f840530fecc991b22163977c52c9474"
+          }
+        ],
+        "entryPointReview": "C allmain.c:moveloop_core calls nh_timeout() after glibr() and before run_regions(). C timeout.c:nh_timeout calls choke_dialogue whenever Strangled is nonzero, after the invulnerability return. Because choke_dialogue always calls exercise(A_STR,FALSE), the JavaScript planner must hand every active Strangled value to that production caller before timeout work advances clone RNG/state. The new scripts/allmain-turn.test.mjs case exercises moveloop_core with the source-defined i=6 countdown and stops at a named unported region callback after verifying the live timeout decrement and single rn2(2) exercise draw. The admitted v14 recording supplies independent C runtime evidence through segment 0 step 44. scripts/timeout.test.mjs pins all five text indices, ordinary/random/Breathless branches, display RNG and occupation behavior.",
+        "entryPoints": [
+          {
+            "name": "elapsed-turn Strangled dialogue",
+            "functions": [
+              "choke_dialogue"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "tourist-wears-cursed-strangulation-amulet",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> timeout.c:choke_dialogue; step 44 also reaches attrib.c:exercise(A_STR,FALSE), while the focused caller test pins the planning handoff for active i=6."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "786c4d928c3b6cd957078f24028114223abc92f8",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-insight-mstatusline-synthetic-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete monster status lines for held and mounted creatures",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v14/knight-listens-to-mounted-steed"
+      ],
+      "selectionReason": "Select synthetic/v14/knight-listens-to-mounted-steed from accepted A55 evaluation challenges/evaluations/20260930045045-v14.json at786c4d92, still current after the independently checkpointed favicon-only change. Its complete investigation identifies insight.c mstatusline steed status as missing. Finish the entire mstatusline3275–3398 and all four existing mounted/swallowed stethoscope call sites, preserving accepted A52 worm and probe behavior. The source-pinned fixtures cover holder, swallowing and wounded-leg clauses; admitted mounted range through33 and accepted A52 stethoscope/probe recordings cover both production entry families. A54 and A55 dependencies are accepted; unrelated A57 and A58 work is excluded.",
+      "detail": "Whole status helper preserves source clause order, worm/visibility/condition formatting, swallowed priority, sticky holder ownership and steed wounded-leg source union and BOTH_SIDES mask. All four apply use_stethoscope sites await output; existing zap probe_monster caller already awaits it. No whole use_stethoscope or probe_monster completion claim.",
+      "openedAt": "beb71da2678f9efd7335b2cce826a8ba47f76362",
+      "openStanding": {
+        "sha": "beb71da2678f9efd7335b2cce826a8ba47f76362",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "fe56a2470de71a05608a44994be2c6aa98b95246",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mstatusline",
+          "line": 3275,
+          "endLine": 3401,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3275,
+        "to": 3401
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/knight-listens-to-mounted-steed": {
+          "session": "synthetic/v14/knight-listens-to-mounted-steed",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-listens-to-mounted-steed",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+          "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+          "evaluationPath": "challenges/evaluations/20260930045045-v14.json",
+          "evaluationCommit": "786c4d928c3b6cd957078f24028114223abc92f8"
+        }
+      },
+      "activeStanding": {
+        "sha": "beb71da2678f9efd7335b2cce826a8ba47f76362",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-listens-to-mounted-steed",
+          "session": "synthetic/v14/knight-listens-to-mounted-steed",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+          "recordingPath": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+          "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+          "recipe": "challenges/cases/v14/knight-listens-to-mounted-steed.recipe.session.json",
+          "recipeSha256": "ea28faf3f3ce71012f053b7f311ea21265136dd193b999a41b811fdf6c60e114",
+          "replayInputSha256": "e80dc358c1f7d434d8a8409fee59869ce463c06e8f5f752d1a6446eb334ee58f",
+          "evaluationPath": "challenges/evaluations/20260930045045-v14.json",
+          "evaluationCommit": "786c4d928c3b6cd957078f24028114223abc92f8",
+          "evaluationArtifact": "challenges/evaluations/20260930045045-v14.json",
+          "evaluationUtc": "2026-09-30T04:51:09.180Z",
+          "remainingScreens": 1,
+          "recordedSteps": 34,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 34
+            },
+            "rng": {
+              "matched": 2126,
+              "total": 2126
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "S",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": ">"
+              },
+              "cCursor": [
+                50,
+                1,
+                1
+              ],
+              "jsCursor": [
+                70,
+                16,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/knight-listens-to-mounted-steed.json",
+            "result": {
+              "session": "synthetic/v14/knight-listens-to-mounted-steed",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "knight-listens-to-mounted-steed",
+              "remainingScreens": 1,
+              "recordedSteps": 34,
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "knight-listens-to-mounted-steed",
+                "session": "synthetic/v14/knight-listens-to-mounted-steed",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+                "recordingPath": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+                "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+                "recipe": "challenges/cases/v14/knight-listens-to-mounted-steed.recipe.session.json",
+                "recipeSha256": "ea28faf3f3ce71012f053b7f311ea21265136dd193b999a41b811fdf6c60e114",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 34,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 2126,
+                    "total": 2126
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "S",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": ">"
+                    },
+                    "cCursor": [
+                      50,
+                      1,
+                      1
+                    ],
+                    "jsCursor": [
+                      70,
+                      16,
+                      1
+                    ]
+                  }
+                },
+                "step": 33,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This is a distinct status-output gap from knight-applies-leash-down's leash-turn handling. At segment 0, step 33, the downward stethoscope use while mounted should print the pony's status; the saved scan has 33/34 screens and cursors matched, all 2126 RNG calls matched, and no refusal or input-boundary stop. In C, apply.c:use_stethoscope takes the u.usteed && u.dz > 0 arm and calls mstatusline(u.usteed). Frozen JS instead records note_unported('insight.c mstatusline') there, and its partial mstatusline also refuses the u.usteed clause. The missing source behavior is insight.c:mstatusline's mounted-steed clause: append ', carrying you' and, when Wounded_legs applies, append the injured leg name(s) using EWounded_legs, mbodypart, and makeplural before printing the common status line. This is a distinct branch from the leash case but overlaps A52's ownership of the same whole mstatusline function for worm counts, so any implementation should be coordinated/grouped with that function owner rather than treated as an independent function task.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "mstatusline"
+                ],
+                "branch": "For a monster passed as u.usteed from apply.c:use_stethoscope when u.usteed is non-null and u.dz > 0 without the whirly-swallow interference path; report carrying-you state and injured legs when Wounded_legs is true, then emit the common status line.",
+                "callers": [
+                  "apply.c:use_stethoscope (called by apply.c:doapply STETHOSCOPE arm); the mounted-down branch passes u.usteed to mstatusline",
+                  "zap.c:probe_monster (wand-of-probing report; passes the probed monster to mstatusline)"
+                ],
+                "dependencies": [
+                  "apply.c:use_stethoscope must call mstatusline in the mounted-down path; its frozen JS path currently records note_unported instead",
+                  "priest.c:mon_aligntyp; insight.c:align_str and size_str; worn.c:find_mac; pline.c:pline for the common output line",
+                  "worm.c:count_wsegs and wseg_at; hacklib.c:ordin for the long-worm status clause",
+                  "pager.c:mhidden_description and region.c:visible_region_at for hidden and visible-region clauses",
+                  "mondata.h:digests, is_animal and enfolds; mondata.c:sticks for the u.ustuck clause",
+                  "youprop.h:Wounded_legs and EWounded_legs; polyself.c:mbodypart and objnam.c:makeplural for the mounted injured-leg clause",
+                  "do_name.c:x_monnam for the monster name; mextra.h:EDOG data for wizard-mode tame-pet detail"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/apply.c:345-359: use_stethoscope routes the mounted-down branch to mstatusline(u.usteed), and sends the swallowed-interference alternative to mstatusline(u.ustuck); apply.c:4327-4329 dispatches the STETHOSCOPE arm from doapply.",
+                "nethack-c/upstream/src/insight.c:3273-3398: whole mstatusline builds the status clauses in order; lines 3373-3385 handle mtmp == u.usteed by adding \", carrying you\" and optionally the injured-leg clause, then lines 3392-3397 format and print the status line.",
+                "Frozen examined JS at 3212f9f07c3fdf3f00c5c204885f51834f0b6448: js/apply.js:2413-2420 records note_unported(\"insight.c mstatusline\") in the mounted-down arm; js/insight.js:3079-3084 throws UnsupportedEnlightenmentError for mtmp === state.u.usteed.",
+                "Saved assigned scan .cache/synthetic-scans/v14/knight-listens-to-mounted-steed.json: screensEmitted=34, recordedSteps=34, first screen/cursor mismatch at segment 0 step 33 key \">\", boundary=null, commandRefusal=false, unported=[\"insight.c mstatusline\"].",
+                "Saved assigned evaluation challenges/evaluations/20260929225551-v14.json: case knight-listens-to-mounted-steed has 33/34 screens, 2126/2126 RNG calls, and 33/34 cursors matched. No replay was needed.",
+                "Comparison with the already investigated synthetic/v14/knight-applies-leash-down source finding: that case reaches apply.c:use_leash and the monster-turn dog_goal path; this case reaches apply.c:use_stethoscope -> insight.c:mstatusline. Their C functions and failure mechanisms differ. The present mstatusline function is also the function A52 owns for its long-worm count changes, so this branch shares a whole-function reservation with A52."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mstatusline",
+            "implementation": "js/insight.js",
+            "symbol": "mstatusline",
+            "sourceReview": "Read the complete insight.c:mstatusline definition at 3275-3398 and the source macros/helpers it calls. Retained the existing source-order pet, worm, shapechanger, mimic, visibility, condition, and formatting clauses. Implemented the complete u.ustuck branch: while swallowed, test digests first, then is_animal and not enfolds, then general engulfing; while not swallowed, test sticks(gy.youmonst.data) to choose holding-you versus held-by-you. Implemented the complete u.usteed branch: append carrying-you, evaluate Wounded_legs as intrinsic timeout OR extrinsic bits, mask EWounded_legs by BOTH_SIDES, use mbodypart(LEG), and pluralize only when both side bits remain. The awaited ttyPline is the final output. Traced mondata.c sticks and dmgtype_fromattack, mondata.h digests/enfolds/is_animal, youprop.h wounded-leg macros, and the already-ported count_wsegs, wseg_at, visible_region_at, mhidden_description, x_monnam, body-part, alignment, size, and armor helpers. No return-valued unported callee or refusal remains in the selected whole function.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stethoscope",
+                "source": "apply.c:use_stethoscope:348-357 has four calls: mounted-with-interference to u.ustuck, mounted-without-interference to u.usteed, swallowed-directional to u.ustuck, and swallowed-stationary-interference to u.ustuck. The JS sites await the helper after the source-ordered interference line when present. apply.c:doapply:4328 dispatches the STETHOSCOPE arm to use_stethoscope."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "probe_monster",
+                "source": "zap.c:probe_monster:626-638 calls mstatusline before the notonhead return; js/zap.js already awaits it in that order. zap.c invokes probe_monster for both a targeted monster and the mounted steed."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-stethoscope.test.mjs"
+            ],
+            "recordings": [
+              "recordings/worm.c/mstatusline-long-worm-tail-independent-a52.session.json",
+              "recordings/worm.c/wand-probe-long-worm-independent-a52.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "knight-listens-to-mounted-steed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "allmain.c command loop -> apply.c:doapply STETHOSCOPE arm -> apply.c:use_stethoscope mounted-down branch -> insight.c:mstatusline(u.usteed); step 33 is the source status line that was blank before this port."
+              }
+            ],
+            "checkedAt": "f033cc8821b25945fa1bcc0dfcf0176405c0413f"
+          }
+        ],
+        "entryPointReview": "The active production entry paths for the selected mstatusline unit are the stethoscope command and wand of probing. apply.c:doapply dispatches the command to use_stethoscope; the four mounted/swallowed source calls are now awaited in their original order, with interference output preserved first. The admitted v14 mounted-steed case matches through segment 0 step 33 and reaches the mounted-down call. The accepted A52 mstatusline recording reaches the stethoscope monster arm, and the accepted A52 wand-probe recording reaches zap.c:probe_monster; the existing JS zap caller awaits mstatusline before its notonhead return. The source-pinned tests exercise digestion, engulfing, sticky versus non-sticky holder priority, interference ordering, and singular/plural injured-leg formatting. A52's existing long-worm counting remains intact. Upward cant_reach_floor and center-direction ustatusline branches remain named gaps in use_stethoscope; zap.c probe_objchain and display_minventory remain outside this selected unit.",
+        "entryPoints": [
+          {
+            "name": "stethoscope mounted-down and swallowed status",
+            "functions": [
+              "mstatusline"
+            ],
+            "recordings": [
+              "recordings/worm.c/mstatusline-long-worm-tail-independent-a52.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "knight-listens-to-mounted-steed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "apply.c:doapply -> apply.c:use_stethoscope -> insight.c:mstatusline(u.usteed); admitted step 33 is the mounted-down status result."
+              }
+            ]
+          },
+          {
+            "name": "wand of probing monster status",
+            "functions": [
+              "mstatusline"
+            ],
+            "recordings": [
+              "recordings/worm.c/wand-probe-long-worm-independent-a52.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fe56a2470de71a05608a44994be2c6aa98b95246",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-light-cocktail-potion-oil-v13-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Light and snuff potions of oil through the apply command",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v13/apply-lights-potion-of-oil"
+      ],
+      "selectionReason": "Select synthetic/v13/apply-lights-potion-of-oil from complete A56 evidence challenges/evaluations/20260930051943-v13.json at fe56a247. Investigation investigations/synthetic/v13/apply-lights-potion-of-oil.json identifies the missing POT_OIL doapply arm and whole apply.c light_cocktail1703–1758. Finish that helper and sole dispatcher caller; preserve source pointer replacement, timer and discovery order. A54/A55/A56 dependencies are accepted. Original ba938d2a plus immutable f62a0278 correction explicitly record the discarded unported shop-fee call without invoking or swallowing its partial refusal. Admitted range0–35 covers the active command; remaining clauses have source-pinned fixtures, with no unpaid-fee or floor-drop parity claim.",
+      "detail": "Whole light_cocktail preserves swallowed/lit/underwater priority, inventory merge and split pointers, lighting output, costly-shop voice and dummy billing order, makeknown before begin_burn, and hold_another_object return. The unported void check_unpaid_usage fee remains an explicit gap. doapply POT_OIL awaits the helper and retains ECMD_TIME.",
+      "openedAt": "b7ff455ccd1f287de99c0a50f7dc8d8aec2a6283",
+      "openStanding": {
+        "sha": "fe56a2470de71a05608a44994be2c6aa98b95246",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5e82414bddf1cc5c4346e7b0948ff9f187439574",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "light_cocktail",
+          "line": 1703,
+          "endLine": 1769,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1703,
+        "to": 1769
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/apply-lights-potion-of-oil": {
+          "session": "synthetic/v13/apply-lights-potion-of-oil",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "apply-lights-potion-of-oil",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+          "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+          "evaluationPath": "challenges/evaluations/20260930051943-v13.json",
+          "evaluationCommit": "fe56a2470de71a05608a44994be2c6aa98b95246"
+        }
+      },
+      "activeStanding": {
+        "sha": "fe56a2470de71a05608a44994be2c6aa98b95246",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "apply-lights-potion-of-oil",
+          "session": "synthetic/v13/apply-lights-potion-of-oil",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+          "recordingPath": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+          "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+          "recipe": "challenges/cases/v13/apply-lights-potion-of-oil.recipe.session.json",
+          "recipeSha256": "af0d15830b4b00bd6db624c1898b460fb05132fcb440c67300180c0e9471fa69",
+          "replayInputSha256": "ff46601629b2482ab0c208229c4296a665f0a7aa970d73a169e52ad61171a870",
+          "evaluationPath": "challenges/evaluations/20260930051943-v13.json",
+          "evaluationCommit": "fe56a2470de71a05608a44994be2c6aa98b95246",
+          "evaluationArtifact": "challenges/evaluations/20260930051943-v13.json",
+          "evaluationUtc": "2026-09-30T05:20:04.044Z",
+          "remainingScreens": 1,
+          "recordedSteps": 36,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2773,
+              "total": 2782
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/apply-lights-potion-of-oil.json",
+            "result": {
+              "session": "synthetic/v13/apply-lights-potion-of-oil",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "apply-lights-potion-of-oil",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "apply-lights-potion-of-oil",
+                "session": "synthetic/v13/apply-lights-potion-of-oil",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+                "recordingPath": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+                "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+                "recipe": "challenges/cases/v13/apply-lights-potion-of-oil.recipe.session.json",
+                "recipeSha256": "af0d15830b4b00bd6db624c1898b460fb05132fcb440c67300180c0e9471fa69",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 36,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2773,
+                    "total": 2782
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+                  "step": 35
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a potion of oil reaches an unported doapply arm before C light_cocktail can light it. C first handles swallowed, already-lit, and underwater branches; the selected unlit inventory potion is named, learned, and passed to begin_burn. The complete function also handles split stacks, billing, and re-merging a snuffed potion.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For an unlit POT_OIL with the hero unswallowed and not underwater, light_cocktail optionally splits one potion from a stack, prints the source-specific light message, performs shop billing when unpaid at a costly spot, calls makeknown, then begin_burn. A split potion is extracted and passed through hold_another_object before updating the caller’s object pointer. Lit potions instead call end_burn and remerge if not worn.",
+                "functions": [
+                  "light_cocktail",
+                  "doapply (POT_OIL arm)"
+                ],
+                "callers": [
+                  "apply.c:doapply(POT_OIL) passes &obj to light_cocktail so the object pointer can change after a split or remerge; js/apply.js:doapply currently refuses POT_OIL in its named unported arms."
+                ],
+                "dependencies": [
+                  "obj.c:splitobj returns the single potion for stacked inventory; freeinv/addinv and obj_extract_self/hold_another_object return or mutate objects consumed by light_cocktail.",
+                  "timeout.c:begin_burn and end_burn own oil potion timer and light state. Preserve call order relative to makeknown and shop billing.",
+                  "shk_your returns source wording; costly_spot/in_rooms/shop_keeper and check_unpaid/bill_dummy_object handle the unpaid shop branch.",
+                  "The selected C step includes rn2(19) from exercise after lighting; compare full RNG and subsequent turn order, not only the printed message."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 35/36 screens and cursors and first stop at zero-based segment 0 step 35 in the doapply object-type-321 arm. The immutable recording is challenges/cases/v13/apply-lights-potion-of-oil.session.json.",
+                "The C recording’s final selected input n displays “You light your potion.  It gives off a dim light.” The step includes a later rn2(19) exercise draw; source review must preserve the begin_burn and turn-processing order.",
+                "Upstream nethack-c/upstream/src/apply.c:1703-1758 defines light_cocktail, including pointer mutation, burning, shop, and split-stack paths; lines 4349-4350 wire doapply(POT_OIL). JavaScript js/apply.js lists POT_OIL only in its named unported arms."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "light_cocktail",
+            "implementation": "js/apply.js",
+            "symbol": "light_cocktail",
+            "sourceReview": "Read and ported the complete apply.c:light_cocktail definition at 1703-1758. Preserved swallowed-before-lit, lit-before-underwater, the unworn end_burn/freeinv/addinv pointer update (using the awaited live addinv_runtime counterpart), split-before-message, the exact light line, optional costly-shop voice/verbalize/bill_dummy_object order, makeknown before begin_burn, and split-object extraction/nomerge/hold_another_object return pointer. C check_unpaid() discards the void check_unpaid_usage() result; because its JS fee tail is unported and its existing helper throws at that tail, the corrected callsite records note_unported('shk.c check_unpaid_usage') without invoking the helper, then continues in source order. Existing do.c dropx/dropy gaps inside hold remain outside this function's completed behavior.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply POT_OIL arm at 4349-4350 calls light_cocktail(&obj); the JS arm awaits it, reads back objp.obj, and keeps ECMD_TIME."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c's a-command dispatcher enters doapply; runApplyCommand reaches the same JS doapply selection path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-light-cocktail.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "apply-lights-potion-of-oil",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 35,
+                "source": "cmd.c a command -> apply.c:doapply POT_OIL -> apply.c:light_cocktail, including makeknown/discover_object and begin_burn"
+              }
+            ],
+            "checkedAt": "f332f40155d3cd3881fb6d7cf7a5863cdadb4871"
+          }
+        ],
+        "entryPointReview": "The active entry point is apply.c:doapply's POT_OIL case, reached from the a command through cmd.c and JS cmd.js:runApplyCommand -> apply.js:doapply. The admitted v13 case reaches this arm at segment 0 step 35; helper parity is cited only through that step. apply.c:light_cocktail has no other production callers. The swallowed, underwater, already-lit, stacked, and unpaid-costly-shop branches are source-pinned by the order test where not reached by the recording; the v13 runtime range covers only the unlit, quantity-one, dry, unswallowed, non-shop branch. At the optional shop call, the unported void shk.c:check_unpaid_usage fee is explicitly recorded without calling its partial refusal; no fee parity is claimed. do.c:dropx/dropy floor-drop effects reached inside hold_another_object remain separate void gaps.",
+        "entryPoints": [
+          {
+            "name": "doapply POT_OIL via the a command",
+            "functions": [
+              "light_cocktail"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "apply-lights-potion-of-oil",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 35,
+                "source": "cmd.c a command -> apply.c:doapply POT_OIL -> apply.c:light_cocktail"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5e82414bddf1cc5c4346e7b0948ff9f187439574",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

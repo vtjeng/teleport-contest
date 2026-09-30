@@ -48,6 +48,12 @@ const C_FUNCTION = C_SOURCE.slice(C_START, C_END);
 const JS_START = JS_SOURCE.indexOf('export async function zapyourself(');
 const JS_END = JS_SOURCE.indexOf('\n}\n\n// C ref: zap.c exclam', JS_START) + 2;
 const JS_FUNCTION = JS_SOURCE.slice(JS_START, JS_END);
+const C_PROBE_START = C_SOURCE.indexOf('probe_monster(struct monst *mtmp)');
+const C_PROBE_END = C_SOURCE.indexOf('\n}\n', C_PROBE_START) + 2;
+const C_PROBE = C_SOURCE.slice(C_PROBE_START, C_PROBE_END);
+const JS_PROBE_START = JS_SOURCE.indexOf('export async function probe_monster(');
+const JS_PROBE_END = JS_SOURCE.indexOf('\n}\n', JS_PROBE_START) + 2;
+const JS_PROBE = JS_SOURCE.slice(JS_PROBE_START, JS_PROBE_END);
 
 const SOURCE_CASES = [
     'WAN_STRIKING', 'SPE_FORCE_BOLT', 'WAN_LIGHTNING', 'SPE_FIREBALL',
@@ -76,6 +82,18 @@ test('zapyourself keeps the complete C switch inventory and source order', () =>
             > JS_FUNCTION.indexOf('switch (obj.otyp)'),
         'discovery follows the selected effect arm',
     );
+});
+
+test('probe_monster reports a long-worm segment before skipping its inventory', () => {
+    // zap.c:626-631 always calls mstatusline before checking gn.notonhead.
+    // The long-worm branch now follows that source order and no longer refuses
+    // the caller before the selected insight.c status function can run.
+    assert.match(C_PROBE, /mstatusline\(mtmp\);\s*if \(gn\.notonhead\)\s*return;/u);
+    assert.match(
+        JS_PROBE,
+        /await mstatusline\(monster, state\);\s*if \(state\.gn\?\.notonhead\) return;/u,
+    );
+    assert.doesNotMatch(JS_PROBE, /note_unported\(['"]insight\.c mstatusline long-worm segment count/u);
 });
 
 test('zapyourself no-op source arms complete without consuming RNG', async () => {

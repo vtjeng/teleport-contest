@@ -139,6 +139,7 @@ import { christen_monst, christen_orc, new_oname, rndorcname } from './do_name.j
 import { fruitadd } from './fruit.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { mnexto, rloc } from './teleport.js';
+import { remove_worm } from './worm.js';
 import { onscary, set_apparxy } from './monmove.js';
 
 // C ref: mkmaze.c iswall(). Wall-spine joins accept doors, lava walls,
@@ -495,7 +496,8 @@ export function movebubbles(state = game, random = rn2) {
                     const monster = m_at(x, y, state);
                     if (monster) {
                         bubble.cons.unshift({ x, y, what: 'monster', list: monster });
-                        remove_monster(x, y, state);
+                        if (monster.wormno) remove_worm(monster, { state });
+                        else remove_monster(x, y, state);
                         newsym(x, y);
                         monster.mx = monster.my = 0;
                         monster.mstate = (monster.mstate ?? 0) | MON_BUBBLEMOVE;

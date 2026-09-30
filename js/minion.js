@@ -27,7 +27,8 @@ import { sgn } from './hacklib.js';
 import { nomul, unmul } from './hack.js';
 import { stop_occupation } from './allmain.js';
 import { money_cnt, currency } from './invent.js';
-import { makemon_runtime, mongone } from './makemon_create.js';
+import { makemon_runtime } from './makemon_create.js';
+import { mongone } from './mon.js';
 import { mkclass, mkclass_aligned, set_malign } from './makemon.js';
 import {
     is_demon,

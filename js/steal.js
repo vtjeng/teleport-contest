@@ -100,6 +100,8 @@ import {
 import { encumber_msg } from './pickup.js';
 import { in_rooms } from './rooms.js';
 import { rn2, rnd } from './rng.js';
+import { obj_resists } from './bury.js';
+import { is_quest_artifact } from './questpgr.js';
 import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
 import {
     canSeeMonster as canSeeMonsterOnMap,
@@ -933,6 +935,34 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
             state,
             silent: true,
         });
+}
+
+// C ref: steal.c mdrop_special_objs() (852-873). Preserve its unconditional
+// obj_resists(obj, 0, 0) query for each inventory item. Protected and quest
+// objects need a floor drop (or extraction plus random relocation while the
+// monster is migrating); those source call branches remain gaps because their
+// completion requires awaiting the drop/relocation lifecycle at each caller.
+export function mdrop_special_objs(mon, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { rn2, rnd };
+    for (let obj = mon.minvent; obj;) {
+        const next = obj.nobj;
+        const resisted = obj_resists(obj, 0, 0, {
+            ...rawEnv,
+            state,
+            random,
+        });
+        const questArtifact = resisted
+            ? false : Boolean(obj.oartifact && is_quest_artifact(obj, state));
+        if (resisted || questArtifact) {
+            note_unported(
+                `steal.c mdrop_special_objs ${mon.mx
+                    ? 'protected-object floor drop'
+                    : 'protected-object migration drop'}`,
+            );
+        }
+        obj = next;
+    }
 }
 
 // C ref: steal.c relobj() (873-899). Release the objects a creature carries.

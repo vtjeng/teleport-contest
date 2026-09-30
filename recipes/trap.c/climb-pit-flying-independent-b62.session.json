@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent trap.c:climb_pit Flying branch variation. A debug Wizard with no pet wishes a pit on the square east of the start, backs away, walks into it, uses #polyself to become a human-sized flying vampire, then types '<' while still held; flight reaches the source's Flying escape message without a movement attempt. Seed, clock, role, and movement history were selected independently from the ordinary climb_pit recipe.",
+  "segments": [
+    {
+      "seed": 76149302,
+      "datetime": "20260507114200",
+      "nethackrc": "OPTIONS=name:B62Flyer,role:Wizard,race:elf,gender:female,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+      "moves": "l\u0017pit\nhl#polyself\nvampire\n<"
+    }
+  ]
+}

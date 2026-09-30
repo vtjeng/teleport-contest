@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91827463,
+      "datetime": "20260412101500",
+      "nethackrc": "OPTIONS=name:B62PitWalk,role:Valkyrie,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " h\u0017pit\nlhj"
+    }
+  ]
+}

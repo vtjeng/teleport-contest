@@ -12,6 +12,7 @@ import {
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     BLINDED,
+    BOTH_SIDES,
     COLNO,
     CORPSTAT_FEMALE,
     CORPSTAT_NEUTER,
@@ -30,6 +31,7 @@ import {
     HALLUC,
     HALLUC_RES,
     INVIS,
+    LEFT_SIDE,
     MFAST,
     MSLOW,
     REVIVE_MON,
@@ -82,7 +84,6 @@ import { game } from '../js/gstate.js';
 import { addinv_nomerge } from '../js/invent.js';
 import {
     piousness,
-    UnsupportedEnlightenmentError,
     ustatusline,
 } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
@@ -94,9 +95,14 @@ import {
     NON_PM,
     PM_ALIGNED_CLERIC,
     PM_ARCHON,
+    PM_BARBED_DEVIL,
+    PM_FOG_CLOUD,
     PM_GNOME,
     PM_GNOME_RULER,
     PM_LONG_WORM,
+    PM_PONY,
+    PM_PURPLE_WORM,
+    PM_TRAPPER,
     PM_KEYSTONE_KOP,
     PM_MEDUSA,
     PM_MONK,
@@ -982,7 +988,7 @@ test('doapply uses C default messages for ordinary foods and a hallucinated bana
 // state to exercise. Each is set up independently, then driven through the
 // production doapply() caller. C's order is usteed, uswallow, u.dz, then the
 // cursed heartbeat roll (apply.c:345-377).
-test('use_stethoscope follows the early source branches and names void gaps',
+test('use_stethoscope follows early branches and reports mounted and held monsters',
     async () => {
     const drive = async (setup, keys) => {
         await runSegment({ ...segmentFor('ac.'), moves: '.' });
@@ -993,12 +999,18 @@ test('use_stethoscope follows the early source branches and names void gaps',
             (error) => ({ error }),
         );
     };
-    // A steed is only consulted when the hero points down: apply.c:345 reads
-    // `u.usteed && u.dz > 0`. Its void status-line helper is a named gap.
-    const mounted = () => { game.u.usteed = { mx: game.u.ux, my: game.u.uy }; };
+    // apply.c:345 reads `u.usteed && u.dz > 0`; this source-shaped pony
+    // fixture supplies the monster fields mstatusline() reads for the status.
+    const mounted = () => {
+        game.u.usteed = monsterAt(
+            { x: game.u.ux - 1, y: game.u.uy },
+            { data: game.mons[PM_PONY] },
+        );
+    };
     const mountedDown = await drive(mounted, ['c', '>']);
     assert.equal(mountedDown.error, undefined);
-    assert.ok(game.unported.has('insight.c mstatusline'));
+    assert.match(pendingTopLine(), /^Status of the pony .*?, carrying you\.$/u);
+    assert.equal(game.unported.has('insight.c mstatusline'), false);
     // The same steed with dz 0 falls past the arm to ustatusline(), which is
     // the `u.dz > 0` half of the conjunct. Under `>=` this would refuse.
     const selfListen = await drive(mounted, ['c', '.']);
@@ -1010,23 +1022,28 @@ test('use_stethoscope follows the early source branches and names void gaps',
         'Status of Stetho (fervently neutral):  Level 1  HP 13(13)  AC 8.',
     );
 
-    // apply.c:352 and :356 need mstatusline() for u.ustuck. A horizontal
-    // direction exercises the first swallowed arm before any adjacent probe.
+    // apply.c:352 and :356 need mstatusline() for u.ustuck. The purple worm
+    // uses C's AT_ENGL/AD_DGST attack, so this swallowed arm reports digestion.
     const swallowed = () => {
         game.u.uswallow = 1;
-        game.u.ustuck = { data: game.youmonst.data };
+        game.u.ustuck = monsterAt(
+            { x: game.u.ux - 1, y: game.u.uy },
+            { data: game.mons[PM_PURPLE_WORM] },
+        );
     };
-    const swallowedDirectional = await drive(swallowed, ['c', 'h']);
+    const swallowedDirectional = await drive(swallowed, ['c', 'h', ' ']);
     assert.equal(swallowedDirectional.error, undefined);
-    assert.ok(game.unported.has('insight.c mstatusline'));
+    assert.match(game._ttyToplines, /, digesting you\.$/u);
+    assert.equal(game.unported.has('insight.c mstatusline'), false);
     // The same source arm wins when the swallowed hero points horizontally at
     // a corpse. Adjacent-path preflight must not reorder it below its_dead().
     const swallowedDead = () => {
         swallowed();
         floorCorpstat(CORPSE, { x: game.u.ux - 1, y: game.u.uy });
     };
-    assert.equal((await drive(swallowedDead, ['c', 'h'])).error, undefined);
-    assert.ok(game.unported.has('insight.c mstatusline'));
+    assert.equal((await drive(swallowedDead, ['c', 'h', ' '])).error, undefined);
+    assert.match(game._ttyToplines, /, digesting you\.$/u);
+    assert.equal(game.unported.has('insight.c mstatusline'), false);
 
     // The downward floor arm reaches its source result instead of being
     // rejected; this is the selected v6 branch. It runs its_dead() first and
@@ -1073,6 +1090,170 @@ test('use_stethoscope follows the early source branches and names void gaps',
     const cursedDown = await doapply(game);
     assert.ok([ECMD_OK, ECMD_TIME].includes(cursedDown));
     assert.equal((getRngLog() ?? []).length - verticalDrawsBefore, 0);
+});
+
+test('use_stethoscope keeps interference before the matching status line',
+    async () => {
+    // Fog clouds are whirly engulfer fixtures from monst.c. A one-word core
+    // context makes the source rn2(10) return zero, and the asserted log pins
+    // both the call bound and result that make C's interference predicate true.
+    const scenarios = [
+        {
+            direction: '>',
+            mounted: true,
+            label: 'mounted-down arm',
+        },
+        {
+            direction: '.',
+            mounted: false,
+            label: 'swallowed stationary arm',
+        },
+    ];
+    for (const scenario of scenarios) {
+        await runSegment({ ...segmentFor('ac.'), moves: '.' });
+        const holder = monsterAt(
+            { x: game.u.ux - 1, y: game.u.uy },
+            { data: game.mons[PM_FOG_CLOUD] },
+        );
+        game.u.uswallow = 1;
+        game.u.ustuck = holder;
+        if (scenario.mounted) {
+            game.u.usteed = monsterAt(
+                { x: game.u.ux + 1, y: game.u.uy },
+                { data: game.mons[PM_PONY] },
+            );
+        }
+        const realCoreContext = game.coreCtx;
+        game.coreCtx = { n: 1, r: [0n] };
+        const drawsBefore = getRngLog().length;
+        // The first space dismisses the interference line when C's second
+        // pline replaces it; the second dismisses the resulting More prompt.
+        for (const key of ['c', scenario.direction, ' ', ' '])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        const toplineDescriptor = Object.getOwnPropertyDescriptor(
+            game, '_ttyToplines',
+        );
+        let toplines = game._ttyToplines ?? '';
+        const toplineWrites = [];
+        Object.defineProperty(game, '_ttyToplines', {
+            configurable: true,
+            enumerable: toplineDescriptor?.enumerable ?? true,
+            get: () => toplines,
+            set: (value) => {
+                toplines = value;
+                toplineWrites.push(value);
+            },
+        });
+        let result;
+        try {
+            result = await doapply(game);
+        } finally {
+            game.coreCtx = realCoreContext;
+            if (toplineDescriptor) {
+                Object.defineProperty(game, '_ttyToplines', {
+                    ...toplineDescriptor,
+                    value: toplines,
+                });
+            } else {
+                delete game._ttyToplines;
+                game._ttyToplines = toplines;
+            }
+        }
+        const interferenceDraws = getRngLog().slice(drawsBefore);
+
+        assert.ok([ECMD_OK, ECMD_TIME].includes(result), scenario.label);
+        assert.deepEqual(interferenceDraws, ['rn2(10)=0'], scenario.label);
+        const interferenceAt = toplineWrites.findIndex(
+            (message) => message.includes('interferes.'),
+        );
+        const statusAt = toplineWrites.findIndex(
+            (message) => message.includes('Status of the fog cloud'),
+        );
+        assert.ok(interferenceAt >= 0, scenario.label);
+        assert.ok(statusAt > interferenceAt, scenario.label);
+        assert.match(
+            toplineWrites[statusAt], /, engulfing you\./u, scenario.label,
+        );
+        assert.equal(game.unported.has('insight.c mstatusline'), false);
+    }
+});
+
+test('mstatusline uses C attack flags for swallowed and holding clauses',
+    async () => {
+    const statusAtWest = async ({ species, swallowed, heroSpecies = null }) => {
+        const target = await heroWithEmptyWest();
+        const holder = monsterAt(target, { data: game.mons[species] });
+        game.u.ustuck = holder;
+        // you.h: u.uswallow is zero when free and nonzero while engulfed.
+        game.u.uswallow = swallowed ? 1 : 0;
+        if (heroSpecies !== null)
+            game.youmonst.data = game.mons[heroSpecies];
+        assert.equal(await listenWest(1), null);
+        return game._ttyToplines ?? pendingTopLine();
+    };
+
+    // Purple worm has AT_ENGL/AD_DGST (monsters.h:1138-1144); C checks
+    // digestion before any other swallowing description.
+    assert.match(await statusAtWest({
+        species: PM_PURPLE_WORM,
+        swallowed: true,
+    }), /, digesting you\.$/u);
+    // insight.c:3356-3371 checks swallowing before sticks(youmonst.data).
+    // Barbed devil has AD_STCK on an AT_CLAW (monsters.h:2964), and can use
+    // tools, so its source-shaped form tests both status branches here.
+    assert.match(await statusAtWest({
+        species: PM_PURPLE_WORM,
+        swallowed: true,
+        heroSpecies: PM_BARBED_DEVIL,
+    }), /, digesting you\.$/u);
+    // Trapper has AT_ENGL/AD_WRAP (monsters.h:990-998), so enfolds() keeps it
+    // out of the source's animal-but-not-enfolder swallowing arm.
+    assert.match(await statusAtWest({
+        species: PM_TRAPPER,
+        swallowed: true,
+    }), /, engulfing you\.$/u);
+    // The ordinary Healer form is not sticky, so a non-swallowed holder says
+    // it is holding the hero.
+    assert.match(await statusAtWest({ species: PM_NEWT, swallowed: false }),
+        /, holding you\.$/u);
+    // insight.c tests the hero's current youmonst data without a separate
+    // Upolyd condition; the sticky body is the source-shaped barbed devil.
+    assert.match(await statusAtWest({
+        species: PM_NEWT,
+        swallowed: false,
+        heroSpecies: PM_BARBED_DEVIL,
+    }), /, held by you\.$/u);
+});
+
+test('mstatusline masks wounded steed legs and pluralizes only both sides',
+    async () => {
+    // youprop.h stores a recovery timeout in intrinsic and side bits in
+    // extrinsic; insight.c masks the latter with BOTH_SIDES before choosing
+    // whether to pluralize mbodypart(). The timeout-only case pins Wounded_legs
+    // as the OR of those fields, and a single left side must stay singular.
+    const cases = [
+        { intrinsic: 0, extrinsic: LEFT_SIDE, word: 'rear leg' },
+        { intrinsic: 0, extrinsic: BOTH_SIDES, word: 'rear legs' },
+        { intrinsic: 1, extrinsic: 0, word: 'rear leg' },
+    ];
+    for (const injury of cases) {
+        await heroWithEmptyWest();
+        game.u.usteed = monsterAt(
+            { x: game.u.ux - 1, y: game.u.uy },
+            { data: game.mons[PM_PONY] },
+        );
+        game.u.uprops[WOUNDED_LEGS] = {
+            intrinsic: injury.intrinsic,
+            extrinsic: injury.extrinsic,
+        };
+        for (const key of ['c', '>', ' '])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.ok([ECMD_OK, ECMD_TIME].includes(await doapply(game)));
+        assert.match(
+            game._ttyToplines ?? pendingTopLine(),
+            new RegExp(`, carrying you, injured ${injury.word}\\.$`, 'u'),
+        );
+    }
 });
 
 // C refs: apply.c use_stethoscope() (384-470) and its_dead() (196-309). The
@@ -1662,11 +1843,12 @@ test('the monster arm answers in apply.c branch order', async () => {
 
     // apply.c:396-397. gn.notonhead is FALSE while the monster stands on the
     // square the listen pointed at. Only a long worm can answer m_at()
-    // somewhere other than its own <mx,my>, and insight.c:3290 stops for one,
-    // but the write happens at :397, well above that stop.
+    // somewhere other than its own <mx,my>. mstatusline() reports the hit
+    // position after this write.
     const wormHead = await heroWithEmptyWest();
     monsterAt(wormHead, { data: game.mons[PM_LONG_WORM] });
-    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+    assert.equal(await listenWest(1), null);
+    assert.match(game._ttyToplines, /, single segment\.$/u);
     assert.equal(game.gb.bhitpos.x, wormHead.x);
     assert.equal(game.gb.bhitpos.y, wormHead.y);
     assert.equal(game.gn.notonhead, false);
@@ -1679,7 +1861,16 @@ test('the monster arm answers in apply.c branch order', async () => {
         const worm = monsterAt(tail, { data: game.mons[PM_LONG_WORM] });
         worm.mx += dx;
         worm.my += dy;
-        await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+        worm.wormno = 1;
+        game.level.worms ??= [];
+        game.level.worms[1] = {
+            segments: [
+                { x: tail.x, y: tail.y },
+                { x: worm.mx, y: worm.my },
+            ],
+        };
+        assert.equal(await listenWest(1), null);
+        assert.match(game._ttyToplines, /, 2nd of 2 segments\.$/u);
         assert.equal(game.gn.notonhead, true, `${dx},${dy}`);
     }
 });
@@ -1850,13 +2041,36 @@ test('a debug game reports a pet\'s tameness, hunger and apport', async () => {
     assert.match(game._ttyToplines, /^Status of the newt of /i);
 });
 
-test('mstatusline stops on the three clauses that need unported source',
+test('mstatusline reports long-worm segment count and hit position',
     async () => {
-    // insight.c:3290-3303, the long-worm segment count, which needs worm.c
-    // count_wsegs() and wseg_at().
+    // insight.c:3290-3303 and worm.c count_wsegs()/wseg_at(). C includes
+    // the hidden head node in its player-facing count and indexes from head
+    // toward the tail.
     const worm = await heroWithEmptyWest();
     monsterAt(worm, { data: game.mons[PM_LONG_WORM] });
-    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+    assert.equal(await listenWest(1), null);
+    assert.match(game._ttyToplines, /, single segment\.$/u);
+
+    // Each iteration points at the visible tail while moving the head one
+    // coordinate axis away. Both the source bhitpos and the occupancy gate in
+    // wseg_at() must identify the same attacked segment.
+    for (const [dx, dy] of [[1, 0], [0, 1]]) {
+        const tail = await heroWithEmptyWest();
+        const monster = monsterAt(tail, { data: game.mons[PM_LONG_WORM] });
+        monster.wormno = 1;
+        monster.mx += dx;
+        monster.my += dy;
+        game.level.worms ??= [];
+        game.level.worms[1] = {
+            segments: [
+                { x: tail.x, y: tail.y },
+                { x: monster.mx, y: monster.my },
+            ],
+        };
+        assert.equal(await listenWest(1), null);
+        assert.match(game._ttyToplines, /, 2nd of 2 segments\.$/u);
+        assert.equal(game.gn.notonhead, true, `${dx},${dy}`);
+    }
 
     // insight.c:3316-3318's third term. gb.bhitpos is the square the listen
     // pointed at, not the hero's, so a cloud over the monster reaches
@@ -1876,18 +2090,8 @@ test('mstatusline stops on the three clauses that need unported source',
     );
     game.level.regions.pop();
 
-    // insight.c:3355-3373 and :3374-3387, the two clauses about a monster that
-    // has hold of the hero or is carrying her. Neither is reachable from a
-    // listen in an ordinary game, and both need source the goal leaves out.
-    const holder = await heroWithEmptyWest();
-    game.u.ustuck = monsterAt(holder);
-    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
-    game.u.ustuck = null;
-
-    const steed = await heroWithEmptyWest();
-    game.u.usteed = monsterAt(steed);
-    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
-    game.u.usteed = null;
+    // The holder and mounted-steed clauses at insight.c:3353-3385 now run
+    // through their source conditions in the focused cases above.
 });
 
 test('its_dead reports singular, stacked, and separated corpses', async () => {

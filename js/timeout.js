@@ -9,6 +9,7 @@
 import {
     ACID_RES,
     A_CON,
+    A_STR,
     BURN_OBJECT,
     BURIED_TOO,
     BLINDED,
@@ -43,6 +44,7 @@ import {
     KILLED_BY,
     KILLED_BY_AN,
     MAGICAL_BREATHING,
+    NECK,
     NEUTRAL,
     MAX_EGG_HATCH_TIME,
     NUM_TIME_FUNCS,
@@ -584,6 +586,61 @@ async function sleep_dialogue(state, env = {}) {
         await (env.message ?? ttyPline)('You yawn.', state);
 }
 
+// C ref: timeout.c choke_texts, choke_texts2 and choke_dialogue() (278-314).
+// Preserve the C countdown index (the final element is the first warning),
+// Breathless short-circuit, and the unconditional trailing exercise call.
+const chokeTexts = Object.freeze([
+    'You find it hard to breathe.',
+    "You're gasping for air.",
+    'You can no longer breathe.',
+    "You're turning %s.",
+    'You suffocate.',
+]);
+
+const chokeTexts2 = Object.freeze([
+    'Your %s is becoming constricted.',
+    'Your blood is having trouble reaching your brain.',
+    'The pressure on your %s increases.',
+    'Your consciousness is fading.',
+    'You suffocate.',
+]);
+
+async function choke_dialogue(state, env = {}) {
+    const random = env.random ?? { rn2 };
+    const message = env.message ?? ttyPline;
+    const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
+    const intrinsic = state.u?.uprops?.[STRANGLED]?.intrinsic ?? 0;
+    const i = Math.trunc(intrinsic) & TIMEOUT;
+    // youprop.h:276 reads both magical-breathing sources or the current form;
+    // none of these source checks consults the property's blocked field.
+    const magicalBreathing = propertySource(state, MAGICAL_BREATHING);
+    const isBreathless = magicalBreathing || breathless(state.youmonst?.data);
+
+    if (i > 0 && i <= chokeTexts.length) {
+        if (isBreathless || random.rn2(50) === 0) {
+            const text = chokeTexts2[chokeTexts2.length - i];
+            await urgentMessage(
+                text.includes('%s')
+                    ? text.replace('%s', body_part(NECK, state.youmonst))
+                    : text,
+                state,
+            );
+        } else {
+            const text = chokeTexts[chokeTexts.length - i];
+            await urgentMessage(
+                text.includes('%s')
+                    ? text.replace('%s', hcolor('blue', state, env))
+                    : text,
+                state,
+            );
+            await stop_occupation(state, { ...env, message });
+        }
+    }
+
+    const encumberMessage = (subject) => encumber_msg(subject, { message });
+    await exercise(A_STR, false, state, random, { encumberMessage });
+}
+
 // youprop.h: source-only properties do not consult their blocked field.
 function propertySource(state, index) {
     const property = state.u?.uprops?.[index];
@@ -597,17 +654,21 @@ function Flying(state) {
 }
 
 // These existing callees can draw, prompt, change maps or invoke arbitrary
-// callbacks. The elapsed-turn planner stops before nh_timeout reaches one,
-// runs this timeout live, then validates the remaining allocation from the
-// resulting state. This is an execution handoff, not a refused source path.
+// callbacks. The elapsed-turn planner stops before ordinary expiry handlers
+// reach one, runs them live, then validates the remaining allocation from the
+// resulting state. timeout.c calls choke_dialogue() for every nonzero
+// Strangled value, and choke_dialogue() always exercises Strength, so any
+// active strangling value must use the same live handoff before nh_timeout().
+// This is an execution handoff, not a refused source path.
 export function nh_timeout_requires_live_state(state = game) {
     const u = state.u;
     if (u.uinvulnerable) return false;
     if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)
         && !is_were(state.youmonst.data)) return true;
+    if (u.uprops?.[STRANGLED]?.intrinsic) return true;
     for (const index of [
         STONED, SICK, BLINDED, INVIS, SEE_INVIS, HALLUC, LEVITATION,
-        FLYING, STRANGLED, DETECT_MONSTERS, DISPLACED, GLIB,
+        FLYING, DETECT_MONSTERS, DISPLACED, GLIB,
         PROT_FROM_SHAPE_CHANGERS,
     ]) {
         if ((u.uprops?.[index]?.intrinsic & TIMEOUT) === 1) return true;
@@ -897,7 +958,7 @@ export async function nh_timeout(state = game, env = {}) {
     if (u.uprops?.[VOMITING]?.intrinsic && !env.planning)
         note_unported('timeout.c vomiting_dialogue');
     if (u.uprops?.[STRANGLED]?.intrinsic && !env.planning)
-        note_unported('timeout.c choke_dialogue');
+        await choke_dialogue(state, { ...displayEnv, random, message });
     if (u.uprops?.[SICK]?.intrinsic && !env.planning)
         note_unported('timeout.c sickness_dialogue');
     if ((u.uprops?.[LEVITATION]?.intrinsic & TIMEOUT) && !env.planning)

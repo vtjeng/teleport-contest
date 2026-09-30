@@ -192,7 +192,8 @@ import {
     is_art,
 } from './artifacts.js';
 import { is_quest_artifact } from './questpgr.js';
-import { count_wsegs, makemon_runtime } from './makemon_create.js';
+import { count_wsegs } from './worm.js';
+import { makemon_runtime } from './makemon_create.js';
 import {
     maybe_unhide_at,
     monkilled,
@@ -1933,7 +1934,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
     }
 
     const tooLargeOrAirborne = !grounded(species, state)
-        || (mtmp.wormno && count_wsegs(mtmp) > 5)
+        || (mtmp.wormno && count_wsegs(mtmp, state) > 5)
         || species.msize >= MZ_HUGE;
     if (tooLargeOrAirborne) {
         if (forceTrap && !state.level?.flags?.sokoban_rules) {

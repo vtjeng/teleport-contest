@@ -109,6 +109,7 @@ import {
     MIGR_RANDOM,
     MON_DETACH,
     MON_ENDGAME_MIGR,
+    MON_ENDGAME_FREE,
     MON_OBLITERATE,
     MON_FLOOR,
     MON_LIMBO,
@@ -249,19 +250,22 @@ import {
     newmonhp,
 } from './makemon.js';
 import {
-    count_wsegs,
+    discard_minvent,
     dmonsfree,
-    get_wormno,
-    initworm,
     isRogueLevel,
     makemon_runtime,
-    mongone,
     permanentlyInvisible,
-    place_worm_tail_randomly,
-    remove_worm,
     set_mimic_sym,
-    wormgone,
 } from './makemon_create.js';
+import {
+    count_wsegs,
+    get_wormno,
+    initworm,
+    place_worm_tail_randomly,
+    place_wsegs,
+    remove_worm,
+    wormgone,
+} from './worm.js';
 import { expels, m_next2u } from './mhitu.js';
 import {
     always_hostile,
@@ -635,7 +639,12 @@ import {
     messageAt,
     sensesMonster,
 } from './startup_a11y.js';
-import { mpickobj, relobj, thiefdead } from './steal.js';
+import {
+    mdrop_special_objs,
+    mpickobj,
+    relobj,
+    thiefdead,
+} from './steal.js';
 import { replshk, shkgone } from './shk.js';
 import {
     enexto,
@@ -2794,8 +2803,14 @@ function* apply_newcham_steps(
     if (monster.wormno) {
         const mx = monster.mx;
         const my = monster.my;
-        remove_worm(monster, normalized);
-        wormgone(monster, state);
+        // C mon.c:newcham() calls wormgone() directly. It clears wormno before
+        // toss_wsegs() removes and redraws the tail, so redraw observers see
+        // the released head state while the old slot is still being freed.
+        wormgone(monster, {
+            ...normalized,
+            state,
+            newsym: (x, y) => shapeRedraw(x, y, normalized),
+        });
         place_monster(monster, mx, my, state);
     }
     if (M_AP_TYPE(monster) && target.mlet !== S_MIMIC)
@@ -2892,7 +2907,7 @@ function* apply_newcham_steps(
 
     if (target.pmidx === PM_LONG_WORM
         && (monster.wormno = get_wormno(state)) !== 0) {
-        initworm(monster, random.rn2(5), state);
+        initworm(monster, random.rn2(5), { ...normalized, state });
         place_worm_tail_randomly(monster, monster.mx, monster.my, normalized);
     }
     monster.meverseen = false;
@@ -4259,18 +4274,9 @@ export async function mcalcdistress(state = game, env = {}) {
 // xkilled() -> mondead() -> m_detach() -> mon_leaving_level(), leaving a
 // corpse, perhaps an object, and the experience and alignment it was worth.
 //
-// mon.c mongone(), m_detach()'s other C caller, stays in js/makemon_create.js
-// with its own merged copy of mon_leaving_level() and m_detach() rather than
-// calling the pair below, and js/dog.js relmon() holds a third copy of
-// mon_leaving_level()'s body for the migration callers, so mon.c is knowingly
-// split across three files. The relmon() note names the arms that copy owns.
-// The reason for that one is that m_detach() has to be async -- the inventory
-// drop at its 2779 goes through steal.c relobj(), which is async because
-// steal.c mdrop_obj() can print -- while mongone()'s only caller chain, trap.c
-// mk_trap_statue() under mklev.c mktrap() under the level build, is
-// synchronous from end to end. Making mongone() async would push `await`
-// through all of level generation for a call that never reaches relobj(),
-// because mongone() passes due_to_death FALSE.
+// mon.c mongone() now uses these same removal functions when a monster
+// disappears. Its guard case remains blocked on vault.c grddead(); the
+// ordinary case preserves C's inventory-discard then detach order.
 // ---------------------------------------------------------------------------
 
 function requiredKillOperation(env, name) {
@@ -4413,9 +4419,7 @@ function relmon(mon, state = game) {
 
 // C ref: mon.c replmon() (2515-2556). Replace a live monster record while
 // preserving the inventory and the references held by combat, riding, and
-// swallowing state. The worm-tail and shopkeeper helpers are still outside
-// this port; both C calls discard their return value, so they are explicit
-// gaps rather than invented state changes.
+// swallowing state. Worm segments are moved with the replacement record.
 export function replmon(mtmp, mtmp2, state = game) {
     for (let obj = mtmp2.minvent; obj; obj = obj.nobj) {
         if (obj.where !== undefined && obj.where !== OBJ_MINVENT)
@@ -4435,8 +4439,7 @@ export function replmon(mtmp, mtmp2, state = game) {
 
     if (mtmp !== state.u?.usteed)
         place_monster(mtmp2, mtmp2.mx, mtmp2.my, state);
-    if (mtmp2.wormno)
-        note_unported('worm.c place_wsegs');
+    if (mtmp2.wormno) place_wsegs(mtmp2, mtmp, { state });
     if (emits_light(mtmp2.data)) {
         new_light_source(
             mtmp2.mx,
@@ -4522,9 +4525,8 @@ export function dealloc_monst(mon) {
 // furniture, and revealing it needs mon.c seemimic(), which wakeup() above
 // already records as unported.
 //
-// js/dog.js relmon() and js/makemon_create.js mongone() hold the other two
-// copies of this body; the note above relmon() says which arms that copy owns
-// and why the three have not been merged.
+// js/dog.js relmon() holds a separate migration copy of this body; its note
+// says which arms that copy owns.
 export function mon_leaving_level(mon, state = game, env = {}) {
     const mx = mon.mx;
     const my = mon.my;
@@ -4625,21 +4627,22 @@ export function mnearto(
 // of mtmp from other data structures". `mptr` is mtmp->data as it stood before
 // the death, which mondead() saves before restoring a chameleon's true form.
 //
-// Seven arms stop, each the whole of one C branch under exactly C's condition:
+// The still-unported branches stop under their source conditions:
 //
 //   2741-2742  m_unleash(), for a leashed pet.
 //   2761-2762  wizdeadorgone(), for the Wizard of Yendor.
 //   2768-2776  nemdead(), nemesis_stinks() and leaddead(), the quest arms.
-//   2782-2783  thiefdead(), when the dying monster was mid-theft.
-//   2784-2785  shkgone(), for a shopkeeper.
-//   2788-2789  the endgame's MON_ENDGAME_FREE.
 //   2800-2801  dismount_steed(), when the hero was riding what just died.
+// thiefdead(), shkgone(), wormgone(), MON_ENDGAME_FREE, and the detach flag
+// update are implemented in C order. Only the due_to_death branch awaits the
+// inventory drop; mongone()'s false path remains synchronous and surfaces a
+// thrown dependency error to its caller.
 //
 // C's impossible() at 2791-2793 becomes a throw. A monster detached twice
 // would be counted twice against iflags.purge_monsters, and dmonsfree() checks
 // that count against what it actually unlinks, so limping past it corrupts the
 // monster list instead of merely logging.
-export async function m_detach(
+export function m_detach(
     mtmp,
     mptr,
     due_to_death,
@@ -4671,6 +4674,28 @@ export async function m_detach(
     if (mtmp.iswiz) unsupported("the Wizard of Yendor's death");
     /* "foodead() might give quest feedback for foo having died; skip that
        if we're called for mongone() rather than mondead()" */
+    const finishDetach = () => {
+        /* gs.stealmid is 0 while no theft is in progress, and makemon() assigns
+           m_id from svc.context.ident, which starts at 1, so the nonzero test
+           keeps an unset stealmid from matching a monster with no identity. */
+        if (state.gs?.stealmid && mtmp.m_id === state.gs.stealmid)
+            thiefdead(state);
+        if (mtmp.isshk) shkgone(mtmp, state);
+        if (mtmp.wormno) wormgone(mtmp, { state });
+        if (In_endgame(state.u.uz))
+            mtmp.mstate = (mtmp.mstate ?? 0) | MON_ENDGAME_FREE;
+
+        if ((mtmp.mstate ?? 0) & MON_DETACH)
+            throw new Error('m_detach: monster is already detached');
+        mtmp.mstate |= MON_DETACH;
+        state.iflags ??= {};
+        state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
+
+        /* "hero is thrown from his steed when it dies or gets genocided" */
+        if (mtmp === state.u.usteed)
+            unsupported("the death of the hero's steed");
+    };
+
     if (due_to_death) {
         if (mtmp.data.msound === MS_NEMESIS)
             unsupported("the quest nemesis's death");
@@ -4678,26 +4703,80 @@ export async function m_detach(
             unsupported("the quest leader's death");
         /* "release (drop onto map) all objects carried by mtmp; assumes that
            mtmp->mx,my contains the appropriate location" */
-        await relobj(mtmp, 1, false, { ...env, state });
+        return relobj(mtmp, 1, false, { ...env, state })
+            .then(finishDetach);
+    }
+    return finishDetach();
+}
+
+function monsterOnLevelChain(monster, state) {
+    for (let current = state.level?.monlist ?? null;
+        current;
+        current = current.nmon) {
+        if (current === monster) return true;
+    }
+    return false;
+}
+
+// C ref: mon.c mongone() (3267-3286). The common temporary-monster path is
+// source-wired here; grddead() remains an explicit blocker for a live vault
+// guard because its return determines whether C stops or detaches the guard.
+export function mongone(monster, env = {}) {
+    const state = env.state ?? game;
+    if (!monster || typeof monster !== 'object')
+        throw new TypeError('mongone requires a monster instance');
+    if (!monsterOnLevelChain(monster, state))
+        throw new Error('mongone: monster is not on the level chain');
+    if (monster.mstate & MON_DETACH)
+        throw new Error('mongone: monster is already detached');
+
+    monster.mhp = 0;
+    if (monster.isgd) {
+        note_unported('vault.c grddead');
+        throw new Error('mongone: vault.c grddead is not ported');
     }
 
-    /* gs.stealmid is 0 while no theft is in progress, and makemon() assigns
-       m_id from svc.context.ident, which starts at 1, so the nonzero test
-       keeps an unset stealmid from matching a monster with no identity. */
-    if (state.gs?.stealmid && mtmp.m_id === state.gs.stealmid)
-        thiefdead(state);
-    if (mtmp.isshk) shkgone(mtmp, state);
-    if (mtmp.wormno) wormgone(mtmp, state);
-    if (In_endgame(state.u.uz)) unsupported('a monster death in the endgame');
+    // mon.c mongone() releases a holder before object handling; m_detach()
+    // repeats this call after inventory disposal, where it is then a no-op.
+    // The swallowed arm of JS unstuck() awaits the vision redraw before it
+    // rolls the holding cooldown. Keep the ordinary path synchronous, but
+    // preserve C's order by continuing inventory and detach only after that
+    // redraw/cooldown promise settles.
+    const finishRemoval = () => {
+        // C's void mdrop_special_objs() runs before ordinary inventory
+        // disposal. The helper keeps unconditional resistance calls;
+        // protected object transfers remain explicit source-call gaps.
+        mdrop_special_objs(monster, { ...env, state });
+        discard_minvent(monster, false, { ...env, state });
 
-    if ((mtmp.mstate ?? 0) & MON_DETACH)
-        throw new Error('m_detach: monster is already detached');
-    mtmp.mstate |= MON_DETACH;
-    state.iflags ??= {};
-    state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
-
-    /* "hero is thrown from his steed when it dies or gets genocided" */
-    if (mtmp === state.u.usteed) unsupported("the death of the hero's steed");
+        const unsupported = (branch) => {
+            if (branch === 'detaching a leashed pet')
+                note_unported('apply.c m_unleash');
+            else if (branch === 'unhiding a mimic')
+                note_unported('mon.c seemimic');
+            else if (branch === "the Wizard of Yendor's death")
+                note_unported('end.c wizdeadorgone');
+            else if (branch === 'the quest nemesis\'s death')
+                note_unported('quest.c nemdead');
+            else if (branch === 'the quest leader\'s death')
+                note_unported('questpgr.c leaddead');
+            else if (branch === "the death of the hero's steed")
+                note_unported('steed.c dismount_steed');
+            else
+                note_unported(`mon.c m_detach ${branch}`);
+        };
+        // C passes due_to_death=false, so this stays synchronous after the
+        // optional swallowed release; source-site failures reach the caller.
+        m_detach(monster, monster.data, false, state, {
+            ...env,
+            state,
+            unsupported,
+        });
+    };
+    const release = unstuck(monster, state, env);
+    return release && typeof release.then === 'function'
+        ? release.then(finishRemoval)
+        : finishRemoval();
 }
 
 // C ref: mon.c mlifesaver() (2825-2836). "find the worn amulet of life saving
@@ -5994,9 +6073,9 @@ export function m_into_limbo(mtmp, state = game, env = {}) {
     return migrate_mon(mtmp, targetLev, MIGR_APPROX_XY, state, env);
 }
 
-// C ref: mon.c migrate_mon() (3839-3863). Special-object dropping remains an
-// explicit gap because steal.c mdrop_special_objs() is not ported; the C call
-// returns void, so no invented object movement belongs here.
+// C ref: mon.c migrate_mon() (3839-3863). The special-object helper preserves
+// C's resistance queries; protected-object transfer remains a recorded gap
+// until callers can await the drop or relocation lifecycle.
 export function migrate_mon(
     mtmp,
     target_lev,
@@ -6008,7 +6087,7 @@ export function migrate_mon(
         const release = unstuck(mtmp, state, env);
         if (release && typeof release.then === 'function') {
             return release.then(() => {
-                note_unported('steal.c mdrop_special_objs');
+                mdrop_special_objs(mtmp, { ...env, state });
                 return migrate_to_level(
                     mtmp,
                     target_lev,
@@ -6018,7 +6097,7 @@ export function migrate_mon(
                 );
             });
         }
-        note_unported('steal.c mdrop_special_objs');
+        mdrop_special_objs(mtmp, { ...env, state });
     }
     return migrate_to_level(
         mtmp,

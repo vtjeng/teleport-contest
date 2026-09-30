@@ -340,6 +340,8 @@ import {
     mksobj,
     is_flimsy,
     is_shield,
+    is_axe,
+    is_blade,
     is_wet_towel,
     place_object,
     splitobj,
@@ -460,6 +462,7 @@ import { body_part, mbodypart, polymon } from './polyself.js';
 import { observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import { mhidden_description } from './pager.js';
+import { cutworm } from './worm.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -1260,14 +1263,9 @@ export async function force_attack(monster, pets_too, state = game, env = {}) {
 // can downgrade a hit to a miss; the miss arm never does. C returns whether
 // the target still lives, which is TRUE for every miss.
 //
-// `slice_or_chop`, computed at 599 for the hit arm's cutworm() call, is left
-// out: no target this port reaches has a wormno, so the cutworm() call at
-// 642-643 that reads it stops first. go.override_confirmation at 601 is
-// constantly FALSE; see do_attack().
-//
-// gn.notonhead at 620 records whether the blow landed on a long worm's tail
-// rather than its head. Only hmon_hitmon()'s potion and misc-object arms read
-// it, and both stop, so it is not carried.
+// `slice_or_chop` is captured before hmon() can consume the weapon; the hit
+// coordinate and gn.notonhead are set immediately before that call.
+// go.override_confirmation at 601 is constantly FALSE; see do_attack().
 //
 // The morale check at 623-633 spends a second random choice only after the
 // unconditional !rn2(25) draw succeeds. Its void monflee() call is the
@@ -1285,6 +1283,8 @@ export async function known_hitum(
     env = {},
 ) {
     const random = env.random ?? { d, rn2, rnd };
+    const sliceOrChop = Boolean(weapon
+        && (is_blade(weapon, state) || is_axe(weapon, state)));
     let malive = true;
 
     if (!mhit.value) {
@@ -1306,6 +1306,10 @@ export async function known_hitum(
 
         /* we hit the monster; be careful: it might die or
            be knocked into a different location */
+        state.gb ??= {};
+        state.gn ??= {};
+        state.gn.notonhead = state.gb.bhitpos.x !== mon.mx
+            || state.gb.bhitpos.y !== mon.my;
         malive = await hmon(mon, weapon, HMON_MELEE, dieroll, state, env);
         if (malive) {
             /* monster still alive */
@@ -1343,7 +1347,13 @@ export async function known_hitum(
                 state.u.uconduct.weaphit = oldweaphit;
             }
             if (mon.wormno && mhit.value)
-                requireAttackOperation(env, 'unsupported')('cutting a worm');
+                await cutworm(
+                    mon,
+                    state.gb.bhitpos.x,
+                    state.gb.bhitpos.y,
+                    sliceOrChop,
+                    { ...env, state, random },
+                );
         }
     }
     return malive;

@@ -110,6 +110,7 @@ import {
     PM_SAMURAI,
     PM_NINJA,
     LOW_PM,
+    NUMMONS,
     G_NOCORPSE,
     G_UNIQ,
     NON_PM,
@@ -211,7 +212,7 @@ import {
 import { monster_census } from './minion.js';
 import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
 import {
-    flash_mon, setmangry, wake_nearto, wakeup,
+    flash_mon, mongone, setmangry, wake_nearto, wakeup,
 } from './mon.js';
 import {
     MAXMCLASSES, S_goodpos,
@@ -2749,9 +2750,9 @@ const GENOCIDE_ONTHRONE = 4;
 
 // C ref: read.c do_class_genocide() (2638-2820). The class parser fallback,
 // retry accounting, eligibility scan, and self-genocide order follow C. Its
-// mongone() and kill_genocided_monsters() calls discard void results and stay
-// named source gaps until those owning mon.c paths are ported.
-export async function do_class_genocide(state = game) {
+// wizard `*` branch calls the admitted mon.c:mongone() path; the distinct
+// kill_genocided_monsters() calls remain a named source gap.
+export async function do_class_genocide(state = game, env = {}) {
     let llDone = false;
     let feelDead = false;
     let gameover = false;
@@ -2799,7 +2800,9 @@ export async function do_class_genocide(state = game) {
         let immuneCount = 0;
         let goneCount = 0;
         let goodCount = 0;
-        for (let i = LOW_PM; i < state.mons.length; ++i) {
+        // C loops to NUMMONS and excludes the final long-worm-tail sentinel,
+        // whose zero mlet would otherwise prevent the wizard `*` branch.
+        for (let i = LOW_PM; i < NUMMONS; ++i) {
             const species = state.mons[i];
             if (species.mlet !== monsterClass) continue;
             if (!(species.geno & G_GENO)) ++immuneCount;
@@ -2821,7 +2824,13 @@ export async function do_class_genocide(state = game) {
                     monster;) {
                     const next = monster.nmon;
                     if (monster.mhp >= 1) {
-                        note_unported('mon.c mongone');
+                        // C saves nmon before mongone() detaches this monster.
+                        // Ordinary removal stays synchronous; releasing a
+                        // swallowed hero must finish its redraw/cooldown before
+                        // this loop counts the monster or visits the next one.
+                        const removal = mongone(monster, { ...env, state });
+                        if (removal && typeof removal.then === 'function')
+                            await removal;
                         ++count;
                     }
                     monster = next;
@@ -2834,7 +2843,7 @@ export async function do_class_genocide(state = game) {
             continue;
         }
 
-        for (let i = LOW_PM; i < state.mons.length; ++i) {
+        for (let i = LOW_PM; i < NUMMONS; ++i) {
             const species = state.mons[i];
             if (species.mlet !== monsterClass) continue;
             const name = makeplural(species.pmnames[NEUTRAL]);

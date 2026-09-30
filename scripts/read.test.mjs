@@ -5,7 +5,7 @@ import test from 'node:test';
 import {
     CONFUSION, ECMD_TIME, GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_SELECTABLE, GETOBJ_SUGGEST, G_GENOD, IN_SIGHT,
-    ROOM, SPE_LIM, W_RINGL,
+    MM_NOMSG, MON_DETACH, ROOM, SPE_LIM, TOPLINE_EMPTY, W_RINGL,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -13,12 +13,18 @@ import {
     cap_spe,
     can_center_cloud,
     charge_ok,
+    do_class_genocide,
     recharge,
     seffect_identify,
     seffect_amnesia,
     seffects,
 } from '../js/read.js';
-import { G_NOCORPSE, PM_NEWT, PM_WIZARD } from '../js/monsters.js';
+import {
+    G_NOCORPSE, PM_AIR_ELEMENTAL, PM_LONG_WORM, PM_NEWT, PM_WIZARD,
+} from '../js/monsters.js';
+import { makemon_runtime } from '../js/makemon_create.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import { scriptedRandom, step } from './monster-scripted-random.mjs';
 import {
     MAGIC_MARKER, SCR_CHARGING, SCR_CREATE_MONSTER, SCR_FOOD_DETECTION,
     SCR_GOLD_DETECTION, SCR_SCARE_MONSTER,
@@ -613,6 +619,159 @@ test('read.c genocide wrappers keep ordinary, class, throne, and cursed return p
         G_GENOD | G_NOCORPSE,
     );
 });
+
+test('read.c wizard class genocide synchronously removes a worm through mongone',
+    async () => {
+        // This fixed seed initializes a reproducible room; species and its
+        // explicit placement are chosen directly, so generation is not under
+        // test. The east-adjacent coordinate uses makemon.c's runtime
+        // explicit-coordinate, MM_NOMSG call shape.
+        await emptyTamingWorld(8080060);
+        const worm = await makemon_runtime(
+            game.mons[PM_LONG_WORM],
+            game.u.ux + 1,
+            game.u.uy,
+            MM_NOMSG,
+            { state: game },
+        );
+        assert.ok(worm);
+        const wormno = worm.wormno;
+        const slot = game.level.worms[wormno];
+        const occupied = [
+            [worm.mx, worm.my],
+            ...slot.segments.map(({ x, y }) => [x, y]),
+        ];
+
+        game.wizard = true;
+        game._pending_message = '';
+        game._ttyMessageStopped = false;
+        game.nhDisplay.toplin = TOPLINE_EMPTY;
+        // read.c do_class_genocide() consumes a class line; '*' selects the
+        // wizard-only all-monsters branch and LF ends that line.
+        game.nhDisplay.terminal._inputQueue.push('*'.charCodeAt(0), 10);
+        await do_class_genocide(game);
+
+        assert.equal(worm.mhp, 0);
+        assert.ok(worm.mstate & MON_DETACH);
+        assert.equal(worm.wormno, 0);
+        assert.equal(game.level.worms[wormno], null);
+        for (const [x, y] of occupied)
+            assert.equal(game.level.monsters[x][y], null, `${x},${y}`);
+        assert.match(game._pending_message, /Eliminated 1 monster\./u);
+        assert.equal(game.unported?.has('mon.c mongone'), false);
+    });
+
+test('read.c wizard genocide waits for swallowed mongone before continuing',
+    async () => {
+        // Seed 8080062 only initializes the runtime input/display shell; this
+        // is an independently constructed holder, not a replay seed. Air
+        // elemental ID 702 and 18 HP only identify a live AT_ENGL fixture.
+        await emptyTamingWorld(8080062);
+        const state = game;
+        state.level.monlist = null;
+        state.fmon = null;
+        const holder = newMonster({
+            data: state.mons[PM_AIR_ELEMENTAL],
+            mnum: PM_AIR_ELEMENTAL,
+            m_id: 702,
+            mhp: 18,
+        });
+        // A live newt follows the holder in C's fmon chain. Its distinct ID
+        // 703 and 4 HP identify the next removal; the adjacent square keeps
+        // the ordinary monster separate from the swallowed holder.
+        const nextMonster = newMonster({
+            data: state.mons[PM_NEWT],
+            mnum: PM_NEWT,
+            m_id: 703,
+            mhp: 4,
+        });
+        holder.nmon = nextMonster;
+        state.level.monlist = holder;
+        place_monster(holder, state.u.ux, state.u.uy, state);
+        place_monster(nextMonster, state.u.ux + 1, state.u.uy, state);
+        // C's swallowed-holder fields let unstuck() release this monster;
+        // wizard plus the queued `*` and newline select/confirm all monsters.
+        state.u.ustuck = holder;
+        state.u.uswallow = 1;
+        state.gm ??= {};
+        state.gm.mswallower = holder;
+        state.wizard = true;
+        state._pending_message = '';
+        state._ttyMessageStopped = false;
+        state.nhDisplay.toplin = TOPLINE_EMPTY;
+        state.nhDisplay.terminal._inputQueue.push('*'.charCodeAt(0), 10);
+
+        let releaseVision;
+        let signalVision;
+        const visionGate = new Promise((resolve) => { releaseVision = resolve; });
+        const visionEntered = new Promise((resolve) => { signalVision = resolve; });
+        // C's rnd(2)=1 cooldown is the only random draw in this isolated
+        // continuation; it must occur after the gated mode-2 redraw.
+        const random = scriptedRandom([step('rnd', [2], 1)]);
+        const operation = do_class_genocide(state, {
+            random: random.random,
+            visionRecalc: async (mode) => {
+                if (mode === 2) {
+                    signalVision();
+                    await visionGate;
+                }
+            },
+            docrt: async () => {},
+        });
+
+        await visionEntered;
+        assert.equal(state.u.ustuck, null);
+        assert.equal(state.u.uswallow, 0);
+        // The caller must not count the monster or print the genocide summary
+        // until mongone has completed its redraw/cooldown continuation.
+        assert.equal(Boolean(holder.mstate & MON_DETACH), false);
+        // read.c must finish the holder before starting the next monster.
+        assert.equal(nextMonster.mhp, 4);
+        assert.equal(Boolean(nextMonster.mstate & MON_DETACH), false);
+        assert.equal(holder.nmon, nextMonster);
+        assert.equal(state.iflags?.purge_monsters ?? 0, 0);
+        assert.doesNotMatch(state._pending_message, /Eliminated/u);
+
+        releaseVision();
+        await operation;
+        random.assertExhausted();
+        assert.ok(holder.mstate & MON_DETACH);
+        assert.ok(nextMonster.mstate & MON_DETACH);
+        // Both selected monsters now count towards C's summary and purge.
+        assert.equal(state.iflags.purge_monsters, 2);
+        assert.match(state._pending_message, /Eliminated 2 monsters\./u);
+    });
+
+test('read.c wizard genocide recipe reaches mongone through blessed scroll input',
+    async () => {
+        // The matching C recording fixes the debug wish, item selection, and
+        // '*' class-input sequence independently of this state assertion.
+        const { session, state } = await replayGenocideRecipe(
+            'read.c/wizard-genocide-removes-pet-independent-a52',
+        );
+
+        assert.match(session.getScreens().at(-1), /Eliminated 1 monster\./u);
+        assert.equal(state._pending_message, 'Eliminated 1 monster.');
+        assert.equal(state.level.monlist, null);
+        assert.equal(state.unported?.has('mon.c mongone'), false);
+    });
+
+test('read.c wizard genocide removes a created worm through mongone',
+    async () => {
+        // This independent C recipe creates a long worm before the wizard's
+        // all-monsters '*' branch, then records its removal from the level.
+        const { session, state } = await replayGenocideRecipe(
+            'read.c/wizard-genocide-removes-longworm-independent-a52',
+        );
+        const screens = session.getScreens();
+
+        assert.ok(screens.some((screen) =>
+            screen.includes('A long worm appears') && screen.includes('~~')));
+        assert.match(screens.at(-1), /Eliminated \d+ monsters\./u);
+        assert.doesNotMatch(screens.at(-1), /~~/u);
+        assert.equal(state.level.monlist, null);
+        assert.equal(state.unported?.has('mon.c mongone'), false);
+    });
 
 test('read.c first-genocide Chronicle uses uhis() for class and species paths', async () => {
     const cases = [

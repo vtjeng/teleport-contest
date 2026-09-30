@@ -1,14 +1,16 @@
 // apply.js -- the `a` command: using a tool.
-// C refs: src/apply.c apply_ok(), doapply(), get_mleash(), use_cream_pie(),
-// use_whistle(), use_magic_whistle(), magic_whistled(), use_whip(), the
+// C refs: src/apply.c apply_ok(), doapply(), get_mleash(), light_cocktail(),
+// use_cream_pie(), use_whistle(), use_magic_whistle(), magic_whistled(),
+// use_whip(), the
 // polearm helpers and use_pole(), use_stethoscope(), the grappling-hook
 // helpers and use_grapple(), its_dead(), reset_trapset(),
 // use_trap(), and set_trap().
 //
 // doapply()'s switch has thirty-odd named arms. Its live groups include
-// BULLWHIP and polearms, CREAM_PIE, STETHOSCOPE, OIL_LAMP/MAGIC_LAMP/
-// BRASS_LANTERN through apply.c use_lamp(), CANDELABRUM_OF_INVOCATION through
-// use_candelabrum(), WAX_CANDLE/TALLOW_CANDLE through use_candle(), and the
+// BULLWHIP and polearms, CREAM_PIE, STETHOSCOPE, POT_OIL through
+// apply.c:light_cocktail(), OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN through
+// apply.c:use_lamp(), CANDELABRUM_OF_INVOCATION through use_candelabrum(),
+// WAX_CANDLE/TALLOW_CANDLE through use_candle(), and the
 // LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
 // pick_lock() serves; MAGIC_MARKER delegates to write.c dowrite() in
 // js/write.js; containers delegate to pickup.c use_container() in js/pickup.js;
@@ -21,9 +23,9 @@
 // calls apply.c use_unicorn_horn(); its unported void effect helpers remain
 // explicit note_unported gaps. Other named arms still stop at a refusal
 // naming the C function they need; spellbooks and coins call their helpers.
-// use_stethoscope() covers the whole source function. Calls to the void
-// insight.c mstatusline() remain named gaps in mounted/swallowed arms, and the
-// upward engrave.c cant_reach_floor() call remains a named gap; the downward
+// use_stethoscope() covers the whole source function. Its mounted and
+// swallowed arms await insight.c mstatusline(); the upward engrave.c
+// cant_reach_floor() call remains a named gap, while the downward
 // reachability branch uses its already-ported helper.
 
 import {
@@ -229,6 +231,7 @@ import { gulp_blnd_check } from './mhitu.js';
 import { litroom } from './read.js';
 import {
     delobj,
+    addinv_runtime,
     freeinv,
     carrying,
     consume_obj_charge,
@@ -2364,11 +2367,11 @@ export async function its_dead(rx, ry, state = game, response = null) {
 // second use in the same move is what makes a cursed stethoscope's wasted
 // listen cost anything.
 //
-// Mounted and swallowed branches skip the void insight.c mstatusline() calls
-// with named gaps. The upward engrave.c cant_reach_floor() call is likewise a
-// named gap; its downward call is implemented in js/engrave.js. Soundeffect()
-// expands to an empty macro in this tty build, while You_hear() remains
-// visible through youHear().
+// Mounted and swallowed branches await insight.c mstatusline() in the same
+// source order as their preceding interference message. The upward
+// engrave.c cant_reach_floor() call remains a named gap; its downward call is
+// implemented in js/engrave.js. Soundeffect() expands to an empty macro in
+// this tty build, while You_hear() remains visible through youHear().
 async function use_stethoscope(obj, state = game) {
     const u = state.u;
     // apply.c:324-325. The source initializer draws before every guard when a
@@ -2413,17 +2416,17 @@ async function use_stethoscope(obj, state = game) {
     if (u.usteed && u.dz > 0) {
         if (interference) {
             await ttyPline(`${Monnam(u.ustuck, state)} interferes.`, state);
-            note_unported('insight.c mstatusline');
+            await mstatusline(u.ustuck, state);
         } else {
-            note_unported('insight.c mstatusline');
+            await mstatusline(u.usteed, state);
         }
         return res;
     } else if (u.uswallow && (u.dx || u.dy || u.dz)) {
-        note_unported('insight.c mstatusline');
+        await mstatusline(u.ustuck, state);
         return res;
     } else if (u.uswallow && interference) {
         await ttyPline(`${Monnam(u.ustuck, state)} interferes.`, state);
-        note_unported('insight.c mstatusline');
+        await mstatusline(u.ustuck, state);
         return res;
     } else if (u.dz) {
         if (u.uinwater) {
@@ -3037,6 +3040,97 @@ export async function use_lamp(obj, state = game, env = {}) {
     }
 }
 
+// C ref: apply.c light_cocktail() (1703-1758). The object pointer is part of
+// the result: snuffing can replace it with an inventory merge, and lighting
+// one potion from a stack can replace it with hold_another_object()'s return.
+export async function light_cocktail(objp, state = game, env = {}) {
+    let obj = objp.obj;
+    const message = env.message ?? ttyPline;
+
+    if (state.u?.uswallow) {
+        await message(
+            "You don't have enough elbow-room to maneuver.",
+            state,
+        );
+        return;
+    }
+
+    if (obj.lamplit) {
+        await message('You snuff the lit potion.', state);
+        end_burn(obj, true, { ...env, state });
+        // C only frees and re-adds an unworn potion: merging can replace the
+        // caller's pointer, so await the live addinv return before storing it.
+        if (!obj.owornmask) {
+            freeinv(obj, { ...env, state });
+            objp.obj = await addinv_runtime(obj, { ...env, state });
+        }
+        return;
+    }
+
+    if (state.u?.uinwater) {
+        await message('There is not enough oxygen to sustain a fire.', state);
+        return;
+    }
+
+    const split1off = obj.quan > 1;
+    if (split1off) obj = splitobj(obj, 1, { ...env, state });
+
+    const ownership = shk_your(obj, state);
+    await message(
+        `You light ${ownership}potion.${heroIsBlind(state)
+            ? '' : '  It gives off a dim light.'}`,
+        state,
+    );
+
+    if (obj.unpaid && costly_spot(state.u.ux, state.u.uy, state)) {
+        const room = in_rooms(
+            state.u.ux,
+            state.u.uy,
+            SHOPBASE,
+            state,
+        )[0] ?? 0;
+        const shopkeeper = shop_keeper(room, state);
+        // C check_unpaid() discards check_unpaid_usage()'s void result. Its
+        // fee tail is unported, so record the gap without invoking its partial
+        // refusal; the following voice and billing calls still run in order.
+        note_unported('shk.c check_unpaid_usage');
+        set_voice(shopkeeper, 0, 80, 0, state);
+        await verbalize(
+            "That's in addition to the cost of the potion, of course.",
+            state,
+            { message },
+        );
+        await bill_dummy_object(obj, { ...env, state });
+    }
+
+    // C's makeknown macro calls discover_object(..., TRUE, TRUE, TRUE),
+    // including its Wisdom exercise before the burn timer is started.
+    discover_object(obj.otyp, true, true, true, state, env);
+    begin_burn(obj, false, { ...env, state });
+
+    if (split1off) {
+        obj_extract_self(obj, { ...env, state });
+        obj.nomerge = 1;
+        const dropName = donameFresh(obj, state);
+        obj = await hold_another_object(
+            obj,
+            'You drop %s!',
+            dropName,
+            null,
+            {
+                ...env,
+                state,
+                hooks: {
+                    ...(env.hooks ?? {}),
+                    message: env.hooks?.message ?? message,
+                },
+            },
+        );
+        if (obj) obj.nomerge = 0;
+    }
+    objp.obj = obj;
+}
+
 // C ref: apply.c use_candelabrum() (1319-1386). Keep the snuff, empty, water,
 // cursed/swallowed, candle-count, and invocation branches in source order;
 // end_burn() and begin_burn() own their timer and light side effects.
@@ -3384,7 +3478,6 @@ const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
     LUMP_OF_ROYAL_JELLY,
     BELL,
     BELL_OF_OPENING,
-    POT_OIL,
     TOWEL,
     TIN_OPENER,
     FIGURINE,
@@ -4369,6 +4462,12 @@ export async function doapply(state = game, env = {}) {
     case MAGIC_LAMP:
     case BRASS_LANTERN:
         await use_lamp(obj, state, env);
+        return ECMD_TIME;
+    case POT_OIL:
+        // apply.c:4349-4350. light_cocktail() is void in C but may update
+        // obj through its pointer; the enclosing command keeps ECMD_TIME.
+        await light_cocktail(objp, state, env);
+        obj = objp.obj;
         return ECMD_TIME;
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.

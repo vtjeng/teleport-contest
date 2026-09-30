@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { compareSessionOutputs } from './diff-fresh.mjs';
 import { loadHeroTimeoutRecipes, verifyHeroTimeoutSegment } from './run-hero-timeouts.mjs';
 
 import { ART_SUNSWORD } from '../js/artifacts.js';
@@ -26,6 +27,7 @@ import {
     INVIS,
     LAST_PROP,
     LS_OBJECT,
+    MAGICAL_BREATHING,
     MELT_ICE_AWAY,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
@@ -60,6 +62,8 @@ import {
 import { wipeoff } from '../js/do.js';
 import { eatfood } from '../js/eat.js';
 import { initRng } from '../js/rng.js';
+import { runSegment } from '../js/jsmain.js';
+import { HCOLORS } from '../js/random_text_data.js';
 import {
     PM_DEATH,
     PM_ACID_BLOB,
@@ -178,7 +182,7 @@ test('timeout planning hands live-only expiries off before touching their state'
     const state = propertyTimeoutState();
     for (const property of [
         BLINDED, HALLUC, INVIS, DETECT_MONSTERS, DISPLACED, LEVITATION,
-        FLYING, STONED, STRANGLED,
+        FLYING, STONED,
     ]) {
         state.u.uprops[property].intrinsic = 2;
         assert.equal(nh_timeout_requires_live_state(state), false, `${property}: countdown`);
@@ -189,6 +193,19 @@ test('timeout planning hands live-only expiries off before touching their state'
         state.u.uinvulnerable = false;
         state.u.uprops[property].intrinsic = 0;
     }
+    // timeout.c treats `Strangled` as any nonzero intrinsic value and calls
+    // choke_dialogue on each turn; the matched amulet case starts this clock at
+    // 6, so this active count must hand off before the planner reaches one.
+    state.u.uprops[STRANGLED].intrinsic = 6;
+    assert.equal(nh_timeout_requires_live_state(state), true,
+        'active strangling runs the whole dialogue/exercise call live');
+    state.u.uinvulnerable = true;
+    assert.equal(nh_timeout_requires_live_state(state), false,
+        'invulnerability still returns before the timeout handoff');
+    state.u.uinvulnerable = false;
+    // Clear the active countdown so the unrelated confusion checks below are
+    // isolated from the strangling branch.
+    state.u.uprops[STRANGLED].intrinsic = 0;
     state.u.uprops[CONFUSION].intrinsic = 1;
     assert.equal(nh_timeout_requires_live_state(state), false, 'confusion uses message seam');
     state.u.mtimedone = 1;
@@ -2076,3 +2093,213 @@ test('fall_asleep never shortens a sleep already under way', async () => {
     assert.equal(state.multi_reason, 'sleeping');
     assert.equal(state.u.usleep, 1234);
 });
+
+function chokeTimeoutState(countdown) {
+    const state = propertyTimeoutState();
+    // Each test value below is the C Strangled timeout before nh_timeout()
+    // decrements active property clocks at the end of the turn.
+    state.u.uprops[STRANGLED].intrinsic = countdown;
+    state.multi = 2;
+    state.go = { occupation: () => 1, occtxt: 'reading' };
+    return state;
+}
+
+function chokeRandom(expected) {
+    const calls = [];
+    let offset = 0;
+    return {
+        calls,
+        random: {
+            rn2(bound) {
+                const [expectedBound, value] = expected[offset++];
+                assert.equal(bound, expectedBound,
+                    `rn2 call ${offset} follows timeout.c choke_dialogue order`);
+                calls.push([bound, value]);
+                return value;
+            },
+            rnd(bound) {
+                assert.fail(`choke_dialogue unexpectedly called rnd(${bound})`);
+            },
+        },
+        assertConsumed() {
+            assert.equal(offset, expected.length,
+                'choke_dialogue made exactly its source-defined random calls');
+        },
+    };
+}
+
+test('timeout.c choke_dialogue preserves both countdown tables and draw order',
+    async () => {
+        // These countdowns select C's five array indices in reverse order.
+        // rn2(50)=1 chooses the ordinary table; rn2(50)=0 chooses the second
+        // table; a magical-breathing extrinsic skips rn2(50) by Breathless.
+        // The trailing rn2(2)=1 pins exercise(A_STR, FALSE), and the occupation
+        // fixture proves only the ordinary table branch stops it.
+        const cases = [
+            {
+                countdown: 5, branch: 'ordinary', rng: [
+                    [50, 1], [2, 1],
+                ], text: 'You find it hard to breathe.', stopped: true,
+            },
+            {
+                countdown: 4, branch: 'ordinary', rng: [
+                    [50, 1], [2, 1],
+                ], text: "You're gasping for air.", stopped: true,
+            },
+            {
+                countdown: 3, branch: 'ordinary', rng: [
+                    [50, 1], [2, 1],
+                ], text: 'You can no longer breathe.', stopped: true,
+            },
+            {
+                countdown: 2, branch: 'ordinary', rng: [
+                    [50, 1], [2, 1],
+                ], text: "You're turning blue.", stopped: true,
+            },
+            {
+                countdown: 1, branch: 'ordinary', rng: [
+                    [50, 1], [2, 1],
+                ], text: 'You suffocate.', stopped: true,
+            },
+            {
+                countdown: 5, branch: 'breathless', rng: [[2, 1]],
+                text: 'Your neck is becoming constricted.', stopped: false,
+            },
+            {
+                countdown: 4, branch: 'random-alternate', rng: [
+                    [50, 0], [2, 1],
+                ], text: 'Your blood is having trouble reaching your brain.',
+                stopped: false,
+            },
+            {
+                countdown: 3, branch: 'breathless', rng: [[2, 1]],
+                text: 'The pressure on your neck increases.', stopped: false,
+            },
+            {
+                countdown: 2, branch: 'random-alternate', rng: [
+                    [50, 0], [2, 1],
+                ], text: 'Your consciousness is fading.', stopped: false,
+            },
+            {
+                countdown: 1, branch: 'breathless', rng: [[2, 1]],
+                text: 'You suffocate.', stopped: false,
+            },
+        ];
+
+        for (const { countdown, branch, rng, text, stopped } of cases) {
+            const state = chokeTimeoutState(countdown);
+            if (branch === 'breathless')
+                state.u.uprops[MAGICAL_BREATHING].extrinsic = 1;
+            const random = chokeRandom(rng);
+            const urgentMessages = [];
+            const messages = [];
+            const displayDraws = [];
+
+            await nh_timeout(state, {
+                random: random.random,
+                displayRandom(bound) {
+                    displayDraws.push(bound);
+                    return 0;
+                },
+                urgentMessage: async (line) => urgentMessages.push(line),
+                message: async (line) => messages.push(line),
+            });
+
+            assert.deepEqual(urgentMessages, [text], `${branch}, timeout ${countdown}`);
+            assert.deepEqual(messages, stopped ? ['You stop reading.'] : [],
+                `${branch}, timeout ${countdown}`);
+            assert.equal(state.go.occupation === null, stopped,
+                `${branch}, timeout ${countdown}`);
+            assert.equal(state.multi, stopped ? 0 : 2,
+                `${branch}, timeout ${countdown}`);
+            assert.equal(state.u.uprops[STRANGLED].intrinsic, countdown - 1,
+                'timeout.c decrements Strangled after choke_dialogue');
+            assert.deepEqual(displayDraws, [],
+                'the preferred blue hcolor does not draw for a non-hallucinating hero');
+            assert.deepEqual(random.calls, rng.map(([bound, value]) => [bound, value]));
+            random.assertConsumed();
+        }
+    });
+
+test('timeout.c choke_dialogue is source-pinned and always exercises strength',
+    () => {
+        // These literals and branch order come from timeout.c:278-314; the
+        // test prevents the port's lookup tables or trailing call from drifting.
+        for (const line of [
+            'You find it hard to breathe.',
+            "You're gasping for air.",
+            'You can no longer breathe.',
+            "You're turning %s.",
+            'You suffocate.',
+            'Your %s is becoming constricted.',
+            'Your blood is having trouble reaching your brain.',
+            'The pressure on your %s increases.',
+            'Your consciousness is fading.',
+        ]) {
+            assert.ok(C_TIMEOUT.includes(line), `C source contains ${line}`);
+            assert.ok(JS_TIMEOUT.includes(line), `JavaScript table contains ${line}`);
+        }
+        assert.match(C_TIMEOUT,
+            /if \(Breathless \|\| !rn2\(50\)\)[\s\S]*?exercise\(A_STR, FALSE\);/u);
+        assert.match(C_TIMEOUT, /if \(Strangled\)\s+choke_dialogue\(\);/u);
+        assert.match(JS_TIMEOUT,
+            /if \(u\.uprops\?\.\[STRANGLED\]\?\.intrinsic && !env\.planning\)\s+await choke_dialogue/u);
+    });
+
+test('choke_dialogue uses the display RNG when NH_BLUE is hallucinated',
+    async () => {
+        // FROMOUTSIDE keeps Hallucination true without a TIMEOUT countdown, so
+        // timeout.c reaches hcolor(NH_BLUE) while avoiding a second property
+        // expiry in this constructed state. HCOLORS[2] is selected to prove
+        // the separate display draw without adding it to the core RNG stream.
+        const state = chokeTimeoutState(2);
+        state.u.uprops[HALLUC].intrinsic = FROMOUTSIDE;
+        const random = chokeRandom([[50, 1], [2, 1]]);
+        const urgentMessages = [];
+        const displayBounds = [];
+
+        await nh_timeout(state, {
+            random: random.random,
+            displayRandom(bound) {
+                displayBounds.push(bound);
+                return 2;
+            },
+            urgentMessage: async (line) => urgentMessages.push(line),
+            message: async () => {},
+        });
+
+        assert.deepEqual(urgentMessages, [`You're turning ${HCOLORS[2]}.`]);
+        assert.deepEqual(displayBounds, [HCOLORS.length]);
+        assert.deepEqual(random.calls, [[50, 1], [2, 1]]);
+        random.assertConsumed();
+    });
+
+test('admitted v14 strangulation recording matches through choke_dialogue caller',
+    async () => {
+        // This read-only admitted recording reaches Strangled=6 on step 43 and
+        // nh_timeout()->choke_dialogue()->exercise(A_STR,FALSE) on step 44.
+        // Replaying its existing inputs with JavaScript compares the port with
+        // saved C output; this does not start the C recorder or replay binary.
+        const recording = JSON.parse(readFileSync(
+            'challenges/cases/v14/tourist-wears-cursed-strangulation-amulet.session.json',
+            'utf8',
+        ));
+        const segment = recording.segments[0];
+        const result = await runSegment(segment);
+        const comparison = compareSessionOutputs(recording, {
+            rng: result.getRngLog(),
+            screens: result.getScreens(),
+            cursors: result.getCursors(),
+            animFrames: result.getAnimationFramesByStep(),
+            segments: [{
+                rng: result.getRngLog(),
+                screens: result.getScreens(),
+                cursors: result.getCursors(),
+                animFrames: result.getAnimationFramesByStep(),
+            }],
+        });
+        assert.equal(comparison.passed, true,
+            JSON.stringify(comparison, null, 2));
+        assert.equal(segment.steps.length, 45,
+            'the admitted trace contains boundaries through step 44');
+    });

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved C-first setup miss for the intended dig.c:zap_dig downward grave route. At the starting square the feature wish reported “Can't place a grave here”; engrave.c:make_grave only accepts ROOM/GRAVE terrain without a trap. The later zap prompt offered inventory letters c and n, so the frozen “o” selected no object. Its C recording is retained as a missed setup and is not dig_up_grave evidence.",
+  "segments": [
+    {
+      "seed": 80641327,
+      "datetime": "20580529120300",
+      "nethackrc": "OPTIONS=name:DownGrave,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017grave\n\u0017wand of digging\nzo>"
+    }
+  ]
+}

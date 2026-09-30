@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    A_LAWFUL,
     AUTOSELECT_SINGLE,
     BLINDED,
     BY_NEXTHERE,
@@ -47,6 +48,7 @@ import {
     st_resists,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
     calc_capacity,
     inv_cnt,
@@ -58,9 +60,11 @@ import {
     M1_NOTAKE,
     PM_COCKATRICE,
     PM_DEATH,
+    PM_IRON_GOLEM,
     PM_KOBOLD_ZOMBIE,
     PM_LICHEN,
     PM_SHOPKEEPER,
+    PM_STONE_GOLEM,
 } from '../js/monsters.js';
 import { mksobj_at, splitobj, unsplitobj, clear_splitobjs } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -95,6 +99,7 @@ import {
     LEATHER_GLOVES,
     GOLD_PIECE,
     IRON_CHAIN,
+    LONG_SWORD,
     RIN_PROTECTION,
     SACK,
     SCR_IDENTIFY,
@@ -103,6 +108,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { regex_compile, regex_init } from '../js/posixregex.js';
+import { polymon } from '../js/polyself.js';
 
 function inventoryOfSize(state, count, { withCoins = false } = {}) {
     const template = state.invent;
@@ -1482,24 +1488,39 @@ test('u_safe_from_fatal_corpse reads only the terms its mask names',
 
 test('pickup handles fatal and reviving Rider corpses',
     async () => {
-        // fatal_corpse_mistake(): bare hands on a petrifying corpse reach
-        // instapetrify() or a stone-golem polymorph, neither of them ported.
+        // pickup.c fatal_corpse_mistake() prints before its discarded
+        // trap.c instapetrify() call; the call remains an explicit gap.
         const petrifying = await heroOnAnEmptySquare();
         petrifying.uarmg = null;
         const cockatrice = typedObjectUnderHero(petrifying, CORPSE);
         cockatrice.corpsenm = PM_COCKATRICE;
         cockatrice.dknown = false;
         petrifying.invent.pickup_prev = true;
-        await assert.rejects(
-            () => pickup(0, petrifying),
-            (error) => error instanceof UnsupportedPickupError
-                && /petrifying corpse/u.test(error.message),
-        );
+        quiet(petrifying);
+        assert.equal(await pickup(0, petrifying), 1);
         assert.equal(cockatrice.where, OBJ_FLOOR);
-        // The menu arm resets justpicked before its source pickup_object()
-        // dependency reports the unsupported fatal touch.
         assert.equal(petrifying.invent.pickup_prev, false);
-        assert.equal(cockatrice.dknown, false);
+        assert.equal(cockatrice.dknown, true);
+        assert.match(
+            petrifying._ttyToplines,
+            /^Touching a cockatrice corpse is a fatal mistake\.$/u,
+        );
+        assert.ok(petrifying.unported.has('trap.c instapetrify'));
+
+        // An iron golem can turn to stone instead of dying. C then waits in
+        // display_nhwindow() and continues lifting; that wait remains a named
+        // gap while polymon() and pickup_object() follow source order.
+        const recovering = await heroOnAnEmptySquare();
+        recovering.nhDisplay.readKey = async () => 32;
+        await polymon(PM_IRON_GOLEM, recovering);
+        const secondCockatrice = typedObjectUnderHero(recovering, CORPSE);
+        secondCockatrice.corpsenm = PM_COCKATRICE;
+        quiet(recovering);
+        assert.equal(await pickup(0, recovering), 1);
+        assert.equal(recovering.youmonst.data.pmidx, PM_STONE_GOLEM);
+        assert.equal(secondCockatrice.where, OBJ_INVENT);
+        assert.ok(recovering.unported.has('windows.c display_nhwindow'));
+
         // The same corpse under gloves is the st_gloves term of the live
         // path, and the pickup goes through.
         petrifying.uarmg = { otyp: LEATHER_GLOVES };
@@ -1531,7 +1552,7 @@ test('pickup handles fatal and reviving Rider corpses',
         assert.equal(await rider_corpse_revival(null, false, rider), false);
     });
 
-test('pickup refuses a stack that would merge into the wielded weapon',
+test('pickup reports a merged wielded stack without a worn suffix',
     async () => {
         const state = await heroOnAnEmptySquare();
         const wielded = state.invent;
@@ -1540,15 +1561,12 @@ test('pickup refuses a stack that would merge into the wielded weapon',
         const incoming = objectUnderHero(state);
         matchStackTraits(incoming, wielded);
         incoming.owornmask = 0;
-        // pickup.c:1881 raises gm.mrg_to_wielded so pickup_prinv() drops the
-        // "(weapon in hand)" suffix objnam.c:1561 would otherwise add.
-        await assert.rejects(
-            () => pickup(0, state),
-            (error) => error instanceof UnsupportedPickupError
-                && /wielded weapon/u.test(error.message),
-        );
-        assert.equal(incoming.where, OBJ_FLOOR);
-        assert.equal(wielded.quan, 1);
+        quiet(state);
+        assert.equal(await pickup(0, state), 1);
+        assert.equal(incoming.where, OBJ_DELETED);
+        assert.equal(wielded.quan, 2);
+        assert.equal(state.gm.mrg_to_wielded, false);
+        assert.doesNotMatch(state._ttyToplines, /\((?:wielded|weapon in)/u);
     });
 
 test('query_objlist counts what the callback allows', async () => {
@@ -1799,30 +1817,52 @@ test('a configured pickup_burden raises the limit pickup admits', async () => {
     assert.equal(same.where, OBJ_FLOOR);
 });
 
-test('pickup refuses the object types it never learned to lift', async () => {
-    // pickup.c:1826 hands an artifact to touch_artifact(), which prints and
-    // can blast the hero.
+test('pickup handles artifacts and scare scrolls at the source position',
+    async () => {
+    // Excalibur is touchable once the source alignment restriction passes.
     const artifact = await heroOnAnEmptySquare();
-    const blade = objectUnderHero(artifact);
-    blade.oartifact = 1;
-    await assert.rejects(
-        () => pickup(0, artifact),
-        (error) => error instanceof UnsupportedPickupError
-            && /of an artifact/u.test(error.message),
-    );
-    assert.equal(blade.where, OBJ_FLOOR);
+    init_artifacts(artifact);
+    artifact.u.ualign.type = A_LAWFUL;
+    artifact.u.ualign.record = 1;
+    artifact.artiexist[ART_EXCALIBUR].exists = 1;
+    const blade = typedObjectUnderHero(artifact, LONG_SWORD);
+    blade.oartifact = ART_EXCALIBUR;
+    assert.equal(await pickup(0, artifact), 1);
+    assert.equal(blade.where, OBJ_INVENT);
 
-    // pickup.c:1832-1862 rewrites obj->spe, unblesses, or turns the whole
-    // stack to dust before it ever reaches lift_object().
+    // An uncursed unused scare scroll becomes used before it follows the
+    // ordinary lift and inventory path.
     const scare = await heroOnAnEmptySquare();
     const scroll = typedObjectUnderHero(scare, SCR_SCARE_MONSTER);
-    await assert.rejects(
-        () => pickup(0, scare),
-        (error) => error instanceof UnsupportedPickupError
-            && /scroll of scare monster/u.test(error.message),
+    scroll.spe = 0;
+    scroll.blessed = false;
+    scroll.cursed = false;
+    assert.equal(await pickup(0, scare), 1);
+    assert.equal(scroll.where, OBJ_INVENT);
+    assert.equal(scroll.spe, 1);
+
+    // A blessed stack is unblessed before lifting. A used stack is called and
+    // destroyed at its source branch without entering lift_object().
+    const blessed = await heroOnAnEmptySquare();
+    const blessedScroll = typedObjectUnderHero(blessed, SCR_SCARE_MONSTER);
+    blessedScroll.blessed = true;
+    assert.equal(await pickup(0, blessed), 1);
+    assert.equal(blessedScroll.where, OBJ_INVENT);
+    assert.equal(blessedScroll.blessed, false);
+
+    const dusting = await heroOnAnEmptySquare();
+    const usedScroll = typedObjectUnderHero(dusting, SCR_SCARE_MONSTER);
+    usedScroll.spe = 1;
+    usedScroll.blessed = false;
+    usedScroll.cursed = false;
+    dusting.objects[SCR_SCARE_MONSTER].oc_name_known = true;
+    quiet(dusting);
+    assert.equal(await pickup(0, dusting), 1);
+    assert.equal(usedScroll.where, OBJ_DELETED);
+    assert.equal(
+        dusting._ttyToplines,
+        'The scroll turns to dust as you pick it up.',
     );
-    assert.equal(scroll.where, OBJ_FLOOR);
-    assert.equal(scroll.spe, 0);
 });
 
 test('a punished hero finds only the chain on the square', async () => {

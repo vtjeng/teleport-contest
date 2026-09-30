@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6107129,
+      "datetime": "20330514091123",
+      "nethackrc": "OPTIONS=name:ScarePickupB61,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of scare monster\ndo,.",
+      "comment": "Independent pickup.c:pickup command -> pickup_object witness. The debug Wizard wishes a fresh uncursed scare scroll, drops it, then uses the ordinary comma pickup command; the recipe differs in role, gender, seed, clock, and inputs from the admitted Archeologist case."
+    }
+  ]
+}

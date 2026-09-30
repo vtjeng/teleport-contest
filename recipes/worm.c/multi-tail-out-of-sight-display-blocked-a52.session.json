@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 31047913,
+      "datetime": "20531020182745",
+      "nethackrc": "OPTIONS=name:WormNoteA52,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup,time,playmode:debug\n",
+      "moves": "  .\u0007long worm\nach"
+    }
+  ],
+  "comment": "Blocked A52 diagnostic for makemon.c:makemon -> worm.c:place_worm_tail_randomly. With seed 31047913 the Healer creates a five-segment long worm whose tail cells (12..14,2) are out of sight while its head (16,2) is visible. C display.c:newsym() uses see_with_infrared(mon) && mon_visible(mon) for out-of-sight cells (display.c:1070-1074); JS display.js:newsym() calls canSeeMonster(), whose ordinary cansee(head) arm displays those tails. The C recording is retained as uncommitted diagnostic evidence, not as a passing recording."
+}
