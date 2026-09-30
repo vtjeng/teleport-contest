@@ -811,7 +811,9 @@ test('object sitting uses the supplied state for both naming steps',
                     ? species({ mflags1: M1_SLITHY })
                     : game.youmonst.data,
             };
-            state.nhDisplay = { ...game.nhDisplay };
+            // Keep the GameDisplay prototype so topline appends can use its
+            // renderer methods while the foreign state owns its TTY fields.
+            state.nhDisplay = Object.create(game.nhDisplay);
             state._pending_message = '';
             state._ttyPreviousMessage = '';
             state._ttyToplines = '';
