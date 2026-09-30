@@ -120651,7 +120651,7 @@
     {
       "id": "div-moveloop-teleportation-ring-v14-20260930",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Restore the source-ordered periodic teleportation check",
       "cFile": "allmain.c",
       "sessions": [],
@@ -120663,8 +120663,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "618b18c5cce114da5fb033fef57eb551ce7f87bf",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "moveloop_core",
       "session": "synthetic/v14/wizard-wears-teleportation-ring",
       "step": 34,
@@ -120858,7 +120861,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "618b18c5cce114da5fb033fef57eb551ce7f87bf",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
