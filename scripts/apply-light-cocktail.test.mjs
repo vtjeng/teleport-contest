@@ -22,7 +22,7 @@ function cFunction(source, signature) {
 test('light_cocktail retains the complete C branch and helper order', () => {
     const source = cFunction(APPLY_C, 'light_cocktail(struct obj **optr)\n{');
     // These source expressions cover the whole helper's branch order, pointer
-    // writes, and the placement of begin_burn after optional shop billing.
+    // writes, and the placement of begin_burn after the optional shop calls.
     const calls = [
         'if (u.uswallow)',
         'if (obj->lamplit)',
@@ -68,7 +68,7 @@ test('light_cocktail retains the complete C branch and helper order', () => {
         'const ownership = shk_your(obj, state);',
         'You light ${ownership}potion.',
         'if (obj.unpaid && costly_spot',
-        'check_unpaid(obj, state)',
+        "note_unported('shk.c check_unpaid_usage')",
         'set_voice(shopkeeper',
         'await verbalize(',
         'await bill_dummy_object(obj',
@@ -86,6 +86,8 @@ test('light_cocktail retains the complete C branch and helper order', () => {
         assert.ok(index > previous, `${call} follows the previous JS operation`);
         previous = index;
     }
+    assert.doesNotMatch(jsHelper, /check_unpaid\(obj, state\)/u);
+    assert.doesNotMatch(jsHelper, /UnsupportedShopError/u);
 
     const cDoapply = cFunction(APPLY_C, 'doapply(void)\n{');
     assert.match(cDoapply, /case POT_OIL:\s+light_cocktail\(&obj\);\s+break;/u);
