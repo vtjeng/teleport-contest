@@ -39,9 +39,9 @@ import {
     rnd_class,
     splitobj,
     weight,
-    hornoplenty,
 } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
+import { hornoplenty } from '../js/mkobj_hornoplenty.js';
 import {
     APPLE,
     ACID_VENOM,

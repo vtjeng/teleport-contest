@@ -84,6 +84,7 @@
         "js/fruit.js",
         "js/invent.js",
         "js/mkobj_container.js",
+        "js/mkobj_hornoplenty.js",
         "js/monster_object.js",
         "js/o_init.js",
         "js/obj.js",

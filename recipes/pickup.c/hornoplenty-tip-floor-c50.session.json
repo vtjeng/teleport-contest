@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "The C wish places this independent horn in slot o; #tip selects it and accepts the preselected floor destination.",
+  "segments": [
+    {
+      "seed": 91628507,
+      "datetime": "20461112145307",
+      "nethackrc": "OPTIONS=name:C50FloorTip,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "  #wizwish\nuncursed horn of plenty\n#tip\no\n"
+    }
+  ]
+}

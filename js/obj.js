@@ -25,10 +25,6 @@ import {
     HATCH_EGG,
     I_SPECIAL,
     ICE,
-    IRONBARS,
-    Is_airlevel,
-    Is_waterlevel,
-    IS_ALTAR,
     isok,
     LARGEST_INT,
     LOST_NONE,
@@ -36,7 +32,6 @@ import {
     MIGR_TO_SPECIES,
     NOBJ_STATES,
     NON_PM,
-    nothing_happens,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_DELETED,
@@ -93,14 +88,7 @@ import {
 // inside function bodies, so the cycle resolves.
 import { get_mtraits } from './corpstat.js';
 import { noveltitle, x_monnam } from './do_name.js';
-// dropy() is imported for hornoplenty()'s tipping-to-floor path. do.js
-// imports from this file; both sides use the other's exports only inside
-// function bodies.
-import { doaltarobj, dropy } from './do.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
-// can_reach_floor() is imported for hornoplenty()'s tipping path. engrave.js
-// imports nothing from this file; the edge is acyclic.
-import { can_reach_floor } from './engrave.js';
 // shrink_glob() and shrinking_glob_gone() use stop_occupation(). allmain.js
 // imports from this file; both sides use the other's exports only inside
 // function bodies.
@@ -116,8 +104,8 @@ import { game } from './gstate.js';
 import { near_capacity } from './hack.js';
 import { strstri, strsubst } from './hacklib.js';
 import {
-    add_to_container, container_weight, hold_another_object, mergable, merged,
-    consume_obj_charge, nxtobj, obfree, obj_extract_self, update_inventory,
+    add_to_container, container_weight, mergable, merged,
+    nxtobj, obfree, obj_extract_self, update_inventory,
     useupall,
 } from './invent.js';
 import { confers_luck } from './artifacts.js';
@@ -165,8 +153,7 @@ import { youHear, youSee } from './monmove.js';
 // obj.js API for existing callers. The function-body-only module cycle is
 // safe because naming code uses this predicate only after initialization.
 import {
-    The, Yname2, aobjnam, donameFresh, erosion_matters, obj_typename,
-    otense, vtense,
+    Yname2, donameFresh, erosion_matters, obj_typename, otense,
 } from './objnam.js';
 import {
     pushRngLogEntry,
@@ -190,7 +177,7 @@ import { is_ice } from './terrain.js';
 // obj_sanity_check(). trap.js imports from this file; both sides use the
 // other's exports only inside function bodies.
 import { is_pool, is_pool_or_lava } from './trap.js';
-// ttyPline is imported for hornoplenty() messages.
+// ttyPline is used by object diagnostics and naming paths.
 import { ttyPline } from './tty_message.js';
 // add_to_migration() calls maybe_reset_pick() for containers. lock.js imports
 // from this file; both sides use the other's exports only inside function
@@ -278,7 +265,6 @@ import {
     FIGURINE,
     FIRE_HORN,
     FOOD_CLASS,
-    FOOD_RATION,
     FLINT,
     FROST_HORN,
     FUMBLE_BOOTS,
@@ -304,7 +290,6 @@ import {
     LEATHER,
     LENSES,
     LEVITATION_BOOTS,
-    LUMP_OF_ROYAL_JELLY,
     LIQUID,
     LOADSTONE,
     LUCKSTONE,
@@ -323,9 +308,7 @@ import {
     PEAR,
     PLASTIC,
     POTION_CLASS,
-    POT_BOOZE,
     POT_OIL,
-    POT_SICKNESS,
     POT_WATER,
     RANDOM_CLASS,
     RING_CLASS,
@@ -3269,123 +3252,6 @@ export function dealloc_obj_real(_obj) {
 // reclaim them), so this function has nothing to process.
 export function dobjsfree(_state) {
     // JS garbage collection handles deallocation; no deferred-free queue exists.
-}
-
-// C ref: mkobj.c hornoplenty() (2847-2936). Creates an object from a horn
-// of plenty; mirrors bagotricks() in makemon.c.
-export async function hornoplenty(horn, tipping, targetbox, env = {}) {
-    const state = env.state ?? game;
-    const { rn2 } = sourceRandom(env);
-    const u = state.u;
-    let objcount = 0;
-
-    if (!horn || horn.otyp !== HORN_OF_PLENTY) {
-        throw new Error('bad horn o\' plenty');
-    } else if (horn.spe < 1) {
-        await ttyPline(nothing_happens, state);
-        if (!horn.cknown) {
-            horn.cknown = 1;
-            update_inventory(env);
-        }
-    } else {
-        let obj;
-        let what;
-
-        // C: consume_obj_charge(horn, !tipping) -- invent.c.
-        // Decrements horn->spe and optionally bills the hero.
-        consume_obj_charge(horn, !tipping, env);
-        if (!rn2(13)) {
-            obj = mkobj(POTION_CLASS, false, env);
-            if (objectType(obj, state).oc_magic) {
-                do {
-                    obj.otyp = rnd_class(POT_BOOZE, POT_WATER, env);
-                } while (obj.otyp === POT_SICKNESS);
-                // oil uses obj.age field differently from other potions
-                if (obj.otyp === POT_OIL)
-                    fixup_oil(obj, null, env);
-            }
-            what = (obj.quan > 1) ? 'Some potions' : 'A potion';
-        } else {
-            obj = mkobj(FOOD_CLASS, false, env);
-            if (obj.otyp === FOOD_RATION && !rn2(7))
-                obj.otyp = LUMP_OF_ROYAL_JELLY;
-            what = 'Some food';
-        }
-        ++objcount;
-        await ttyPline(
-            `${what} ${vtense(what, 'spill')} out.`,
-            state,
-        );
-        obj.blessed = horn.blessed;
-        obj.cursed = horn.cursed;
-        obj.owt = weight(obj, env);
-        if (horn.unpaid)
-            await addtobill(obj, false, false, tipping, state, env);
-        // C: iflags.suppress_price++
-        state.iflags.suppress_price = (state.iflags.suppress_price ?? 0) + 1;
-        if (!tipping) {
-            // C's hold_another_object() calls pickup.c:encumber_msg() when
-            // the generated object stays in inventory. The JS inventory
-            // helper receives that call through a required hook, so preserve
-            // an injected callback and otherwise wire the source owner here.
-            const holdHooks = {
-                ...(env.hooks ?? {}),
-                encumberMessage: env.hooks?.encumberMessage
-                    ?? encumber_msg,
-            };
-            obj = await hold_another_object(
-                obj,
-                u.uswallow
-                    ? 'Oops!  %s out of your reach!'
-                    : (Is_airlevel(u.uz)
-                       || Is_waterlevel(u.uz)
-                       || state.level.at(u.ux, u.uy).typ < IRONBARS
-                       || state.level.at(u.ux, u.uy).typ >= ICE)
-                        ? 'Oops!  %s away from you!'
-                        : 'Oops!  %s to the floor!',
-                The(aobjnam(obj, 'slip', state), state),
-                null,
-                { ...env, hooks: holdHooks },
-            );
-            // C: nhUse(obj) -- no-op macro to suppress unused-variable warnings
-        } else if (targetbox) {
-            add_to_container(targetbox, obj, env);
-            // add_to_container doesn't update the weight
-            targetbox.owt = weight(targetbox, env);
-            // item still in magic horn was weightless; when it's now in
-            // a carried container, hero's encumbrance could change
-            if (carried(targetbox)) {
-                await encumber_msg(state, env);
-                update_inventory(env); // for contents count or wizweight
-            }
-        } else {
-            // assumes this is taking place at hero's location
-            if (!can_reach_floor(true, state)) {
-                // C: hitfloor(obj, TRUE) -- does altar check, message, drop.
-                const { hitfloor } = await import('./dothrow.js');
-                await hitfloor(obj, true, state, env);
-            } else {
-                if (IS_ALTAR(state.level.at(u.ux, u.uy).typ)) {
-                    // C: doaltarobj(obj) -- does its own drop message.
-                    await doaltarobj(obj, state);
-                } else {
-                    // C uses Doname2(obj) which requires doname(), not yet
-                    // ported. Record the gap and skip the message.
-                    note_unported('objnam.c Doname2');
-                }
-                await dropy(obj, env);
-            }
-        }
-        state.iflags.suppress_price -= 1;
-        if (horn.dknown) {
-            // C: makeknown(HORN_OF_PLENTY) expands to
-            // discover_object(HORN_OF_PLENTY, TRUE, TRUE, TRUE).
-            // discover_object() is in o_init.c and not yet ported for
-            // this call path.
-            note_unported('o_init.c discover_object');
-        }
-    }
-    return objcount;
 }
 
 // ── Sanity-check functions (wizard mode only) ──
