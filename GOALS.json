@@ -120893,8 +120893,8 @@
           "name": "dig_up_grave",
           "line": 1027,
           "endLine": 1091,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -121169,7 +121169,62 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "dig_up_grave",
+            "implementation": "js/dig.js",
+            "symbol": "dig_up_grave",
+            "sourceReview": "Compared all of dig.c:dig_up_grave (1027-1089) with js/dig.js in source order. Both default a null coordinate to the hero square and return before effects for an invalid non-null coordinate. Both call exercise(A_WIS,FALSE) before Archeologist/Samurai/lawful alignment changes and messages. C forces the default selector -1 for emptygrave without rn2; otherwise it calls rn2(5). Selectors 0 and 1 create an old corpse with mk_tt_object and subtract TAINT_AGE+1; selector 2 calls mkclass(S_ZOMBIE,0) and makemon(...,MM_NOMSG); selector 3 calls mkclass(S_MUMMY,0) and makemon(...,MM_NOMSG); default prints the unoccupied message. Both then change the tile to ROOM, clear emptygrave and disturbed, remove the engraving and redraw. The JS selector test cross-checks C and JS branch symbols and MM_NOMSG call shape. Matching C recordings execute corpse, unoccupied, and zombie cases through the production dighole caller; the final independent downward-wand recording also reaches dighole from dig.c:zap_dig at 1606 and executes selector 1. No mummy runtime is claimed. Required returned callee values are supplied by existing exercise, mk_tt_object, and mkclass ports. C discards makemon’s return; JS preserves its creation effects with the existing makemon_runtime operation and source-required occupation hook. The companion change to digactualhole is limited to capturing the old furniture label before maketrap and printing the C fall message after the maker line; tests pin grave and altar text, and C recordings exercise the grave furniture branch.",
+            "callers": [
+              {
+                "path": "js/dig.js",
+                "symbol": "dighole",
+                "source": "The sole direct C call site is dig.c:dighole (885-1024), IS_GRAVE arm at 959-962; it calls digactualhole, then dig_up_grave, then sets retval=true. JS js/dig.js:dighole has the matching arm."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "dig",
+                "source": "C dig.c:dig (374,433) calls dighole after completed downward/pit-only digging; the admitted v14 case and independent recipes use this chain."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zap_dig",
+                "source": "The independent downward-wand route follows C dig.c:zap_dig (1606) -> dighole(FALSE, TRUE, NULL) -> the IS_GRAVE arm -> dig_up_grave; JS js/zap.js:zap_dig calls dighole at 6232 and the final C recording replays completely."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dig.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dig.c/archeologist-neutral-corpse-grave-b63.session.json",
+              "recordings/dig.c/archeologist-neutral-grave-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-branch-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-01-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-02-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-03-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-05-b63.session.json",
+              "recordings/dig.c/dwarf-archeologist-grave-seed-06-b63.session.json",
+              "recordings/dig.c/downward-wand-grave-final-b63.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "archeologist-lawful-digs-grave",
+                "segment": 0,
+                "fromStep": 17,
+                "throughStep": 22,
+                "source": "dig.c:dig -> dig.c:dighole(IS_GRAVE) -> dig.c:dig_up_grave"
+              }
+            ],
+            "checkedAt": "e83abe9cb45cc5dd7dbc7ffedf6374751f0dbfe6"
+          }
+        ],
+        "entryPointReview": "This task selects the helper-only range dig.c:dig_up_grave, so entryPoints is empty as allowed by validation.md. The helper has one direct C caller: dig.c:dighole’s IS_GRAVE arm. Matching recorded play reaches that helper through ordinary digging (the admitted v14 case and independent recipes) and through the independent downward-wand path dig.c:zap_dig -> dighole(FALSE, TRUE, NULL) -> dig_up_grave (recording downward-wand-grave-final-b63; selector 1 corpse). Independent recordings cover corpse selectors 0 and 1, unoccupied selector 4, and selector 2 zombie creation; two selector-2 recordings replay completely through the existing makemon.c:mkclass/makemon runtime path. scripts/dig.test.mjs pins selector 3 to S_MUMMY and selector 2 to S_ZOMBIE from C source, but no mummy runtime recording is claimed. dig.c:zap_dig also calls dighole for an adjacent-pit operation and dig.c:escape_tomb calls it for a separate escape path; those outer commands are outside this helper-only task and are not claimed as ports or runtime entry points. The companion digactualhole change covers only the existing hero-created PIT furniture-message branch, not that whole function. The sixth seed variation is retained but excluded from helper evidence because mhitu.c:mattacku interrupts the downward dig before dighole. A separate doorway setup attempt reaches dig.c:zap_dig’s hole-descent continuation after creating a hole; that JS continuation is unported and the exact C artifact is kept in .cache, outside the passing recordings corpus.",
+        "entryPoints": []
+      }
     }
   ]
 }
