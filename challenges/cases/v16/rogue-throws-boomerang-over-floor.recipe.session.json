@@ -5,7 +5,7 @@
       "seed": 94881027,
       "datetime": "20681008151500",
       "nethackrc": "OPTIONS=name:V16Boomerang,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
-      "moves": " #wizwish\nuncursed boomerang\nt"
+      "moves": " #wizwish\nuncursed boomerang\ntgl"
     }
   ]
 }
