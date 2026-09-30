@@ -121531,7 +121531,7 @@
     {
       "id": "port-insight-mstatusline-synthetic-v14-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete monster status lines for held and mounted creatures",
       "cFile": "insight.c",
       "sessions": [
@@ -121545,8 +121545,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fe56a2470de71a05608a44994be2c6aa98b95246",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mstatusline",
@@ -121882,6 +121885,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fe56a2470de71a05608a44994be2c6aa98b95246",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

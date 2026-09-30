@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-30T04:53:34.414Z",
+  "capturedAt": "2026-09-30T05:24:21.631Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -11112,12 +11112,61 @@
         "type": "accepted",
         "at": "2026-09-30T04:53:34.225Z",
         "task": "A55"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A55-published-e57ca834",
+        "type": "published",
+        "at": "2026-09-30T04:53:48.803Z",
+        "task": "A55",
+        "commit": "e57ca8343a11c43a331010b3189dced140f1883c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A58-read-magic-mapping-20260930",
+        "type": "assign",
+        "at": "2026-09-30T05:08:22.597Z",
+        "task": "A58",
+        "worker": "A2",
+        "goal": "port-read-seffect-magic-mapping-synthetic-v14-20260930",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A56-integrating-fe56a247",
+        "type": "integrating",
+        "at": "2026-09-30T05:10:55.288Z",
+        "task": "A56",
+        "integration": "fe56a2470de71a05608a44994be2c6aa98b95246"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A56-validated-fe56a247",
+        "type": "validated",
+        "at": "2026-09-30T05:19:39.459Z",
+        "task": "A56",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ac1a40c68da71860c4089b042e296a178b960e5b",
+        "type": "ready",
+        "at": "2026-09-30T05:19:55.559Z",
+        "task": "C51",
+        "delivery": "ac1a40c68da71860c4089b042e296a178b960e5b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A56-accepted-fe56a247",
+        "type": "accepted",
+        "at": "2026-09-30T05:24:21.409Z",
+        "task": "A56"
       }
     ]
   },
   "development": {
-    "executionCommit": "786c4d928c3b6cd957078f24028114223abc92f8",
-    "measuredAt": "2026-09-30T04:49:25.002Z",
+    "executionCommit": "fe56a2470de71a05608a44994be2c6aa98b95246",
+    "measuredAt": "2026-09-30T05:18:25.175Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
