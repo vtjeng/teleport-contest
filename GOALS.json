@@ -120301,7 +120301,7 @@
     {
       "id": "port-climb-pit-synthetic-v14-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port pit escape and wire both hero callers",
       "cFile": "trap.c",
       "sessions": [
@@ -120315,8 +120315,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "climb_pit",
@@ -120637,6 +120640,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b20abe038e0cb3e172186f6d7190f2b388a93b54",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
