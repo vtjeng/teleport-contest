@@ -121527,6 +121527,289 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-insight-mstatusline-synthetic-v14-20260930",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete monster status lines for held and mounted creatures",
+      "cFile": "insight.c",
+      "sessions": [
+        "synthetic/v14/knight-listens-to-mounted-steed"
+      ],
+      "selectionReason": "Select synthetic/v14/knight-listens-to-mounted-steed from accepted A55 evaluation challenges/evaluations/20260930045045-v14.json at786c4d92, still current after the independently checkpointed favicon-only change. Its complete investigation identifies insight.c mstatusline steed status as missing. Finish the entire mstatusline3275–3398 and all four existing mounted/swallowed stethoscope call sites, preserving accepted A52 worm and probe behavior. The source-pinned fixtures cover holder, swallowing and wounded-leg clauses; admitted mounted range through33 and accepted A52 stethoscope/probe recordings cover both production entry families. A54 and A55 dependencies are accepted; unrelated A57 and A58 work is excluded.",
+      "detail": "Whole status helper preserves source clause order, worm/visibility/condition formatting, swallowed priority, sticky holder ownership and steed wounded-leg source union and BOTH_SIDES mask. All four apply use_stethoscope sites await output; existing zap probe_monster caller already awaits it. No whole use_stethoscope or probe_monster completion claim.",
+      "openedAt": "beb71da2678f9efd7335b2cce826a8ba47f76362",
+      "openStanding": {
+        "sha": "beb71da2678f9efd7335b2cce826a8ba47f76362",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mstatusline",
+          "line": 3275,
+          "endLine": 3401,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3275,
+        "to": 3401
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/knight-listens-to-mounted-steed": {
+          "session": "synthetic/v14/knight-listens-to-mounted-steed",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-listens-to-mounted-steed",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+          "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+          "evaluationPath": "challenges/evaluations/20260930045045-v14.json",
+          "evaluationCommit": "786c4d928c3b6cd957078f24028114223abc92f8"
+        }
+      },
+      "activeStanding": {
+        "sha": "beb71da2678f9efd7335b2cce826a8ba47f76362",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-listens-to-mounted-steed",
+          "session": "synthetic/v14/knight-listens-to-mounted-steed",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+          "recordingPath": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+          "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+          "recipe": "challenges/cases/v14/knight-listens-to-mounted-steed.recipe.session.json",
+          "recipeSha256": "ea28faf3f3ce71012f053b7f311ea21265136dd193b999a41b811fdf6c60e114",
+          "replayInputSha256": "e80dc358c1f7d434d8a8409fee59869ce463c06e8f5f752d1a6446eb334ee58f",
+          "evaluationPath": "challenges/evaluations/20260930045045-v14.json",
+          "evaluationCommit": "786c4d928c3b6cd957078f24028114223abc92f8",
+          "evaluationArtifact": "challenges/evaluations/20260930045045-v14.json",
+          "evaluationUtc": "2026-09-30T04:51:09.180Z",
+          "remainingScreens": 1,
+          "recordedSteps": 34,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 34
+            },
+            "rng": {
+              "matched": 2126,
+              "total": 2126
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": ">"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "S",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": ">"
+              },
+              "cCursor": [
+                50,
+                1,
+                1
+              ],
+              "jsCursor": [
+                70,
+                16,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/knight-listens-to-mounted-steed.json",
+            "result": {
+              "session": "synthetic/v14/knight-listens-to-mounted-steed",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "knight-listens-to-mounted-steed",
+              "remainingScreens": 1,
+              "recordedSteps": 34,
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "knight-listens-to-mounted-steed",
+                "session": "synthetic/v14/knight-listens-to-mounted-steed",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+                "recordingPath": "challenges/cases/v14/knight-listens-to-mounted-steed.session.json",
+                "recordingSha256": "e1a892e3643d2c4ded75d04b85871a33ca7ba278dc0d3b23c2ad177aa3a8c9db",
+                "recipe": "challenges/cases/v14/knight-listens-to-mounted-steed.recipe.session.json",
+                "recipeSha256": "ea28faf3f3ce71012f053b7f311ea21265136dd193b999a41b811fdf6c60e114",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 34,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 2126,
+                    "total": 2126
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": ">"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "S",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": ">"
+                    },
+                    "cCursor": [
+                      50,
+                      1,
+                      1
+                    ],
+                    "jsCursor": [
+                      70,
+                      16,
+                      1
+                    ]
+                  }
+                },
+                "step": 33,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This is a distinct status-output gap from knight-applies-leash-down's leash-turn handling. At segment 0, step 33, the downward stethoscope use while mounted should print the pony's status; the saved scan has 33/34 screens and cursors matched, all 2126 RNG calls matched, and no refusal or input-boundary stop. In C, apply.c:use_stethoscope takes the u.usteed && u.dz > 0 arm and calls mstatusline(u.usteed). Frozen JS instead records note_unported('insight.c mstatusline') there, and its partial mstatusline also refuses the u.usteed clause. The missing source behavior is insight.c:mstatusline's mounted-steed clause: append ', carrying you' and, when Wounded_legs applies, append the injured leg name(s) using EWounded_legs, mbodypart, and makeplural before printing the common status line. This is a distinct branch from the leash case but overlaps A52's ownership of the same whole mstatusline function for worm counts, so any implementation should be coordinated/grouped with that function owner rather than treated as an independent function task.",
+              "source": {
+                "file": "insight.c",
+                "functions": [
+                  "mstatusline"
+                ],
+                "branch": "For a monster passed as u.usteed from apply.c:use_stethoscope when u.usteed is non-null and u.dz > 0 without the whirly-swallow interference path; report carrying-you state and injured legs when Wounded_legs is true, then emit the common status line.",
+                "callers": [
+                  "apply.c:use_stethoscope (called by apply.c:doapply STETHOSCOPE arm); the mounted-down branch passes u.usteed to mstatusline",
+                  "zap.c:probe_monster (wand-of-probing report; passes the probed monster to mstatusline)"
+                ],
+                "dependencies": [
+                  "apply.c:use_stethoscope must call mstatusline in the mounted-down path; its frozen JS path currently records note_unported instead",
+                  "priest.c:mon_aligntyp; insight.c:align_str and size_str; worn.c:find_mac; pline.c:pline for the common output line",
+                  "worm.c:count_wsegs and wseg_at; hacklib.c:ordin for the long-worm status clause",
+                  "pager.c:mhidden_description and region.c:visible_region_at for hidden and visible-region clauses",
+                  "mondata.h:digests, is_animal and enfolds; mondata.c:sticks for the u.ustuck clause",
+                  "youprop.h:Wounded_legs and EWounded_legs; polyself.c:mbodypart and objnam.c:makeplural for the mounted injured-leg clause",
+                  "do_name.c:x_monnam for the monster name; mextra.h:EDOG data for wizard-mode tame-pet detail"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/apply.c:345-359: use_stethoscope routes the mounted-down branch to mstatusline(u.usteed), and sends the swallowed-interference alternative to mstatusline(u.ustuck); apply.c:4327-4329 dispatches the STETHOSCOPE arm from doapply.",
+                "nethack-c/upstream/src/insight.c:3273-3398: whole mstatusline builds the status clauses in order; lines 3373-3385 handle mtmp == u.usteed by adding \", carrying you\" and optionally the injured-leg clause, then lines 3392-3397 format and print the status line.",
+                "Frozen examined JS at 3212f9f07c3fdf3f00c5c204885f51834f0b6448: js/apply.js:2413-2420 records note_unported(\"insight.c mstatusline\") in the mounted-down arm; js/insight.js:3079-3084 throws UnsupportedEnlightenmentError for mtmp === state.u.usteed.",
+                "Saved assigned scan .cache/synthetic-scans/v14/knight-listens-to-mounted-steed.json: screensEmitted=34, recordedSteps=34, first screen/cursor mismatch at segment 0 step 33 key \">\", boundary=null, commandRefusal=false, unported=[\"insight.c mstatusline\"].",
+                "Saved assigned evaluation challenges/evaluations/20260929225551-v14.json: case knight-listens-to-mounted-steed has 33/34 screens, 2126/2126 RNG calls, and 33/34 cursors matched. No replay was needed.",
+                "Comparison with the already investigated synthetic/v14/knight-applies-leash-down source finding: that case reaches apply.c:use_leash and the monster-turn dog_goal path; this case reaches apply.c:use_stethoscope -> insight.c:mstatusline. Their C functions and failure mechanisms differ. The present mstatusline function is also the function A52 owns for its long-worm count changes, so this branch shares a whole-function reservation with A52."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
