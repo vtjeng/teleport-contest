@@ -122566,8 +122566,8 @@
           "name": "polymorph_sink",
           "line": 404,
           "endLine": 459,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -122837,7 +122837,77 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "polymorph_sink",
+            "implementation": "js/do.js",
+            "symbol": "polymorph_sink",
+            "sourceReview": "Read the full do.c:polymorph_sink (404-456). It guards current terrain, snapshots nonzero sink looted flags, clears flags, then takes exactly one rn2(4) branch. Fountain resets blessedftn/horizontal and restores F_LOOTED; throne restores T_LOOTED; altar draws rn2(3)-1 and short-circuits the Gehennom rn2(3) into the altar mask; room changes type before make_grave(NULL) and chooses the message from the final type. All branches then message and newsym. Existing JS readers keep altar alignment in location.altarmask; flags remain cleared rather than duplicating the mask. Reuses the existing make_grave/get_rnd_text chain.",
+            "callers": [
+              {
+                "path": "js/do.js",
+                "symbol": "dosinkring",
+                "source": "do.c:dosinkring RIN_POLYMORPH case"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipsink",
+                "source": "fountain.c:dipsink POT_POLYMORPH case"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/fountain.c/polymorph-sink-dip-grave-c52-confirmed.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "polymorph-ring-transforms-sink",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 38,
+                "source": "do.c:dosinkring RIN_POLYMORPH -> do.c:polymorph_sink; JS js/do.js dosinkring -> polymorph_sink"
+              }
+            ],
+            "checkedAt": "d4c70124a4341518bb20dcfd4fc803b54656c86e"
+          }
+        ],
+        "entryPointReview": "Primary source unit: whole do.c:polymorph_sink. Its ring-on-sink caller reaches the admitted v14 synthetic range, and its #dip caller reaches the independent grave recording. The complete source review and runtime evidence for dosinkring wiring, fountain.c:dipsink/sink_backs_up/wash_hands, potion.c:dodip, and the sink hand/levitation entries are preserved in supportingSourceEvidence and supportingRuntime. Supporting implementations and caller branches: dosinkring: The surrounding ported function is retained; this task replaces only the RIN_POLYMORPH case gap with an awaited polymorph_sink() call and preserves the source-order nosink and ideed decisions afterward. The admitted v14 ring case reaches the production caller. Source callers: js/do.js:dropx (do.c dropx -> dosinkring when a ring is dropped on a sink). dipsink: Read the full fountain.c:dipsink (716-801). Preserve the first S_LRING-dependent rn2(25)/rn2(15) gate and early breaksink return; route hands/uarmg before non-potions; retain each potion arm and the object-detection fallthrough; run trycall only under try_call && dknown, then useup. The source-discarded potionbreathe call remains a named note_unported gap under its original breathless/eyes condition because the partial JS helper can refuse and its result is discarded by C. Source callers: js/potion.js:dodip (potion.c:dodip at_sink yes branch calls dipsink and returns ECMD_TIME). Runtime records: recordings/fountain.c/polymorph-sink-dip-grave-c52-confirmed.session.json, recordings/fountain.c/levitation-sink-backs-up-c52-confirmed.session.json, recordings/fountain.c/sink-wash-hands-glib-c52-clean.session.json. sink_backs_up: Read fountain.c:sink_backs_up (805-831). Message selection follows Blind/Deaf order. If S_LRING is clear, print the ring notice only when visible, create the ring, newsym, exercise DEX then WIS, and set S_LRING last. Reuses the existing mkobj_at/exercise/display helpers. Source callers: js/fountain.js:dipsink (fountain.c:dipsink POT_LEVITATION case). Runtime records: recordings/fountain.c/levitation-sink-backs-up-c52-confirmed.session.json. wash_hands: Read fountain.c:wash_hands (557-577). Capture Glib before output; use body_part(HAND,youmonst) and global uarmg for the first message; if Glib remains set, clear it then call do_wear.c:fingers_or_gloves(TRUE); if uarmg exists, pass that item to water_damage; return ER_GREASED only when Glib was initially set and water_damage returned ER_NOTHING. JavaScript uses Glib(state), state.youmonst and state.uarmg, preserving each C value in its existing owner. Source callers: js/fountain.js:dipsink (fountain.c:dipsink is_hands/uarmg branch). Runtime records: recordings/fountain.c/sink-wash-hands-glib-c52-clean.session.json. dodip: The existing potion.c:dodip implementation gains its whole sink dispatch branch: the at_sink prompt follows object-name construction; a yes response clears pickup_prev only for a non-hands object, calls dipsink, and returns ECMD_TIME; a declined prompt falls through as before. The hands prompt uses body_part(HAND,youmonst). Pool and potion-into-potion branches remain their prior explicit refusals and are outside this task. Source callers: js/cmd.js:runDipCommand (cmd.c:1702 dip command row dispatches dodip). Runtime records: recordings/fountain.c/polymorph-sink-dip-grave-c52-confirmed.session.json, recordings/fountain.c/levitation-sink-backs-up-c52-confirmed.session.json, recordings/fountain.c/sink-wash-hands-glib-c52-clean.session.json. Other active supporting callers: fountain.c:dipfountain calls wash_hands at line 449 and is already wired; potion.c:dodip pool arm calls wash_hands at line 2350, but that outer JS pool branch remains unported and is outside this task. dokick.c:kick_nondoor SINK arm calls sink_backs_up at line 1236, but that outer JS branch remains unported and is outside this task. These source paths are active in the reference build. Only do.c:polymorph_sink receives selected whole-function completion credit. The grave and levitation recordings execute polymorph_sink and sink_backs_up fully, then end at trycall naming boundaries steps 45/47; they do not execute dipsink useup after naming. The hand recording clears Glib through step 33; wash_hands adds no RNG on this clean-gloves path, but ordinary end-of-turn RNG follows. Supplemental post-correction hand differential run-upnhKr matches 34 screens/cursors and 1999 RNG calls; receipts are preserved in .cache/C52-supplemental-receipt-verification.json.",
+        "entryPoints": [
+          {
+            "name": "drop RIN_POLYMORPH on a sink through dosinkring",
+            "functions": [
+              "polymorph_sink"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "polymorph-ring-transforms-sink",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 38,
+                "source": "do.c:dosinkring RIN_POLYMORPH -> do.c:polymorph_sink"
+              }
+            ]
+          },
+          {
+            "name": "#dip polymorph potion at sink through dipsink",
+            "functions": [
+              "polymorph_sink"
+            ],
+            "recordings": [
+              "recordings/fountain.c/polymorph-sink-dip-grave-c52-confirmed.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
