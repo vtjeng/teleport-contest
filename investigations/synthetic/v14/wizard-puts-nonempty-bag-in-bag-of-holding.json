@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+  "corpus": "synthetic",
+  "batch": "v14",
+  "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+  "manifestPath": "challenges/manifests/v14.json",
+  "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+  "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+  "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+  "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+  "remainingScreens": 1,
+  "recordedSteps": 83,
+  "status": "complete",
+  "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v14",
+    "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+    "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+    "manifestPath": "challenges/manifests/v14.json",
+    "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+    "recording": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+    "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+    "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+    "recipe": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.recipe.session.json",
+    "recipeSha256": "dc12e38e33d55103ee75c75d917500eeb37045647601ae3019457d5f0bc4438f",
+    "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+    "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+    "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+    "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+    "evaluationUtc": "2026-09-29T22:55:51.622Z",
+    "remainingScreens": 1,
+    "recordedSteps": 83,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 82,
+        "total": 83
+      },
+      "rng": {
+        "matched": 2204,
+        "total": 2215
+      },
+      "cursors": {
+        "matched": 82,
+        "total": 83
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 219",
+      "step": 82
+    },
+    "step": 82,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: extractExternalObject is not available for otyp 219",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The assigned nested bag-of-holding path crosses the guaranteed mbag_explodes gate, but frozen JS records pickup.c do_boh_explosion as unported instead of scattering or destroying each contained object. C then reaches is_boh_item_gone (already represented in JS) for each affected bag item; the assigned trace records rn2(13)=3 and rn2(13)=10 there. The missing whole source owner is pickup.c:do_boh_explosion. Its direct callers are in_container and tipcontainer; wiring both tipcontainer call sites intersects C50’s reserved function, although this case itself runs through in_container.",
+  "source": {
+    "file": "pickup.c",
+    "functions": [
+      "do_boh_explosion"
+    ],
+    "branch": "Port all of pickup.c:do_boh_explosion (2515-2534). It sets the bag in-use flag, walks its contents while saving each next pointer before mutation, and makes one is_boh_item_gone() draw per item. A lost item is extracted and passed to mbag_item_gone(!on_floor, item, TRUE); otherwise its coordinates are moved to the hero and scatter() is called with blast force 4 and MAY_HIT | MAY_DESTROY. The function is void and does not clear in_use because its caller deletes the bag. In the assigned nested-bag path, mbag_explodes() at depth 0 uses rn2(1), making the explosion gate certain; C then invokes do_boh_explosion on the inserted inner bag and on the current outer bag. The trace records rn2(13)=3 and rn2(13)=10 at is_boh_item_gone. Frozen JS already has is_boh_item_gone() and mbag_explodes(), but its in_container explosion arm records note_unported(\"pickup.c do_boh_explosion\") at the calls instead of performing this function.",
+    "callers": [
+      "C pickup.c:in_container (2658-2693) calls do_boh_explosion(obj, obj->where == OBJ_FLOOR) for an inserted bag of holding at 2668, then calls do_boh_explosion(gc.current_container, floor_container) at 2683. This is the assigned #loot insertion route. At frozen JS commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, pickup.js:in_container has named missing calls at 2883-2886. The caller then deletes the outer container and applies d(6,6) damage.",
+      "C pickup.c:tipcontainer (3688-3841) calls do_boh_explosion(otmp, !srcheld) at 3789 for an inserted bag and do_boh_explosion(targetbox, !dstheld) at 3795 for the target bag. Frozen JS pickup.js:tipcontainer records those missing calls at 3726-3730. This is a separate production entry path from the assigned case, but whole caller wiring must cover it too."
+    ],
+    "dependencies": [
+      "Keep the on_floor argument meaning intact: callers pass the object floor/carried state, and do_boh_explosion uses !on_floor as mbag_item_gone() held status.",
+      "Preserve the bag object list order and save nobj before obj_extract_self() or mbag_item_gone() mutates/frees the current object.",
+      "Call the existing is_boh_item_gone() once for each member, in source order; it draws rn2(13) and returns true only on zero.",
+      "Call mbag_item_gone(!on_floor, item, true) for lost items. Its long loss result is discarded here; its object deletion and any applicable shop accounting still occur.",
+      "For retained items set ox/oy to the hero and invoke the existing explode.c scatter() with blast force 4 and MAY_HIT | MAY_DESTROY. Preserve scatter’s random calls, floor-object extraction/placement lifecycle hooks, hit effects, and messages.",
+      "Set boh.in_use before any scatter call so bones creation during scatter sees the correct bag state; leave it set because the caller deletes the bag.",
+      "Both callers discard this function’s return and perform their own subsequent bag deletion, shop accounting, damage, and status updates; preserve each caller’s source order when wiring the helper."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The assigned queue entry in .cache/v14-baseline-work-queue.json fixes this result to one remaining screen and 83 recorded steps, manifest corpus SHA-256 a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0, recording SHA-256 5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2, and evaluation challenges/evaluations/20260929225551-v14.json at de8f73ddf16241bca4e484fef2ab099b3f133a2d. The evaluation reports 82/83 screens, 82/83 cursors, and 2204/2215 RNG entries matched; the last input stops with an unsupported `extractExternalObject` operation for object type 219.",
+    "The assigned scan .cache/synthetic-scans/v14/wizard-puts-nonempty-bag-in-bag-of-holding.json records pickup.c do_boh_explosion in the unported set and the same step-82 operation boundary. The assigned manifest sourceTraceEvidence records rn2(1)=0 at mbag_explodes(pickup.c:2497), then rn2(13)=3 and rn2(13)=10 at is_boh_item_gone(pickup.c:2512), followed by obj_resists calls and d(6,6)=25 in in_container. The manifest identifies pickup.c:in_container -> mbag_explodes -> do_boh_explosion as the reached behavior.",
+    "The authoritative C implementation is pickup.c:2515-2534. At frozen JS commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, js/pickup.js already implements is_boh_item_gone() at 2312-2316 and records note_unported(\"pickup.c do_boh_explosion\") in in_container at 2883-2886 and in tipcontainer at 3726-3730.",
+    "A source search finds exactly two direct production callers with four call sites: pickup.c:in_container (2668, 2683) and pickup.c:tipcontainer (3789, 3795). The in_container route is the assigned case. C50’s reserved caller is tipcontainer: its explosion call sites need wiring for whole-caller completion, while the reported C50 changes are confined to the separate hornbindings path in that function. The assigned bag path does not call pickup_object or fatal_corpse_mistake: in_container checks fatal_corpse_mistake before reaching the explosion branch, and the input is a bag; do_boh_explosion itself uses neither helper. No B61-owned pickup_object/fatal-corpse code needs editing for this diagnosis."
+  ]
+}

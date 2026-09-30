@@ -1,0 +1,124 @@
+{
+  "session": "synthetic/v14/hero-climbs-out-of-wished-pit",
+  "corpus": "synthetic",
+  "batch": "v14",
+  "caseId": "hero-climbs-out-of-wished-pit",
+  "manifestPath": "challenges/manifests/v14.json",
+  "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+  "recordingSha256": "e0e03fcff3f2a2a6479b3c1cc87cae7507a5aee9c6c7d69c76239b3775d92231",
+  "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+  "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+  "remainingScreens": 1,
+  "recordedSteps": 11,
+  "status": "complete",
+  "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v14",
+    "caseId": "hero-climbs-out-of-wished-pit",
+    "session": "synthetic/v14/hero-climbs-out-of-wished-pit",
+    "manifestPath": "challenges/manifests/v14.json",
+    "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+    "recording": "challenges/cases/v14/hero-climbs-out-of-wished-pit.session.json",
+    "recordingPath": "challenges/cases/v14/hero-climbs-out-of-wished-pit.session.json",
+    "recordingSha256": "e0e03fcff3f2a2a6479b3c1cc87cae7507a5aee9c6c7d69c76239b3775d92231",
+    "recipe": "challenges/cases/v14/hero-climbs-out-of-wished-pit.recipe.session.json",
+    "recipeSha256": "09292b2249d2b495a54d0d46395f8fd434ae981d936e97aa72777ed4c67accf8",
+    "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+    "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+    "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+    "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+    "evaluationUtc": "2026-09-29T22:55:51.622Z",
+    "remainingScreens": 1,
+    "recordedSteps": 11,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 10,
+        "total": 11
+      },
+      "rng": {
+        "matched": 2680,
+        "total": 2691
+      },
+      "cursors": {
+        "matched": 11,
+        "total": 11
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 10,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 10,
+          "key": "<"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2679,
+        "cEntry": "rn2(2)=0",
+        "cCaller": "climb_pit(trap.c:4197)",
+        "jsEntry": "rn2(5)=0",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 10,
+          "key": "<"
+        },
+        "stepIndex": 10
+      },
+      "cursor": null
+    },
+    "step": 10,
+    "kind": "rng",
+    "sourceFile": "trap.c",
+    "function": "climb_pit",
+    "message": null,
+    "cFile": "trap.c",
+    "luaFile": null,
+    "line": 4197
+  },
+  "summary": "After falling into a wished pit, the < command reaches do.c:doup and calls trap.c:climb_pit. The examined js/do.js:doup branch records note_unported(\"trap.c climb_pit\") and returns, so it leaves the trap timer and pit state unchanged and skips climb_pit's source-ordered rn2(2) draw. The C draw at trap.c:4197 is the first RNG divergence at segment 0 step 10; the up-command screen then differs while all 11 cursors still match. The source owner is the whole trap.c:climb_pit function. A second C caller is hack.c:trapmove when a held hero tries to move from a pit; its JS TT_PIT path currently stops at an unsupported held-movement boundary.",
+  "source": {
+    "file": "trap.c",
+    "functions": [
+      "climb_pit"
+    ],
+    "branch": "The function acts only when u.utrap is nonzero and u.utraptype is TT_PIT. In the assigned case, a normal human Healer presses < after falling into a wished pit: Passes_walls is false, the function draws rn2(2) before testing for a boulder, then decrements u.utrap and reports “You are still in a pit.” The complete source scope also includes wall-pass, boulder-crevice, flying/clinger, timer-expiry/easy-escape, Sokoban/levitation, steed, verbose and hallucination arms.",
+    "callers": [
+      "C do.c:doup (1298-1311) calls climb_pit when u.utrap is nonzero and u.utraptype is TT_PIT, then returns ECMD_TIME. The assigned < key follows cmd.js:runUpCommand -> do.js:doup; at frozen commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, do.js:doup lines 2036-2040 records note_unported(\"trap.c climb_pit\") and returns ECMD_TIME without calling it.",
+      "C hack.c:trapmove (1549-1691), called from hack.c:domove_core, calls climb_pit for TT_PIT unless the destination is a visible adjacent pit (1580-1587). The corresponding JS hack.js:domove_core -> trapmove path reaches an UnsupportedHeroMoveBoundaryError at the generic non-TT_BEARTRAP guard (frozen hack.js:3777-3791), before any TT_PIT source arm. Wire this caller to the same ported function while preserving the adjacent-visible-pit exception."
+    ],
+    "dependencies": [
+      "trap.c:trapname is called before the branch and may use display RNG for a hallucinated trap name; thread the same display/core random sources and source order.",
+      "The C return value from static trap.c:m_easy_escape_pit (3724-3730) is consumed by the timer branch. An equivalent JS helper exists at js/trap_effects.js:m_easy_escape_pit; verify it against the source before relying on it.",
+      "trap.c:reset_utrap, fill_pit, and the hero trap state u.utrap/u.utraptype. JS reset_utrap and fill_pit exist in js/trap.js; fill_pit still records note_unported(\"do.c flooreffects\") after extracting a boulder, so an escape while a boulder fills the pit remains a dependency gap.",
+      "Source predicates and output include Passes_walls, Flying, is_clinger, Sokoban, Levitation, steed state, body_part(LEG), sobj_at(BOULDER), u_locomotion(\"climb\"), You/Your/Norep, and the message-window display/clear calls in the boulder-crevice arm. Successful escapes also set the full-vision-recalculation flag."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The assigned queue entry in .cache/v14-baseline-work-queue.json records remainingScreens=1, recordedSteps=11, manifest corpus SHA-256 a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0, recording SHA-256 e0e03fcff3f2a2a6479b3c1cc87cae7507a5aee9c6c7d69c76239b3775d92231, and evaluation challenges/evaluations/20260929225551-v14.json at de8f73ddf16241bca4e484fef2ab099b3f133a2d. The evaluation reports 10/11 screens, 11/11 cursors and 2680/2691 RNG entries matched; its first RNG mismatch is C rn2(2)=0 from climb_pit(trap.c:4197) versus JS rn2(5)=0 at segment 0 step 10, followed by the only screen mismatch at step 10.",
+    "The assigned scan .cache/synthetic-scans/v14/hero-climbs-out-of-wished-pit.json confirms no command refusal and names trap.c climb_pit in the unported set. The scan locates the C draw at step 10, the screen mismatch at row 0, column 0 (C “Y”, JS space), and all 11 cursors matching. challenges/manifests/v14.json sourceTraceEvidence and reachedBehavior identify the intended path as do.c:doup -> trap.c:climb_pit and C reports “You are still in a pit.”",
+    "At frozen examined commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, js/do.js:doup lines 2036-2040 skips the call with note_unported. The full C definition at nethack-c/upstream/src/trap.c:4181-4225 contains the missing rn2(2) at :4197, the ordered boulder test, escape and timer branches, and the repeated “still in a pit” message. In the assigned Healer case the source therefore consumes rn2(2) before checking for a boulder; the JavaScript caller leaves u.utrap unchanged and proceeds without the function.",
+    "The scanner also records trap.c selftouch as unported during the earlier pit-entry sequence, through trap_effects.js. That is a separate source gap: the assigned first mismatch is the later < input and is specifically attributed to do.c:doup -> climb_pit; the existing scan has no screen or cursor divergence before step 10. The other production C call site is hack.c:trapmove (1580-1587), whose JS counterpart currently refuses held non-beartrap movement before a TT_PIT branch can call climb_pit."
+  ]
+}
