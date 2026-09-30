@@ -17630,5 +17630,157 @@
       }
     },
     "recordedAt": "2026-09-29T21:27:43.603Z"
+  },
+  {
+    "kind": "review",
+    "head": "37090b61fcea76066ca9d9d76b2fc498f5712700",
+    "auditedRange": "3212f9f07c3fdf3f00c5c204885f51834f0b6448..37090b61fcea76066ca9d9d76b2fc498f5712700",
+    "level": "full",
+    "areas": [
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "runtime"
+    ],
+    "outcome": "no-change",
+    "evidence": "Counts: 8 raw, 6 deduplicated, 4 confirmed, 0 applied, 4 deferred, 2 rejected, 0 unverified. The concurrency trigger applies to shared worm state and awaited cleanup; no performance trigger applies beyond source-required traversal. The workflow retained two overlapping swallowed-cleanup findings. Their correction returns to implementation with new runtime evidence, and both test findings travel with that correction. The frozen candidate passes its checkpoint and all admitted synthetic evaluations; the review identified uncovered swallowed cleanup. No source change was applied during the pass.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1640,
+      "counts": {
+        "raw": 8,
+        "deduplicated": 6,
+        "confirmed": 4,
+        "applied": 0,
+        "deferred": 4,
+        "rejected": 2,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 2,
+        "tests": 2,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [
+        {
+          "summary": "mongone() ignores the Promise returned by unstuck() for a swallowed monster",
+          "foundBy": [
+            "correctness",
+            "concurrency",
+            "variable-trace"
+          ],
+          "resolution": "deferred",
+          "source": "mon.c:mongone and unstuck; read.c:do_class_genocide",
+          "reason": "Returned to A52 implementation because sequencing changes RNG/rendering and requires independent reachable recording evidence. These two findings describe the same cleanup defect; workflow overlap threshold retained both."
+        },
+        {
+          "summary": "mongone starts swallowed-holder cleanup without waiting for it",
+          "foundBy": [
+            "readability"
+          ],
+          "resolution": "deferred",
+          "source": "mon.c:mongone and unstuck; read.c:do_class_genocide",
+          "reason": "Returned to A52 implementation because sequencing changes RNG/rendering and requires independent reachable recording evidence. These two findings describe the same cleanup defect; workflow overlap threshold retained both."
+        }
+      ],
+      "rejections": [
+        {
+          "summary": "Wizard genocide continues after skipping a leashed monster’s unlink",
+          "counterEvidence": "evidence refute: The omitted leash mutation is real, but it is an explicitly recorded source gap permitted by the port contract, rather than an untracked defect. Counter-evidence: C mon.c:m_detach calls apply.c:m_unleash as a statement and discards its void result. The new mongone callback records note_unported('apply.c m_unleash'), and the touched-file source-gap inventory lists leashed detach as an incomplete branch. The project instructions permit recording and skipping an unported callee whose result C discards. causality refute: The range exposes the named gap through wizard genocide, but does not introduce a separate defect beyond that explicitly permitted incomplete branch. Counter-evidence: The changed read.c:do_class_genocide path calls mongone, whose m_detach callback records the exact apply.c:m_unleash gap. C m_unleash returns void, and the source-gap inventory identifies the leashed detach boundary. Reopen when implementing the named missing source branch, or if evidence shows a consumed return or a separate ordering defect."
+        },
+        {
+          "summary": "Protected objects are logged but never transferred before later cleanup",
+          "counterEvidence": "evidence refute: The lost protected-object transfer is an explicitly recorded incomplete void-call path, not a separate untracked defect under the source-gap contract. Counter-evidence: C steal.c:mdrop_special_objs calls mdrop_obj or extract_from_minvent and rloco without consuming their return values. js/steal.js:mdrop_special_objs records the protected-object transfer gap, and the touched-file source-gap inventory explicitly lists protected and quest object transfer as incomplete. causality refute: The range adds the transfer gap explicitly; the subsequent discard or migration follows the caller's source order after that permitted gap, rather than exposing a separate lifecycle error. Counter-evidence: C mon.c:mongone calls mdrop_special_objs before discard_minvent, and C mon.c:migrate_mon calls it before migrate_to_level. The JS helper records the skipped protected-object branch, matching the documented void-call gap. Reopen when implementing the named missing source branch, or if evidence shows a consumed return or a separate ordering defect."
+        }
+      ],
+      "deferrals": [
+        {
+          "summary": "The new long-worm branch in movebubbles has no regression test.",
+          "category": "tests",
+          "trackedIn": "A52 correction in worker-state-loop-20260925 and port-worm-cut-segment-synthetic-v13-20260929",
+          "reason": "A52 correction will add Water-level worm caller coverage, asserting cleared x and retained y as C remove_worm requires; original all-coordinate-zero proposal was refuted."
+        },
+        {
+          "summary": "mongone() ignores the Promise returned by unstuck() for a swallowed monster",
+          "category": "production",
+          "trackedIn": "A52 correction in worker-state-loop-20260925 and port-worm-cut-segment-synthetic-v13-20260929",
+          "reason": "Return to implementation for swallowed cleanup, caller ordering, and independent recorded evidence."
+        },
+        {
+          "summary": "mongone starts swallowed-holder cleanup without waiting for it",
+          "category": "production",
+          "trackedIn": "A52 correction in worker-state-loop-20260925 and port-worm-cut-segment-synthetic-v13-20260929",
+          "reason": "Return to implementation for swallowed cleanup, caller ordering, and independent recorded evidence."
+        },
+        {
+          "summary": "The new cleanup contract test covers mongone’s synchronous path but not m_detach’s awaited death path.",
+          "category": "tests",
+          "trackedIn": "A52 correction in worker-state-loop-20260925 and port-worm-cut-segment-synthetic-v13-20260929",
+          "reason": "A52 correction will assert pending inventory-release order before death detachment completes."
+        }
+      ],
+      "readiness": {
+        "boundary": "Frozen range 3212f9f07c3fdf3f00c5c204885f51834f0b6448..37090b61fcea76066ca9d9d76b2fc498f5712700. Review changed supporting worm consumers without worm-specific matching runtime evidence: mon.js apply_newcham_steps/newcham (mon.test.mjs and mon-shape.test.mjs direct tests), mm_displacement (monmove.test.mjs), relmon/replmon and mon_leaving_level (mon-kill.test.mjs), migrate_mon (source only for special-object/worm combination); dog.js migration relmon/migrate_to_level (source only for newly wired worm path); mhitm.js mdisplacem (mhitm.test.mjs live and cloned schedules); mkmaze.js movebubbles (no matching caller recording or new path unit witness); trap_effects.js pit/hole/web tail counts (monster-pit.test.mjs and trap.test.mjs direct branch tests, no worm-specific caller recordings); startup_a11y.js canSeeMonster and mon.js monkilled worm_known consumers (whatis-command.test.mjs helper source tests and mon-kill.test.mjs caller tests, no independent caller recording). The changed m_detach/mongone cleanup and steal.js mdrop_special_objs ordinary path run in matching independent worm and pet genocide recordings; due_to_death awaited cleanup has mon-kill.test.mjs and mongone.test.mjs final-state tests, with no assertion while inventory release is pending and no independent worm-specific recording. Core cutworm thrown and melee entries already have matching admitted/independent evidence and are read as dependencies, not a substitute for the missing supporting runtime coverage.",
+        "sourceReview": "Traced every changed supporting function against the complete relevant upstream mon.c/dog.c/mhitm.c/mkmaze.c/trap.c/display.c/steal.c/worm.c definitions, covering canonical level-slot/map ownership, source evaluation and random order, remove/place/redraw ordering, C migration quirks, and synchronous versus awaited teardown. Full touched-file gap inventory is retained in .cache/A52-touched-file-source-gaps.txt. Existing unsupported boundaries include leashed/Wizard/quest/steed/mimic detach paths; mongone vault.c grddead remains a note plus explicit refusal because its return governs continuation; mdrop_special_objs protected/quest transfer void gaps remain explicit. movebubbles and trap effect unrelated existing unported families remain outside the changed consumers; no whole completion claim is made for those families. The source evidence lists all unverified supporting entries rather than treating helper tests as runtime reachability.",
+        "completeness": "No note_unported return is consumed as C data in scope. The vault.c grddead gap refuses the path rather than inventing a return; supporting protected/quest transfer gaps record discarded void calls. Ported worm predicates return source-derived values from the supplied state. No fallback random draw, message, or state change substitutes for an unported return-bearing helper."
+      },
+      "optionalFinders": {
+        "concurrency": "Cloned mutable worm/map state and changed synchronous/awaited lifecycle cleanup.",
+        "performance": "Disabled: no amplified work beyond source-required bounded traversal identified."
+      },
+      "warnings": [],
+      "unverified": [],
+      "validation": {
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/37090b61fcea76066ca9d9d76b2fc498f5712700/run-jLx3TX/summary.json",
+        "focused": ".cache/A52-focused-corrected.log",
+        "syntheticEvaluations": ".cache/A52-evaluation-paths.txt",
+        "fixedScan": ".cache/A52-scan.json"
+      },
+      "scope": "Changed supporting worm/lifecycle callers in the frozen range, as recorded in readiness; active cutworm entry points already have matching runtime evidence."
+    },
+    "recordedAt": "2026-09-30T00:09:06.431Z"
+  },
+  {
+    "kind": "review",
+    "head": "d7c9ac66a35f3c6641c24100ba1001faaeba7272",
+    "auditedRange": "193933f31f03c2f9a3a81680e040912a38cbbed0..d7c9ac66a35f3c6641c24100ba1001faaeba7272",
+    "level": "full",
+    "areas": [
+      "monsters"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 1 raw, 1 deduplicated, 1 confirmed, 1 applied, 0 deferred, 0 rejected, 0 unverified. Reviewed the correction to swallowed mongone ordering, its wizard genocide caller, and the pending-removal and worm-collection tests with five independent finders and one independent adjudicator. The second-monster audit fix matches the confirmed finding and passes all 29 focused read tests; lint passes. The earlier deferred cleanup findings were addressed by worker correction 79dc7686. Ordinary and worm caller recordings match; the swallowed C witness remains blocked before its input boundary and is not runtime completion evidence. All selected cutworm entries remain verified. No workflow warnings.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1937,
+      "counts": {
+        "raw": 1,
+        "deduplicated": 1,
+        "confirmed": 1,
+        "applied": 1,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 1,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "Frozen range 193933f31f03c2f9a3a81680e040912a38cbbed0..0728c58d9d72f083058ba401d3eb67c0d1bc0c04. mon.js:mongone and read.js:do_class_genocide ordinary/pet and worm paths are exercised by existing matching independent genocide recordings; the swallowed continuation has the new gated tests but lacks matching JS recorded play. scripts/makemon-create.test.mjs pins both swallowed pending state and due-to-death pending relobj; scripts/read.test.mjs pins the wizard-star caller wait; scripts/mkmaze-span.test.mjs pins worm collection before water-bubble relocation. The selected cutworm caller entries remain runtime verified. No test or blocked recipe is claimed as swallowed production replay evidence.",
+        "sourceReview": "Compared mon.c:mongone and unstuck state/PRNG/redraw order, m_detach due_to_death relobj ordering, read.c:do_class_genocide wizard-star saved-next/count loop, mkmaze.c:movebubbles collection order and worm.c:remove_worm wx-only clearing. Existing source gaps in scope: mongone vault.c:grddead return blocker remains an explicit refusal; apply.c:m_unleash and protected/quest steal.c:mdrop_special_objs transfers remain explicitly named discarded-void gaps. Dependencies retain their existing named gaps; source inventory will be saved before launch.",
+        "completeness": "No note_unported() in the changed cleanup continuation or wizard-star caller supplies a return consumed by C. The consumed vault guard return remains an explicit blocker, not fabricated data. The changed tests inject controlled scheduling and RNG but do not replace the production callers."
+      }
+    },
+    "recordedAt": "2026-09-30T01:30:11.322Z"
   }
 ]

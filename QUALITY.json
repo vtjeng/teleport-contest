@@ -3188,6 +3188,34 @@
       ],
       "outcome": "changed",
       "recordedAt": "2026-09-29T21:27:43.603Z"
+    },
+    {
+      "kind": "review",
+      "head": "37090b61fcea76066ca9d9d76b2fc498f5712700",
+      "auditedRange": "3212f9f07c3fdf3f00c5c204885f51834f0b6448..37090b61fcea76066ca9d9d76b2fc498f5712700",
+      "level": "full",
+      "areas": [
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "no-change",
+      "recordedAt": "2026-09-30T00:09:06.431Z"
+    },
+    {
+      "kind": "review",
+      "head": "d7c9ac66a35f3c6641c24100ba1001faaeba7272",
+      "auditedRange": "193933f31f03c2f9a3a81680e040912a38cbbed0..d7c9ac66a35f3c6641c24100ba1001faaeba7272",
+      "level": "full",
+      "areas": [
+        "monsters"
+      ],
+      "outcome": "changed",
+      "recordedAt": "2026-09-30T01:30:11.322Z"
     }
   ]
 }
