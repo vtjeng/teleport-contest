@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -55,6 +56,7 @@ import {
     RUN_STEP,
     SATIATED,
     SEARCHING,
+    TELEPORT,
     DOOR,
     SLT_ENCUMBER,
     SV0,
@@ -3879,4 +3881,73 @@ test('a hero the monster scan kills reaches no once-per-turn upkeep',
         assert.equal(game.program_state.in_really_done, false);
         // finishElapsedTurn() would have advanced moves past the death turn.
         assert.equal(game.moves, deathTurn);
+    });
+
+test('moveloop_core checks an active teleport ring before hunger upkeep',
+    async () => {
+        // This admitted v14 C recipe independently wished and wore the ring.
+        // At its last key, C records rn2(85)=48 at allmain.c:308, then
+        // gethungry's rn2(20)=1, then the engraving gate rn2(94)=23. The
+        // nonzero 48 keeps teleport.c:tele out of this check, so the fixture
+        // isolates the missing source-ordered gate without claiming tele.
+        const recipe = JSON.parse(readFileSync(new URL(
+            '../challenges/cases/v14/'
+                + 'wizard-wears-teleportation-ring.recipe.session.json',
+            import.meta.url,
+        ), 'utf8'));
+        const replay = await runSegment(recipe.segments[0]);
+        const log = replay.getRngLog();
+        const hungerIndex = log.lastIndexOf('rn2(20)=1');
+
+        // Three C calls lead into hunger: monster movement, random creation,
+        // and the periodic teleport check.
+        assert.ok(hungerIndex >= 3, 'the source hunger roll was recorded');
+        assert.deepEqual(log.slice(hungerIndex - 3, hungerIndex + 2), [
+            'rn2(12)=9', // mcalcmove(mon.c:1164)
+            'rn2(70)=44', // maybe_generate_rnd_mon(allmain.c:166)
+            'rn2(85)=48', // Teleportation check (allmain.c:308)
+            'rn2(20)=1', // gethungry(eat.c:3191)
+            'rn2(94)=23', // engraving gate (allmain.c:360)
+        ]);
+    });
+
+test('invulnerability suppresses the periodic teleport chance draw',
+    async () => {
+        // This fresh Healer start uses a fixed seed/date only to initialize a
+        // valid game. The test then constructs C's u.uinvulnerable and active
+        // intrinsic Teleportation preconditions directly; no random outcome
+        // from this startup is part of the assertion.
+        await runSegment(firstTurnInput({
+            seed: 2026093001,
+            datetime: '20260930120000',
+            name: 'InvulnerableTeleportGuard',
+            role: 'Healer',
+            race: 'human',
+            gender: 'female',
+            align: 'neutral',
+            command: '',
+        }));
+        clearTtyMessageWindow(game);
+        game.u.uinvulnerable = true;
+        game.u.uprops[TELEPORT] = {
+            intrinsic: 1,
+            extrinsic: 0,
+            blocked: 0,
+        };
+
+        const bounds = [];
+        await finishElapsedTurn(game, {
+            rn1,
+            rn2(bound) {
+                bounds.push(bound);
+                return rn2(bound);
+            },
+            rnd,
+        });
+
+        assert.equal(
+            bounds.includes(85),
+            false,
+            'allmain.c:308 suppresses rn2(85) while invulnerable',
+        );
     });
