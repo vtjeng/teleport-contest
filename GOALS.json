@@ -119505,7 +119505,7 @@
           "line": 2847,
           "endLine": 2948,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -119701,7 +119701,72 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hornoplenty",
+            "implementation": "js/mkobj_hornoplenty.js",
+            "symbol": "hornoplenty",
+            "sourceReview": "Read and translated the complete mkobj.c:2847-2936 body. Preserved the invalid-object diagnostic-only arm; the empty-charge message, cknown update and inventory refresh; charged use and its ordering before rn2(13); potion generation, magic-potion reroll until not POT_SICKNESS, POT_OIL fixup, food generation, ration-to-royal-jelly rn2(7), BUC copying and weight calculation; unpaid billing; suppress_price lifetime; carried-object hold and its surface-dependent message; target-container insertion, weight refresh, carried encumbrance and inventory refresh; unreachable-floor hitfloor branch; altar drop; Doname2/otense/surface floor message and drop; and the dknown makeknown tail. The makeknown macro in hack.h:1530 expands to discover_object(HORN_OF_PLENTY, TRUE, TRUE, TRUE), whose existing JS port supplies the Wisdom exercise side effect. Kept C evaluation and RNG order. Replaced the prior thrown bad-horn refusal, skipped Doname2 message and skipped discover_object tail. The only unported callee is pline.c:impossible on the invalid-object branch: its return is void, so note_unported records the diagnostic gap without changing control flow or supplying a value. Existing dependencies remain read-only: mkobj.c:add_to_container (definition at 2676), invent.c:update_inventory (2782), and the already-ported generation, billing, pickup, naming, floor, altar and discovery helpers.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply, HORN_OF_PLENTY arm at 4386 calls hornoplenty(obj, FALSE, NULL); JS dispatches the same non-tipping operation."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer_checks",
+                "source": "pickup.c:tipcontainer, horn/bag emptying loop at 4014-4019 calls hornoplenty(box, TRUE, targetbox); JS preserves the result-driven repeat-until-empty loop through this helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkobj-hornoplenty.test.mjs",
+              "scripts/object-substrate.test.mjs",
+              "scripts/pickup-tip.test.mjs",
+              "scripts/mkobj-fixup-oil.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-applied-c50.session.json",
+              "recordings/pickup.c/hornoplenty-tip-floor-c50.session.json",
+              "recordings/pickup.c/hornoplenty-tip-targetbox-c50.session.json"
+            ],
+            "checkedAt": "28c84b481a73bb12c30706d94c4088a5cd288a34"
+          }
+        ],
+        "entryPointReview": "Reviewed both active C call sites for mkobj.c:hornoplenty. apply.c:doapply reaches it from the apply command HORN_OF_PLENTY arm; pickup.c:tipcontainer reaches it from the #tip operation while emptying a charged horn, either onto the floor or into a selected carried container. The three independent C recordings execute those routes through command dispatch: applied horn, #tip to floor, and #tip to carried chest. No other C call sites exist (rg of upstream/src reports only apply.c:4386 and pickup.c:4016).",
+        "entryPoints": [
+          {
+            "name": "Apply a charged horn of plenty",
+            "functions": [
+              "hornoplenty"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-applied-c50.session.json"
+            ]
+          },
+          {
+            "name": "Tip a charged horn onto the floor",
+            "functions": [
+              "hornoplenty"
+            ],
+            "recordings": [
+              "recordings/pickup.c/hornoplenty-tip-floor-c50.session.json"
+            ]
+          },
+          {
+            "name": "Tip a charged horn into a carried container",
+            "functions": [
+              "hornoplenty"
+            ],
+            "recordings": [
+              "recordings/pickup.c/hornoplenty-tip-targetbox-c50.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
