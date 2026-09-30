@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first isolated chest-shatter recipe, frozen before recording and JavaScript comparison. `empty` uses objnam.c:readobjnam (4099, 5311-5321) to delete generated chest contents before potion insertion, avoiding unrelated non-potion material branches in lock.c:chest_shatter_msg. Seed 8421103 preserves the independently C-observed inventory slots (mace o, chest p, sickness potion q, skeleton key r); only the chest wish qualifier changes from the already-traced loaded-chest setup.",
+  "segments": [
+    {
+      "seed": 8421103,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwo#wizwish\nempty unlocked chest\ndp#wizwish\npotion of sickness\n#loot\nsq#wizwish\nskeleton key\nar.y#force\ny"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C54 source setup: wish and wield a mace, drop an unlocked chest, wish sickness potion, then insert it through #loot using the potion-class selector. This frozen prefix captures the source container-selection prompt before the later skeleton-key/force continuation; no JS comparison yet.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nunlocked chest\ndo#wizwish\npotion of sickness\n#loot\ni!p"
+    }
+  ]
+}

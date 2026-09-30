@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C54 Wizard recipe continuing the C-confirmed seed 812640 upward speed-potion throw. The C-only prefix showed inventory slot m and ended at the potion-shatter --More--; this frozen input repeats that independent setup and supplies the pager continuation so breakobj can reach potionbreathe. Frozen before this C recording and any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 812640,
+      "datetime": "20470420083052",
+      "nethackrc": "OPTIONS=name:SpeedUp2,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizwish\npotion of speed\ntm< "
+    }
+  ]
+}

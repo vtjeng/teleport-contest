@@ -1129,9 +1129,9 @@ export async function dipsink(obj, state = game, env = {}) {
         await message('A wisp of vapor rises up...', state);
         if (!breathless(state.youmonst.data)
             || haseyes(state.youmonst.data)) {
-            // fountain.c discards potionbreathe()'s void result. Its current
-            // JS arms can refuse, so preserve the call site as an explicit gap.
-            note_unported('potion.c potionbreathe');
+            // fountain.c:795 discards potionbreathe()'s void result.
+            const { potionbreathe } = await import('./potion.js');
+            await potionbreathe(obj, state, { ...env, random, message });
         }
         break;
     }

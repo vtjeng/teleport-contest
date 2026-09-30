@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C54 continuation for lock.c:breakchestlock(destroyit=TRUE) -> chest_shatter_msg(POTION_CLASS) -> potion.c:potionbreathe. The prior C-only setup showed the wished mace in slot n; this frozen input uses that observed slot and clears the initial welcome pager before continuing. C recording and JS comparison follow this freeze.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChest,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nlocked chest\ndp#wizwish\npotion of sickness\n#loot\ni+\nnny #force\ny   "
+    }
+  ]
+}

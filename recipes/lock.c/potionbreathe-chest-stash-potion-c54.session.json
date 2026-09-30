@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C54 source-driven input correction for a single potion: use #loot stash-one (`s`) and select the wished item at C-observed slot p, avoiding the broad potion-class loop. Frozen before this C-only attempt and all JavaScript comparisons.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nunlocked chest\ndo#wizwish\npotion of sickness\n#loot\nsp"
+    }
+  ]
+}

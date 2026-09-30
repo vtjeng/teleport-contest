@@ -451,7 +451,7 @@ import { Punished } from './steed.js';
 import { move_bc, drag_ball } from './ball.js';
 import { note_unported } from './unported.js';
 import { cutworm } from './worm.js';
-import { make_blinded, potionhit } from './potion.js';
+import { make_blinded, potionbreathe, potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
@@ -1545,10 +1545,8 @@ export async function breakobj(
                         );
                     }
                 }
-                // potionbreathe() has a discarded void result here. Its
-                // side effects remain an explicit dependency until the source
-                // owner is assigned to this port.
-                note_unported('potion.c potionbreathe');
+                // dothrow.c:2517 discards potionbreathe()'s void result.
+                await potionbreathe(obj, state, { ...rawEnv, random, message });
             }
         }
         break;

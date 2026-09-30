@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C54 continuation after source-traced single-potion insertion. Wish a skeleton key after placing the potion in the unlocked chest so the key slot is learned from C before freezing the lock/force continuation. This remains C-only; no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 8421102,
+      "datetime": "20480825103841",
+      "nethackrc": "OPTIONS=name:VaporChestLoad,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": " #wizwish\nmace\nwn#wizwish\nunlocked chest\ndo#wizwish\npotion of sickness\n#loot\nsp#wizwish\nskeleton key\n"
+    }
+  ]
+}

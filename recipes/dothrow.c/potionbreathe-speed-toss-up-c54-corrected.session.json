@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent Wizard recipe for dothrow.c:throwit -> toss_up -> breakobj -> potion.c:potionbreathe(POT_SPEED). C selected the wish-created potion in inventory slot n, so this frozen input throws that slot upward; frozen before C recording or JavaScript comparison. C attempt run-sTNyMK is retained as a second target miss: this independently selected seed placed the potion in slot m, while the frozen input used n, so neither toss_up nor breakobj was reached.",
+  "segments": [
+    {
+      "seed": 812640,
+      "datetime": "20470420083052",
+      "nethackrc": "OPTIONS=name:SpeedUp2,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizwish\npotion of speed\ntn<"
+    }
+  ]
+}
