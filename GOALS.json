@@ -123266,6 +123266,373 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-potionbreathe-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete potion vapor effects and their implemented callers",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding"
+      ],
+      "selectionReason": "Continue synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding from its complete investigation and accepted C53 evaluation challenges/evaluations/20260930105031-v14.json at 6566320f433e40cb8c40e13bcc489dbbd21aa450. The case matches 83 screens and cursors but retains three RNG mismatches because dothrow.c:breakobj skips potion.c:potionbreathe. Complete whole potionbreathe and wire its five implemented caller families; correct the source potion-class override in lock.c:breakchestlock. The outer dip_potion_explosion route remains blocked by the unported potion_dip path and receives no completion credit.",
+      "detail": "Whole potionbreathe; potionhit, dipsink, breakobj, maybe_destroy_item and chest_shatter_msg runtime coverage; caller-only breakchestlock potion override. Preserve discarded were transformation gaps and explicit outer potion-dip boundary.",
+      "openedAt": "6f2f6b6ab292dc47a31779aa46522c997170d248",
+      "openStanding": {
+        "sha": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "8e2a9bf2a1135bf0c405464105a115373ede466b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "potionbreathe",
+          "line": 1932,
+          "endLine": 2121,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1932,
+        "to": 2121
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding": {
+          "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+          "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450"
+        }
+      },
+      "activeStanding": {
+        "sha": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+          "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+          "recipe": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.recipe.session.json",
+          "recipeSha256": "dc12e38e33d55103ee75c75d917500eeb37045647601ae3019457d5f0bc4438f",
+          "replayInputSha256": "ea384df939472d8cb950f089b969a041e2c4564bdf142903ca808b90c055faba",
+          "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+          "evaluationArtifact": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationUtc": "2026-09-30T10:50:54.556Z",
+          "remainingScreens": 0,
+          "recordedSteps": 83,
+          "previousScreensMatched": 82,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 83,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2212,
+              "total": 2215
+            },
+            "cursors": {
+              "matched": 83,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2211,
+              "cEntry": "rn2(19)=6",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(100)=68",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 82,
+                "key": " "
+              },
+              "stepIndex": 82
+            },
+            "cursor": null
+          },
+          "step": 82,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding.json",
+            "result": {
+              "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+              "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+              "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+              "remainingScreens": 0,
+              "recordedSteps": 83,
+              "status": "complete",
+              "commit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+                "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+                "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+                "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+                "recipe": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.recipe.session.json",
+                "recipeSha256": "dc12e38e33d55103ee75c75d917500eeb37045647601ae3019457d5f0bc4438f",
+                "replayInputSha256": "ea384df939472d8cb950f089b969a041e2c4564bdf142903ca808b90c055faba",
+                "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+                "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+                "evaluationArtifact": "challenges/evaluations/20260930105031-v14.json",
+                "evaluationUtc": "2026-09-30T10:50:54.556Z",
+                "remainingScreens": 0,
+                "recordedSteps": 83,
+                "previousScreensMatched": 82,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 83,
+                    "total": 83
+                  },
+                  "rng": {
+                    "matched": 2212,
+                    "total": 2215
+                  },
+                  "cursors": {
+                    "matched": 83,
+                    "total": 83
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2211,
+                    "cEntry": "rn2(19)=6",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(100)=68",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 82,
+                      "key": " "
+                    },
+                    "stepIndex": 82
+                  },
+                  "cursor": null
+                },
+                "step": 82,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The bag explosion now runs through content scattering and floor-bag cleanup. Its final step shatters a healing potion beside the hero. C potionbreathe heals one HP and exercises Constitution; JavaScript breakobj still records the named potionbreathe gap, so the next RNG call differs. Complete whole potion.c:potionbreathe and wire its active vapor callers.",
+              "source": {
+                "file": "potion.c",
+                "functions": [
+                  "potionbreathe"
+                ],
+                "branch": "A potion of healing breaks next to a hero who can breathe or has eyes. dothrow.c:breakobj calls potionbreathe after the odor message. The healing arm increments injured normal and polymorph HP, applies its blessed blind/deaf cure, then exercise(A_CON, TRUE), preserving C fallthrough for extra/full healing and object in_use restoration before identification.",
+                "callers": [
+                  "dothrow.c:breakobj at 2517 calls potionbreathe when a potion breaks next to an eligible hero.",
+                  "potion.c:potionhit at 1906–1911; fountain.c:dipsink at 795; lock.c:chest_shatter_msg at 1285; zap.c:maybe_destroy_item at 5917 are other production vapor caller families.",
+                  "potion.c:dip_potion_explosion at 2431 is the sixth C caller; its existing outer JavaScript dip path remains unported and must be documented as a boundary."
+                ],
+                "dependencies": [
+                  "Reuse source-aligned property, status, exercise, identification and monster-observation helpers in source order.",
+                  "Preserve obj.in_use across all vapor effects and restore it before dknown naming or discovery.",
+                  "Were-form vapor transformations use discarded void calls; retain exact source-named gaps if still unported."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "C53 completes pickup.c:do_boh_explosion with all four in_container/tipcontainer callsites. Four independent C recordings cover #loot floor cleanup, retained-object scatter, #tip and #apply carried cleanup; they establish bag-helper execution without claiming the selected synthetic step is matching.",
+                "At the selected v14 final step 82, the C trace reaches a healing-potion break through explode.c:scatter -> dothrow.c:breaks -> breakobj -> potionbreathe. C exercise(attrib.c:509) consumes rn2(19)=6 after the HP increment; JavaScript still skips the vapor helper and next calls obj_resists with rn2(100)=68. The setup-only matching prefix through step81 does not establish potionbreathe execution.",
+                "Authoritative potion.c:potionbreathe (1932–2118) temporarily sets the potion in_use flag, implements all vapor effect branches, restores the flag and then identifies or offers a call name when dknown. The healing arm at 1989–2003 supplies the exposed missing behavior.",
+                "The former extractExternalObject refusal and missing do_boh_explosion call are superseded by C53. No session or seed special case is needed; the next task ports the whole vapor helper and its active caller arms."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "potionbreathe",
+            "implementation": "js/potion.js",
+            "symbol": "potionbreathe",
+            "sourceReview": "Read the complete potion.c:potionbreathe definition (1932-2118). The implementation follows Half_gas_damage towel selection, all active switch cases and fallthroughs, the no-op effects, RNG and state update order, messages, timeout changes, and the dknown naming tail. It sets obj.in_use before effects and restores the saved value before makeknown/trycall; it does not free the object. potionhit supplies its planning-aware message operation so monster-turn cloning does not write hero-only feedback. split_mon is implemented; the source-discarded void calls to were.c:you_unwere and were.c:you_were remain named note_unported gaps. The upstream no-op labels at 2096-2104 are commented out in C and do not execute.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "potionhit",
+                "source": "potion.c:potionhit, call at 1909 after its impact and vapor conditions."
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "dipsink",
+                "source": "fountain.c:dipsink, call at 795 after sink object-use and breath/eye conditions."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "dothrow.c:breakobj, potion impact arm at 2517."
+              },
+              {
+                "path": "js/zap_destroy_items.js",
+                "symbol": "maybe_destroy_item",
+                "source": "zap.c:maybe_destroy_item, call at 5917 after the destruction message; this caller is audited and has matching runtime evidence, but no JS source edit was needed."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "chest_shatter_msg",
+                "source": "lock.c:chest_shatter_msg, potion-class branch at 1285."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/fountain.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/lock.test.mjs",
+              "scripts/monster-hurls-potion.test.mjs",
+              "scripts/zap-destroy-items.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-hurls-potion-sleeping-c54.session.json",
+              "recordings/potion.c/monster-hurls-potion-paralysis-c54.session.json",
+              "recordings/fountain.c/potionbreathe-sickness-dipsink-c54.session.json",
+              "recordings/dothrow.c/potionbreathe-speed-toss-up-c54-final.session.json",
+              "recordings/lock.c/potionbreathe-empty-chest-sickness-c54-complete.session.json",
+              "recordings/zap.c/potionbreathe-fire-zapyourself-sickness-intrinsic-c54.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 82,
+                "source": "pickup.c:in_container -> pickup.c:do_boh_explosion -> explode.c:scatter -> dothrow.c:breaks -> dothrow.c:breakobj -> potion.c:potionbreathe"
+              }
+            ],
+            "checkedAt": "54cb0ef14f43db6186a986e1089f1caeb3d62a16"
+          }
+        ],
+        "entryPointReview": "C has five active caller families in the task plan: potion.c:potionhit, fountain.c:dipsink, dothrow.c:breakobj, zap.c:maybe_destroy_item, and lock.c:chest_shatter_msg. Each has a matching C recording and a strict fresh C/JavaScript run below. The selected v14 #loot case now matches through step 82, where a healing potion shatters and reaches potionbreathe through dothrow.c:breaks -> breakobj. C also calls potionbreathe from potion.c:dip_potion_explosion at 2431, reached through potion-dip callers; JS potion_dip still raises UnsupportedDipError at js/potion.js:2855, so that outer C route remains explicitly incomplete and is not counted as an exercised entry point. potionbreathe’s cursed or blessed water arms still record the discarded void transformations as note_unported('were.c you_were') and note_unported('were.c you_unwere'). The lock task corrects only breakchestlock’s potion-class destruction condition; it does not claim whole breakchestlock completion. Non-PAPER, non-potion chest contents remain outside this task: the preserved nonempty-chest trace stops at JS’s UnsupportedLockError for a non-PAPER object.",
+        "entryPoints": [
+          {
+            "name": "Monster-hurled sleeping or paralysis potion reaches potionhit and potionbreathe",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/potion.c/monster-hurls-potion-sleeping-c54.session.json",
+              "recordings/potion.c/monster-hurls-potion-paralysis-c54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#dip into a sink reaches dipsink and potionbreathe",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/fountain.c/potionbreathe-sickness-dipsink-c54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Ceiling-hit thrown speed potion reaches breakobj and potionbreathe",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/potionbreathe-speed-toss-up-c54-final.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Fire damage destroys a carried potion through maybe_destroy_item",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/zap.c/potionbreathe-fire-zapyourself-sickness-intrinsic-c54.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#force destroys a chest and reaches the potion branch of chest_shatter_msg",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [
+              "recordings/lock.c/potionbreathe-empty-chest-sickness-c54-complete.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Admitted v14 bag explosion reaches potionbreathe through breakobj",
+            "functions": [
+              "potionbreathe"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+                "segment": 0,
+                "fromStep": 82,
+                "throughStep": 82,
+                "source": "pickup.c:in_container -> pickup.c:do_boh_explosion -> explode.c:scatter -> dothrow.c:breaks -> dothrow.c:breakobj -> potion.c:potionbreathe"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8e2a9bf2a1135bf0c405464105a115373ede466b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
