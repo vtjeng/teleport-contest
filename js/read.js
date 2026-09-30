@@ -41,6 +41,7 @@ import {
     ECMD_TIME,
     FEMALE,
     CORR,
+    SDOOR,
     COST_DEGRD,
     COST_DECHNT,
     COST_UNCURS,
@@ -340,6 +341,7 @@ import { adjalign, exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
 import {
     do_mapping,
+    cvt_sdoor_to_door,
     food_detect,
     gold_detect,
     trap_detect,
@@ -2304,21 +2306,84 @@ export async function seffect_light(scroll, state = game) {
     }
 }
 
-// C ref: read.c seffect_magic_mapping() (2102-2153), restricted to an
-// ordinary uncursed scroll on a mappable level.
-export async function seffect_magic_mapping(scroll, state = game) {
-    if (scroll.otyp !== SCR_MAGIC_MAPPING || scroll.blessed || scroll.cursed
-        || state.level?.flags?.nommap) {
-        throw new UnsupportedReadError('the selected magic-mapping branch');
+// C ref: read.c seffect_magic_mapping() (2102-2153). Scrolls and spellbooks
+// share the map effect, while only scrolls can reveal secret doors or become
+// known. A cursed, previously unconfused user gets temporary HConfusion around
+// do_mapping(); that timeout is restored before the final message.
+export async function seffect_magic_mapping(
+    scroll, state = game, env = {},
+) {
+    const random = env.random ?? { rn2, rnd };
+    const isScroll = scroll.oclass === SCROLL_CLASS;
+    const sblessed = Boolean(scroll.blessed);
+    const scursed = Boolean(scroll.cursed);
+    const confusion = state.u.uprops[CONFUSION] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+    };
+    const hconfusion = confusion.intrinsic ?? 0;
+    const confused = hconfusion !== 0;
+
+    if (isScroll) {
+        if (state.level?.flags?.nommap) {
+            await ttyPline('Your mind is filled with crazy lines!', state);
+            // youprop.h defines Hallucination from the intrinsic timeout and
+            // Halluc_resistance, not from HALLUC's generic extrinsic value.
+            const hallucinating = Boolean(
+                state.u.uprops[HALLUC]?.intrinsic,
+            ) && !Boolean(
+                state.u.uprops[HALLUC_RES]?.intrinsic
+                || state.u.uprops[HALLUC_RES]?.extrinsic,
+            );
+            if (hallucinating) {
+                await ttyPline('Wow!  Modern art.', state);
+            } else {
+                await ttyPline(
+                    `Your ${body_part(HEAD, state.youmonst)} spins in bewilderment.`,
+                    state,
+                );
+            }
+            await make_confused(
+                hconfusion + random.rnd(30), false, state, env,
+            );
+            return;
+        }
+        if (sblessed) {
+            for (let x = 1; x < COLNO; ++x) {
+                for (let y = 0; y < ROWNO; ++y) {
+                    const location = state.level.at(x, y);
+                    if (location.typ !== SDOOR) continue;
+                    cvt_sdoor_to_door(location, state);
+                    if (Is_rogue_level(state.u.uz))
+                        unblock_point(x, y, state);
+                }
+            }
+            // do_mapping() already reveals secret passages.
+        }
+        state.gk.known = true;
     }
-    state.gk.known = true;
+
+    if (state.level?.flags?.nommap) {
+        await ttyPline(
+            `Your ${body_part(HEAD, state.youmonst)} spins as something blocks the spell!`,
+            state,
+        );
+        await make_confused(hconfusion + random.rnd(30), false, state, env);
+        return;
+    }
+
     await ttyPline('A map coalesces in your mind!', state);
+    const temporaryConfusion = scursed && !confused;
+    if (temporaryConfusion) confusion.intrinsic = 1;
     notice_mon_off(state);
     try {
-        await do_mapping(state);
+        await do_mapping(state, { random });
     } finally {
         notice_mon_on(state);
+        if (temporaryConfusion) confusion.intrinsic = 0;
     }
+    if (temporaryConfusion)
+        await ttyPline("Unfortunately, you can't grasp the details.", state);
 }
 
 // C refs: read.c drop_boulder_on_player() (2294-2338) and
@@ -3330,12 +3395,7 @@ export async function seffects(scroll, state = game, env = {}) {
         break;
     case SCR_MAGIC_MAPPING:
     case SPE_MAGIC_MAPPING:
-        if (scroll.otyp === SCR_MAGIC_MAPPING && !scroll.blessed
-            && !scroll.cursed && !state.level?.flags?.nommap) {
-            await seffect_magic_mapping(scroll, state);
-        } else {
-            note_unported('read.c seffect_magic_mapping');
-        }
+        await seffect_magic_mapping(scroll, state, { ...env, random });
         break;
     case SCR_AMNESIA:
         await seffect_amnesia(scroll, state, { random });

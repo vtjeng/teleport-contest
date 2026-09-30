@@ -15,6 +15,7 @@ import {
     A_NEUTRAL,
     A_NONE,
     BLINDED,
+    BY_NEXTHERE,
     BUC_BLESSED,
     BUC_CURSED,
     BUC_UNCURSED,
@@ -207,14 +208,14 @@ import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import { is_drawbridge_wall } from './dbridge.js';
 import { is_ice } from './terrain.js';
-import { is_lava, is_pool, t_at, trapname } from './trap.js';
+import { is_lava, is_pool, is_pool_or_lava, t_at, trapname } from './trap.js';
 import { hidden_gold } from './vault.js';
 import { game } from './gstate.js';
 import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
 import { ice_descr } from './pager.js';
 import { can_reach_floor } from './engrave.js';
-import { force_decor, u_safe_from_fatal_corpse } from './pickup.js';
+import { force_decor, query_objlist, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -294,6 +295,7 @@ import {
     is_missile,
     is_spear,
     is_wet_towel,
+    is_boots,
     is_gloves,
     objectType,
     place_object,
@@ -315,6 +317,7 @@ import {
     donameFresh,
     doname_with_price,
     distant_name,
+    is_plural,
     not_fully_identified,
     safe_qbuf,
     vtense,
@@ -323,9 +326,9 @@ import {
     yname,
     corpse_xname,
 } from './objnam.js';
-import { mon_nam, noit_Monnam } from './do_name.js';
+import { hliquid, mon_nam, noit_Monnam } from './do_name.js';
 import { in_rooms } from './rooms.js';
-import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
+import { ILLOBJ_CLASS, LENSES, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
@@ -5720,6 +5723,96 @@ export async function display_minventory(
     if (pickings === PICK_ANY)
         return Array.isArray(selected) ? (selected[0]?.value ?? null) : null;
     return selected?.value ?? null;
+}
+
+// C ref: invent.c only_here() (5476-5480). The active filter coordinates are
+// C's temporary go.only fields, set by display_binventory() around the query.
+export function only_here(obj, state = game) {
+    return obj.ox === state.go?.only?.x && obj.oy === state.go?.only?.y;
+}
+
+// C ref: invent.c display_binventory() (5489-5545). List visible underwater
+// floor objects and buried objects at a probed square, then return the count
+// consumed by zap.c zap_updown() to decide whether probing found anything.
+export async function display_binventory(x, y, as_if_seen, state = game,
+    rawEnv = {}) {
+    let obj;
+    let underwhat = 'here';
+    let n2 = 0;
+
+    // C shows submerged piles only while the hero is above the liquid; when
+    // underwater, bhitpile() has already marked objects known and look_here()
+    // owns their display.
+    obj = state.level?.objects?.[x]?.[y] ?? null;
+    if (is_pool_or_lava(x, y, state) && !state.u?.uinwater && obj) {
+        const realLiquid = is_pool(x, y, state) ? 'water' : 'lava';
+        const displayRandom = rawEnv.displayRandom
+            ?? ((bound) => rn2_on_display_rng(bound, state));
+        const seenLiquid = hliquid(realLiquid, {
+            state,
+            displayRandom,
+        });
+
+        if (!obj.nexthere) {
+            let moreThanOne = is_plural(obj);
+            await ttyPline(
+                `There ${moreThanOne ? 'are' : 'is'} `
+                    + `${donameFresh(obj, state)} under the ${seenLiquid} here.`,
+                state,
+                rawEnv,
+            );
+            n2 = 1;
+            // obj.h pair_of(): lenses, gloves and boots are described as
+            // pairs even when their quantity is one.
+            if (obj.otyp === LENSES
+                || is_gloves(obj, state)
+                || is_boots(obj, state)) {
+                moreThanOne = true;
+            }
+            underwhat = moreThanOne ? 'under them' : 'beneath it';
+        } else {
+            const title = `Things that are under the ${seenLiquid} here:`;
+            await query_objlist(
+                obj,
+                BY_NEXTHERE,
+                () => true,
+                state,
+                title,
+                PICK_NONE,
+            );
+            for (n2 = 0; obj; obj = obj.nexthere) ++n2;
+            underwhat = 'beneath them';
+        }
+    }
+
+    let buriedCount = 0;
+    for (obj = state.level?.buriedobjlist ?? null; obj; obj = obj.nobj) {
+        if (obj.ox === x && obj.oy === y) {
+            if (as_if_seen) observe_object(obj, state);
+            ++buriedCount;
+        }
+    }
+
+    if (buriedCount) {
+        const title = `Things that are buried ${underwhat}:`;
+        // C sets and clears go.only around the query; keep this temporary
+        // filter state in its canonical state.go owner for the callback.
+        const go = state.go ??= {};
+        const only = go.only ??= { x: 0, y: 0 };
+        only.x = x;
+        only.y = y;
+        await query_objlist(
+            state.level.buriedobjlist,
+            INVORDER_SORT,
+            (buried) => only_here(buried, state),
+            state,
+            title,
+            PICK_NONE,
+        );
+        only.x = 0;
+        only.y = 0;
+    }
+    return buriedCount + n2;
 }
 
 // C ref: invent.c doprgold().

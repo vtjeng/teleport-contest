@@ -1582,13 +1582,14 @@ function glyphIsTrap(glyph) {
     return glyph >= first && glyph < first + MAXTCHARS;
 }
 
-// C ref: detect.c show_map_spot() (1372-1422), ordinary unconfused mapping.
-export function show_map_spot(x, y, cnf, state = game) {
+// C ref: detect.c show_map_spot() (1372-1419). Confusion independently skips
+// most squares before any map state or display is changed.
+export function show_map_spot(
+    x, y, cnf, state = game, random = { rn2 },
+) {
     if (state !== game)
         throw new TypeError('show_map_spot() redraws the global game');
-    if (cnf) {
-        throw new UnsupportedSearchError('confused magic mapping');
-    }
+    if (cnf && random.rn2(7)) return;
     const location = state.level.at(x, y);
     location.seenv = SVALL;
     if (location.typ === SCORR) {
@@ -1596,38 +1597,54 @@ export function show_map_spot(x, y, cnf, state = game) {
         unblock_point(x, y, state);
     }
     const oldglyph = glyph_at(x, y, state);
-    magic_map_background(x, y, 0, state);
-    newsym(x, y);
+    if (state.level?.flags?.hero_memory) {
+        magic_map_background(x, y, 0, state);
+        newsym(x, y);
+    } else {
+        magic_map_background(x, y, 1, state);
+    }
     if (!IS_FURNITURE(location.typ)) {
         const trap = t_at(x, y, state);
         const engraving = engr_at(x, y, state);
         if (trap?.tseen) {
             map_trap(trap, 1, state);
-        } else if (engraving) {
+        } else if (engraving && !cnf) {
             map_engraving(engraving, 1, state);
         } else if (glyphIsTrap(oldglyph) || glyph_is_object(oldglyph)) {
             const glyph = map_glyphinfo(oldglyph, state);
             show_glyph_cell(x, y, glyph);
-            location.remembered_glyph
-                = remembered_glyph_from_presentation(glyph);
+            if (state.level?.flags?.hero_memory) {
+                location.remembered_glyph
+                    = remembered_glyph_from_presentation(glyph);
+            }
         }
     }
-    if (location.roomno >= ROOMOFFSET)
+    if (!cnf && location.roomno >= ROOMOFFSET)
         room_discovered(location.roomno - ROOMOFFSET, state);
 }
 
-// C ref: detect.c do_mapping() (1424-1444), ordinary hero-memory arm.
-export async function do_mapping(state = game) {
-    if (!state.level?.flags?.hero_memory) {
-        throw new UnsupportedSearchError('magic mapping without hero memory');
-    }
-    unconstrain_map(state);
+// C ref: detect.c do_mapping() (1422-1444). The temporary map is browsed when
+// memory is unavailable or the hero was unconstrained for the projection.
+export async function do_mapping(state = game, env = {}) {
+    const random = env.random ?? { rn2 };
+    const unconstrained = unconstrain_map(state);
+    const confused = Boolean(state.u?.uprops?.[CONFUSION]?.intrinsic);
     for (let x = 1; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y)
-            show_map_spot(x, y, false, state);
+            show_map_spot(x, y, confused, state, random);
     }
-    reconstrain_map(state);
-    await exercise(A_WIS, true, state, { rn2 });
+    if (!state.level?.flags?.hero_memory || unconstrained) {
+        await flush_screen(1);
+        await browse_map(
+            TER_DETECT | TER_MAP | TER_TRP | TER_OBJ,
+            'anything of interest',
+            state,
+        );
+        await map_redisplay(state);
+    } else {
+        reconstrain_map(state);
+    }
+    await exercise(A_WIS, true, state, random);
 }
 
 function propertyActiveUnblocked(hero, propertyIndex) {
