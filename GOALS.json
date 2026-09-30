@@ -121892,6 +121892,205 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-light-cocktail-potion-oil-v13-20260930",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Light and snuff potions of oil through the apply command",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v13/apply-lights-potion-of-oil"
+      ],
+      "selectionReason": "Select synthetic/v13/apply-lights-potion-of-oil from complete A56 evidence challenges/evaluations/20260930051943-v13.json at fe56a247. Investigation investigations/synthetic/v13/apply-lights-potion-of-oil.json identifies the missing POT_OIL doapply arm and whole apply.c light_cocktail1703–1758. Finish that helper and sole dispatcher caller; preserve source pointer replacement, timer and discovery order. A54/A55/A56 dependencies are accepted. Original ba938d2a plus immutable f62a0278 correction explicitly record the discarded unported shop-fee call without invoking or swallowing its partial refusal. Admitted range0–35 covers the active command; remaining clauses have source-pinned fixtures, with no unpaid-fee or floor-drop parity claim.",
+      "detail": "Whole light_cocktail preserves swallowed/lit/underwater priority, inventory merge and split pointers, lighting output, costly-shop voice and dummy billing order, makeknown before begin_burn, and hold_another_object return. The unported void check_unpaid_usage fee remains an explicit gap. doapply POT_OIL awaits the helper and retains ECMD_TIME.",
+      "openedAt": "b7ff455ccd1f287de99c0a50f7dc8d8aec2a6283",
+      "openStanding": {
+        "sha": "fe56a2470de71a05608a44994be2c6aa98b95246",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "light_cocktail",
+          "line": 1703,
+          "endLine": 1769,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1703,
+        "to": 1769
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/apply-lights-potion-of-oil": {
+          "session": "synthetic/v13/apply-lights-potion-of-oil",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "apply-lights-potion-of-oil",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+          "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+          "evaluationPath": "challenges/evaluations/20260930051943-v13.json",
+          "evaluationCommit": "fe56a2470de71a05608a44994be2c6aa98b95246"
+        }
+      },
+      "activeStanding": {
+        "sha": "fe56a2470de71a05608a44994be2c6aa98b95246",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "apply-lights-potion-of-oil",
+          "session": "synthetic/v13/apply-lights-potion-of-oil",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+          "recordingPath": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+          "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+          "recipe": "challenges/cases/v13/apply-lights-potion-of-oil.recipe.session.json",
+          "recipeSha256": "af0d15830b4b00bd6db624c1898b460fb05132fcb440c67300180c0e9471fa69",
+          "replayInputSha256": "ff46601629b2482ab0c208229c4296a665f0a7aa970d73a169e52ad61171a870",
+          "evaluationPath": "challenges/evaluations/20260930051943-v13.json",
+          "evaluationCommit": "fe56a2470de71a05608a44994be2c6aa98b95246",
+          "evaluationArtifact": "challenges/evaluations/20260930051943-v13.json",
+          "evaluationUtc": "2026-09-30T05:20:04.044Z",
+          "remainingScreens": 1,
+          "recordedSteps": 36,
+          "previousScreensMatched": 35,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 35,
+              "total": 36
+            },
+            "rng": {
+              "matched": 2773,
+              "total": 2782
+            },
+            "cursors": {
+              "matched": 35,
+              "total": 36
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+            "step": 35
+          },
+          "step": 35,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/apply-lights-potion-of-oil.json",
+            "result": {
+              "session": "synthetic/v13/apply-lights-potion-of-oil",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "apply-lights-potion-of-oil",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 36,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "apply-lights-potion-of-oil",
+                "session": "synthetic/v13/apply-lights-potion-of-oil",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+                "recordingPath": "challenges/cases/v13/apply-lights-potion-of-oil.session.json",
+                "recordingSha256": "6d59ba2301544eb7df87a4c630bb4b1a8ca7152dd645c1dc5f646c329a04f177",
+                "recipe": "challenges/cases/v13/apply-lights-potion-of-oil.recipe.session.json",
+                "recipeSha256": "af0d15830b4b00bd6db624c1898b460fb05132fcb440c67300180c0e9471fa69",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 36,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 35,
+                    "total": 36
+                  },
+                  "rng": {
+                    "matched": 2773,
+                    "total": 2782
+                  },
+                  "cursors": {
+                    "matched": 35,
+                    "total": 36
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+                  "step": 35
+                },
+                "step": 35,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 321",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a potion of oil reaches an unported doapply arm before C light_cocktail can light it. C first handles swallowed, already-lit, and underwater branches; the selected unlit inventory potion is named, learned, and passed to begin_burn. The complete function also handles split stacks, billing, and re-merging a snuffed potion.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For an unlit POT_OIL with the hero unswallowed and not underwater, light_cocktail optionally splits one potion from a stack, prints the source-specific light message, performs shop billing when unpaid at a costly spot, calls makeknown, then begin_burn. A split potion is extracted and passed through hold_another_object before updating the caller’s object pointer. Lit potions instead call end_burn and remerge if not worn.",
+                "functions": [
+                  "light_cocktail",
+                  "doapply (POT_OIL arm)"
+                ],
+                "callers": [
+                  "apply.c:doapply(POT_OIL) passes &obj to light_cocktail so the object pointer can change after a split or remerge; js/apply.js:doapply currently refuses POT_OIL in its named unported arms."
+                ],
+                "dependencies": [
+                  "obj.c:splitobj returns the single potion for stacked inventory; freeinv/addinv and obj_extract_self/hold_another_object return or mutate objects consumed by light_cocktail.",
+                  "timeout.c:begin_burn and end_burn own oil potion timer and light state. Preserve call order relative to makeknown and shop billing.",
+                  "shk_your returns source wording; costly_spot/in_rooms/shop_keeper and check_unpaid/bill_dummy_object handle the unpaid shop branch.",
+                  "The selected C step includes rn2(19) from exercise after lighting; compare full RNG and subsequent turn order, not only the printed message."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 35/36 screens and cursors and first stop at zero-based segment 0 step 35 in the doapply object-type-321 arm. The immutable recording is challenges/cases/v13/apply-lights-potion-of-oil.session.json.",
+                "The C recording’s final selected input n displays “You light your potion.  It gives off a dim light.” The step includes a later rn2(19) exercise draw; source review must preserve the begin_burn and turn-processing order.",
+                "Upstream nethack-c/upstream/src/apply.c:1703-1758 defines light_cocktail, including pointer mutation, burning, shop, and split-stack paths; lines 4349-4350 wire doapply(POT_OIL). JavaScript js/apply.js lists POT_OIL only in its named unported arms."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
