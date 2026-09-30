@@ -101,11 +101,15 @@ import {
     hides_under,
 } from './mondata.js';
 import {
+    BOULDER,
+    EGG,
     GLASS,
+    GOLD_PIECE,
     POT_OIL,
     RAY,
     SCR_FIRE,
     SCROLL_CLASS,
+    STATUE,
     WAN_DIGGING,
     WAN_MAGIC_MISSILE,
     WAN_SLEEP,
@@ -970,9 +974,9 @@ export async function scatter(
         await extractObject(scattered);
         let usedUp = false;
 
-        // C gives fracture precedence over random destruction. The two
-        // fracture helpers are injected because zap.c owns them; callers that
-        // do not reach a stone object never need that later source span.
+        // C gives fracture precedence over random destruction. The default
+        // helpers call zap.c's fracture_rock() and break_statue(); hooks keep
+        // their effects controllable in source-pinned scatter tests.
         if ((scflags & SCATTER_MAY_FRACTURE)
             && (scattered.otyp === BOULDER || scattered.otyp === STATUE)
             && random.rn2(10)) {
@@ -1017,17 +1021,17 @@ export async function scatter(
             usedUp = true;
         } else if ((scflags & SCATTER_MAY_DESTROY)
             && (!random.rn2(10)
-                || scattered.otyp === EGG
-                || (scattered.oclass != null
-                    && (env.objectMaterial?.(scattered)
-                        ?? objectType(scattered, state).oc_material) === GLASS))) {
+                || ((env.objectMaterial?.(scattered)
+                    ?? objectType(scattered, state).oc_material) === GLASS
+                    || scattered.otyp === EGG))) {
             usedUp = Boolean(await breakObject(scattered, sx, sy, env));
         }
 
         if (!usedUp) {
             const direction = random.rn2(N_DIRS);
-            const rangeBase = Math.max(1,
-                Math.trunc(blastforce - (Math.trunc(scattered.owt) / 40)));
+            // C's unsigned owt division is integral before it is subtracted.
+            const rangeBase = Math.max(1, Math.trunc(blastforce)
+                - Math.trunc(Math.trunc(scattered.owt) / 40));
             const chain = {
                 obj: scattered,
                 ox: sx,
@@ -1116,9 +1120,13 @@ export async function scatter(
         const x = chain.ox;
         const y = chain.oy;
         if (chain.obj) {
+            let leftShop = false;
             if (x !== sx || y !== sy) {
                 total += chain.obj.quan;
-                const leftShop = shopOrigin && !costlySpot(x, y);
+                leftShop = shopOrigin && !costlySpot(x, y);
+            }
+            const consumed = await floorEffects(chain.obj, x, y, 'land');
+            if (!consumed) {
                 if (leftShop) {
                     const heroRoom = roomNumbers(state.u?.ux, state.u?.uy)
                         ?.[0] ?? 0;
@@ -1128,9 +1136,6 @@ export async function scatter(
                         lostGoods = true;
                     }
                 }
-            }
-            const consumed = await floorEffects(chain.obj, x, y, 'land');
-            if (!consumed) {
                 await placeObject(chain.obj, x, y);
                 await stackObject(chain.obj);
             }
