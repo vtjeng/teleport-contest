@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 42681395,
+      "datetime": "20461103132117",
+      "nethackrc": "OPTIONS=name:PolymorphDip,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017sink\n\u0017uncursed potion of polymorph\n#dip\noy  ",
+      "comment": "Independent second debug Wizard input after the first frozen seed reached the throne arm. It adds two pager continuations so the transformation message and naming boundary are observed; target is the room/grave arm of do.c:polymorph_sink. Frozen before this recipe’s C recording or JS comparison."
+    }
+  ]
+}

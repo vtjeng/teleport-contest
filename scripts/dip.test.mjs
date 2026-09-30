@@ -1,6 +1,7 @@
-// Tests for the #dip command: dodip() (potion.c:2267-2372), dipfountain()
-// (fountain.c:394-554), wash_hands() (fountain.c:557-577), short_oname()
-// (objnam.c:2009-2085), and the water_damage() general path (trap.c:4712-4852).
+// Tests for #dip: dodip() (potion.c:2267-2372), dipfountain()
+// (fountain.c:394-554), wash_hands()/dipsink()/sink_backs_up()
+// (fountain.c:557-831), polymorph_sink() (do.c:404-456), short_oname()
+// (objnam.c:2009-2085), and water_damage() (trap.c:4712-4852).
 //
 // Each test pins its result to values read from the C source and verifies the
 // specific code path it exercises.
@@ -10,15 +11,23 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
+    ALTAR,
+    AM_LAWFUL,
     ER_GREASED,
     ER_NOTHING,
+    F_LOOTED,
     FOUNTAIN,
     MM_NOMSG,
+    SINK,
+    S_LRING,
 } from '../js/const.js';
+import { back_to_glyph, altar_to_glyph } from '../js/display.js';
 import { dipfountain } from '../js/fountain.js';
+import { polymorph_sink } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import { PM_WATER_NYMPH } from '../js/monsters.js';
 import { short_oname } from '../js/objnam.js';
+import { altarmask_at } from '../js/pray.js';
 import { water_damage } from '../js/trap_water_damage.js';
 import { runSegment } from '../js/jsmain.js';
 
@@ -261,6 +270,75 @@ test('dipfountain early return is exercised by the witness session',
             source,
             /if \(er == ER_DESTROYED \|\| \(er != ER_NOTHING && !rn2\(2\)\)\)/u,
         );
+    });
+
+test('polymorph_sink preserves the loot bit when the sink becomes a fountain',
+    async () => {
+        // C ref: do.c:polymorph_sink. It snapshots any nonzero sink flags,
+        // clears them, then restores only F_LOOTED in the fountain arm.
+        await startedGame();
+        const location = game.level.at(game.u.ux, game.u.uy);
+        location.typ = SINK;
+        location.flags = S_LRING;
+        location.horizontal = 1;
+        const messages = [];
+        let drawCount = 0;
+
+        await polymorph_sink(game, {
+            message: (line) => messages.push(line),
+            random: {
+                rn2(bound) {
+                    drawCount += 1;
+                    assert.equal(bound, 4);
+                    return 0; // fountain outcome
+                },
+            },
+        });
+
+        assert.equal(location.typ, FOUNTAIN);
+        assert.equal(location.flags, F_LOOTED);
+        assert.equal(location.horizontal, 0);
+        assert.equal(drawCount, 1);
+        assert.deepEqual(messages, ['The sink transforms into a fountain!']);
+    });
+
+test('polymorph_sink stores altar alignment for pray and glyph readers',
+    async () => {
+        // C ref: do.c:polymorph_sink stores Align2amask(rn2(3)-1) in
+        // struct rm.altarmask after clearing the former sink feature flags.
+        await startedGame();
+        const { ux, uy } = game.u;
+        const location = game.level.at(ux, uy);
+        location.typ = SINK;
+        location.flags = S_LRING;
+        const messages = [];
+        const draws = [
+            { bound: 4, result: 2 }, // altar feature
+            { bound: 3, result: 2 }, // lawful altar alignment
+        ];
+        let drawCount = 0;
+        await polymorph_sink(game, {
+            message: (line) => messages.push(line),
+            random: {
+                rn2(bound) {
+                    const draw = draws[drawCount++];
+                    assert.ok(draw, 'unexpected additional random draw');
+                    assert.equal(bound, draw.bound);
+                    return draw.result;
+                },
+            },
+        });
+
+        assert.equal(drawCount, draws.length);
+        assert.equal(location.typ, ALTAR);
+        assert.equal(location.flags, 0);
+        assert.equal(location.altarmask, AM_LAWFUL);
+        assert.equal(altarmask_at(ux, uy, game), AM_LAWFUL);
+        assert.equal(
+            back_to_glyph(ux, uy, game),
+            altar_to_glyph(AM_LAWFUL),
+        );
+        assert.deepEqual(messages, ['The sink transforms into an altar!']);
     });
 
 // ── Source verification ──

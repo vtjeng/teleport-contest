@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 59273041,
+      "datetime": "20490909092716",
+      "nethackrc": "OPTIONS=name:SinkHandsDip,role:Healer,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017sink\n#wizintrinsic\n1l\n \n#dip\n-y ",
+      "comment": "Cleaned C-confirmed input after sink-wash-hands-glib-c52-confirmed reached wash_hands and showed its second message needs no further key; this removes the trailing space that C treated as an unknown command. Frozen before this corrected C recording and before JS comparison."
+    }
+  ]
+}

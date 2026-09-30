@@ -4,22 +4,23 @@
 //        dogushforth() (119-131) and gush() (133-161),
 //        dofindgem() (163-176), dryup() (201-239),
 //        drinkfountain() (243-390), dipfountain() (394-554),
-//        wash_hands() (557-577), breaksink() (581-591), drinksink() (595-712).
+//        wash_hands() (557-577), breaksink() (581-591),
+//        dipsink() (716-801), sink_backs_up() (805-831),
+//        drinksink() (595-712).
 
 import {
     ARM,
     A_MAX,
     A_CON,
+    A_DEX,
     A_WIS,
     DEAF,
     ENL_GAMEINPROGRESS,
     ER_DESTROYED,
     ER_GREASED,
     ER_NOTHING,
-    FINGER,
     FOUNTAIN,
     G_GONE,
-    GLIB,
     HALLUC,
     HALLUC_RES,
     HAND,
@@ -38,7 +39,6 @@ import {
     ROOM,
     SDOOR,
     S_LRING,
-    TIMEOUT,
     UNCHANGING,
     isok,
     nothing_seems_to_happen,
@@ -55,10 +55,13 @@ import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
 import { in_town, losehp } from './hack.js';
 import { distmin } from './hacklib.js';
-import { update_inventory, delobj, money_cnt, obfree } from './invent.js';
+import {
+    update_inventory, delobj, hands_obj, money_cnt, obfree, useup,
+} from './invent.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
-    is_watch, mhis, mhe, monstseesu, monstunseesu, nolimbs,
+    breathless, haseyes, is_watch, mhis, mhe, monstseesu, monstunseesu,
+    nolimbs,
 } from './mondata.js';
 import { get_iter_mons } from './mon.js';
 import { onscary, set_apparxy, youHear } from './monmove.js';
@@ -86,9 +89,14 @@ import { fruitname, makeplural } from './fruit.js';
 import { verbalize } from './pline.js';
 import { note_unported } from './unported.js';
 import { Fire_resistance } from './zap.js';
+import { Glib } from './wield.js';
+import { fingers_or_gloves } from './do_wear.js';
+import { the, xnameFresh } from './objnam.js';
 import {
     BOULDER, DILITHIUM_CRYSTAL, LUCKSTONE, COIN_CLASS, OBJ_DESCR,
-    POTION_CLASS, POT_WATER, RING_CLASS,
+    POTION_CLASS, POT_ACID, POT_FRUIT_JUICE, POT_GAIN_ENERGY,
+    POT_GAIN_LEVEL, POT_LEVITATION, POT_MONSTER_DETECTION,
+    POT_OBJECT_DETECTION, POT_OIL, POT_POLYMORPH, POT_WATER, RING_CLASS,
 } from './objects.js';
 
 // ── Fail-closed error ──
@@ -986,26 +994,24 @@ export async function dipfountain(obj, state = game, env = {}) {
 export async function wash_hands(state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? { rn2 };
-    const hands = makeplural(body_part(HAND, state));
+    const hands = makeplural(body_part(HAND, state.youmonst));
     let res = ER_NOTHING;
-    const wasGlib = Boolean(state.u?.uprops?.[GLIB]?.intrinsic & TIMEOUT);
+    const wasGlib = Glib(state);
 
     await message(
-        `You wash your ${state.u.uarmg ? 'gloved ' : ''}${hands} in the ${hliquid('water', env)}.`,
+        `You wash your ${state.uarmg ? 'gloved ' : ''}${hands} in the ${hliquid('water', env)}.`,
         state);
 
-    if (wasGlib) {
+    if (Glib(state)) {
         const { make_glib } = await import('./potion.js');
         make_glib(0, state);
-        // C ref: fountain.c:568. fingers_or_gloves(TRUE).
-        // do_wear.c fingers_or_gloves() is module-local; inline the logic.
-        const digits = state.u.uarmg
-            ? 'gloves' : makeplural(body_part(FINGER, state));
+        // C ref: fountain.c:568 calls do_wear.c:fingers_or_gloves(TRUE).
+        const digits = fingers_or_gloves(true, state);
         await message(`Your ${digits} are no longer slippery.`, state);
     }
 
-    if (state.u.uarmg) {
-        res = await water_damage(state.u.uarmg, null, true, {
+    if (state.uarmg) {
+        res = await water_damage(state.uarmg, null, true, {
             ...env, state, random, message,
         });
     }
@@ -1030,6 +1036,143 @@ export async function breaksink(x, y, state = game, env = {}) {
     location.horizontal = 0;
     SET_FOUNTAIN_LOOTED(x, y, state);
     newsym(x, y);
+}
+
+// C ref: fountain.c dipsink() (716-801). `S_LRING` shares the sink's
+// looted flags with the other feature bits; preserve the C gate and leave
+// the discovery bit until after its object creation, redraw and exercises.
+export async function dipsink(obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const { ux: x, uy: y } = state.u;
+    const location = state.level.at(x, y);
+    const not_looted_yet = !(location.flags & S_LRING);
+    const is_hands = obj === hands_obj
+        || Boolean(state.uarmg && obj === state.uarmg);
+
+    if (!random.rn2(not_looted_yet ? 25 : 15)) {
+        await breaksink(x, y, state, { ...env, message });
+        if (Glib(state) && is_hands) {
+            await message(
+                `Your ${fingers_or_gloves(true, state)} are still slippery.`,
+                state,
+            );
+        }
+        return;
+    } else if (is_hands) {
+        await wash_hands(state, { ...env, message, random });
+        return;
+    } else if (obj.oclass !== POTION_CLASS) {
+        await message(
+            `You hold ${the(xnameFresh(obj, state), state)} under the tap.`,
+            state,
+        );
+        if (await water_damage(obj, null, true, {
+            ...env, state, random, message,
+        }) === ER_NOTHING) {
+            await message(nothing_seems_to_happen, state);
+        }
+        return;
+    }
+
+    let try_call = false;
+    await message(
+        `You pour ${obj.quan > 1 ? 'one of ' : ''}`
+            + `${the(xnameFresh(obj, state), state)} down the drain.`,
+        state,
+    );
+    switch (obj.otyp) {
+    case POT_POLYMORPH: {
+        const { polymorph_sink } = await import('./do.js');
+        await polymorph_sink(state, { ...env, message, random });
+        try_call = true;
+        break;
+    }
+    case POT_OIL:
+        if (!heroIsBlind(state)) {
+            await message('It leaves an oily film on the basin.', state);
+            try_call = true;
+        } else {
+            await message(nothing_seems_to_happen, state);
+        }
+        break;
+    case POT_ACID:
+        try_call = true;
+        if (!heroIsBlind(state)) {
+            await message('The drain seems less clogged.', state);
+        } else if (!heroIsDeaf(state)) {
+            await message(youHear('a sucking sound.', state), state);
+        } else {
+            await message(nothing_seems_to_happen, state);
+            try_call = false;
+        }
+        break;
+    case POT_LEVITATION:
+        await sink_backs_up(x, y, state, { ...env, message, random });
+        try_call = true;
+        break;
+    case POT_OBJECT_DETECTION:
+        if (!(location.flags & S_LRING)) {
+            await message('You sense a ring lost down the drain.', state);
+            try_call = true;
+            break;
+        }
+        // C falls through when this sink's ring has already been found.
+    case POT_GAIN_LEVEL:
+    case POT_GAIN_ENERGY:
+    case POT_MONSTER_DETECTION:
+    case POT_FRUIT_JUICE:
+    case POT_WATER:
+        await message(nothing_seems_to_happen, state);
+        break;
+    default:
+        await message('A wisp of vapor rises up...', state);
+        if (!breathless(state.youmonst.data)
+            || haseyes(state.youmonst.data)) {
+            // fountain.c discards potionbreathe()'s void result. Its current
+            // JS arms can refuse, so preserve the call site as an explicit gap.
+            note_unported('potion.c potionbreathe');
+        }
+        break;
+    }
+
+    if (try_call && obj.dknown) {
+        // do.js and potion.js already form a cycle through this file; defer
+        // the do.c helper lookup until the source's post-effect call site.
+        const { trycall } = await import('./do.js');
+        await trycall(obj, state);
+    }
+    useup(obj, { ...env, state });
+}
+
+// C ref: fountain.c sink_backs_up() (805-831). The first discovery sets
+// S_LRING only after a ring is created, the map is refreshed, and both
+// exercise() calls have run.
+export async function sink_backs_up(x, y, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const blind = heroIsBlind(state);
+    const deaf = heroIsDeaf(state);
+    const splash = blind && deaf
+        ? `Something splashes you in the ${body_part(FACE, state.youmonst)}`
+        : `${!deaf ? 'Flupp!  ' : ''}${blind
+            ? 'You hear a sloshing sound'
+            : 'Muddy waste pops up from the drain'}`;
+    await message(`${splash}.`, state);
+
+    const location = state.level.at(x, y);
+    if (!(location.flags & S_LRING)) {
+        if (!blind) await message('You see a ring shining in its midst.', state);
+        mkobj_at(RING_CLASS, x, y, true, { ...env, state, random });
+        newsym(x, y);
+        await exercise(A_DEX, true, state, random, {
+            encumberMessage: env.encumberMessage,
+        });
+        await exercise(A_WIS, true, state, random, {
+            encumberMessage: env.encumberMessage,
+        });
+        location.flags |= S_LRING;
+    }
 }
 
 // C ref: fountain.c drinksink() (595-712). Called after dodrink()'s sink
