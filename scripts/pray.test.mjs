@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     ALTAR,
+    ANTIMAGIC,
     A_CHAOTIC,
     COLNO,
     CQ_CANNED,
@@ -32,6 +33,8 @@ import {
     STONED,
     STRANGLED,
     STUNNED,
+    INTRINSIC,
+    TELEPORT,
     TT_BURIEDBALL,
     TT_LAVA,
     TIMEOUT,
@@ -43,7 +46,6 @@ import {
     voice_deity,
     isok,
 } from '../js/const.js';
-import { UnsupportedTurnBoundaryError } from '../js/allmain.js';
 import { cmdq_add_key, paranoid_query } from '../js/cmd.js';
 import { bot } from '../js/display.js';
 import {
@@ -61,7 +63,7 @@ import {
     PM_KNIGHT,
     PM_LICH,
 } from '../js/monsters.js';
-import { enableRngLog, getRngLog } from '../js/rng.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     AMULET_OF_UNCHANGING,
@@ -1024,9 +1026,9 @@ test('angrygods() sizes rn2(maxanger) from anger, luck and alignment',
             const before = getRngLog().length;
             await angrygods(coaligned ? A_LAWFUL : A_CHAOTIC, game)
                 .catch((error) => {
-                    // Cases 4 through 8 and the default remain refused by
-                    // name, and every one draws rn2(maxanger) first. Cases 2
-                    // and 3 now run their source-backed punishment arm.
+                    // Cases 6 through 8 and the default remain refused by
+                    // name; cases 4 and 5 now run their source-backed curse
+                    // arm. Every case draws rn2(maxanger) first.
                     assert.ok(error instanceof UnsupportedPrayerError, label);
                 });
             assert.match(
@@ -1038,6 +1040,35 @@ test('angrygods() sizes rn2(maxanger) from anger, luck and alignment',
             assert.equal(game.u.ublessed, 0, label);
         }
     });
+
+test('angrygods cases 4-5 strip the source-selected intrinsic', async () => {
+    await startedGame();
+    clearTtyMessageWindow(game);
+    for (let i = 0; i < 8; ++i) game.nhDisplay.pushKey(32);
+    game.u.ugangr = 3;
+    game.u.uluck = 0;
+    game.u.moreluck = 0;
+    game.u.ualign.record = 0;
+    game.u.ublessed = 1;
+    game.u.uprops[ANTIMAGIC].intrinsic = 0;
+    game.u.uprops[ANTIMAGIC].extrinsic = 0;
+    game.u.uprops[TELEPORT].intrinsic = INTRINSIC;
+    initRng(5);
+    const before = getRngLog().length;
+
+    await angrygods(A_LAWFUL, game);
+
+    // Seed 5 selects case 4, godvoice's rn2(4)=2, the attrcurse rn2(2)=0
+    // branch, and rnd(11)=2 (TELEPORT), as read from these C call sites.
+    assert.deepEqual(getRngLog().slice(before), [
+        'rn2(9)=4', 'rn2(4)=2', 'rn2(2)=0', 'rnd(11)=2',
+        // pray.c angrygods() then updates ublesscnt through rnz(300).
+        'rn2(1000)=56', 'rn2(4)=3', 'rne(4)=1', 'rn2(2)=1', 'rnz(300)=316',
+    ]);
+    assert.equal(game.u.uprops[TELEPORT].intrinsic, 0);
+    assert.equal(game.u.ublessed, 0);
+    assert.equal(game.unported.has('pray.c rndcurse'), false);
+});
 
 // pray.c:1436-1440. Anger at the hero's own god accumulates and anger at any
 // other god is spent, and only the first of those can raise maxanger.
@@ -1226,31 +1257,24 @@ test('#pray asks its confirmation with the response set and default C shows',
         assert.equal(row0(), prompt);
     });
 
-// js/allmain.js runUnmulAtTurnBoundary() converts a refusal raised by the
-// ga.afternmv callback into a turn boundary. Without it the first
-// prayer_done() or angrygods() stop escapes runSegment() as a hard failure and
-// the scorer discards every screen the segment had already matched instead of
-// stopping on the last of them. QUALITY.json's angrygods-cases-above-1
-// deferral supplies the input; the assertions name the boundary class alone
-// and no C screen, which is what keeps them inside that deferral's terms.
-test('an afternmv refusal ends the segment instead of escaping it', async () => {
+// A source-selected anger case 4/5 during a delayed prayer now finishes the
+// callback through attrcurse instead of stopping at its former refusal.
+test('an afternmv attrcurse effect completes instead of escaping runSegment', async () => {
     let boundary = null;
     let replay;
     await assert.doesNotReject(async () => {
-        // This seed's rn2(maxanger) lands on angrygods()'s curse arm, which
-        // the port refuses. '.' waits, '#pray\n' asks, 'y' confirms, and the
-        // trailing ' ' spends the last of nomul(-3)'s three turns, which is
-        // when unmul() runs the callback.
+        // The recipe's anger roll reaches case 4/5. The final space spends
+        // nomul(-3)'s delayed turns and runs angrygods() from unmul().
         replay = await runSegment({
             seed: 6120000,
             datetime: DATETIME,
             nethackrc: NETHACKRC,
             moves: '.#pray\ny ',
         }, { onBoundary: (error) => { boundary = error; } });
-    }, 'a refused afternmv must not escape runSegment()');
-    assert.ok(boundary instanceof UnsupportedTurnBoundaryError);
-    assert.match(boundary.message, /^a delayed action reached /u);
-    // What the conversion buys: the frames matched before the refusal survive.
+    }, 'the completed afternmv must not escape runSegment()');
+    assert.equal(boundary, null);
+    assert.equal(game.multi, 0);
+    assert.equal(game.afternmv, null);
     assert.ok(replay.getScreens().length > 0);
 });
 

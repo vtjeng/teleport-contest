@@ -139,6 +139,7 @@ import {
     STRAT_WAITMASK,
     STR19,
     STUNNED,
+    TT_BURIEDBALL,
     THROWN_TETHERED_WEAPON,
     THROWN_WEAPON,
     WT_SPLASH_THRESHOLD,
@@ -146,6 +147,8 @@ import {
     W_SWAPWEP,
     W_WEP,
     TT_INFLOOR,
+    TT_WEB,
+    TT_LAVA,
     TRAPDOOR,
     SPIKED_PIT,
     HMON_APPLIED,
@@ -160,6 +163,7 @@ import {
     Trap_Moved_Mon,
     MM_IGNORELAVA,
     MM_IGNOREWATER,
+    OBJ_INVENT,
     OBJ_MINVENT,
     OBJ_FREE,
     RLOC_MSG,
@@ -206,6 +210,7 @@ import {
     may_passwall,
     NODIAG,
     nh_delay_output,
+    nomul,
     switch_terrain,
     weight_cap,
 } from './hack.js';
@@ -394,6 +399,7 @@ import {
     a_monnam,
     Monnam,
     mon_nam,
+    hliquid,
     pmname,
     Some_Monnam,
     x_monnam,
@@ -540,6 +546,51 @@ export async function walk_path(source, destination, checkProc, arg) {
         destination.y = previousY;
     }
     return keepGoing;
+}
+
+// C ref: dothrow.c hurtle() (1078-1126). The walk callback owns each step;
+// this function installs C's multi-turn state and lets walk_path() stop at
+// the first source-defined obstacle or trap.
+export async function hurtle(dx, dy, range, verbose, state = game) {
+    const u = state.u;
+    if (Punished(state) && state.uball?.where !== OBJ_INVENT) {
+        await ttyPline('You feel a tug from the iron ball.', state);
+        nomul(0, state);
+        return;
+    }
+    if (u.utrap) {
+        const anchor = u.utraptype === TT_WEB ? 'web'
+            : u.utraptype === TT_LAVA
+                ? hliquid('lava', { state })
+                : u.utraptype === TT_INFLOOR
+                    ? surface(u.ux, u.uy, state)
+                    : u.utraptype === TT_BURIEDBALL
+                        ? 'buried ball' : 'trap';
+        await ttyPline(`You are anchored by the ${anchor}.`, state);
+        nomul(0, state);
+        return;
+    }
+
+    dx = sgn(dx);
+    dy = sgn(dy);
+    range = Math.trunc(range);
+    if (!range || (!dx && !dy) || u.ustuck) return;
+
+    nomul(-range, state);
+    state.multi_reason = 'moving through the air';
+    state.nomovemsg = '';
+    if (verbose) {
+        await ttyPline(
+            `You ${range > 1 ? 'hurtle' : 'float'} in the opposite direction.`,
+            state,
+        );
+    }
+    await endmultishot(true, state);
+
+    const source = { x: u.ux, y: u.uy };
+    const destination = { x: u.ux + dx * range, y: u.uy + dy * range };
+    const walkRange = { range, state };
+    await walk_path(source, destination, hurtle_step, walkRange);
 }
 
 function propertyPresent(state, property) {
@@ -2478,7 +2529,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         return;
     } else if (obj.otyp === BOOMERANG && !u.uinwater) {
         if (Is_airlevel(u.uz) || Levitation(state))
-            note_unported('dothrow.c hurtle');
+            await hurtle(-u.dx, -u.dy, 1, true, state);
         mon = await boomhit(
             obj, u.dx, u.dy, state, throwit_mon_hit, endmultishot,
         );
@@ -2545,7 +2596,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         obj = pobj.obj;
         setThrownObject(state, obj);
         if (Is_airlevel(u.uz) || Levitation(state))
-            note_unported('dothrow.c hurtle');
+            await hurtle(-u.dx, -u.dy, urange, true, state);
         if (!obj) {
             if (tetheredWeapon) await tmp_at(DISP_END, 0, state);
             throwit_return(false, state);

@@ -40,7 +40,7 @@ import { setStorageForTesting, vfsReadFile, vfsWriteFile } from './storage.js';
 import { light_globals_init } from './light.js';
 import { shk_globals_init } from './shk.js';
 import { objects_globals_init } from './objects.js';
-import { monst_globals_init } from './monsters.js';
+import { NON_PM, monst_globals_init } from './monsters.js';
 import { timeout_globals_init } from './timeout.js';
 import {
     ttyPlayerNameAndSuffix,
@@ -351,7 +351,7 @@ export class NethackGame {
         g.options_set_window_colors_flag
             = opts.options_set_window_colors_flag;
         g.wcolors_opt = [...opts.wcolors_opt];
-        g.gc = { ...opts.gc };
+        g.gc = { ...opts.gc, corpsenm_digested: NON_PM };
         g.gf = {
             ...opts.gf,
             fqn_prefix: [...(opts.gf?.fqn_prefix ?? [])],

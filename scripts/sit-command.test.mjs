@@ -12,6 +12,7 @@ import {
     ECMD_TIME,
     FOUNTAIN,
     GRAVE,
+    FROMOUTSIDE,
     ICE,
     LADDER,
     LAVAPOOL,
@@ -23,6 +24,7 @@ import {
     ROOMOFFSET,
     SHOPBASE,
     SINK,
+    STEALTH,
     STAIRS,
     THRONE,
     TT_LAVA,
@@ -319,6 +321,86 @@ test('throne_sit_effect keeps its source random-call order on the comfort arm',
     assert.equal(await dosit(game, { random }), ECMD_TIME);
     assert.deepEqual(calls, ['rnd(6)', 'rn2(3)']);
     assert.ok(toplines().includes('You feel somehow out of place...'));
+});
+
+test('Vlad throne effect 7 removes an intrinsic before its amusement message',
+    async () => {
+    // sit.c:special_throne_effect:281-285 calls attrcurse() before the
+    // amusement line. Only Vlad's Tower selects this switch; draws 5, 7, and
+    // 9 select the throne effect and the Rogue's intrinsic-stealth case.
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    game.u.uz.dnum = game.tower_dnum;
+    game.wizard = false;
+    game.u.uprops[STEALTH].intrinsic = FROMOUTSIDE;
+    const calls = [];
+    const messages = [];
+    const random = {
+        rnd(bound) {
+            calls.push(`rnd(${bound})`);
+            if (bound === 6) return 5; // Start the random throne effect.
+            if (bound === 13) return 7; // Select throne effect 7.
+            if (bound === 11) return 9; // Reach intrinsic stealth at case 9.
+            assert.fail(`unexpected rnd(${bound})`);
+        },
+        rn2(bound) {
+            calls.push(`rn2(${bound})`);
+            assert.fail(`unexpected rn2(${bound})`);
+        },
+    };
+
+    assert.equal(await dosit(game, {
+        random,
+        message: async (line) => messages.push(line),
+    }), ECMD_TIME);
+    assert.deepEqual(calls, ['rnd(6)', 'rnd(13)', 'rnd(11)']);
+    assert.deepEqual(messages, [
+        'You sit on the opulent throne.',
+        'You feel clumsy.',
+        'The throne somehow seems to be amused.',
+    ]);
+    assert.equal(game.u.uprops[STEALTH].intrinsic, 0);
+});
+
+test('ordinary throne effect 7 retains its court-summoning branch', async () => {
+    // sit.c:throne_sit_effect:112-123 is distinct from the Vlad throne's
+    // special_throne_effect case 7. It selects and names court monsters but
+    // never calls attrcurse().
+    await standOnStairs();
+    heroSquare().typ = THRONE;
+    // A different dungeon index pins this fixture outside Vlad's Tower, whose
+    // index is game.tower_dnum and selects special_throne_effect().
+    game.u.uz.dnum = game.tower_dnum + 1;
+    game.wizard = false;
+    game.u.uprops[STEALTH].intrinsic = FROMOUTSIDE;
+    const calls = [];
+    const messages = [];
+    const random = {
+        rnd(bound) {
+            calls.push(`rnd(${bound})`);
+            if (bound === 6) return 5; // Select a throne effect.
+            if (bound === 13) return 7; // Select effect 7.
+            if (bound === 10) return 1; // Make one court-monster attempt.
+            return 1; // mkclass() selects its first eligible class member.
+        },
+        rn2(bound) {
+            calls.push(`rn2(${bound})`);
+            return 0; // Choose the first eligible aligned court class.
+        },
+    };
+
+    assert.equal(await dosit(game, {
+        random,
+        message: async (line) => messages.push(line),
+    }), ECMD_TIME);
+    assert.deepEqual(calls.slice(0, 3), ['rnd(6)', 'rnd(13)', 'rnd(10)']);
+    assert.ok(messages.includes('A voice echoes:'));
+    const title = game.flags?.female ? 'Dame' : 'Sire';
+    assert.ok(messages.some((line) => line.includes(
+        `Thine audience hath been summoned, ${title}!`,
+    )));
+    assert.equal(game.u.uprops[STEALTH].intrinsic, FROMOUTSIDE);
+    assert.ok(game.unported.has('makemon.c makemon'));
 });
 
 test('Vlad throne effect 10 runs blessed remove curse while forcing confusion',

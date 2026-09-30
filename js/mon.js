@@ -86,6 +86,7 @@ import {
     I_SPECIAL,
     IS_FOUNTAIN,
     IS_WATERWALL,
+    LEAVESTATUE,
     is_pit,
     isok,
     ismnum,
@@ -189,6 +190,7 @@ import {
 import {
     a_monnam,
     capitalizedMonsterName,
+    free_mgivenname,
     hliquid,
     Monnam,
     mon_pmname,
@@ -542,6 +544,7 @@ import {
     MR_STONE,
     MZ_TINY,
     SPECIAL_PM,
+    NUMMONS,
     monsterClassSymbol,
 } from './monsters.js';
 import {
@@ -570,13 +573,17 @@ import { SHTYPES } from './shtypes_data.js';
 import {
     clear_dknown,
     clear_splitobjs,
+    mkgold,
     mkobj,
     g_at,
     isMetallic,
     isRustprone,
     mksobj_at,
+    obj_meld,
+    obj_nexto,
     objectType,
     place_object,
+    pudding_merge_message,
     sobj_at,
     splitobj,
     weight,
@@ -612,6 +619,24 @@ import {
     TIN,
     WOOD,
     SADDLE,
+    BOOMERANG,
+    BULLWHIP,
+    CLUB,
+    ELVEN_SPEAR,
+    FIRST_GLASS_GEM,
+    GRAPPLING_HOOK,
+    GRAY_DRAGON_SCALES,
+    GLOB_OF_BLACK_PUDDING,
+    IRON_CHAIN,
+    LEASH,
+    LEATHER_ARMOR,
+    LEATHER_CLOAK,
+    NUM_GLASS_GEMS,
+    QUARTERSTAFF,
+    SCR_BLANK_PAPER,
+    SMALL_SHIELD,
+    UNICORN_HORN,
+    WORM_TOOTH,
 } from './objects.js';
 import { makeplural, mungspaces } from './fruit.js';
 import {
@@ -623,7 +648,7 @@ import {
     xnameFresh,
     ansimpleoname,
 } from './objnam.js';
-import { obj_resists } from './bury.js';
+import { bury_an_obj, obj_resists } from './bury.js';
 import { objdescr_is } from './o_init.js';
 import { corpse_intrinsic, should_givit } from './eat.js';
 import {
@@ -631,7 +656,7 @@ import {
 } from './worn.js';
 import { end_burn } from './timeout.js';
 import { migrate_to_level } from './dog.js';
-import { d, rn1, rn2, rnd, rne } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -4781,7 +4806,7 @@ export function mongone(monster, env = {}) {
 
 // C ref: mon.c mlifesaver() (2825-2836). "find the worn amulet of life saving
 // which will save a monster".
-function mlifesaver(mtmp, state) {
+export function mlifesaver(mtmp, state) {
     if (!nonliving(mtmp.data) || is_vampshifter(mtmp)) {
         const otmp = which_armor(mtmp, W_AMUL, state);
 
@@ -5248,55 +5273,30 @@ function safe_oname(obj) {
     return has_oname(obj) ? obj.oextra.oname : '';
 }
 
-// C ref: mon.c make_corpse() (563-941). "Creates a monster corpse, a 'special'
-// corpse, or nothing if it doesn't leave corpses."
-//
-// The switch at 581 is 361 of those 378 lines and most of it is not compiled:
-// include/patchlevel.h:33 sets NH_DEVEL_STATUS to NH_STATUS_RELEASED, so the
-// 154-line PM_ roster at 686-844 is excluded and its `#else default:` at 846
-// is what every unlisted species reaches, falling through to the `default_1`
-// label at 848. What survives is that label, the mummy and zombie group at
-// 622-649, which is ported, and six groups that stop at the top of their own
-// case, above the first draw or object each would make:
-//
-//   582-597  dragon scales, and the rn2(3) or rn2(20) that decides them.
-//   598-611  a unicorn horn, and the rn2(2) that crumbles a regrown one.
-//   612-614  the long worm's tooth.
-//   615-621  vampires, whose five lines are the mummy and zombie group's
-//            exactly. It is left refusing because no case has reached it:
-//            mondead()'s is_vampshifter() stop sits above this call for a
-//            shifted vampire, and no recorded game kills a true one.
-//   646-731  the nine golem bodies, seven of which roll for their pieces.
-//   732-746  the four puddings, which need obj_meld() and obj_nexto().
-//
-// 747-748's NON_PM, LEAVESTATUE and NUMMONS cases break out of the switch to
-// the closing `if (!obj) return 0;` and are unreachable here: monsndx()
-// answers with a real species for every monster on the level chain.
-function make_corpse(mtmp, corpseflags, state, env) {
-    const unsupported = requiredKillOperation(env, 'unsupported');
+// C ref: mon.c make_corpse() (563-941). Creates a monster corpse, a special
+// object, or nothing if that species leaves no corpse. The release build
+// excludes the development-only PM roster; dragons, unicorns and long worms
+// create their special drops before jumping to `default_1`, while the undead
+// and golem cases break out of the switch with their own objects.
+async function make_corpse(mtmp, corpseflags, state, env) {
+    // C's global RNG exposes every draw primitive. Caller environments can
+    // carry only the subset their own function uses, so fill this source
+    // function's defaults before honoring supplied overrides.
+    const random = { d, rn1, rn2, rnd, rne, rnl, ...(env.random ?? {}) };
+    const objectEnv = { ...env, state, random };
+    const message = env.message ?? ttyPline;
     const mdat = mtmp.data;
     const x = mtmp.mx;
     const y = mtmp.my;
     const mndx = monsndx(mdat);
     let corpstatflags = corpseflags;
     const burythem = (corpstatflags & CORPSTAT_BURIED) !== 0;
-
-    // 856-862's bury_an_obj() and the "corpse ends up buried" line xkilled()
-    // prints for it. xkilled():3521 is the only writer of CORPSTAT_BURIED, and
-    // the monster whose pack sets it stops earlier, when m_detach()'s relobj()
-    // drops that boulder, so this guard is C's flag rather than a live stop.
-    if (burythem) unsupported('a corpse buried in a pit');
+    let obj = null;
+    let num = 0;
+    let defaultOne = true;
 
     if (mtmp.female) corpstatflags |= CORPSTAT_FEMALE;
-    else if (!is_neuter(mtmp.data)) corpstatflags |= CORPSTAT_MALE;
-
-    // C's `default_1:` label sits inside the switch, so every arm that
-    // `break`s -- the vampires, the mummies and zombies, the golems and the
-    // puddings -- skips the G_NOCORPSE test and the general mkcorpstat() under
-    // that label and lands on the closing `if (!obj) return 0;`. All of those
-    // arms but the mummies and zombies still refuse, so this is the only value
-    // that can carry a corpse past the switch.
-    let undeadCorpse = null;
+    else if (!is_neuter(mdat)) corpstatflags |= CORPSTAT_MALE;
 
     switch (mndx) {
     case PM_GRAY_DRAGON:
@@ -5309,19 +5309,49 @@ function make_corpse(mtmp, corpseflags, state, env) {
     case PM_BLUE_DRAGON:
     case PM_GREEN_DRAGON:
     case PM_YELLOW_DRAGON:
-        unsupported('dragon scales from a dead dragon');
-        break;
+        // mon.c:594-599 relies on dragon and scale order matching.
+        if (!random.rn2(mtmp.mrevived ? 20 : 3)) {
+            obj = mksobj_at(
+                GRAY_DRAGON_SCALES + mndx - PM_GRAY_DRAGON,
+                x,
+                y,
+                false,
+                false,
+                objectEnv,
+            );
+            obj.spe = 0;
+            obj.cursed = false;
+            obj.blessed = false;
+        }
+        break; // C jumps to default_1 and also makes the ordinary corpse.
     case PM_WHITE_UNICORN:
     case PM_GRAY_UNICORN:
     case PM_BLACK_UNICORN:
-        unsupported('a horn from a dead unicorn');
-        break;
+        if (mtmp.mrevived && random.rn2(2)) {
+            if (canseemon(mtmp, state)) {
+                await message(
+                    `${s_suffix(Monnam(mtmp, state))} recently regrown horn crumbles to dust.`,
+                    state,
+                    env,
+                );
+            }
+        } else {
+            obj = mksobj_at(UNICORN_HORN, x, y, true, false, objectEnv);
+            if (obj && mtmp.mrevived) obj.degraded_horn = 1;
+        }
+        break; // C jumps to default_1 and also makes the ordinary corpse.
     case PM_LONG_WORM:
-        unsupported("a dead long worm's tooth");
-        break;
+        // C discards mksobj_at()'s result but still leaves the tooth on floor.
+        mksobj_at(WORM_TOOTH, x, y, true, false, objectEnv);
+        break; // C jumps to default_1 and also makes the ordinary corpse.
     case PM_VAMPIRE:
     case PM_VAMPIRE_LEADER:
-        unsupported("a dead vampire's old corpse");
+        num = undead_to_corpse(mndx);
+        corpstatflags |= CORPSTAT_INIT;
+        obj = mkcorpstat(CORPSE, mtmp, state.mons[num], x, y,
+                         corpstatflags, objectEnv);
+        obj.age -= (TAINT_AGE + 1);
+        defaultOne = false;
         break;
     case PM_KOBOLD_MUMMY:
     case PM_DWARF_MUMMY:
@@ -5339,52 +5369,124 @@ function make_corpse(mtmp, corpseflags, state, env) {
     case PM_HUMAN_ZOMBIE:
     case PM_GIANT_ZOMBIE:
     case PM_ETTIN_ZOMBIE:
-        /* 622-649. The body a zombie or a mummy leaves is the living
-           creature's, and C's comment calls it an *OLD* corpse: subtracting
-           TAINT_AGE + 1 from the age mksobj() just stamped puts it one turn
-           past the point where eating it makes the hero ill. C's own comment
-           at 620 says to "include mtmp in the mkcorpstat() call", so every
-           corpse from this group carries save_mtraits()' copy of the monster,
-           where default_1 below passes it only for KEEPTRAITS(). */
+        num = undead_to_corpse(mndx);
         corpstatflags |= CORPSTAT_INIT;
-        undeadCorpse = mkcorpstat(
-            CORPSE,
-            mtmp,
-            state.mons[undead_to_corpse(mndx)],
-            x,
-            y,
-            corpstatflags,
-            { ...env, state },
-        );
-        undeadCorpse.age -= (TAINT_AGE + 1);
+        obj = mkcorpstat(CORPSE, mtmp, state.mons[num], x, y,
+                         corpstatflags, objectEnv);
+        obj.age -= (TAINT_AGE + 1);
+        defaultOne = false;
         break;
     case PM_IRON_GOLEM:
+        num = random.d(2, 6);
+        while (num--) obj = mksobj_at(IRON_CHAIN, x, y, true, false,
+                                      objectEnv);
+        free_mgivenname(mtmp);
+        defaultOne = false;
+        break;
     case PM_GLASS_GOLEM:
+        num = random.d(2, 4);
+        while (num--) {
+            obj = mksobj_at(FIRST_GLASS_GEM + random.rn2(NUM_GLASS_GEMS),
+                            x, y, true, false, objectEnv);
+        }
+        free_mgivenname(mtmp);
+        defaultOne = false;
+        break;
     case PM_CLAY_GOLEM:
+        obj = mksobj_at(ROCK, x, y, false, false, objectEnv);
+        obj.quan = random.rn2(20) + 50;
+        obj.owt = weight(obj, objectEnv);
+        free_mgivenname(mtmp);
+        defaultOne = false;
+        break;
     case PM_STONE_GOLEM:
+        corpstatflags &= ~CORPSTAT_INIT;
+        obj = mkcorpstat(STATUE, null, mdat, x, y,
+                         corpstatflags, objectEnv);
+        defaultOne = false;
+        break;
     case PM_WOOD_GOLEM:
+        num = random.d(2, 4);
+        while (num--) {
+            const otyp = random.rn2(2) ? QUARTERSTAFF
+                : random.rn2(3) ? SMALL_SHIELD
+                    : random.rn2(3) ? CLUB
+                        : random.rn2(3) ? ELVEN_SPEAR : BOOMERANG;
+            obj = mksobj_at(otyp, x, y, true, false, objectEnv);
+        }
+        free_mgivenname(mtmp);
+        defaultOne = false;
+        break;
     case PM_ROPE_GOLEM:
+        num = random.rn2(3);
+        while (num-- > 0) {
+            const otyp = random.rn2(2) ? LEASH
+                : random.rn2(3) ? BULLWHIP : GRAPPLING_HOOK;
+            obj = mksobj_at(otyp, x, y, true, false, objectEnv);
+        }
+        free_mgivenname(mtmp);
+        defaultOne = false;
+        break;
     case PM_LEATHER_GOLEM:
+        num = random.d(2, 4);
+        while (num--) {
+            const otyp = random.rn2(4) ? LEATHER_ARMOR
+                : random.rn2(3) ? LEATHER_CLOAK : SADDLE;
+            obj = mksobj_at(otyp, x, y, true, false, objectEnv);
+        }
+        free_mgivenname(mtmp);
+        defaultOne = false;
+        break;
     case PM_GOLD_GOLEM:
+        obj = mkgold(200 - random.rnl(101), x, y, objectEnv);
+        free_mgivenname(mtmp);
+        defaultOne = false;
+        break;
     case PM_PAPER_GOLEM:
-        unsupported("the pieces of a dead golem");
+        num = random.rnd(4);
+        while (num--)
+            obj = mksobj_at(SCR_BLANK_PAPER, x, y, true, false, objectEnv);
+        free_mgivenname(mtmp);
+        defaultOne = false;
         break;
     case PM_GRAY_OOZE:
     case PM_BROWN_PUDDING:
     case PM_GREEN_SLIME:
     case PM_BLACK_PUDDING:
-        unsupported('a glob left by a dead pudding');
+        obj = mksobj_at(
+            GLOB_OF_BLACK_PUDDING - (PM_BLACK_PUDDING - mndx),
+            x,
+            y,
+            true,
+            false,
+            objectEnv,
+        );
+        while (obj) {
+            const other = obj_nexto(obj, state);
+            if (!other) break;
+            await pudding_merge_message(obj, other, state, objectEnv);
+            obj = obj_meld(obj, other, state, {
+                ...objectEnv,
+                newsym: (sx, sy) => killRedraw(sx, sy, { ...env, state }),
+            });
+        }
+        free_mgivenname(mtmp);
+        killRedraw(x, y, { ...env, state });
+        return obj;
+    case NON_PM:
+    case LEAVESTATUE:
+    case NUMMONS:
+        defaultOne = false;
         break;
     default:
         break;
     }
 
-    /* default_1: */
-    let obj = undeadCorpse;
-    if (!obj) {
+    // C's goto default_1 arms create the regular corpse after their special
+    // drops. Cases that break from the switch keep the object they made.
+    if (defaultOne) {
         if (state.svm.mvitals[mndx].mvflags & G_NOCORPSE) return null;
         corpstatflags |= CORPSTAT_INIT;
-        /* "preserve the unique traits of some creatures" */
         obj = mkcorpstat(
             CORPSE,
             KEEPTRAITS(mtmp, state) ? mtmp : null,
@@ -5392,46 +5494,35 @@ function make_corpse(mtmp, corpseflags, state, env) {
             x,
             y,
             corpstatflags,
-            { ...env, state },
+            objectEnv,
         );
+        if (burythem) {
+            const { deallocated } = bury_an_obj(obj, objectEnv);
+            killRedraw(x, y, { ...env, state });
+            return deallocated ? null : obj;
+        }
     }
 
-    /* "All special cases should precede the G_NOCORPSE check" */
     if (!obj) return null;
+    if (state.context?.bypasses) bypass_obj(obj, state);
+    if (has_mgivenname(mtmp))
+        obj = oname(obj, MGIVENNAME(mtmp), ONAME_NO_FLAGS, objectEnv);
 
-    /* "if polymorph or undead turning has killed this monster, prevent the
-        same attack beam from hitting its corpse" */
-    if (state.context?.bypasses)
-        unsupported('a corpse left inside a polymorph or undead-turning beam');
-
-    if (has_mgivenname(mtmp)) unsupported("a named monster's corpse");
-
-    /*  "Avoid 'It was hidden under a green mold corpse!' during Blind combat.
-     *  An unseen monster referred to as 'it' could be killed and leave a
-     *  corpse." */
+    /* Avoid naming an unseen corpse while blind: hitmu() calls it "something". */
     if (heroIsBlind(state) && !sensesMonster(mtmp, state)) clear_dknown(obj);
 
-    /* "'obj' remains valid if stacking happens" */
-    stackobj(obj, objectGenerationEnv({ ...env, state }));
+    stackobj(obj, objectGenerationEnv(objectEnv));
     killRedraw(x, y, { ...env, state });
-    /* "in case the corpse was placed at a different spot from where the
-        monster was (not expected to happen)" */
     if (obj.ox !== x || obj.oy !== y)
         killRedraw(obj.ox, obj.oy, { ...env, state });
     return obj;
 }
 
-// C ref: mon.c mondied() (3251-3262). "drop (perhaps) a cadaver and remove
-// monster". Nothing stops here: every arm of the body is C's, and the two
-// callees that can stop -- mondead() and make_corpse() -- carry their own
-// refusals. C gives it external linkage for dogmove.c, do.c and monmove.c;
-// none of those callers is ported, so it stays file-private beside
-// make_corpse() until one of them arrives.
-//
-// C's comment on the corpse test is literally true of this port too:
-// mon_leaving_level() takes the monster off the map without clearing mx and
-// my, and mon.c:2712-2714 says in so many words that it must not clear them,
-// so corpse_chance() and make_corpse() still read the square it died on.
+// C ref: mon.c mondied() (3251-3262). Drop a cadaver after mondead() has
+// decided the monster did not survive. The pet-ranged production route reaches
+// this call through dog_move() -> mattackm() -> monkilled(); other C callers
+// remain separately source-traced gaps. Await make_corpse() so pudding merge
+// messages finish before the death lifecycle returns.
 export async function mondied(mdef, state = game, env = {}) {
     await mondead(mdef, state, env);
     if (mdef.mhp >= 1) return; /* !DEADMONSTER(): "lifesaved" */
@@ -5441,7 +5532,7 @@ export async function mondied(mdef, state = game, env = {}) {
     if (await corpse_chance(mdef, null, false, state, env)
         && (accessible(mdef.mx, mdef.my, state)
             || is_pool(mdef.mx, mdef.my, state)))
-        make_corpse(mdef, CORPSTAT_NONE, state, env);
+        await make_corpse(mdef, CORPSTAT_NONE, state, env);
 }
 
 // C ref: mon.c monstone() (3287-3374). Drop a statue or rock and remove the
@@ -5642,27 +5733,21 @@ export async function killed(mtmp, state = game, env = {}) {
 // be ported in halves -- stopping short of either desyncs the stream for the
 // rest of the turn.
 //
-// 3514-3522 is ported rather than stopped, and a trapped monster in a bare
-// pit is killed like any other: C sets neither flag there. A boulder resting
-// on the square sets `nocorpse`, which is the flag XKILL_NOCORPSE already
-// sets, and one in the monster's pack sets `burycorpse`, which selects
-// make_corpse()'s CORPSTAT_BURIED. Neither flag can be read today, because
-// mondead() stops on both states first: mon_leaving_level() hands the boulder
-// on the square to trap.c fill_pit(), which refuses to settle it into the
-// pit, and m_detach()'s relobj() hands the carried one to do.c flooreffects(),
-// which refuses a boulder landing on the floor. Both stops sit above the
-// treasure draw. C's "corpse ends up buried" line at 3625-3628 is below them
-// as well as below make_corpse()'s own stop, so it has no counterpart here.
+// 3514-3522 is ported: a trapped monster in a bare pit is killed like any
+// other. A boulder on the square sets `nocorpse`; a boulder in the monster's
+// pack can set `burycorpse`, which selects make_corpse()'s CORPSTAT_BURIED
+// arm. The helper now buries the ordinary corpse and returns null only when
+// bury_an_obj() deallocates it; xkilled() awaits that result before deciding
+// whether to print the buried-corpse message.
 //
 // The ordinary kill path and cleanup arms are translated in C order,
 // including thrown-object transfer, lifesaving, the compiled mail-daemon
 // branch, murder and unicorn penalties, quest/nemesis/guardian/priest
 // alignment, pets, and peaceful monsters. Remaining helper boundaries are
-// explicit: monstone()/mondead(), corpse_chance(), make_corpse(), and
-// flooreffects() still have their own unported species or object branches;
-// the void hack.c:spoteffects() call at 3638 is recorded and skipped below.
-// The buried-corpse message also depends on make_corpse() returning a buried
-// object, which that helper currently refuses.
+// explicit: monstone()/mondead(), corpse_chance(), and flooreffects() still
+// have their own unported species or object branches; the void
+// hack.c:spoteffects() call at 3638 is recorded and skipped below. The
+// buried-corpse message now reads the actual return from make_corpse().
 //
 // C's `goto cleanup` at 3571 and 3575 jumps over the corpse-and-drop half, so
 // that half becomes the `if (!skipCorpseAndDrops)` block below and the cleanup
@@ -5840,10 +5925,20 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                     && zombie_maker(state.youmonst)
                     && zombie_form(mtmp.data) !== NON_PM,
                 );
-                make_corpse(mtmp,
-                            burycorpse ? CORPSTAT_BURIED : CORPSTAT_NONE,
-                            state, env);
+                const cadaver = await make_corpse(
+                    mtmp,
+                    burycorpse ? CORPSTAT_BURIED : CORPSTAT_NONE,
+                    state,
+                    env,
+                );
                 state.gz.zombify = false; /* "reset" */
+                if (burycorpse && cadaver && cansee(x, y, state)
+                    && !mtmp.minvis && cadaver.where === OBJ_BURIED && !nomsg) {
+                    await message(
+                        `${s_suffix(Monnam(mtmp, state))} corpse ends up buried.`,
+                        state,
+                    );
+                }
             }
         }
 

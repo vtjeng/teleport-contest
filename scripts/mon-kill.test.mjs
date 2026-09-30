@@ -5,6 +5,7 @@ import { adjalign, ALIGNLIM } from '../js/attrib.js';
 import { experience } from '../js/exper.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { enableRngLog, getRngLog } from '../js/rng.js';
 import {
     adj_erinys,
     corpse_chance,
@@ -14,6 +15,7 @@ import {
     m_detach,
     mon_leaving_level,
     mondead,
+    mondied,
     monkilled,
     replmon,
     set_mon_min_mhpmax,
@@ -39,7 +41,9 @@ import {
     AMULET_OF_LIFE_SAVING,
     BOULDER,
     CORPSE,
+    GOLD_PIECE,
     ORCISH_DAGGER,
+    SCR_BLANK_PAPER,
 } from '../js/objects.js';
 import {
     AD_DCAY,
@@ -67,6 +71,7 @@ import {
     PM_CHAMELEON,
     PM_COCKATRICE,
     PM_GAS_SPORE,
+    PM_GOLD_GOLEM,
     PM_GHOUL,
     PM_ARCHEOLOGIST,
     PM_GOBLIN,
@@ -269,6 +274,39 @@ test('corpse_chance divides by frequency and size', async () => {
             `${label} kept`,
         );
     }
+});
+
+// mon.c make_corpse():703 calls rnl(101) for a gold golem. Combat callers can
+// pass a partial RNG object (uhitm.c mhitm_ad_curs supplies rn2/rnd), while
+// mksobj_at()'s object RNG contract also needs rn1/rne; the source function
+// fills those missing global RNG operations before creating its object.
+test('make_corpse fills missing RNG operations for a gold golem', async () => {
+    await hero();
+    enableRngLog();
+    const golem = spawn(PM_GOLD_GOLEM, { mhp: 0 });
+    const fullEnv = killEnv();
+    const env = {
+        ...fullEnv,
+        random: {
+            rn2: fullEnv.random.rn2,
+            rnd: fullEnv.random.rnd,
+        },
+    };
+
+    await mondied(golem, game, env);
+
+    const gold = game.level.objects[golem.mx][golem.my];
+    assert.equal(gold.otyp, GOLD_PIECE);
+    const rnlCalls = getRngLog().filter((call) => /^rnl\(101\)=/u.test(call));
+    assert.equal(rnlCalls.length, 1, 'C mon.c:703 draws rnl(101) once');
+    const rnlResult = Number(rnlCalls[0].slice('rnl(101)='.length));
+    assert.equal(gold.quan, 200 - rnlResult,
+                 'gold quantity is 200 minus C rnl(101)');
+    assert.deepEqual(
+        fullEnv.bounds,
+        ['rnd(2)'],
+        'mkobj.c next_ident consumes rnd(2) after the gold creation',
+    );
 });
 
 // mon.c corpse_chance():3244-3246. Six disjuncts answer TRUE before the
@@ -1453,12 +1491,11 @@ test('an unwitnessed death files the sad feeling under the victim',
         remove_monster(pet.mx, pet.my, game);
     });
 
-// mon.c monkilled():3398-3403. The three disjuncts of gd.disintegested choose
-// mondead(), which leaves no corpse, over mondied(), which may. A paper golem
-// separates them without a roll: corpse_chance() answers TRUE for is_golem()
-// before it reaches its divisor, so mondied() always calls make_corpse(),
-// which stops on the golem's pieces. mondead() alone finishes.
-test('the disintegration test decides whether a corpse is even attempted',
+// mon.c monkilled():3398-3403. The disintegration test chooses mondead()
+// instead of mondied(); a paper golem distinguishes that choice because
+// corpse_chance() returns TRUE for golems before its divisor, then
+// make_corpse() rolls rnd(4) and leaves blank paper on a normal death.
+test('disintegration skips corpse creation and paper golems leave paper',
     async () => {
         await hero();
 
@@ -1471,22 +1508,29 @@ test('the disintegration test decides whether a corpse is even attempted',
             );
             assert.deepEqual(env.lines[0], 'The paper golem is destroyed!',
                              `${how}: the line is printed either way`);
-            assert.deepEqual(env.bounds, [], `${how}: no roll is spent`);
-            if (outcome) remove_monster(mon.mx, mon.my, game);
-            return outcome;
+            assert.equal(outcome, null, `${how}: the death completes`);
+            return { env, mon };
         };
 
-        const pieces = 'the pieces of a dead golem';
         // AD_DGST, -AD_RBRE, and AD_FIRE against a species completelyburns()
         // admits: each takes mondead() and leaves the square empty.
-        assert.equal(await golem(AD_DGST), null, 'digested');
-        assert.equal(await golem(-AD_RBRE), null, 'disintegrated');
-        assert.equal(await golem(AD_FIRE), null, 'burnt up');
-        // Neighbouring damage types do not: AD_RUST is the one the third
-        // disjunct would admit for an iron golem rather than a paper one, and
-        // AD_PHYS is what trap.c thitm() passes.
-        assert.equal(await golem(AD_RUST), pieces, 'rusted');
-        assert.equal(await golem(AD_PHYS), pieces, 'struck');
+        for (const how of [AD_DGST, -AD_RBRE, AD_FIRE]) {
+            const { env, mon } = await golem(how);
+            assert.deepEqual(env.bounds, [], `${how}: mondead draws nothing`);
+            assert.equal(game.level.objects[mon.mx][mon.my], null,
+                         `${how}: mondead makes no drop`);
+        }
+        // These two do not take mondead(): each reaches make_corpse(). The
+        // scripted rnd(4)=1 chooses one sheet; later bounds belong to mksobj.
+        for (const how of [AD_RUST, AD_PHYS]) {
+            const { env, mon } = await golem(how);
+            assert.equal(env.bounds[0], 'rnd(4)', `${how}: paper count roll`);
+            assert.ok(env.bounds.length > 1, `${how}: create the paper object`);
+            const paper = game.level.objects[mon.mx][mon.my];
+            assert.equal(paper.otyp, SCR_BLANK_PAPER,
+                         `${how}: make_corpse leaves its paper object`);
+            remove_object(paper, { state: game });
+        }
 
         // The AD_FIRE disjunct is conjoined with completelyburns(), so a newt
         // burnt to death still goes through mondied() and rolls for a corpse.

@@ -34,7 +34,9 @@ import {
     DEAF,
     ECMD_CANCEL,
     ECMD_FAIL,
+    ECMD_OK,
     ECMD_TIME,
+    engulfing_u,
     HALF_PHDAM,
     Has_contents,
     CXN_PFX_THE,
@@ -88,15 +90,15 @@ import {
     isok,
     something,
 } from './const.js';
-import { feel_location, feel_newsym, map_invisible, newsym,
-    unmap_invisible } from './display.js';
+import { feel_location, feel_newsym, glyph_at, glyph_is_invisible,
+    map_invisible, newsym, unmap_invisible } from './display.js';
 import {
     legs_in_no_shape,
     set_wounded_legs,
 } from './do.js';
 import { u_wipe_engr } from './engrave.js';
 import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level } from './dungeon.js';
-import { breaktest } from './dothrow.js';
+import { breaktest, hurtle } from './dothrow.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
 import { currency, obj_extract_self, obfree, useup } from './invent.js';
@@ -104,7 +106,7 @@ import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
 } from './hack.js';
 import {
-    bigmonst, can_teleport, haseyes, is_floater, is_flyer, is_giant,
+    attacktype, bigmonst, can_teleport, haseyes, is_floater, is_flyer, is_giant,
     nohands, nolimbs, slithy, thick_skinned, verysmall,
 } from './mondata.js';
 import { abuse_dog } from './dog.js';
@@ -509,14 +511,10 @@ async function kick_dumb(x, y, state) {
         // write set_wounded_legs() makes.
         await set_wounded_legs(RIGHT_SIDE, 5 + rnd(5), state);
     }
-    // 876-877. Both halves of the condition are false for a hero standing on
-    // an ordinary level, so the rn2(2) that would decide the recoil is never
-    // drawn; this stops ahead of it rather than after it.
-    if (Is_airlevel(u.uz) || Levitation(state)) {
-        throw new UnsupportedKickError(
-            "kick_dumb()'s floating recoil, which needs hurtle()",
-        );
-    }
+    // 876-877. C short-circuits the roll off the air level; otherwise one
+    // rn2(2) decides whether this empty kick sends the hero backward.
+    if ((Is_airlevel(u.uz) || Levitation(state)) && rn2(2))
+        await hurtle(-u.dx, -u.dy, 1, true, state);
 }
 
 // C ref: hack.h Maybe_Half_Phys(), used by dokick.c kick_ouch() at :903.
@@ -572,8 +570,7 @@ export function kickstr(maploc, kickobjnam, state = game) {
 }
 
 // C ref: dokick.c kick_ouch() (881-906). This helper is shared by the wall
-// and upward-stairs arm of kick_nondoor(), and by future terrain arms as they
-// become reachable. Floating recoil remains with the movement owner.
+// and upward-stairs arm of kick_nondoor(), plus the levitating-door arm.
 async function kick_ouch(x, y, kickobjnam, state) {
     const u = state.u;
     let maploc = isok(x, y) ? state.level.at(x, y) : null;
@@ -598,11 +595,8 @@ async function kick_ouch(x, y, kickobjnam, state) {
     const dmg = rnd(acurr(state, A_CON) > 15 ? 3 : 5);
     await losehp(Maybe_Half_Phys(dmg, state), kickstr(maploc, kickobjnam,
         state), KILLED_BY, state);
-    if (Is_airlevel(u.uz) || Levitation(state)) {
-        throw new UnsupportedKickError(
-            "kick_ouch()'s floating recoil, which needs hurtle()",
-        );
-    }
+    if (Is_airlevel(u.uz) || Levitation(state))
+        await hurtle(-u.dx, -u.dy, rn1(2, 4), true, state);
 }
 
 // C ref: dokick.c kick_door() (908-970). Kick a door. The failure branch
@@ -611,8 +605,8 @@ async function kick_ouch(x, y, kickobjnam, state) {
 // success branch (940-950) is implemented: the shatter arm (ACURR(A_STR) > 18,
 // rn2(5)==0, non-shop) sets D_NODOOR; the crash-open fallback sets D_BROKEN.
 // Both exercise Strength and call feel_newsym()/recalc_block_point(). The
-// trapped-door arm (D_TRAPPED, b_trapped), the Levitation guard (kick_ouch),
-// and the shop/town follow-ups are refused.
+// trapped-door arm (D_TRAPPED, b_trapped) and the shop/town follow-ups remain
+// named gaps.
 async function kick_door(x, y, avrg_attrib, state) {
     const maploc = state.level.at(x, y);
     const mask = maploc.flags || maploc.doormask || 0;
@@ -624,13 +618,11 @@ async function kick_door(x, y, avrg_attrib, state) {
         return;
     }
 
-    // 921-924. Not enough leverage to kick open doors while levitating.
-    // kick_ouch() still reaches its unported floating recoil; refuse before
-    // changing state because this guard is the Levitation-specific arm.
+    // 921-924. Not enough leverage while levitating: C takes the normal
+    // painful-kick path, including its floating recoil.
     if (Levitation(state)) {
-        throw new UnsupportedKickError(
-            "kick_door()'s Levitation guard, which needs kick_ouch()",
-        );
+        await kick_ouch(x, y, '', state);
+        return;
     }
 
     // 926. Exercise dexterity for the attempt.
@@ -956,26 +948,30 @@ export async function dokick(state = game) {
             "dokick()'s engulfed arm, whose rn2(3) this stops before",
         );
     }
-    // 1355-1370. C returns ECMD_OK only when the square behind the hero offers
-    // nothing to brace against, and otherwise falls through; this refuses the
-    // whole block, which is the wider of the two.
+    // 1355-1370. While levitating, C can brace against a wall, door, or an
+    // object behind the hero on an air level. Otherwise it returns ECMD_OK.
     if (Levitation(state)) {
-        throw new UnsupportedKickError(
-            "dokick()'s levitation bracing check",
-        );
+        const xx = u.ux - u.dx;
+        const yy = u.uy - u.dy;
+        const behind = isok(xx, yy) ? state.level.at(xx, yy) : null;
+        const objectBehind = state.level?.objects?.[xx]?.[yy] ?? null;
+        if (behind && !IS_OBSTRUCTED(behind.typ) && !IS_DOOR(behind.typ)
+            && (!Is_airlevel(u.uz) || !objectBehind)) {
+            await ttyPline('You have nothing to brace yourself against.', state);
+            return ECMD_OK;
+        }
     }
 
     const mtmp = isok(x, y) ? m_at(x, y, state) : null;
+    let oldGlyph = -1;
     if (mtmp) {
-        if (await maybe_kick_monster(mtmp, x, y, state)) {
-            await kick_monster(mtmp, x, y, state);
-            return ECMD_TIME;
-        }
-        return ECMD_FAIL;
+        oldGlyph = glyph_at(x, y, state);
+        if (!await maybe_kick_monster(mtmp, x, y, state))
+            return state.context?.move ? ECMD_TIME : ECMD_OK;
     }
 
-    // 1383-1384. Both run before the target square is examined at all, so an
-    // arm refused below has still paid for them, exactly as C has.
+    // 1383-1384. Both run before the five target tests, including the monster
+    // arm, so they precede kick_monster() as they do in C.
     await wake_nearby({ state });
     u_wipe_engr(2, { state });
 
@@ -985,6 +981,38 @@ export async function dokick(state = game) {
         );
     }
     const maploc = state.level.at(x, y);
+
+    if (mtmp) {
+        // C saves mdat before kick_monster(), because that call can kill and
+        // remove the target before dokick() calculates the recoil distance.
+        const mdat = mtmp.data;
+        await kick_monster(mtmp, x, y, state);
+        const glyph = glyph_at(x, y, state);
+        if (mtmp.mhp < 1) { // DEADMONSTER(mtmp)
+            if (glyph !== oldGlyph && glyph_is_invisible(glyph)) {
+                // display.c:show_glyph is void and has no corresponding
+                // source-owned JS screen operation; preserve the exact gap.
+                note_unported('display.c show_glyph');
+            }
+        } else if (!canSpotMonster(mtmp, state)
+                   && mtmp.mx === x && mtmp.my === y
+                   && !glyph_is_invisible(glyph)
+                   && !engulfing_u(mtmp, state)) {
+            map_invisible(x, y, state);
+        }
+
+        // dokick.c:1428-1439. C uses integer division for both range steps;
+        // mdat remains the pre-kick species if the monster died above.
+        if ((Is_airlevel(u.uz) || Levitation(state)) && state.context?.move) {
+            let range = state.youmonst.data.cwt
+                + weight_cap(state) + inv_weight(state);
+            if (range < 1) range = 1;
+            range = Math.trunc((3 * mdat.cwt) / range);
+            if (range < 1) range = 1;
+            await hurtle(-u.dx, -u.dy, range, true, state);
+        }
+        return ECMD_TIME;
+    }
 
     unmap_invisible(x, y, state);
     // 1444. The XOR is written out because C wrote it: a hero inside water
