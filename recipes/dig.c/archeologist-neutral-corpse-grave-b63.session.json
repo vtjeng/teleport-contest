@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B63 C recipe for the corpse arm of dig.c:dig_up_grave through dig.c:dig -> dighole. A JavaScript-only scan of seeds 91873200-91873350 replayed 31 complete cases; seed 91873204 selected the source corpse branch. The date, name, male character and neutral Archeologist alignment were chosen independently of the admitted v14 case. Its input omits the initial space because this date has no welcome pager, then creates a grave underfoot and uses the starting pick-axe.",
+  "segments": [
+    {
+      "seed": 91873204,
+      "datetime": "20571119140100",
+      "nethackrc": "OPTIONS=name:CryptTester,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "hj\u0017grave\nae  > . . ."
+    }
+  ]
+}
