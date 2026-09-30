@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-informed corrected C53 #tip confirmation from the frozen seed/date/player setup in the preserved wrong-letter attempt. C had shown that the starting magic marker is m, the wished sack is n, and the two wished Bags of Holding are o/p. This input changes only the selected container/item/destination keys: drop sack n, stash BoH p into it, tip the floor sack to carried BoH o. Freeze before the next C recording and before JavaScript comparison; the earlier recipe/output remain unchanged. A second independently frozen version below adds one input space to continue the C More prompt; the original partial C trace remains unchanged. This preserved step-through version has one continuation key and still ends at the blast More; the next frozen input adds a second continuation key.",
+  "segments": [
+    {
+      "seed": 85027414,
+      "datetime": "20321211170937",
+      "nethackrc": "OPTIONS=name:C53NestedSackTip,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "  #wizwish\nuncursed sack\n#wizwish\nuncursed bag of holding\n#wizwish\nuncursed bag of holding\ndn#loot\nsp#tip\nyo  "
+    }
+  ]
+}

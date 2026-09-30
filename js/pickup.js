@@ -220,6 +220,11 @@ import {
     add_menu, add_menu_heading, getlin, select_menu,
 } from './windows.js';
 import { touch_artifact } from './artifacts.js';
+import {
+    SCATTER_MAY_DESTROY,
+    SCATTER_MAY_HIT,
+    scatter,
+} from './explode.js';
 import { livelog_printf } from './pline.js';
 import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
@@ -2348,6 +2353,34 @@ function is_boh_item_gone(state = game) {
     return !rn2(13, state);
 }
 
+// C ref: pickup.c:2518-2536. Scatter the surviving contents of an exploding
+// bag before its caller deletes the bag. Save each next link before the
+// contained object can be extracted, freed, or scattered.
+async function do_boh_explosion(boh, on_floor, state = game) {
+    boh.in_use = 1;
+    for (let otmp = boh.cobj, nobj; otmp; otmp = nobj) {
+        nobj = otmp.nobj;
+        if (is_boh_item_gone(state)) {
+            obj_extract_self(otmp, { state });
+            // C discards mbag_item_gone()'s shop-loss result here.
+            await mbag_item_gone(!on_floor, otmp, true, state);
+        } else {
+            otmp.ox = state.u.ux;
+            otmp.oy = state.u.uy;
+            // C discards scatter()'s result; await its asynchronous effects.
+            await scatter(
+                state.u.ux,
+                state.u.uy,
+                4,
+                SCATTER_MAY_HIT | SCATTER_MAY_DESTROY,
+                otmp,
+                state,
+            );
+        }
+    }
+    // C leaves in_use set because the caller is about to delete this bag.
+}
+
 // C ref: pickup.c mbag_item_gone() (2803-2828). Delete one lost object and
 // return any shop loss that the owning caller now owes. C's shop valuation
 // result is consumed by tipcontainer(), so this awaits the full shk.c port.
@@ -2900,7 +2933,7 @@ async function in_container(obj, state) {
     freeinv(obj, { state });
 
     // pickup.c:2658-2694. Test every inserted item before linking it into
-    // the bag. The discarded do_boh_explosion() calls remain named gaps.
+    // the bag.
     if (isMbag(state.gc.current_container)
         && mbag_explodes(obj, 0, state)) {
         livelog_printf(
@@ -2914,9 +2947,14 @@ async function in_container(obj, state) {
             state,
         );
         if (obj.otyp === BAG_OF_HOLDING)
-            note_unported('pickup.c do_boh_explosion');
+            await do_boh_explosion(
+                obj,
+                obj.where === OBJ_FLOOR,
+                state,
+            );
         obfree(obj, null, { state });
-        note_unported('pickup.c do_boh_explosion');
+        await do_boh_explosion(state.gc.current_container, floor_container,
+            state);
         if (!floor_container) {
             await useup(state.gc.current_container, { state });
         } else if (obj_here(
@@ -2928,7 +2966,10 @@ async function in_container(obj, state) {
             await useupf(
                 state.gc.current_container,
                 state.gc.current_container.quan,
-                { state },
+                {
+                    state,
+                    hooks: { extractExternalObject: remove_object },
+                },
             );
         } else {
             throw new Error('in_container: bag not found');
@@ -3757,12 +3798,15 @@ async function tipcontainer(box, state) {
                     state,
                 );
                 if (otmp.otyp === BAG_OF_HOLDING)
-                    note_unported('pickup.c do_boh_explosion');
+                    await do_boh_explosion(otmp, !srcheld, state);
                 obfree(otmp, null, { state });
                 // C discards do_boh_explosion(targetbox, !dstheld).
-                note_unported('pickup.c do_boh_explosion');
+                await do_boh_explosion(targetbox, !dstheld, state);
                 if (dstheld) await useup(targetbox, { state });
-                else await useupf(targetbox, targetbox.quan, { state });
+                else await useupf(targetbox, targetbox.quan, {
+                    state,
+                    hooks: { extractExternalObject: remove_object },
+                });
                 targetbox = null;
                 nobj = null;
                 await losehp(d(6, 6), 'magical explosion', KILLED_BY_AN, state);

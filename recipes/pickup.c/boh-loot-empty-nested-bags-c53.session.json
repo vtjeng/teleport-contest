@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independently chosen C53 #loot setup: wish two empty bags of holding, drop the later bag, and stash the first into the floor bag. This should enter in_container -> do_boh_explosion with empty contents and continue through floor useupf cleanup without a fragile-item helper branch. Freeze before C recording and before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 51940377,
+      "datetime": "20340416092700",
+      "nethackrc": "OPTIONS=name:C53FloorEmpty,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizwish\nuncursed bag of holding\n#wizwish\nuncursed bag of holding\ndp#loot\nso   "
+    }
+  ]
+}

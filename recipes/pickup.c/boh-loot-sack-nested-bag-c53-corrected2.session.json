@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Second corrected C-first sack variation after preserving the first inventory-slot miss: the C wish screens showed marker n, outer Bag of Holding o, sack p and inner Bag of Holding q. Drop the outer bag o, stash the nonfragile sack p, then stash the empty nested bag q. This independently frozen recipe tests the helper item loop and floor cleanup without potionbreathe.",
+  "segments": [
+    {
+      "seed": 62784931,
+      "datetime": "20411217152000",
+      "nethackrc": "OPTIONS=name:C53SackFloor2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "  #wizwish\nuncursed bag of holding\n#wizwish\nuncursed sack\n#wizwish\nuncursed bag of holding\ndo#loot\nsp#loot\nsq   "
+    }
+  ]
+}
