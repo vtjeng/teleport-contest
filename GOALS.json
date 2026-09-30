@@ -121259,8 +121259,8 @@
           "name": "choke_dialogue",
           "line": 295,
           "endLine": 322,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -121458,7 +121458,66 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "choke_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "choke_dialogue",
+            "sourceReview": "Read timeout.c:278-314, including both complete static text arrays and the whole choke_dialogue definition. The port masks Strangled with TIMEOUT, indexes each table with SIZE(table)-i, evaluates Breathless before rn2(50), interpolates body_part(NECK) or hcolor(NH_BLUE) only for matching templates, sends urgent output before stopping occupation on the ordinary table, and always awaits exercise(A_STR,FALSE). The correction also makes nh_timeout_requires_live_state() hand every nonzero Strangled value to the live caller because timeout.c:629-630 invokes choke_dialogue whenever Strangled is nonzero and choke_dialogue always calls exercise. Existing helpers preserve source order; no unported callee or refusal remains on this path.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout:629-630 calls choke_dialogue() for Strangled after the invulnerability return; the helper now defers every nonzero value from a planning clone."
+              },
+              {
+                "path": "js/allmain.js",
+                "symbol": "finishElapsedTurn",
+                "source": "allmain.c:moveloop_core:273 calls nh_timeout() after glibr() and before run_regions(); finishElapsedTurn() uses nh_timeout_requires_live_state() to return before planning reaches the live-only call, then the production caller replays the timeout live."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "tourist-wears-cursed-strangulation-amulet",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> timeout.c:choke_dialogue -> attrib.c:exercise(A_STR,FALSE); the cursed amulet sets Strangled=6 at step 43, and step 44 reaches the active-count planning handoff and i=6 exercise path."
+              }
+            ],
+            "checkedAt": "b054266a0f840530fecc991b22163977c52c9474"
+          }
+        ],
+        "entryPointReview": "C allmain.c:moveloop_core calls nh_timeout() after glibr() and before run_regions(). C timeout.c:nh_timeout calls choke_dialogue whenever Strangled is nonzero, after the invulnerability return. Because choke_dialogue always calls exercise(A_STR,FALSE), the JavaScript planner must hand every active Strangled value to that production caller before timeout work advances clone RNG/state. The new scripts/allmain-turn.test.mjs case exercises moveloop_core with the source-defined i=6 countdown and stops at a named unported region callback after verifying the live timeout decrement and single rn2(2) exercise draw. The admitted v14 recording supplies independent C runtime evidence through segment 0 step 44. scripts/timeout.test.mjs pins all five text indices, ordinary/random/Breathless branches, display RNG and occupation behavior.",
+        "entryPoints": [
+          {
+            "name": "elapsed-turn Strangled dialogue",
+            "functions": [
+              "choke_dialogue"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "tourist-wears-cursed-strangulation-amulet",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "allmain.c:moveloop_core -> timeout.c:nh_timeout -> timeout.c:choke_dialogue; step 44 also reaches attrib.c:exercise(A_STR,FALSE), while the focused caller test pins the planning handoff for active i=6."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
