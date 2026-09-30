@@ -120103,7 +120103,7 @@
     {
       "id": "div-mounted-steed-leash-turn-v14-20260929",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Allow the mounted steed through the pet action guard",
       "cFile": "dogmove.c",
       "sessions": [],
@@ -120115,8 +120115,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "59b29f40d6ae99ac332e2f3f3cc5aaa8ad71258f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dog_goal",
       "session": "synthetic/v14/knight-applies-leash-down",
       "step": 26,
@@ -120287,7 +120290,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "59b29f40d6ae99ac332e2f3f3cc5aaa8ad71258f",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
