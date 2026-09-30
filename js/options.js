@@ -660,6 +660,10 @@ function defaultResult() {
             plinemsg_types: null,
         },
         gm: {
+            // decl.c instance_globals_m zero-initializes the temporary flag
+            // that objnam.c doname() reads while pickup.c reports a wielded
+            // stack merge.
+            mrg_to_wielded: false,
             // decl.c instance_globals_m starts this list at NULL. Each valid
             // direct MENUCOLOR row prepends one compiled coloratt.c rule.
             menu_colorings: null,

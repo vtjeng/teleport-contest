@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6107139,
+      "datetime": "20330516091123",
+      "nethackrc": "OPTIONS=name:HookPickupB61,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\ngrappling hook\ndakao $j.",
+      "comment": "Independent apply.c:doapply -> use_grapple -> pickup_object witness. The debug Wizard wishes a grappling hook, drops its starting quarterstaff on the staircase, steps north, then applies the hook and targets the staff's square to exercise the ordinary object-target path rather than the existing no-object marker recipe."
+    }
+  ]
+}

@@ -1208,11 +1208,10 @@ function wornSuffix(obj, type, state) {
         const side = (mask & W_RINGR) ? 'right' : 'left';
         suffix += ` (on ${side} ${body_part(HAND, state.youmonst)})`;
     }
-    // objnam.c:1561 also requires !gm.mrg_to_wielded, which pickup.c:1881-1882
-    // raises only while pickup_prinv() names a stack that just merged into the
-    // wielded weapon. Nothing here owns that flag: js/pickup.js:461 refuses
-    // that merge outright, so the guard is always true at this point.
-    if (mask & W_WEP) {
+    // objnam.c:1561 also requires !gm.mrg_to_wielded. pickup.c:1881-1882 sets
+    // that per-game flag only while pickup_prinv() names a stack merged into
+    // the wielded weapon; options.js initializes it with the other gm fields.
+    if ((mask & W_WEP) && !state.gm?.mrg_to_wielded) {
         // objnam.c:1562. The primary of a dual-wield keeps the hand phrasing
         // even when the alternate test below would otherwise take it, and
         // reads "wielded in" rather than "weapon in".

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6107131,
+      "datetime": "20330515091123",
+      "nethackrc": "OPTIONS=name:WhipPickupB61,role:Archeologist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nring of levitation\nPir k#wizwish\ndagger\ndjaa.",
+      "comment": "Independent apply.c:doapply -> use_whip -> pickup_object witness. The debug Archeologist starts with a bullwhip and its source proficiency, wishes and wears a levitation ring, moves off the downstairs, wishes and drops a dagger on a plain floor square, and aims at the hero's own square."
+    }
+  ]
+}
