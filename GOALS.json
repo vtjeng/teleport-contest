@@ -120099,6 +120099,195 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "div-mounted-steed-leash-turn-v14-20260929",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Allow the mounted steed through the pet action guard",
+      "cFile": "dogmove.c",
+      "sessions": [],
+      "selectionReason": "Select synthetic/v14/knight-applies-leash-down from current accepted B61 evaluation challenges/evaluations/20260930032552-v14.json at b7eb778f. Its complete investigation attributes step 26 refusal to the starting-pet guard rejecting the current mounted leashed pony. C dogmove.c dog_goal returns -2 for u.usteed before any goal state or RNG; dog_move preserves hunger and inventory handling before this return. Correct the guard to admit exactly that already ported branch, preserving ordinary leashed-pet refusal and clone identity. A52 dependencies are accepted; A53 is independent of later A54-A57.",
+      "detail": "Segment 0 step 26: 26/27 screens, 2771/2784 RNG calls at worker base. Source dog_goal current-steed early return and dog_move ordering already match C. Fix only assertSimpleActionState in js/unported_monster_actions.js; no whole dog_goal source-unit completion claim. Immutable delivery fbf58b41 has production replay through the final step and source-pinned clone/live tests.",
+      "openedAt": "7ddf2d5db0e06d4bd3cd7c72a62dd3348cc582f8",
+      "openStanding": {
+        "sha": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "dog_goal",
+      "session": "synthetic/v14/knight-applies-leash-down",
+      "step": 26,
+      "syntheticProvenance": {
+        "synthetic/v14/knight-applies-leash-down": {
+          "session": "synthetic/v14/knight-applies-leash-down",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-applies-leash-down",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/knight-applies-leash-down.session.json",
+          "recordingSha256": "b3961cd1521b10a9075a045f3dd65e03b98e0af8e3c467271cf7fd40f3bb6543",
+          "evaluationPath": "challenges/evaluations/20260930032552-v14.json",
+          "evaluationCommit": "b7eb778fd13a99a4fccdb347a0e537840810d8fd"
+        }
+      },
+      "activeStanding": {
+        "sha": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "knight-applies-leash-down",
+          "session": "synthetic/v14/knight-applies-leash-down",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/knight-applies-leash-down.session.json",
+          "recordingPath": "challenges/cases/v14/knight-applies-leash-down.session.json",
+          "recordingSha256": "b3961cd1521b10a9075a045f3dd65e03b98e0af8e3c467271cf7fd40f3bb6543",
+          "recipe": "challenges/cases/v14/knight-applies-leash-down.recipe.session.json",
+          "recipeSha256": "74b427c49b1ef2147b6d7f8d5e9a3ef1fa453fd07cc74f29e27f7cc6884ea347",
+          "replayInputSha256": "56235698fc90df932af7d95071357365d15181d50f0b1eaf63bcaa56600579ef",
+          "evaluationPath": "challenges/evaluations/20260930032552-v14.json",
+          "evaluationCommit": "b7eb778fd13a99a4fccdb347a0e537840810d8fd",
+          "evaluationArtifact": "challenges/evaluations/20260930032552-v14.json",
+          "evaluationUtc": "2026-09-30T03:26:16.368Z",
+          "remainingScreens": 1,
+          "recordedSteps": 27,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 27
+            },
+            "rng": {
+              "matched": 2771,
+              "total": 2784
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 27
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires special starting-pet state",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires special starting-pet state",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/knight-applies-leash-down.json",
+            "result": {
+              "session": "synthetic/v14/knight-applies-leash-down",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "knight-applies-leash-down",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "b3961cd1521b10a9075a045f3dd65e03b98e0af8e3c467271cf7fd40f3bb6543",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 1,
+              "recordedSteps": 27,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "knight-applies-leash-down",
+                "session": "synthetic/v14/knight-applies-leash-down",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/knight-applies-leash-down.session.json",
+                "recordingPath": "challenges/cases/v14/knight-applies-leash-down.session.json",
+                "recordingSha256": "b3961cd1521b10a9075a045f3dd65e03b98e0af8e3c467271cf7fd40f3bb6543",
+                "recipe": "challenges/cases/v14/knight-applies-leash-down.recipe.session.json",
+                "recipeSha256": "74b427c49b1ef2147b6d7f8d5e9a3ef1fa453fd07cc74f29e27f7cc6884ea347",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 27,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 26,
+                    "total": 27
+                  },
+                  "rng": {
+                    "matched": 2771,
+                    "total": 2784
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 27
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires special starting-pet state",
+                  "step": 26
+                },
+                "step": 26,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires special starting-pet state",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved JavaScript trace reaches the final screen after the Knight successfully leashes the ridden pony, then stops at the monster-turn boundary. apply.c:use_leash() already implements the mounted-down case and sets the pony m_leashed. C sends the steed through dogmove.c:dog_move(), where dog_goal() returns -2 immediately for u.usteed. Frozen JavaScript has matching dog_move() and dog_goal() branches, but unported_monster_actions.js:assertSimpleActionState() rejects every leashed starting pet before dog_move(), including the currently ridden steed. The actionable source-traced defect is this overbroad preflight refusal; the remaining screen and turn RNG are skipped because of it.",
+              "source": {
+                "file": "dogmove.c",
+                "functions": [
+                  "dog_move",
+                  "dog_goal"
+                ],
+                "branch": "After a downward apply-leash action on a mounted, moving Knight, the saddled pony is the hero's u.usteed and has m_leashed set. On its normal post-command monster turn, dog_move() performs its ordinary hunger and inventory checks; absent starvation or conflict, dog_goal() sees mtmp == u.usteed and returns -2, so the steed does not move. The JavaScript preflight must admit this mounted-steed state while retaining refusals for other unsupported leashed pets.",
+                "callers": [
+                  "C setup path: cmd.c maps the a/apply command to apply.c:doapply(); its LEASH arm calls use_leash() (apply.c:4297-4299). When the target is u_at() and u.usteed exists with u.dz > 0, use_leash() calls use_leash_core() on u.usteed and returns ECMD_TIME (apply.c:796-801); use_leash_core() sets mtmp->mleashed and obj->leashmon (apply.c:854-859). The frozen JS apply.js doapply()/use_leash() path already performs this state change.",
+                  "C monster turn: monmove.c:m_move() sends a tame, non-worm monster to dogmove.c:dog_move() (monmove.c:1771-1774); dog_move() calls dog_goal() after its steed, hunger and inventory setup (dogmove.c:1011-1044). The corresponding JS path is allmain.js turn preflight -> unported_monster_actions.js:assertSimpleActionState(), then monmove.js:movePet() -> dogmove.js:dog_move() -> dog_goal(). The guard currently stops execution before the source-supported steed branch.",
+                  "dogmove.c:dog_move() is called by monmove.c:m_move(); dogmove.c:dog_goal() is called only through dog_move() for this runtime path. Frozen JS dogmove.js exports both functions and mirrors the mounted-steed return path."
+                ],
+                "dependencies": [
+                  "apply.c:use_leash() and use_leash_core() establish the leashed-steed state that exposes the turn path; the frozen JS implementations match their mounted-down C branch, so they are setup rather than the remaining stop owner.",
+                  "dogmove.c:dog_hunger() and dog_invent() run before dog_goal() in dog_move(); both are already present in frozen js/dogmove.js. For the recorded fresh pony state they pass through to dog_goal().",
+                  "dogmove.c:dog_goal() checks mtmp == u.usteed before goal calculation and returns -2 without a goal draw (lines 494-496); frozen js/dogmove.js has the same check (line 892). This early return makes the selected leashed-steed state source-supported without opening ordinary leashed-pet movement."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved diagnostic .cache/synthetic-scans/v14/knight-applies-leash-down.json reports 26 emitted screens of 27 and stops on key > with “simple monster action requires special starting-pet state”; the last displayed message is “You slip the leash around your saddled pony.” The saved evaluation challenges/evaluations/20260929225551-v14.json reports 26/27 screens and 2771/2784 RNG calls. The manifest labels the preceding source action apply.c:use_leash mounted-steed downward arm; source tracing below identifies the later turn gate that actually stops replay.",
+                "C state setup: nethack-c/upstream/src/apply.c:769-817 implements use_leash(); at lines 796-801 the mounted-down branch applies the leash to u.usteed and spends a turn. apply.c:821-876 use_leash_core() sets mtmp->mleashed and obj->leashmon for a tame leashable monster (lines 833-860).",
+                "C turn path: nethack-c/upstream/src/monmove.c:1771-1774 dispatches tame monsters to dog_move(). dogmove.c:1011-1044 runs hunger/inventory handling, calls dog_goal(), then returns MMOVE_NOTHING when dog_goal() answers -2. dogmove.c:494-496 documents and implements that answer for mtmp == u.usteed.",
+                "Frozen JavaScript cause and counter-evidence: js/unported_monster_actions.js:297-305 admits starting-pet species but throws for monster.mleashed at lines 300-301; the same assertSimpleActionState() gates runSimpleMonsterAction() at line 1577 and the preflight action path. Yet js/dogmove.js:1314-1368 already handles the usteed setup and dog_goal() early return at lines 882-893. js/allmain.js:1219-1224 invokes preflightSimpleMonsterActions() before the live monster pass. Thus the unsupported-state check masks an implemented C-matching early return; the owner is the JavaScript guard, with dogmove.c:dog_move()/dog_goal() defining the safe exception."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
