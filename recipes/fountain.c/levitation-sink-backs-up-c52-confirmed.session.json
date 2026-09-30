@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70814263,
+      "datetime": "20480704161342",
+      "nethackrc": "OPTIONS=name:LevSinkDip,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017sink\n\u0017uncursed potion of levitation\n#dip\nfy   ",
+      "comment": "C-driven correction to the preserved frozen setup miss levitation-sink-backs-up-c52: C assigned the wished levitation potion to slot f, so this route selects f and includes three message continuations. Target is fountain.c:dipsink -> sink_backs_up ring discovery; frozen before the corrected C recording or JS comparison."
+    }
+  ]
+}

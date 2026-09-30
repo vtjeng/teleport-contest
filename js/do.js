@@ -14,6 +14,9 @@ import {
     ACH_MINE,
     ACH_SOKO,
     A_DEX,
+    ALTAR,
+    AM_NONE,
+    Align2amask,
     BOTH_SIDES,
     BLINDED,
     COLNO,
@@ -32,10 +35,13 @@ import {
     ER_DESTROYED,
     ESCAPED,
     FACE,
+    F_LOOTED,
+    FOUNTAIN,
     FUMBLING,
     GETOBJ_ALLOWCNT,
     GETOBJ_PROMPT,
     G_GENOD,
+    GRAVE,
     HAND,
     HALF_PHDAM,
     IS_ALTAR,
@@ -72,6 +78,8 @@ import {
     STOMACH,
     STAIRS,
     TIMEOUT,
+    THRONE,
+    T_LOOTED,
     TT_BURIEDBALL,
     TELEDS_NO_FLAGS,
     TT_PIT,
@@ -134,6 +142,7 @@ import {
 import { setwornEnv } from './do_wear.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
 import { can_reach_floor, engr_at } from './engrave.js';
+import { make_grave } from './grave.js';
 import { fruitname, makeplural } from './fruit.js';
 import {
     Can_fall_thru,
@@ -333,7 +342,10 @@ import {
 import { welded } from './wield.js';
 import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { resurrect } from './wizard.js';
-import { assign_graphics } from './symbols.js';
+import {
+    assign_graphics, S_altar, S_fountain, S_grave, S_room, S_sink, S_throne,
+} from './symbols.js';
+import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { done } from './end.js';
 import { tutorial } from './nhlua.js';
 
@@ -1034,6 +1046,62 @@ function heroHallucinating(state) {
         && !(resistance?.intrinsic || resistance?.extrinsic);
 }
 
+// C ref: do.c polymorph_sink() (404-456). Keep the saved sink loot bit
+// separate from the cleared feature flags: fountain and throne preserve it,
+// while the altar mask replaces those flags and the grave branch consumes
+// make_grave()'s random-text continuation before its message and redraw.
+export async function polymorph_sink(state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message ?? ttyPline;
+    const { ux: x, uy: y } = state.u;
+    const location = state.level.at(x, y);
+    if (location.typ !== SINK) return;
+
+    const sinklooted = location.flags !== 0;
+    location.flags = 0;
+    let symbol = S_sink;
+
+    switch (random.rn2(4)) {
+    case 0:
+        symbol = S_fountain;
+        set_levltyp(x, y, FOUNTAIN, { ...rawEnv, state });
+        location.horizontal = 0; // rm.blessedftn
+        if (sinklooted) location.flags |= F_LOOTED;
+        break;
+    case 1:
+        symbol = S_throne;
+        set_levltyp(x, y, THRONE, { ...rawEnv, state });
+        if (sinklooted) location.flags = T_LOOTED;
+        break;
+    case 2: {
+        symbol = S_altar;
+        set_levltyp(x, y, ALTAR, { ...rawEnv, state });
+        const alignment = random.rn2(3) - 1;
+        // GameMap retains `altarmask` for existing pray.c readers which
+        // access it directly; do not also store this mask in `flags`.
+        location.altarmask = In_hell(state.u.uz, state) && random.rn2(3)
+            ? AM_NONE : Align2amask(alignment);
+        break;
+    }
+    case 3:
+        symbol = S_room;
+        set_levltyp(x, y, ROOM, { ...rawEnv, state });
+        make_grave(x, y, null, { ...rawEnv, random, state });
+        if (location.typ === GRAVE) symbol = S_grave;
+        break;
+    }
+
+    if (location.typ !== ROOM) {
+        await message(
+            `The sink transforms into ${an(CMAP_EXPLANATIONS[symbol])}!`,
+            state,
+        );
+    } else {
+        await message('The sink vanishes.', state);
+    }
+    newsym(x, y);
+}
+
 // C ref: do.c dosinkring() (497-661). The object remains marked in_use through
 // its sink effects so inventory removal cannot identify it early. Calls to
 // Soundeffect() are intentionally omitted: the patched recorder uses the
@@ -1143,9 +1211,7 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
         ideed = false;
         break;
     case RIN_POLYMORPH:
-        // do.c polymorph_sink() returns void; its unported side effects cannot
-        // influence this caller's result, so record the gap and skip the call.
-        note_unported('do.c polymorph_sink');
+        await polymorph_sink(state, rawEnv);
         nosink = true;
         ideed = state.level.at(state.u.ux, state.u.uy).typ !== ROOM;
         break;

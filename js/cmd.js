@@ -2964,7 +2964,7 @@ export function failClosedCommandRefusals() {
         // and dryup() raise this for the fountain-effect arms this port
         // leaves unported.
         UnsupportedFountainError,
-        // potion.c dodip() raises this for the sink, pool, and
+        // potion.c dodip() still raises this for the pool and
         // potion-into-potion dipping paths this port leaves unported.
         UnsupportedDipError,
         // Two paths raise this. invent.c hold_another_object(), which

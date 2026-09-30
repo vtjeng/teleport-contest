@@ -2739,9 +2739,8 @@ export async function healup(nhp, nxtra, curesick, cureblind, state = game) {
 // Asks which object to dip, then checks terrain (fountain, sink, pool)
 // or asks which potion to dip into.
 //
-// Fail-closed arms: sink (dipsink), pool (water_damage/wash_hands),
-// and potion-into-potion (potion_dip). The witness session exercises
-// only the fountain path.
+// Fail-closed arms: pool (water_damage/wash_hands) and potion-into-potion
+// (potion_dip). Sink dipping is wired through fountain.c:dipsink().
 export async function dodip(state = game) {
     const message = ttyPline;
     const hero = state.u;
@@ -2784,7 +2783,8 @@ export async function dodip(state = game) {
             .length;
     let obuf;
     if (is_hands) {
-        obuf = `your ${makeplural(body_part(HAND, state))}`;
+        // C body_part(HAND) reads youmonst; pass the monster explicitly.
+        obuf = `your ${makeplural(body_part(HAND, state.youmonst))}`;
     } else {
         // C ref: potion.c:2301-2305. short_oname() tries doname first;
         // if the result is too long, strips bknown/rknown/erosion and
@@ -2811,7 +2811,16 @@ export async function dodip(state = game) {
             // Hero declined; drink_ok_extra would be incremented in C
             // but dodrink keeps its own local copy, so this has no effect.
         } else if (at_sink) {
-            throw new UnsupportedDipError('the sink dipping path (dipsink)');
+            const { y_n } = await import('./cmd.js');
+            const verbose = state.flags?.verbose !== false;
+            const prompt = `Dip ${verbose ? obuf : shortestname}`
+                + ' into the sink?';
+            if (await y_n(prompt, state) === 'y'.charCodeAt(0)) {
+                if (!is_hands) obj.pickup_prev = 0;
+                const { dipsink } = await import('./fountain.js');
+                await dipsink(obj, state);
+                return ECMD_TIME;
+            }
         } else if (at_pool) {
             throw new UnsupportedDipError('the pool dipping path');
         }
