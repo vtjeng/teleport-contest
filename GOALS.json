@@ -119162,7 +119162,7 @@
     {
       "id": "port-worm-cut-segment-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port worm segment cutting, shrinkage, and splitting",
       "cFile": "worm.c",
       "sessions": [
@@ -119176,8 +119176,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cutworm",
@@ -119469,6 +119472,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

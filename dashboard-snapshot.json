@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-29T23:03:30.493Z",
+  "capturedAt": "2026-09-30T01:45:04.023Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -10264,12 +10264,366 @@
         "at": "2026-09-29T23:03:17.997Z",
         "task": "A52",
         "delivery": "3afef69d89b0ee18e264337d4342b02390c52e9f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-received-3afef69d",
+        "type": "received",
+        "at": "2026-09-29T23:04:30.842Z",
+        "task": "A52",
+        "delivery": "3afef69d89b0ee18e264337d4342b02390c52e9f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-integrating-40ef503e",
+        "type": "integrating",
+        "at": "2026-09-29T23:07:44.478Z",
+        "task": "A52",
+        "integration": "40ef503e81adb819b3485c878f9a21b1cd17e3f9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-feedback-newcham-order",
+        "type": "feedback",
+        "at": "2026-09-29T23:09:22.921Z",
+        "task": "A52",
+        "delivery": "3afef69d89b0ee18e264337d4342b02390c52e9f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A52-newcham-order-and-hit-fixtures-20260929",
+        "type": "resume",
+        "at": "2026-09-29T23:10:45.012Z",
+        "task": "A52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-de22a56f0fcbff3f06b9e6ae225cdc360c30231b",
+        "type": "ready",
+        "at": "2026-09-29T23:12:42.555Z",
+        "task": "C50",
+        "delivery": "de22a56f0fcbff3f06b9e6ae225cdc360c30231b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C50-received-de22a56f",
+        "type": "received",
+        "at": "2026-09-29T23:14:07.773Z",
+        "task": "C50",
+        "delivery": "de22a56f0fcbff3f06b9e6ae225cdc360c30231b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C51-assign-20260929",
+        "type": "assign",
+        "at": "2026-09-29T23:15:26.700Z",
+        "task": "C51",
+        "worker": "C",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1567cefa2644e46315bb33c88e19c78b1c0e02f1",
+        "type": "ready",
+        "at": "2026-09-29T23:32:27.900Z",
+        "task": "A52",
+        "delivery": "1567cefa2644e46315bb33c88e19c78b1c0e02f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-received-1567cefa",
+        "type": "received",
+        "at": "2026-09-29T23:35:39.999Z",
+        "task": "A52",
+        "delivery": "1567cefa2644e46315bb33c88e19c78b1c0e02f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-integrating-37090b61",
+        "type": "integrating",
+        "at": "2026-09-29T23:37:40.836Z",
+        "task": "A52",
+        "integration": "37090b61fcea76066ca9d9d76b2fc498f5712700"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-84a28baca74db4cfdad022f2bdeb9d304fd9705c",
+        "type": "ready",
+        "at": "2026-09-29T23:37:55.615Z",
+        "task": "B61",
+        "delivery": "84a28baca74db4cfdad022f2bdeb9d304fd9705c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B61-received-84a28bac",
+        "type": "received",
+        "at": "2026-09-29T23:38:39.253Z",
+        "task": "B61",
+        "delivery": "84a28baca74db4cfdad022f2bdeb9d304fd9705c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B61-feedback-evidence-84a28bac",
+        "type": "feedback",
+        "at": "2026-09-29T23:40:34.704Z",
+        "task": "B61",
+        "delivery": "84a28baca74db4cfdad022f2bdeb9d304fd9705c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A53-mounted-steed-leash-v14-20260929",
+        "type": "assign",
+        "at": "2026-09-29T23:41:46.639Z",
+        "task": "A53",
+        "worker": "A2",
+        "goal": "div-mounted-steed-leash-turn-v14-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B61-evidence-correction-20260929",
+        "type": "resume",
+        "at": "2026-09-29T23:43:41.470Z",
+        "task": "B61"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-validated-37090b61",
+        "type": "validated",
+        "at": "2026-09-29T23:48:18.650Z",
+        "task": "A52",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2cab0e6e7d705e4d1a33981c847e07bd8c01fbd4",
+        "type": "ready",
+        "at": "2026-09-29T23:50:15.602Z",
+        "task": "B61",
+        "delivery": "2cab0e6e7d705e4d1a33981c847e07bd8c01fbd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B61-received-2cab0e6e",
+        "type": "received",
+        "at": "2026-09-29T23:50:54.239Z",
+        "task": "B61",
+        "delivery": "2cab0e6e7d705e4d1a33981c847e07bd8c01fbd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fbf58b410abe06b59cc54355963f3eb00d3d1e82",
+        "type": "ready",
+        "at": "2026-09-29T23:52:04.363Z",
+        "task": "A53",
+        "delivery": "fbf58b410abe06b59cc54355963f3eb00d3d1e82"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A53-received-fbf58b41",
+        "type": "received",
+        "at": "2026-09-29T23:52:48.215Z",
+        "task": "A53",
+        "delivery": "fbf58b410abe06b59cc54355963f3eb00d3d1e82"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B62-climb-pit-20260929",
+        "type": "assign",
+        "at": "2026-09-30T00:01:20.443Z",
+        "task": "B62",
+        "worker": "B",
+        "goal": "port-climb-pit-synthetic-v14-20260929",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-park-for-confirmed-review",
+        "type": "park",
+        "at": "2026-09-30T00:08:15.318Z",
+        "task": "A52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-reopen-review-correction",
+        "type": "resume",
+        "at": "2026-09-30T00:08:18.545Z",
+        "task": "A52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-feedback-adjudicated-37090b61",
+        "type": "feedback",
+        "at": "2026-09-30T00:08:21.705Z",
+        "task": "A52",
+        "delivery": "1567cefa2644e46315bb33c88e19c78b1c0e02f1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A52-resume-formal-correction-20260929",
+        "type": "resume",
+        "at": "2026-09-30T00:11:57.249Z",
+        "task": "A52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1a2085e27342a980eac2cc3eb0584101618a6677",
+        "type": "ready",
+        "at": "2026-09-30T00:16:27.202Z",
+        "task": "B62",
+        "delivery": "1a2085e27342a980eac2cc3eb0584101618a6677"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B62-received-1a2085e2",
+        "type": "received",
+        "at": "2026-09-30T00:17:14.634Z",
+        "task": "B62",
+        "delivery": "1a2085e27342a980eac2cc3eb0584101618a6677"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B62-feedback-locomotion-case-1a2085e2",
+        "type": "feedback",
+        "at": "2026-09-30T00:17:47.760Z",
+        "task": "B62",
+        "delivery": "1a2085e27342a980eac2cc3eb0584101618a6677"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B62-locomotion-20260929",
+        "type": "resume",
+        "at": "2026-09-30T00:18:26.549Z",
+        "task": "B62"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-f37c78e219884f0a7a0d996fb10955162e996093",
+        "type": "ready",
+        "at": "2026-09-30T00:28:08.591Z",
+        "task": "B62",
+        "delivery": "f37c78e219884f0a7a0d996fb10955162e996093"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B62-received-f37c78e2",
+        "type": "received",
+        "at": "2026-09-30T00:28:32.710Z",
+        "task": "B62",
+        "delivery": "f37c78e219884f0a7a0d996fb10955162e996093"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B63-dig-up-grave-v14-20260930",
+        "type": "assign",
+        "at": "2026-09-30T00:35:52.837Z",
+        "task": "B63",
+        "worker": "B",
+        "goal": "port-dig-up-grave-synthetic-v14-20260930",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-79dc76862dd810e513a65ce2064c8201596b9874",
+        "type": "ready",
+        "at": "2026-09-30T00:51:31.634Z",
+        "task": "A52",
+        "delivery": "79dc76862dd810e513a65ce2064c8201596b9874"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-received-79dc7686",
+        "type": "received",
+        "at": "2026-09-30T00:52:23.463Z",
+        "task": "A52",
+        "delivery": "79dc76862dd810e513a65ce2064c8201596b9874"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-integrating-0728c58d",
+        "type": "integrating",
+        "at": "2026-09-30T00:53:37.017Z",
+        "task": "A52",
+        "integration": "0728c58d9d72f083058ba401d3eb67c0d1bc0c04"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-a2-a54-20260930",
+        "type": "assign",
+        "at": "2026-09-30T01:03:05.491Z",
+        "task": "A54",
+        "worker": "A2",
+        "goal": "div-moveloop-teleportation-ring-v14-20260930",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-integrating-bdd594d8",
+        "type": "integrating",
+        "at": "2026-09-30T01:31:42.029Z",
+        "task": "A52",
+        "integration": "bdd594d88c4001a3d70c51b086bcf718ace62d36"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-36cc2c080d05dfe999dbd147715ca8803a7c715c",
+        "type": "ready",
+        "at": "2026-09-30T01:35:57.934Z",
+        "task": "A54",
+        "delivery": "36cc2c080d05dfe999dbd147715ca8803a7c715c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B63-park-approval-20260930",
+        "type": "park",
+        "at": "2026-09-30T01:36:30.882Z",
+        "task": "B63"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C51-park-approval-20260930",
+        "type": "park",
+        "at": "2026-09-30T01:36:31.313Z",
+        "task": "C51"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A54-received-36cc2c08",
+        "type": "received",
+        "at": "2026-09-30T01:37:14.795Z",
+        "task": "A54",
+        "delivery": "36cc2c080d05dfe999dbd147715ca8803a7c715c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-validated-bdd594d8",
+        "type": "validated",
+        "at": "2026-09-30T01:40:30.555Z",
+        "task": "A52",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A55-timeout-choke-dialogue-20260930",
+        "type": "assign",
+        "at": "2026-09-30T01:43:41.155Z",
+        "task": "A55",
+        "worker": "A2",
+        "goal": "port-timeout-choke-dialogue-v14-20260930",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A52-accepted-bdd594d8",
+        "type": "accepted",
+        "at": "2026-09-30T01:44:50.341Z",
+        "task": "A52"
       }
     ]
   },
   "development": {
-    "executionCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
-    "measuredAt": "2026-09-29T23:03:05.442Z",
+    "executionCommit": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+    "measuredAt": "2026-09-30T01:40:12.172Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
