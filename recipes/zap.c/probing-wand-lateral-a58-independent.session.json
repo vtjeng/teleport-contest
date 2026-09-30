@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A58 zap.c:dozap immediate lateral arm -> zap.c:bhit -> zap.c:zap_map(WAN_PROBING) -> detect.c:show_map_spot entry. Seed 58092902 and the 2041 clock are independent; a debug Wizard wishes a probing wand, selects its inventory slot, and aims east with l to exercise the active lateral bhit caller.",
+  "segments": [
+    {
+      "seed": 58092902,
+      "datetime": "20410929101630",
+      "nethackrc": "OPTIONS=name:A58ProbeRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017wand of probing\nzol"
+    }
+  ]
+}

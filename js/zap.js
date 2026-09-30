@@ -73,6 +73,7 @@ import {
     HALLUC_RES,
     HEAD,
     HEADSTONE,
+    IS_FURNITURE,
     HWALL,
     ICE,
     INTRINSIC,
@@ -183,6 +184,7 @@ import {
     ROWNO,
     SDOOR,
     SCORR,
+    VIBRATING_SQUARE,
     SHOCK_RES,
     POISON_RES,
     SHOPBASE,
@@ -285,12 +287,14 @@ import {
 } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
 import { eaten_stat, fix_petrification, vegetarian } from './eat.js';
-import { cvt_sdoor_to_door, findit } from './detect.js';
+import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
 import {
     adj_pit_checks, dighole, fillholetyp, is_moat, watch_dig,
 } from './dig.js';
 import { dropx, dropy } from './do.js';
-import { ceiling, surface } from './dungeon.js';
+import {
+    ceiling, Invocation_lev, surface, surface_typ, update_mapseen_for,
+} from './dungeon.js';
 import { done } from './end.js';
 import { losexp, more_experienced, newexplevel } from './exper.js';
 import { getlin } from './windows.js';
@@ -306,6 +310,7 @@ import {
 } from './hacklib.js';
 import {
     getobj,
+    display_binventory,
     display_minventory,
     set_cknown_lknown,
     hands_obj,
@@ -614,13 +619,14 @@ import {
     simpleonames,
     isPoisonable,
     suit_simple_name,
+    the,
     the_unique_pm,
     vtense,
     yname,
     xnameFresh,
 } from './objnam.js';
 import { readobjnam } from './objnam_readobjnam.js';
-import { encumber_msg } from './pickup.js';
+import { encumber_msg, force_decor } from './pickup.js';
 import { cant_revive, litroom } from './read.js';
 import { is_quest_artifact } from './questpgr.js';
 import { mstatusline, ustatusline } from './insight.js';
@@ -631,7 +637,9 @@ import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import {
     healup, make_blinded, incr_itimeout, speed_up, self_invis_message,
 } from './potion.js';
-import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import {
+    d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz,
+} from './rng.js';
 import {
     killed,
     shieldeff_mon,
@@ -691,7 +699,7 @@ import {
     openfallingtrap,
     animate_statue,
     activate_statue_trap,
-    reset_utrap, set_utrap, t_at,
+    reset_utrap, set_utrap, t_at, trapname,
 } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import { flash_hits_mon, m_is_steadfast, shade_miss } from './uhitm.js';
@@ -4198,12 +4206,84 @@ export async function bhitpile(wand, tx, ty, state = game,
     return hitanything;
 }
 
-// C ref: zap.c zap_map() (3625-3825).  A downward polymorph changes a
-// non-headstone engraving before the ray reaches the square's objects. The
-// lateral arm is intentionally empty; all other terrain effects remain at
-// their source boundaries until their own zap spans are ported.
-export function zap_map(x, y, wand, state = game, random = { rn2 },
-    rawEnv = {}) {
+// C ref: zap.c zap_map() (3625-3825). The WAN_PROBING arm maps terrain and
+// traps before it teaches the wand; the downward polymorph arm handles its
+// engraving. Other zap_map branches remain at their source boundaries.
+export async function zap_map(
+    x, y, wand, state = game,
+    random = { rn2, rn2_on_display_rng }, rawEnv = {},
+) {
+    if (wand?.otyp === WAN_PROBING) {
+        const trap = t_at(x, y, state);
+        let learnIt = false;
+
+        // C's ttmp snapshot and old map values precede show_map_spot().
+        const oldType = state.level.lastseentyp?.[x]?.[y];
+        const oldGlyph = glyph_at(x, y, state);
+        show_map_spot(x, y, false, state, random);
+        if (oldType !== state.level.lastseentyp?.[x]?.[y]
+            || oldGlyph !== glyph_at(x, y, state)) {
+            learnIt = true;
+        }
+
+        const location = state.level.at(x, y);
+        const type = location.typ;
+        if (type === SDOOR) {
+            cvt_sdoor_to_door(location, state);
+            recalc_block_point(x, y, state);
+            newsym(x, y);
+            if (cansee(x, y, state)) {
+                await ttyPline('Probing reveals a secret door.', state, rawEnv);
+                learnIt = true;
+            } else if (Is_rogue_level(state.u.uz)) {
+                // zap.c discards draft_message(FALSE)'s result. Its floor
+                // draft output is outside this caller arm's implemented set.
+                note_unported('dig.c draft_message');
+            }
+        } else if (type === SCORR) {
+            location.typ = CORR;
+            unblock_point(x, y, state);
+            newsym(x, y);
+            await ttyPline('Probing exposes a secret corridor.', state, rawEnv);
+            learnIt = true;
+        } else if (type === ICE || IS_FURNITURE(type)) {
+            if (state.u.dz > 0) {
+                await force_decor(true, state, { ...rawEnv, random });
+                learnIt = true;
+            }
+        }
+
+        if (trap) {
+            const alreadySeen = trap.tseen;
+            const hallucinatory = Hallucination(state);
+            trap.tseen = 1;
+            newsym(x, y);
+            if (!alreadySeen || hallucinatory) {
+                const displayRandom = {
+                    ...random,
+                    rn2_on_display_rng: random.rn2_on_display_rng
+                        ?? ((bound) => rn2_on_display_rng(bound, state)),
+                };
+                const name = trapname(
+                    trap.ttyp, false, state, displayRandom,
+                );
+                const useThe = !hallucinatory
+                    ? trap.ttyp === VIBRATING_SQUARE
+                        && Invocation_lev(state.u.uz, state)
+                    : random.rn2(4) === 0;
+                const articleName = useThe ? the(name, state) : an(name);
+                await ttyPline(
+                    `You find ${articleName}${useThe ? '!' : '.'}`,
+                    state,
+                    rawEnv,
+                );
+                learnIt = !hallucinatory;
+            }
+        }
+        if (learnIt) learnwand(wand, state);
+        return undefined;
+    }
+
     if (wand?.otyp !== WAN_POLYMORPH && wand?.otyp !== SPE_POLYMORPH)
         return undefined;
     if ((state.u?.dz ?? 0) <= 0) return undefined;
@@ -4346,7 +4426,7 @@ export async function bhit(
         }
 
         if (zapped) {
-            zap_map(x, y, obj, state, random, rawEnv);
+            await zap_map(x, y, obj, state, random, rawEnv);
             typ = state.level.at(x, y).typ;
         }
 
@@ -6457,17 +6537,55 @@ export async function zap_steed(obj, state = game, random = { rn2, rnd }, rawEnv
     }
 }
 
-// C ref: zap.c zap_updown() (3219-3410).  Its polymorph path has no special
-// terrain arm: the floor pile is processed on a downward zap, while an upward
-// zap only reaches the hiding-under-object callback.
+// C ref: zap.c zap_updown() (3219-3410). Its WAN_PROBING arm counts
+// floor and buried objects after zap_map() has refreshed ice/furniture display;
+// the polymorph arm continues through the shared downward pile handling.
 export async function zap_updown(obj, state = game,
     random = { rn2, rnd }, rawEnv = {}) {
     const x = state.u.ux;
     const y = state.u.uy;
     let disclose = false;
+
+    if (obj?.otyp === WAN_PROBING) {
+        let ptmp = 0;
+        if (state.u.dz < 0) {
+            await ttyPline(
+                `You probe towards the ${ceiling(x, y, state)}.`,
+                state,
+                rawEnv,
+            );
+        } else if (state.u.dz > 0) {
+            const rememberedltyp = update_mapseen_for(x, y, state);
+            ptmp += await bhitpile(
+                obj, x, y, state, random, rawEnv, state.u.dz,
+            );
+            // C captures SURFACE_AT after bhitpile but before zap_map, because
+            // force_decor() may turn ice into water or reveal furniture.
+            const ltyp = surface_typ(state.level.at(x, y));
+            await zap_map(x, y, obj, state, random, rawEnv);
+            let surf;
+            if (ltyp === ICE || IS_FURNITURE(ltyp)) {
+                surf = 'it';
+                if (state.level.lastseentyp?.[x]?.[y] !== rememberedltyp)
+                    ++ptmp;
+            } else {
+                surf = the(surface(x, y, state), state);
+            }
+            await ttyPline(`You probe beneath ${surf}.`, state, rawEnv);
+            ptmp += await display_binventory(x, y, true, state, {
+                ...rawEnv,
+                displayRandom: random.rn2_on_display_rng
+                    ?? ((bound) => rn2_on_display_rng(bound, state)),
+            });
+        }
+        if (!ptmp)
+            await ttyPline('Your probe reveals nothing.', state, rawEnv);
+        return true;
+    }
+
     if (state.u.dz > 0) {
         await bhitpile(obj, x, y, state, random, rawEnv, state.u.dz);
-        zap_map(x, y, obj, state, random, rawEnv);
+        await zap_map(x, y, obj, state, random, rawEnv);
     } else if (state.u.dz < 0 && state.u.uundetected
                && hides_under(state.youmonst?.data)) {
         const top = state.level?.objects?.[x]?.[y];

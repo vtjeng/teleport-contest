@@ -172,7 +172,7 @@ test('bhit() admits an immediate wand and refuses an unsupported call type', asy
     );
 });
 
-test('zap_map changes only a downward non-headstone engraving', () => {
+test('zap_map changes only a downward non-headstone engraving', async () => {
     const state = corridor();
     state.u.dz = 1;
     state.head_engr = {
@@ -184,7 +184,7 @@ test('zap_map changes only a downward non-headstone engraving', () => {
     };
     const wand = missile(state, WAN_POLYMORPH);
     const random = { rn2: () => 0, rnd: () => 1 };
-    zap_map(2, 4, wand, state, random, {
+    await zap_map(2, 4, wand, state, random, {
         getRandomText: () => 'new mark',
         wipeoutText: (text) => text,
     });
@@ -194,7 +194,7 @@ test('zap_map changes only a downward non-headstone engraving', () => {
 
     state.head_engr.engr_txt = ['headstone', 'headstone', 'headstone'];
     state.head_engr.engr_type = HEADSTONE;
-    zap_map(2, 4, wand, state, random, {
+    await zap_map(2, 4, wand, state, random, {
         getRandomText: () => 'must not be selected',
         wipeoutText: (text) => text,
     });
@@ -203,7 +203,7 @@ test('zap_map changes only a downward non-headstone engraving', () => {
     ]);
 
     state.u.dz = 0;
-    zap_map(2, 4, wand, state, random, {
+    await zap_map(2, 4, wand, state, random, {
         getRandomText: () => 'must not be selected',
         wipeoutText: (text) => text,
     });

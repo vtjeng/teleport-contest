@@ -110,6 +110,7 @@ import {
     SPE_BOOK_OF_THE_DEAD,
     SPE_BLANK_PAPER,
     SPE_IDENTIFY,
+    SPE_MAGIC_MAPPING,
     BELL_OF_OPENING,
     CANDELABRUM_OF_INVOCATION,
     SPE_INVISIBILITY,
@@ -1426,17 +1427,23 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
         update_inventory({ state });
         break;
 
-    // spell.c routes scroll-duplicate spells through read.c:seffects() after
-    // granting the blessed-scroll equivalent at Skilled or Expert skill.
+    // spell.c routes this group through read.c:seffects() after granting the
+    // blessed-scroll equivalent at Skilled or Expert skill.
     case SPE_REMOVE_CURSE:
     case SPE_CAUSE_FEAR:
     case SPE_CHARM_MONSTER:
     case SPE_CONFUSE_MONSTER:
     case SPE_DETECT_FOOD:
     case SPE_IDENTIFY:
-    case SPE_CREATE_MONSTER:
         if (role_skill >= P_SKILLED)
             pseudo.blessed = 1;
+        await seffects(pseudo, state, env);
+        break;
+
+    // C places magic mapping and create monster after the blessed-group
+    // fallthrough, so neither pseudo spellbook receives that blessing.
+    case SPE_MAGIC_MAPPING:
+    case SPE_CREATE_MONSTER:
         await seffects(pseudo, state, env);
         break;
 

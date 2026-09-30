@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A58 zap.c:dozap -> zap_updown(WAN_PROBING) -> bhitpile -> zap_map -> invent.c:display_binventory witness. After one ordinary turn creates the level, a debug Wizard wishes a probing wand and a potion, drops the potion at the hero square, then opens the zap inventory list and selects the wished wand at o (its randomized appearance is a glass wand) before using > to probe down. The distinct seed/date from the spell and lateral cases keep this a separate runtime entry recipe. The trailing space dismisses force_decor()’s furniture report so the source-ordered probe message and display_binventory call complete.",
+  "segments": [
+    {
+      "seed": 58092903,
+      "datetime": "20410929101730",
+      "nethackrc": "OPTIONS=name:A58ProbeDown,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".\u0017wand of probing\n\u0017potion of sickness\ndpz*o> "
+    }
+  ]
+}

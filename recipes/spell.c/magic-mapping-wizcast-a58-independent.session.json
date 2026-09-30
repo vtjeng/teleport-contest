@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A58 spell.c:spelleffects(SPE_MAGIC_MAPPING) -> read.c:seffects -> read.c:seffect_magic_mapping entry. Seed 58092901 and the 2041 clock are new values chosen for this spell route. The debug Wizard opens #wizcast, pages from the source menu’s first a-u range, then selects magic mapping as its tenth second-page entry (j; SPE_MAGIC_MAPPING follows SPE_REMOVE_CURSE in the C object order).",
+  "segments": [
+    {
+      "seed": 58092901,
+      "datetime": "20410929101530",
+      "nethackrc": "OPTIONS=name:A58MapSpell,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #wizcast\n>j"
+    }
+  ]
+}
