@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-informed corrected selection, frozen after the first input-only recipe was recorded but before any JavaScript comparison. C assigned the first and second wished scrolls to n and o; this unchanged seed/time/setup now reads those observed inventory letters so the remove-curse effect can be tested.",
+  "segments": [
+    {
+      "seed": 73091465,
+      "datetime": "20661128072500",
+      "nethackrc": "OPTIONS=name:V15Unpunish,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed scroll of punishment\n#wizwish\nblessed scroll of remove curse\nrn ro "
+    }
+  ]
+}
