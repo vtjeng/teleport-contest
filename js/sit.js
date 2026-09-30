@@ -408,7 +408,8 @@ async function throne_sit_effect(state, rawEnv = {}) {
                     );
                 } else {
                     await message('An image forms in your mind.', state);
-                    note_unported('detect.c do_mapping');
+                    const { do_mapping } = await import('./detect.js');
+                    await do_mapping(state, { ...rawEnv, random });
                 }
             } else {
                 if (!heroIsBlind(state)) {

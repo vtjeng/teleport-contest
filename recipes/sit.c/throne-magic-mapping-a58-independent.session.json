@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent ordinary throne mapping caller. Newly chosen seed 93058172 and datetime 20260930154500. A cursed luckstone makes total Luck negative via attrib.c:set_moreluck; the C-observed throne message pager is answered with space, then wizard effect 10 selects sit.c:throne_sit_effect -> detect.c:do_mapping. The final space reaches the next ordinary command boundary; it is not a pager reply.",
+  "segments": [
+    {
+      "seed": 93058172,
+      "datetime": "20260930154500",
+      "nethackrc": "OPTIONS=name:A58ThroneMap,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,showexp,time,!autopickup,pettype:none\n",
+      "moves": " \u0017cursed luckstone\n \u0017throne\n#sit\n 10\n "
+    }
+  ]
+}
