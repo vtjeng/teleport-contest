@@ -1602,13 +1602,8 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('a swallowed hero');
     // do.c dropz():836 maps an object specially only for Blind && Levitation.
     // can_reach_floor(TRUE) below already refuses that pair; grounded blindness
-    // reaches the ordinary place_object()/stackobj()/newsym() tail unchanged.
-    // Hallucination still changes newsym()'s display draws and remains outside
-    // this admission.
-    const hallucinating = heroPropertyActive(u, HALLUC)
-        && !heroPropertyActive(u, HALLUC_RES);
-    if (hallucinating)
-        throw new UnsupportedDropError('hallucinated display');
+    // and Hallucination both reach the ordinary place_object()/stackobj()/
+    // newsym() tail. display.c owns Hallucination's glyph draws there.
     if (u.uinwater || on_level(u.uz, state.air_level)
         || on_level(u.uz, state.water_level)) {
         throw new UnsupportedDropError('underwater or special-level display');
