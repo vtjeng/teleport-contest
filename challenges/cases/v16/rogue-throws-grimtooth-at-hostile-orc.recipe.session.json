@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71536842,
+      "datetime": "20591207182500",
+      "nethackrc": "OPTIONS=name:V16Grimtooth,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizgenesis\nhostile orc\n#wizwish\nGrimtooth\n\nt?gk"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 72931584,
+      "datetime": "20580624161000",
+      "nethackrc": "OPTIONS=name:V16PieStack,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\n2 cream pies\n\na?o\ni"
+    }
+  ]
+}

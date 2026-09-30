@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 60284519,
+    "datetime": "20581119084500",
+    "nethackrc": "OPTIONS=name:V16Know,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": " #wizwish\nuncursed potion of enlightenment\nqo",
+    "comment": "Independent Wizard seed and clock wish an uncursed enlightenment potion. C reports self-knowledge after q/o; o is the C-observed wished-item slot despite its unidentified yellow appearance. This reaches potion.c:peffect_enlightenment and do_enlightenment_effect."
+  }]
+}

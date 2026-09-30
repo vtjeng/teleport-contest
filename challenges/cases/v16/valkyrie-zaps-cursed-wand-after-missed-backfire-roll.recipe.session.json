@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68740921,
+      "datetime": "20591207171000",
+      "nethackrc": "OPTIONS=name:V16Backfire,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\ncursed wand of light\n\nz?e"
+    }
+  ]
+}

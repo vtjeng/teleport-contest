@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 76231049,
+      "datetime": "20680430104500",
+      "nethackrc": "OPTIONS=name:V16Genocide,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed scroll of genocide\nro gnome\ngnome\n"
+    }
+  ]
+}

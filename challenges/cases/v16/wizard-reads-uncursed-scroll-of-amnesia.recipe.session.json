@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 23096175,
+      "datetime": "20580304090500",
+      "nethackrc": "OPTIONS=name:V16Amnesia,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed scroll of amnesia\n\nr?o"
+    }
+  ]
+}

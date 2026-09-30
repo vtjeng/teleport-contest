@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68412903,
+      "datetime": "20680915124500",
+      "nethackrc": "OPTIONS=name:V16WaterRecovery,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\nuncursed potion of sickness\n#wizwish\nblessed potion of water\nqoqp \n"
+    }
+  ]
+}

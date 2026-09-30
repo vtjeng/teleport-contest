@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 67029413,
+      "datetime": "20550317110200",
+      "nethackrc": "OPTIONS=name:V16Camera,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizgenesis\nhostile orc\n#wizwish\n+1 expensive camera\nagj"
+    }
+  ]
+}

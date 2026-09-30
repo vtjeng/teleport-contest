@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 96358127,
+      "datetime": "20591207152000",
+      "nethackrc": "OPTIONS=name:V16EnWeapon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\nuncursed scroll of enchant weapon\n\nr?o "
+    }
+  ]
+}

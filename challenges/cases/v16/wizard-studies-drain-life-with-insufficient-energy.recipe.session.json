@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 37481823,
+      "datetime": "20681210115500",
+      "nethackrc": "OPTIONS=name:V16DrainRay,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nspellbook of drain life\n#wizwish\nwand of fire\nroy dplZch"
+    }
+  ]
+}
