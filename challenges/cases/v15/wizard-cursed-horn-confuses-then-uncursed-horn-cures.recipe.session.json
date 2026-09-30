@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for apply.c:use_unicorn_horn's cursed confusion effect followed by the uncursed timed-trouble cure.",
+  "segments": [
+    {
+      "seed": 14083927,
+      "datetime": "20600107122000",
+      "nethackrc": "OPTIONS=name:V15BadHorn,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\ncursed unicorn horn\n#wizwish\nuncursed unicorn horn\nan ao"
+    }
+  ]
+}

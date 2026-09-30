@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for apply.c:use_whip's armed-monster disarm branch. An Archeologist creates an independent hostile soldier, wields the starting bullwhip by applying it, and lashes the soldier once.",
+  "segments": [
+    {
+      "seed": 33820147,
+      "datetime": "20521011090200",
+      "nethackrc": "OPTIONS=name:V15Whip,role:Archeologist,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizgenesis\nhostile soldier\naal"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for dothrow.c:throwit -> breakobj -> potion.c:explode_oil. A Wizard wishes a lit potion of oil and throws it onto the ordinary room floor so the glass breaks and the lit-oil explosion runs.",
+  "segments": [
+    {
+      "seed": 62749031,
+      "datetime": "20601021154600",
+      "nethackrc": "OPTIONS=name:V15OilThrow,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nlit potion of oil\ntnl"
+    }
+  ]
+}

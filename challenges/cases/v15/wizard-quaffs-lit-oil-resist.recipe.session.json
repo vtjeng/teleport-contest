@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for potion.c:peffect_oil's lamplit quaff branch. A Wizard independently wishes and wears a fire-resistance ring, then directly wishes a lit potion of oil and quaffs it without applying the potion first.",
+  "segments": [
+    {
+      "seed": 73041925,
+      "datetime": "20541027081400",
+      "nethackrc": "OPTIONS=name:V15Oil,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nring of fire resistance\nPor#wizwish\nlit potion of oil\nqp "
+    }
+  ]
+}

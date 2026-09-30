@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 corrected-action C-first probe for do_wear.c:dotakeoff/doremring -> Amulet_off. C showed the wished reflection amulet at p; this recipe selects p, then uses R so the sole accessory is removed without choosing the starting cloak.",
+  "segments": [
+    {
+      "seed": 42170863,
+      "datetime": "20590817113200",
+      "nethackrc": "OPTIONS=name:V15AmuletOff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed amulet of reflection\nPpR"
+    }
+  ]
+}

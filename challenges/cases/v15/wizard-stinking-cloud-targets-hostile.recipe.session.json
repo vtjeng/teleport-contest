@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for read.c:seffect_stinking_cloud on a hostile target. Wizard creates a hostile orc and reads an uncursed stinking-cloud scroll; final targeting input will use the C-observed monster coordinate.",
+  "segments": [
+    {
+      "seed": 57832019,
+      "datetime": "20571123113000",
+      "nethackrc": "OPTIONS=name:V15Cloud,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizgenesis\nhostile orc\n#wizwish\nuncursed scroll of stinking cloud\nro    ln."
+    }
+  ]
+}
