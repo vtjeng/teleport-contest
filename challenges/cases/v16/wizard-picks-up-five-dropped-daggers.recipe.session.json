@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 73440925,
+    "datetime": "20591209160500",
+    "nethackrc": "OPTIONS=name:V16Pickup,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": " #wizwish\n4 daggers\n d?b5,",
+    "comment": "Independent Valkyrie seed, clock, and C wish/drop sequence create a five-dagger floor stack and issue count-prefix pickup of five. The recipe reaches pickup.c:pickup with a real stack; C observation shows the stack in inventory after the pickup action. The weight-limit variation planned first was not reached, so this records the ordinary count-limited floor-pickup branch."
+  }]
+}

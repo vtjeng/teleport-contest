@@ -6840,3 +6840,42 @@ test(
             || position > positions[index - 1]));
     },
 );
+
+// The admitted v14 recipe reaches apply.c:doapply's charged bag branch with an
+// independently chosen seed, date, options, and inventory wish. C stores the
+// returned makemon pointer, then uses it for both created-monster and visible
+// monster counts; keeping the inputs in the recipe avoids duplicating them.
+test('makemon.c bagotricks awaits and consumes the returned runtime monster',
+    async () => {
+        const cStart = MAKEMON_C_SOURCE.indexOf('\nbagotricks(');
+        const cEnd = MAKEMON_C_SOURCE.indexOf(
+            '\n/* create some or all remaining erinyes around the player */',
+            cStart,
+        );
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        const cFunction = MAKEMON_C_SOURCE.slice(cStart, cEnd);
+        const cOrder = [
+            'mtmp = makemon((struct permonst *) 0, u.ux, u.uy, NO_MM_FLAGS);',
+            'if (mtmp) {',
+            '++moncount;',
+            'canseemon(mtmp)',
+            'sensemon(mtmp)',
+            '++seecount;',
+        ].map((token) => cFunction.indexOf(token));
+        assert.ok(cOrder.every((position) => position >= 0));
+        assert.ok(cOrder.every((position, index) => index === 0
+            || position > cOrder[index - 1]),
+        'makemon.c consumes the returned monster before it checks visibility');
+
+        const recipe = JSON.parse(readFileSync(
+            'challenges/cases/v14/wizard-applies-charged-bag-of-tricks.recipe.session.json',
+            'utf8',
+        ));
+        let boundary = null;
+        await runSegment(recipe.segments[0], {
+            onBoundary: (error) => { boundary = error; },
+        });
+        assert.equal(boundary, null, boundary?.message);
+        assert.ok(game.level?.monlist,
+            'awaited creation leaves the bag-created monster in the level list');
+    });

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 98211743,
+    "datetime": "20590308144400",
+    "nethackrc": "OPTIONS=name:V16Stone,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": " #wizwish\nblessed touchstone\n#wizwish\ndiamond\namn",
+    "comment": "Independent Wizard seed and clock wish a blessed touchstone and diamond. C labels them gray stone and white gem (slots m/n); rubbing the blessed stone reveals and lists the diamond, exercising apply.c:doapply -> use_stone's blessed-touchstone gem-identification arm."
+  }]
+}

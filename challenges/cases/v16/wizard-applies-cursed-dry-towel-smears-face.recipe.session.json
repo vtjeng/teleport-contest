@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91837023,
+      "datetime": "20680321141500",
+      "nethackrc": "OPTIONS=name:V16WetTowel,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\ncursed +1 towel\nap"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51288012,
+      "datetime": "20591207194500",
+      "nethackrc": "OPTIONS=name:V16PotionHit,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\nuncursed potion of polymorph\n\n#wizgenesis\nhostile orc\ntgh "
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 99103077,
+    "datetime": "20570718133300",
+    "nethackrc": "OPTIONS=name:V16Jelly,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": " #wizwish\nblessed lump of royal jelly\n#wizwish\nkiller bee egg\naop",
+    "comment": "Independent Wizard seed and clock wish blessed royal jelly and a killer-bee egg, then apply the jelly to the egg. C inventory choices o/p and the egg quiver message confirm apply.c:doapply -> use_royal_jelly, including the blessed parent-condition update."
+  }]
+}

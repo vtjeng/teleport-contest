@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 52078331,
+    "datetime": "20551020125500",
+    "nethackrc": "OPTIONS=name:V16Morph,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": " #polyself\nxorn\n",
+    "comment": "Independent Wizard seed and clock use the debug polyself command to become a xorn. C confirms the form-change message, new hit points and cloak-clasp break, reaching polyself.c:polyself/polymon."
+  }]
+}

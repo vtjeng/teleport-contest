@@ -1249,8 +1249,11 @@ export async function bagotricks(bag, tipping, state = game) {
         if (!rn2(23))
             creatcnt += rnd(7);
         do {
-            const mtmp = makemon(null, state.u.ux, state.u.uy,
-                NO_MM_FLAGS, { state });
+            // C makemon() returns after its runtime suffix completes; await the
+            // same creation tail before bagotricks reads the returned monster.
+            const mtmp = await makemon_runtime(
+                null, state.u.ux, state.u.uy, NO_MM_FLAGS, { state },
+            );
             if (mtmp) {
                 ++moncount;
                 if ((canseemon(mtmp, state)

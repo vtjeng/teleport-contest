@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 65311091,
+    "datetime": "20580801080000",
+    "nethackrc": "OPTIONS=name:V16Bell,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": " #wizwish\nblessed +1 bell of opening\nan",
+    "comment": "Independent Wizard seed and clock wish a blessed charged Bell of Opening and apply it off the invocation level. C's inventory label is a silver bell (slot n); its actual source effect consumes a charge and opens nearby things."
+  }]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 69270431,
+      "datetime": "20590707122200",
+      "nethackrc": "OPTIONS=name:V16Tins,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nnewt corpse\n\na?fj"
+    }
+  ]
+}

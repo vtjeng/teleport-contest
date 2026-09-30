@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 135872093,
+      "datetime": "20591207140000",
+      "nethackrc": "OPTIONS=name:V16Stone,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed loadstone\n\n#wizwish\ndiamond\n\na?pq"
+    }
+  ]
+}

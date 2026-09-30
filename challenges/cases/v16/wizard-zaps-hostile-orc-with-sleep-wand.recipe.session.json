@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 68301491,
+    "datetime": "20570409123000",
+    "nethackrc": "OPTIONS=name:V16Sleep,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": " #wizgenesis\nhostile orc\n#wizwish\n+1 wand of sleep\nzok",
+    "comment": "Independently chosen Wizard seed, clock, hostile-orc creation, and a wished charged wand exercise the zap.c wand ray against an awake hostile. The C map shows the orc directly north; the final k direction is chosen from that C observation."
+  }]
+}
