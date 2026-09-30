@@ -654,17 +654,21 @@ function Flying(state) {
 }
 
 // These existing callees can draw, prompt, change maps or invoke arbitrary
-// callbacks. The elapsed-turn planner stops before nh_timeout reaches one,
-// runs this timeout live, then validates the remaining allocation from the
-// resulting state. This is an execution handoff, not a refused source path.
+// callbacks. The elapsed-turn planner stops before ordinary expiry handlers
+// reach one, runs them live, then validates the remaining allocation from the
+// resulting state. timeout.c calls choke_dialogue() for every nonzero
+// Strangled value, and choke_dialogue() always exercises Strength, so any
+// active strangling value must use the same live handoff before nh_timeout().
+// This is an execution handoff, not a refused source path.
 export function nh_timeout_requires_live_state(state = game) {
     const u = state.u;
     if (u.uinvulnerable) return false;
     if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)
         && !is_were(state.youmonst.data)) return true;
+    if (u.uprops?.[STRANGLED]?.intrinsic) return true;
     for (const index of [
         STONED, SICK, BLINDED, INVIS, SEE_INVIS, HALLUC, LEVITATION,
-        FLYING, STRANGLED, DETECT_MONSTERS, DISPLACED, GLIB,
+        FLYING, DETECT_MONSTERS, DISPLACED, GLIB,
         PROT_FROM_SHAPE_CHANGERS,
     ]) {
         if ((u.uprops?.[index]?.intrinsic & TIMEOUT) === 1) return true;
