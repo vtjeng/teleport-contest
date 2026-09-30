@@ -3090,15 +3090,10 @@ export async function light_cocktail(objp, state = game, env = {}) {
             state,
         )[0] ?? 0;
         const shopkeeper = shop_keeper(room, state);
-        try {
-            check_unpaid(obj, state);
-        } catch (error) {
-            // C check_unpaid() discards its void use-fee effect. Keep that
-            // known gap explicit, then continue with its following source
-            // operations; other errors still propagate.
-            if (!(error instanceof UnsupportedShopError)) throw error;
-            note_unported('shk.c check_unpaid_usage');
-        }
+        // C check_unpaid() discards check_unpaid_usage()'s void result. Its
+        // fee tail is unported, so record the gap without invoking its partial
+        // refusal; the following voice and billing calls still run in order.
+        note_unported('shk.c check_unpaid_usage');
         set_voice(shopkeeper, 0, 80, 0, state);
         await verbalize(
             "That's in addition to the cost of the potion, of course.",
