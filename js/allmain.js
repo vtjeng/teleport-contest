@@ -13,6 +13,7 @@ import {
     CLAIRVOYANT,
     COLNO,
     CQ_CANNED,
+    CQ_REPEAT,
     LL_ACHIEVE,
     EXT_ENCUMBER,
     FAST,
@@ -27,6 +28,7 @@ import {
     SEARCHING,
     SLT_ENCUMBER,
     TELEPAT,
+    TELEPORT,
     TT_LAVA,
     UNENCUMBERED,
     WARNING,
@@ -81,6 +83,7 @@ import {
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { cmdq_clear, failClosedCommandRefusals, rhack } from './cmd.js';
+import { next_to_u } from './apply_next_to_u.js';
 import { canletgo, deferred_goto, dropx } from './do.js';
 import { glibr } from './do_wear.js';
 import {
@@ -979,6 +982,34 @@ async function finishElapsedTurnAfterTimeout(
         );
     }
     await regen_pw(wtcap, state, regenEnv);
+
+    // C ref: allmain.c moveloop_core():307-320. Teleportation is the union of
+    // the intrinsic and extrinsic property bits. Keep invulnerability as the
+    // outer short-circuit so it suppresses rn2(85), and consume that draw
+    // before delayed polymorph, searching, warning, hunger, and engraving.
+    if (!state.u.uinvulnerable
+        && propertyActive(state, TELEPORT)
+        && !random.rn2(85)) {
+        const oldUx = state.u.ux;
+        const oldUy = state.u.uy;
+
+        // teleport.c:tele() is a discarded void call. Its current
+        // scrolltele()/safe_teleds() path bypasses this cloned turn's random
+        // context and uses shared display/input, so it cannot run safely from
+        // the allmain planning pass. Record the exact gap instead of inventing
+        // draws, messages, or a destination. The zero-result recipe under
+        // recipes/allmain.c/ documents the first blocked source entry.
+        note_unported('teleport.c tele');
+
+        // Keep the source's moved-square aftermath in order for when tele()
+        // is plan-safe: unchanged coordinates leave both queues untouched.
+        if (state.u.ux !== oldUx || state.u.uy !== oldUy) {
+            if (!next_to_u(state))
+                note_unported('dog.c check_leash');
+            cmdq_clear(CQ_CANNED, state);
+            cmdq_clear(CQ_REPEAT, state);
+        }
+    }
 
     // C ref: allmain.c moveloop_core():342-346. A Ranger or an Archeologist
     // holds SEARCHING from experience level 1 (js/attrib.js ran_abil and

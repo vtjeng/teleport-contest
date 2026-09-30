@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent probe for allmain.c:moveloop_core's zero-result Teleportation arm. The seed 73458280 was the first zero gate found in a JavaScript-only scan of seeds 73458129 through 73458328 (152 starts); the datetime, Wizard/debug options, and wish sequence stay fixed so the scan varies only the RNG seed. The fresh C recording confirms rn2(85)=0 at allmain.c:308. The final '.' dismisses the C --More-- overlay for teleport.c:scrolltele's controlled getpos prompt, leaving C waiting for a destination. JS records the discarded teleport.c:tele gap instead of opening that prompt, so this probe is diagnostic and must not be treated as a passing recording.",
+  "segments": [
+    {
+      "seed": 73458280,
+      "datetime": "20560929121500",
+      "nethackrc": "OPTIONS=name:V14TeleCheck,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nring of teleportation\nPor."
+    }
+  ]
+}
