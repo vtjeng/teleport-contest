@@ -122942,8 +122942,8 @@
           "name": "do_boh_explosion",
           "line": 2518,
           "endLine": 2536,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -123119,7 +123119,76 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_boh_explosion",
+            "implementation": "js/pickup.js",
+            "symbol": "do_boh_explosion",
+            "sourceReview": "Read the complete pickup.c:do_boh_explosion (2518-2536). It sets boh->in_use before iterating, saves each nobj link before the item is extracted or scattered, makes one is_boh_item_gone() decision per item, calls obj_extract_self() then mbag_item_gone(!on_floor, item, TRUE) on loss, and otherwise sets the object coordinates to u.ux/u.uy and calls scatter(u.ux,u.uy,4,MAY_HIT|MAY_DESTROY,item). The consumed is_boh_item_gone Boolean supplies the branch predicate. C discards mbag_item_gone’s long shop-loss result; its existing implementation performs the source deletion and shop side effects. C returns from scatter as long, but do_boh_explosion discards that value; JavaScript awaits its asynchronous effects and discards the total. The caller deletes the bag, so in_use remains set.",
+            "callers": [
+              {
+                "path": "js/pickup.js",
+                "symbol": "in_container",
+                "source": "pickup.c:in_container callsites at 2668 and 2683; C53 wires both explosion arms and does not claim all of in_container() complete."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer",
+                "source": "pickup.c:tipcontainer callsites at 3789 and 3795; C53 wires both explosion arms and does not claim all of tipcontainer() complete."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/loot-command.test.mjs",
+              "scripts/pickup-tip.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/boh-loot-empty-nested-bags-c53.session.json",
+              "recordings/pickup.c/boh-loot-sack-nested-bag-c53-corrected2.session.json",
+              "recordings/pickup.c/boh-tip-nested-bag-c53-complete.session.json",
+              "recordings/pickup.c/boh-apply-carried-empty-nested-bags-c53.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "4d8db3f9017a5dfb8164ca79cd5ca83e07721051"
+          }
+        ],
+        "entryPointReview": "All three active C53 entry points now have matching production runtime evidence for the selected do_boh_explosion helper. The independent #loot cases reach in_container -> do_boh_explosion and complete floor useupf cleanup: one uses empty nested bags; the other retains a nonfragile sack and reaches scatter. The independent #tip case reaches tipcontainer -> do_boh_explosion -> scatter and terminal continuation. The selected admitted v14 #loot trace remains blocked after step 81 by the out-of-scope dothrow.c:breaks -> potion.c:potionbreathe helper; that setup and mismatch are preserved as provenance, not counted as matching helper evidence. Caller descriptions name in_container() and tipcontainer() only for their wired source arms; neither enclosing C caller and no whole scatter completion is claimed. A supplemental independently replayed #apply recording exercises the carried-container arm: it reaches do_boh_explosion, follows held useup at pickup.c:2686, then takes damage and the Wizard death-refusal continuation. This complements the floor useupf #loot cases and the #tip case; it does not expand whole-function completion beyond do_boh_explosion.",
+        "entryPoints": [
+          {
+            "name": "#loot insertion of nested bags into a floor Bag of Holding",
+            "functions": [
+              "do_boh_explosion"
+            ],
+            "recordings": [
+              "recordings/pickup.c/boh-loot-empty-nested-bags-c53.session.json",
+              "recordings/pickup.c/boh-loot-sack-nested-bag-c53-corrected2.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#tip explosion with a bag-of-holding container",
+            "functions": [
+              "do_boh_explosion"
+            ],
+            "recordings": [
+              "recordings/pickup.c/boh-tip-nested-bag-c53-complete.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "#apply insertion of a wished empty carried Bag of Holding into another carried Bag of Holding",
+            "functions": [
+              "do_boh_explosion"
+            ],
+            "recordings": [
+              "recordings/pickup.c/boh-apply-carried-empty-nested-bags-c53.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
