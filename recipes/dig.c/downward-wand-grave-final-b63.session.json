@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first downward-magic grave caller recipe for B63, based on the two preserved setup misses. Seed 80641327 and the Wizard creation/options remain fixed to isolate route correction. The C map showed the hero starts on a stair: two west steps leave that stair/door tile for the interior ROOM square, which engrave.c:make_grave accepts. Then wish a grave and a wand of digging, select the observed wand inventory letter n, and aim down to reach dig.c:zap_dig -> dighole(FALSE, TRUE, NULL) -> dig_up_grave. This recipe is frozen before its C run and any JS comparison.",
+  "segments": [
+    {
+      "seed": 80641327,
+      "datetime": "20580529120300",
+      "nethackrc": "OPTIONS=name:DownGrave,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "hh\u0017grave\n\u0017wand of digging\nzn>"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first B63 variation for dig.c:dig_up_grave. Seed 38190427, female Dwarf Archeologist creation choices, and name DwarfDelver were chosen independently to vary the admitted human-male Archeologist setup while retaining the role pick-axe. The first C preview showed the longer Dwarf greeting holding the h/j/h movement keys at --More--; after Enter the attempted downward dig was still on stairs. The final recipe adds a leading space to dismiss that pager and a west move before setting the grave. This is a source-directed route correction, not a JS seed sweep.",
+  "segments": [
+    {
+      "seed": 38190427,
+      "datetime": "20571119140100",
+      "nethackrc": "OPTIONS=name:DwarfDelver,role:Archeologist,race:dwarf,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " hjh\u0017grave\nae  > . . ."
+    }
+  ]
+}
