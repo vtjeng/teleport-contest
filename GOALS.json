@@ -119483,7 +119483,7 @@
     {
       "id": "port-mkobj-hornoplenty-discovery-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port horn-of-plenty generation, discovery, and tipping",
       "cFile": "mkobj.c",
       "sessions": [
@@ -119497,8 +119497,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "hornoplenty",
@@ -119766,6 +119769,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
