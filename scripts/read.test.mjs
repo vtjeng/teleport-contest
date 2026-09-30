@@ -44,6 +44,10 @@ import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { P_BARE_HANDED_COMBAT, P_CLERIC_SPELL, P_SKILLED } from '../js/const.js';
 import { skillSlot } from '../js/startup_skills.js';
 
+const SPELL_C = readFileSync(
+    new URL('../nethack-c/upstream/src/spell.c', import.meta.url), 'utf8',
+);
+
 async function replayGenocideRecipe(name, gender) {
     const recipe = JSON.parse(readFileSync(new URL(
         `../recipes/${name}.session.json`, import.meta.url,
@@ -153,7 +157,16 @@ test('read.c create-monster count preserves blessed/cursed RNG order', async () 
     assert.equal(game.gk.known, undefined);
 });
 
-test('spell.c create-monster keeps caller RNG through the duplicate effect', async () => {
+test('spell.c create-monster enters after the skilled blessing group', () => {
+    // spell.c:1528-1530 places SPE_CREATE_MONSTER after the conditional
+    // blessing that applies only to the preceding duplicate-effect labels.
+    assert.match(
+        SPELL_C,
+        /case SPE_CHARM_MONSTER:[\s\S]*?if \(role_skill >= P_SKILLED\)\s*pseudo->blessed = 1;\s*FALLTHROUGH;\s*\/\*FALLTHRU\*\/\s*case SPE_MAGIC_MAPPING:\s*case SPE_CREATE_MONSTER:\s*\(void\) seffects\(pseudo\);/u,
+    );
+});
+
+test('spell.c create-monster keeps caller RNG through the unblessed effect', async () => {
     await emptyTamingWorld(8080051);
     game.iflags.debug_mongen = true;
     const calls = [];
@@ -161,7 +174,7 @@ test('spell.c create-monster keeps caller RNG through the duplicate effect', asy
         d() { assert.fail('this no-creation source branch makes no dice roll'); },
         rn1() { assert.fail('this source branch skips rn1'); },
         rn2(bound) { calls.push(bound); return 1; },
-        rnd() { assert.fail('blessed spell skips rnd(4)'); },
+        rnd() { assert.fail('rn2(73)=1 skips the later rnd(4) count draw'); },
         rne() { assert.fail('this source branch skips rne'); },
         rnz() { assert.fail('this source branch skips rnz'); },
     };
@@ -169,10 +182,11 @@ test('spell.c create-monster keeps caller RNG through the duplicate effect', asy
     skillSlot(P_CLERIC_SPELL, game).skill = P_SKILLED;
     await spelleffects(SPE_CREATE_MONSTER, true, true, game, { random });
 
-    // C applies the skilled scroll-equivalent blessing before seffects(), so
-    // the effect skips both random count calls. Its two Wisdom exercises use
-    // the caller's injected stream, followed by the no-creation return.
-    assert.deepEqual(calls, [19, 19]);
+    // The two rn2(19) calls are the casting and seffects Wisdom exercises.
+    // spell.c enters SPE_CREATE_MONSTER after the skilled blessing group, so
+    // seffect_create_monster then calls rn2(73); this callback's nonzero result
+    // skips rnd(4), and debug_mongen prevents the later creation call.
+    assert.deepEqual(calls, [19, 19, 73]);
     assert.equal(game.gk.known, undefined);
 });
 
