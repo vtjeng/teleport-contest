@@ -285,11 +285,10 @@ test('a pet swap performs automatic pickup on the arrival square', async () => {
     );
 });
 
-// pickup.c pickup_object() gives a scroll of scare monster a special floor
-// transaction. The existing pickup port refuses that branch, so pet-swap
-// admission must reject it before do_attack() consumes rn2(7) and before the
-// tentative hero and pet placements begin.
-test('pet-swap pickup refusal leaves movement and RNG state atomic', async () => {
+// pickup.c pickup_object() sets spe on an unused uncursed scare scroll before
+// lift_object() and pick_obj() unlink it from the floor. Clearing startup TTY
+// output leaves the swap and pickup messages to exercise that ordering.
+test('pet swap picks up an unused scare scroll after the successful swap', async () => {
     const pet = await startingPet({ pettype: 'cat' });
     const { destination, oldHero } = standPetEastOf(pet, ROOM);
     const scroll = mksobj_at(
@@ -300,41 +299,40 @@ test('pet-swap pickup refusal leaves movement and RNG state atomic', async () =>
         false,
         objectGenerationEnv({ state: game }),
     );
+    const movesBefore = game.moves;
     game.flags.pickup = true;
-    initRng(1); // The first rn2(7) would be 5 if admission reached do_attack().
+    clearTtyMessageWindow(game);
+    // Seed 1 makes do_attack()'s first rn2(7) equal 5, allowing the swap.
+    initRng(1);
     enableRngLog();
-    const before = {
-        core: structuredClone(game.coreCtx),
-        floor: game.level.objects[destination[0]][destination[1]],
-        inventory: game.invent,
-        object: structuredClone({
-            where: scroll.where,
-            nobj: scroll.nobj,
-            nexthere: scroll.nexthere,
-        }),
-    };
     game.nhDisplay.pushKey('l'.charCodeAt(0));
+    // The two source messages overflow the top line together; dismiss More,
+    // then stop at the next command boundary instead of inventing a turn.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
 
-    await assert.rejects(
-        moveloop_core(),
-        (error) => (
-            error instanceof UnsupportedHeroMoveBoundaryError
-            && error.reason === 'pickup() of a scroll of scare monster'
-        ),
+    await moveloop_core();
+
+    assert.deepEqual([game.u.ux, game.u.uy], destination);
+    assert.deepEqual([pet.mx, pet.my], oldHero);
+    assert.equal(scroll.spe, 1);
+    assert.equal(game.level.objects[destination[0]][destination[1]], null);
+    assert.equal(scroll.where, OBJ_INVENT);
+    assert.ok(
+        [...function* inventory() {
+            for (let obj = game.invent; obj; obj = obj.nobj) yield obj;
+        }()].includes(scroll),
+        'the picked-up scare scroll is linked into inventory',
     );
-
-    assert.deepEqual([game.u.ux, game.u.uy], oldHero);
-    assert.deepEqual([pet.mx, pet.my], destination);
-    assert.equal(game.level.objects[destination[0]][destination[1]],
-        before.floor);
-    assert.equal(game.invent, before.inventory);
-    assert.deepEqual({
-        where: scroll.where,
-        nobj: scroll.nobj,
-        nexthere: scroll.nexthere,
-    }, before.object);
-    assert.deepEqual(game.coreCtx, before.core);
-    assert.deepEqual(getRngLog(), []);
+    // allmain.c commits the elapsed-turn counter at the next input boundary;
+    // context.move records that this completed command spent a move.
+    assert.equal(game.context.move, 1);
+    assert.equal(game.moves, movesBefore);
+    assert.match(getRngLog()[0], /^rn2\(7\)=5$/u);
+    assert.equal(getRngLog().length, 1,
+        'safe-pet combat consumes only the source rn2(7) draw here');
+    // After More acknowledges the combined swap/pickup output, the inventory
+    // format line is the one retained in gt.toplines.
+    assert.match(game._ttyToplines, /^[a-z] - a scroll labeled /u);
 });
 
 // hack.c domove_swap_with_pet() (2098-2180) never reads the square the hero
