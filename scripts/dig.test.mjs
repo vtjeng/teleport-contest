@@ -6,6 +6,7 @@ import {
     COLNO,
     CORR,
     DBWALL,
+    AM_LAWFUL,
     ALTAR,
     BEAR_TRAP,
     DIGCHECK_FAILED,
@@ -43,7 +44,9 @@ import {
     FORCETRAP,
     FOUNTAIN,
     COULD_SEE,
+    GRAVE,
     IN_SIGHT,
+    LEVITATION,
     IRONBARS,
     MAGIC_PORTAL,
     IS_WALL,
@@ -57,6 +60,7 @@ import {
     ROWNO,
     SDOOR,
     STONE,
+    STEALTH,
     TT_PIT,
     TREE,
     VWALL,
@@ -64,7 +68,8 @@ import {
     THRONE,
 } from '../js/const.js';
 import {
-    adj_pit_checks, dig, dig_check, dig_typ, dighole, fillholetyp, is_digging,
+    adj_pit_checks, dig, dig_check, dig_typ, digactualhole, dighole,
+    fillholetyp, is_digging,
     mdig_tunnel, pick_can_reach,
     rot_corpse, unportedRotCorpseReason,
 } from '../js/dig.js';
@@ -363,6 +368,96 @@ test('fillholetyp preserves liquid counts, weighting and draw order', () => {
     draws.length = 0;
     assert.equal(fillholetyp(X, Y, true, state, random), LAVAPOOL);
     assert.deepEqual(draws, []);
+});
+
+test('digactualhole preserves the old visible furniture label in its fall message', async () => {
+    // C dig.c:674-718 captures surface(x,y) and old_aligntyp before maketrap
+    // changes furniture to floor, then prints the captured label afterward.
+    const cases = [
+        {
+            typ: GRAVE,
+            altarmask: undefined, // A grave has no altar alignment mask.
+            furniture: 'headstone',
+            // The first result names the grave surface from before pitTerrain.
+            messages: [
+                'You dig a pit in the floor.',
+                'The headstone falls into the pit!',
+            ],
+        },
+        {
+            typ: ALTAR,
+            altarmask: AM_LAWFUL,
+            furniture: 'lawful altar',
+            // The altar label must keep the alignment that C reads before maketrap.
+            messages: [
+                'You dig a pit in the floor.',
+                'The lawful altar falls into the pit!',
+            ],
+        },
+    ];
+
+    for (const row of cases) {
+        const state = digCheckState();
+        state.u.ulevel = 1; // wake_nearby uses the hero level to bound its source scan.
+        // Zero-valued intrinsic, extrinsic and blocked fields mean the test
+        // hero starts without flight, levitation or stealth effects.
+        state.u.uprops = {
+            [FLYING]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+            [LEVITATION]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+            [STEALTH]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+        };
+        state.youmonst = {};
+        state.level.at(X, Y).typ = row.typ;
+        if (row.altarmask !== undefined)
+            state.level.at(X, Y).altarmask = row.altarmask;
+        state.viz_array = Array.from({ length: ROWNO }, () => []);
+        state.viz_array[Y][X] = IN_SIGHT;
+        const messages = [];
+        const rngBounds = [];
+
+        await digactualhole(X, Y, state.youmonst, PIT, state, {
+            message: async (line) => messages.push(line),
+            random: {
+                rn1: (range, base) => {
+                    rngBounds.push([range, base]);
+                    return base;
+                },
+                rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+            },
+        });
+
+        assert.deepEqual(messages, row.messages, row.furniture);
+        assert.deepEqual(rngBounds, [[4, 2]],
+            'the hero enters the new pit with the C rn1(4,2) duration');
+        assert.equal(state.level.at(X, Y).typ, ROOM,
+            'maketrap changes furniture to room floor before the fall message');
+    }
+});
+
+test('dig_up_grave keeps the C selector values for zombie and mummy creation', () => {
+    const cSource = readFileSync('nethack-c/upstream/src/dig.c', 'utf8');
+    const jsSource = readFileSync('js/dig.js', 'utf8');
+    const cStart = cSource.indexOf('dig_up_grave(coord *cc)');
+    const cEnd = cSource.indexOf('\nint\nuse_pick_axe', cStart);
+    const jsStart = jsSource.indexOf('// C ref: dig.c dig_up_grave()');
+    const jsEnd = jsSource.indexOf('\n// C ref: dig.c dighole()', jsStart);
+    assert.ok(cStart >= 0 && cEnd > cStart, 'dig.c defines dig_up_grave');
+    assert.ok(jsStart >= 0 && jsEnd > jsStart, 'dig.js documents dig_up_grave');
+
+    const cGrave = cSource.slice(cStart, cEnd);
+    const jsGrave = jsSource.slice(jsStart, jsEnd);
+    // C's case 2 chooses S_ZOMBIE; case 3 chooses S_MUMMY. The matching JS
+    // branches use the same class symbols and pass the C MM_NOMSG call shape.
+    assert.match(cGrave,
+        /what_happens\s*=\s*levl\[dig_x\]\[dig_y\]\.emptygrave\s*\?\s*-1\s*:\s*rn2\(5\)/u);
+    assert.match(cGrave,
+        /case 2:[\s\S]*?mkclass\(S_ZOMBIE,\s*0\)[\s\S]*?case 3:/u);
+    assert.match(cGrave,
+        /case 3:[\s\S]*?mkclass\(S_MUMMY,\s*0\)[\s\S]*?default:/u);
+    assert.match(jsGrave,
+        /case 2:[\s\S]*?mkclass\(S_ZOMBIE,\s*0,\s*\{\s*state,\s*random\s*\}\)[\s\S]*?MM_NOMSG[\s\S]*?case 3:/u);
+    assert.match(jsGrave,
+        /case 3:[\s\S]*?mkclass\(S_MUMMY,\s*0,\s*\{\s*state,\s*random\s*\}\)[\s\S]*?MM_NOMSG[\s\S]*?default:/u);
 });
 
 test('dighole returns the drawbridge refusal after source-ordered spot checks', async () => {

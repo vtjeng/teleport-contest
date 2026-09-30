@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first seed variation 01 for dig.c:dig_up_grave. Seed 72041863 was fixed before any result in this batch was inspected; only the seed varies from the established dwarf Archeologist grave route because dig_up_grave selects its outcome with rn2(5). The character choices and movement inputs reuse the verified setup needed to reach a grave, not a recorded session's output. Record all six C cases before comparing any JavaScript replay.",
+  "segments": [
+    {
+      "seed": 72041863,
+      "datetime": "20571119140100",
+      "nethackrc": "OPTIONS=name:DwarfDelver,role:Archeologist,race:dwarf,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " hjh\u0017grave\nae  > . . ."
+    }
+  ]
+}

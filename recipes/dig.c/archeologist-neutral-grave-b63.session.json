@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B63 C recipe for dig.c:dig_up_grave through dig.c:dig -> dighole. A JavaScript-only scan of seeds 91873200-91873350 replayed 31 cases and found grave-dig completions; seed 91873209 was selected from that fixed range because its terminal state has no corpse at the grave, probing a different nonempty outcome from the admitted v14 case. The date, name, male character and neutral Archeologist alignment were also chosen independently. The action sequence omits the initial space because this date has no welcome pager, then creates a grave underfoot and uses the starting pick-axe.",
+  "segments": [
+    {
+      "seed": 91873209,
+      "datetime": "20571119140100",
+      "nethackrc": "OPTIONS=name:CryptTester,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "hj\u0017grave\nae  > . . ."
+    }
+  ]
+}

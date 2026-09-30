@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked C-first setup attempt for the intended dig.c:zap_dig downward grave route. The attempted h/j/h move still left the wizard on the stair/doorway route; engrave.c:make_grave therefore reported “Can't place a grave here”. The later zap made a hole through the doorway, then C entered the dig.c:zap_dig hole-descent continuation that JavaScript has not ported. Its exact C recording is kept in .cache/B63-blocked-recordings/downward-wand-grave-corrected-b63.session.json because the JS replay diverges on the fall-through screen and subsequent RNG; this recipe is not dig_up_grave evidence or part of the passing recordings corpus.",
+  "segments": [
+    {
+      "seed": 80641327,
+      "datetime": "20580529120300",
+      "nethackrc": "OPTIONS=name:DownGrave,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "hjh\u0017grave\n\u0017wand of digging\nzn>"
+    }
+  ]
+}
