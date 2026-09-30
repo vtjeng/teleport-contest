@@ -119479,6 +119479,303 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mkobj-hornoplenty-discovery-synthetic-v13-20260929",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port horn-of-plenty generation, discovery, and tipping",
+      "cFile": "mkobj.c",
+      "sessions": [
+        "synthetic/v13/horn-of-plenty-generates-food"
+      ],
+      "selectionReason": "Integrate queued C50 whole mkobj.c:hornoplenty port and its apply/tipcontainer callers from immutable delivery de22a56f. Current admitted v13 horn-of-plenty-generates-food remains at the source-traced missing discovery tail recorded in investigations/synthetic/v13/horn-of-plenty-generates-food.json. The queue annotates attrib.c:exercise, but mkobj.c:hornoplenty owns the omitted makeknown call. Current v13 evaluation is challenges/evaluations/20260930014026-v13.json; frozen manifest digest ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d and recording digest acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2 remain unchanged. Three independent C recordings establish apply, floor-tip, and container-tip entry points.",
+      "detail": "",
+      "openedAt": "d6b99f235b50441fffd7905d28089be8951c1a46",
+      "openStanding": {
+        "sha": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "hornoplenty",
+          "line": 2847,
+          "endLine": 2948,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2847,
+        "to": 2948
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/horn-of-plenty-generates-food": {
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "evaluationPath": "challenges/evaluations/20260930014026-v13.json",
+          "evaluationCommit": "bdd594d88c4001a3d70c51b086bcf718ace62d36"
+        }
+      },
+      "activeStanding": {
+        "sha": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "horn-of-plenty-generates-food",
+          "session": "synthetic/v13/horn-of-plenty-generates-food",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+          "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+          "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+          "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+          "replayInputSha256": "6551568a13d4286cb4a2a223987a35e56bb6b38b173c5c8d46bb5f4691e76a43",
+          "evaluationPath": "challenges/evaluations/20260930014026-v13.json",
+          "evaluationCommit": "bdd594d88c4001a3d70c51b086bcf718ace62d36",
+          "evaluationArtifact": "challenges/evaluations/20260930014026-v13.json",
+          "evaluationUtc": "2026-09-30T01:40:54.892Z",
+          "remainingScreens": 0,
+          "recordedSteps": 29,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 29
+            },
+            "rng": {
+              "matched": 4198,
+              "total": 4203
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 4197,
+              "cEntry": "rn2(19)=18",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(12)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": "n"
+              },
+              "stepIndex": 28
+            },
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/horn-of-plenty-generates-food.json",
+            "result": {
+              "session": "synthetic/v13/horn-of-plenty-generates-food",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "horn-of-plenty-generates-food",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+              "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+              "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+              "remainingScreens": 0,
+              "recordedSteps": 29,
+              "status": "complete",
+              "commit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "horn-of-plenty-generates-food",
+                "session": "synthetic/v13/horn-of-plenty-generates-food",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingPath": "challenges/cases/v13/horn-of-plenty-generates-food.session.json",
+                "recordingSha256": "acde207c0fa4dcfdf00761c4478415ecf82675fd960a63bf2e929a44456151b2",
+                "recipe": "challenges/cases/v13/horn-of-plenty-generates-food.recipe.session.json",
+                "recipeSha256": "471410f04065612efd3bbe21b365e80850f6b159e5a11ec1a91b7dd08308a870",
+                "replayInputSha256": "085e483fa652fbcf7255226f83527b8bc127d9519929e9fd5dec2924d5070674",
+                "evaluationPath": "challenges/evaluations/20260929214754-v13.json",
+                "evaluationCommit": "2f36445470f66c6ebc8234436abf21f324c0b46f",
+                "evaluationArtifact": "challenges/evaluations/20260929214754-v13.json",
+                "evaluationUtc": "2026-09-29T21:48:15.376Z",
+                "remainingScreens": 0,
+                "recordedSteps": 29,
+                "previousScreensMatched": 28,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 4198,
+                    "total": 4203
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 4197,
+                    "cEntry": "rn2(19)=18",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(12)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 28,
+                      "key": "n"
+                    },
+                    "stepIndex": 28
+                  },
+                  "cursor": null
+                },
+                "step": 28,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The applied horn now completes its inventory callback and matches all 29 screens and cursors. Its next RNG mismatch is the omitted makeknown call at the end of mkobj.c:hornoplenty: JavaScript records a discover_object gap even though js/o_init.js implements that callee. The sighted-horn path must update discovery state and exercise wisdom in source order.",
+              "source": {
+                "file": "mkobj.c",
+                "functions": [
+                  "hornoplenty"
+                ],
+                "branch": "After a charged horn has generated and placed an object, hornoplenty decrements iflags.suppress_price and, when horn->dknown is true, calls makeknown(HORN_OF_PLENTY). The macro invokes discover_object(HORN_OF_PLENTY, TRUE, TRUE, TRUE); when the type is newly known, discover_object updates disco and object knowledge, exercises A_WIS, and updates inventory during live play.",
+                "callers": [
+                  "apply.c:doapply(HORN_OF_PLENTY) -> mkobj.c:hornoplenty; the live JavaScript route is js/apply.js -> js/obj.js:hornoplenty.",
+                  "mkobj.c:hornoplenty -> o_init.c:discover_object via makeknown; js/obj.js still skips this call with note_unported."
+                ],
+                "dependencies": [
+                  "js/o_init.js:discover_object already implements knowledge changes, exercise_nonphysical(A_WIS, true), and live update_inventory. Verify its real environment and caller prerequisites before wiring it.",
+                  "The selected missing branch belongs to a whole hornoplenty source port; the floor-placement Doname2 message remains a separate missing branch in the same function.",
+                  "The resolved inventory path retains the encumber_msg callback in js/obj.js. Do not undo its source-order behavior or treat the blind recording as evidence for sighted discovery."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "At 2f36445470f66c6ebc8234436abf21f324c0b46f, challenges/evaluations/20260929214754-v13.json reports 29/29 screens and cursors, 4198/4203 matching RNG calls, and no runtime error. The case is still not a complete match.",
+                "Fresh diagnostic .cache/B58-horn-diagnostic.json places the first RNG divergence at segment 0, zero-based step 28, key n, RNG index 4197: C rn2(19)=18 from exercise(attrib.c:509), versus JavaScript rn2(12)=3. Its only recorded gap is o_init.c discover_object.",
+                "Upstream mkobj.c:hornoplenty (2847–2936), at 2933–2934, calls makeknown after placement and suppress_price restoration when horn->dknown is true. o_init.c:discover_object (454–496) calls exercise(A_WIS, TRUE) at 483; attrib.c:exercise uses rn2(19) at 509.",
+                "js/obj.js:hornoplenty still records note_unported for this call at its final dknown branch. js/o_init.js:discover_object (417 onward) already implements this callee; the missing source branch is in the horn caller.",
+                "B58 resolved the preceding missing encumberMessage callback. Its independent blindfolded Valkyrie recording under recordings/mkobj.c/hornoplenty-applied-inventory-b58.session.json matches all 48 screens/cursors and 3250 RNG calls; blindness leaves dknown false, so this witness does not cover makeknown.",
+                "The earlier v13 manifest labels hold_another_object as pickup.c, but its actual source owner is invent.c (1208–1311), with update_inventory followed by pickup.c:encumber_msg. This source-file correction does not alter the frozen recording."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "hornoplenty",
+            "implementation": "js/mkobj_hornoplenty.js",
+            "symbol": "hornoplenty",
+            "sourceReview": "Read and translated the complete mkobj.c:2847-2936 body. Preserved the invalid-object diagnostic-only arm; the empty-charge message, cknown update and inventory refresh; charged use and its ordering before rn2(13); potion generation, magic-potion reroll until not POT_SICKNESS, POT_OIL fixup, food generation, ration-to-royal-jelly rn2(7), BUC copying and weight calculation; unpaid billing; suppress_price lifetime; carried-object hold and its surface-dependent message; target-container insertion, weight refresh, carried encumbrance and inventory refresh; unreachable-floor hitfloor branch; altar drop; Doname2/otense/surface floor message and drop; and the dknown makeknown tail. The makeknown macro in hack.h:1530 expands to discover_object(HORN_OF_PLENTY, TRUE, TRUE, TRUE), whose existing JS port supplies the Wisdom exercise side effect. Kept C evaluation and RNG order. Replaced the prior thrown bad-horn refusal, skipped Doname2 message and skipped discover_object tail. The only unported callee is pline.c:impossible on the invalid-object branch: its return is void, so note_unported records the diagnostic gap without changing control flow or supplying a value. Existing dependencies remain read-only: mkobj.c:add_to_container (definition at 2676), invent.c:update_inventory (2782), and the already-ported generation, billing, pickup, naming, floor, altar and discovery helpers.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply, HORN_OF_PLENTY arm at 4386 calls hornoplenty(obj, FALSE, NULL); JS dispatches the same non-tipping operation."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "tipcontainer_checks",
+                "source": "pickup.c:tipcontainer, horn/bag emptying loop at 4014-4019 calls hornoplenty(box, TRUE, targetbox); JS preserves the result-driven repeat-until-empty loop through this helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mkobj-hornoplenty.test.mjs",
+              "scripts/object-substrate.test.mjs",
+              "scripts/pickup-tip.test.mjs",
+              "scripts/mkobj-fixup-oil.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-applied-c50.session.json",
+              "recordings/pickup.c/hornoplenty-tip-floor-c50.session.json",
+              "recordings/pickup.c/hornoplenty-tip-targetbox-c50.session.json"
+            ],
+            "checkedAt": "28c84b481a73bb12c30706d94c4088a5cd288a34"
+          }
+        ],
+        "entryPointReview": "Reviewed both active C call sites for mkobj.c:hornoplenty. apply.c:doapply reaches it from the apply command HORN_OF_PLENTY arm; pickup.c:tipcontainer reaches it from the #tip operation while emptying a charged horn, either onto the floor or into a selected carried container. The three independent C recordings execute those routes through command dispatch: applied horn, #tip to floor, and #tip to carried chest. No other C call sites exist (rg of upstream/src reports only apply.c:4386 and pickup.c:4016).",
+        "entryPoints": [
+          {
+            "name": "Apply a charged horn of plenty",
+            "functions": [
+              "hornoplenty"
+            ],
+            "recordings": [
+              "recordings/mkobj.c/hornoplenty-applied-c50.session.json"
+            ]
+          },
+          {
+            "name": "Tip a charged horn onto the floor",
+            "functions": [
+              "hornoplenty"
+            ],
+            "recordings": [
+              "recordings/pickup.c/hornoplenty-tip-floor-c50.session.json"
+            ]
+          },
+          {
+            "name": "Tip a charged horn into a carried container",
+            "functions": [
+              "hornoplenty"
+            ],
+            "recordings": [
+              "recordings/pickup.c/hornoplenty-tip-targetbox-c50.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "755a067c86960dfb3bf98555d805c0d31408f4ea",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
