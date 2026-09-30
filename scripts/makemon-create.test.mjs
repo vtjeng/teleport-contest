@@ -17,6 +17,7 @@ import {
     MM_ANGRY,
     MM_ASLEEP,
     MM_FEMALE,
+    MM_IGNOREWATER,
     MM_MALE,
     MM_MINVIS,
     MM_NOCOUNTBIRTH,
@@ -36,6 +37,7 @@ import {
     OBJ_MINVENT,
     OBJ_FLOOR,
     OROOM,
+    POOL,
     P_POLEARMS,
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
@@ -108,6 +110,7 @@ import {
     PM_CAVE_SPIDER,
     PM_CHAMELEON,
     PM_DOPPELGANGER,
+    PM_DOG,
     PM_ASMODEUS,
     PM_BAALZEBUB,
     PM_DISPATER,
@@ -2375,6 +2378,73 @@ test('runtime random coordinates reject a visible sample before goodpos', async 
     random.assertExhausted();
     assert.deepEqual([monster.mx, monster.my], [18, 5]);
     assert.equal(monster.data, state.mons[PM_NEWT]);
+});
+
+test('makemon forwards MM_IGNOREWATER to random goodpos placement', () => {
+    const state = initialLevelState();
+    // Dungeon one is the Quest index; this isolates MM_IGNOREWATER from the
+    // main-dungeon runtime species allowlist, which C makemon does not have.
+    state.dungeons[1] = {
+        depth_start: 1,
+        dunlev_ureached: 1,
+        entry_lev: 1,
+        flags: { align: 0, hellish: false },
+        num_dunlevs: 4,
+    };
+    state.u.uz = { dnum: 1, dlevel: 1 };
+    state.level.at(MON_X, MON_Y).typ = POOL;
+
+    const calls = [];
+    let rowDraw = false;
+    const random = {
+        rn1(bound, base) {
+            // C makemon_rnd_goodpos() first chooses the only candidate pool
+            // square using rn1(COLNO - 3, 2); the chosen x is MON_X.
+            calls.push(['rn1', bound, base, MON_X]);
+            return MON_X;
+        },
+        rn2(bound) {
+            // C immediately chooses its row with rn2(ROWNO); later source
+            // draws use the lowest valid result to keep setup deterministic.
+            const value = rowDraw ? Math.min(1, bound - 1) : MON_Y;
+            rowDraw = true;
+            calls.push(['rn2', bound, value]);
+            return value;
+        },
+        rnd(bound) {
+            calls.push(['rnd', bound, 1]);
+            return 1;
+        },
+        d(number, sides) {
+            calls.push(['d', number, sides, number]);
+            return number;
+        },
+        rne(bound) {
+            calls.push(['rne', bound, 1]);
+            return 1;
+        },
+        rnz(value) {
+            calls.push(['rnz', value, value]);
+            return value;
+        },
+    };
+
+    const monster = makemon(
+        state.mons[PM_DOG],
+        0,
+        0,
+        NO_MINVENT | MM_IGNOREWATER,
+        { state, random },
+    );
+
+    assert.equal(monster.data, state.mons[PM_DOG]);
+    assert.deepEqual([monster.mx, monster.my], [MON_X, MON_Y]);
+    // These first two draws are the exact C random-coordinate pair; the pool
+    // candidate is accepted only when MM_IGNOREWATER reaches goodpos().
+    assert.deepEqual(calls.slice(0, 2), [
+        ['rn1', COLNO - 3, 2, MON_X],
+        ['rn2', ROWNO, MON_Y],
+    ]);
 });
 
 test('runtime random coordinates use the unseen exhaustive scan first', async () => {
