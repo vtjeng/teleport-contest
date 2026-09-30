@@ -150,6 +150,7 @@ test('climb_pit keeps the complete source branch and caller order', () => {
     assert.ok(jsOrder.every((position) => position >= 0));
     assert.deepEqual(cOrder, [...cOrder].sort((a, b) => a - b));
     assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
+    assert.match(jsClimbPit, /u_locomotion\('climb', state\)/u);
 
     // Both active C caller contracts are pinned as well: doup spends a turn,
     // while trapmove preserves the adjacent-visible-pit exception and spends

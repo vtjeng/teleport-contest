@@ -12,6 +12,7 @@ import test from 'node:test';
 import {
     ECMD_OK,
     ECMD_TIME,
+    FLYING,
     LFILE_EXISTS,
     TT_PIT,
     TT_NONE,
@@ -95,6 +96,20 @@ test('doup() calls climb_pit when the hero is in a pit', async () => {
     assert.equal(state.vision_full_recalc, 1);
     assert.equal(toplines(state), 'You crawl to the edge of the pit.');
     assert.equal(state.unported.has('trap.c climb_pit'), false);
+});
+
+test('doup() preserves the lowercase flying escape verb', async () => {
+    const state = await ascendTo('');
+    quiet(state);
+    state.u.utrap = 3;
+    state.u.utraptype = TT_PIT;
+    state.u.uprops[FLYING] ??= {};
+    state.u.uprops[FLYING].intrinsic = 1;
+
+    assert.equal(await doup(state), ECMD_TIME);
+    assert.equal(toplines(state), 'You fly from the pit.');
+    assert.equal(state.u.utrap, 0);
+    assert.equal(state.u.utraptype, TT_NONE);
 });
 
 test('doup() refuses when the hero is stuck', async () => {

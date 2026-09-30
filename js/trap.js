@@ -2013,9 +2013,8 @@ export async function climb_pit(state = game) {
         await ttyPline(`You free your ${body_part(LEG, state.youmonst)}.`, state);
     } else if ((Flying(state) || is_clinger(state.youmonst.data))
         && !In_sokoban(u.uz)) {
-        // C's You() macro capitalizes the inserted movement verb.
         await ttyPline(
-            `You ${u_locomotion('Climb', state)} from the ${pitname}.`,
+            `You ${u_locomotion('climb', state)} from the ${pitname}.`,
             state,
         );
         await reset_utrap(false, state);
