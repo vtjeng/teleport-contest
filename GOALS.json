@@ -123633,6 +123633,198 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-v14-bagotricks-runtime-creation",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Complete the bag-of-tricks runtime creation call",
+      "cFile": "makemon.c",
+      "sessions": [],
+      "selectionReason": "Select synthetic/v14/wizard-applies-charged-bag-of-tricks from complete C54 evidence challenges/evaluations/20260930130759-v14.json at 8e2a9bf2. Its step38 creation boundary matches38/39 screens and2107/2178 RNG. makemon.c:bagotricks consumes makemon’s returned pointer only after creation completes; JS calls the synchronous constructor and stops before the runtime suffix. Await the accepted makemon_runtime adapter without changing charge, draw, message or result order. This is a divergence correction only; no new whole-source completion or separately recorded pickup tipping caller credit.",
+      "detail": "Segment0 step38: C makemon.c:bagotricks2554–2601 calls makemon after consume_obj_charge and rn2(23)/optional rnd(7), then consumes the returned pointer for creation and visibility counts. JS bagotricks used synchronous makemon, which refuses the runtime suffix. Exact delivery beb43cb9 awaits makemon_runtime and fully matches the admitted apply caller. Both pickup callers already await but remain unexercised here.",
+      "openedAt": "b5e2278bc9da0ccdf279a7e7ce14b9462df36687",
+      "openStanding": {
+        "sha": "7e6a772ee2d99e9b34d867872d36becd1ee34b68",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "bagotricks",
+      "session": "synthetic/v14/wizard-applies-charged-bag-of-tricks",
+      "step": 38,
+      "syntheticProvenance": {
+        "synthetic/v14/wizard-applies-charged-bag-of-tricks": {
+          "session": "synthetic/v14/wizard-applies-charged-bag-of-tricks",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-applies-charged-bag-of-tricks",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/wizard-applies-charged-bag-of-tricks.session.json",
+          "recordingSha256": "6d405f520cc07b17d4cab724108bffa3d0db220df4fcfe82ea5fa3a7267ea817",
+          "evaluationPath": "challenges/evaluations/20260930130759-v14.json",
+          "evaluationCommit": "8e2a9bf2a1135bf0c405464105a115373ede466b"
+        }
+      },
+      "activeStanding": {
+        "sha": "7e6a772ee2d99e9b34d867872d36becd1ee34b68",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-applies-charged-bag-of-tricks",
+          "session": "synthetic/v14/wizard-applies-charged-bag-of-tricks",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-applies-charged-bag-of-tricks.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-applies-charged-bag-of-tricks.session.json",
+          "recordingSha256": "6d405f520cc07b17d4cab724108bffa3d0db220df4fcfe82ea5fa3a7267ea817",
+          "recipe": "challenges/cases/v14/wizard-applies-charged-bag-of-tricks.recipe.session.json",
+          "recipeSha256": "3c21eb0ef458be0d32e1c00e951c435a702c962c5e9e26c7f587aa306c0030e7",
+          "replayInputSha256": "1e89530f70402cdcc0a016b80b0b16fa48a5333c38205b856dc2fc28ca5bfe7c",
+          "evaluationPath": "challenges/evaluations/20260930130759-v14.json",
+          "evaluationCommit": "8e2a9bf2a1135bf0c405464105a115373ede466b",
+          "evaluationArtifact": "challenges/evaluations/20260930130759-v14.json",
+          "evaluationUtc": "2026-09-30T13:08:23.551Z",
+          "remainingScreens": 1,
+          "recordedSteps": 39,
+          "previousScreensMatched": 38,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 38,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2107,
+              "total": 2178
+            },
+            "cursors": {
+              "matched": 38,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: runtime creation without its async tail owner",
+            "step": 38
+          },
+          "step": 38,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: runtime creation without its async tail owner",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/wizard-applies-charged-bag-of-tricks.json",
+            "result": {
+              "session": "synthetic/v14/wizard-applies-charged-bag-of-tricks",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "wizard-applies-charged-bag-of-tricks",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "6d405f520cc07b17d4cab724108bffa3d0db220df4fcfe82ea5fa3a7267ea817",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 1,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "wizard-applies-charged-bag-of-tricks",
+                "session": "synthetic/v14/wizard-applies-charged-bag-of-tricks",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/wizard-applies-charged-bag-of-tricks.session.json",
+                "recordingPath": "challenges/cases/v14/wizard-applies-charged-bag-of-tricks.session.json",
+                "recordingSha256": "6d405f520cc07b17d4cab724108bffa3d0db220df4fcfe82ea5fa3a7267ea817",
+                "recipe": "challenges/cases/v14/wizard-applies-charged-bag-of-tricks.recipe.session.json",
+                "recipeSha256": "3c21eb0ef458be0d32e1c00e951c435a702c962c5e9e26c7f587aa306c0030e7",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 39,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 38,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2107,
+                    "total": 2178
+                  },
+                  "cursors": {
+                    "matched": 38,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: runtime creation without its async tail owner",
+                  "step": 38
+                },
+                "step": 38,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported initial-level monster creation: runtime creation without its async tail owner",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "This is a caller-wiring defect in the already-portable makemon.c:bagotricks() function, not missing whole-source behavior in makemon(). C bagotricks() invokes makemon(NULL, u.ux, u.uy, NO_MM_FLAGS) and receives a monster pointer or NULL after the full makemon() source tail. Frozen JS already splits the same constructor and tail: synchronous makemon() requires a runtimeContinuation, while makemon_runtime() supplies it, runs the asynchronous group/inventory/output tail, and returns the created monster or NULL. Frozen js/makemon.js already imports makemon_runtime and uses it in create_critters(); bagotricks() alone uses the synchronous API at this callsite. The assigned fix scope is therefore a divergence-fix in bagotricks(), with makemon reviewed as a dependency. This overlaps A52’s assigned makemon creation/helper work, which owns the adapter behavior.",
+              "source": {
+                "file": "makemon.c",
+                "branch": "The assigned branch is the charged creation loop in the whole C bagotricks() function (2554-2601): after charge consumption and the rn2(23)/rnd(7) count choice, it calls makemon(NULL, u.ux, u.uy, NO_MM_FLAGS), then counts a non-NULL returned monster and whether it is visible or sensed. Frozen JS represents the rest of bagotricks() and already imports makemon_runtime, but this callsite passes its runtime shape to synchronous makemon() without an async continuation. For this call shape, no missing makemon() returned-value branch was found: the existing makemon_runtime() wraps the synchronous constructor, runs the C runtime suffix, and returns its monster or NULL. The narrow defect classification is divergence-fix in bagotricks(); makemon() remains a reviewed dependency and A52 reservation overlap.",
+                "functions": [
+                  "bagotricks"
+                ],
+                "callers": [
+                  "C direct caller exercised here: apply.c:doapply() (4279-4281) calls bagotricks(obj, FALSE, NULL). Frozen JS js/apply.js:doapply() (4360-4363) already awaits bagotricks(obj, false, state); the specific mismatch is the inner bagotricks-to-makemon API call.",
+                  "Other C direct caller: pickup.c:tipcontainer_checks() (3962-3967) calls bagotricks(targetbox, FALSE, &seencount) before rejecting a bag of tricks as a destination. Frozen JS js/pickup.js:tipcontainer_checks() (3518-3523) mirrors this path.",
+                  "Other C direct caller: pickup.c container tipping loop (4011-4019) calls bagotricks(box, TRUE, &seen) until the bag empties or creation fails. Frozen JS js/pickup.js:tipcontainer_checks() (3552-3575) mirrors this path. These tipping entry points are not exercised by this case."
+                ],
+                "dependencies": [
+                  "makemon.c:makemon() (1147-1510): C returns the created monster pointer or NULL only after the creation path completes. For this call, hero-square placement goes through enexto_core(), then random species selection and initialization run before the post-set_malign() runtime suffix. Frozen js/makemon_create.js:makemon_runtime() supplies the continuation, completes that suffix, and returns the monster or NULL; no missing returned-value arm in this dependency was located for the assigned call shape.",
+                  "teleport.c:enexto_core() (219-270) is reached when makemon() is called at the hero square. It gathers nearby candidates through collect_coords() (245-246), and may collect the full map (256-257); collect_coords() shuffles each ring with rn2() (697-709). This is the coordinate helper cited in the admitted C trace.",
+                  "C makemon.c:m_initsgrp()/m_initlgrp() and their recursive makemon() calls implement the random-group tail (1430-1439). Frozen js/makemon_create.js:makemon_runtime() (3420-3473) owns the asynchronous group tail, finishMonsterInventoryAndStrategy(), and finishRuntimeCreationTail().",
+                  "Frozen js/makemon.js imports both makemon and makemon_runtime. Its create_critters() caller already uses await makemon_runtime(mptr, x, y, NO_MM_FLAGS, { state, random }) at 687-691; frozen bagotricks() at 1251-1254 instead invokes synchronous makemon(null, u.ux, u.uy, NO_MM_FLAGS, { state }), which triggers the missing-runtimeContinuation refusal."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The assigned queue entry reports 38 of 39 screens/cursors, 2107 of 2178 random calls, and a stop at step 38 with “runtime creation without its async tail owner”. The assigned saved scan .cache/synthetic-scans/v14/wizard-applies-charged-bag-of-tricks.json records 38 screens emitted, 39 steps, and the same boundary. No replay or new recording was run.",
+                "The immutable challenges/manifests/v14.json case identifies apply.c:doapply -> makemon.c:bagotricks -> teleport.c:collect_coords and says C creates a kobold zombie before entering the runtime-random continuation. Its trace includes the charged-bag rn2(23) at bagotricks(makemon.c:2577).",
+                "C nethack-c/upstream/src/makemon.c:2554-2601 is the whole bagotricks() source function; its charged loop calls makemon(NULL, u.ux, u.uy, NO_MM_FLAGS) and consumes the returned monster pointer only for moncount and visible/sensed seecount. C nethack-c/upstream/src/makemon.c:1147-1510 has the full makemon() behavior, including the source tail after set_malign(); this investigation found no missing returned-value branch in makemon() for this call shape.",
+                "C nethack-c/upstream/src/teleport.c:219-270 connects enexto_core() to collect_coords(); the latter shuffles candidate rings with rn2() at 697-709. This accounts for the manifest trace dependency without requiring a new implementation of that source path for this defect.",
+                "Frozen JS at commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448: js/makemon.js imports makemon_runtime; create_critters() already awaits it at 687-691. The whole bagotricks() helper at 1223-1278 instead calls synchronous makemon() at 1252-1253. In js/makemon_create.js, makemon() requires runtimeContinuation for runtime creation at 1563-1568; makemon_runtime() at 3420-3473 creates that continuation, completes the async suffix, and returns the monster or NULL.",
+                "Source reachability is the admitted Wizard apply command -> apply.c:doapply() -> bagotricks() -> makemon(). Frozen js/apply.js already awaits bagotricks(), and this case stops at that call path with one screen remaining. C direct callers of bagotricks() also include pickup.c:tipcontainer_checks() and the tipping loop; their matching JS caller sites are listed in source.callers and are not exercised here.",
+                "The coordinator assigned A52 the makemon creation/helper changes. This finding is specifically a bagotricks() caller-wiring defect that depends on that creation adapter, so preserve the A52 overlap rather than treating this case as an independent makemon implementation scope."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
