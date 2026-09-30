@@ -119780,7 +119780,7 @@
     {
       "id": "port-pickup-object-scare-scroll-synthetic-v13-20260929",
       "kind": "file-port",
-      "status": "open",
+      "status": "parked",
       "summary": "Port pickup-object handling and its corpse-check dependency",
       "cFile": "pickup.c",
       "sessions": [
@@ -120079,7 +120079,17 @@
             "synthetic": []
           }
         ]
-      }
+      },
+      "progressBeforePark": {
+        "screens": 0,
+        "rng": 0
+      },
+      "parkedStanding": {
+        "sha": "e40858944e01bb3c8f6c2ad47ff7781a59b63d02",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "parkedReason": "The combined checkpoint preserves all 44 fixed sessions and 709 regression recordings but fails an obsolete pet-swap pickup-refusal assertion. Automatic approval review rejected the isolated correction worktree and prohibited workarounds. Preserve the candidate and source evidence pending direct user clarification."
     }
   ]
 }
