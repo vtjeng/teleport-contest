@@ -17,6 +17,7 @@ import {
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_NONE,
+    TT_PIT,
     WOUNDED_LEGS,
     W_ARMF,
     WT_WOUNDEDLEG_REDUCT,
@@ -446,6 +447,32 @@ test('a held hero stops where C would ask to confirm the step', async () => {
     );
     game.level.regions = [];
     assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
+});
+
+test('a held hero spends an attempted move climbing out of a pit', async () => {
+    const { segments } = loadHeroBearTrapRecipe();
+    await runSegment({ ...segments[1], moves: '' });
+    const [ux, uy] = [game.u.ux, game.u.uy];
+
+    // C's timer-expiry arm runs after the source-ordered rn2(2) boulder check;
+    // a normal human with timer one must escape and the movement stays spent.
+    game.u.utrap = 1;
+    game.u.utraptype = TT_PIT;
+    game.u.dx = 1;
+    game.u.dy = 0;
+    game.u.umoved = false;
+    game.context.move = 1;
+    game.domoveAttempting = 1;
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+
+    await domove(game);
+
+    assert.deepEqual([game.u.ux, game.u.uy], [ux, uy]);
+    assert.equal(game.u.utrap, 0);
+    assert.equal(game.u.utraptype, TT_NONE);
+    assert.equal(game.vision_full_recalc, 1);
+    assert.match(game._ttyToplines, /^You crawl to the edge of the pit\.$/u);
 });
 
 test('escaping a bear trap while levitating resumes with float_up()', async () => {

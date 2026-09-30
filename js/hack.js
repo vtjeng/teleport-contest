@@ -132,6 +132,7 @@ import {
     TRAP_CLEARLY_IMMUNE,
     TRAPNUM,
     TT_BEARTRAP,
+    TT_PIT,
     Upolyd,
     VIBRATING_SQUARE,
     WATER,
@@ -411,6 +412,7 @@ import {
     is_pool,
     is_pool_or_lava,
     back_on_ground,
+    climb_pit,
     drown,
     lava_effects,
     float_up,
@@ -3758,23 +3760,22 @@ async function domove_fight_empty(x, y, state) {
     return true;
 }
 
-// C ref: hack.c trapmove() (1549-1691), the TT_BEARTRAP arm (1565-1579) and
-// the wriggle_free: label it jumps to (1671-1680). TRUE means the hero may go
-// on to test_move(); FALSE means the step is spent struggling and the turn
-// still passes.
+// C ref: hack.c trapmove() (1549-1691), the TT_PIT arm (1580-1586), the
+// TT_BEARTRAP arm (1565-1579) and the wriggle_free label (1671-1680). TRUE
+// means the hero may go on to test_move(); FALSE means the step is spent
+// trying to escape and the turn still passes.
 //
 // Escaping costs one point of u.utrap per step, and a diagonal step always
 // pays it while an orthogonal one pays it on a one-in-five rn2(5) -- C's own
 // comment asks why diagonal movement gives the quickest escape. The
 // short-circuit matters: a diagonal step draws no random number at all.
 //
-// The other five u.utraptype arms are TT_PIT (climb_pit()), TT_WEB
-// (u_wield_art(ART_STING)), TT_LAVA, TT_INFLOOR and TT_BURIEDBALL
-// (buried_ball() and buried_ball_to_punishment()); none of those owners is
-// ported. `x`, `y` and `desttrap` are read by the TT_PIT arm alone, which is
-// why they are unread here. `anchored` is TT_BURIEDBALL's, and it is what
-// makes wriggle_free() say "wriggle" rather than "wrench the ball" below.
-async function trapmove(_x, _y, _desttrap, state = game) {
+// TT_PIT now delegates to trap.c:climb_pit(), except for the adjacent visible
+// pit that C permits the hero to enter. The remaining unported arms are
+// TT_WEB, TT_LAVA, TT_INFLOOR and TT_BURIEDBALL. `x`, `y` and `desttrap` are
+// read by the TT_PIT arm alone; `anchored` is TT_BURIEDBALL's and makes its
+// wriggle_free() message say "wriggle" rather than "wrench the ball" below.
+async function trapmove(x, y, desttrap, state = game) {
     const u = state.u;
 
     if (!u.utrap) return true; /* sanity check */
@@ -3782,6 +3783,12 @@ async function trapmove(_x, _y, _desttrap, state = game) {
     /*
      * Note: caller should call reset_utrap() when we set u.utrap to 0.
      */
+    if (u.utraptype === TT_PIT) {
+        if (desttrap && desttrap.tseen && is_pit(desttrap.ttyp))
+            return true; /* move into adjacent pit */
+        await climb_pit(state);
+        return false;
+    }
     if (u.utraptype !== TT_BEARTRAP) {
         throw new UnsupportedHeroMoveBoundaryError('held hero movement');
     }

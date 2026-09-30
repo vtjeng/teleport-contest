@@ -307,6 +307,7 @@ import { Punished, dismount_steed, stucksteed } from './steed.js';
 import { enexto, mnexto, safe_teleds } from './teleport.js';
 import { run_timers } from './timeout.js';
 import {
+    climb_pit,
     fill_pit,
     is_lava,
     is_pool,
@@ -2035,8 +2036,7 @@ export async function doup(state = game) {
 
     // do.c:1308-1311. "up" to get out of a pit.
     if (u.utrap && u.utraptype === TT_PIT) {
-        // C discards climb_pit()'s void result; preserve the gap and debit.
-        note_unported('trap.c climb_pit');
+        await climb_pit(state);
         return ECMD_TIME;
     }
 

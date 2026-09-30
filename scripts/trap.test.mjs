@@ -5,10 +5,18 @@ import test from 'node:test';
 const C_TRAP = readFileSync(
     new URL('../nethack-c/upstream/src/trap.c', import.meta.url), 'utf8',
 );
+const C_DO = readFileSync(
+    new URL('../nethack-c/upstream/src/do.c', import.meta.url), 'utf8',
+);
+const C_HACK = readFileSync(
+    new URL('../nethack-c/upstream/src/hack.c', import.meta.url), 'utf8',
+);
 const C_PICKUP = readFileSync(
     new URL('../nethack-c/upstream/src/pickup.c', import.meta.url), 'utf8',
 );
 const JS_TRAP = readFileSync(new URL('../js/trap.js', import.meta.url), 'utf8');
+const JS_DO = readFileSync(new URL('../js/do.js', import.meta.url), 'utf8');
+const JS_HACK = readFileSync(new URL('../js/hack.js', import.meta.url), 'utf8');
 const JS_PICKUP = readFileSync(
     new URL('../js/pickup.js', import.meta.url), 'utf8',
 );
@@ -103,4 +111,67 @@ test('loot, disarm, and tip preserve their discarded-result chest_trap calls', (
     assert.match(JS_PICKUP, /await chest_trap\(obj, HAND, false, state\);/u);
     assert.match(JS_TRAP, /await chest_trap\(box, FINGER, true, state\);/u);
     assert.match(JS_PICKUP, /await chest_trap\(box, HAND, false, state\);/u);
+});
+
+test('climb_pit keeps the complete source branch and caller order', () => {
+    const cClimbPit = cFunction(
+        C_TRAP,
+        'climb_pit(void)',
+        '\nstaticfn void\ndofiretrap',
+    );
+    const jsStart = JS_TRAP.indexOf('export async function climb_pit(');
+    assert.notEqual(jsStart, -1, 'js/trap.js exports the trap.c function');
+    const jsEnd = JS_TRAP.indexOf('\n}\n', jsStart) + 3;
+    const jsClimbPit = JS_TRAP.slice(jsStart, jsEnd);
+
+    // These source positions pin the branch sequence, including the boulder
+    // draw before the check, timer decrement before the easy-escape helper,
+    // and the quiet continuation at the end of the source function.
+    const cOrder = [
+        'if (!u.utrap || u.utraptype != TT_PIT)',
+        'pitname = trapname(PIT, FALSE);',
+        'if (Passes_walls)',
+        'else if (!rn2(2) && sobj_at(BOULDER, u.ux, u.uy))',
+        'else if ((Flying || is_clinger(gy.youmonst.data)) && !Sokoban)',
+        'else if (!(--u.utrap) || m_easy_escape_pit(&gy.youmonst))',
+        'else if (u.dz || flags.verbose)',
+    ].map((source) => cClimbPit.indexOf(source));
+    const jsOrder = [
+        'if (!u.utrap || u.utraptype !== TT_PIT)',
+        'trapname(PIT, false, state)',
+        'if (Passes_walls(state))',
+        'else if (!rn2(2) && sobj_at(BOULDER, u.ux, u.uy, state))',
+        'else if ((Flying(state) || is_clinger(state.youmonst.data))',
+        '&& !In_sokoban(u.uz))',
+        'else if (!(--u.utrap) || m_easy_escape_pit(state.youmonst, state))',
+        'else if (u.dz || state.flags?.verbose)',
+    ].map((source) => jsClimbPit.indexOf(source));
+    assert.ok(cOrder.every((position) => position >= 0));
+    assert.ok(jsOrder.every((position) => position >= 0));
+    assert.deepEqual(cOrder, [...cOrder].sort((a, b) => a - b));
+    assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
+
+    // Both active C caller contracts are pinned as well: doup spends a turn,
+    // while trapmove preserves the adjacent-visible-pit exception and spends
+    // any other TT_PIT movement attempt in place.
+    const cDoup = cFunction(
+        C_DO,
+        'doup(void)',
+        '\n/* check that we can write out the current level */',
+    );
+    assert.match(cDoup, /if \(u\.utrap && u\.utraptype == TT_PIT\)\s*\{\s*climb_pit\(\);\s*return ECMD_TIME;/u);
+    assert.match(JS_DO, /if \(u\.utrap && u\.utraptype === TT_PIT\)\s*\{\s*await climb_pit\(state\);\s*return ECMD_TIME;/u);
+
+    const cTrapmove = cFunction(
+        C_HACK,
+        'trapmove(\n    coordxy x, coordxy y,',
+        '\nboolean\nu_rooted(void)',
+    );
+    const cPitArm = cTrapmove.slice(
+        cTrapmove.indexOf('case TT_PIT:'), cTrapmove.indexOf('case TT_WEB:'),
+    );
+    assert.match(cPitArm, /if \(desttrap && desttrap->tseen\s*&& is_pit\(desttrap->ttyp\)\)\s*return TRUE;/u);
+    assert.match(cPitArm, /climb_pit\(\);/u);
+    assert.match(JS_HACK, /if \(desttrap && desttrap\.tseen && is_pit\(desttrap\.ttyp\)\)\s*return true;/u);
+    assert.match(JS_HACK, /if \(u\.utraptype === TT_PIT\)\s*\{[\s\S]*?await climb_pit\(state\);\s*return false;/u);
 });

@@ -3,7 +3,7 @@
 // C ref: trap.c -- t_at(), hole_destination(), maketrap(), deltrap(),
 // conjoined_pits(), clear_conjoined_pits(), adj_nonconjoined_pit(),
 // choose_trapnote(), set_utrap(), reset_utrap(), fill_pit(), float_down(),
-// lava_effects(),
+// climb_pit(), lava_effects(),
 // trapname(), dountrap(), could_untrap(), untrap_prob(), cnv_trap_obj(),
 // into_vs_onto(), move_into_trap(), try_disarm(), reward_untrap(),
 // disarm_holdingtrap(), disarm_landmine(), unsqueak_ok(),
@@ -205,7 +205,7 @@ import { buried_ball } from './dig.js';
 import { getdir, xytodir } from './cmd.js';
 import {
     Monnam, capitalizedMonsterName, mon_nam, monsterCommonName, mon_pmname,
-    noit_Monnam, y_monnam, rndcolor, hliquid, hcolor, rndmonnam,
+    noit_Monnam, y_monnam, YMonnam, rndcolor, hliquid, hcolor, rndmonnam,
     a_monnam, christen_monst,
 } from './do_name.js';
 import { abuse_dog } from './dog.js';
@@ -239,6 +239,7 @@ import {
     near_capacity, calc_capacity, check_capacity, inv_cnt, inv_weight, weight_cap,
     test_move, spoteffects, bad_rock, crawl_destination, set_uinwater,
     nomul, unmul, losehp, You_can_move_again,
+    u_locomotion,
     UnsupportedHeroMoveBoundaryError,
 } from './hack.js';
 import { sgn, upstart } from './hacklib.js';
@@ -311,9 +312,12 @@ import { trap_to_defsym } from './symbols.js';
 import { halu_trapnames } from './trap_names_data.js';
 import { is_ice, set_levltyp } from './terrain.js';
 import { spot_stop_timers } from './timeout.js';
-import { dofiretrap, dotrap, feeltrap, mintrap } from './trap_effects.js';
 import {
-    displayPendingTtyMessageWindow, ttyPline, ttyUrgentPline,
+    dofiretrap, dotrap, feeltrap, mintrap, m_easy_escape_pit,
+} from './trap_effects.js';
+import {
+    clearTtyMessageWindow, displayPendingTtyMessageWindow,
+    ttyNorep, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
 import { stumble_onto_mimic } from './uhitm.js';
 import { note_unported } from './unported.js';
@@ -1984,6 +1988,56 @@ export async function float_down(hmask, emask, state = game) {
         await pickup(1, state);
     }
     return 1;
+}
+
+// C ref: trap.c climb_pit() (4183-4230). Both doup() and trapmove() spend
+// the attempted turn after this shared helper; preserve its trap-name draw,
+// boulder check, timer update and escape messages in source order.
+export async function climb_pit(state = game) {
+    const u = state.u;
+    if (!u.utrap || u.utraptype !== TT_PIT) return;
+
+    const pitname = trapname(PIT, false, state);
+    if (Passes_walls(state)) {
+        await ttyPline(`You ascend from the ${pitname}.`, state);
+        await reset_utrap(false, state);
+        await fill_pit(u.ux, u.uy, state);
+        state.vision_full_recalc = 1;
+    } else if (!rn2(2) && sobj_at(BOULDER, u.ux, u.uy, state)) {
+        await ttyPline(
+            `Your ${body_part(LEG, state.youmonst)} gets stuck in a crevice.`,
+            state,
+        );
+        await displayPendingTtyMessageWindow(state);
+        clearTtyMessageWindow(state);
+        await ttyPline(`You free your ${body_part(LEG, state.youmonst)}.`, state);
+    } else if ((Flying(state) || is_clinger(state.youmonst.data))
+        && !In_sokoban(u.uz)) {
+        // C's You() macro capitalizes the inserted movement verb.
+        await ttyPline(
+            `You ${u_locomotion('Climb', state)} from the ${pitname}.`,
+            state,
+        );
+        await reset_utrap(false, state);
+        await fill_pit(u.ux, u.uy, state);
+        state.vision_full_recalc = 1;
+    } else if (!(--u.utrap) || m_easy_escape_pit(state.youmonst, state)) {
+        await reset_utrap(false, state);
+        const escape = In_sokoban(u.uz) && Levitation(state)
+            ? 'struggle against the air currents and float'
+            : u.usteed ? 'ride' : 'crawl';
+        await ttyPline(`You ${escape} to the edge of the ${pitname}.`, state);
+        await fill_pit(u.ux, u.uy, state);
+        state.vision_full_recalc = 1;
+    } else if (u.dz || state.flags?.verbose) {
+        if (u.usteed) {
+            await ttyNorep(`${YMonnam(u.usteed, state)} is still in a pit.`, state);
+        } else if (Hallucination(state) && !rn2(5)) {
+            await ttyNorep("You've fallen, and you can't get up.", state);
+        } else {
+            await ttyNorep('You are still in a pit.', state);
+        }
+    }
 }
 
 // C ref: trap.c trapname() (7100-7155). The display RNG chooses the name;
