@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for dothrow.c:throwit calling apply.c:snuff_candle on a lit candle that lands on an empty floor square. Wish one lit wax candle, then throw it east without a monster target.",
+  "segments": [
+    {
+      "seed": 41870539,
+      "datetime": "20570814110900",
+      "nethackrc": "OPTIONS=name:V15Candle,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nlit wax candle\ntnl"
+    }
+  ]
+}

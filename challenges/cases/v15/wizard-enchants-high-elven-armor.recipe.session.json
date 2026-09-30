@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for read.c:seffect_enchant_armor's special_armor branch. A Wizard wears a wished +6 elven cloak and reads an uncursed enchant-armor scroll.",
+  "segments": [
+    {
+      "seed": 86041927,
+      "datetime": "20580224132500",
+      "nethackrc": "OPTIONS=name:V15ElvenEnchant,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\n+6 elven cloak\nTb Wo #wizwish\nuncursed scroll of enchant armor\nrp "
+    }
+  ]
+}

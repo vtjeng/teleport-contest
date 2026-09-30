@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for apply.c:use_lockpick -> lock.c:pick_lock. A female Rogue wishes a credit card and tries a generated closed door, independently of prior chest-lock sessions.",
+  "segments": [
+    {
+      "seed": 63105729,
+      "datetime": "20531203101500",
+      "nethackrc": "OPTIONS=name:V15Card,role:Rogue,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\ncredit card\njjjhajj"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for apply.c:use_whistle. A Valkyrie creates a sleeping hostile orc, wishes an ordinary tin whistle and blows it to exercise wake_nearby(TRUE), without any tame pet.",
+  "segments": [
+    {
+      "seed": 47013529,
+      "datetime": "20570412101500",
+      "nethackrc": "OPTIONS=name:V15TinWake,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizgenesis\nsleeping hostile orc\n#wizwish\ntin whistle\naf"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for apply.c:use_towel calling weapon.c:dry_a_towel. A Wizard wishes a cursed wet towel and applies it to reach a curse-effect branch that dries the towel.",
+  "segments": [
+    {
+      "seed": 40518329,
+      "datetime": "20591211103500",
+      "nethackrc": "OPTIONS=name:V15WetTowel,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\ncursed wet towel\nao"
+    }
+  ]
+}

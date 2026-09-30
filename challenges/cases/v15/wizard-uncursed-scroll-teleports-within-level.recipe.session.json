@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for read.c:seffect_teleportation. A Wizard reads an uncursed scroll while unconfused and reaches scrolltele’s same-level relocation branch.",
+  "segments": [
+    {
+      "seed": 26197345,
+      "datetime": "20560317114700",
+      "nethackrc": "OPTIONS=name:V15ScrollTele,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of teleportation\nrn l  l."
+    }
+  ]
+}

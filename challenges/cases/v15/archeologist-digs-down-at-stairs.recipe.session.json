@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for dig.c:dig downward from ordinary floor into dighole. A female Archeologist moves east and south away from the starting up stair, then applies her pick-axe downward until occupation completion.",
+  "segments": [
+    {
+      "seed": 24908351,
+      "datetime": "20580714091500",
+      "nethackrc": "OPTIONS=name:V15DownDig,role:Archeologist,race:human,gender=female,align=lawful,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " lj ae  >......"
+    }
+  ]
+}

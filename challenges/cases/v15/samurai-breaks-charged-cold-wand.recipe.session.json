@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 C-first probe for apply.c:do_break_wand with WAN_COLD. A Samurai wears a wished cold-resistance ring, then confirms breaking a positive-charge cold wand to reach EXPL_FROSTY and survive.",
+  "segments": [
+    {
+      "seed": 93816427,
+      "datetime": "20591023141500",
+      "nethackrc": "OPTIONS=name:V15ColdBreak,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nring of cold resistance\nPfr #wizwish\nwand of cold\nagy "
+    }
+  ]
+}

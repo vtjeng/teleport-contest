@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 independent source-led expansion for wizcmds.c:wiz_intrinsic SICK arm -> potion.c:make_sick. A debug Wizard selects fatally sick through the exact wizard intrinsic menu without depending on another unavailable illness setup.",
+  "segments": [
+    {
+      "seed": 31829471,
+      "datetime": "20591203113700",
+      "nethackrc": "OPTIONS=name:V15SickTimer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizintrinsic\ne "
+    }
+  ]
+}

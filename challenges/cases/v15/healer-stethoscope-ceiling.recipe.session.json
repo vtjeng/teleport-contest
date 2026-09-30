@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 source-first probe for apply.c:use_stethoscope's upward ceiling branch. A Healer applies a wished stethoscope and chooses up from a room tile; this does not inspect a monster or floor object.",
+  "segments": [
+    {
+      "seed": 35281947,
+      "datetime": "20560118091200",
+      "nethackrc": "OPTIONS=name:V15Ceiling,role:Healer,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nstethoscope\nak<"
+    }
+  ]
+}

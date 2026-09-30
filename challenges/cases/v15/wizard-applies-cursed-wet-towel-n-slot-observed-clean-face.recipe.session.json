@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C51 corrected-slot C-first probe for apply.c:use_towel -> weapon.c:dry_a_towel. The preceding seed showed the cursed wet towel at slot n, so this frozen replay selects n. Earlier same-seed attempts selected a missing slot and the magic marker; their exact recordings are retained as target-miss/overlap evidence.",
+  "segments": [
+    {
+      "seed": 50972643,
+      "datetime": "20591212104100",
+      "nethackrc": "OPTIONS=name:V15WetTowelM,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\ncursed wet towel\nan"
+    }
+  ]
+}
