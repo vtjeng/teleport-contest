@@ -1,6 +1,7 @@
 // Starting-pet creation, tame-monster state, and the companions that leave a
 // level with the hero.
-// C refs: dog.c newedog(), initedog(), pet_type(), makedog(), mon_leave(),
+// C refs: dog.c pick_familiar_pm(), make_familiar(), newedog(), initedog(),
+// pet_type(), makedog(), mon_leave(),
 // keep_mon_accessible(), keepdogs(), migrate_to_level() and abuse_dog();
 // mon.c relmon(),
 // mon_leaving_level() and see_monster_closeup();
@@ -11,7 +12,11 @@ import {
     AGGRAVATE_MONSTER,
     BLINDED,
     CONFLICT,
+    CORPSTAT_FEMALE,
+    CORPSTAT_GENDER,
+    CORPSTAT_MALE,
     EDOG,
+    G_EXTINCT,
     HALLUC,
     HALLUC_RES,
     LL_CONDUCT,
@@ -24,7 +29,12 @@ import {
     MON_MIGRATING,
     MON_STILL_ARRIVING,
     MM_EDOG,
+    MM_FEMALE,
+    MM_IGNOREWATER,
+    MM_MALE,
+    MM_NOMSG,
     NO_MINVENT,
+    MAXMONNO,
     NEED_HTH_WEAPON,
     ACCFOOD,
     DOGFOOD,
@@ -53,8 +63,9 @@ import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { game } from './gstate.js';
 import { can_saddle, put_saddle_on_mon } from './steed.js';
 import { update_inventory } from './invent.js';
-import { set_malign } from './makemon.js';
+import { mbirth_limit, rndmonst_adj, set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
+import { minliquid } from './mon.js';
 import {
     attacktype,
     is_covetous,
@@ -99,9 +110,11 @@ import {
     BOULDER,
     EXPENSIVE_CAMERA,
     SCROLL_CLASS,
+    SPE_CREATE_FAMILIAR,
     SPBOOK_CLASS,
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -118,6 +131,8 @@ import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, canseemon } from './vision.js';
 import { note_unported } from './unported.js';
+import { is_pool } from './trap.js';
+import { has_oname, ONAME } from './const.js';
 
 export { christen_monst } from './do_name.js';
 // Re-export for existing dog-related callers. The source implementations live
@@ -125,11 +140,130 @@ export { christen_monst } from './do_name.js';
 export { can_saddle, put_saddle_on_mon };
 
 function dogEnv(env = {}) {
+    const random = {
+        d, rn1, rn2, rnd, rne, rnz,
+        ...(env.random ?? {}),
+    };
     return {
         ...env,
-        random: env.random ?? { d, rn1, rn2, rnd, rne, rnz },
+        random,
         state: env.state ?? game,
     };
+}
+
+// C ref: dog.c pick_familiar_pm(). The object form uses its figurine species
+// directly, while the spell form first chooses a usual pet 1/3 of the time
+// and otherwise uses the create-familiar skill's monster-level range.
+export async function pick_familiar_pm(otmp, quietly = false, env = {}) {
+    const normalized = dogEnv(env);
+    const { state, random } = normalized;
+    let species = null;
+
+    if (otmp) {
+        const mndx = Math.trunc(otmp.corpsenm);
+        if (!Number.isInteger(mndx) || !state.mons?.[mndx])
+            throw new RangeError(`pick_familiar_pm: invalid species ${otmp.corpsenm}`);
+        species = state.mons[mndx];
+        // Figurines bypass ordinary birth limits except the special-limited
+        // Erinyes and Nazgul species; the extant bit is the current C state.
+        const vitality = state.mvitals?.[mndx] ?? {};
+        if ((vitality.mvflags & G_EXTINCT)
+            && mbirth_limit(mndx) !== MAXMONNO) {
+            if (!quietly)
+                await (normalized.message ?? ttyPline)(
+                    '... into a pile of dust.', state,
+                );
+            return null;
+        }
+    } else if (!random.rn2(3)) {
+        species = state.mons[pet_type(normalized)];
+    } else {
+        const skill = spell_skilltype(SPE_CREATE_FAMILIAR, state);
+        const max = 3 * P_SKILL(skill, state);
+        species = rndmonst_adj(0, max, normalized);
+        if (!species && !quietly)
+            await (normalized.message ?? ttyPline)(
+                'There seems to be nothing available for a familiar.', state,
+            );
+    }
+    return species;
+}
+
+// C ref: dog.c make_familiar(). `makemon()` supplies a consumed monster
+// pointer, so use its accepted async runtime owner and preserve the retry loop
+// before the figurine's rn2(10) attitude choice.
+export async function make_familiar(otmp, x, y, quietly = false, env = {}) {
+    const normalized = dogEnv(env);
+    const { state, random } = normalized;
+    let monster = null;
+    let trycnt = 100;
+    let reallytame = true;
+
+    do {
+        const species = await pick_familiar_pm(otmp, quietly, normalized);
+        if (!species) break;
+
+        let mmflags = MM_EDOG | MM_IGNOREWATER | NO_MINVENT | MM_NOMSG;
+        const gender = otmp ? Math.trunc(otmp.spe ?? 0) & CORPSTAT_GENDER : 0;
+        mmflags |= gender === CORPSTAT_FEMALE ? MM_FEMALE
+            : gender === CORPSTAT_MALE ? MM_MALE : 0;
+
+        monster = await makemon_runtime(
+            species, x, y, mmflags, normalized,
+        );
+        if (otmp) {
+            if (!monster) {
+                if (!quietly)
+                    await (normalized.message ?? ttyPline)(
+                        'The figurine writhes and then shatters into pieces!',
+                        state,
+                    );
+                break;
+            }
+            if (monster.isminion) {
+                // minion.c free_emin() is a discarded void cleanup call. Keep
+                // its preceding C flag clear and record the remaining storage
+                // release gap instead of inventing minion-state mutations.
+                monster.isminion = false;
+                note_unported('minion.c free_emin');
+            }
+        }
+    } while (!monster && --trycnt > 0);
+
+    if (!monster) return null;
+
+    if (is_pool(monster.mx, monster.my, state)
+        && await minliquid(monster, normalized)) return null;
+
+    if (otmp) {
+        let chance = random.rn2(10);
+        if (chance > 2)
+            chance = otmp.blessed ? 0 : !otmp.cursed ? 1 : 2;
+        if (chance > 0) {
+            reallytame = false;
+            if (chance === 2) {
+                if (!quietly)
+                    await (normalized.message ?? ttyPline)(
+                        'You get a bad feeling about this.', state,
+                    );
+                monster.mpeaceful = false;
+                set_malign(monster, state);
+            }
+        }
+        if (has_oname(otmp))
+            monster = christen_monst(monster, ONAME(otmp), normalized);
+    }
+    if (reallytame) initedog(monster, true, normalized);
+    monster.msleeping = 0;
+    set_malign(monster, state);
+    newsym(monster.mx, monster.my, state);
+
+    // C discards mon_wield_item()'s result but keeps its weapon changes.
+    if (monster.mtame && attacktype(monster.data, AT_WEAP)) {
+        monster.weapon_check = NEED_HTH_WEAPON;
+        await mon_wield_item(monster, normalized);
+    }
+    return monster;
 }
 
 function propertyActive(hero, index) {

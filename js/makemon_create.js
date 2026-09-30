@@ -51,6 +51,7 @@ import {
     MM_EMIN,
     MM_ESHK,
     MM_FEMALE,
+    MM_IGNOREWATER,
     MM_MALE,
     MM_MINVIS,
     MM_NOWAIT,
@@ -596,6 +597,7 @@ import {
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOWAIT
     | MM_NOCOUNTBIRTH
+    | MM_IGNOREWATER
     | MM_NOTAIL
     | MM_NOMSG
     | MM_NOEXCLAM
@@ -1393,6 +1395,18 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && Boolean(ptr)
         && !randomCoordinates
         && mmflags === (NO_MINVENT | MM_NOMSG);
+    // dog.c:make_familiar() calls makemon() with this exact inventoryless
+    // pet shape, adding at most one figurine gender bit. The C callee has no
+    // runtime species or ACCESSIBLE preflight; placement below handles the
+    // hero-square case with MM_IGNOREWATER passed to goodpos().
+    const familiarCall = !state.in_mklev
+        && Boolean(ptr)
+        && !randomCoordinates
+        && isok(x, y)
+        && (mmflags & (NO_MINVENT | MM_EDOG | MM_IGNOREWATER | MM_NOMSG))
+            === (NO_MINVENT | MM_EDOG | MM_IGNOREWATER | MM_NOMSG)
+        && !(mmflags & ~(NO_MINVENT | MM_EDOG | MM_IGNOREWATER | MM_NOMSG
+            | MM_MALE | MM_FEMALE));
     // mhitu.c cloneu() creates a second hero-form monster during ordinary
     // play, at the hero square, with the inventoryless dog flags.  It then
     // completes clone initialization in the caller, so use the normal
@@ -1430,6 +1444,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || figurineAnimationCall || explicitInventorylessHeroCall
         || explicitCoordinateRuntimeCall
         || cloneuCall || minionSummonCall
+        || familiarCall
         || (!state.in_mklev && statueInventoryCall)
         || nastyCall;
     if (runtimeCall
@@ -1479,6 +1494,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     // terrain the template chose.  Guards are placed at wall positions that
     // invault() converts to doors immediately after creation.
     if (!state.in_mklev && !startingPetCall && !deadbookCall
+        && !familiarCall
         && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !explicitInventorylessHeroCall && !randomCoordinates
         && !explicitCoordinateRuntimeCall && !vaultGuardCall
@@ -1539,6 +1555,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !createParticularCall
             && !explicitInventorylessHeroCall
             && !explicitCoordinateRuntimeCall
+            && !familiarCall
             && !nastyCall
             && (!state.in_mklev || (isMainDungeonLevel(state)
                 && !normalized._rndmonMklev))) {
@@ -2877,7 +2894,9 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     }
     const byHero = x === state.u.ux && y === state.u.uy;
     const allowtail = !(mmflags & MM_NOTAIL);
-    const gpflags = GP_CHECKSCARY | GP_AVOID_MONPOS;
+    // C makemon.c:1162 carries this caller flag into every placement check.
+    const gpflags = GP_CHECKSCARY | GP_AVOID_MONPOS
+        | (mmflags & MM_IGNOREWATER);
     if (x === 0 && y === 0) {
         const coordinate = makemon_rnd_goodpos(ptr, gpflags, normalized);
         if (!coordinate) return null;

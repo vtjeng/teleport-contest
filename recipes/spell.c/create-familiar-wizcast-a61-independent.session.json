@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61193001,
+      "datetime": "20420930121400",
+      "nethackrc": "OPTIONS=name:A61FamSpell,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizcast\n>o"
+    }
+  ],
+  "comment": "C-first spell.c:spelleffects(SPE_CREATE_FAMILIAR) -> dog.c:make_familiar entry. The debug Wizard pages to the second #wizcast menu and selects its source o row; seed, clock, and character are independently chosen and no wizard-wish setup command is used."
+}
