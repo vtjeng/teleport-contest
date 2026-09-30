@@ -182,7 +182,7 @@ test('timeout planning hands live-only expiries off before touching their state'
     const state = propertyTimeoutState();
     for (const property of [
         BLINDED, HALLUC, INVIS, DETECT_MONSTERS, DISPLACED, LEVITATION,
-        FLYING, STONED, STRANGLED,
+        FLYING, STONED,
     ]) {
         state.u.uprops[property].intrinsic = 2;
         assert.equal(nh_timeout_requires_live_state(state), false, `${property}: countdown`);
@@ -193,6 +193,19 @@ test('timeout planning hands live-only expiries off before touching their state'
         state.u.uinvulnerable = false;
         state.u.uprops[property].intrinsic = 0;
     }
+    // timeout.c treats `Strangled` as any nonzero intrinsic value and calls
+    // choke_dialogue on each turn; the matched amulet case starts this clock at
+    // 6, so this active count must hand off before the planner reaches one.
+    state.u.uprops[STRANGLED].intrinsic = 6;
+    assert.equal(nh_timeout_requires_live_state(state), true,
+        'active strangling runs the whole dialogue/exercise call live');
+    state.u.uinvulnerable = true;
+    assert.equal(nh_timeout_requires_live_state(state), false,
+        'invulnerability still returns before the timeout handoff');
+    state.u.uinvulnerable = false;
+    // Clear the active countdown so the unrelated confusion checks below are
+    // isolated from the strangling branch.
+    state.u.uprops[STRANGLED].intrinsic = 0;
     state.u.uprops[CONFUSION].intrinsic = 1;
     assert.equal(nh_timeout_requires_live_state(state), false, 'confusion uses message seam');
     state.u.mtimedone = 1;
