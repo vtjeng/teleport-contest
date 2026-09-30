@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 62498103,
+    "datetime": "20541025151700",
+    "nethackrc": "OPTIONS=name:V16Write,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": "E- HELLO\n..",
+    "comment": "Independent Wizard seed, clock, and #engrave inputs test the source-defined fingertip selection, text entry, and dust inscription. The initial C probe established that a pager space is needed after the fingertip message before the text prompt; the two final wait turns let C finish its occupation."
+  }]
+}

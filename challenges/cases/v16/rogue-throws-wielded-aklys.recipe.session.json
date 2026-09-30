@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 53189047,
+      "datetime": "20680418124500",
+      "nethackrc": "OPTIONS=name:V16AklysReturn,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed aklys\nw"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 72753109,
+      "datetime": "20680108161500",
+      "nethackrc": "OPTIONS=name:V16SicknessVapor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\nuncursed potion of sickness\nto."
+    }
+  ]
+}

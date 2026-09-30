@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 68293511,
+    "datetime": "20550719101500",
+    "nethackrc": "OPTIONS=name:V16Strike,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": " #wizwish\n+1 wand of striking\njzpl",
+    "comment": "Independent Wizard seed and clock wish a wand of striking. The C map showed the nearest closed ordinary door one row south and east, so moving south aligns the hero before zapping east; C then reports the door crashes open."
+  }]
+}

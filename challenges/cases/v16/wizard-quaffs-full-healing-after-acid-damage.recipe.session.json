@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51873629,
+      "datetime": "20590111142000",
+      "nethackrc": "OPTIONS=name:V16FullHeal,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nblessed potion of acid\n\n#wizwish\nuncursed potion of full healing\n\nqo\n\nqp"
+    }
+  ]
+}

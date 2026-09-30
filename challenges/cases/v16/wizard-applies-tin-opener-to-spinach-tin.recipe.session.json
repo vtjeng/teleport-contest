@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 73154819,
+    "datetime": "20560610090800",
+    "nethackrc": "OPTIONS=name:V16Tin,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": "\u0017tin opener\n\u0017tin of spinach\nao p",
+    "comment": "Independently chosen debug-Wizard seed, clock, two wished objects and inputs exercise C apply.c:doapply TIN_OPENER wiring into eat.c:use_tin_opener and start_tin. The C-only attempts established opener slot o, tin slot p, and the More boundary between wielding and selecting the tin."
+  }]
+}

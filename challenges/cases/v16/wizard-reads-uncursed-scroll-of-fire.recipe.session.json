@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68759214,
+      "datetime": "20680423110000",
+      "nethackrc": "OPTIONS=name:V16FireScroll,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed scroll of fire\nrp "
+    }
+  ]
+}

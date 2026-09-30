@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 75309142,
+      "datetime": "20591207160500",
+      "nethackrc": "OPTIONS=name:V16GoldDetect,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\nuncursed scroll of gold detection\n\n#wizwish\n10 gold pieces\n\nr?p  \n\u001b"
+    }
+  ]
+}

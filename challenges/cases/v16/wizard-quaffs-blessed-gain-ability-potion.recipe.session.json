@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 58037199,
+    "datetime": "20570102091000",
+    "nethackrc": "OPTIONS=name:V16Ability,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "moves": " #wizwish\nblessed potion of gain ability\nqp",
+    "comment": "Independent Wizard seed, clock, and wish/drink sequence reach potion.c:peffect_gain_ability with all abilities below maximum. The C-only attempt exposed that the wished potion is inventory slot p and its orange appearance is unidentified; final inputs follow those C observations."
+  }]
+}

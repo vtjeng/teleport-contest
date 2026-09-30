@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 62033145,
+      "datetime": "20580916093000",
+      "nethackrc": "OPTIONS=name:V16Detect,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed potion of object detection\n\n#wizwish\ndagger\n\nd?nqf"
+    }
+  ]
+}

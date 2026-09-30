@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 209135871,
+      "datetime": "20591207145500",
+      "nethackrc": "OPTIONS=name:V16Scare,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizgenesis\nhostile orc\n#wizwish\nuncursed scroll of scare monster\n\nr?o \n"
+    }
+  ]
+}
