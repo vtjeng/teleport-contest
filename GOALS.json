@@ -121238,7 +121238,7 @@
     {
       "id": "port-timeout-choke-dialogue-v14-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port strangulation timeout dialogue and its live turn handoff",
       "cFile": "timeout.c",
       "sessions": [
@@ -121252,8 +121252,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "786c4d928c3b6cd957078f24028114223abc92f8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "choke_dialogue",
@@ -121517,6 +121520,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "786c4d928c3b6cd957078f24028114223abc92f8",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
