@@ -297,7 +297,11 @@ function assertSimpleActionState(monster, state) {
     if (monster.mtame && !monster.isminion) {
         if (!STARTING_PETS.has(monster.data?.pmidx))
             unsupported('a non-starting pet');
-        if (monster.msleeping || monster.mleashed) {
+        // C dogmove.c:dog_goal() aborts before goal setup or random draws
+        // for the current steed; dog_move() turns that into MMOVE_NOTHING.
+        // The planning clone maps both pointers to the same cloned monster.
+        if (monster.msleeping
+            || (monster.mleashed && monster !== state.u?.usteed)) {
             unsupported('special starting-pet state');
         }
         if (!monster.mextra?.edog)

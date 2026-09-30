@@ -178,6 +178,14 @@ const HACK_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/hack.c', import.meta.url),
     'utf8',
 );
+const DOGMOVE_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/dogmove.c', import.meta.url),
+    'utf8',
+);
+const DOGMOVE_JS_SOURCE = readFileSync(
+    new URL('../js/dogmove.js', import.meta.url),
+    'utf8',
+);
 
 function rngSnapshot() {
     return {
@@ -3571,6 +3579,138 @@ test('live fog movement leaves harmless vapor without extra output or RNG',
         assert.deepEqual(leftVapor.messages, ordinary.messages);
         assert.deepEqual(leftVapor.rng, ordinary.rng);
         assert.deepEqual(sameRegion.rng, ordinary.rng);
+    });
+
+test('dogmove preserves source order before the mounted-steed no-op', () => {
+    // C dogmove.c:dog_goal() returns -2 for the current steed before its
+    // goal setup, visibility queries, or random draws. dog_move() reaches
+    // that return only after hunger, mounted distance, and inventory handling.
+    const goalStart = DOGMOVE_SOURCE.indexOf(
+        'dog_goal(\n    struct monst *mtmp,',
+    );
+    const goalEnd = DOGMOVE_SOURCE.indexOf(
+        '\nstaticfn struct monst *\nfind_targ',
+        goalStart,
+    );
+    assert.ok(goalStart >= 0 && goalEnd > goalStart);
+    const cGoal = DOGMOVE_SOURCE.slice(goalStart, goalEnd);
+    const cSteedReturn = cGoal.indexOf(
+        'if (mtmp == u.usteed)\n        return -2;',
+    );
+    assert.ok(cSteedReturn >= 0);
+    assert.ok(cSteedReturn < cGoal.indexOf('omx = mtmp->mx;'));
+    assert.ok(cSteedReturn < cGoal.indexOf('in_masters_sight = couldsee'));
+
+    const cMoveStart = DOGMOVE_SOURCE.indexOf(
+        'dog_move(\n    struct monst *mtmp,',
+    );
+    assert.ok(cMoveStart >= 0);
+    const cOrder = [
+        DOGMOVE_SOURCE.indexOf('dog_hunger(mtmp, edog)', cMoveStart),
+        DOGMOVE_SOURCE.indexOf('if (mtmp == u.usteed)', cMoveStart),
+        DOGMOVE_SOURCE.indexOf('dog_invent(mtmp, edog, udist)', cMoveStart),
+        DOGMOVE_SOURCE.indexOf(
+            'appr = dog_goal(mtmp, edog, after, udist, whappr);',
+            cMoveStart,
+        ),
+        DOGMOVE_SOURCE.indexOf('if (appr == -2)', cMoveStart),
+    ];
+    assert.ok(cOrder.every((position) => position > cMoveStart));
+    assert.deepEqual(cOrder, [...cOrder].sort((a, b) => a - b));
+    assert.match(DOGMOVE_SOURCE.slice(cOrder[4], cOrder[4] + 80),
+        /return MMOVE_NOTHING;/);
+
+    // The existing JS port must retain the same setup and short-circuit order.
+    const jsGoalStart = DOGMOVE_JS_SOURCE.indexOf('export function dog_goal(');
+    const jsSteedReturn = DOGMOVE_JS_SOURCE.indexOf(
+        'if (monster === hero?.usteed) return -2;',
+        jsGoalStart,
+    );
+    assert.ok(jsGoalStart >= 0 && jsSteedReturn > jsGoalStart);
+    const jsMoveStart = DOGMOVE_JS_SOURCE.indexOf(
+        'export async function dog_move(',
+    );
+    const jsOrder = [
+        DOGMOVE_JS_SOURCE.indexOf('dog_hunger(monster, edog, env)', jsMoveStart),
+        DOGMOVE_JS_SOURCE.indexOf('if (monster === state.u.usteed)', jsMoveStart),
+        DOGMOVE_JS_SOURCE.indexOf('dog_invent(', jsMoveStart),
+        DOGMOVE_JS_SOURCE.indexOf('const approach = dog_goal(', jsMoveStart),
+        DOGMOVE_JS_SOURCE.indexOf(
+            'if (approach === -2) return MMOVE_NOTHING;',
+            jsMoveStart,
+        ),
+    ];
+    assert.ok(jsOrder.every((position) => position > jsMoveStart));
+    assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
+});
+
+test('a mounted leashed pony passes preflight and live action guards', async () => {
+    const target = await prepareStartingPetAction(PM_PONY);
+    const { monster: steed } = target;
+    // C's mounted steed occupies the hero's square; the generic action helper
+    // starts its test monster away from the hero for ordinary pet movement.
+    game.level.monsters[steed.mx][steed.my] = null;
+    steed.mx = game.u.ux;
+    steed.my = game.u.uy;
+    game.level.monsters[steed.mx][steed.my] = steed;
+    game.u.usteed = steed;
+    // The selected case attaches this leash to the current steed before its
+    // monster turn, which is the exact state this exception must admit.
+    steed.mleashed = true;
+
+    const planned = planningState(game);
+    assert.notEqual(planned.u.usteed, steed);
+    assert.equal(planned.u.usteed, planned.level.monlist);
+    assert.equal(
+        planned.level.monsters[steed.mx][steed.my],
+        planned.u.usteed,
+    );
+    assert.equal(planned.u.usteed.mleashed, true);
+
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, target.replay),
+        before,
+        'the clone-only steed preflight leaves live output, RNG, and state unchanged',
+    );
+
+    const result = await runSimpleMonsterAction(steed, { state: game });
+    assert.equal(result, MMOVE_NOTHING);
+    assert.deepEqual([steed.mx, steed.my], [game.u.ux, game.u.uy]);
+});
+
+test('an ordinary leashed starting pet keeps the unsupported action boundary',
+    async () => {
+        const target = await prepareStartingPetAction(PM_LITTLE_DOG);
+        // This dog is not u.usteed, so dog_goal's mounted-steed return cannot
+        // justify admitting its still-unported leashed movement path.
+        target.monster.mleashed = true;
+        game.u.usteed = null;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const isLeashedPetBoundary = (error) => (
+            error instanceof UnsupportedSimpleMonsterActionError
+            && error.reason === 'special starting-pet state'
+        );
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            isLeashedPetBoundary,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            'a rejected clone scan leaves the ordinary leashed dog unchanged',
+        );
+        await assert.rejects(
+            runSimpleMonsterAction(target.monster, { state: game }),
+            isLeashedPetBoundary,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            'the live guard rejects before mutating the ordinary leashed dog',
+        );
     });
 
 test('simple ordinary monster and starting pet can land in a corridor',
