@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked runtime probe for read.c:do_class_genocide -> mon.c:mongone while the hero is swallowed by a hostile fog cloud. C reaches rnd(2) in mon.c:unstuck and eliminates the swallowed holder. The current JS replay stops before the C step-60 attack at monmove.c:distfleeck (538), so this recipe is intentionally not in recordings/. The C-only raw recording is preserved in .cache/A52-swallowed-c-recording.json.",
+  "segments": [
+    {
+      "seed": 104205047,
+      "datetime": "20420403151631",
+      "nethackrc": "OPTIONS=name:A52SwallowedGenocide,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017blessed scroll of genocide\n\u0007hostile fog cloud\nm.m.m.m.m.m. re  *\n"
+    }
+  ]
+}

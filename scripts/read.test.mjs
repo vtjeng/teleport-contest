@@ -20,9 +20,11 @@ import {
     seffects,
 } from '../js/read.js';
 import {
-    G_NOCORPSE, PM_LONG_WORM, PM_NEWT, PM_WIZARD,
+    G_NOCORPSE, PM_AIR_ELEMENTAL, PM_LONG_WORM, PM_NEWT, PM_WIZARD,
 } from '../js/monsters.js';
 import { makemon_runtime } from '../js/makemon_create.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import { scriptedRandom, step } from './monster-scripted-random.mjs';
 import {
     MAGIC_MARKER, SCR_CHARGING, SCR_CREATE_MONSTER, SCR_FOOD_DETECTION,
     SCR_GOLD_DETECTION, SCR_SCARE_MONSTER,
@@ -657,6 +659,72 @@ test('read.c wizard class genocide synchronously removes a worm through mongone'
             assert.equal(game.level.monsters[x][y], null, `${x},${y}`);
         assert.match(game._pending_message, /Eliminated 1 monster\./u);
         assert.equal(game.unported?.has('mon.c mongone'), false);
+    });
+
+test('read.c wizard genocide waits for swallowed mongone before continuing',
+    async () => {
+        // Seed 8080062 only initializes the runtime input/display shell; this
+        // is an independently constructed holder, not a replay seed. Air
+        // elemental ID 702 and 18 HP only identify a live AT_ENGL fixture.
+        await emptyTamingWorld(8080062);
+        const state = game;
+        state.level.monlist = null;
+        state.fmon = null;
+        const holder = newMonster({
+            data: state.mons[PM_AIR_ELEMENTAL],
+            mnum: PM_AIR_ELEMENTAL,
+            m_id: 702,
+            mhp: 18,
+        });
+        state.level.monlist = holder;
+        place_monster(holder, state.u.ux, state.u.uy, state);
+        // C's swallowed-holder fields let unstuck() release this monster;
+        // wizard plus the queued `*` and newline select/confirm all monsters.
+        state.u.ustuck = holder;
+        state.u.uswallow = 1;
+        state.gm ??= {};
+        state.gm.mswallower = holder;
+        state.wizard = true;
+        state._pending_message = '';
+        state._ttyMessageStopped = false;
+        state.nhDisplay.toplin = TOPLINE_EMPTY;
+        state.nhDisplay.terminal._inputQueue.push('*'.charCodeAt(0), 10);
+
+        let releaseVision;
+        let signalVision;
+        const visionGate = new Promise((resolve) => { releaseVision = resolve; });
+        const visionEntered = new Promise((resolve) => { signalVision = resolve; });
+        // C's rnd(2)=1 cooldown is the only random draw in this isolated
+        // continuation; it must occur after the gated mode-2 redraw.
+        const random = scriptedRandom([step('rnd', [2], 1)]);
+        const operation = do_class_genocide(state, {
+            random: random.random,
+            visionRecalc: async (mode) => {
+                if (mode === 2) {
+                    signalVision();
+                    await visionGate;
+                }
+            },
+            docrt: async () => {},
+        });
+
+        await visionEntered;
+        assert.equal(state.u.ustuck, null);
+        assert.equal(state.u.uswallow, 0);
+        // The caller must not count the monster or print the genocide summary
+        // until mongone has completed its redraw/cooldown continuation.
+        assert.equal(Boolean(holder.mstate & MON_DETACH), false);
+        assert.equal(state.iflags?.purge_monsters ?? 0, 0);
+        assert.doesNotMatch(state._pending_message, /Eliminated/u);
+
+        releaseVision();
+        await operation;
+        random.assertExhausted();
+        assert.ok(holder.mstate & MON_DETACH);
+        // This fixture contains one selected monster, so C's summary count and
+        // the single detach's purge count are both exactly one.
+        assert.equal(state.iflags.purge_monsters, 1);
+        assert.match(state._pending_message, /Eliminated 1 monster\./u);
     });
 
 test('read.c wizard genocide recipe reaches mongone through blessed scroll input',

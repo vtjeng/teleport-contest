@@ -10,6 +10,7 @@ import {
     DOOR,
     IRONBARS,
     LAVAWALL,
+    MON_BUBBLEMOVE,
     POOL,
     ROOM,
     ROWNO,
@@ -21,6 +22,9 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
+import { MONSTER_TEMPLATES, PM_LONG_WORM } from '../js/monsters.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import { initRng } from '../js/rng.js';
 import {
     baalz_fixup,
     check_ransacked,
@@ -31,8 +35,10 @@ import {
     maze_inbounds,
     maze_remove_deadends,
     mazexy,
+    movebubbles,
     okay,
 } from '../js/mkmaze.js';
+import { initworm } from '../js/worm.js';
 
 function mazeState() {
     const state = resetGame();
@@ -41,6 +47,100 @@ function mazeState() {
     state.lregions = [];
     return state;
 }
+
+test('mkmaze.c movebubbles clears worm wx values before bubble relocation', () => {
+    const state = resetGame();
+    // This independent seed only initializes relocation's un-injected
+    // tail-position helper; it is not a reference-game seed, and the three
+    // movebubbles draws are asserted separately below.
+    initRng(610205);
+    state.level = new GameMap();
+    state.level.monlist = null;
+    state.level.traps = [];
+    state.mons = MONSTER_TEMPLATES;
+    // Water-level identity and the interior bounds make (9,4) and (10,5)
+    // valid bubble cells; the hero at (30,10) stays outside the mask.
+    state.u = {
+        ux: 30,
+        uy: 10,
+        uz: { dnum: 0, dlevel: 1 },
+        uswallow: 0,
+        ustuck: null,
+    };
+    state.water_level = { ...state.u.uz };
+    state.waterlevel_bounds = { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
+    // Three stored nodes are two visible tails plus the terminal/head node.
+    // The ID 801 and HP 20 only distinguish this independently built worm;
+    // neither value selects a special movebubbles branch.
+    const worm = newMonster({
+        data: state.mons[PM_LONG_WORM],
+        mnum: PM_LONG_WORM,
+        m_id: 801,
+        mhp: 20,
+        wormno: 1,
+    });
+    state.level.monlist = worm;
+    place_monster(worm, 11, 5, state);
+    initworm(worm, 2, { state });
+    const segments = state.level.worms[worm.wormno].segments;
+    // These adjacent tail cells and the head at (11,5) give the first set
+    // mask bit a worm while the second bit tests that remove_worm cleared all
+    // of its occupied squares before the scan reaches that cell.
+    segments[0].x = 9;
+    segments[0].y = 4;
+    segments[1].x = 10;
+    segments[1].y = 5;
+    state.level.monsters[9][4] = worm;
+    state.level.monsters[10][5] = worm;
+    const originalY = segments.map(({ y }) => y);
+    // C visits columns then rows; 2x2 rows [1,2] set (x=0,y=0) and
+    // (x=1,y=1), covering (9,4) and (10,5). The first capture therefore
+    // removes the whole worm before the second cell is visited.
+    const bubble = {
+        x: 9,
+        y: 4,
+        dx: 0,
+        dy: 0,
+        mask: { width: 2, height: 2, rows: [1, 2] },
+        cons: [],
+    };
+    state.air_bubbles = [bubble];
+    state.air_bubbles_up = false;
+
+    const draws = [];
+    const random = (bound) => {
+        draws.push(bound);
+        if (draws.length === 1) {
+            // mkmaze.c collects the monster before drawing movement. C's
+            // remove_worm() clears each wx but preserves its wy, and the
+            // bubble owns one monster record even when it covered two tails.
+            assert.deepEqual(segments.map(({ x }) => x), [0, 0, 0]);
+            assert.deepEqual(segments.map(({ y }) => y), originalY);
+            assert.deepEqual([9, 10, 11].map((x, i) =>
+                state.level.monsters[x][[4, 5, 5][i]]), [null, null, null]);
+            assert.equal(bubble.cons.length, 1);
+            assert.equal(bubble.cons[0].what, 'monster');
+            assert.equal(bubble.cons[0].list, worm);
+            assert.ok(worm.mstate & MON_BUBBLEMOVE);
+            assert.deepEqual([worm.mx, worm.my], [0, 0]);
+        }
+        // The first two rn2(3) results are zero, so C's rx/ry expression
+        // moves this stationary bubble down-right by (1,1). The later rn2(5)
+        // result 1 suppresses a direction reroll. These mappings pin exactly
+        // [3,3,5] while leaving tail placement on its independently seeded RNG.
+        return bound === 5 ? 1 : 0;
+    };
+
+    movebubbles(state, random);
+
+    assert.deepEqual(draws, [3, 3, 5]);
+    assert.deepEqual(bubble.cons, []);
+    assert.ok(worm.mx > 0 && worm.my > 0);
+    assert.equal(state.level.monsters[worm.mx][worm.my], worm);
+    const movedSegments = segments.slice(0, -1);
+    for (const segment of movedSegments)
+        assert.equal(state.level.monsters[segment.x][segment.y], worm);
+});
 
 test('mkmaze.c fixup_special() marks Mine Town before monster setup uses it', () => {
     const state = mazeState();

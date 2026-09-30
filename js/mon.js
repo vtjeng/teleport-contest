@@ -4738,37 +4738,45 @@ export function mongone(monster, env = {}) {
 
     // mon.c mongone() releases a holder before object handling; m_detach()
     // repeats this call after inventory disposal, where it is then a no-op.
-    unstuck(monster, state, env);
+    // The swallowed arm of JS unstuck() awaits the vision redraw before it
+    // rolls the holding cooldown. Keep the ordinary path synchronous, but
+    // preserve C's order by continuing inventory and detach only after that
+    // redraw/cooldown promise settles.
+    const finishRemoval = () => {
+        // C's void mdrop_special_objs() runs before ordinary inventory
+        // disposal. The helper keeps unconditional resistance calls;
+        // protected object transfers remain explicit source-call gaps.
+        mdrop_special_objs(monster, { ...env, state });
+        discard_minvent(monster, false, { ...env, state });
 
-    // C's void mdrop_special_objs() runs before ordinary inventory disposal.
-    // The helper keeps the unconditional resistance calls; protected object
-    // transfers remain explicit gaps at their source call branches.
-    mdrop_special_objs(monster, { ...env, state });
-    discard_minvent(monster, false, { ...env, state });
-
-    const unsupported = (branch) => {
-        if (branch === 'detaching a leashed pet')
-            note_unported('apply.c m_unleash');
-        else if (branch === 'unhiding a mimic')
-            note_unported('mon.c seemimic');
-        else if (branch === "the Wizard of Yendor's death")
-            note_unported('end.c wizdeadorgone');
-        else if (branch === 'the quest nemesis\'s death')
-            note_unported('quest.c nemdead');
-        else if (branch === 'the quest leader\'s death')
-            note_unported('questpgr.c leaddead');
-        else if (branch === "the death of the hero's steed")
-            note_unported('steed.c dismount_steed');
-        else
-            note_unported(`mon.c m_detach ${branch}`);
+        const unsupported = (branch) => {
+            if (branch === 'detaching a leashed pet')
+                note_unported('apply.c m_unleash');
+            else if (branch === 'unhiding a mimic')
+                note_unported('mon.c seemimic');
+            else if (branch === "the Wizard of Yendor's death")
+                note_unported('end.c wizdeadorgone');
+            else if (branch === 'the quest nemesis\'s death')
+                note_unported('quest.c nemdead');
+            else if (branch === 'the quest leader\'s death')
+                note_unported('questpgr.c leaddead');
+            else if (branch === "the death of the hero's steed")
+                note_unported('steed.c dismount_steed');
+            else
+                note_unported(`mon.c m_detach ${branch}`);
+        };
+        // C passes due_to_death=false, so this stays synchronous after the
+        // optional swallowed release; source-site failures reach the caller.
+        m_detach(monster, monster.data, false, state, {
+            ...env,
+            state,
+            unsupported,
+        });
     };
-    // C passes due_to_death=false, so m_detach completes synchronously here;
-    // any source-site failure remains visible to the mongone caller.
-    m_detach(monster, monster.data, false, state, {
-        ...env,
-        state,
-        unsupported,
-    });
+    const release = unstuck(monster, state, env);
+    return release && typeof release.then === 'function'
+        ? release.then(finishRemoval)
+        : finishRemoval();
 }
 
 // C ref: mon.c mlifesaver() (2825-2836). "find the worn amulet of life saving
