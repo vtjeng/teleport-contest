@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED: this independent raven variation reaches polyself.c:break_armor, which drops the cloak and quarterstaff onto the wished pit through do.c:dropx and do.c:flooreffects. JavaScript currently stops at js/do.js:drop with UnsupportedDropError('shipping or floor effects at a trap') before trap.c:climb_pit can run. The equivalent C setup reaches the Flying escape only after its equipment-drop messages are dismissed; this recipe is retained as a coverage gap, not passing evidence.",
+  "segments": [
+    {
+      "seed": 76149302,
+      "datetime": "20260507114200",
+      "nethackrc": "OPTIONS=name:B62Flyer,role:Wizard,race:elf,gender:female,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen\n",
+      "moves": "l\u0017pit\nhl#polyself\nraven\n   <"
+    }
+  ]
+}
