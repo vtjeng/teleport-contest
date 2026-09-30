@@ -122184,7 +122184,7 @@
           "line": 2102,
           "endLine": 2156,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -122460,7 +122460,78 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_magic_mapping",
+            "implementation": "js/read.js",
+            "symbol": "seffect_magic_mapping",
+            "sourceReview": "Read the whole read.c:seffect_magic_mapping definition, lines 2102-2153. Verified the scroll-only nommap return, blessed-scroll secret-door loop, knowledge assignment, shared spell/scroll nommap return, map message, cursed temporary HConfusion set/reset, notice_mon_off/do_mapping/notice_mon_on order, and final cursed message. do_mapping, make_confused, cvt_sdoor_to_door, unblock_point and the notice helpers are implemented callees; there is no substitute refusal in this function. Supporting functions in the task packet are documented separately as bounded caller branches, not whole-function completion claims.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects SCR_MAGIC_MAPPING and SPE_MAGIC_MAPPING arms, lines 2263-2265"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects SPE_MAGIC_MAPPING arm, lines 1528-1530, dispatches the pseudo spellbook through read.c:seffects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-command.test.mjs",
+              "scripts/read.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "cmd.c read dispatch -> read.c:doread -> read.c:seffects -> read.c:seffect_magic_mapping -> detect.c:do_mapping"
+              }
+            ],
+            "checkedAt": "59fc156549919baaae4e4a7e62faf2cae707d99a"
+          }
+        ],
+        "entryPointReview": "Active selected entry paths are: (1) read a cursed magic-mapping scroll through doread/seffects/seffect_magic_mapping/do_mapping/show_map_spot; (2) cast SPE_MAGIC_MAPPING through dowizcast/spelleffects/seffects and the same effect; (3) lateral WAN_PROBING through bhit/zap_map/show_map_spot; (4) downward WAN_PROBING through zap_updown/bhitpile/zap_map/show_map_spot/display_binventory; and (5) the existing wiz_map caller of do_mapping. Each has matching recorded play, and the cursed scroll also has an admitted v14 prefix. sit.c:throne_sit_effect case 10 is active; root has wired and verified its do_mapping call with the independent throne recording. detect.c:do_vicinity_map also calls show_map_spot for clairvoyance, but its outer caller remains unported and is excluded from this task. Within zap.c, other zap_map/zap_updown effect arms are not selected. The selected source functions are active in the recorder build; there is no compile-time-excluded selected helper. invent.c:only_here is pure and source-pinned; display_binventory is impure and executes through the downward probe caller. Existing B40 step 11 attributes rn2(73)=62 to C seffect_create_monster(read.c:1616), and step 12 reports the jackal. This exercises the adjacent spelleffects dispatcher arm, not create-monster effect completion. Supporting functions and caller branches were compared with upstream C in this integration: seffects: Read the full read.c:seffects switch, lines 2194-2290, and ported the SCR_MAGIC_MAPPING/SPE_MAGIC_MAPPING dispatch arms. Both arms call seffect_magic_mapping with the source-owned object-pointer consumption behavior; the C call to seffect_magic_mapping is no longer replaced by note_unported. Other seffects arms remain governed by their existing source-specific implementations or named gaps. Production callers: js/read.js:doread (read.c:doread calls seffects for the selected scroll at line 635); js/spell.js:spelleffects (spell.c:spelleffects constructs the pseudo spellbook and calls seffects for SPE_MAGIC_MAPPING at lines 1528-1530). Runtime recordings: recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json. show_map_spot: Read the whole detect.c:show_map_spot definition, lines 1372-1419. Verified the confusion rn2(7) early return before mutation, seenv and secret-corridor conversion, remembered versus temporary map background, furniture/trap/engraving/object precedence, memory-glyph update, and the non-confused room-discovery condition in source order. The helper has no unported result-bearing callee. Production callers: js/detect.js:do_mapping (detect.c:do_mapping calls show_map_spot in its x/y loop at line 1430); js/zap.js:zap_map (zap.c:zap_map WAN_PROBING arm calls show_map_spot before inspecting the mapped square at line 3731). Runtime recordings: recordings/zap.c/probing-wand-lateral-a58-independent.session.json, recordings/zap.c/probing-wand-downward-a58-independent.session.json. do_mapping: Read the whole detect.c:do_mapping definition, lines 1422-1444. Verified unconstrain_map precedes the x-major/y-minor traversal, every square receives current Confusion, lack of hero memory or a successful unconstrain selects flush_screen/browse_map/map_redisplay, the other branch calls reconstrain_map, and Wisdom exercise follows either branch. These called functions are implemented; map_redisplay owns its source reconstrain/docrt sequence. Production callers: js/read.js:seffect_magic_mapping (read.c:seffect_magic_mapping calls do_mapping at line 2147); js/wizcmds.js:wiz_map (wizcmds.c:wiz_map calls do_mapping at line 191); js/sit.js:throne_sit_effect (sit.c:throne_sit_effect case 10 calls do_mapping at line 153; root wired and verified this caller during integration). Runtime recordings: recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json, recordings/wizcmds.c/wizmap-ordinary-extended.session.json. spelleffects: Read spell.c:spelleffects around lines 1385-1603 and ported the SPE_MAGIC_MAPPING and adjacent SPE_CREATE_MONSTER dispatch arms at lines 1528-1530. C applies the Skilled/Expert blessed-scroll equivalent only to the preceding spell group; mapping and create-monster fall through without that assignment. The mapping arm passes its pseudo spellbook to read.c:seffects. Supporting B40 recording step 11 contains C RNG attribution rn2(73)=62 @ seffect_create_monster(read.c:1616), and step 12 reports the jackal result; this checks the adjacent dispatcher path only, not completion of the create-monster effect. Production callers: js/spell.js:dowizcast (cmd.c #wizcast command dispatch calls spell.c:dowizcast; dowizcast selects the spell and invokes spelleffects, which dispatches SPE_MAGIC_MAPPING at lines 1528-1530). Runtime recordings: recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json, recordings/spell.c/create-monster-spell-independent-b40.session.json. zap_map: Read the whole zap.c:zap_map definition, lines 3628-3825, and implemented only its WAN_PROBING arm at lines 3720-3817. Verified old map/glyph snapshot before show_map_spot, post-map secret-door/corridor and ICE/furniture behavior, discarded draft_message(FALSE) as note_unported('dig.c draft_message'), trap discovery and article selection, then learnwand. The caller awaits force_decor before later source-ordered work. Other zap_map arms remain outside this task. Production callers: js/zap.js:bhit (zap.c:bhit invokes zap_map after its immediate-hit step; the lateral WAN_PROBING recording reaches this call); js/zap.js:zap_updown (zap.c:zap_updown downward WAN_PROBING arm calls zap_map after bhitpile and the SURFACE_AT snapshot at lines 3243-3248). Runtime recordings: recordings/zap.c/probing-wand-lateral-a58-independent.session.json, recordings/zap.c/probing-wand-downward-a58-independent.session.json. zap_updown: Read the full zap.c:zap_updown definition, lines 3219-3410, and implemented its WAN_PROBING arm at lines 3236-3262. Verified ptmp starts at zero, the upward-only message branch, downward update_mapseen_for then bhitpile then SURFACE_AT capture then zap_map, ICE/furniture versus surface naming, awaited probe message, display_binventory count, and final reveals-nothing condition followed by the source early return. The async caller preserves completion order; other zap_updown effect arms remain outside this task. Production callers: js/zap.js:weffects (zap.c:weffects dispatches WAN_PROBING to zap_updown; the independent downward recipe reaches this arm). Runtime recordings: recordings/zap.c/probing-wand-downward-a58-independent.session.json. only_here: Read the complete invent.c:only_here definition, lines 5476-5480. It returns the conjunction of object ox/oy equality with go.only.x/y and has no RNG, output, or mutation. JS reads the corresponding canonical state.go.only fields, which display_binventory sets and resets at the C call site. Production callers: js/invent.js:display_binventory (invent.c:display_binventory passes only_here as the buried-object query predicate at lines 5539-5541). Runtime recordings: source-pinned pure test. display_binventory: Read the whole invent.c:display_binventory definition, lines 5489-5545. Verified the underwater/liquid pile eligibility and single-versus-multiple descriptions, buried-object count and optional observe_object call, go.only target assignment immediately before the query and zero reset after it, and return n+n2. zap_updown consumes the returned count. No result-bearing callee is omitted; C's menu cleanup is represented by the existing query_objlist path. Production callers: js/zap.js:zap_updown (zap.c:zap_updown WAN_PROBING downward arm adds display_binventory(x,y,TRUE) to ptmp at line 3258). Runtime recordings: recordings/zap.c/probing-wand-downward-a58-independent.session.json. Root wired ordinary sit.c:throne_sit_effect case10 after its image message to await detect.c:do_mapping. Independent recipes/sit.c/throne-magic-mapping-a58-independent.session.json and matching recordings/sit.c/throne-magic-mapping-a58-independent.session.json execute the case at segment 0 step 37 and match through step 38, all 39 screens/cursors and 2852 random calls (run-rvHMJa). The final space is an ordinary input, not a pager reply. Probing zap_map reads surface_typ(location) to match rm.h SURFACE_AT for raised drawbridges; scripts/zap-command.test.mjs pins the caller and scripts/dungeon.test.mjs pins ice/lava/water substitution. Supporting branch ports do not establish completion of their entire outer source functions. do_vicinity_map remains an unported outer caller, outside this task.",
+        "entryPoints": [
+          {
+            "name": "read cursed magic-mapping scroll",
+            "functions": [
+              "seffect_magic_mapping"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "rogue-reads-cursed-magic-mapping-scroll",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "doread -> seffects(SCR_MAGIC_MAPPING) -> seffect_magic_mapping -> do_mapping -> show_map_spot"
+              }
+            ]
+          },
+          {
+            "name": "cast magic-mapping spellbook",
+            "functions": [
+              "seffect_magic_mapping"
+            ],
+            "recordings": [
+              "recordings/spell.c/magic-mapping-wizcast-a58-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
