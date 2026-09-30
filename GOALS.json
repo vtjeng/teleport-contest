@@ -123637,7 +123637,7 @@
     {
       "id": "fix-v14-bagotricks-runtime-creation",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete the bag-of-tricks runtime creation call",
       "cFile": "makemon.c",
       "sessions": [],
@@ -123649,8 +123649,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "90fc2c65ea42e2e51cf0989ec113c0d64288aa94",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "bagotricks",
       "session": "synthetic/v14/wizard-applies-charged-bag-of-tricks",
       "step": 38,
@@ -123824,7 +123827,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "90fc2c65ea42e2e51cf0989ec113c0d64288aa94",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
