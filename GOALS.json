@@ -122541,6 +122541,303 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-polymorph-sink-v14-20260930",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete sink transformations and wire sink dipping",
+      "cFile": "do.c",
+      "sessions": [
+        "synthetic/v14/polymorph-ring-transforms-sink"
+      ],
+      "selectionReason": "Select synthetic/v14/polymorph-ring-transforms-sink from current complete A58 evaluations at 59c6d2c744d2726680451254f6a938764c4b36b4. Its investigation traces the missing terrain transformation to whole do.c:polymorph_sink. Complete that function and dosinkring ring caller; port the required fountain.c:dipsink and sink_backs_up support, correct wash_hands state reads, and wire potion.c:dodip sink dispatch. C52 is independent of A58; its submitted source and independent C recordings were reviewed against accepted main. Outer potion pool and kick_nondoor sink callers remain outside scope.",
+      "detail": "Whole polymorph_sink plus sink potion, hand and ring callers; preserve terrain fields, loot bits, messages and RNG order. Supporting potion recordings reach effects and stop at naming prompts.",
+      "openedAt": "29daefbafb84aad8e32cf139810df0048bebe227",
+      "openStanding": {
+        "sha": "59c6d2c744d2726680451254f6a938764c4b36b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "polymorph_sink",
+          "line": 404,
+          "endLine": 459,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 404,
+        "to": 459
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/polymorph-ring-transforms-sink": {
+          "session": "synthetic/v14/polymorph-ring-transforms-sink",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "polymorph-ring-transforms-sink",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+          "recordingSha256": "ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d",
+          "evaluationPath": "challenges/evaluations/20260930085026-v14.json",
+          "evaluationCommit": "59c6d2c744d2726680451254f6a938764c4b36b4"
+        }
+      },
+      "activeStanding": {
+        "sha": "59c6d2c744d2726680451254f6a938764c4b36b4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "polymorph-ring-transforms-sink",
+          "session": "synthetic/v14/polymorph-ring-transforms-sink",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+          "recordingPath": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+          "recordingSha256": "ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d",
+          "recipe": "challenges/cases/v14/polymorph-ring-transforms-sink.recipe.session.json",
+          "recipeSha256": "6e64026f870444897365e2c45696735a55d5f1e3b8cfd80abeb4ce42370acc4d",
+          "replayInputSha256": "f1b20fc36c573ad6f8aade6b8d474b7ff9537f5cb6d7c36611a8fbd5ee74434e",
+          "evaluationPath": "challenges/evaluations/20260930085026-v14.json",
+          "evaluationCommit": "59c6d2c744d2726680451254f6a938764c4b36b4",
+          "evaluationArtifact": "challenges/evaluations/20260930085026-v14.json",
+          "evaluationUtc": "2026-09-30T08:50:49.766Z",
+          "remainingScreens": 2,
+          "recordedSteps": 40,
+          "previousScreensMatched": 38,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 38,
+              "total": 40
+            },
+            "rng": {
+              "matched": 2285,
+              "total": 2287
+            },
+            "cursors": {
+              "matched": 38,
+              "total": 40
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2285,
+              "cEntry": "rn2(4)=2",
+              "cCaller": "polymorph_sink(do.c:416)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": "o"
+              },
+              "stepIndex": 37
+            },
+            "cursor": {
+              "index": 38,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 38,
+                "key": " "
+              },
+              "cCursor": [
+                42,
+                0,
+                1
+              ],
+              "jsCursor": [
+                21,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 37,
+          "kind": "rng",
+          "sourceFile": "do.c",
+          "function": "polymorph_sink",
+          "message": null,
+          "cFile": "do.c",
+          "luaFile": null,
+          "line": 416,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/polymorph-ring-transforms-sink.json",
+            "result": {
+              "session": "synthetic/v14/polymorph-ring-transforms-sink",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "polymorph-ring-transforms-sink",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 2,
+              "recordedSteps": 40,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "polymorph-ring-transforms-sink",
+                "session": "synthetic/v14/polymorph-ring-transforms-sink",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+                "recordingPath": "challenges/cases/v14/polymorph-ring-transforms-sink.session.json",
+                "recordingSha256": "ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d",
+                "recipe": "challenges/cases/v14/polymorph-ring-transforms-sink.recipe.session.json",
+                "recipeSha256": "6e64026f870444897365e2c45696735a55d5f1e3b8cfd80abeb4ce42370acc4d",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 2,
+                "recordedSteps": 40,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 38,
+                    "total": 40
+                  },
+                  "rng": {
+                    "matched": 2285,
+                    "total": 2287
+                  },
+                  "cursors": {
+                    "matched": 38,
+                    "total": 40
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2285,
+                    "cEntry": "rn2(4)=2",
+                    "cCaller": "polymorph_sink(do.c:416)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": "o"
+                    },
+                    "stepIndex": 37
+                  },
+                  "cursor": {
+                    "index": 38,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 38,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      42,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      21,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 37,
+                "kind": "rng",
+                "sourceFile": "do.c",
+                "function": "polymorph_sink",
+                "message": null,
+                "cFile": "do.c",
+                "luaFile": null,
+                "line": 416
+              },
+              "summary": "Dropping a polymorph ring onto a sink reaches the implemented js/do.js:dosinkring path, but its RIN_POLYMORPH arm records note_unported(\"do.c polymorph_sink\") and skips the entire C transformation. do.c:polymorph_sink consumes rn2(4), changes the sink into a fountain, throne, altar or room/grave, carries over the looted state where C does, sets altar or fountain fields, prints the transformation result and redraws the square. In this case C chooses an altar and consumes a second rn2(3); JavaScript leaves the terrain as a sink, causing the RNG mismatch at segment 0 step 37 and the screen/cursor mismatches at step 38. The whole missing do.c function is the source owner. C also calls it from fountain.c:dipsink, while the JavaScript sink-dipping path remains fail-closed in potion.js.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "polymorph_sink"
+                ],
+                "branch": "At the hero square, do.c:polymorph_sink proceeds only when the terrain is SINK. do.c:dosinkring reaches it for a dropped RIN_POLYMORPH; fountain.c:dipsink reaches it for POT_POLYMORPH. Implement its complete guard, sink-state capture and clear, all four rn2(4) transformations, the altar alignment and Inhell branch, the room-to-grave attempt, terrain-specific message, and newsym call. The v14 case reaches outcome 2 (altar), with rn2(4)=2 followed by rn2(3)=1.",
+                "callers": [
+                  "C cmd.c drop command -> do.c:dodrop -> do.c:drop (713-780) -> dosinkring (497-661) -> polymorph_sink (582-585). At the examined commit, JS cmd.js:runDropCommand (3432-3437) -> do.js:dodrop (1303) -> internal drop (1405), which calls do.js:dosinkring (1040) for a ring on a sink; its RIN_POLYMORPH arm at do.js:1144-1149 currently records the missing call and skips it.",
+                  "C potion.c:dodip (2321-2331) -> fountain.c:dipsink (716-745) -> polymorph_sink (582-585). At the examined commit JS potion.js dodip throws UnsupportedDipError for at_sink; fountain.js has no dipsink implementation, so this separate C caller is not wired in JavaScript yet."
+                ],
+                "dependencies": [
+                  "mkmaze.c:set_levltyp updates sink and fountain feature counts. The examined JS already imports js/terrain.js:set_levltyp, which performs that count update.",
+                  "RNG rn2; Inhell and Align2amask; terrain and feature state fields typ, flags/looted, blessedftn and altarmask; and the defsyms explanation used in the transformation message. The examined JS already has rng, In_hell, Align2amask, terrain mutation, symbol and display/message facilities for these dependencies.",
+                  "engrave.c:make_grave is missing from examined js/engrave.js. In polymorph_sink case 3, make_grave mutates terrain/engraving and can call get_rnd_text (including rn2); polymorph_sink immediately reads the resulting terrain type to choose its symbol and message. This dependency must be implemented or otherwise completed from source; skipping it would leave the whole-function port incomplete."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned queue entry in .cache/v14-baseline-work-queue.json records remainingScreens=2, recordedSteps=40, manifest corpus SHA-256 a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0, recording SHA-256 ca63f820be4d8aa1c05d2ae7f7bafd2cce9633ac1ca418fc3a6708580e7a6e0d, and evaluation challenges/evaluations/20260929225551-v14.json at de8f73ddf16241bca4e484fef2ab099b3f133a2d. That evaluation reports 38/40 screens, 38/40 cursors, and 2285/2287 RNG calls matched; its first mismatch is C rn2(4)=2 from polymorph_sink(do.c:416) at segment 0 step 37, followed by a screen and cursor mismatch at step 38.",
+                "The assigned scan .cache/synthetic-scans/v14/polymorph-ring-transforms-sink.json has no command refusal and records do.c polymorph_sink in JS unported state. Its first RNG divergence is the missing C rn2(4)=2 from do.c:416; the next screen differs at row 0, column 0, and its segment end remains input-boundary mismatched. challenges/manifests/v14.json sourceTraceEvidence identifies the two C calls at do.c:416 and :436.",
+                "At frozen source commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, js/do.js:1144-1149 handles RIN_POLYMORPH by calling note_unported(\"do.c polymorph_sink\"), then continues with the unchanged sink terrain. The C caller at do.c:582-586 instead calls polymorph_sink before reading the resulting terrain. The full C definition at nethack-c/upstream/src/do.c:401-456 establishes the source scope: sink guard; save looted status and clear flags; rn2(4) switch for fountain, throne, altar or room/grave; outcome-specific feature fields; transformation/vanishing message; and newsym. The observed altar case consumes rn2(3) at do.c:436 after the first draw.",
+                "The C body also depends on engrave.c:make_grave for outcome 3, which may change terrain, add a headstone engraving and draw randomness for an epitaph. The JS implementation at the examined commit has make_engr_at/engr_at but no make_grave or get_rnd_text implementation; because polymorph_sink reads the terrain after this call, that dependency cannot be silently skipped. The other C caller, fountain.c:dipsink, is downstream of a JavaScript sink-dipping refusal in potion.js and is not the path reached by this challenge."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
