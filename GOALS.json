@@ -120872,7 +120872,7 @@
     {
       "id": "port-dig-up-grave-synthetic-v14-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port grave excavation and its production helper caller",
       "cFile": "dig.c",
       "sessions": [
@@ -120886,8 +120886,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "2719e412e73284cf41b8d02827637bd3f2de3979",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "dig_up_grave",
@@ -121224,6 +121227,12 @@
         ],
         "entryPointReview": "This task selects the helper-only range dig.c:dig_up_grave, so entryPoints is empty as allowed by validation.md. The helper has one direct C caller: dig.c:dighole’s IS_GRAVE arm. Matching recorded play reaches that helper through ordinary digging (the admitted v14 case and independent recipes) and through the independent downward-wand path dig.c:zap_dig -> dighole(FALSE, TRUE, NULL) -> dig_up_grave (recording downward-wand-grave-final-b63; selector 1 corpse). Independent recordings cover corpse selectors 0 and 1, unoccupied selector 4, and selector 2 zombie creation; two selector-2 recordings replay completely through the existing makemon.c:mkclass/makemon runtime path. scripts/dig.test.mjs pins selector 3 to S_MUMMY and selector 2 to S_ZOMBIE from C source, but no mummy runtime recording is claimed. dig.c:zap_dig also calls dighole for an adjacent-pit operation and dig.c:escape_tomb calls it for a separate escape path; those outer commands are outside this helper-only task and are not claimed as ports or runtime entry points. The companion digactualhole change covers only the existing hero-created PIT furniture-message branch, not that whole function. The sixth seed variation is retained but excluded from helper evidence because mhitu.c:mattacku interrupts the downward dig before dighole. A separate doorway setup attempt reaches dig.c:zap_dig’s hole-descent continuation after creating a hole; that JS continuation is unported and the exact C artifact is kept in .cache, outside the passing recordings corpus.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "2719e412e73284cf41b8d02827637bd3f2de3979",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
