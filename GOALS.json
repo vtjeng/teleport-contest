@@ -122921,7 +122921,7 @@
     {
       "id": "port-pickup-do-boh-explosion-v14-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete bag explosions and wire insertion and tipping",
       "cFile": "pickup.c",
       "sessions": [
@@ -122935,8 +122935,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_boh_explosion",
@@ -123188,6 +123191,80 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-puts-nonempty-bag-in-bag-of-holding",
+          "session": "synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.session.json",
+          "recordingSha256": "5076cb9f7bec12ae786e5f0aec5607c160f08a5b215e585d8b022e6e7f7707c2",
+          "recipe": "challenges/cases/v14/wizard-puts-nonempty-bag-in-bag-of-holding.recipe.session.json",
+          "recipeSha256": "dc12e38e33d55103ee75c75d917500eeb37045647601ae3019457d5f0bc4438f",
+          "replayInputSha256": "ea384df939472d8cb950f089b969a041e2c4564bdf142903ca808b90c055faba",
+          "evaluationPath": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationCommit": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+          "evaluationArtifact": "challenges/evaluations/20260930105031-v14.json",
+          "evaluationUtc": "2026-09-30T10:50:54.556Z",
+          "remainingScreens": 0,
+          "recordedSteps": 83,
+          "previousScreensMatched": 82,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 83,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2212,
+              "total": 2215
+            },
+            "cursors": {
+              "matched": 83,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2211,
+              "cEntry": "rn2(19)=6",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(100)=68",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 82,
+                "key": " "
+              },
+              "stepIndex": 82
+            },
+            "cursor": null
+          },
+          "step": 82,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v14/wizard-puts-nonempty-bag-in-bag-of-holding.json",
+            "previousRemainingScreens": 1
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "6566320f433e40cb8c40e13bcc489dbbd21aa450",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
