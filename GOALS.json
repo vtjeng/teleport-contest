@@ -130632,8 +130632,8 @@
           "name": "peffect_full_healing",
           "line": 1144,
           "endLine": 1164,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -130805,7 +130805,60 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_full_healing",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_full_healing",
+            "sourceReview": "Read the complete static potion.c:peffect_full_healing() definition (1144-1162). The helper reports complete healing before calling healup(400, 4 + 4*bcsign(otmp), !otmp->cursed, TRUE). For a blessed potion only, if u.ulevel < u.ulevelmax, it decrements u.ulevelmax before pluslvl(FALSE). It then clears hallucination with make_hallucinated(0L, TRUE, 0L), calls exercise(A_STR, TRUE) followed by exercise(A_CON, TRUE), and heals Wounded_legs only when blessed or when uncursed and not mounted. js/potion.js preserves this exact order, awaits each async side-effect owner, and forwards the caller message, RNG and encumbrance operations. Its POT_FULL_HEALING arm in peffects awaits this complete helper and retains the C -1 return path. The B73 make_sick/healup delivery supplies the sickness cure within healup for non-cursed potions; B73 is an explicit pending delivery dependency. The helper uses existing pluslvl, make_hallucinated, exercise, heal_legs and bcsign implementations; no consumed call is replaced by a gap. Other peffects refusals remain for unrelated unported effects.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects:1401-1403 POT_FULL_HEALING case; potion.c:dopotion:624 calls peffects; cmd.c:1809-1810 maps q to dodrink"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion-full-healing.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-quaffs-full-healing-after-acid-damage",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 82,
+                "source": "cmd.c:1809-1810 -> potion.c:dodrink:526-625 -> potion.c:peffects:1401-1403 -> potion.c:peffect_full_healing:1144-1162"
+              }
+            ],
+            "checkedAt": "18d1ff9825e405a207995b103114733bdbff1dcc"
+          }
+        ],
+        "entryPointReview": "The active entry is the production quaff route: cmd.c:q -> dodrink -> potion.c:dopotion -> potion.c:peffects POT_FULL_HEALING arm -> peffect_full_healing. The admitted v16 wizard-quaffs-full-healing-after-acid-damage range executes that path through all 83 segment steps. Other C peffects callers were checked: spell.c:1545 passes only the enumerated potion-like SPE_* pseudo-types, none of which is POT_FULL_HEALING; end.c:967,974 creates temporary POT_WATER or POT_RESTORE_ABILITY objects. They therefore cannot reach this selected arm. The unported POT_ENLIGHTENMENT and POT_OBJECT_DETECTION arms in JS peffects are outside this task and are not counted as failures or completion evidence for peffect_full_healing.",
+        "entryPoints": [
+          {
+            "name": "quaff a full-healing potion",
+            "functions": [
+              "peffect_full_healing"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-quaffs-full-healing-after-acid-damage",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 82,
+                "source": "cmd.c:1809-1810 -> potion.c:dodrink:526-625 -> potion.c:peffects:1401-1403 -> potion.c:peffect_full_healing:1144-1162"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
