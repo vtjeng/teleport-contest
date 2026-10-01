@@ -1,0 +1,89 @@
+{
+  "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+  "corpus": "synthetic",
+  "batch": "v15",
+  "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+  "remainingScreens": 4,
+  "recordedSteps": 29,
+  "manifestPath": "challenges/manifests/v15.json",
+  "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+  "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+  "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+  "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "status": "complete",
+  "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v15",
+    "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+    "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+    "manifestPath": "challenges/manifests/v15.json",
+    "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+    "recording": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+    "recordingPath": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+    "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+    "recipe": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.recipe.session.json",
+    "recipeSha256": "b9e232c7707804772ab3d6aa557133292c7bf81bdc8b6cb0c319aac8ea329356",
+    "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+    "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+    "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationUtc": "2026-10-01T02:29:26.613Z",
+    "remainingScreens": 4,
+    "recordedSteps": 29,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 25,
+        "total": 29
+      },
+      "rng": {
+        "matched": 2746,
+        "total": 2757
+      },
+      "cursors": {
+        "matched": 25,
+        "total": 29
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+      "step": 25
+    },
+    "step": 25,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first miss is objnam.c doname_base(): naming the newly wished-for lit candle needs its BURN_OBJECT timer adjustment. After that branch, the intended throw reaches a separate unported snuff_candle() call in dothrow.c throwit().",
+  "source": {
+    "file": "objnam.c",
+    "branch": "For a lit wax or tallow candle in doname_base(), calculate remaining burn time from obj->age and, while lit, add peek_timer(BURN_OBJECT, &timer) - svm.moves before deciding whether to prefix “partly used”; append “(lit)” afterward.",
+    "functions": [
+      "doname_base"
+    ],
+    "callers": [
+      "C: objnam.c doname() calls doname_base() (1754); zap.c makewish() calls doname(otmp) at 6388 before hold_another_object(), reached from wizcmds.c wiz_wish() at 38.",
+      "JavaScript: js/zap.js makewish() calls donameFresh() before object placement; js/wizcmds.js wiz_wish() calls makewish(). donameFresh() reaches donameFreshInternal() and preflightDoname() in js/objnam.js."
+    ],
+    "dependencies": [
+      "timeout.c peek_timer() (2324) looks up the absolute timeout for BURN_OBJECT and the same object; the candle branch subtracts svm.moves. JavaScript has the corresponding timer lookup in js/timeout.js peek_timer().",
+      "The full-burn threshold uses objects[obj->otyp].oc_cost; JavaScript objectType(obj).oc_cost is already available to the formatter."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The assigned scan artifact .cache/synthetic-scans/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.json records the first stop at step 25 as “unsupported object name branch: lit candle timer adjustment”. The supplied C recording challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json shows “o - a candle (lit).” at step 25 and, after the throw and direction inputs, “The candle’s flame is extinguished.” at step 28.",
+    "The first source owner is objnam.c doname_base(), defined at 1223; its candle suffix branch at 1458–1483 uses obj->age, objects[otyp].oc_cost, obj->lamplit, peek_timer(BURN_OBJECT), and svm.moves. The JavaScript whole-function counterpart is represented by donameFreshInternal() in js/objnam.js; its current candle modifier compares only obj.age and preflightDoname() refuses a lit candle at js/objnam.js:449. C zap.c makewish() calls doname(otmp) at 6388 before hold_another_object(), so this naming branch blocks the #wizwish setup before the throw begins.",
+    "The timer dependency is timeout.c peek_timer() at 2324, which returns the matching object timer’s absolute timeout or zero; this routine already has a JavaScript counterpart in js/timeout.js. The investigation scope is the complete objnam.c doname_base() function, not just the candle conditional, because the selection rules require whole-function ports.",
+    "A separate later gap is exposed by the target behavior: after landing, dothrow.c throwit() calls (void) snuff_candle(obj) at 1818. apply.c snuff_candle() at 1472 prints the extinguished-flame message and calls end_burn(otmp, TRUE). js/dothrow.js:2693 currently records note_unported('apply.c snuff_candle') in that landing path. This does not cause the first stop at step 25; it remains a separate source scope required to produce the step-28 extinguishing result after the naming miss is repaired."
+  ]
+}

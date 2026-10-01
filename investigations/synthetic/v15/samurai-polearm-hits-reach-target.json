@@ -1,0 +1,145 @@
+{
+  "session": "synthetic/v15/samurai-polearm-hits-reach-target",
+  "remainingScreens": 2,
+  "recordedSteps": 64,
+  "corpus": "synthetic",
+  "batch": "v15",
+  "caseId": "samurai-polearm-hits-reach-target",
+  "manifestPath": "challenges/manifests/v15.json",
+  "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+  "recordingPath": "challenges/cases/v15/samurai-polearm-hits-reach-target.session.json",
+  "recordingSha256": "1956a25a837eee2fc85638e120f1654972bb209e797969c68f38b6c2aea73439",
+  "recipePath": "challenges/cases/v15/samurai-polearm-hits-reach-target.recipe.session.json",
+  "recipeSha256": "b0395289c4a4a5c556c82b877f192732b5f0e4d0c172fe1386ab93ec107aa57d",
+  "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+  "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v15",
+    "caseId": "samurai-polearm-hits-reach-target",
+    "session": "synthetic/v15/samurai-polearm-hits-reach-target",
+    "manifestPath": "challenges/manifests/v15.json",
+    "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+    "recording": "challenges/cases/v15/samurai-polearm-hits-reach-target.session.json",
+    "recordingPath": "challenges/cases/v15/samurai-polearm-hits-reach-target.session.json",
+    "recordingSha256": "1956a25a837eee2fc85638e120f1654972bb209e797969c68f38b6c2aea73439",
+    "recipe": "challenges/cases/v15/samurai-polearm-hits-reach-target.recipe.session.json",
+    "recipeSha256": "b0395289c4a4a5c556c82b877f192732b5f0e4d0c172fe1386ab93ec107aa57d",
+    "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+    "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+    "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationUtc": "2026-10-01T02:29:26.613Z",
+    "remainingScreens": 2,
+    "recordedSteps": 64,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 62,
+        "total": 64
+      },
+      "rng": {
+        "matched": 2881,
+        "total": 2884
+      },
+      "cursors": {
+        "matched": 62,
+        "total": 64
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 62,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 25,
+        "cCell": {
+          "ch": "n",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "e",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2881,
+        "cEntry": "rn2(20)=6",
+        "cCaller": "gethungry(eat.c:3191)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 63,
+          "key": "y"
+        },
+        "stepIndex": 63
+      },
+      "cursor": {
+        "index": 62,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": "."
+        },
+        "cCursor": [
+          32,
+          0,
+          1
+        ],
+        "jsCursor": [
+          35,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 62,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "status": "complete",
+  "summary": "The applied-polearm reach path reaches uhitm.c:attack_checks() before hit resolution. C passes the current ParanoidHit Boolean, false for this session, so the recorded y confirms the peaceful target. JavaScript passes the PARANOID_HIT bit mask itself, making the query always require the word yes; y remains unconsumed and the attack never reaches thitmonst() or hmon(). The whole-function divergence scope is attack_checks() in uhitm.c; apply.c:use_pole() and the downstream hmon path are present in the examined snapshot.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "In attack_checks(), when flags.confirm is enabled and the spotted target is peaceful, while the hero is not confused, hallucinating, or stunned, the ParanoidHit Boolean controls whether paranoid_query() accepts the single key y or requires yes. The JavaScript caller currently supplies PARANOID_HIT, the nonzero mask, instead of testing the current paranoia_bits value.",
+    "functions": [
+      "attack_checks"
+    ],
+    "callers": [
+      "uhitm.c:do_attack():521",
+      "apply.c:use_pole():3493 (reached through doapply():4407-4411)",
+      "apply.c:use_grapple():3835,3845",
+      "dokick.c:maybe_kick_monster():138"
+    ],
+    "dependencies": [
+      "cmd.c:paranoid_query():5655-5657 and paranoid_ynq():5588-5650",
+      "flag.h:ParanoidHit macro and flags.paranoia_bits (lines 82, 564)",
+      "options.c:initoptions():7173; the default mask contains pray, swim, and trap, not hit",
+      "do_name.c:mon_nam(), used to construct the peaceful-target prompt"
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The assigned diagnostic .cache/synthetic-scans/v15/samurai-polearm-hits-reach-target.json reports the first screen mismatch at segment 0, step 62, key \".\": C cell column 25 is \"n\" and JavaScript is \"e\"; C cursor is column 32 and JavaScript column 35. The recorded C screen is \"Really attack the orc? [yn] (n)\". A one-case in-memory replay of the assigned recording at the examined commit shows JavaScript \"Really attack the orc? [yes|n] (n)\" at step 62 and the same prompt with a trailing \" y\" at step 63.",
+    "The C recording challenges/cases/v15/samurai-polearm-hits-reach-target.session.json has step 63 key \"y\" and emits \"You dishonorably attack the innocent! The naginata hits the orc.\" Its final-step RNG calls include gethungry(eat.c:3191), rnd(20) in thitmonst(dothrow.c:2152), and rnd(6) in dmgval(weapon.c:265). The one-case JavaScript replay remains at RNG count 2881 through step 63, confirming it never consumes that answer or enters hit resolution.",
+    "Upstream src/uhitm.c:308-323 passes ParanoidHit to paranoid_query() for the peaceful-target confirmation. Upstream include/flag.h:564 defines ParanoidHit as a Boolean membership test on flags.paranoia_bits; options.c:initoptions():7173 initializes defaults without PARANOID_HIT. In the pinned JavaScript, js/uhitm.js:945-949 passes PARANOID_HIT itself. Its nonzero value makes js/cmd.js:901-948 select the line-based \"yes\" prompt, which leaves the recorded single-key y in the input stream. The divergence is in the attack_checks() confirmation branch, so scope the correction to that existing whole source function.",
+    "The session reaches upstream src/apply.c:use_pole():3426-3557 through doapply():4407-4411; use_pole() calls attack_checks() at 3493 before thitmonst() at 3521. Upstream dothrow.c:2011-2209 sets HMON_APPLIED when the wielded polearm is used and calls hmon(); the pinned JavaScript wires the same route in js/apply.js:947-1057 and js/dothrow.js:2714-2917. js/uhitm.js:1539-1563 implements hmon(), so hmon support exists but is not reached while the confirmation input remains pending."
+  ]
+}
