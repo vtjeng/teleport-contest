@@ -70,6 +70,21 @@ import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
 import { newObject, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 
+const C_TELEPORT_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/teleport.c', import.meta.url), 'utf8',
+);
+const JS_TELEPORT_SOURCE = readFileSync(
+    new URL('../js/teleport.js', import.meta.url), 'utf8',
+);
+
+function sourceScrolltele(source, start, end) {
+    const startIndex = source.indexOf(start);
+    assert.notEqual(startIndex, -1, `source contains ${start}`);
+    const endIndex = source.indexOf(end, startIndex);
+    assert.notEqual(endIndex, -1, `source contains ${end}`);
+    return source.slice(startIndex, endIndex);
+}
+
 function positionState() {
     const state = {
         astral_level: { dnum: 9, dlevel: 1 },
@@ -123,6 +138,50 @@ function boundsRandom(result = 0) {
 function descending(from) {
     return Array.from({ length: from - 1 }, (_, index) => from - index);
 }
+
+test('scrolltele keeps C discovery and control decisions in source order', () => {
+    const cScrolltele = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'void\nscrolltele(struct obj *scroll)',
+        '/* the #teleport command;',
+    );
+    const jsScrolltele = sourceScrolltele(
+        JS_TELEPORT_SOURCE,
+        'export async function scrolltele(scroll, state = game)',
+        '// C ref: teleport.c tele()',
+    );
+
+    // C discovers a blocked teleport scroll after its refusal message.
+    const blockedCheck = cScrolltele.indexOf('noteleport_level(');
+    const blockedLearn = cScrolltele.indexOf('learnscroll(scroll)', blockedCheck);
+    assert.ok(blockedCheck < blockedLearn);
+    assert.ok(blockedLearn < cScrolltele.indexOf('return;', blockedLearn));
+    assert.ok(jsScrolltele.indexOf('learnscroll(scroll, state)')
+        < jsScrolltele.indexOf('if (!heroBlind(state))'));
+
+    // C lets a wizard override disorientation and treats a blessed scroll as
+    // teleport control when the hero is not stunned.
+    assert.match(cScrolltele, /!wizard\s*\|\|\s*y_n\("Override\?"\) != 'y'/u);
+    assert.match(cScrolltele,
+        /Teleport_control\s*\|\|\s*\(scroll\s*&&\s*scroll->blessed\)/u);
+    assert.match(jsScrolltele, /y_n\('Override\?'[\s\S]*?'y'\.charCodeAt\(0\)/u);
+    assert.match(jsScrolltele,
+        /Teleport_control_prop\(state\)\s*\|\|\s*Boolean\(scroll\?\.blessed\)/u);
+
+    // C learns a controlled scroll after its prompt and before getpos(), then
+    // keeps the ordinary fallback learnscroll after an invalid destination.
+    const cControlledLearn = cScrolltele.indexOf(
+        'learnscroll(scroll)', cScrolltele.indexOf('Where do %s want'),
+    );
+    const cGetpos = cScrolltele.indexOf('getpos(&cc');
+    const jsControlledLearn = jsScrolltele.indexOf(
+        'learnscroll(scroll, state)', jsScrolltele.indexOf('Where do ${whobuf}'),
+    );
+    const jsGetpos = jsScrolltele.indexOf('await getpos(');
+    assert.ok(cControlledLearn < cGetpos);
+    assert.ok(jsControlledLearn < jsGetpos);
+    assert.ok(jsGetpos < jsScrolltele.lastIndexOf('learnscroll(scroll, state)'));
+});
 
 test('collect_coords shuffles every complete interior ring in source order', () => {
     const state = positionState();
