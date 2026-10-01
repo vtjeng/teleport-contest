@@ -131384,6 +131384,289 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "restore-c-defined-artifact-throw-rules-v16-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete throwing object rules and split cleanup",
+      "cFile": "dothrow.c",
+      "sessions": [
+        "synthetic/v16/rogue-throws-grimtooth-at-hostile-orc"
+      ],
+      "selectionReason": "The selected v16 investigation rogue-throws-grimtooth-at-hostile-orc traces its first mismatch to dothrow.c:throw_obj: C allows non-Mjollnir artifacts through the ordinary throw path, while JS had a blanket artifact refusal. Selection.md classifies the investigation as a whole-function file-port because the missing branch is in the selected function; the correction therefore completes all of throw_obj (87-293), not just the initial artifact guard. Preserve the selected C/JS mismatch and its admitted runtime range without adding seed-specific behavior. Root verified whole primary scope, production callers, current saved evaluation and packet evidence. Supporting helpers and dispatcher arms receive no additional whole-function credit.",
+      "detail": "Compared complete dothrow.c:87-293 and corrected JS plus original delivery. Verified early ECMD returns, Mjollnir guards, corpse message/killer setup before named instapetrify gap, welded cleanup, named weapon.c dry_a_towel gap, volley branches/RNG/shot state, source inventory extraction, and saved split restoration before unsplitobj. Compared supporting invent.c freeinv_core/freeinv and pure artifact luck/quest predicates. wield weldmsg remains an actual unported stub.",
+      "openedAt": "fce402c2fcaa25258ecaf95279ca4d88e8e0af98",
+      "openStanding": {
+        "sha": "a6a28c74b6d6b6aec8fe0e72cd136406b351ed1b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6fedb4755714bb3d432671489112598ab94756bc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "throw_obj",
+          "line": 87,
+          "endLine": 296,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 87,
+        "to": 296
+      },
+      "syntheticProvenance": {
+        "synthetic/v16/rogue-throws-grimtooth-at-hostile-orc": {
+          "session": "synthetic/v16/rogue-throws-grimtooth-at-hostile-orc",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "rogue-throws-grimtooth-at-hostile-orc",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.session.json",
+          "recordingSha256": "cb6c926e1d756f64aedf2ef5714a05d09697a6657a5d71c9344cfdbcdbe827cb",
+          "evaluationPath": "challenges/evaluations/20261001182226-v16.json",
+          "evaluationCommit": "a6a28c74b6d6b6aec8fe0e72cd136406b351ed1b"
+        }
+      },
+      "activeStanding": {
+        "sha": "a6a28c74b6d6b6aec8fe0e72cd136406b351ed1b",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "rogue-throws-grimtooth-at-hostile-orc",
+          "session": "synthetic/v16/rogue-throws-grimtooth-at-hostile-orc",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.session.json",
+          "recordingPath": "challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.session.json",
+          "recordingSha256": "cb6c926e1d756f64aedf2ef5714a05d09697a6657a5d71c9344cfdbcdbe827cb",
+          "recipe": "challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.recipe.session.json",
+          "recipeSha256": "452bf0736268770b16526115f7cd04742eabb857c51da3bbd737b4547b88f7a0",
+          "replayInputSha256": "1cb946f4a5c2a1d0641d4469a091a4d25cdac2c0f243f9c5811f582adaf19077",
+          "evaluationPath": "challenges/evaluations/20261001182226-v16.json",
+          "evaluationCommit": "a6a28c74b6d6b6aec8fe0e72cd136406b351ed1b",
+          "evaluationArtifact": "challenges/evaluations/20261001182226-v16.json",
+          "evaluationUtc": "2026-10-01T18:23:26.396Z",
+          "remainingScreens": 1,
+          "recordedSteps": 49,
+          "previousScreensMatched": 48,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 48,
+              "total": 49
+            },
+            "rng": {
+              "matched": 2819,
+              "total": 2833
+            },
+            "cursors": {
+              "matched": 48,
+              "total": 49
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: dothrow.c reached throwing an artifact",
+            "step": 48
+          },
+          "step": 48,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: dothrow.c reached throwing an artifact",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/rogue-throws-grimtooth-at-hostile-orc.json",
+            "result": {
+              "session": "synthetic/v16/rogue-throws-grimtooth-at-hostile-orc",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "rogue-throws-grimtooth-at-hostile-orc",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "cb6c926e1d756f64aedf2ef5714a05d09697a6657a5d71c9344cfdbcdbe827cb",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 1,
+              "recordedSteps": 49,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "rogue-throws-grimtooth-at-hostile-orc",
+                "session": "synthetic/v16/rogue-throws-grimtooth-at-hostile-orc",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.session.json",
+                "recordingPath": "challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.session.json",
+                "recordingSha256": "cb6c926e1d756f64aedf2ef5714a05d09697a6657a5d71c9344cfdbcdbe827cb",
+                "recipe": "challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.recipe.session.json",
+                "recipeSha256": "452bf0736268770b16526115f7cd04742eabb857c51da3bbd737b4547b88f7a0",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 1,
+                "recordedSteps": 49,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 48,
+                    "total": 49
+                  },
+                  "rng": {
+                    "matched": 2819,
+                    "total": 2833
+                  },
+                  "cursors": {
+                    "matched": 48,
+                    "total": 49
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: dothrow.c reached throwing an artifact",
+                  "step": 48
+                },
+                "step": 48,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: dothrow.c reached throwing an artifact",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the blanket artifact refusal in js/dothrow.js throw_obj(). Upstream throw_obj() restricts only Mjollnir, so Grimtooth proceeds through the ordinary throw path. The saved C step ends with the orc picking up the landed dagger; it does not exercise a thrown hit or artifact_hit().",
+              "source": {
+                "file": "dothrow.c",
+                "branch": "After a successful item selection and northward direction, the selected singleton is the non-Mjollnir artifact Grimtooth. Upstream throw_obj() permits this object; only Mjollnir must be wielded and meet its strength requirement. The missile proceeds to throwit(), lands, and the orc later picks it up.",
+                "functions": [
+                  "throw_obj"
+                ],
+                "callers": [
+                  "dothrow.c:dothrow() (352-375) calls throw_obj() after #throw selects an object; cmd.c:1901-1902 dispatches the \"throw\" row to dothrow(). The recorded key t follows js/cmd.js:5970-5986 -> dothrow() -> throw_obj().",
+                  "dothrow.c:dofire() (469-585) also calls throw_obj() for its selected quivered/fireassist object; js/dothrow.js:dofire() is the matching production caller."
+                ],
+                "dependencies": [
+                  "dothrow.c:throwit() receives the selected missile after inventory removal; it uses zap.c:bhit() with THROWN_WEAPON and null callbacks.",
+                  "dothrow.c:throwit() reaches dothrow.c:breaktest() on the hard landing; breaktest() calls zap.c:obj_resists(), matching the first recorded RNG draw at step 48.",
+                  "do.c:flooreffects() handles the landing before dothrow.c:throwit() places the dagger.",
+                  "monmove.c:postmov() reaches mon.c:mpickstuff() after the monster moves onto the floor object; this produces the recorded orc pickup message.",
+                  "apply.c:snuff_candle() is a later discarded-result call in throwit(); js/dothrow.js records note_unported(\"apply.c snuff_candle\"). It has no effect here because Grimtooth is not a lit candle or candelabrum.",
+                  "The whole throw_obj() source unit also contains separate throw_obj() placeholder branches for instapetrify(), weldmsg(), dry_a_towel(), is_quest_artifact(), and unsplitobj(); their predicates are not reached by this singleton-dagger case."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved handoff .cache/v16-investigations/7.json points to challenges/evaluations/20261001125731-v16.json (evaluation commit 452fff60d85992524c72a8282fbae13a5e32a906): 1 remaining screen, 49 recorded steps, and a stop at zero-based step 48 with \"unsupported hero command: an unported branch of this command: dothrow.c reached throwing an artifact\".",
+                "At the examined main commit, nethack-c/upstream/src/dothrow.c:122-131 blocks an artifact only when it is ART_MJOLLNIR (not wielded or too heavy); other artifacts continue. js/dothrow.js:2075-2078 instead refuses every obj.oartifact, which is the exact first-stop owner. The actionable scope is the whole C throw_obj() function, dothrow.c:87-292, including its direction handling, item restrictions, multishot and inventory transitions, throwit() handoff, and unsplit cleanup.",
+                "The production caller chain is nethack-c/upstream/src/cmd.c:1901-1902 extcmdlist[\"throw\"] -> dothrow.c:dothrow():352-375 -> throw_obj(); js/cmd.js:5970-5986 dispatches the recorded throw command through dothrow(). dothrow.c:dofire():469-585 is the other C caller and must remain wired to the same whole-function port.",
+                "The C recording challenges/cases/v16/rogue-throws-grimtooth-at-hostile-orc.session.json, segment 0 step 48, shows \"The orc picks up a poisoned orcish dagger named Grimtooth.\" Its first RNG call is obj_resists(), the hard-landing check reached from throwit()->breaktest(); the remaining logged calls include monster movement/move timing and ordinary end-of-turn processing. There is no ordinary thrown-hit rnd(20) draw, so this case does not establish the thitmonst()/hmon()/artifact_hit() branch. The observed downstream behavior is landing and monster pickup.",
+                "Later source gaps remain distinct from the first refusal. js/dothrow.js:2250-2259 still refuses the C throw_obj() unsplitobj() cleanup arm, which this single-item path skips after setting obj to null. js/dothrow.js:2811 records the skipped discarded-result apply.c:snuff_candle() call; upstream apply.c:1472-1491 changes state only for a lit candle or candelabrum, so it is inert for Grimtooth. The recorder patch README describes only deterministic runtime, stable sorting, RNG logging, and terminal capture; no patch changes dothrow.c or artifact gameplay."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "throw_obj",
+            "implementation": "js/dothrow.js",
+            "symbol": "throw_obj",
+            "sourceReview": "Compared the complete dothrow.c:throw_obj (87-293), preserving C branch, message, state, RNG, and ECMD order: getdir cancellation and cleanup; non-quivered coin early return; canletgo; Mjollnir-only wield and STR19(25) gates; boulder rock-throwing gate; self-target refusal; engraving wipe; petrifying-corpse message/killer setup; welded return; wet-towel call; all multishot conditions and draws; m_shot initialization/reset; per-shot split/removal/freeinv/throwit/encumbrance; and unsplit_stack cleanup. The selected helper calls whose return values matter are implemented: getdir, canletgo, welded, multishot_class_bonus, splitobj, and unsplitobj; the C-discarded calls freeinv, throwit, encumber_msg, remove_worn_item and unsplitobj remain in source order, with unsplitobj now called after restoring save_osplit. Three discarded void callees remain named gaps at their call sites: trap.c:instapetrify, wield.c:weldmsg, and weapon.c:dry_a_towel. The active #throw trace crosses invent.c:freeinv/freeinv_core as bounded supporting behavior; its discarded artifact.c:set_artifact_intrinsic call remains an explicit gap because carried-artifact removal is unsupported. No whole invent.c, artifact.c, dothrow.c caller, or throwit completion is claimed.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dothrow",
+                "source": "dothrow.c:dothrow -> throw_obj for #throw"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "dofire",
+                "source": "dothrow.c:dofire -> throw_obj for #fire"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/dothrow.test.mjs",
+              "scripts/inventory-substrate.test.mjs"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-autoquiver-ranger.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "rogue-throws-grimtooth-at-hostile-orc",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 48,
+                "source": "dothrow.c:dothrow -> throw_obj -> invent.c:freeinv -> freeinv_core"
+              }
+            ],
+            "checkedAt": "7d2978e4247183a6f03d6912c8b4ed0c3c1dee64"
+          }
+        ],
+        "entryPointReview": "The selected whole function is dothrow.c:throw_obj (87-293), reached through active #throw and #fire command paths: dothrow.c:dothrow calls it for #throw and dothrow.c:dofire calls it for #fire. The admitted v16 rogue-throws-grimtooth-at-hostile-orc recording matches through zero-based segment 0 step 48 from #throw, exercising the non-Mjollnir artifact path and inventory extraction through invent.c:freeinv/freeinv_core. The existing recordings/dothrow.c/dofire-autoquiver-ranger.session.json replay matches all six recorded boundaries for #fire. Source-pinned dothrow tests cover the named discarded-void call boundaries and unsplit cleanup ordering; whole-function caller evidence remains limited to the cited recordings. trap.c:instapetrify, wield.c:weldmsg, weapon.c:dry_a_towel and supporting artifact.c:set_artifact_intrinsic remain explicitly named void gaps. The unsplit_stack path is implemented through the existing mkobj.c:unsplitobj helper; it is not an unported gap. invent.c:freeinv and freeinv_core are supporting behavior only, without separate source-unit completion credit.",
+        "entryPoints": [
+          {
+            "name": "#throw command through dothrow.c:dothrow",
+            "functions": [
+              "throw_obj"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "rogue-throws-grimtooth-at-hostile-orc",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 48,
+                "source": "dothrow.c:dothrow -> throw_obj -> invent.c:freeinv -> freeinv_core"
+              }
+            ]
+          },
+          {
+            "name": "#fire command through dothrow.c:dofire",
+            "functions": [
+              "throw_obj"
+            ],
+            "recordings": [
+              "recordings/dothrow.c/dofire-autoquiver-ranger.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6fedb4755714bb3d432671489112598ab94756bc",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
