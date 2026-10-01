@@ -3018,10 +3018,9 @@ async function garlic_breath(monster, state) {
 async function fprefx(otmp, state, env = {}) {
     switch (otmp.otyp) {
     case EGG:
-        if (otmp.corpsenm === PM_PYROLISK) {
-            throw new UnsupportedEatError("fprefx()'s pyrolisk egg explosion");
-        }
-        if (staleEgg(otmp, state)) {
+        // C checks the pyrolisk case first, then stale_egg() in an else-if.
+        // Keep both remaining unported egg arms behind the original refusal.
+        if (otmp.corpsenm !== PM_PYROLISK && staleEgg(otmp, state)) {
             await (env.message ?? ttyPline)('Ugh.  Rotten egg.', state);
             await make_vomiting(
                 (hungerProperty(state, VOMITING).intrinsic & TIMEOUT)
@@ -3032,7 +3031,7 @@ async function fprefx(otmp, state, env = {}) {
             );
             break;
         }
-        throw new UnsupportedEatError("fprefx()'s fresh egg feedback");
+        throw new UnsupportedEatError("fprefx()'s egg arms");
     case FOOD_RATION: /* nutrition 800 */
         /* 200+800 remains below 1000+1, the satiation threshold */
         if (state.u.uhunger <= 200) {
