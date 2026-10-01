@@ -132668,8 +132668,8 @@
           "name": "catch_lit",
           "line": 1577,
           "endLine": 1627,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -132838,7 +132838,80 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "catch_lit",
+            "implementation": "js/apply_catch_lit.js",
+            "symbol": "catch_lit",
+            "sourceReview": "Read apply.c:catch_lit() at 1577-1625 and the obj.h ignitable(), age_is_relative(), and carried() macros at 332, 388-400. Preserve the source order: initial !lamplit/type/location gate; empty magic-lamp/candelabrum, relative-age zero, brass-lantern, cursed candelabrum, then cursed-lamp rn2(2); visible/inventory message and floor-only set_msg_xy; POT_OIL makeknown; carried unpaid costly-shop lookup, check_unpaid, verbalize, bill_dummy_object; begin_burn; TRUE/FALSE result. Removed the hero-inventory UnsupportedItemIgnitionError and command-refusal registration. The void set_msg_xy and check_unpaid calls remain named note_unported gaps; SetVoice is an empty macro in the no-sound recording build.",
+            "callers": [
+              {
+                "path": "js/apply_catch_lit.js",
+                "symbol": "ignite_items",
+                "source": "trap.c:ignite_items() calls catch_lit(obj) for each eligible chain object and discards its Boolean result."
+              },
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "fire_damage",
+                "source": "trap.c:fire_damage() calls catch_lit(obj) before other fire processing and returns FALSE when it returns TRUE."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-catch-lit.test.mjs",
+              "scripts/trap-water-damage.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/fire-damage-lava-wall-pick-c58-open-west-route.session.json",
+              "recordings/apply.c/fire-damage-lava-wall-mattock-c58-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-reads-uncursed-scroll-of-fire",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 37,
+                "source": "read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items(gi.invent) -> apply.c:catch_lit; the carried POT_OIL catches light and begins burning."
+              }
+            ],
+            "checkedAt": "a5b94c39adfd95ceb942d46f0461956b9eef21d6"
+          }
+        ],
+        "entryPointReview": "The selected v16 scroll-of-fire case reaches read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items -> apply.c:catch_lit with a carried potion of oil. The direct trap.c:fire_damage caller is independently exercised from dig.c:use_pick_axe2’s LAVAWALL branch by the two C recordings below; C reaches the catch_lit non-ignitable guard and fire_damage’s rn2(20) draw, and both full routes strictly match on accepted A68 main 2573677f. scripts/trap-water-damage.test.mjs also pins fire_damage returning FALSE when catch_lit handles an item. Earlier liquid-drop attempts remain preserved but do not establish this runtime route: hitfloor/hero_breaks precedes the intended flooreffects path in C, while JS do.c:dropx refuses liquid terrain. The fire-wand lamp/candle attempts are ignite_items evidence only. Source-discarded void calls remain named at their C positions: note_unported(\"pline.c set_msg_xy\") for a visible floor object and note_unported(\"shk.c check_unpaid\") before shop speech/billing; SetVoice compiles away in the recorder build.",
+        "entryPoints": [
+          {
+            "name": "read an uncursed scroll of fire with a carried potion of oil",
+            "functions": [
+              "catch_lit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-reads-uncursed-scroll-of-fire",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 37,
+                "source": "read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items(gi.invent) -> apply.c:catch_lit; the carried POT_OIL catches light and begins burning."
+              }
+            ]
+          },
+          {
+            "name": "dig an adjacent wall of lava with an uncursed pick tool",
+            "functions": [
+              "catch_lit"
+            ],
+            "recordings": [
+              "recordings/apply.c/fire-damage-lava-wall-pick-c58-open-west-route.session.json",
+              "recordings/apply.c/fire-damage-lava-wall-mattock-c58-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
