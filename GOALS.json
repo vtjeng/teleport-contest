@@ -130204,8 +130204,8 @@
           "name": "make_sick",
           "line": 137,
           "endLine": 194,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -130493,7 +130493,111 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "make_sick",
+            "implementation": "js/potion.js",
+            "symbol": "make_sick",
+            "sourceReview": "Read the whole potion.c:make_sick() definition (137-192). Its disabled #if 0 Unaware block has no runtime effect. For xtime > 0, Sick_resistance returns before output, state writes, or exercise; otherwise C distinguishes the newly-sick message from the optional already-sick message, sets only the SICK timeout, ORs the supplied usick_type, and dirties botl. For a cure, C clears only the selected usick_type bits, doubles the remaining timeout when another sickness kind remains, or clears Sick directly when none remains; it dirties botl after either transition. It then finds the delayed SICK killer. While Sick remains it calls exercise(A_CON,FALSE), then replaces the killer only when xtime || !old || !kptr, using KILLED_BY only for #wizintrinsic; when Sick is clear it deallocates the existing killer. js/potion.js preserves that evaluation/state order, awaits the async exercise call with the existing caller RNG and encumbrance seam, and reuses set_itimeout/find_delayed_killer/delayed_killer/dealloc_killer rather than creating another state owner. The positive-duration and partial/full cure tests pin each branch and the mocked rn2 bound/count. The supporting eat.c:maybe_cannibal() expansion completes its consumed were.c:were_beastie(pm) === u.ulycn disjunct using the existing helper; it receives no additional source-unit credit in this potion.c goal. The polymon caller also preserves polyself.c:838-841: after installing the new form, C tests Sick_resistance (youprop.h:69-70, form SICK_RES or defended(AD_DISE)); JS includes the defense check before curing all sickness types and printing the recovery message. scripts/polyself.test.mjs pins this macro and call order.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_unicorn_horn",
+                "source": "apply.c:use_unicorn_horn:2271 (cursed sickness) and 2351 (SICK cure)"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_healing",
+                "source": "artifact.c:invoke_healing:1808"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eatcorpse",
+                "source": "eat.c:eatcorpse:1913"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "fpostfx",
+                "source": "eat.c:fpostfx:2578"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "vomit",
+                "source": "eat.c:vomit:3746"
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "savelife",
+                "source": "end.c:savelife:725"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c:newman:416"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon:839"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_water",
+                "source": "potion.c:peffect_water:750"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "healup",
+                "source": "potion.c:healup:1454"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c:fix_worst_trouble:415"
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:throne_sit_effect:98"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout:698"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c:wiz_intrinsic:1037"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion-make-sick.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/wizcmds.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-sets-sick-intrinsic-confirmed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 17,
+                "source": "wizcmds.c:wiz_intrinsic:1035-1037 -> potion.c:make_sick:137-192 -> attrib.c:exercise:488-518"
+              }
+            ],
+            "checkedAt": "3a8be436462202bf5fbfd6a7d1dcec40333dea55"
+          }
+        ],
+        "entryPointReview": "Helper-only source range: entryPoints is empty under .agents/validation.md. The C direct caller inventory is apply.c:use_unicorn_horn:2271,2351; artifact.c:invoke_healing:1808; eat.c:eatcorpse:1913, fpostfx:2578, and vomit:3746; end.c:savelife:725; polyself.c:newman:416 and polymon:839; potion.c:peffect_water:750 and healup:1454; pray.c:fix_worst_trouble:415; sit.c:throne_sit_effect:98; timeout.c:nh_timeout:698; and wizcmds.c:wiz_intrinsic:1037. Each has its matching JS caller listed on make_sick and the former source note/refusal has been removed at those paths. The admitted v15 synthetic citation executes the helper through the #wizintrinsic SICK menu entry, including the selected sickness-kind RNG draw and make_sick’s exercise(A_CON,FALSE) call, and matches all 18 screens/cells/cursors and 2494 RNG calls. The separate C callers mhitu.c:diseasemu:1039 and uhitm.c:mhitm_ad_heal:4353 remain outside this range because their outer functions are unported; js/uhitm.js retains the exact mhitm_ad_heal boundary. They do not receive runtime coverage or source completion credit here. The B73 eatcorpse caller also forwards its existing eatOperations environment to C’s source-ordered useup/useupf cleanup, so the carried corpse’s active ROT_CORPSE timer is removed by the existing timeout.c:obj_stop_timers owner; this is supporting caller plumbing only, not a separate eat.c completion claim.",
+        "entryPoints": []
+      }
     }
   ]
 }
