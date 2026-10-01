@@ -130183,7 +130183,7 @@
     {
       "id": "port-potion-make-sick-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete sickness timeout, cure, and delayed killer behavior",
       "cFile": "potion.c",
       "sessions": [
@@ -130197,8 +130197,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "52349747fb821e9310ad8d9ab9f9d294c28c1dd8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "make_sick",
@@ -130597,6 +130600,12 @@
         ],
         "entryPointReview": "Helper-only source range: entryPoints is empty under .agents/validation.md. The C direct caller inventory is apply.c:use_unicorn_horn:2271,2351; artifact.c:invoke_healing:1808; eat.c:eatcorpse:1913, fpostfx:2578, and vomit:3746; end.c:savelife:725; polyself.c:newman:416 and polymon:839; potion.c:peffect_water:750 and healup:1454; pray.c:fix_worst_trouble:415; sit.c:throne_sit_effect:98; timeout.c:nh_timeout:698; and wizcmds.c:wiz_intrinsic:1037. Each has its matching JS caller listed on make_sick and the former source note/refusal has been removed at those paths. The admitted v15 synthetic citation executes the helper through the #wizintrinsic SICK menu entry, including the selected sickness-kind RNG draw and make_sick’s exercise(A_CON,FALSE) call, and matches all 18 screens/cells/cursors and 2494 RNG calls. The separate C callers mhitu.c:diseasemu:1039 and uhitm.c:mhitm_ad_heal:4353 remain outside this range because their outer functions are unported; js/uhitm.js retains the exact mhitm_ad_heal boundary. They do not receive runtime coverage or source completion credit here. The B73 eatcorpse caller also forwards its existing eatOperations environment to C’s source-ordered useup/useupf cleanup, so the carried corpse’s active ROT_CORPSE timer is removed by the existing timeout.c:obj_stop_timers owner; this is supporting caller plumbing only, not a separate eat.c completion claim.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "52349747fb821e9310ad8d9ab9f9d294c28c1dd8",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
