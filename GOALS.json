@@ -129244,8 +129244,8 @@
           "name": "vomiting_dialogue",
           "line": 197,
           "endLine": 267,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -129446,7 +129446,62 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "vomiting_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "vomiting_dialogue",
+            "sourceReview": "Whole timeout.c:vomiting_dialogue (196-265), including vomiting_texts[] (188-194), was read and compared. It selects on (Vomiting & TIMEOUT)-1 before property decrement; cases 14, 11, 6, 9, 8, 5, 2 and 0 preserve C's order, text, fallthrough, dice evaluation, occupation/multi transitions, asynchronous helper order, and final exercise(A_CON,FALSE). The case-6 expression (HStun & TIMEOUT)+d(2,4) is evaluated before note_unported('potion.c make_stunned'), the explicitly skipped discarded-void call. Popeye(VOMITING) is implemented as the consumed boolean helper; stop_occupation is conditional, then case 9 computes HConfusion+d(2,4), calls make_confused, and calls nomul(0) only for positive multi. Case 0 preserves stop_occupation, conditional morehungry(20), the You-vomit/hurl line and then note_unported('eat.c vomit') for its discarded-void callee. Selected text is output after the switch, followed unconditionally by exercise(A_CON,FALSE). timeout.c:nh_timeout's active Vomiting branch calls this helper before property countdown. Its planning wrapper now hands every active non-invulnerable Vomiting timeout to the existing live timeout path, so planning cannot omit the helper's random/state/output effects. The helper uses canonical supplied random/message wrappers. Other named gaps remain timeout.c:stoned_dialogue, timeout.c:slime_dialogue, potion.c:make_stunned, and eat.c:vomit; no other timeout helper or physiology is claimed.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout calls vomiting_dialogue() whenever Vomiting is active, before the timed-property decrement loop. The source-defined active arm is wired and the matching v15 turn recording executes it."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/eat-tin.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 65,
+                "source": "allmain.c hero-turn timeout -> timeout.c:nh_timeout -> timeout.c:vomiting_dialogue; the cited range executes its active countdown and final exercise, without reaching case 6 or Popeye."
+              }
+            ],
+            "checkedAt": "f9ec5389a8c0b49841093da56941d1eea38f7ae3"
+          }
+        ],
+        "entryPointReview": "The selected impure unit has the active hero-turn timeout entry: allmain.js tests nh_timeout_requires_live_state before planning timeouts, then live allmain executes timeout.c:nh_timeout; that function calls vomiting_dialogue before timed-property decrement. Any active non-invulnerable Vomiting state now selects the live handoff. The admitted v15 wizard-cursed-horn-confuses-then-uncursed-horn-cures recording matches through segment 0 step 65 after the change, including the previous step-62 divergence and the entire 66-step/RNG/screen/cursor sequence. This proves the horn-induced active countdown entry and its unconditional Constitution exercise. It does not reach case 6 or Popeye; the pure helper is source-wired there and its return contract has source-pinned tests. Pure Popeye helper branches are pinned independently by eat-tin tests. C timeout.c also calls Popeye from stoned_dialogue and slime_dialogue, but those outer helpers remain named unported gaps; A66 does not claim those active routes. Case-6 potion.c:make_stunned and case-0 eat.c:vomit are discarded void gaps recorded at their source call sites. No whole nh_timeout or tin-opener caller completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "active Vomiting countdown during hero-turn timeout",
+            "functions": [
+              "vomiting_dialogue"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 65,
+                "source": "allmain.c hero-turn timeout -> timeout.c:nh_timeout active Vomiting arm -> timeout.c:vomiting_dialogue"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
