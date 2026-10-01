@@ -419,7 +419,8 @@ test('read.c seffect_mail selects all stamped and ordinary mail messages',
 
     // read.c:seffect_mail computes odd from o_id % 2; its source switch has
     // spe==2 for marker-written stamps and spe==1 for wished/bones mail.
-    // Minimal positive odd/even IDs pin both message arms without RNG.
+    // Minimal positive odd/even IDs pin both message arms; seffect_mail has
+    // no source RNG calls, so assert the injected callback remains unused.
     const cases = [
         [1, 2, 'This scroll is marked "Postage Due".'],
         [2, 2, 'This scroll is marked "Return to Sender".'],
@@ -429,13 +430,15 @@ test('read.c seffect_mail selects all stamped and ordinary mail messages',
     ];
     for (const [o_id, spe, expected] of cases) {
         const messages = [];
+        const randomDraws = [];
         game.gk.known = false;
         await seffects({ otyp: SCR_MAIL, spe, o_id }, game, {
-            random: { rn2: () => 0 },
+            random: { rn2: (...args) => { randomDraws.push(args); return 0; } },
             message: async (text) => messages.push(text),
         });
         assert.deepEqual(messages, [expected]);
         assert.equal(game.gk.known, true);
+        assert.deepEqual(randomDraws, []);
     }
 });
 

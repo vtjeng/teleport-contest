@@ -3317,10 +3317,12 @@ async function seffect_create_monster(scroll, state = game,
     }
 }
 
-// C ref: read.c:seffect_mail() (2157-2188). This static helper marks
-// the mail scroll's type known, then chooses its exact message from spe and
-// the object's identifier parity. The external readmail() result is discarded
-// by C, so its default MAIL branch remains an explicit void-call gap.
+// C ref: read.c:seffect_mail() (2157-2188). This static helper sets gk.known,
+// the effect's discovery flag, then chooses its exact message from spe and
+// the object's identifier parity. doread() later discovers the scroll type
+// through learnscroll(); this helper does not set oc_name_known. The external
+// readmail() result is discarded by C, so its default MAIL branch remains an
+// explicit void-call gap.
 async function seffect_mail(scroll, state = game, env = {}) {
     const odd = Math.trunc(scroll.o_id ?? 0) % 2 === 1;
     const message = env.message ?? ttyPline;
