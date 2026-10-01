@@ -124035,6 +124035,213 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dog-make-familiar-and-figurine-callers-v14-20260930",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port familiar creation and its figurine, spell and timer callers",
+      "cFile": "dog.c",
+      "sessions": [
+        "synthetic/v14/wizard-applies-uncursed-figurine"
+      ],
+      "selectionReason": "Select synthetic/v14/wizard-applies-uncursed-figurine from current complete evaluations across all 15 admitted batches. Its first stop is apply.c:doapply at step 41; the consumed make_familiar result in the independent FIG_TRANSFORM caller requires the whole dog.c pick_familiar_pm..make_familiar family. This queued worker delivery predates the v15 baseline and completes the three direct caller families without overlapping B64 or A62 reservations. The fixed 44-session scan is clean. Only the two dog.c units receive completion credit; supporting apply figurine helpers, spell dispatch, timer callback, MM_IGNOREWATER placement, and wizard-wish timer hooks stay attributed to their exact C sites.",
+      "detail": "Whole dog.c pick_familiar_pm104–135 and make_familiar138–215 preserve species selection, birth limits, retry, makemon return pointer, pool handling, figurine BUC attitude, naming, pet initialization and wield order. Active callers are apply.use_figurine, spell.spelleffects CREATE_FAMILIAR and apply.fig_transform through FIG_TRANSFORM. Root verified immutable packets/log hashes and independent callback C recordings through steps295/573, with attachment-only invulnerability attempts explicitly excluded from callback credit.",
+      "openedAt": "253cd39785d42e15eb33258462765e968ada1847",
+      "openStanding": {
+        "sha": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pick_familiar_pm",
+          "line": 104,
+          "endLine": 137,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "make_familiar",
+          "line": 138,
+          "endLine": 218,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 104,
+        "to": 218
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/wizard-applies-uncursed-figurine": {
+          "session": "synthetic/v14/wizard-applies-uncursed-figurine",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-applies-uncursed-figurine",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+          "recordingSha256": "15bd026827df17c25a72c152209f1961577bfa7ce67b7b7e88eb336636675ba3",
+          "evaluationPath": "challenges/evaluations/20261001021820-v14.json",
+          "evaluationCommit": "41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82"
+        }
+      },
+      "activeStanding": {
+        "sha": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-applies-uncursed-figurine",
+          "session": "synthetic/v14/wizard-applies-uncursed-figurine",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+          "recordingSha256": "15bd026827df17c25a72c152209f1961577bfa7ce67b7b7e88eb336636675ba3",
+          "recipe": "challenges/cases/v14/wizard-applies-uncursed-figurine.recipe.session.json",
+          "recipeSha256": "4c7d9fd3d54830dd256d98d7f918cb71bf8a4a4d83628a49d3ad2fd45ae4c674",
+          "replayInputSha256": "557de9e4ebfe39e5073ad4aca78f10a2ffea804c05c2167953411c25b4fa5443",
+          "evaluationPath": "challenges/evaluations/20261001021820-v14.json",
+          "evaluationCommit": "41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82",
+          "evaluationArtifact": "challenges/evaluations/20261001021820-v14.json",
+          "evaluationUtc": "2026-10-01T02:18:44.933Z",
+          "remainingScreens": 3,
+          "recordedSteps": 44,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 44
+            },
+            "rng": {
+              "matched": 3039,
+              "total": 3049
+            },
+            "cursors": {
+              "matched": 41,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 241",
+            "step": 41
+          },
+          "step": 41,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 241",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/wizard-applies-uncursed-figurine.json",
+            "result": {
+              "session": "synthetic/v14/wizard-applies-uncursed-figurine",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "wizard-applies-uncursed-figurine",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "15bd026827df17c25a72c152209f1961577bfa7ce67b7b7e88eb336636675ba3",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 3,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "wizard-applies-uncursed-figurine",
+                "session": "synthetic/v14/wizard-applies-uncursed-figurine",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+                "recordingPath": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+                "recordingSha256": "15bd026827df17c25a72c152209f1961577bfa7ce67b7b7e88eb336636675ba3",
+                "recipe": "challenges/cases/v14/wizard-applies-uncursed-figurine.recipe.session.json",
+                "recipeSha256": "4c7d9fd3d54830dd256d98d7f918cb71bf8a4a4d83628a49d3ad2fd45ae4c674",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 3,
+                "recordedSteps": 44,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 3039,
+                    "total": 3049
+                  },
+                  "cursors": {
+                    "matched": 41,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 241",
+                  "step": 41
+                },
+                "step": 41,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 241",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The unmatched behavior is apply.c doapply() dispatch for FIGURINE (object type 241). In the assigned Wizard case, applying an uncursed gnome figurine to a valid adjacent floor square reaches use_figurine(), which asks for a direction and calls make_familiar(); the frozen JavaScript doapply() instead throws from its unported named-arm guard. The responsible apply.c source family is figurine_location_checks() and use_figurine(), with the FIGURINE dispatch wired in doapply(). Exact downstream parity also needs dog.c make_familiar() and its pick_familiar_pm() dependency: the C trace records make_familiar()'s rn2(10) result and creature outcome.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "figurine_location_checks",
+                  "use_figurine"
+                ],
+                "branch": "A carried FIGURINE is selected by doapply(); the hero is not swallowed; getdir() selects an in-bounds adjacent floor square that is not obstructed or blocked by a boulder. The v14 input uses an uncursed gnome figurine and selects east.",
+                "callers": [
+                  "nethack-c/upstream/src/apply.c: doapply() FIGURINE case calls use_figurine(&obj) and returns its ECMD result (lines 4367-4368); production JavaScript path is js/cmd.js runApplyCommand() -> js/apply.js doapply(). The frozen doapply() routes FIGURINE through DOAPPLY_UNPORTED_NAMED_ARMS and throws instead of reaching a handler (js/apply.js lines 3383-3394, 4447-4450).",
+                  "nethack-c/upstream/src/cmd.c: command table maps the a/apply command to doapply() (line 1678); JavaScript mirrors this in js/extcmdlist_data.js and dispatches doapply through js/cmd.js (lines 3302-3307, 5148-5149)."
+                ],
+                "dependencies": [
+                  "dog.c:make_familiar() is called by use_figurine() at apply.c:2574 and its return is discarded. The call still creates/configures the monster and consumes RNG; the v14 sourceTraceEvidence records rn2(10)=2 at dog.c:186. Leaving this call as note_unported preserves the explicit gap but cannot reproduce the recorded outcome.",
+                  "dog.c:pick_familiar_pm() supplies a return value used by make_familiar(); for a FIGURINE it chooses mons[otmp->corpsenm] unless that monster is extinct. If make_familiar() is included, this helper must be included too.",
+                  "apply.c:fig_transform() is the other source caller of dog.c:make_familiar() (apply.c:2424); it uses the returned monster. A whole make_familiar() port therefore has a second timed-transformation caller beyond the active apply path."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved diagnostic: .cache/synthetic-scans/v14/wizard-applies-uncursed-figurine.json stops after 41 emitted JavaScript screens at “applying a tool requires doapply()'s arm for object type 241”; challenges/evaluations/20260929225551-v14.json records 41/44 screens and 3 remaining screens. The manifest sourceTraceEvidence reports the next C RNG call as rn2(10)=2 at make_familiar(dog.c:186).",
+                "Source: nethack-c/upstream/src/apply.c:2510-2541 defines figurine_location_checks() for swallowed, bounds, obstruction and boulder checks; apply.c:2544-2581 defines use_figurine(), including its getdir() prompt, location check, transformation message, make_familiar() call, timer cancellation, object consumption, blind mapping, and ECMD_TIME result. apply.c:4367-4368 dispatches FIGURINE to use_figurine(&obj).",
+                "Frozen implementation: js/objects.js:316 defines FIGURINE as 241. At the examined commit, js/apply.js:3390 includes FIGURINE in DOAPPLY_UNPORTED_NAMED_ARMS and js/apply.js:4447-4450 throws for that set. The saved trace and evaluation identify the resulting stop; no assigned-session replay was needed.",
+                "Dependency trace: nethack-c/upstream/src/dog.c:138-215 contains make_familiar(); it uses pick_familiar_pm() at line 149, invokes makemon(), then for a figurine draws rn2(10) and chooses tame/peaceful/hostile effects. apply.c:2424 shows fig_transform() as its other caller."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
