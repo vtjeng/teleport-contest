@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -120,10 +121,11 @@ import {
     sobj_at,
 } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
 import { oname } from '../js/do_name.js';
 import {
     ART_EXCALIBUR, ART_EYE_OF_THE_AETHIOPICA, ART_GRAYSWANDIR,
-    ART_MAGIC_MIRROR_OF_MERLIN,
+    ART_MAGIC_MIRROR_OF_MERLIN, ART_ORB_OF_FATE,
     init_artifacts,
 } from '../js/artifacts.js';
 import {
@@ -145,6 +147,7 @@ import {
     APPLE,
     AKLYS,
     BAG_OF_HOLDING,
+    CRYSTAL_BALL,
     CORPSE,
     DART,
     ARROW,
@@ -186,6 +189,9 @@ const LETTERS_PER_CASE = 26; // a-z or A-Z inventory slots
 const MINIMUM_HERO_ATTRIBUTE = 3; // makes a normal heavy ball exceed MOD_ENCUMBER
 // Construct corpse fixtures without invoking the monster seam before the test.
 const PLACEHOLDER_CORPSE_WEIGHT = 1;
+const INVENT_C = readFileSync(
+    new URL('../nethack-c/upstream/src/invent.c', import.meta.url), 'utf8',
+);
 
 function initializedState() {
     const state = {
@@ -1832,6 +1838,138 @@ test('freeinv curses a released loadstone through mkobj.c curse()', () => {
     assert.equal(loadstone.where, OBJ_FREE);
     assert.equal(loadstone.blessed, false);
     assert.equal(loadstone.cursed, true);
+});
+
+test('freeinv_core clears each special ownership bit in C order', () => {
+    const coreStart = INVENT_C.indexOf('\nfreeinv_core(struct obj *obj)');
+    const coreEnd = INVENT_C.indexOf('\n}\n', coreStart) + 2;
+    const coreSource = INVENT_C.slice(coreStart, coreEnd);
+    const callerStart = INVENT_C.indexOf('\nfreeinv(struct obj *obj)');
+    const callerEnd = INVENT_C.indexOf('\n/* drawbridge is destroying', callerStart);
+    const callerSource = INVENT_C.slice(callerStart, callerEnd);
+
+    // invent.c:freeinv_core() handles the coin return, four have flags,
+    // carried artifacts, loadstones, luck, figurine timers, then tin state.
+    const coreOrder = [
+        'if (obj->oclass == COIN_CLASS)',
+        'obj->otyp == AMULET_OF_YENDOR',
+        'obj->otyp == CANDELABRUM_OF_INVOCATION',
+        'obj->otyp == BELL_OF_OPENING',
+        'obj->otyp == SPE_BOOK_OF_THE_DEAD',
+        'else if (obj->oartifact)',
+        'if (is_quest_artifact(obj))',
+        'set_artifact_intrinsic(obj, 0, W_ART);',
+        'if (obj->otyp == LOADSTONE)',
+        'confers_luck(obj)',
+        'obj->otyp == FIGURINE && obj->timed',
+        'obj == svc.context.tin.tin',
+    ].map((source) => coreSource.indexOf(source));
+    assert.ok(coreOrder.every((index) => index >= 0));
+    assert.deepEqual(coreOrder, [...coreOrder].sort((a, b) => a - b));
+
+    // invent.c:freeinv() extracts the object, clears pickup_prev, runs the
+    // source helper, then refreshes inventory. These calls stay synchronous.
+    const callerOrder = [
+        'extract_nobj(obj, &gi.invent);',
+        'obj->pickup_prev = 0;',
+        'freeinv_core(obj);',
+        'update_inventory();',
+    ].map((source) => callerSource.indexOf(source));
+    assert.ok(callerOrder.every((index) => index >= 0));
+    assert.deepEqual(callerOrder, [...callerOrder].sort((a, b) => a - b));
+
+    // These C rows map each special object to one uhave field. Setting only
+    // that field models an already carried object before removal.
+    const specialObjects = [
+        [AMULET_OF_YENDOR, 'amulet'],
+        [CANDELABRUM_OF_INVOCATION, 'menorah'],
+        [BELL_OF_OPENING, 'bell'],
+        [SPE_BOOK_OF_THE_DEAD, 'book'],
+    ];
+    for (const [otyp, haveField] of specialObjects) {
+        const state = initializedState();
+        state.u.uhave = { [haveField]: 1 };
+        const object = instance(otyp, state);
+        object.where = OBJ_INVENT;
+        state.invent = object;
+
+        freeinv(object, { state });
+
+        assert.equal(state.u.uhave[haveField], 0, `otyp ${otyp}`);
+        assert.equal(state.invent, null, `otyp ${otyp}`);
+        assert.equal(object.where, OBJ_FREE, `otyp ${otyp}`);
+    }
+
+    // C clears this exact pointer and object ID when freeinv_core removes the
+    // active tin; a nonzero ID distinguishes the active state from its zero
+    // sentinel.
+    const state = initializedState();
+    const tinId = 73;
+    const tin = instance(TIN, state, { o_id: tinId, where: OBJ_INVENT });
+    state.invent = tin;
+    state.context.tin = { tin, o_id: tinId };
+    freeinv(tin, { state });
+    assert.deepEqual(state.context.tin, { tin: null, o_id: 0 });
+});
+
+test('freeinv_core records the carried-intrinsic void gap and continues', () => {
+    // The C Grayswandir row has NO_CARY, so its removed carry effects have no
+    // property mask to clear. The unported general off helper remains named.
+    const state = artifactHolderState(A_LAWFUL);
+    const saber = instance(SILVER_SABER, state, {
+        oartifact: ART_GRAYSWANDIR,
+    });
+    addinv(saber, { state });
+    const previousUnported = game.unported;
+    game.unported = new Set();
+    try {
+        freeinv(saber, { state });
+        assert.equal(state.invent, null);
+        assert.equal(saber.where, OBJ_FREE);
+        assert.equal(game.unported.has('artifact.c set_artifact_intrinsic'), true);
+    } finally {
+        game.unported = previousUnported;
+    }
+
+    // The Orb of Fate's SPFX_LUCK makes confers_luck() true. The object is
+    // extracted before freeinv_core calls set_moreluck(), leaving no carried
+    // luck source and resetting moreluck to the C no-luck value of zero.
+    const lucky = artifactHolderState(A_LAWFUL);
+    const orb = instance(CRYSTAL_BALL, lucky, {
+        oartifact: ART_ORB_OF_FATE,
+        where: OBJ_INVENT,
+    });
+    lucky.invent = orb;
+    lucky.u.moreluck = 3; // LUCKADD from the carried SPFX_LUCK artifact.
+    const previousLuckUnported = game.unported;
+    game.unported = new Set();
+    try {
+        freeinv(orb, { state: lucky });
+        assert.equal(lucky.u.moreluck, 0);
+        assert.equal(lucky.disp.botl, true);
+        assert.equal(game.unported.has('artifact.c set_artifact_intrinsic'), true);
+    } finally {
+        game.unported = previousLuckUnported;
+    }
+
+    // An own quest artifact clears uhave.questart before the same discarded
+    // helper call; the role/artifact pair comes from the source fixture row.
+    const quest = artifactHolderState(A_LAWFUL, ART_MAGIC_MIRROR_OF_MERLIN);
+    quest.u.uhave = { questart: 1 };
+    const mirror = instance(MIRROR, quest, {
+        oartifact: ART_MAGIC_MIRROR_OF_MERLIN,
+        where: OBJ_INVENT,
+    });
+    quest.invent = mirror;
+    const previousQuestUnported = game.unported;
+    game.unported = new Set();
+    try {
+        freeinv(mirror, { state: quest });
+        assert.equal(quest.u.uhave.questart, 0);
+        assert.equal(game.unported.has('artifact.c set_artifact_intrinsic'), true);
+    } finally {
+        game.unported = previousQuestUnported;
+    }
 });
 
 test('split tracking survives extraction and clears on deallocation', () => {

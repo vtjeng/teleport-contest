@@ -47,6 +47,7 @@ import {
     BRK_KNOWN2NOTBREAK,
     BRK_KNOWN_OUTCOME,
     CONFUSION,
+    CXN_PFX_THE,
     CQ_CANNED,
     D_ISOPEN,
     DEAF,
@@ -382,6 +383,7 @@ import {
 import {
     an,
     armor_simple_name,
+    corpse_xname,
     Doname2,
     helm_simple_name,
     killer_xname,
@@ -2039,9 +2041,10 @@ export async function endmultishot(verbose, state = game) {
     }
 }
 
-// C ref: dothrow.c throw_obj() (85-286), "throw the selected object, asking
-// for direction". Decides the volley size, announces it, and hands each
-// missile to throwit().
+// C ref: dothrow.c throw_obj() (87-293), "throw the selected object, asking
+// for direction". Implements the complete function including its discarded
+// void-helper boundaries. Decides the volley size, then hands each missile to
+// throwit().
 export async function throw_obj(obj, shotlimit, state = game) {
     const save_osplit = { ...(state.context.objsplit ?? {}) };
     let res = ECMD_TIME;
@@ -2072,13 +2075,18 @@ export async function throw_obj(obj, shotlimit, state = game) {
         res = ECMD_OK;
         return finishThrowObj(res, unsplitTarget, save_osplit, state);
     }
-    if (obj.oartifact) {
-        /* is_art(obj, ART_MJOLLNIR) and its two messages */
-        throw new UnsupportedThrowError('throwing an artifact');
+    if (is_art(obj, ART_MJOLLNIR) && obj !== state.uwep) {
+        await ttyPline(
+            `${The(xnameFresh(obj, state), state)} must be wielded before it can be thrown.`,
+            state,
+        );
+        res = ECMD_OK;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
     }
-    if (obj.otyp === BOULDER
-        && !throws_rocks(state.youmonst?.data
-            ?? state.mons[state.u.umonnum])) {
+    if ((is_art(obj, ART_MJOLLNIR) && acurr(state, A_STR) < STR19(25))
+        || (obj.otyp === BOULDER
+            && !throws_rocks(state.youmonst?.data
+                ?? state.mons[state.u.umonnum]))) {
         await ttyPline("It's too heavy.", state);
         res = ECMD_TIME;
         return finishThrowObj(res, unsplitTarget, save_osplit, state);
@@ -2092,17 +2100,27 @@ export async function throw_obj(obj, shotlimit, state = game) {
     if (!state.uarmg && obj.otyp === CORPSE
         && touch_petrifies(state.mons[obj.corpsenm])
         && !propertyHeld(state, STONE_RES)) {
-        /* C prints "You throw <the corpse> with your bare hands." and then
-           calls instapetrify(), which is the unported half. A stone-resistant
-           hero fails the fourth conjunct and throws in silence, so the guard
-           has to carry it or the throw stops for a hero C never harms. */
-        throw new UnsupportedThrowError('instapetrify()');
+        await ttyPline(
+            `You throw ${corpse_xname(obj, null, CXN_PFX_THE, state)} `
+                + `with your bare ${makeplural(body_part(HAND, state.youmonst))}.`,
+            state,
+        );
+        state.svk ??= {};
+        state.svk.killer ??= {};
+        state.svk.killer.name = `throwing ${killer_xname(obj, state)} bare-handed`;
+        // trap.c:instapetrify() is a discarded void death path.
+        note_unported('trap.c instapetrify');
     }
     if (welded(obj, state)) {
-        throw new UnsupportedThrowError('weldmsg()');
+        // canletgo() above rejects an actually welded wielded item first. Keep
+        // this source branch and name its discarded void message helper.
+        note_unported('wield.c weldmsg');
+        res = ECMD_TIME;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
     }
     if (is_wet_towel(obj, state)) {
-        throw new UnsupportedThrowError('dry_a_towel()');
+        // dothrow.c discards weapon.c:dry_a_towel()'s void result, then throws.
+        note_unported('weapon.c dry_a_towel');
     }
 
     /* Multishot calculations
@@ -2166,10 +2184,10 @@ export async function throw_obj(obj, shotlimit, state = game) {
                 break; /* No bonus */
             }
 
-            /* the quest artifact launcher bonus; no ported hero holds one */
-            if (state.uwep && state.uwep.oartifact
+            /* dothrow.c:220-222 awards +1 only for this role's quest artifact. */
+            if (state.uwep && is_quest_artifact(state.uwep, state)
                 && ammo_and_launcher(obj, state.uwep, state)) {
-                throw new UnsupportedThrowError('is_quest_artifact()');
+                multishot++;
             }
         }
 
@@ -2246,17 +2264,15 @@ export async function throw_obj(obj, shotlimit, state = game) {
     return finishThrowObj(res, unsplitTarget, save_osplit, state);
 }
 
-// C ref: throw_obj()'s `unsplit_stack:` label (270-285). It puts a partly
-// thrown stack back together, and only for a stack the throw split away from
-// a parent that is not the quiver. dofire() always throws from the quiver, so
-// the test is written out and the undo behind it stops: unsplitobj() has no
-// port, and reaching it would mean this port had grown a caller C's `f` does
-// not have.
+// C ref: throw_obj()'s `unsplit_stack:` label (270-285). The saved split
+// context is restored before the existing mkobj.c unsplitobj() helper; C
+// discards that helper's returned object pointer.
 function finishThrowObj(res, obj, save_osplit, state) {
     if (obj && obj !== state.uquiver
         && (obj.o_id === save_osplit.parent_oid
             || obj.o_id === save_osplit.child_oid)) {
-        throw new UnsupportedThrowError('unsplitobj()');
+        state.context.objsplit = save_osplit;
+        unsplitobj(obj, { state });
     }
     return res;
 }

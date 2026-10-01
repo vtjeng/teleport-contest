@@ -38,6 +38,7 @@ import {
     FUMBLING,
     HALLUC,
     HALLUC_RES,
+    KEY_ESC,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
@@ -56,8 +57,8 @@ import {
     P_SKILLED,
     P_SLING,
     ROOM,
-    STONE_RES,
     STUNNED,
+    STR19,
     TT_WEB,
     TIMER_OBJECT,
     TRAPDOOR,
@@ -110,7 +111,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { UnsupportedObjectOperationError, newObject } from '../js/obj.js';
+import { UnsupportedObjectOperationError, newObject, splitobj } from '../js/obj.js';
 import {
     AKLYS,
     ARROW,
@@ -136,7 +137,6 @@ import {
     IRON,
     LEATHER,
     LEATHER_ARMOR,
-    LEATHER_GLOVES,
     LANCE,
     MINERAL,
     LENSES,
@@ -151,6 +151,7 @@ import {
     SHURIKEN,
     SLING,
     SPEAR,
+    TOWEL,
     SCR_IDENTIFY,
     WAR_HAMMER,
     WOOD,
@@ -159,7 +160,11 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import {
-    ART_EXCALIBUR, ART_MJOLLNIR, init_artifacts,
+    ART_EYE_OF_THE_AETHIOPICA,
+    ART_EXCALIBUR,
+    ART_LONGBOW_OF_DIANA,
+    ART_MJOLLNIR,
+    init_artifacts,
 } from '../js/artifacts.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
@@ -172,6 +177,7 @@ import {
 import { boomhit, skiprange } from '../js/zap.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
+import { aligns } from '../js/roles.js';
 
 const DOTHROW_C = readFileSync(
     new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url), 'utf8',
@@ -748,6 +754,17 @@ function carry(state, ...items) {
     });
     state.invent = items[0] ?? null;
     return items[0] ?? null;
+}
+
+// C permits an object to carry an artifact ID only after that artifact exists.
+// The test fixture builds the canonical artifact table, supplies a valid
+// role_init alignment row, and marks the selected artifact as already created.
+function markArtifactExisting(state, artifact) {
+    state.flags.initalign = aligns.findIndex(
+        (alignment) => alignment.name === 'neutral',
+    );
+    init_artifacts(state);
+    state.artiexist[artifact].exists = 1;
 }
 
 // Every draw so far, as `name(argument)`. The answers are dropped: dothrow.c
@@ -1566,58 +1583,165 @@ test('throw_obj removes a singleton wielded item before freeing it', async () =>
     assert.deepEqual(pileAt(state, 9, 4), [weapon]);
 });
 
-test('throw_obj() lets gloves carry a petrifying corpse', async () => {
-    // dothrow.c:139-143, `!uarmg && obj->otyp == CORPSE
-    // && touch_petrifies(...) && !Stone_resistance`. The port carries all
-    // four conjuncts. The gloved case below fails the first, so the
-    // cockatrice corpse leaves those hands unharmed; the two stone-resistant
-    // cases fail the fourth, which is what C grants a hero who cannot be
-    // petrified. instapetrify() is the half that stays unported, and it is
-    // where a bare-handed hero without the resistance stops.
-    const gloved = arena();
-    gloved.uarmg = item(gloved, LEATHER_GLOVES, { owt: 10 });
-    const corpse = item(gloved, CORPSE,
-        { corpsenm: PM_COCKATRICE, owt: 30 });
-    carry(gloved, corpse);
-    gloved.uquiver = corpse;
-    aimEast(gloved);
-    assert.equal(await throw_obj(corpse, 0, gloved), ECMD_TIME);
-    assert.deepEqual(pileAt(gloved, gloved.gb.bhitpos.x, 4), [corpse]);
-    // Bare hands reach the same corpse's third conjunct.
-    const bare = arena();
-    const deadly = item(bare, CORPSE, { corpsenm: PM_COCKATRICE, owt: 30 });
-    carry(bare, deadly);
-    bare.uquiver = deadly;
-    aimEast(bare);
-    await assert.rejects(() => throw_obj(deadly, 0, bare), /instapetrify/u);
+test('throw_obj applies C\'s wield and strength gates only to Mjollnir',
+    async () => {
+        const source = DOTHROW_C.slice(
+            DOTHROW_C.indexOf('\nthrow_obj('),
+            DOTHROW_C.indexOf('\n/* common to dothrow'),
+        );
+        assert.match(source,
+            /is_art\(obj, ART_MJOLLNIR\) && obj != uwep/u);
+        assert.match(source,
+            /is_art\(obj, ART_MJOLLNIR\) && ACURR\(A_STR\) < STR19\(25\)/u);
+        assert.match(DOTHROW_JS,
+            /if \(is_art\(obj, ART_MJOLLNIR\) && obj !== state\.uwep\)/u);
+        assert.match(DOTHROW_JS,
+            /acurr\(state, A_STR\) < STR19\(25\)/u);
 
-    // Stone resistance fails the fourth conjunct on its own, so the same
-    // bare-handed throw of the same corpse costs nothing and lands.
-    const immune = arena();
-    const harmless = item(immune, CORPSE,
-        { corpsenm: PM_COCKATRICE, owt: 30 });
-    carry(immune, harmless);
-    immune.uquiver = harmless;
-    immune.u.uprops[STONE_RES].intrinsic = 1;
-    aimEast(immune);
-    immune._ttyToplines = '';
-    assert.equal(await throw_obj(harmless, 0, immune), ECMD_TIME);
-    assert.deepEqual(pileAt(immune, immune.gb.bhitpos.x, 4), [harmless]);
-    // C's message belongs to the branch this hero skips, so it must not
-    // appear; the throw itself prints nothing.
-    assert.doesNotMatch(immune._ttyToplines, /bare/u);
-    // The extrinsic half of youprop.h Stone_resistance (63-65) reads the same
-    // way. Nothing this port equips grants it, so the assertion is what keeps
-    // the union honest.
-    const worn = arena();
-    const spare = item(worn, CORPSE, { corpsenm: PM_COCKATRICE, owt: 30 });
-    carry(worn, spare);
-    worn.uquiver = spare;
-    worn.u.uprops[STONE_RES].extrinsic = 1;
-    aimEast(worn);
-    assert.equal(await throw_obj(spare, 0, worn), ECMD_TIME);
-    assert.deepEqual(pileAt(worn, worn.gb.bhitpos.x, 4), [spare]);
-});
+        // The first C guard is before the weight check. An unwielded Mjollnir
+        // at STR19(25) still receives the wield message and remains carried.
+        const loose = arena({ str: STR19(25) });
+        markArtifactExisting(loose, ART_MJOLLNIR);
+        const looseHammer = item(loose, WAR_HAMMER,
+            { oartifact: ART_MJOLLNIR });
+        carry(loose, looseHammer);
+        aimEast(loose);
+        loose._ttyToplines = '';
+        assert.equal(await throw_obj(looseHammer, 0, loose), ECMD_OK);
+        assert.match(
+            loose._ttyToplines,
+            /war hammer must be wielded before it can be thrown/u,
+            'without discovery, C xname uses the artifact base type',
+        );
+        assert.equal(loose.invent, looseHammer,
+            'the unwielded artifact stays in inventory');
+
+        // STR19(25) is 125 in attrib.h; one point below it takes the heavy
+        // branch after the wielded-item guard passes.
+        const weak = arena({ str: STR19(25) - 1 });
+        const weakHammer = item(weak, WAR_HAMMER,
+            { oartifact: ART_MJOLLNIR, owornmask: W_WEP });
+        carry(weak, weakHammer);
+        weak.uwep = weakHammer;
+        aimEast(weak);
+        weak._ttyToplines = '';
+        assert.equal(await throw_obj(weakHammer, 0, weak), ECMD_TIME);
+        assert.match(weak._ttyToplines, /It's too heavy\./u);
+        assert.equal(weak.invent, weakHammer,
+            'the below-threshold hammer is not removed');
+
+        // At the exact C threshold, the strength conjunct is false. A Wizard
+        // is used so AutoReturn does not put Mjollnir back in the hand after
+        // the ordinary throw path.
+        const strong = arena({ role: PM_WIZARD, str: STR19(25) });
+        markArtifactExisting(strong, ART_MJOLLNIR);
+        const strongHammer = item(strong, WAR_HAMMER,
+            { oartifact: ART_MJOLLNIR, owornmask: W_WEP });
+        carry(strong, strongHammer);
+        strong.uwep = strongHammer;
+        aimEast(strong);
+        strong._ttyToplines = '';
+        assert.equal(await throw_obj(strongHammer, 0, strong), ECMD_TIME);
+        assert.doesNotMatch(strong._ttyToplines, /too heavy/u);
+        assert.equal(strongHammer.where, OBJ_FLOOR,
+            'the threshold-strength hammer follows the throw path');
+    });
+
+test('throw_obj() preserves the corpse message before discarded instapetrify',
+    async () => {
+        // dothrow.c:139-143 gates this on no gloves, a petrifying corpse, and
+        // no Stone_resistance. The C void instapetrify() call remains a named
+        // gap after its message and killer-name setup.
+        const state = arena();
+        const corpse = item(state, CORPSE, { corpsenm: PM_COCKATRICE });
+        carry(state, corpse);
+        state.uquiver = corpse;
+        aimEast(state);
+
+        const sourceStart = DOTHROW_C.indexOf('\nthrow_obj(');
+        const sourceEnd = DOTHROW_C.indexOf('\n/* common to dothrow()', sourceStart);
+        const source = DOTHROW_C.slice(sourceStart, sourceEnd);
+        const messageAt = source.indexOf('You("throw %s with your bare %s."');
+        const killerAt = source.indexOf('Sprintf(svk.killer.name, "throwing %s bare-handed"');
+        const helperAt = source.indexOf('instapetrify(svk.killer.name);');
+        assert.ok(messageAt >= 0 && messageAt < killerAt && killerAt < helperAt,
+            'C prints, sets svk.killer.name, then calls the void helper');
+        assert.match(source,
+            /corpse_xname\(obj, \(const char \*\) 0, CXN_PFX_THE\)/u);
+        assert.match(source, /makeplural\(body_part\(HAND\)\)/u);
+
+        const previousUnported = game.unported;
+        game.unported = new Set();
+        try {
+            const result = await throw_obj(corpse, 0, state);
+            // C has no later throw_obj branch before the void helper returns;
+            // this gap test asserts the preceding effects without inventing
+            // instapetrify's terminal side effects.
+            assert.equal(result, ECMD_TIME);
+            assert.match(state._ttyToplines,
+                /You throw the cockatrice corpse with your bare hands\./u);
+            assert.match(state.svk.killer.name,
+                /^throwing .*cockatrice corpse bare-handed$/u);
+            assert.equal(game.unported.has('trap.c instapetrify'), true);
+            assert.equal(corpse.where, OBJ_FLOOR,
+                'after the discarded helper boundary, throw_obj continues');
+        } finally {
+            game.unported = previousUnported;
+        }
+    });
+
+// Source order has canletgo() before throw_obj()'s later welded() branch;
+// canletgo() rejects the same wielded-and-cursed item, so weldmsg() is a C
+// source branch but is not reachable from a valid throw_obj caller state.
+test('throw_obj keeps wet-towel drying as a named void gap and continues',
+    async () => {
+        const sourceStart = DOTHROW_C.indexOf('\nthrow_obj(');
+        const sourceEnd = DOTHROW_C.indexOf('\n/* common to dothrow()', sourceStart);
+        const source = DOTHROW_C.slice(sourceStart, sourceEnd);
+        const canletgoAt = source.indexOf('canletgo(obj, "throw")');
+        const weldedAt = source.indexOf('if (welded(obj))');
+        const dryAt = source.indexOf('dry_a_towel(obj, -1, FALSE);');
+        const multishotAt = source.indexOf('/* Multishot calculations');
+        assert.ok(canletgoAt < weldedAt && weldedAt < dryAt && dryAt < multishotAt,
+            'C tests the canletgo guard, then welded, then dries before multishot');
+        assert.match(source, /weldmsg\(obj\);/u);
+
+        const previousUnported = game.unported;
+        game.unported = new Set();
+        try {
+            // A cursed wielded dagger exercises canletgo()'s welded guard;
+            // that earlier guard returns before the later weldmsg() call.
+            const stuck = arena();
+            const dagger = item(stuck, DAGGER, {
+                cursed: 1,
+                bknown: 1,
+                owornmask: W_WEP,
+            });
+            carry(stuck, dagger);
+            stuck.uwep = dagger;
+            aimEast(stuck);
+            assert.equal(await throw_obj(dagger, 0, stuck), ECMD_OK);
+            assert.equal(game.unported.has('wield.c weldmsg'), false,
+                'the valid C caller cannot reach the later welded arm');
+            assert.equal(stuck.invent, dagger);
+
+            // is_wet_towel() reads positive spe as wetness; one is its minimal
+            // wet value. dry_a_towel(obj,-1,FALSE) is a discarded void call.
+            const state = arena();
+            const towel = item(state, TOWEL, { spe: 1 });
+            carry(state, towel);
+            state.uquiver = towel;
+            aimEast(state);
+            assert.equal(await throw_obj(towel, 0, state), ECMD_TIME);
+            assert.equal(towel.spe, 1,
+                'the unported discarded helper leaves wetness unchanged');
+            assert.equal(game.unported.has('weapon.c dry_a_towel'), true);
+            assert.equal(towel.where, OBJ_FLOOR,
+                'the source continues to throw after dry_a_towel');
+        } finally {
+            game.unported = previousUnported;
+        }
+    });
 
 test('throw_obj() opens the multishot block only for a stack it can volley',
     async () => {
@@ -1782,30 +1906,66 @@ test('throw_obj() gives the racial bow bonus only for its own arrow',
         }
     });
 
-test('throw_obj() stops for a quest artifact launcher', async () => {
-    // dothrow.c:220-222, `uwep && is_quest_artifact(uwep)
-    // && ammo_and_launcher(obj, uwep)`. An ordinary bow fails the second
-    // conjunct, so a plain elven Ranger's volley never reaches the arm.
-    const plain = arena({ role: PM_RANGER, race: PM_ELF });
-    const bow = item(plain, ELVEN_BOW, { owornmask: W_WEP });
-    plain.uwep = bow;
-    const arrows = item(plain, ELVEN_ARROW, { quan: 5 });
-    carry(plain, bow, arrows);
-    plain.uquiver = arrows;
-    aimEast(plain);
-    assert.equal(await throw_obj(arrows, 0, plain), ECMD_TIME);
-    // Marking the same bow as an artifact reaches it.
-    const quest = arena({ role: PM_RANGER, race: PM_ELF });
-    const relic = item(quest, ELVEN_BOW, { owornmask: W_WEP, oartifact: 1 });
-    quest.uwep = relic;
-    const shafts = item(quest, ELVEN_ARROW, { quan: 5 });
-    carry(quest, relic, shafts);
-    quest.uquiver = shafts;
-    aimEast(quest);
-    await assert.rejects(
-        () => throw_obj(shafts, 0, quest), /is_quest_artifact/u,
-    );
-});
+test('throw_obj adds a volley only for the hero\'s quest-artifact launcher',
+    async () => {
+        const source = DOTHROW_C.slice(
+            DOTHROW_C.indexOf('\nthrow_obj('),
+            DOTHROW_C.indexOf('\n/* common to dothrow'),
+        );
+        assert.match(source,
+            /if \(uwep && is_quest_artifact\(uwep\)[\s\S]*?ammo_and_launcher\(obj, uwep\)\)\s*\+\+multishot;/u);
+
+        // The ordinary Ranger receives its C role bonus, but has neither the
+        // racial-arrow bonus (human, not elf) nor a quest-artifact launcher.
+        // A five-arrow stack is enough to observe the source's volley bound.
+        const ordinary = arena({ role: PM_RANGER, race: PM_HUMAN });
+        const plainBow = item(ordinary, BOW, { owornmask: W_WEP });
+        ordinary.uwep = plainBow;
+        const arrows = item(ordinary, ARROW, { quan: 5 });
+        carry(ordinary, plainBow, arrows);
+        ordinary.uquiver = arrows;
+        ordinary.urole.questarti = ART_LONGBOW_OF_DIANA;
+        aimEast(ordinary);
+        assert.equal(await throw_obj(arrows, 0, ordinary), ECMD_TIME);
+        assert.equal(draws()[0], 'rnd(2)',
+            'the Ranger bonus alone gives a two-shot roll');
+
+        // roles.c assigns the Longbow of Diana to Rangers. Matching that
+        // artifact ID and launcher type exercises C's own-quest-artifact
+        // conjunct; the extra +1 changes only the source volley bound.
+        const ranger = arena({ role: PM_RANGER, race: PM_HUMAN });
+        const diana = item(ranger, BOW, {
+            owornmask: W_WEP,
+            oartifact: ART_LONGBOW_OF_DIANA,
+        });
+        ranger.uwep = diana;
+        ranger.urole.questarti = ART_LONGBOW_OF_DIANA;
+        const rangerArrows = item(ranger, ARROW, { quan: 5 });
+        carry(ranger, diana, rangerArrows);
+        ranger.uquiver = rangerArrows;
+        aimEast(ranger);
+        assert.equal(await throw_obj(rangerArrows, 0, ranger), ECMD_TIME);
+        assert.equal(draws()[0], 'rnd(3)',
+            'the quest-artifact launcher adds exactly one volley');
+
+        // A Wizard carrying the same Ranger artifact fails is_quest_artifact:
+        // roles.c gives Wizards the Eye of the Aethiopica, so the launcher
+        // must not gain the Ranger-only bonus from artifact status alone.
+        const otherRole = arena({ role: PM_WIZARD, race: PM_HUMAN });
+        const foreignBow = item(otherRole, BOW, {
+            owornmask: W_WEP,
+            oartifact: ART_LONGBOW_OF_DIANA,
+        });
+        otherRole.uwep = foreignBow;
+        otherRole.urole.questarti = ART_EYE_OF_THE_AETHIOPICA;
+        const wizardArrows = item(otherRole, ARROW, { quan: 5 });
+        carry(otherRole, foreignBow, wizardArrows);
+        otherRole.uquiver = wizardArrows;
+        aimEast(otherRole);
+        assert.equal(await throw_obj(wizardArrows, 0, otherRole), ECMD_TIME);
+        assert.equal(draws()[0], 'rnd(1)',
+            'another role\'s artifact receives no quest-launcher volley');
+    });
 
 // dothrow.c:228-231, the crossbow reload. All four conjuncts have to hold
 // before the volley is rolled twice, and 18 is the strength that loads one
@@ -1908,31 +2068,47 @@ test('throw_obj() empties the slot when a stack ends', async () => {
     assert.deepEqual(draws(), ['rn2(100)']);
 });
 
-test('throw_obj() puts a partly thrown stack back together', async () => {
-    // dothrow.c:284-286. The undo wants an object that is not the quiver and
-    // whose o_id matches one of the two svc.context.objsplit remembers, so a
-    // second throw from the same unquivered stack is where it fires: the
-    // first throw's split is what objsplit still holds.
-    const state = arena();
-    const stack = item(state, DAGGER, { quan: 5 });
-    carry(state, stack);
-    state.uquiver = null;
-    aimEast(state);
-    assert.equal(await throw_obj(stack, 0, state), ECMD_TIME);
-    assert.equal(state.context.objsplit.parent_oid, stack.o_id);
-    aimEast(state);
-    await assert.rejects(() => throw_obj(stack, 0, state), /unsplitobj/u);
-    // The same stack quivered is exempt, because dofire() throws from there
-    // every time and would otherwise undo its own split.
-    const quivered = arena();
-    const readied = item(quivered, DAGGER, { quan: 5 });
-    carry(quivered, readied);
-    quivered.uquiver = readied;
-    aimEast(quivered);
-    await throw_obj(readied, 0, quivered);
-    aimEast(quivered);
-    assert.equal(await throw_obj(readied, 0, quivered), ECMD_TIME);
-});
+test('throw_obj restores saved split context before the unsplitobj cleanup',
+    async () => {
+        // Split one item from this five-item DAGGER stack to model getobj's
+        // counted selection; splitobj creates the parent/child context C saves.
+        const state = arena();
+        const stack = item(state, DAGGER, { quan: 5 });
+        carry(state, stack);
+        state.uquiver = null;
+        const child = splitobj(stack, 1, { state });
+        const savedSplit = { ...state.context.objsplit };
+        assert.deepEqual(savedSplit,
+            { parent_oid: stack.o_id, child_oid: child.o_id },
+            'splitobj saves the parent and selected child IDs for cleanup');
+
+        const sourceStart = DOTHROW_C.indexOf('\nthrow_obj(');
+        const cleanupAt = DOTHROW_C.indexOf('unsplit_stack:', sourceStart);
+        const restoreAt = DOTHROW_C.indexOf('svc.context.objsplit = save_osplit;', cleanupAt);
+        const unsplitAt = DOTHROW_C.indexOf('(void) unsplitobj(obj);', cleanupAt);
+        assert.ok(cleanupAt >= 0 && restoreAt > cleanupAt && unsplitAt > restoreAt,
+            'C restores the saved context before discarding unsplitobj()');
+        const finishAt = DOTHROW_JS.indexOf('function finishThrowObj(');
+        const finishEnd = DOTHROW_JS.indexOf('\n}', finishAt) + 2;
+        const finishSource = DOTHROW_JS.slice(finishAt, finishEnd);
+        assert.ok(finishSource.indexOf('state.context.objsplit = save_osplit;')
+            < finishSource.indexOf('unsplitobj(obj, { state });'));
+
+        // KEY_ESC is the getdir cancellation key. C then follows unsplit_stack
+        // with ECMD_CANCEL and merges the selected child into its parent.
+        state.nhDisplay.clearInputQueue();
+        state.nhDisplay.pushKey(KEY_ESC);
+        assert.equal(await throw_obj(child, 0, state), ECMD_CANCEL);
+        assert.equal(state.invent, stack);
+        assert.equal(stack.quan, 5,
+            'source cleanup reunites the child with its parent');
+        assert.ok(child.where === OBJ_FREE || child.where === OBJ_DELETED);
+        // mkobj.c:dealloc_obj() clears both IDs when it frees a just-merged
+        // split half; restoring savedSplit first is what made this merge find
+        // the parent and return the stack to its original quantity.
+        assert.deepEqual(state.context.objsplit,
+            { parent_oid: 0, child_oid: 0 });
+    });
 
 test('dofire() asks whether the hero can throw at all', async () => {
     // dothrow.c:302-311. Each of the three refusals answers FALSE, which
