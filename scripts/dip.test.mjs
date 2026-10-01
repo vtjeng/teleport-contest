@@ -13,6 +13,7 @@ import test from 'node:test';
 import {
     ALTAR,
     AM_LAWFUL,
+    AM_NONE,
     ER_GREASED,
     ER_NOTHING,
     F_LOOTED,
@@ -340,6 +341,51 @@ test('polymorph_sink stores altar alignment for pray and glyph readers',
         );
         assert.deepEqual(messages, ['The sink transforms into an altar!']);
     });
+
+for (const { hellDraw, expectedMask } of [
+    // C do.c:polymorph_sink: zero preserves Align2amask(algn), and any
+    // nonzero rn2(3) result selects AM_NONE on a hellish dungeon level.
+    { hellDraw: 0, expectedMask: AM_LAWFUL },
+    { hellDraw: 1, expectedMask: AM_NONE },
+]) {
+    test(`polymorph_sink stores the Gehennom altar mask for draw ${hellDraw}`,
+        async () => {
+            await startedGame();
+            // C Inhell reads the current dungeon's hellish flag. Set that
+            // source condition directly without generating an unrelated level.
+            game.dungeons[game.u.uz.dnum].flags.hellish = true;
+            const { ux, uy } = game.u;
+            const location = game.level.at(ux, uy);
+            location.typ = SINK;
+            location.flags = S_LRING; // old sink loot must not enter altar flags
+            const messages = [];
+            const draws = [
+                { bound: 4, result: 2 }, // C switch selects the altar outcome
+                { bound: 3, result: 2 }, // algn = 2 - 1 selects lawful alignment
+                { bound: 3, result: hellDraw }, // C's extra Inhell-only draw
+            ];
+            let drawCount = 0;
+            await polymorph_sink(game, {
+                message: (line) => messages.push(line),
+                random: {
+                    rn2(bound) {
+                        const draw = draws[drawCount++];
+                        assert.ok(draw, 'unexpected additional random draw');
+                        assert.equal(bound, draw.bound);
+                        return draw.result;
+                    },
+                },
+            });
+
+            assert.equal(drawCount, draws.length);
+            assert.equal(location.typ, ALTAR);
+            assert.equal(location.flags, expectedMask);
+            assert.equal(Object.hasOwn(location, 'altarmask'), false);
+            assert.equal(altarmask_at(ux, uy, game), expectedMask);
+            assert.equal(back_to_glyph(ux, uy, game), altar_to_glyph(expectedMask));
+            assert.deepEqual(messages, ['The sink transforms into an altar!']);
+        });
+}
 
 // ── Source verification ──
 
