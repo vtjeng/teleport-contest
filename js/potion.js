@@ -82,6 +82,7 @@ import {
     INFRAVISION,
     INTRINSIC,
     INVIS,
+    LS_OBJECT,
     IS_FOUNTAIN,
     IS_SINK,
     Is_airlevel,
@@ -149,6 +150,7 @@ import { more_experienced, pluslvl, rndexp } from './exper.js';
 import { unfixable_trouble_count } from './apply.js';
 import { fruitname, makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { del_light_source } from './light.js';
 import {
     endRunning, losehp, nomul, spoteffects, You_can_move_again,
 } from './hack.js';
@@ -191,7 +193,9 @@ import { monstseesu, monstunseesu } from './mondata.js';
 import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
-import { burn_away_slime, fall_asleep } from './timeout.js';
+import {
+    burn_away_slime, fall_asleep, obj_stop_timers,
+} from './timeout.js';
 import { explode_oil } from './explode.js';
 import { Levitation, float_up, unconscious } from './trap.js';
 import {
@@ -1851,7 +1855,16 @@ export async function dopotion(otmp, state = game, env = {}) {
             await trycall(otmp, state);
         }
     }
-    useup(otmp);
+    const hooks = {
+        ...(env.hooks ?? {}),
+        stopObjectTimers: env.hooks?.stopObjectTimers
+            ?? ((obj, hookEnv) =>
+                obj_stop_timers(obj, hookEnv.state, hookEnv)),
+        deleteObjectLightSource: env.hooks?.deleteObjectLightSource
+            ?? ((obj, hookEnv) =>
+                del_light_source(LS_OBJECT, obj, hookEnv.state)),
+    };
+    useup(otmp, { ...env, state, hooks });
     return ECMD_TIME;
 }
 
