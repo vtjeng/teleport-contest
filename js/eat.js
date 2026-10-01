@@ -2,7 +2,8 @@
 // creation and naming share.
 // C refs: src/eat.c is_edible(), gethungry(), newuhs(), nonrotting_corpse(),
 //         vegan(), vegetarian(), tin_variety(), set_tin_variety(),
-//         tin_details(), eat_ok(), floorfood(), doeat(), and vomit().
+//         tin_details(), opentin(), Popeye(), eat_ok(), floorfood(), doeat(),
+//         and vomit().
 
 import {
     ACID_RES,
@@ -124,6 +125,7 @@ import { newsym, see_monsters } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
+import { unpunish } from './read.js';
 import { livelog_printf } from './pline.js';
 import {
     check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv,
@@ -150,7 +152,7 @@ import {
 import { dropx, dropy, trycall } from './do.js';
 import { makeplural } from './fruit.js';
 import { staleEgg } from './dogfood.js';
-import { iter_mons_safe, mon_offmap, rescham } from './mon.js';
+import { iter_mons_safe, mon_offmap, pm_to_cham, rescham } from './mon.js';
 import {
     acidic,
     attacktype,
@@ -181,7 +183,7 @@ import {
     perceives,
 } from './mondata.js';
 import {
-    AD_ACID, AD_DISE, AT_BREA, PM_KNIGHT, PM_PYROLISK,
+    AD_ACID, AD_DISE, AD_POLY, AT_BREA, PM_KNIGHT, PM_PYROLISK,
 } from './monsters.js';
 import { hcolor, Mgender, pmname, rndmonnam } from './do_name.js';
 import { monflee } from './monmove.js';
@@ -1348,10 +1350,58 @@ async function start_tin(otmp, state = game, env = {}) {
     } else {
         context.reqtime = tmp;
         context.usedtime = 0;
-        set_occupation((occupationState, occupationEnv = {}) => opentin(
-            occupationState,
-            { ...env, ...occupationEnv, state: occupationState },
-        ), 'opening the tin', 0, state);
+        // This callback is the JS pointer corresponding to C's opentin
+        // function. Popeye() compares that identity, not the display text or
+        // the fact that a tin remains in context.
+        const openingTinOccupation = (occupationState, occupationEnv = {}) => (
+            opentin(
+                occupationState,
+                { ...env, ...occupationEnv, state: occupationState },
+            )
+        );
+        openingTinOccupation.cSourceFunction = 'eat.c:opentin';
+        set_occupation(
+            openingTinOccupation, 'opening the tin', 0, state,
+        );
+    }
+}
+
+// C ref: eat.c Popeye() (3920-3955), the pure return-valued tin-occupation
+// check consumed by timeout.c:vomiting_dialogue(). The occupation callback's
+// source marker represents C's function pointer; the tin itself stays in its
+// existing svc.context.tin/state.context.tin owner.
+export function Popeye(threat, state = game) {
+    if (state.go?.occupation?.cSourceFunction !== 'eat.c:opentin')
+        return false;
+
+    const tin = state.context.tin.tin;
+    // obj.h carried(), invent.c obj_here(), and engrave.c can_reach_floor().
+    if (!carried(tin)
+        && (!obj_here(tin, state.u.ux, state.u.uy, state)
+            || !can_reach_floor(true, state))) {
+        return false;
+    }
+    // C assumes an unknown accessible tin will cure the current threat.
+    if (!tin.known) return true;
+
+    const species = tin.corpsenm;
+    switch (threat) {
+    case HUNGER:
+        return species !== NON_PM || tin.spe === 1;
+    case STONED:
+        return species >= LOW_PM && species < NUMMONS
+            && (species === PM_LIZARD
+                || acidic(state.mons[species]));
+    case SLIMED:
+        // obj.h polyfood() is ofood plus a shape-changing species or AD_POLY.
+        return (tin.otyp === CORPSE || tin.otyp === EGG || tin.otyp === TIN)
+            && species >= LOW_PM
+            && (pm_to_cham(species, state) !== NON_PM
+                || dmgtype(state.mons[species], AD_POLY));
+    case SICK:
+    case VOMITING:
+    default:
+        return false;
     }
 }
 
@@ -3871,9 +3921,9 @@ async function eatspecial(state, env) {
         uswapwepgone({ state });
 
     if (otmp === state.uball)
-        note_unported('ball.c unpunish');
+        unpunish(state, { ...env, random });
     if (otmp === state.uchain) {
-        note_unported('ball.c unpunish');
+        unpunish(state, { ...env, random });
     } else if (carried(otmp)) {
         useup(otmp, env);
     } else {

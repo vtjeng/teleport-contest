@@ -187,6 +187,7 @@ import { encumber_msg } from './pickup.js';
 import { ttyPline } from './tty_message.js';
 import { d, rn1, rn2, rnl, rnd, rne } from './rng.js';
 import { note_unported } from './unported.js';
+import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
 
 // Note: C's table is column first while the screen is row first.  These are
@@ -960,7 +961,7 @@ export async function scatter(
             if (typeof unpunish === 'function')
                 await unpunish(state.uchain, state.uball, env);
             else
-                note_unported('read.c unpunish()');
+                removePunishment(state, env);
             if (wasChain) continue;
         }
 

@@ -627,7 +627,7 @@ import {
 } from './objnam.js';
 import { readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg, force_decor } from './pickup.js';
-import { cant_revive, litroom } from './read.js';
+import { cant_revive, litroom, unpunish } from './read.js';
 import { is_quest_artifact } from './questpgr.js';
 import { mstatusline, ustatusline } from './insight.js';
 import {
@@ -1889,7 +1889,7 @@ export async function zapyourself(obj, ordinary, state = game) {
         }
         if (state.uball) {
             learn_it = true;
-            note_unported('read.c unpunish');
+            unpunish(state, env);
         }
         // C evaluates u.utrap before openholdingtrap() can clear it.
         const wasTrapped = Boolean(state.u.utrap);
@@ -3431,7 +3431,7 @@ export async function bhito(obj, wand, state = game,
         res = 0;
     } else if (obj === state.uchain || obj === state.u?.uchain) {
         if (wand.otyp === WAN_OPENING || wand.otyp === SPE_KNOCK) {
-            note_unported('ball.c unpunish');
+            unpunish(state, { ...rawEnv, random });
             learn_it = true;
         } else {
             res = 0;
