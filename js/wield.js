@@ -95,6 +95,7 @@ import {
     vtense,
     xnameFresh,
     yname,
+    yobjnam,
     Yname2,
 } from './objnam.js';
 import {
@@ -134,19 +135,6 @@ import {
     setuwep,
 } from './worn.js';
 
-/**
- * A branch of wield.c can_twoweapon() this port does not own yet.  js/cmd.js
- * converts it into the retryable command boundary, which is sound because
- * both remaining branches are decided before the command prints a message,
- * changes a slot, or draws its rnd(20).
- */
-export class UnsupportedTwoWeaponError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'UnsupportedTwoWeaponError';
-    }
-}
-
 // C ref: wield.c erodeable_wep() (61-64), the macro will_weld() reads. Despite
 // the name, it selects what a curse can weld to the hand rather than what
 // rusts; C's own comment says the name should probably change.
@@ -180,42 +168,20 @@ export function Glib(state) {
     return Boolean(state.u?.uprops?.[GLIB]?.intrinsic);
 }
 
-// C ref: wield.c can_twoweapon() (760-804). Answers whether the hero may
-// dual-wield, printing the reason she may not. Five of its eight refusal arms
-// and its success path at 802 are complete; the two arms below stop, each
-// because reaching what C does there needs a subsystem this port has not
-// ported, and neither can be reached from any input it accepts.
+// C ref: wield.c can_twoweapon() (760-804). Each refusal prints its source
+// reason and returns FALSE; only the successful path reaches dotwoweapon()'s
+// rnd(20). Keep the CORPSE arm in C order even though TWOWEAPOK() makes it
+// unreachable for a corpse.
 //
-// wield.c:791-793 refuses an artifact in the secondary slot with
-// Yobjnam2(uswapwep, "resist"), and objnam.c yobjnam() under it is not ported;
-// weldmsg() below stops at the same pair. No input reaches the arm in any
-// case: u_init.c:1315 calls mksobj() with artif FALSE, so no role starts with
-// an artifact in either hand, and wield.c dowield() is unported, so nothing
-// puts one there later.
-//
-// wield.c:797-801 sets uswapwep's bknown and drops it through
-// drop_uswapwep() (808-831). Two things there are still missing. Its three
-// messages are built with objnam.c Yobjnam2() and yobjnam(), neither of which
-// is ported, and it hands dropx() an object that is still in the secondary
-// slot, which do.c preflight_dropx() refuses as worn or attached -- so
-// dropz()'s own three slot clears at do.c:809-814, inert while every admitted
-// object is already out of its slot, would have to become live. Nor can either
-// condition arise, because u_init.c:1223 clears cursed on every starting
-// object and nothing in the port grants Glib.
-//
-// wield.c:794-796, the CORPSE arm, is absent rather than stopped. Its own
-// comment records that the !TWOWEAPOK() test above prevents ever reaching it,
-// and the reason holds here too: a corpse is FOOD_CLASS, so TWOWEAPOK() falls
-// through to obj.h is_weptool(), which demands TOOL_CLASS and so answers
-// FALSE two arms earlier.
-export async function can_twoweapon(state = game) {
+export async function can_twoweapon(state = game, env = {}) {
+    const message = env.message ?? ttyPline;
     const uwep = state.uwep;
     const uswapwep = state.uswapwep;
     let otmp;
 
     if (!could_twoweap(state.youmonst?.data)) {
         if (Upolyd(state.u)) {
-            await ttyPline(
+            await message(
                 "You can't use two weapons in your current form.", state,
             );
         } else {
@@ -224,7 +190,7 @@ export async function can_twoweapon(state = game) {
             const role = state.urole;
             const roleName = (state.flags.female && role.name.f)
                 ? role.name.f : role.name.m;
-            await ttyPline(
+            await message(
                 `${makeplural(roleName)} aren't able to use two weapons`
                 + ' at once.', state,
             );
@@ -235,13 +201,13 @@ export async function can_twoweapon(state = game) {
         if (!uwep && !uswapwep)
             hand_s = makeplural(hand_s);
         /* "your hands are empty" or "your {left|right} hand is empty" */
-        await ttyPline(
+        await message(
             `Your ${uwep ? 'left ' : uswapwep ? 'right ' : ''}${hand_s} `
             + `${vtense(hand_s, 'are')} empty.`, state,
         );
     } else if (!TWOWEAPOK(uwep, state) || !TWOWEAPOK(uswapwep, state)) {
         otmp = !TWOWEAPOK(uwep, state) ? uwep : uswapwep;
-        await ttyPline(
+        await message(
             `${Yname2(otmp, state)} `
             + `${is_plural(otmp) ? "aren't" : "isn't a"} suitable `
             + `${(otmp === uwep) ? 'primary' : 'secondary'} `
@@ -249,23 +215,56 @@ export async function can_twoweapon(state = game) {
         );
     } else if (bimanual(uwep, state) || bimanual(uswapwep, state)) {
         otmp = bimanual(uwep, state) ? uwep : uswapwep;
-        await ttyPline(`${Yname2(otmp, state)} isn't one-handed.`, state);
+        await message(`${Yname2(otmp, state)} isn't one-handed.`, state);
     } else if (state.uarms) {
-        await ttyPline(
+        await message(
             "You can't use two weapons while wearing a shield.", state,
         );
     } else if (uswapwep.oartifact) {
-        throw new UnsupportedTwoWeaponError(
-            "can_twoweapon()'s artifact refusal (wield.c:791-793)",
+        await message(
+            `${Yobjnam2(uswapwep, 'resist', state)} being held second to `
+            + 'another weapon!', state,
         );
+    } else if (uswapwep.otyp === CORPSE
+        && cant_wield_corpse(uswapwep, state)) {
+        // wield.c:794-796 leaves this arm empty because !TWOWEAPOK() has
+        // already rejected a corpse.
     } else if (Glib(state) || uswapwep.cursed) {
-        throw new UnsupportedTwoWeaponError(
-            "can_twoweapon()'s slippery-or-cursed refusal (wield.c:797-801)",
-        );
+        if (!Glib(state)) set_bknown(uswapwep, 1, { ...env, state });
+        await drop_uswapwep(state, env);
     } else {
         return true;
     }
     return false;
+}
+
+// C ref: wield.c drop_uswapwep() (808-831). Print the selected message before
+// do.c:dropx() frees the object and do.c:dropz() clears its secondary slot.
+export async function drop_uswapwep(state = game, env = {}) {
+    const obj = state.uswapwep;
+    const message = env.message ?? ttyPline;
+    const leftHand = `left ${body_part(HAND, state.youmonst)}`;
+
+    if (!obj.cursed) {
+        await message(
+            `${Yobjnam2(obj, 'slip', state)} from your ${leftHand}!`, state,
+        );
+    } else if (!state.u.twoweap) {
+        await message(
+            `${Yobjnam2(obj, 'evade', state)} your grasp and `
+            + `${otense(obj, 'drop')} from your ${leftHand}!`, state,
+        );
+    } else {
+        await message(
+            `Your ${leftHand} spasms and drops `
+            + `${yobjnam(obj, null, state)}!`, state,
+        );
+    }
+
+    // do.js imports wield.js for welded(); defer the reverse edge until this
+    // source call, after module initialization has completed.
+    const { dropCommandEnv, dropx } = await import('./do.js');
+    await dropx(obj, dropCommandEnv(state, { ...env, state }));
 }
 
 // C ref: wield.c dotwoweapon() (843-864), the #twoweapon command.

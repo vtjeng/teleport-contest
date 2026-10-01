@@ -99,6 +99,8 @@ import {
     W_ACCESSORY,
     W_ARMOR,
     W_SADDLE,
+    W_QUIVER,
+    W_SWAPWEP,
     W_ART,
     W_ARTI,
     I_SPECIAL,
@@ -1354,13 +1356,17 @@ function requiredDropHook(env, name) {
 // remove_object() through stackobj() -> merged() -> obj_extract_self() when
 // the landing object absorbs a pile member. All three are injected because
 // display.c, pickup.c and mkobj.c own them.
-function dropCommandEnv(state) {
+export function dropCommandEnv(state, env = {}) {
+    const dropState = env.state ?? state;
     return {
-        state,
+        ...env,
+        state: dropState,
         hooks: {
+            ...setwornEnv(dropState).hooks,
             encumberMessage: encumber_msg,
             extractExternalObject: remove_object,
             newsym,
+            ...env.hooks,
         },
     };
 }
@@ -1609,8 +1615,15 @@ export function preflight_dropx(obj, env = {}) {
     }
     if (!can_reach_floor(true, state))
         throw new UnsupportedDropError('an unreachable floor');
-    if (obj.owornmask || state.uwep === obj || state.uquiver === obj
-        || state.uswapwep === obj || state.uball === obj) {
+    const secondaryWeapon = state.uswapwep === obj
+        && Boolean(obj.owornmask & W_SWAPWEP);
+    // worn.c:91-94 allows W_SWAPWEP and W_QUIVER on one object; do.c:814-818
+    // clears both equipment pointers when that object is dropped.
+    const allowedWornMask = secondaryWeapon ? W_SWAPWEP | W_QUIVER : 0;
+    if ((obj.owornmask & ~allowedWornMask) || state.uwep === obj
+        || (state.uquiver === obj && !secondaryWeapon)
+        || (state.uswapwep === obj && !secondaryWeapon)
+        || state.uball === obj) {
         throw new UnsupportedDropError('a worn or attached object');
     }
     if (obj.unpaid)
@@ -1781,7 +1794,18 @@ export async function dropx(obj, env = {}, prepared = null) {
         && IS_ALTAR(normalized.state.level.at(ux, uy).typ)) {
         await doaltarobj(obj, normalized.state);
     }
+    // C dropx() reaches dropz() after shipping and altar handling. Clear the
+    // same equipment slots here because this admitted JS tail enters the
+    // floor-effects helper directly instead of calling dropz().
+    clearDropSlots(obj, normalized);
     await dropzAdmitted(obj, normalized);
+}
+
+function clearDropSlots(obj, env) {
+    const { state } = env;
+    if (obj === state.uwep) setuwep(null, env);
+    if (obj === state.uquiver) setuqwep(null, env);
+    if (obj === state.uswapwep) setuswapwep(null, env);
 }
 
 // C ref: do.c dropy() (799-804).
@@ -1853,9 +1877,7 @@ export async function dropz(obj, with_impact, env = {}) {
     const { state } = normalized;
     if (obj.where !== OBJ_FREE)
         throw new Error('dropz requires a free object');
-    if (obj === state.uwep) setuwep(null, { state });
-    if (obj === state.uquiver) setuqwep(null, { state });
-    if (obj === state.uswapwep) setuswapwep(null, { state });
+    clearDropSlots(obj, normalized);
     if (state.u?.uswallow) {
         if (obj !== state.uball) {
             if (obj.unpaid) {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47109322,
+      "datetime": "20420317112234",
+      "nethackrc": "OPTIONS=name:CurseSwapA67,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": " #twoweapon\n #wizintrinsic\ng\n \u0017uncursed scroll of remove curse\nrg   \u001b"
+    }
+  ],
+  "_comment": "Cheap independent C-only variation of the blocked support-caller probe: it changes only seed/time, which source RNG directly uses for confused read.c:seffect_remove_curse blessorcurse outcomes. It reaches the confused inventory loop but does not print a secondary-drop message, so it does not establish mkobj.c:curse -> wield.c:drop_uswapwep runtime coverage. The seed was chosen before this C recording and before any JavaScript comparison."
+}
