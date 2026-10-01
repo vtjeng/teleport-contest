@@ -127004,7 +127004,7 @@
     {
       "id": "port-potion-make-vomiting-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete vomiting timeout helper and wire existing callers",
       "cFile": "potion.c",
       "sessions": [
@@ -127018,8 +127018,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ea58b9a6de7091405270a0ab094cec750294ed5a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "make_vomiting",
@@ -127334,6 +127337,80 @@
         ],
         "entryPointReview": "This is a helper-only selected source range, so entryPoints is empty. The active helper callers are apply.c:use_unicorn_horn, eat.c:consume_tin, eat.c:fprefx, eat.c:fpostfx, timeout.c:nh_timeout, potion.c:healup and wizcmds.c:wiz_intrinsic; their selected JS source-call branches are wired. Two independent recordings execute make_vomiting through wizcmds.c:wiz_intrinsic: a Priest and a cheap Valkyrie variation. Focused tests pin the helper's source conditions, the timeout expiry call, the eucalyptus cure call, healup, and the shared stale-egg predicate. The admitted v15 wizard-cursed-horn-confuses-then-uncursed-horn-cures recording is retained as the selected diagnostic, but is not cited because it diverges at step 62: after apply.c:use_unicorn_horn sets Vomiting, C nh_timeout calls timeout.c:vomiting_dialogue, which unconditionally exercises Constitution; JS keeps that whole dialogue as a named unported caller gap. Do not claim the later cure or any runtime path through apply.c:use_unicorn_horn from that mismatching record. timeout.c:stoned_dialogue also remains a named outer gap, and the tripe-ration caller remains behind its named experience-helper refusal. No whole caller completion credit is claimed.",
         "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+          "session": "synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.session.json",
+          "recordingSha256": "7d9e209b16e0537a164c2a09fa9a8f8d5703a63dcf7f5a826afc342da81ea69a",
+          "recipe": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.recipe.session.json",
+          "recipeSha256": "c3b6e9e6504fba94ed577333c3522d9c96e16f1ee1d46fa0dc4a9545f1484910",
+          "replayInputSha256": "42a341451007a8005f82e4928400cf38132b5fb134c38ab5906fb914bf5eeca9",
+          "evaluationPath": "challenges/evaluations/20261001085306-v15.json",
+          "evaluationCommit": "ea58b9a6de7091405270a0ab094cec750294ed5a",
+          "evaluationArtifact": "challenges/evaluations/20261001085306-v15.json",
+          "evaluationUtc": "2026-10-01T08:53:37.445Z",
+          "remainingScreens": 0,
+          "recordedSteps": 66,
+          "previousScreensMatched": 65,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 66,
+              "total": 66
+            },
+            "rng": {
+              "matched": 2907,
+              "total": 2915
+            },
+            "cursors": {
+              "matched": 66,
+              "total": 66
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2907,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(20)=8",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "n"
+              },
+              "stepIndex": 62
+            },
+            "cursor": null
+          },
+          "step": 62,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.json",
+            "previousRemainingScreens": 1
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "ea58b9a6de7091405270a0ab094cec750294ed5a",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
