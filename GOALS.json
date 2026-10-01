@@ -128723,7 +128723,7 @@
     {
       "id": "port-pray-offer-negative-valued-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete negative-valued offering anger",
       "cFile": "pray.c",
       "sessions": [
@@ -128737,8 +128737,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "19dd0e5797590d50b125f8b4acab552ea08bd177",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "offer_negative_valued",
@@ -129209,6 +129212,12 @@
         ],
         "entryPointReview": "This selected range contains the helper pray.c:offer_negative_valued, not a user command, so entryPoints is intentionally empty. Its production caller is pray.c:offer_corpse at two source sites, both wired in JS; the fresh independent Priest recipe and admitted v15 Archeologist case match through the negative-value helper route. The supporting eval_offering change only corrects the aligned-unicorn insult's adjattrib message mode and is not whole-function completion evidence. C's additional pray.c:offer_fake_amulet call at :1625 is behind the still-unported JS dosacrifice branch and receives no runtime or completion claim.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "19dd0e5797590d50b125f8b4acab552ea08bd177",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
