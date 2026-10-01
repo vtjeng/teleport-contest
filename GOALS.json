@@ -126649,7 +126649,7 @@
     {
       "id": "port-scrolltele-controlled-discovery-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete scroll teleport discovery and control",
       "cFile": "teleport.c",
       "sessions": [
@@ -126663,8 +126663,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "8636994dad62108c3561b37062042dcaed42dc3a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "scrolltele",
@@ -126990,6 +126993,12 @@
         ],
         "entryPointReview": "The selected range is the helper-only teleport.c:scrolltele function, so entryPoints is empty. Its direct production callers are read.c:seffect_teleportation (scroll object) and teleport.c:tele (NULL). The read path is executed by both the admitted v15 range and the independent corrected recording; the latter matches all 43 frames and 2611 RNG calls through getpos cancellation, scrolltele's return to doread, and the following search command. The null-scroll tele wrapper remains wired, but this task has no separate matching recording for it. The outer tele trap/command paths are outside the selected source unit and are not claimed complete.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "8636994dad62108c3561b37062042dcaed42dc3a",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
