@@ -190,6 +190,7 @@ import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
+import { explode_oil } from './explode.js';
 import { Levitation, float_up, unconscious } from './trap.js';
 import {
     Can_rise_up, ceiling, depth, get_level, has_ceiling, ledger_no, on_level,
@@ -2220,7 +2221,8 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
         switch (obj.otyp) {
         case POT_OIL:
             if (obj.lamplit)
-                note_unported('potion.c explode_oil');
+                await explode_oil(obj, tx, ty, state, env);
+            if (state.program_state?.gameover) return;
             break;
         case POT_POLYMORPH:
             await message(
@@ -2401,7 +2403,8 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             break;
         case POT_OIL:
             if (obj.lamplit)
-                note_unported('potion.c explode_oil');
+                await explode_oil(obj, tx, ty, state, env);
+            if (state.program_state?.gameover) return;
             break;
         case POT_ACID:
             if (!monster_resists_element(mon, ACID_RES, state)

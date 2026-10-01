@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent B67 C-first monster-target oil recording. Based on the saved C setup preflight, the Samurai wears wished +7 gauntlets of dexterity (Dex 25), the lit oil is in slot g, and the grid bug is directly south; `tgj` selects the downplayed potion and aims at that source-observed adjacent target. This is chosen to pass dothrow.c:thitmonst's ACURR(A_DEX) > rnd(25) gate without a seed search.",
+  "segments": [
+    {
+      "seed": 84630220,
+      "datetime": "20400112174253",
+      "nethackrc": "OPTIONS=name:SamuraiDexOil,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\n+7 gauntlets of dexterity\nWf#wizwish\nlit potion of oil\n\u0007grid bug\ntgj"
+    }
+  ]
+}

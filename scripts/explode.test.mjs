@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { game } from '../js/gstate.js';
@@ -8,6 +9,7 @@ import {
     explosionmask,
     mon_explodes,
     scatter,
+    splatter_burning_oil,
     SCATTER_MAY_DESTROY,
     SCATTER_MAY_FRACTURE,
     SCATTER_MAY_HIT,
@@ -131,6 +133,61 @@ test('adtyp_to_expltype follows explode.c mapping', () => {
     assert.equal(adtyp_to_expltype(AD_COLD), 6);
     for (const adtyp of [AD_DRST, AD_DRDX, AD_DRCO, AD_DISE, AD_PEST, AD_PHYS])
         assert.equal(adtyp_to_expltype(adtyp), 1);
+});
+
+test('burning-oil splatter uses the diluted and ordinary C dice counts', async () => {
+    // The C helper rolls 3d4 for diluted oil and 4d4 otherwise. The two
+    // explosions are placed at (1,1), outside the initialized hero's area,
+    // so this test isolates the helper's consumed RNG call. This independently
+    // chosen seed, date, and Wizard setup only initialize an ordinary map; the
+    // injected dice return the source-valid lower bound for each roll.
+    await runSegment({
+        seed: 6196701,
+        datetime: '20370914112233',
+        nethackrc: [
+            'OPTIONS=name:OilDice,role:Wizard,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup',
+            '',
+        ].join('\n'),
+        moves: ' ',
+    });
+    const draws = [];
+    const random = {
+        d: (count, sides) => {
+            draws.push([count, sides]);
+            return count;
+        },
+    };
+
+    await splatter_burning_oil(1, 1, true, game, {
+        random,
+        message: async () => {},
+    });
+    await splatter_burning_oil(1, 1, false, game, {
+        random,
+        message: async () => {},
+    });
+
+    assert.deepEqual(draws, [[3, 4], [4, 4]]);
+});
+
+test('explode_oil preserves its C end-light, lost-reason, splatter order', () => {
+    const c = readFileSync(
+        new URL('../nethack-c/upstream/src/explode.c', import.meta.url),
+        'utf8',
+    );
+    const cStart = c.indexOf('explode_oil(struct obj *obj, coordxy x, coordxy y)');
+    const cEnd = c.indexOf('\n}\n\n/* Convert a damage type', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cBody = c.slice(cStart, cEnd);
+    assert.match(cBody,
+        /boolean diluted_oil = obj->odiluted;[\s\S]*?end_burn\(obj, TRUE\);[\s\S]*?obj->how_lost = LOST_EXPLODING;[\s\S]*?splatter_burning_oil\(x, y, diluted_oil\);/u);
+
+    const js = readFileSync(new URL('../js/explode.js', import.meta.url), 'utf8');
+    const jsStart = js.indexOf('export async function explode_oil(');
+    const jsBody = js.slice(jsStart, js.indexOf('\n}', jsStart));
+    assert.match(jsBody,
+        /const dilutedOil = Boolean\(obj\.odiluted\);[\s\S]*?end_burn\(obj, true, env\);[\s\S]*?obj\.how_lost = LOST_EXPLODING;[\s\S]*?await splatter_burning_oil\(x, y, dilutedOil, state,/u);
 });
 
 test('explosionmask reports only resisted targets', () => {

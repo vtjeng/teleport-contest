@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B67 retained setup miss, not source coverage: the first input was \".\" instead of the initial welcome-pager space, so #wizwish never opened and the later throw selected the starting magic marker. Preserve the complete matching C artifact under .cache/B67-logs/non-entry-c-matches, outside recordings/.",
+  "segments": [
+    {
+      "seed": 84630217,
+      "datetime": "20391116140822",
+      "nethackrc": "OPTIONS=name:OilHitBug,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizwish\nlit potion of oil\n\u0007grid bug\ntnh  \r"
+    }
+  ]
+}
