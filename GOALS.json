@@ -125281,8 +125281,8 @@
           "name": "seffect_mail",
           "line": 2157,
           "endLine": 2193,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -125554,7 +125554,69 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_mail",
+            "implementation": "js/read.js",
+            "symbol": "seffect_mail",
+            "sourceReview": "Whole read.c:seffect_mail definition, lines 2157–2188 at upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4. Read spe and o_id, derive odd exactly from `(o_id % 2) == 1`, set gk.known before dispatch, and preserve the spe==2 stamped-scroll labels and spe==1 ordinary-mail labels for both parities. The default branch calls mail.c:readmail when MAIL is built; JS records note_unported('mail.c readmail') and skips this discarded void result. Caller-only wiring replaces the SCR_MAIL refusal in read.c:seffects lines 2203–2206 with an awaited helper call; the existing pre-switch Wisdom exercise and post-effect learn/discovery/cleanup ordering are unchanged. This function is impure. Source-pinned tests call seffects and assert all four spe/parity labels and gk.known; production runtime evidence covers spe==1 through doread. A C-first marker recipe reaches spe==2 but cannot be strict-replayed because existing js/write.js:dowrite -> invent.js:hold_another_object lacks the SCR_MAIL encumberMessage hook; it is explicitly blocked outside B65 and gives no runtime credit.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects SCR_MAIL case calls seffect_mail(&sobj) at lines 2203–2206; js/read.js:seffects now awaits the corresponding helper."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread calls seffects(scroll) at line 635; the existing JS doread -> seffects production command path is exercised by the matching recording and v15 replay."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/mail-wish-knight-spe1-independent-b65.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-reads-uncursed-mail-scroll",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "read.c:doread -> read.c:seffects SCR_MAIL -> read.c:seffect_mail (spe==1, even o_id), exact replay run-PAns8f matches through the final message boundary."
+              }
+            ],
+            "checkedAt": "7e02ab4c4bc6f19ed121af3e63ce0cd9ef5e728a"
+          }
+        ],
+        "entryPointReview": "The active selected entry is doread reading an SCR_MAIL through seffects to seffect_mail. The admitted v15 case executes the spe==1/even-o_id branch at segment 0 step 37 and replays exactly; the independent C recording executes spe==1/odd-o_id at segment 0 step 28 and strict-replays. The tests pin spe==1 and spe==2 labels for both parities. The C-only spe==2 writing recipe is blocked before JS reaches the final read because write.c:dowrite -> invent.c:hold_another_object requires the missing encumberMessage hook; do not cite it as runtime evidence. The spe==0/default mail-reader branch has the explicit discarded-void mail.c:readmail gap.",
+        "entryPoints": [
+          {
+            "name": "read SCR_MAIL through doread",
+            "functions": [
+              "seffect_mail"
+            ],
+            "recordings": [
+              "recordings/read.c/mail-wish-knight-spe1-independent-b65.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-reads-uncursed-mail-scroll",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "read.c:doread -> read.c:seffects SCR_MAIL -> read.c:seffect_mail (spe==1, even o_id), exact replay run-PAns8f matches through the final message boundary."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
