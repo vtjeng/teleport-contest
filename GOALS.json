@@ -133967,8 +133967,8 @@
           "name": "doname_base",
           "line": 1223,
           "endLine": 1753,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -134485,7 +134485,147 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doname_base",
+            "implementation": "js/objnam.js",
+            "symbol": "doname_base",
+            "sourceReview": "Compared the complete objnam.c:doname_base (1223-1751), preserving xname-before-identification order; quantity/article and fake-artifact handling; BUC, empty/trapped/locked/greased state; worn suffixes and body-part wording; the full object-class switch; charges, candle timer adjustment, corpse/egg names, quiver and wizard-gender suffixes; unpaid, live-price and remembered-price branches; wizard weight; and sequential BUFSZ truncation. Removed selected preflightDoname refusals for the valid source branches. The C-discarded impossible leash branch remains note_unported('pline.c impossible'); apply.c:snuff_candle remains a separate gap. This correction also rechecked the C Concat and ConcatF1/F2 macros: every sequential append is bounded by the remaining BUFSZ body bytes, Concat uses strncat(spaceleft + delta), ConcatF uses snprintf(spaceleft + delta), delta-one writes back over the actual clipped final byte, and wizard weight is appended before strprepend. The consumed objnam.c:xname_flags gameover disclosure branch now uses the existing read.js text helpers in C order; objnam.c:distant_name saves, zeros and restores o_id in C order. These are supporting corrections with no separate whole-function credit. The result updates object identification and price-quote extrema, so this function is impure. Required return-valued helpers were also compared at their complete source definitions and tested: shk.c:get_cost_of_shop_item (2809-2843), get_pricing_units (2846-2859), oid_price_adjustment (2864-2872), get_cost (2877-2988), contained_cost (2995-3042), unpaid_cost (3260-3305), corpsenm_price_adj (4275-4316), and getprice (4319-4358). Their original C caller order remains in the naming path; C-discarded impossible diagnostics stay explicitly named at the relevant helper boundaries. invent.c:count_contents and timeout.c:peek_timer are reused as the existing canonical helpers. The final pointer-offset pass preserves C xname_flags returning buf+4 after stripping the article, then doname_base stripping the poisoned prefix with bp += 9 while leaving bp_eos and bpspaceleft unchanged; those byte offsets remain in force for every later bounded append. The corpse_xname result stays in prefix[] while bp retains xname() body text, and known egg species similarly stays in prefix while only the bounded laid-by-you text appends to bp. Source-pinned tests fill the body to C limits for poisoned and article-bearing names, and verify corpse gender and egg suffixes fit only when their prefixes stay outside bp. The selected object-naming-preflight contract cleanup removes assertObjectNameable and its no-op call sites from pickup.js and invent.js, retaining actual priced-object checks. Supporting shk.c:append_price_quote (454-493) now uses UTF-8 byte lengths for both its suffix and input buffer, matching C’s strict `len2 < BUFSZ - len - 1` guard. Its caller appends the returned suffix and advances the body end while preserving C’s unchanged cached bpspaceleft; wizard weight therefore uses pre-quote remaining bytes. The get_cost_of_shop_item caller also matches C’s current-shop/coin/ball/chain checks before get_obj_location and its get_cost-before-get_pricing_units call order; source-pinned proxy tests verify those orders.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "donameFresh",
+                "source": "objnam.c:doname -> doname_base for ordinary names"
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "doname_vague_quan",
+                "source": "objnam.c:doname_vague_quan -> doname_base with DONAME_VAGUE_QUAN"
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "doname_with_price",
+                "source": "objnam.c:doname_with_price -> doname_base with DONAME_WITH_PRICE"
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c:disclose -> display_inventory after the gameover possession-identification prompt; invent.c:display_inventory formats items through objnam.c:doname -> doname_base"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs",
+              "scripts/shop-floor-pricing.test.mjs",
+              "scripts/shk.test.mjs",
+              "scripts/shop-billing.test.mjs",
+              "scripts/shop-payment.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/shop-food.session.json",
+              "recordings/pickup.c/shop-potion.session.json",
+              "recordings/objnam.c/gameover-tourist-hawaiian-disclosure-a69-corrected.session.json",
+              "recordings/objnam.c/gameover-tourist-hawaiian-male-variation-a69.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "wizcmds.c:wizwish -> makewish -> objnam.c:doname -> doname_base; this range establishes lit-candle naming only"
+              },
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "wizcmds.c:wizwish -> makewish -> objnam.c:doname -> doname_base; the candle is a naming probe, not a snuffing entry"
+              },
+              {
+                "batch": "v16",
+                "caseId": "rogue-throws-wielded-aklys",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "wield.c:ready_weapon -> invent.c:prinv/xprname -> objnam.c:doname -> doname_base"
+              }
+            ],
+            "checkedAt": "99889b823aa12206a22bec10277f2a3c8b5d9524"
+          }
+        ],
+        "entryPointReview": "The selected whole source function is objnam.c:doname_base, with active recorded routes through objnam.c:doname for #wizwish and #wield and through objnam.c:doname_with_price for shop-floor descriptions. The v15 wizard wish ranges through segment 0 step 25 reach lit-candle naming; the marker case uses the candle only as a naming probe and does not exercise apply.c:snuff_candle. The v16 rogue #wield range through segment 0 step 27 reaches the tethered AKLYS suffix. Existing pickup.c shop-food and shop-potion recordings reach doname_with_price, live-price calculation and the unpaid inventory suffix at their saved boundaries. Source-pinned tests cover pure price helpers and corpse adjustment. doname_vague_quan and paydoname are audited direct wrappers but have no separate runtime claim. The xname_flags gameover disclosure refusal is removed by the correction; the later apply.c:snuff_candle call remains out of scope. The return-valued shop helpers are supporting scope and receive no independent roadmap completion credit in this evidence object; scripts/shk.test.mjs, shop-floor-pricing.test.mjs, shop-billing.test.mjs and shop-payment.test.mjs pin their source formulas and branches. The correction adds a matching gameover inventory-disclosure route: end.c:really_done -> disclose -> display_inventory -> doname -> doname_base. Two C-first Tourist recordings match completely and display distinct Hawaiian-shirt motifs. The C attribute-disclosure route calls minimal_xname with a dummy object whose o_id is already zero; the new records do not establish a nonzero-ID distant_name gameover call. The ID masking/restoration branch is source-pinned in scripts/objnam.test.mjs and receives no separate completion credit. The correction also source-pins pointer-capacity edge cases and corpse/egg prefix-versus-body ordering in scripts/objnam.test.mjs; those unit tests supplement, rather than replace, the recorded production routes. The no-op object-nameability preflight is deleted from pickup.js and invent.js under the reserved contract, while real price-admission checks remain.",
+        "entryPoints": [
+          {
+            "name": "#wizwish object naming through objnam.c:doname",
+            "functions": [
+              "doname_base"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "wizcmds.c:wizwish -> makewish -> objnam.c:doname -> doname_base"
+              },
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "wizcmds.c:wizwish -> makewish -> objnam.c:doname -> doname_base"
+              }
+            ]
+          },
+          {
+            "name": "#wield inventory naming through objnam.c:doname",
+            "functions": [
+              "doname_base"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "rogue-throws-wielded-aklys",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "wield.c:ready_weapon -> invent.c:prinv/xprname -> objnam.c:doname -> doname_base"
+              }
+            ]
+          },
+          {
+            "name": "shop-floor pricing through objnam.c:doname_with_price",
+            "functions": [
+              "doname_base"
+            ],
+            "recordings": [
+              "recordings/pickup.c/shop-food.session.json",
+              "recordings/pickup.c/shop-potion.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "end-game possession disclosure through end.c:disclose and invent.c:display_inventory",
+            "functions": [
+              "doname_base"
+            ],
+            "recordings": [
+              "recordings/objnam.c/gameover-tourist-hawaiian-disclosure-a69-corrected.session.json",
+              "recordings/objnam.c/gameover-tourist-hawaiian-male-variation-a69.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
