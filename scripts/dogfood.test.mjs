@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -15,6 +16,7 @@ import {
 import {
     dogfood,
     dogfoodWithoutObjectResistanceDraw,
+    staleEgg,
 } from '../js/dogfood.js';
 import {
     MONSTER_TEMPLATES,
@@ -104,6 +106,21 @@ function object(state, otyp, overrides = {}) {
         ...overrides,
     });
 }
+
+test('staleEgg uses the header strict two-hatch-time cutoff', () => {
+    const header = readFileSync(new URL(
+        '../nethack-c/upstream/include/obj.h', import.meta.url,
+    ), 'utf8');
+    assert.match(header, /#define MAX_EGG_HATCH_TIME 200/u);
+    assert.match(header,
+        /#define stale_egg\(egg\)[\s\\\n]*\(\(svm\.moves - \(egg\)->age\) > \(2 \* MAX_EGG_HATCH_TIME\)\)/u);
+
+    // The C limit is strictly greater than 2 * 200 turns: a 400-turn-old egg
+    // is still fresh, while 401 turns reaches fprefx()'s rotten-egg arm.
+    const egg = { age: 100 };
+    assert.equal(staleEgg(egg, { moves: 500 }), false);
+    assert.equal(staleEgg(egg, { moves: 501 }), true);
+});
 
 function env(state, draws = []) {
     return {

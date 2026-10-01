@@ -108,7 +108,7 @@ import { game } from './gstate.js';
 import { inv_weight, You_can_move_again, nomul, spoteffects } from './hack.js';
 import {
     incr_itimeout, make_blinded, make_confused, make_deaf, make_glib,
-    make_hallucinated, set_itimeout,
+    make_hallucinated, make_vomiting, set_itimeout,
 } from './potion.js';
 import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
@@ -731,7 +731,7 @@ async function decrement_property_timeouts(state, env) {
             if (!env.planning) note_unported('timeout.c slimed_to_death');
             break;
         case VOMITING:
-            if (!env.planning) note_unported('potion.c make_vomiting');
+            await make_vomiting(0, true, state, env);
             break;
         case SICK:
             if (!(u.usick_type & SICK_NONVOMITABLE)

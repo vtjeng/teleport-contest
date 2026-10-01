@@ -14,6 +14,7 @@
 //        itimeout/itimeout_incr/set_itimeout/incr_itimeout (55-86),
 //        bottlename() (1487-1494), potionhit() (1624-1928),
 //        potionbreathe() (1931-2118), make_stoned() (222-240),
+//        make_vomiting() (243-255),
 //        make_blinded() (261-331),
 //        make_hallucinated() (387-442), toggle_blindness() (336-364).
 //
@@ -120,6 +121,7 @@ import {
     UNCHANGING,
     Upolyd,
     WARN_OF_MON,
+    VOMITING,
     WOUNDED_LEGS,
     W_SADDLE,
     W_WEP,
@@ -479,6 +481,28 @@ export async function make_stoned(
         dealloc_killer(find_delayed_killer(STONED, state), state);
     } else if (!old) {
         delayed_killer(STONED, killedby, killername, state);
+    }
+}
+
+// C ref: potion.c make_vomiting() (243-255). Vomiting is the intrinsic
+// property; set_itimeout() changes only its timeout bits. Every call dirties
+// the condition line, and the optional cure message follows C's old-value and
+// Unaware checks.
+export async function make_vomiting(xtime, talk, state = game, env = {}) {
+    const prop = state.u?.uprops?.[VOMITING];
+    if (!prop)
+        throw new Error('make_vomiting requires initialized VOMITING state');
+    const old = prop.intrinsic;
+
+    if (Unaware(state)) talk = false;
+
+    set_itimeout(prop, xtime);
+    state.disp ??= {};
+    state.disp.botl = true;
+    if (!xtime && old && talk) {
+        await (env.message ?? ttyPline)(
+            'You feel much less nauseated now.', state,
+        );
     }
 }
 
@@ -2754,8 +2778,7 @@ export async function healup(nhp, nxtra, curesick, cureblind, state = game) {
         await make_deaf(0, true, state);
     }
     if (curesick) {
-        // Both C callees return void and are not yet implemented.
-        note_unported('potion.c make_vomiting');
+        await make_vomiting(0, true, state);
         note_unported('potion.c make_sick');
     }
     state.disp = state.disp || {};
