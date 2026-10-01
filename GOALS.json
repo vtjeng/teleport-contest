@@ -124039,7 +124039,7 @@
     {
       "id": "port-dog-make-familiar-and-figurine-callers-v14-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port familiar creation and its figurine, spell and timer callers",
       "cFile": "dog.c",
       "sessions": [
@@ -124053,8 +124053,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d5c00e3012d390c9f058db52b3c440fb2841fff0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "pick_familiar_pm",
@@ -124373,6 +124376,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d5c00e3012d390c9f058db52b3c440fb2841fff0",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

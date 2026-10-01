@@ -10,7 +10,7 @@
   "recordingSha256": "5277864431943f55d5c1dd95e4a160afb9c64361b237c1f56d0a57749cdfa1db",
   "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
   "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
-  "status": "partial",
+  "status": "complete",
   "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
   "mismatch": {
     "corpus": "synthetic",
@@ -112,28 +112,34 @@
     "luaFile": null,
     "line": 509
   },
-  "summary": "The first unmatched C RNG call is exercise(attrib.c:509), rn2(19)=7 at step 46. C exercise() draws on the increasing branch when abs(AEXE(i)) is below 50; read.c:seffects() calls exercise(A_WIS, TRUE) for a magic scroll before dispatching its effect. The saved trace does not expose AEXE(WIS) or the exercise caller for the second draw, so it cannot distinguish a missing/extra call from earlier attribute exercise state. Separately, the last screen mismatch follows the Wizard controlled scrolltele() path through getpos(), teleok(), and teleds(): at step 51, C cursor is [26,16,1] and JS cursor is [48,0,1], with a space/hyphen difference at row 0, column 40.",
+  "summary": "The source diagnosis for the first mismatch is complete. The ordinary Wisdom exercise in read.c::seffects() matches: the bounded replay observed JS exerciseAttribute(A_WIS, true) at RNG index 2709 with moves=1, AEXE(WIS)=0, ACURR(WIS)=12, consuming rn2(19)=5. C’s additional rn2(19)=7 at index 2710 is also owned by attrib.c::exercise(), but is caused by discovery during controlled teleportation: teleport.c::scrolltele() calls read.c::learnscroll() before getpos(); learnscrolltyp() calls makeknown() for an unknown scroll; the makeknown macro reaches o_init.c::discover_object(), whose credit_hero branch calls exercise(A_WIS, TRUE). JS teleport.js::scrolltele() omits learnscroll() in its wizard-controlled branch; its later call follows the branch, and successful getpos()/teleds() returns before reaching it. The actionable whole-function scope is teleport.c::scrolltele(). A separate step-51 getpos()/teleds() screen and cursor mismatch remains unresolved: C cursor [26,16,1], JS [48,0,1], with row 0 column 40 space versus hyphen.",
   "source": {
-    "file": "attrib.c",
-    "branch": "exercise(i, TRUE) reaches rn2(19) when i is not A_INT/A_CHA, the hero is not polymorphed (unless i is A_WIS), and abs(AEXE(i)) < 50; the draw increments AEXE(i) only when it exceeds ACURR(i).",
+    "file": "teleport.c",
+    "branch": "Whole-function scope: scrolltele() (teleport.c:849-915). In the wizard-controlled branch, C calls learnscroll(scroll) at teleport.c:883-884 before getpos(). For this unknown scroll, the full consumed path is read.c::learnscroll() → learnscrolltyp() → makeknown() (hack.h:1530 macro) → o_init.c::discover_object(); the latter credits Wisdom at o_init.c:480-483. The earlier generic exercise remains read.c::seffects() at 2199-2200. JS scrolltele() lacks the pre-getpos learnscroll call in its controlled branch, and successful destination selection returns before its later fallback learnscroll call.",
     "functions": [
-      "exercise"
+      "scrolltele"
     ],
     "callers": [
-      "read.c:seffects() calls exercise(A_WIS, TRUE) before dispatching a magic scroll at lines 2194-2200; the session reads an uncursed teleportation scroll."
+      "read.c::seffect_teleportation() dispatches an uncursed, unconfused teleport scroll to scrolltele(); read.c::seffects() first performs the generic Wisdom exercise for a magic scroll at read.c:2199-2200.",
+      "teleport.c::scrolltele() calls read.c::learnscroll() at lines 883-884 before getpos() in the wizard/controlled branch; read.c::learnscroll() calls learnscrolltyp(), which calls makeknown() when oc_name_known is false.",
+      "hack.h:1530 expands makeknown(x) to discover_object(x, TRUE, TRUE, TRUE); o_init.c::discover_object() calls exercise(A_WIS, TRUE) at line 483 when it newly marks a type known and credit_hero is true.",
+      "Production wiring: read.c::seffect_teleportation() calls scrolltele() for an uncursed, unconfused teleport scroll (read.c:2021-2030); JS js/read.js::seffect_teleportation() awaits scrolltele() at line 2057, after js/read.js::seffects() performs the generic Wisdom exercise."
     ],
     "dependencies": [
-      "AEXE(i) is u.aexe.a[i] (include/attrib.h:23); ACURR(i) calls acurr(i) (include/attrib.h:24).",
-      "Upolyd gates physical attribute exercise; rn2(19) or rn2(2) supplies the exercise draw.",
-      "svm.moves and encumber_msg() matter only for Strength or Constitution after play begins, not this Wisdom branch."
+      "attrib.c::exercise(): rejects only INT/CHA, non-Wisdom polymorph exercise, and abs(AEXE(i)) >= 50; on the increasing branch it consumes rn2(19), compares against ACURR(i), and changes AEXE(i) only if the roll is greater.",
+      "AEXE(WIS) is u.aexe.a[A_WIS] and ACURR(WIS) is acurr(A_WIS) (include/attrib.h:23-24). The bounded JS trace observed AEXE=0 and ACURR=12 before the matching seffects draw; rn2(19)=5 does not increment AEXE, so the next C discovery exercise can draw with the same values.",
+      "read.c::learnscrolltyp() only invokes makeknown() while objects[scrolltyp].oc_name_known is false, then calls more_experienced(0, 10); read.c::learnscroll() skips spellbooks.",
+      "o_init.c::discover_object() updates the discovery list and knowledge flags, credits exercise(A_WIS, TRUE) only when a previously unknown type is marked known, then updates inventory during live play.",
+      "JS teleport.js::scrolltele() calls learnscroll() only after the control-flow block. Its successful controlled getpos()/teleok()/teleds() path returns early, unlike C, which learns the scroll before getpos().",
+      "The later getpos()/teleds() cursor and output difference at step 51 is a separate unresolved trace; it is not attributed to the missing discovery draw."
     ]
   },
   "evidence": [
-    ".cache/synthetic-scans/v15/wizard-uncursed-scroll-teleports-within-level.json records 1 remaining screen out of 52, the first RNG mismatch at global index 2710 / segment 0 step 46 (`rn2(19)=7 @ exercise(attrib.c:509)`), and the final screen/cursor mismatch at step 51 after `.`.",
-    "challenges/cases/v15/wizard-uncursed-scroll-teleports-within-level.session.json records `rn2(19)=5 @ exercise` after key `n` at step 45 and `rn2(19)=7 @ exercise` after the space at step 46. The C screen then opens the teleport destination prompt; the final `.` reaches a C cursor of [26,16,1].",
-    "Frozen C source at attrib.c:489-514 defines the 50-point AEXE limit and the increasing branch `rn2(19) > ACURR(i)`; include/attrib.h:23-24 maps AEXE to `u.aexe.a` and ACURR to `acurr(i)`. read.c:2194-2200 performs one generic Wisdom exercise for a magic scroll before the effect switch.",
-    "The C source route after that generic draw is read.c:2015-2032 `seffect_teleportation()` → teleport.c:849-915 `scrolltele()`. With an uncursed, unconfused scroll and wizard control, scrolltele() calls getpos(), then teleok(), then teleds() for the selected same-level coordinate.",
-    "At the examined baseline, js/attrib.js:946-995 maps C AEXE to `u.aexe`, uses limit 50, and applies `rn2(19) > acurr(state, index)`; js/read.js:3319-3324 calls `exercise(A_WIS, true)` before its effect switch. Static comparison shows the same threshold and draw formula but cannot establish the per-call AEXE state or caller at the second RNG event.",
-    "Next source-backed probe: in a bounded replay of this assigned case, trace each exercise() invocation around steps 45-46 with its caller, attribute index, increase flag, AEXE(WIS), and move count; compare those values with the C branch and preserve the subsequent getpos() target / teleds() cursor discrepancy as a separate downstream gap."
-  ]
+    ".cache/synthetic-scans/v15/wizard-uncursed-scroll-teleports-within-level.json and the C recording challenges/cases/v15/wizard-uncursed-scroll-teleports-within-level.session.json preserve the original one-screen mismatch, provenance, and step trace; step 45 has rn2(19)=5 @ exercise and step 46 has rn2(19)=7 @ exercise.",
+    "One bounded instrumented JS replay completed as run-2pTwiE (receipt/log directory /tmp/teleport-validation-1000/run-2pTwiE). It observed one exerciseAttribute call for the generic seffects draw at RNG index 2709, with index=A_WIS, increase=true, moves=1, AEXE=0, ACURR=12; no JS exercise call or RNG draw follows at index 2710. The replay reproduces the same final screen and cursor mismatch.",
+    "Frozen C source at commit 6d2c675aad59f170ec44980d6afce47f08ae7423: read.c:2199-2200 gives the generic seffects exercise; teleport.c:883-884 calls learnscroll before getpos; read.c:58-76 defines learnscrolltyp()/learnscroll(); hack.h:1530 maps makeknown() to discover_object(); o_init.c:480-483 performs the second credited Wisdom exercise.",
+    "Frozen JS source at the same commit: js/teleport.js::scrolltele() has no learnscroll() in its wizard-controlled branch, and its successful controlled branch returns from getpos()/teleok()/teleds() before the bottom fallback learnscroll() call. js/read.js::learnscrolltyp() and js/o_init.js::discover_object() otherwise contain the matching discovery/exercise path.",
+    "The remaining step-51 output/cursor mismatch is still recorded separately in the original mismatch object: C cursor [26,16,1], JS cursor [48,0,1], and C space versus JS hyphen at row 0 column 40 after key \".\". Its getpos()/teleds() cause has not been attributed."
+  ],
+  "goalKind": "file-port"
 }
