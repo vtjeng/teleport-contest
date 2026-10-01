@@ -130179,6 +130179,321 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-make-sick-synthetic-v15-20261001",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete sickness timeout, cure, and delayed killer behavior",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v15/wizard-sets-sick-intrinsic-confirmed"
+      ],
+      "selectionReason": "The saved A66 queue has a complete investigation for synthetic/v15/wizard-sets-sick-intrinsic-confirmed. Its confirmed #wizintrinsic SICK selection reaches wizcmds.c:wiz_intrinsic -> potion.c:make_sick with no prior Sick timeout; C prints the new-illness message and then calls exercise(A_CON, FALSE), while JS currently stops at note_unported('potion.c make_sick'). The first differing draw is attrib.c:exercise rn2(2) at segment 0, step 17. This is an independently assignable source family; the other current queue owners are objnam.c:doname_base and A67's reserved wield.c dual-wield path. B72 delivery 84d9663b is now accepted and present in the merged base; B73 preserves its history while wiring the two previously reserved make_sick caller arms. Root verified the current saved batch measurements and the complete source definitions. Only potion.c:make_sick receives whole-function credit; supporting callers retain their explicit source and runtime limits.",
+      "detail": "Port the whole make_sick function in C order: resistance, illness messages, timeout and type masks, Constitution exercise and delayed-killer lifecycle. Wire every existing active JavaScript caller and preserve the named unported outer callers. Matching production evidence is the admitted v15 wiz_intrinsic route; the helper-only source range has no new command entry point.",
+      "openedAt": "07b9be1ce4e8941187ea3459c5534e6ce32b21f4",
+      "openStanding": {
+        "sha": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "make_sick",
+          "line": 137,
+          "endLine": 194,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 137,
+        "to": 194
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-sets-sick-intrinsic-confirmed": {
+          "session": "synthetic/v15/wizard-sets-sick-intrinsic-confirmed",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-sets-sick-intrinsic-confirmed",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+          "recordingSha256": "94ad10956f25f54f383bba6acb2529e39ad15c5e9e953174c00cd641e86bd583",
+          "evaluationPath": "challenges/evaluations/20261001134630-v15.json",
+          "evaluationCommit": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81"
+        }
+      },
+      "activeStanding": {
+        "sha": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-sets-sick-intrinsic-confirmed",
+          "session": "synthetic/v15/wizard-sets-sick-intrinsic-confirmed",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+          "recordingSha256": "94ad10956f25f54f383bba6acb2529e39ad15c5e9e953174c00cd641e86bd583",
+          "recipe": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.recipe.session.json",
+          "recipeSha256": "a47020709fdf4128e8516b2eda95dc72e442344344df582f07dcca322ad5f942",
+          "replayInputSha256": "021faee022e9bbe61e225a14cb0e11b9a57e777f58256094974eb52f033269fd",
+          "evaluationPath": "challenges/evaluations/20261001134630-v15.json",
+          "evaluationCommit": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+          "evaluationArtifact": "challenges/evaluations/20261001134630-v15.json",
+          "evaluationUtc": "2026-10-01T13:47:00.861Z",
+          "remainingScreens": 1,
+          "recordedSteps": 18,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 18
+            },
+            "rng": {
+              "matched": 2493,
+              "total": 2494
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 18
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2493,
+              "cEntry": "rn2(2)=1",
+              "cCaller": "exercise(attrib.c:509)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "stepIndex": 17
+            },
+            "cursor": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "cCursor": [
+                30,
+                0,
+                1
+              ],
+              "jsCursor": [
+                18,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 17,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-sets-sick-intrinsic-confirmed.json",
+            "result": {
+              "session": "synthetic/v15/wizard-sets-sick-intrinsic-confirmed",
+              "remainingScreens": 1,
+              "recordedSteps": 18,
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-sets-sick-intrinsic-confirmed",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "94ad10956f25f54f383bba6acb2529e39ad15c5e9e953174c00cd641e86bd583",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-sets-sick-intrinsic-confirmed",
+                "session": "synthetic/v15/wizard-sets-sick-intrinsic-confirmed",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+                "recordingSha256": "94ad10956f25f54f383bba6acb2529e39ad15c5e9e953174c00cd641e86bd583",
+                "recipe": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.recipe.session.json",
+                "recipeSha256": "a47020709fdf4128e8516b2eda95dc72e442344344df582f07dcca322ad5f942",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 1,
+                "recordedSteps": 18,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 18
+                  },
+                  "rng": {
+                    "matched": 2493,
+                    "total": 2494
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 18
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2493,
+                    "cEntry": "rn2(2)=1",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "stepIndex": 17
+                  },
+                  "cursor": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      30,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      18,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 17,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The remaining screen is owned by the unported whole function potion.c:make_sick, called by the SICK arm of wizcmds.c:wiz_intrinsic after the menu selection is confirmed. With no prior Sick timeout, wiz_intrinsic supplies 30; the recorded rn2(2)=1 selects SICK_NONVOMITABLE. make_sick sets the timed Sick intrinsic and type, prints “You feel deathly sick.”, calls exercise(A_CON, FALSE) for the missing rn2(2) draw, and stores #wizintrinsic with KILLED_BY delayed attribution. At expiry, timeout.c:nh_timeout decrements the property, skips recovery for nonvomitable sickness, transfers the saved delayed killer to game-over state, and ends with done_timeout(POISONING, SICK).",
+              "source": {
+                "file": "potion.c",
+                "branch": "The wizard-mode #wizintrinsic SICK arm is reached after a confirmed menu pick; Sick_resistance is false, the prior Sick timeout is zero, and the positive timeout is 30. The call passes the selected sickness type and cause string #wizintrinsic.",
+                "functions": [
+                  "make_sick"
+                ],
+                "callers": [
+                  "apply.c:use_unicorn_horn (2271, 2351)",
+                  "artifact.c:invoke_healing (1808)",
+                  "eat.c:eatcorpse (1913)",
+                  "eat.c:fpostfx (2578)",
+                  "eat.c:vomit (3746)",
+                  "end.c:savelife (725)",
+                  "mhitu.c:diseasemu (1039)",
+                  "polyself.c:newman (416)",
+                  "polyself.c:polymon (839)",
+                  "potion.c:peffect_water (750)",
+                  "potion.c:healup (1454)",
+                  "pray.c:fix_worst_trouble (415)",
+                  "sit.c:throne_sit_effect (98)",
+                  "timeout.c:nh_timeout (698)",
+                  "uhitm.c:mhitm_ad_heal (4353)",
+                  "wizcmds.c:wiz_intrinsic (1037)"
+                ],
+                "dependencies": [
+                  "potion.c:set_itimeout: void state update; writes the timeout field of u.uprops[SICK].intrinsic through itimeout().",
+                  "attrib.c:exercise: void state/RNG side effect; exercise(A_CON, FALSE) is called while Sick remains and consumes rn2(2) at attrib.c:509 when |AEXE(A_CON)| < AVAL.",
+                  "end.c:find_delayed_killer: returned struct kinfo pointer is consumed as kptr to decide whether to replace the pending SICK cause and whether to deallocate it on cure.",
+                  "end.c:delayed_killer: void state update; stores the SICK delayed-killer cause and its prefix.",
+                  "end.c:dealloc_killer: void state update; removes the saved SICK cause when the property clears.",
+                  "strcmp: return is consumed to use KILLED_BY for cause #wizintrinsic and KILLED_BY_AN for other causes."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The supplied C recording challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json, segment 0 steps 15–17, shows the “Which intrinsics?” menu, the e selection marker on “fatally sick”, then Enter confirming it; step 17 emits “You feel deathly sick.” and records rn2(2)=1 at wizcmds.c:1036 followed by rn2(2)=1 at exercise(attrib.c:509). The supplied diagnostic .cache/synthetic-scans/v15/wizard-sets-sick-intrinsic-confirmed.json reports that exact step-17 first mismatch, 17/18 screens matched, and unported potion.c make_sick.",
+                "At wizcmds.c:973–997, properties are listed and PICK_ANY is presented; lines 1000–1017 convert the confirmed pick to a property and derive/clamp its timeout. With this property initially unset and the default count, newtimeout is 30. Lines 1035–1037 choose SICK_NONVOMITABLE for the recorded rn2(2)=1 and call make_sick(newtimeout, \"#wizintrinsic\", TRUE, typ).",
+                "The complete source owner is potion.c:137–191. For positive timeout and no Sick_resistance, make_sick emits the newly-sick message when Sick was zero, stores the timed intrinsic with set_itimeout, ORs the sickness kind into u.usick_type, and marks disp.botl. It then finds the SICK delayed-killer record and, while Sick remains, calls exercise(A_CON, FALSE).",
+                "attrib.c:488–518 defines exercise; line 509 applies -rn2(2) for a decrement when the attribute exercise value is below AVAL. This is the second recorded draw missing after the JS wizcmds.js:402–407 branch currently draws the type and only calls note_unported(\"potion.c make_sick\").",
+                "The timer and cause are consumed later by timeout.c:671–723: nh_timeout decrements every timed intrinsic, handles SICK expiry, permits recovery only when SICK_NONVOMITABLE is absent, transfers the delayed killer into svk.killer, calls done_timeout(POISONING, SICK), and clears u.usick_type. In potion.c:184–188, #wizintrinsic selects KILLED_BY and is stored with delayed_killer; end.c:1707–1734 defines that record and its lookup, while timeout.c:571–585 sends the final cause through done()."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
