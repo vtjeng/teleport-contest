@@ -124981,7 +124981,7 @@
     {
       "id": "port-do-wear-cloak-on-stealth-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port cloak donning and its stealth helper callers",
       "cFile": "do_wear.c",
       "sessions": [
@@ -124995,8 +124995,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c914412c437b5acf638e49c2381c6e8c2268be3c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Cloak_on",
@@ -125246,6 +125249,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c914412c437b5acf638e49c2381c6e8c2268be3c",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
