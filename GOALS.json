@@ -131671,7 +131671,7 @@
     {
       "id": "port-potion-enlightenment-synthetic-v16-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete enlightenment potion effects",
       "cFile": "potion.c",
       "sessions": [
@@ -131685,8 +131685,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "63de4f782c82def10e34467dcaedf190954d39ba",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_enlightenment",
@@ -131952,6 +131955,12 @@
         ],
         "entryPointReview": "This is a helper-only range, so entryPoints is empty. Its production entry is the POT_ENLIGHTENMENT arm in potion.c:peffects(), reached through potion.c:dopotion() and the normal quaff/dodrink path; the independent cursed, blessed, and uncursed recordings and admitted v16 quaff range exercise the selected helper through production dispatch. Other active dopotion callers in fountain.c:drinksink (648) and eat.c:doeat (2450-2451) share the same peffects dispatcher and do not have caller-specific enlightenment behavior. The other direct C peffects callers are spell.c:spelleffects (1545), whose explicit potion-duplicate spell list does not include POT_ENLIGHTENMENT, and end.c:fuzzer_savelife (967, 974), which passes only blessed POT_WATER and POT_RESTORE_ABILITY. They therefore cannot enter the selected arm. The downstream polymorphed branch of zap.js:do_enlightenment_effect still records note_unported('insight.c enlightenment'); no polymorphed status-menu completion is claimed.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "63de4f782c82def10e34467dcaedf190954d39ba",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
