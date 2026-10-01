@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first corrected input frozen from petless C run-9PemdX before this recording and before JavaScript comparison. C showed `pettype:none` changed the wished +1 dagger to inventory slot n; keep that option so a pet cannot enter the floor-target square. Choose the observed n slot at the drop prompt, move south, then cast Drain Life (n) north (k) through the dropped dagger on the original square. Source route: spell.c:dowizcast -> spelleffects(SPE_DRAIN_LIFE) -> zap.c:weffects -> zap.c:bhito -> drain_item. C must confirm successful selection, object hit, resistance/enchantment and RNG.",
+  "segments": [
+    {
+      "seed": 39108247,
+      "datetime": "21280923132700",
+      "nethackrc": "OPTIONS=name:C56Drain,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " .#levelchange\n20\n                   \u0017+1 dagger\ndnj#wizcast\nnk"
+    }
+  ]
+}

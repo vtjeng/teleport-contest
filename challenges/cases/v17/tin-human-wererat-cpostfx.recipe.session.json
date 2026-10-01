@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first replacement route for the lycanthropy mission. A blessed homemade tin of human wererat meat avoids the whole-corpse meal delay and the greasy tin varieties. The source target is eat.c:consume_tin -> cpostfx(PM_HUMAN_WERERAT) -> were.c:set_ulycn, before the tin nutrition path. Inputs were frozen from C source review before recording or JavaScript comparison; preserve the earlier invalid wizard-intrinsic and incomplete-corpse attempts as provenance.",
+  "segments": [
+    {
+      "seed": 96317825,
+      "datetime": "21160815102500",
+      "nethackrc": "OPTIONS=name:C56TinLycanthrope,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017blessed homemade tin of human wererat meat\nee  y"
+    }
+  ]
+}

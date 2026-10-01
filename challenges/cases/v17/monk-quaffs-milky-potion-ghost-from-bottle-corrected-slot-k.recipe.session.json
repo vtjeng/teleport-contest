@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation frozen before its recording and before JavaScript comparison. The preceding corrected C selector record showed k - a milky potion. and the quaff prompt [d k or ?*]; this continuation adds only the C-observed selector key k. C potion.c:dodrink checks the runtime milky descriptor, live PM_GHOST status, then the occupant rng gate before ghost_from_bottle.",
+  "segments": [
+    {
+      "seed": 67381249,
+      "datetime": "21091213140700",
+      "nethackrc": "OPTIONS=name:C56Ghost,role:Monk,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed milky potion\n qk"
+    }
+  ]
+}

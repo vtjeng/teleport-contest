@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v17 source mission for potion.c:peffect_see_invisible -> display.c:set_mimic_blocking. Wish a see-invisible potion, create an invisible mimic through the debug monster prompt, then quaff it. The target is an actual invisible mimic mappearance whose light blocking changes when See_invisible is enabled; C output and glyphs must confirm that state.",
+  "segments": [
+    {
+      "seed": 60122847,
+      "datetime": "21230311110800",
+      "nethackrc": "OPTIONS=name:C56MimicSight,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed potion of see invisible\n\u0007invisible mimic\nqe      "
+    }
+  ]
+}

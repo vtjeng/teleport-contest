@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first confirmation of the cursed-invisibility branch. It retains the preceding frozen recipe’s seed/date/setup and changes the quaff letter from f to e because C showed `[e or ?*]` for that exact setup. The choice is based only on C output, before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 73184629,
+      "datetime": "20850410112700",
+      "nethackrc": "OPTIONS=name:C56CurseInvisF,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017cursed potion of invisibility\n\u0007sleeping orc\nqe      "
+    }
+  ]
+}

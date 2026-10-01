@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the create-monster scroll path. C showed the scroll-disappearance `--More--` before exposing `Create what kind of monster?`; this recipe first dismisses that page, then answers the recorded debug prompt with `orc`. Inputs are frozen from the C-observed prompt order before another recording and before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 91820371,
+      "datetime": "21120322124500",
+      "nethackrc": "OPTIONS=name:C56ScrollCritter,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed scroll of create monster\nre orc\n     "
+    }
+  ]
+}

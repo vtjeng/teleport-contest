@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first earthquake-drum confirmation after the first corrected-slot recording stopped at `--More--` before C reached the heavy shaking message or do_earthquake RNG. This recipe uses a new seed and clock, dismisses any startup page, selects the C-observed drum slot e, and supplies six spaces after the play action to continue the source messages and inspect any pit creation. It targets music.c:do_play_instrument(DRUM_OF_EARTHQUAKE) -> do_improvisation -> do_earthquake; record the complete observed source boundary and any later pager stop.",
+  "segments": [
+    {
+      "seed": 52910077,
+      "datetime": "20790318135700",
+      "nethackrc": "OPTIONS=name:C56QuakeThree,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed drum of earthquake (0:1)\nae      "
+    }
+  ]
+}

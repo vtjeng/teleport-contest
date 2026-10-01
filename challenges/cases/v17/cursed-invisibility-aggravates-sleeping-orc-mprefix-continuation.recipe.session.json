@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v17 source-observed continuation, frozen before a new C recording and before JavaScript comparison. It uses the C-observed potion wish, sleeping-orc creation, potion letter e and initial More dismissal, then answers the C warning against bare wait by using the source-prescribed m. no-op prefix five times so the sleeping-orc turn can run after wizard.c:aggravate clears msleeping. Earlier bare-period refusal remains preserved.",
+  "segments": [
+    {
+      "seed": 73184629,
+      "datetime": "20850410112700",
+      "nethackrc": "OPTIONS=name:C56CurseInvisF,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017cursed potion of invisibility\n\u0007sleeping orc\nqe m.m.m.m.m."
+    }
+  ]
+}

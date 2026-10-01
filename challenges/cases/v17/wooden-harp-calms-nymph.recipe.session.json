@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source probe frozen before recording/comparison for music.c:do_play_instrument -> do_improvisation(WOODEN_HARP) -> calm_nymphs. Set a level-30 Barbarian so the source special gate is guaranteed, wish a wooden harp, create a hostile mobile nymph adjacent, then apply and improvise. Record the actual menu selection and whether calm_nymphs clears asleep/peaceful/avenging/wait state and emits its visible response.",
+  "segments": [
+    {
+      "seed": 58214037,
+      "datetime": "20421109091700",
+      "nethackrc": "OPTIONS=name:C56Calm,role:Barbarian,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#levelchange\n30\n                             \u0017uncursed wooden harp\n\u0007hostile nymph\nafy"
+    }
+  ]
+}
