@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 95167031,
+      "datetime": "20361001094500",
+      "nethackrc": "OPTIONS=name:DetectA65,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+      "moves": ".#wizdetect\n"
+    }
+  ],
+  "comment": "Independent wizard-mode #wizdetect entry recipe. The fresh seed and fixed clock select a separate debug game; the command exercises the cmd.c wizdetect dispatcher into wizcmds.c:wiz_detect and its discarded findit() result."
+}

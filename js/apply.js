@@ -11,7 +11,8 @@
 // BULLWHIP and polearms, CREAM_PIE, STETHOSCOPE, POT_OIL through
 // apply.c:light_cocktail(), OIL_LAMP/MAGIC_LAMP/BRASS_LANTERN through
 // apply.c:use_lamp(), CANDELABRUM_OF_INVOCATION through use_candelabrum(),
-// WAX_CANDLE/TALLOW_CANDLE through use_candle(), and the
+// WAX_CANDLE/TALLOW_CANDLE through use_candle(), BELL/BELL_OF_OPENING through
+// use_bell(), and the
 // LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c
 // pick_lock() serves; MAGIC_MARKER delegates to write.c dowrite() in
 // js/write.js; containers delegate to pickup.c use_container() in js/pickup.js;
@@ -56,6 +57,7 @@ import {
     FEMALE,
     FACE,
     FOOT,
+    G_GONE,
     HEAD,
     FUMBLING,
     FORCETRAP,
@@ -77,6 +79,8 @@ import {
     IS_WALL,
     MELT_ICE_AWAY,
     N_DIRS,
+    NO_MINVENT,
+    MM_NOMSG,
     NO_MM_FLAGS,
     PARANOID_BREAKWAND,
     PIT,
@@ -193,7 +197,12 @@ import {
     set_occupation,
     y_n,
 } from './cmd.js';
-import { cvt_sdoor_to_door, use_crystal_ball } from './detect.js';
+import {
+    cvt_sdoor_to_door,
+    findit,
+    openit,
+    use_crystal_ball,
+} from './detect.js';
 import { Can_dig_down, ceiling, surface } from './dungeon.js';
 import { see_monster_closeup } from './dog.js';
 import {
@@ -260,7 +269,7 @@ import {
     stackobj,
 } from './invent.js';
 import { pick_lock } from './lock.js';
-import { bagotricks } from './makemon.js';
+import { bagotricks, mkclass } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto } from './mon.js';
 import {
@@ -470,7 +479,8 @@ import {
 import {
     AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_AMOROUS_DEMON,
     PM_ARCHEOLOGIST, PM_FLOATING_EYE, PM_HEALER, PM_MEDUSA,
-    PM_HORSE, PM_STONE_GOLEM, PM_UMBER_HULK, S_GHOST, S_NYMPH,
+    PM_HORSE, PM_STONE_GOLEM, PM_UMBER_HULK, PM_WOOD_NYMPH,
+    PM_WATER_NYMPH, PM_MOUNTAIN_NYMPH, S_GHOST, S_NYMPH,
     S_VAMPIRE, S_EEL, S_MIMIC, PM_GNOME, PM_LONG_WORM,
 } from './monsters.js';
 import { body_part, mbodypart, poly_gender, polymon } from './polyself.js';
@@ -511,7 +521,7 @@ import {
     unblock_point,
     vision_recalc,
 } from './vision.js';
-import { bimanual, is_pole, setnotworn } from './worn.js';
+import { bimanual, is_pole, mon_adjust_speed, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
 import { encumber_msg, pickup_object, use_container } from './pickup.js';
 import {
@@ -588,6 +598,7 @@ import { select_menu } from './windows.js';
 import {
     ART_SNICKERSNEE,
     Stone_resistance,
+    arti_speak,
     retouch_object,
 } from './artifacts.js';
 
@@ -3728,10 +3739,133 @@ export async function use_figurine(objp, state = game, rawEnv = {}) {
     return ECMD_TIME;
 }
 
+// C ref: apply.c use_bell() (1202-1316). The object holder represents C's
+// struct obj ** parameter: a shattered bell is removed from the caller's
+// local pointer before doapply() reaches its shared artifact-speech tail.
+export async function use_bell(objp, state = game, rawEnv = {}) {
+    const obj = objp.obj;
+    const message = (text) => (rawEnv.message ?? ttyPline)(text, state);
+    const random = {
+        d, rn1, rn2, rnd, rne, rnl, rnz,
+        ...(rawEnv.random ?? {}),
+    };
+    let wakem = false;
+    let learno = false;
+    const ordinary = obj.otyp !== BELL_OF_OPENING || !obj.spe;
+    const invoking = obj.otyp === BELL_OF_OPENING
+        && invocation_pos(state.u.ux, state.u.uy, state)
+        && !On_stairs(state.u.ux, state.u.uy, state);
+
+    // sndprocs.h defines Hero_playnotes as an empty macro in this recorder
+    // build, so neither obj_to_instr(obj) nor the note string is evaluated.
+    await message(`You ring ${the(xnameFresh(obj, state), state)}.`);
+
+    if (state.u.uinwater || (state.u.uswallow && ordinary)) {
+        await message('But the sound is muffled.');
+    } else if (invoking && ordinary) {
+        await message("But it makes no sound.");
+        learno = true;
+    } else if (ordinary) {
+        if (obj.cursed && random.rn2(4) === 0
+            && !(state.mvitals[PM_WOOD_NYMPH]?.mvflags & G_GONE)
+            && !(state.mvitals[PM_WATER_NYMPH]?.mvflags & G_GONE)
+            && !(state.mvitals[PM_MOUNTAIN_NYMPH]?.mvflags & G_GONE)) {
+            const nymphSpecies = mkclass(S_NYMPH, 0, { state, random });
+            // makemon(NULL, ...) selects a random species; mkclass returning
+            // null does not skip the C makemon call.
+            const monster = await makemon_runtime(
+                nymphSpecies,
+                state.u.ux,
+                state.u.uy,
+                NO_MINVENT | MM_NOMSG,
+                { ...rawEnv, state, random },
+            );
+            if (monster) {
+                await message(`You summon ${a_monnam(monster, state)}!`);
+                if (!obj_resists(obj, 93, 100, { state, random })) {
+                    await message(`${Tobjnam(obj, 'have', state)} shattered!`);
+                    useup(obj, { ...rawEnv, state });
+                    objp.obj = null;
+                } else {
+                    switch (random.rn2(3)) {
+                    case 1:
+                        await mon_adjust_speed(monster, 2, null, state, {
+                            ...rawEnv, random,
+                        });
+                        break;
+                    case 2:
+                        state.gn.nomovemsg = '';
+                        state.gm.multi_reason = null;
+                        nomul(-random.rnd(2), state);
+                        break;
+                    }
+                }
+            }
+        }
+        wakem = true;
+    } else {
+        consume_obj_charge(obj, true, {
+            ...rawEnv,
+            state,
+            // check_unpaid() is a discarded void call here. Its shop fee
+            // tail is still unported, so record the gap and preserve C's
+            // following charge decrement/update_inventory order.
+            checkUnpaid(item, chargeState) {
+                if (item.unpaid && chargeState.u?.ushops?.[0])
+                    note_unported('shk.c check_unpaid');
+            },
+        });
+        if (state.u.uswallow) {
+            if (!obj.cursed) await openit(state, rawEnv);
+            else await message(nothing_happens);
+        } else if (obj.cursed) {
+            note_unported('minion.c mkundead');
+            wakem = true;
+        } else if (invoking) {
+            await message(
+                `${Tobjnam(obj, 'issue', state)} an unsettling shrill sound...`,
+            );
+            obj.age = state.moves;
+            learno = true;
+            wakem = true;
+        } else if (obj.blessed) {
+            let result = 0;
+            if (state.uchain) {
+                note_unported('read.c unpunish');
+                result = 1;
+            } else if (state.u.utrap
+                && state.u.utraptype === TT_BURIEDBALL) {
+                note_unported('dig.c buried_ball_to_freedom');
+                result = 1;
+            }
+            result += await openit(state, rawEnv);
+            if (result === 0) {
+                await message(nothing_happens);
+            } else if (result === 1) {
+                await message('Something opens...');
+                learno = true;
+            } else {
+                await message('Things open around you...');
+                learno = true;
+            }
+        } else if (await findit(state, rawEnv) !== 0) {
+            learno = true;
+        } else {
+            await message(nothing_happens);
+        }
+    }
+
+    if (learno) {
+        discover_object(BELL_OF_OPENING, true, true, true, state, {
+            ...rawEnv, random,
+        });
+        obj.known = true;
+    }
+    if (wakem) await wake_nearby(true, { ...rawEnv, state, random });
+}
+
 const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
     LUMP_OF_ROYAL_JELLY,
-    BELL,
-    BELL_OF_OPENING,
     TOWEL,
     TIN_OPENER,
     FLINT,
@@ -4678,6 +4812,16 @@ export async function doapply(state = game, env = {}) {
         return use_grease(obj, state, env);
     case STETHOSCOPE:
         return use_stethoscope(obj, state);
+    case BELL:
+    case BELL_OF_OPENING: {
+        await use_bell(objp, state, env);
+        obj = objp.obj;
+        let result = ECMD_TIME;
+        // apply.c's common tail remains after use_bell() and runs only when
+        // the source pointer still names the object.
+        if (obj?.oartifact) result |= arti_speak(obj, state);
+        return result;
+    }
     case EXPENSIVE_CAMERA:
         return use_camera(obj, state, env);
     case TOWEL:

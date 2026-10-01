@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "B71 preserved C-first setup miss for pray.c:offer_negative_valued. This lawful male Archeologist entered Home 3 / Arc-loca, but the frozen cursor route used 48 east moves and 11 north moves. At the final cursor position C reported “dark part of a room”; after #offer, step 123 reported “You are not on an altar.” The admitted C route uses 49 east moves before the same 11 north moves and reaches the lawful altar. Keep this exact C output in scratch and out of recordings.",
+  "segments": [
+    {
+      "seed": 90653127,
+      "datetime": "20580724143200",
+      "nethackrc": "OPTIONS=name:B71Offer,role:Archeologist,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizlevelport\n?\n>z  \u0006\u0014  llllllllllllllllllllllllllllllllllllllllllllllllkkkkkkkkkkk. #wizwish\nwhite unicorn corpse\n #offer\ny  ",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -511,7 +511,7 @@ async function eval_offering(otmp, altaralign, state) {
                 ? 'chaos'
                 : unicornAlign ? 'law' : 'balance';
             await ttyPline(`Such an action is an insult to ${insult}!`, state);
-            await adjattrib(A_WIS, -1, 0, state, { message: ttyPline });
+            await adjattrib(A_WIS, -1, 1, state, { message: ttyPline });
             return -1;
         }
         if (state.u.ualign.type === altaralign) {
@@ -636,8 +636,19 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
     else await useupf(otmp, 1, useupEnv);
 }
 
-// C ref: pray.c:1959-2122 offer_corpse(). Unported helpers at these sites are
-// void in C, so their results are discarded exactly where the source does.
+// C ref: pray.c:1592-1599 offer_negative_valued(). The high-altar
+// desecration result is discarded in C and remains a named void-call gap.
+async function offer_negative_valued(highaltar, altaralign, state) {
+    const { u } = state;
+    if (altaralign !== u.ualign.type && highaltar) {
+        note_unported('pray.c desecrate_altar');
+    } else {
+        await gods_upset(altaralign, state);
+    }
+}
+
+// C ref: pray.c:1959-2122 offer_corpse(). Its two negative-value branches
+// await offer_negative_valued() at the corresponding source call sites.
 async function offer_corpse(otmp, highaltar, altaralign, state) {
     const { u } = state;
     const maxValue = 24;
@@ -666,7 +677,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
             await ttyPline('So this is how you repay loyalty?', state);
             adjalign(-3, state);
             u.uprops[AGGRAVATE_MONSTER].intrinsic |= FROMOUTSIDE;
-            note_unported('pray.c offer_negative_valued');
+            await offer_negative_valued(highaltar, altaralign, state);
             return;
         }
     }
@@ -677,7 +688,7 @@ async function offer_corpse(otmp, highaltar, altaralign, state) {
         return;
     }
     if (value < 0) {
-        note_unported('pray.c offer_negative_valued');
+        await offer_negative_valued(highaltar, altaralign, state);
         return;
     }
     if (altaralign !== u.ualign.type && highaltar) {

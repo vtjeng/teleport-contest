@@ -1,11 +1,13 @@
 // detect.js — searching and discovery.
 // C ref: detect.c dosearch0(), dosearch(), mfind0(), cvt_sdoor_to_door(),
-// find_trap(), and findit()'s empty-result path.
+// find_trap(), foundone(), findone(), openone(), detecting(), findit(), and
+// openit(). Remaining explicit-search gaps keep their named refusal.
 
 import {
     A_WIS,
     A_INT,
     BEAR_TRAP,
+    COULD_SEE,
     BLINDED,
     BURIED_TOO,
     BOLT_LIM,
@@ -13,6 +15,7 @@ import {
     CONFUSION,
     CONTAINED_TOO,
     CORR,
+    DEAF,
     DETECT_MONSTERS,
     DOOR,
     D_CLOSED,
@@ -31,6 +34,7 @@ import {
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
     HALLUC,
+    IN_SIGHT,
     HALLUC_RES,
     HALF_PHDAM,
     KILLED_BY_AN,
@@ -38,8 +42,6 @@ import {
     SYM_BOULDER,
     M_AP_OBJECT,
     I_SPECIAL,
-    Is_airlevel,
-    Is_waterlevel,
     IS_FURNITURE,
     IS_WALL,
     MAXTCHARS,
@@ -118,6 +120,9 @@ import {
     unmap_invisible,
     xy_set_wall_state,
     flush_screen,
+    GLYPH_INVISIBLE,
+    mon_to_glyph,
+    flash_glyph_at,
 } from './display.js';
 import { depth, on_level, room_discovered } from './dungeon.js';
 import {
@@ -126,6 +131,7 @@ import {
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
 import { get_obj_location } from './light.js';
+import { find_drawbridge } from './dbridge.js';
 import { Is_box } from './lock.js';
 import { losehp, nomul } from './hack.js';
 import { hides_under, is_hider, resists_blnd } from './mondata.js';
@@ -140,10 +146,11 @@ import {
     S_WORM_TAIL,
 } from './monsters.js';
 import { m_at } from './monst.js';
+import { closed_door } from './monmove.js';
 // seemimic() is the mon.c owner; display.c supplies only the glyph/display
 // helpers it calls.
 import { seemimic as monSeemimic } from './mon.js';
-import { a_monnam, hcolor, x_monnam, y_monnam } from './do_name.js';
+import { Monnam, a_monnam, hcolor, x_monnam, y_monnam } from './do_name.js';
 import { xnameFresh, Tobjnam, the } from './objnam.js';
 import { discover_object, observe_object } from './o_init.js';
 import {
@@ -157,6 +164,7 @@ import { body_part } from './polyself.js';
 import { is_quest_artifact } from './questpgr.js';
 import { consume_obj_charge, currency, money_cnt, useup } from './invent.js';
 import { findgold } from './steal.js';
+import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { note_unported } from './unported.js';
 import { isBox, objectType, sobj_at } from './obj.js';
@@ -178,9 +186,8 @@ import {
     SPBOOK_CLASS,
 } from './objects.js';
 import { visible_region_at } from './region.js';
-import { rn2, rnd, rnl } from './rng.js';
+import { rn2, rnd, rnl, rn2_on_display_rng } from './rng.js';
 import { hidden_gold } from './vault.js';
-import { s_suffix } from './hacklib.js';
 import {
     MAXMCLASSES,
     SYM_OFF_M,
@@ -196,26 +203,34 @@ import {
     S_tree,
     S_upstair,
     S_fountain,
+    S_hcdoor,
+    S_vcdoor,
     SYM_OFF_X,
 } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
-import { canSpotMonster, sensesMonster } from './startup_a11y.js';
-import { t_at, trapname } from './trap.js';
+import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
+import {
+    openfallingtrap, openholdingtrap, t_at, trapname,
+} from './trap.js';
+import { wake_nearto } from './mon.js';
+import { digests } from './dothrow.js';
 import {
     dismissPendingTtyMessage,
     displayPendingTtyMessageWindow,
+    ttyNorep,
     ttyPline,
 } from './tty_message.js';
 import {
     cansee,
-    do_clear_area,
+    do_clear_area_async,
+    recalc_block_point,
     unblock_point,
     vision_reset,
 } from './vision.js';
 import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { NO_COLOR } from './terminal.js';
 
-/** A branch of detect.c discovery which this port does not own yet. */
+/** An explicit-search branch whose effects are still unported. */
 export class UnsupportedSearchError extends Error {
     constructor(message) {
         super(message);
@@ -1067,10 +1082,12 @@ export async function monster_detect(
 const OTRAP_NONE = 0;
 const OTRAP_HERE = 1;
 const OTRAP_THERE = 2;
+// detect.c fixes this recorder build's animation count to six.
+const FOUND_FLASH_COUNT = 6;
 
 // C refs: detect.c sense_trap()/detect_obj_traps()/display_trap_map()
-// (865-1008). findone()'s optional collection callback remains an explicit
-// void gap; source-directed map display and fake-object RNG are ported here.
+// (865-1008). The optional findone collection callback flashes and records
+// trapped containers before the recursive object scan continues.
 function sense_trap(trap, x, y, srcCursed, state = game) {
     if (heroHallucinating(state) || srcCursed) {
         // display.h random_object(rn2) and random_monster(rn2) are macros;
@@ -1103,8 +1120,10 @@ function show_sense_trap(trap, x, y, srcCursed, state = game) {
     sense_trap(trap, x, y, srcCursed, state);
 }
 
-function detect_obj_traps(objlist, showThem, how, ft = null, state = game) {
+async function detect_obj_traps(objlist, showThem, how, ft = null, state = game) {
     let result = OTRAP_NONE;
+    const trapglyph = ft
+        ? trap_to_glyph({ ttyp: TRAPPED_CHEST }, state) : null;
     for (let obj = objlist; obj; obj = obj.nobj) {
         let x = 0, y = 0;
         if ((Is_box(obj) && obj.otrapped) || Has_contents(obj)) {
@@ -1122,19 +1141,20 @@ function detect_obj_traps(objlist, showThem, how, ft = null, state = game) {
             obj.tknown = true;
             observe_object(obj, state);
             result |= u_at(x, y, state) ? OTRAP_HERE : OTRAP_THERE;
+            if (ft) await flash_glyph_at(x, y, trapglyph, FOUND_FLASH_COUNT, state);
             if (showThem) {
                 const dummyTrap = { tx: x, ty: y, ttyp: TRAPPED_CHEST };
                 show_sense_trap(dummyTrap, x, y, how, state);
             }
             if (ft) {
-                // findone() is outside this task's entry points; the C result
-                // still includes this chest, while the optional flash/callback
-                // feedback remains an explicit void gap.
-                note_unported('detect.c detect_obj_traps findone feedback');
+                foundone(x, y, trapglyph, state);
+                ft.num_traps++;
             }
         }
         if (Has_contents(obj))
-            result |= detect_obj_traps(obj.cobj, showThem, how, ft, state);
+            result |= await detect_obj_traps(
+                obj.cobj, showThem, how, ft, state,
+            );
     }
     return result;
 }
@@ -1142,16 +1162,16 @@ function detect_obj_traps(objlist, showThem, how, ft = null, state = game) {
 async function display_trap_map(cursedSource, state = game) {
     await cls();
     unconstrain_map(state);
-    detect_obj_traps(state.level?.buriedobjlist ?? null, true,
+    await detect_obj_traps(state.level?.buriedobjlist ?? null, true,
         cursedSource, null, state);
-    detect_obj_traps(state.level?.objlist ?? null, true,
+    await detect_obj_traps(state.level?.objlist ?? null, true,
         cursedSource, null, state);
     for (let monster = state.level?.monlist ?? null;
         monster; monster = monster.nmon) {
         if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
-        detect_obj_traps(monster.minvent, true, cursedSource, null, state);
+        await detect_obj_traps(monster.minvent, true, cursedSource, null, state);
     }
-    detect_obj_traps(state.invent, true, cursedSource, null, state);
+    await detect_obj_traps(state.invent, true, cursedSource, null, state);
     for (const trap of state.level?.traps ?? [])
         show_sense_trap(trap, 0, 0, cursedSource, state);
 
@@ -1198,7 +1218,7 @@ export async function trap_detect(sobj = null, state = game) {
     }
     for (const chain of [state.level?.objlist ?? null,
         state.level?.buriedobjlist ?? null]) {
-        const result = detect_obj_traps(chain, false, 0, null, state);
+        const result = await detect_obj_traps(chain, false, 0, null, state);
         if (result & OTRAP_THERE) {
             await display_trap_map(cursedSource, state);
             return 0;
@@ -1208,14 +1228,16 @@ export async function trap_detect(sobj = null, state = game) {
     for (let monster = state.level?.monlist ?? null;
         monster; monster = monster.nmon) {
         if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
-        const result = detect_obj_traps(monster.minvent, false, 0, null, state);
+        const result = await detect_obj_traps(
+            monster.minvent, false, 0, null, state,
+        );
         if (result & OTRAP_THERE) {
             await display_trap_map(cursedSource, state);
             return 0;
         }
         if (result !== OTRAP_NONE) found = true;
     }
-    if (detect_obj_traps(state.invent, false, 0, null, state)
+    if (await detect_obj_traps(state.invent, false, 0, null, state)
         !== OTRAP_NONE) found = true;
     for (let index = 0; index < (state.level?.doorindex ?? 0); ++index) {
         const door = state.level.doors[index];
@@ -2239,14 +2261,6 @@ export function cvt_sdoor_to_door(location, state = game) {
     return location;
 }
 
-function trappedBoxInChain(first, nextKey) {
-    for (let object = first; object; object = object[nextKey] ?? null) {
-        if (isBox(object) && object.otrapped) return true;
-        if (object.cobj && trappedBoxInChain(object.cobj, 'nobj')) return true;
-    }
-    return false;
-}
-
 function trappedBoxInDirectChain(first, nextKey) {
     for (let object = first; object; object = object[nextKey] ?? null) {
         if (isBox(object) && object.otrapped) return true;
@@ -2284,91 +2298,300 @@ export function trapped_door_at(ttyp, x, y, state = game) {
     return true;
 }
 
-function trappedBuriedBoxAt(x, y, state) {
-    for (let object = state.level?.buriedobjlist ?? null;
-        object;
-        object = object.nobj ?? null) {
-        if (object.ox !== x || object.oy !== y) continue;
-        if ((isBox(object) && object.otrapped)
-            || (object.cobj && trappedBoxInChain(object.cobj, 'nobj'))) {
-            return true;
-        }
+export function foundone(x, y, glyph, state) {
+    const location = state.level.at(x, y);
+    if (glyph_is_cmap(glyph) || glyph === GLYPH_UNEXPLORED_OFF) {
+        location.seenv = SVALL;
     }
-    return false;
+
+    const viz = state.viz_array?.[y];
+    const saveViz = viz?.[x] ?? 0;
+    if (!heroIsBlind(state) && viz) viz[x] = COULD_SEE | IN_SIGHT;
+    newsym(x, y, state);
+    if (viz) viz[x] = saveViz;
 }
 
-// C ref: detect.c findone(), restricted to its no-discovery result. Any
-// square which would reveal terrain, a trap, an object, a monster, or stale
-// map memory stops before findone() performs the first mutation.
-function preflightEmptyFindone(x, y, state) {
+// C ref: detect.c findone() (1639-1727), the callback for findit()'s complete
+// do_clear_area() scan. Each map reveal, display flash, and count follows the
+// corresponding source branch order.
+export async function findone(x, y, found, state) {
     const location = state.level.at(x, y);
+    const trap = t_at(x, y, state);
     let monster = m_at(x, y, state);
     if (monster && (monster.mhp < 1 || (monster.isgd && !monster.mx)))
         monster = null;
+    found.ft_cc.x = x;
+    found.ft_cc.y = y;
 
-    const trap = t_at(x, y, state);
-    const doorMask = location.flags || location.doormask || 0;
-    const floorObjects = state.level.objects?.[x]?.[y] ?? null;
-    const trappedObject = trappedBoxInChain(floorObjects, 'nexthere')
-        || trappedBuriedBoxAt(x, y, state)
-        || (monster && trappedBoxInChain(monster.minvent, 'nobj'))
-        || (x === state.u.ux && y === state.u.uy
-            && trappedBoxInChain(state.invent, 'nobj'));
-    const spottedMonster = monster && canSpotMonster(monster, state);
-    const appearance = M_AP_TYPE(monster);
-    const examineMonster = monster
-        && (!spottedMonster || monster.mundetected || appearance);
-    const invisibleRemembered = glyph_is_invisible(
-        location.remembered_glyph?.glyph,
-    );
-    const hiddenMonster = examineMonster
-        && (appearance
-            || (monster.mundetected
-                && (is_hider(monster.data) || hides_under(monster.data)
-                    || monster.data?.mlet === S_EEL))
-            || (!invisibleRemembered && !spottedMonster));
-    const staleInvisible = !examineMonster && invisibleRemembered;
-
-    if (location.typ === SDOOR || location.typ === SCORR
-        || (trap && !trap.tseen && trap.ttyp !== STATUE_TRAP)
-        || (closedDoor(location) && (doorMask & D_TRAPPED))
-        || trappedObject || hiddenMonster || staleInvisible) {
-        throw new UnsupportedSearchError(
-            'findone() discovery is not ported',
+    if (location.typ === SDOOR) {
+        const cmap = location.horizontal ? S_hcdoor : S_vcdoor;
+        await flash_glyph_at(
+            x, y, cmap_to_glyph(cmap, state), FOUND_FLASH_COUNT, state,
         );
+        cvt_sdoor_to_door(location, state);
+        recalc_block_point(x, y, state);
+        magic_map_background(x, y, false, state);
+        foundone(x, y, back_to_glyph(x, y, state), state);
+        found.num_sdoors++;
+    } else if (location.typ === SCORR) {
+        await flash_glyph_at(
+            x, y, cmap_to_glyph(S_corr, state), FOUND_FLASH_COUNT, state,
+        );
+        location.typ = CORR;
+        unblock_point(x, y, state);
+        magic_map_background(x, y, false, state);
+        foundone(x, y, cmap_to_glyph(S_corr, state), state);
+        found.num_scorrs++;
+    }
+
+    if (trap && !trap.tseen && trap.ttyp !== STATUE_TRAP) {
+        await flash_glyph_at(
+            x, y, trap_to_glyph(trap, state), FOUND_FLASH_COUNT, state,
+        );
+        trap.tseen = true;
+        sense_trap(trap, x, y, false, state);
+        foundone(x, y, trap_to_glyph(trap, state), state);
+        found.num_traps++;
+    }
+    if (closed_door(x, y, state)
+        && ((location.flags ?? location.doormask ?? 0) & D_TRAPPED)) {
+        const dummyTrap = { ttyp: TRAPPED_DOOR, tx: x, ty: y, tseen: true };
+        const glyph = trap_to_glyph(dummyTrap, state);
+        await flash_glyph_at(x, y, glyph, FOUND_FLASH_COUNT, state);
+        sense_trap(dummyTrap, x, y, false, state);
+        foundone(x, y, glyph, state);
+        found.num_traps++;
+    }
+
+    await detect_obj_traps(state.level?.buriedobjlist ?? null,
+        true, false, found, state);
+    await detect_obj_traps(state.level?.objlist ?? null,
+        true, false, found, state);
+    if (monster)
+        await detect_obj_traps(monster.minvent, true, false, found, state);
+    if (u_at(x, y, state))
+        await detect_obj_traps(state.invent, true, false, found, state);
+
+    const appearance = monster ? M_AP_TYPE(monster) : 0;
+    if (monster && (!canSpotMonster(monster, state)
+        || monster.mundetected || appearance)) {
+        if (appearance) {
+            const displayRandom = (bound) => rn2_on_display_rng(bound, state);
+            await flash_glyph_at(
+                x, y, mon_to_glyph(monster, state, displayRandom),
+                FOUND_FLASH_COUNT, state,
+            );
+            monSeemimic(monster, state);
+            found.num_mons++;
+        } else if (monster.mundetected
+            && (is_hider(monster.data) || hides_under(monster.data)
+                || monster.data?.mlet === S_EEL)) {
+            const displayRandom = (bound) => rn2_on_display_rng(bound, state);
+            await flash_glyph_at(
+                x, y, mon_to_glyph(monster, state, displayRandom),
+                FOUND_FLASH_COUNT, state,
+            );
+            monster.mundetected = false;
+            newsym(x, y, state);
+            found.num_mons++;
+        }
+        if (!glyph_is_invisible(location.remembered_glyph?.glyph)) {
+            if (!canSpotMonster(monster, state)) {
+                await flash_glyph_at(
+                    x, y, GLYPH_INVISIBLE, FOUND_FLASH_COUNT, state,
+                );
+                map_invisible(x, y, state);
+                found.num_invis++;
+            }
+        } else {
+            found.num_kept_invis++;
+        }
+    } else if (unmap_invisible(x, y, state)) {
+        await flash_glyph_at(
+            x, y, GLYPH_INVISIBLE, FOUND_FLASH_COUNT, state,
+        );
+        found.num_cleared_invis++;
     }
 }
 
-function closedDoor(location) {
-    const mask = location.flags || location.doormask || 0;
-    return location.typ === DOOR && Boolean(mask & (D_LOCKED | D_CLOSED));
+// C ref: detect.c openone() (1729-1790), the callback for openit's complete
+// do_clear_area() scan. Async trap handlers preserve the C short-circuit OR.
+export async function openone(x, y, counter, state) {
+    const location = state.level.at(x, y);
+    const floorObjects = state.level.objects?.[x]?.[y] ?? null;
+    if (floorObjects) {
+        for (let obj = floorObjects; obj; obj = obj.nexthere) {
+            if (Is_box(obj) && obj.olocked) {
+                obj.olocked = false;
+                counter.value++;
+            }
+        }
+    }
+
+    if (location.typ === SDOOR
+        || (location.typ === DOOR
+            && ((location.flags ?? location.doormask ?? 0)
+                & (D_CLOSED | D_LOCKED)))) {
+        if (location.typ === SDOOR) cvt_sdoor_to_door(location, state);
+        if ((location.flags ?? location.doormask ?? 0) & D_TRAPPED) {
+            if (dist2(x, y, state.u.ux, state.u.uy) < 3) {
+                note_unported('trap.c b_trapped');
+            } else {
+                const deaf = Boolean(state.u.uprops?.[DEAF]?.intrinsic
+                    || state.u.uprops?.[DEAF]?.extrinsic
+                    || state.u.uroleplay?.deaf);
+                await ttyNorep(
+                    `You ${cansee(x, y, state) ? 'see'
+                        : deaf ? 'feel the shock of' : 'hear'} an explosion!`,
+                    state,
+                );
+            }
+            await wake_nearto(x, y, 11 * 11, { state });
+            location.flags = D_NODOOR;
+            location.doormask = D_NODOOR;
+        } else {
+            location.flags = D_ISOPEN;
+            location.doormask = D_ISOPEN;
+        }
+        unblock_point(x, y, state);
+        newsym(x, y, state);
+        counter.value++;
+    } else if (location.typ === SCORR) {
+        location.typ = CORR;
+        unblock_point(x, y, state);
+        newsym(x, y, state);
+        counter.value++;
+    } else if (t_at(x, y, state)) {
+        const trap = t_at(x, y, state);
+        if (!trap.tseen && trap.ttyp !== STATUE_TRAP) {
+            trap.tseen = true;
+            newsym(x, y, state);
+            counter.value++;
+        }
+        const monster = u_at(x, y, state)
+            ? state.youmonst : m_at(x, y, state);
+        const holding = await openholdingtrap(monster, state);
+        if (holding.result) {
+            counter.value++;
+        } else {
+            const falling = await openfallingtrap(monster, true, state);
+            if (falling.result) counter.value++;
+        }
+    } else {
+        const position = { x, y };
+        if (find_drawbridge(position, state)) {
+            note_unported('dbridge.c open_drawbridge');
+            counter.value++;
+        }
+    }
 }
 
-// C ref: detect.c findit(), restricted to the result where findone() finds no
-// secret terrain, trap, trapped container, hidden monster, or stale invisible
-// marker anywhere in the BOLT_LIM scan.
+// C ref: detect.c detecting() (1927-1932). do_clear_area() only bypasses
+// ordinary visibility for these two exact detection callbacks on air/water
+// levels; callback identity is the source contract.
+export function detecting(callback) {
+    return callback === findone || callback === openone;
+}
+
+// C ref: detect.c findit() (1792-1900). This returns the total number of
+// newly revealed or detected items; kept invisible markers do not count.
 export async function findit(state = game, rawEnv = {}) {
     if (state.u.uswallow) return 0;
-    if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)) {
-        // vision.c do_clear_area() overrides normal visibility for magical
-        // detection on these two levels; the shared JS traversal does not.
-        throw new UnsupportedSearchError(
-            'findit() detection through air or water is not ported',
-        );
-    }
-    const clearArea = rawEnv.clearArea ?? do_clear_area;
-    clearArea(
+    const message = (text) => (rawEnv.message ?? ttyPline)(text, state);
+    const found = {
+        ft_cc: { x: 0, y: 0 },
+        num_sdoors: 0,
+        num_scorrs: 0,
+        num_traps: 0,
+        num_mons: 0,
+        num_invis: 0,
+        num_kept_invis: 0,
+        num_cleared_invis: 0,
+    };
+    await do_clear_area_async(
         state.u.ux,
         state.u.uy,
         BOLT_LIM,
-        (x, y) => preflightEmptyFindone(x, y, state),
+        (x, y) => findone(x, y, found, state),
         null,
         state,
+        { detecting: detecting(findone) },
     );
-    const message = rawEnv.message
-        ?? ((text) => ttyPline(text, state));
-    await message("You don't find anything.");
-    return 0;
+
+    const categories = [found.num_sdoors, found.num_scorrs,
+        found.num_traps, found.num_mons];
+    const categoryCount = categories.filter(Boolean).length;
+    let discoveries = '';
+    if (found.num_sdoors) {
+        discoveries = found.num_sdoors > 1
+            ? `${found.num_sdoors} secret doors` : 'a secret door';
+    }
+    if (found.num_scorrs) {
+        if (discoveries) discoveries += categoryCount === 2 ? ' and ' : ', ';
+        discoveries += found.num_scorrs > 1
+            ? `${found.num_scorrs} secret corridors` : 'a secret corridor';
+    }
+    if (found.num_traps) {
+        if (discoveries) {
+            discoveries += categoryCount === 3 && !found.num_mons
+                ? ', and ' : categoryCount === 2 ? ' and ' : ', ';
+        }
+        discoveries += found.num_traps > 1
+            ? `${found.num_traps} traps` : 'a trap';
+    }
+    let total = found.num_sdoors + found.num_scorrs
+        + found.num_traps + found.num_mons;
+    if (found.num_mons) {
+        if (discoveries)
+            discoveries += categoryCount > 2 ? ', and ' : ' and ';
+        discoveries += found.num_mons > 1
+            ? `${found.num_mons} hidden monsters` : 'a hidden monster';
+    }
+    if (discoveries) await message(`You reveal ${discoveries}!`);
+
+    if (found.num_invis) {
+        const unseen = found.num_invis > 1
+            ? `${found.num_invis}${found.num_kept_invis ? ' other' : ''} unseen monsters`
+            : `${found.num_kept_invis ? 'another' : 'an'} unseen monster`;
+        await message(`You detect ${unseen}!`);
+        total += found.num_invis;
+    }
+    if (found.num_cleared_invis) {
+        if (!total) {
+            await message(
+                `You feel ${found.num_kept_invis ? 'somewhat ' : ''}less paranoid.`,
+            );
+        }
+        total += found.num_cleared_invis;
+    }
+    if (!total) await message("You don't find anything.");
+    return total;
+}
+
+// C ref: detect.c openit() (1902-1925). Its integer result counts opened
+// objects/traps/terrain, with -1 reserved for ejecting an engulfed hero.
+export async function openit(state = game, rawEnv = {}) {
+    const message = (text) => (rawEnv.message ?? ttyPline)(text, state);
+    if (state.u.uswallow) {
+        if (digests(state.u.ustuck?.data)) {
+            await message(heroIsBlind(state)
+                ? 'Its mouth opens!'
+                : `${Monnam(state.u.ustuck, state)} opens its mouth!`);
+        }
+        note_unported('mhitu.c expels TRUE');
+        return -1;
+    }
+    const counter = { value: 0 };
+    await do_clear_area_async(
+        state.u.ux,
+        state.u.uy,
+        BOLT_LIM,
+        (x, y) => openone(x, y, counter, state),
+        counter,
+        state,
+        { detecting: detecting(openone) },
+    );
+    return counter.value;
 }
 
 function indefinite(name) {

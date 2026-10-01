@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "segments": [{
+    "seed": 39410527,
+    "datetime": "20261001093100",
+    "nethackrc": "OPTIONS=name:A65BlessedBell,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+    "comment": "C-first A65 variation: a fresh Wizard wish creates a blessed charged Bell of Opening, then applies it off the invocation level. This selects use_bell's blessed openit path and its whole do_clear_area(openone) caller scan.",
+    "moves": " #wizwish\nblessed +1 bell of opening\nan"
+  }]
+}

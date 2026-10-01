@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "Independent B71 C-first offer recipe. A lawful male human Priest creates a lawful altar at the starting square with the source-supported #wizwish terrain syntax, then wishes a matching white unicorn corpse and offers it. This date avoids the new-moon startup pager observed in another retained setup miss. The single space after the corpse wish clears any C --More-- window before #offer; two final spaces cover the insult/deity messages. pray.c:eval_offering returns -1 when unicorn and altar align, so the offer should call offer_negative_valued and gods_upset.",
+  "segments": [
+    {
+      "seed": 99132749,
+      "datetime": "20610215143000",
+      "nethackrc": "OPTIONS=name:B71Offer3,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".#wizwish\nlawful altar\n#wizwish\nwhite unicorn corpse\n #offer\ny  ",
+      "recorderIsDst": true
+    }
+  ]
+}

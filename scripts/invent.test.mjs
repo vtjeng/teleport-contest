@@ -3,7 +3,12 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { ROOM } from '../js/const.js';
-import { display_binventory, only_here } from '../js/invent.js';
+import {
+    consume_obj_charge,
+    display_binventory,
+    only_here,
+} from '../js/invent.js';
+import { UnsupportedShopError } from '../js/shk.js';
 
 const INVENT_C = readFileSync(
     new URL('../nethack-c/upstream/src/invent.c', import.meta.url), 'utf8',
@@ -70,4 +75,48 @@ test('display_binventory owns go.only only while querying buried objects', async
     assert.equal(await display_binventory(2, 3, false, state), 1);
     assert.deepEqual(filterDuringQuery, [{ x: 2, y: 3 }]);
     assert.deepEqual(state.go.only, { x: 0, y: 0 });
+});
+
+test('consume_obj_charge keeps its C billing-before-decrement order', () => {
+    // invent.c:1341-1346 checks unpaid use before spending one charge, then
+    // refreshes a known object's inventory after the decrement. The hook is
+    // only an adapter seam; omitted hooks retain shk.c's existing behavior.
+    const helperStart = INVENT_C.indexOf('consume_obj_charge(\n');
+    const helper = INVENT_C.slice(helperStart);
+    const checkAt = helper.indexOf('check_unpaid(obj);');
+    const decrementAt = helper.indexOf('obj->spe -= 1;', checkAt);
+    const updateAt = helper.indexOf('update_inventory();', decrementAt);
+    assert.ok(checkAt >= 0 && checkAt < decrementAt && decrementAt < updateAt);
+
+    const state = {
+        program_state: { in_moveloop: 1 },
+        u: { ushops: ['A'] },
+    };
+    const object = { unpaid: true, known: true, spe: 2 };
+    const events = [];
+    consume_obj_charge(object, true, {
+        state,
+        checkUnpaid(item, checkState) {
+            events.push(['check', item.spe, checkState]);
+        },
+        hooks: {
+            updateInventory() { events.push(['update', object.spe]); },
+        },
+    });
+    assert.deepEqual(events, [
+        ['check', 2, state],
+        ['update', 1],
+    ]);
+
+    // Other callers still take the original default path. The current partial
+    // shop helper refuses before C's decrement when an unpaid charge is used
+    // inside a shop; invent.c's explicit override cannot suppress that.
+    const unpaid = { unpaid: true, known: false, spe: 2 };
+    assert.throws(
+        () => consume_obj_charge(unpaid, true, {
+            state: { u: { ushops: ['A'] } },
+        }),
+        UnsupportedShopError,
+    );
+    assert.equal(unpaid.spe, 2);
 });
