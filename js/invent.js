@@ -311,7 +311,6 @@ import {
 import { get_obj_location } from './light.js';
 import {
     an,
-    assertObjectNameable,
     assertPricedObjectNameable,
     cxname,
     donameFresh,
@@ -1954,13 +1953,6 @@ export async function display_pickinv(
         overlay: state.iflags?.menu_overlay !== false,
     }));
 
-    // C's name and glyph calls can mutate discovery and consume display RNG.
-    for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
-        if (requestedLets && !requestedLets.includes(otmp.invlet)) continue;
-        if (wizid && !not_fully_identified(otmp, state)) continue;
-        assertObjectNameable(otmp, state);
-    }
-
     let sortflags = state.flags.sortloot === 'f'
         ? SORTLOOT_LOOT : SORTLOOT_INVLET;
     if (state.flags.sortpack) sortflags |= SORTLOOT_PACK;
@@ -2183,7 +2175,6 @@ export async function display_used_invlets(
             if (state.flags.sortpack && !classcount++)
                 items.push(add_menu_heading(
                     let_to_name(oclass, false, false), state));
-            assertObjectNameable(otmp, state);
             // C computes the glyph before doname() while building this menu.
             const glyphInfo = obj_to_glyph(otmp, state);
             items.push({
@@ -2425,36 +2416,27 @@ export function preflight_look_here(
 
     // C returns from the blind tactile arm when the floor cannot be reached,
     // and from the lava/inaccessible-pool arm before naming any object. Keep
-    // those source boundaries ahead of all naming and pricing assertions: an
-    // object on an unreachable or liquid square is not passed to doname().
+    // those source boundaries ahead of the pricing check: C does not format
+    // an object on an unreachable or liquid square.
     const inaccessibleLiquid = is_lava(ux, uy, state)
         || (is_pool(ux, uy, state) && !state.u.uinwater);
-    const skipsObjectNaming = inaccessibleLiquid
+    const skipsObjectPriceCheck = inaccessibleLiquid
         || (blind && cannotReachObjects);
-    if (!skipsObjectNaming && hasPile && !skip_objects) {
+    if (!skipsObjectPriceCheck && hasPile && !skip_objects) {
         for (const object of objectList) {
             const tactileCockatrice = object.otyp === CORPSE
                 && will_feel_cockatrice(object, false, state);
-            // C's pile arm uses ordinary doname() for the first tactile
-            // cockatrice and breaks immediately; later objects are never
-            // named or priced.
-            if (tactileCockatrice) {
-                assertObjectNameable(object, state);
-                break;
-            }
+            // C names the first tactile cockatrice and breaks; this projection
+            // stops there before checking any later object's price.
+            if (tactileCockatrice) break;
             if (withShopPrice)
                 assertPricedObjectNameable(object, state);
-            else
-                assertObjectNameable(object, state);
         }
     }
 
-    if (!skipsObjectNaming && otmp && !hasPile && !skip_objects) {
-        if (withShopPrice)
-            assertPricedObjectNameable(otmp, state);
-        else
-            assertObjectNameable(otmp, state);
-    }
+    if (!skipsObjectPriceCheck && otmp && !hasPile && !skip_objects
+        && withShopPrice)
+        assertPricedObjectNameable(otmp, state);
     return {
         blind,
         cant_reach,

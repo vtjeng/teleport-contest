@@ -109,7 +109,6 @@ import {
     OIL_LAMP,
     SACK,
     TOOL_CLASS,
-    WAX_CANDLE,
 } from '../js/objects.js';
 import {
     create_gas_cloud,
@@ -120,7 +119,6 @@ import {
     newObject,
     place_object,
 } from '../js/obj.js';
-import { UnsupportedObjectNameError } from '../js/objnam.js';
 import { UnsupportedShopError } from '../js/shk.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
@@ -3197,32 +3195,19 @@ async function prepareFetchingPet(buildObject) {
 
 // C ref: dogmove.c dog_invent()'s carry arm (443-472). It splits the stack
 // through splitobj(), names the result through distant_name(), and hands it to
-// mpickobj(), all from inside the monster scan the elapsed turn dry runs. A
-// naming or unpaid-bill refusal reaches the planning boundary list; if its
-// class is missing there, it escapes runSegment() and discards the matching
-// prefix instead of stopping on the last screen.
+// mpickobj(), all from inside the monster scan the elapsed turn dry runs. An
+// unpaid-bill refusal reaches the planning boundary list after naming is
+// supported; if its class is missing there, it escapes runSegment() and
+// discards the matching prefix instead of stopping on the last screen.
 test('a refused planned pickup becomes a turn boundary, not a hard failure',
     async () => {
         for (const [name, buildObject, refusal] of [
             [
-                // Lit candle naming still needs its unported timer adjustment.
-                // Type aliases and unpaid prices now have source owners.
-                'naming',
-                (x, y) => Object.assign(
-                    fetchedFloorObject(x, y, WAX_CANDLE, 9301),
-                    { lamplit: true },
-                ),
-                UnsupportedObjectNameError,
-            ],
-            [
                 // can_carry() caps a nohands pet at one item, so a stack of two
-                // splits before anything is named. splitobj() now performs
-                // C's split, records its discarded splitbill gap, and returns
-                // the child. The later distant_name() path asks onbill() about
-                // that still-unpaid child, so this row stops at shk.c:onbill()
-                // rather than refusing in splitobj(). The planning boundary
-                // list must recognize the same UnsupportedShopError already
-                // converted at the live-scan caller.
+                // splits before anything is named. splitobj() performs C's
+                // split, records its discarded splitbill gap, and returns the
+                // child. distant_name() then asks onbill() about that unpaid
+                // child, so this row stops at shk.c:onbill(), not splitobj().
                 'split',
                 (x, y) => Object.assign(
                     fetchedFloorObject(x, y, DAGGER, 9302),

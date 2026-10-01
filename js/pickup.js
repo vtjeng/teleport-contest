@@ -97,7 +97,6 @@ import {
     IS_POOL,
     W_ACCESSORY,
     W_ARMOR,
-    W_WEP,
     engulfing_u,
     plur,
     something,
@@ -205,7 +204,7 @@ import {
 import { PM_HOUSECAT, PM_STONE_GOLEM } from './monsters.js';
 import {
     an, ansimpleoname, corpse_xname, Doname2, killer_xname, Tobjnam, Yname2,
-    Ysimple_name2, assertObjectNameable, donameFresh, doname_with_price,
+    Ysimple_name2, donameFresh, doname_with_price,
     otense, safe_qbuf, the, The, thesimpleoname, vtense, xnameFresh, yname,
     ysimple_name,
 } from './objnam.js';
@@ -932,7 +931,6 @@ function preflightPickupObjects(selected, state) {
                 'pickup() malformed floor object or monster object',
             );
         }
-        assertObjectNameable(obj, state);
         let objectWeight = Math.trunc(obj.owt);
         if (obj.oclass === COIN_CLASS) {
             const combinedGold = projectedGold + count;
@@ -1002,21 +1000,6 @@ function preflightPickupObjects(selected, state) {
                 throw new UnsupportedPickupError('pickup() with a full pack');
             ++projectedSlots;
         }
-    }
-    for (const plan of computedPlans) {
-        // pickup.c sets gm.mrg_to_wielded around pickup_prinv() when this
-        // object merges into uwep, and objnam.c reads it while naming the
-        // carried result.
-        const mergedIntoWielded = state.uwep
-            && plan.projectedResult.o_id === state.uwep.o_id
-            && ((plan.projectedResult.owornmask ?? 0) & W_WEP);
-        const nameState = mergedIntoWielded
-            ? {
-                ...state,
-                gm: { ...(state.gm ?? {}), mrg_to_wielded: true },
-            }
-            : state;
-        assertObjectNameable(plan.projectedResult, nameState);
     }
     return { addPlans, env };
 }

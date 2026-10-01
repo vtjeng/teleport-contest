@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first disclosure witness for objnam.c:xname_flags through end.c:disclose -> display_inventory -> objnam.c:doname_base. This separately chosen debug Tourist starts with a Hawaiian shirt; C's first menu exposed the wished scroll at m, so this recipe selects that source-observed letter, reads the cloud at self, accepts death and possession disclosure, and reaches the game's gameover naming branch.",
+  "segments": [
+    {
+      "seed": 74011931,
+      "datetime": "20430711124500",
+      "nethackrc": "OPTIONS=name:MotifA69,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " .\u0017scroll of stinking cloud\nrm    .   yy"
+    }
+  ]
+}

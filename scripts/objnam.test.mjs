@@ -45,6 +45,8 @@ import {
     W_TOOL,
     W_SWAPWEP,
     W_QUIVER,
+    BURN_OBJECT,
+    TIMER_OBJECT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import {
@@ -53,6 +55,7 @@ import {
     preflight_look_here,
 } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
+import { append_price_quote } from '../js/shk.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { newObject } from '../js/obj.js';
 import {
@@ -60,7 +63,6 @@ import {
     Tobjnam,
     an,
     aobjnam,
-    assertObjectNameable,
     cloak_simple_name,
     cxname,
     otense,
@@ -75,8 +77,9 @@ import {
     simpleonames,
     simple_typename,
     suit_simple_name,
-    UnsupportedObjectNameError,
     donameFresh,
+    concatFormatNameBody,
+    concatNameBody,
     erosion_matters,
     vtense,
     xnameFresh,
@@ -135,6 +138,7 @@ import {
     SACK,
     LARGE_BOX,
     TIN,
+    T_SHIRT,
     AMULET_OF_ESP,
     BLINDFOLD,
     AKLYS,
@@ -158,6 +162,7 @@ import {
     LUCKSTONE,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
 
 function deferred() {
@@ -203,6 +208,7 @@ function namingState() {
     objects_globals_init(state);
     // Zero choices deterministically initialize every randomized description.
     init_objects(state, () => 0);
+    timeout_globals_init(state);
     monst_globals_init(state);
     init_artifacts(state);
     return state;
@@ -530,8 +536,8 @@ test('swallowed look_here admission returns before floor object names', () => {
 });
 
 test('look_here admission skips names before blind unreachable return', () => {
-    // invent.c:4218-4235 returns after the tactile reach check. An object
-    // whose ordinary name is still unsupported must not be inspected first.
+    // invent.c:4218-4235 returns after the tactile reach check. An object's
+    // name and discovery flags must remain untouched before that return.
     const state = lookState(ROOM, objectOf(namingState(), BAG_OF_TRICKS), {
         blind: true,
     });
@@ -750,21 +756,17 @@ test('an equal ordinary mention-decor terrain retains the object-pile menu',
         ]);
     });
 
-test('object-pile nameability admits multibyte instance names', () => {
+test('object naming preserves ordinary and multibyte instance names', () => {
     const state = namingState();
-    // A plain source name pins the same mutation-free naming preflight used by
-    // the movement admission path.
-    assert.doesNotThrow(
-        () => assertObjectNameable(objectOf(state, DART), state),
-    );
+    // C objnam.c xname() names this ordinary object directly as a dart.
+    assert.equal(xnameFresh(objectOf(state, DART), state), 'dart');
     const named = objectOf(state, DART, {
         // The accented byte distinguishes UTF-8 byte width from JavaScript's
-        // code-unit length in the hybrid tty text window.
+        // code-unit length while C appends the user-assigned name.
+        dknown: true,
         oextra: { oname: 'caf\u00e9' },
     });
-    assert.doesNotThrow(
-        () => assertObjectNameable(named, state),
-    );
+    assert.equal(xnameFresh(named, state), 'dart named caf\u00e9');
 });
 
 test('decorated object piles put terrain and a separator before the heading',
@@ -1148,21 +1150,187 @@ test('worn gloves take the slippery clause and nothing else does', () => {
     assert.match(donameFresh(helmet, state), / \(being worn\)$/u);
 });
 
+test('Concat and ConcatF keep their distinct C byte bounds and delta writes',
+    () => {
+        // objnam.c sets BUFSZ=256 and PREFIX=80; bp therefore has 175 bytes
+        // before its terminating NUL. The final ')' makes delta=1 observable.
+        const capacity = 256 - 80 - 1;
+        const fullBody = `${'x'.repeat(capacity - 1)})`;
+        assert.equal(fullBody.length, capacity);
+
+        // strncat(spaceleft + delta) copies one byte after backing up one.
+        assert.equal(
+            concatNameBody(fullBody, '; slippery)', 1),
+            `${'x'.repeat(capacity - 1)};`,
+        );
+        // snprintf(size=1) writes only the NUL after backing up, so the
+        // replaced closing parenthesis disappears without a replacement.
+        assert.equal(
+            concatFormatNameBody(fullBody, ', 57 aum)', 1),
+            'x'.repeat(capacity - 1),
+        );
+        // A full body gives snprintf size zero for a normal append and leaves
+        // every existing byte untouched.
+        assert.equal(concatFormatNameBody(fullBody, ' (57 aum)'), fullBody);
+    });
+
+test('doname bounds wizard weight before adding its constructed prefix', () => {
+    const state = namingState();
+    state.wizard = true;
+    state.iflags.wizweight = true;
+    // The long instance name fills bp's 175-byte C region; weight 57 is a
+    // readable diagnostic value and its suffix must not leak past that limit.
+    const dart = objectOf(state, DART, {
+        dknown: true,
+        owt: 57,
+        oextra: { oname: 'x'.repeat(220) },
+    });
+    const body = xnameFresh(dart, state);
+    assert.equal(body.length, 256 - 80 - 1);
+    assert.equal(donameFresh(dart, state), `a ${body}`);
+});
+
+test('doname keeps xname pointer offsets and food prefixes source-aligned', () => {
+    const poisonState = dualWieldState(DART);
+    // objnam.c:xname_flags() gives this named poisoned dart a 175-byte body;
+    // the 220-byte oname fills it, and doname_base's bp += 9 must not restore
+    // the bytes occupied by the source's "poisoned " prefix. W_WEP makes C
+    // attempt its wielded suffix after that pointer advance.
+    const poisonedDart = objectOf(poisonState, DART, {
+        dknown: true,
+        opoisoned: true,
+        oextra: { oname: 'x'.repeat(220) },
+        owornmask: W_WEP,
+    });
+    poisonState.uwep = poisonedDart;
+    const poisonedXname = xnameFresh(poisonedDart, poisonState);
+    assert.equal(poisonedXname.length, 256 - 80 - 1);
+    assert.equal(
+        donameFresh(poisonedDart, poisonState),
+        `a poisoned ${poisonedXname.slice('poisoned '.length)}`,
+    );
+
+    const articleState = dualWieldState(LONG_SWORD);
+    // objnam.c:xname_flags() lowercases then returns buf+4 for "The ";
+    // a 220-byte artifact name leaves only 171 bytes after that pointer move.
+    const articleName = `The ${'x'.repeat(220)}`;
+    // The existing artifact registry must recognize this Sunsword instance,
+    // just as a generated artifact does before find_artifact() runs.
+    articleState.artiexist[ART_SUNSWORD].exists = 1;
+    const namedArtifact = objectOf(articleState, LONG_SWORD, {
+        dknown: true,
+        known: true,
+        bknown: true,
+        rknown: true,
+        oartifact: ART_SUNSWORD,
+        oextra: { oname: articleName },
+        owornmask: W_WEP,
+    });
+    articleState.uwep = namedArtifact;
+    assert.equal(
+        xnameFresh(namedArtifact, articleState).length,
+        256 - 80 - 1 - 4,
+    );
+    assert.doesNotMatch(donameFresh(namedArtifact, articleState), /\(wielded\)/u);
+
+    const corpseState = namingState();
+    corpseState.wizard = true;
+    corpseState.iflags.wizmgender = true;
+    // "corpse named " occupies 13 bytes; 154 name bytes leave exactly eight
+    // for C's seven-byte " (male)" ConcatF suffix and its terminating NUL.
+    const corpseName = 'x'.repeat(154);
+    assert.equal(
+        donameFresh(objectOf(corpseState, CORPSE, {
+            corpsenm: PM_NEWT,
+            dknown: true,
+            spe: 2,
+            oextra: { oname: corpseName },
+        }), corpseState),
+        `a newt corpse named ${corpseName} (male)`,
+    );
+
+    const eggState = namingState();
+    // "egg named " is 10 bytes; this 151-byte name leaves exactly 14 bytes
+    // for " (laid by you)" while the newt prefix remains outside bp's buffer.
+    const eggName = 'x'.repeat(151);
+    assert.equal(
+        donameFresh(objectOf(eggState, EGG, {
+            corpsenm: PM_NEWT,
+            dknown: true,
+            known: true,
+            spe: 1,
+            oextra: { oname: eggName },
+        }), eggState),
+        `a newt egg named ${eggName} (laid by you)`,
+    );
+});
+
+test('a clipped worn-glove close parenthesis controls the slippery delta', () => {
+    const state = namingState();
+    const gloves = objectOf(state, LEATHER_GLOVES, {
+        dknown: true,
+        known: true,
+        bknown: true,
+        owornmask: W_ARM,
+        // Repeated closing parentheses fill xname's 175-byte body and make
+        // C's post-append bp_eos[-1] test true after the worn phrase clips.
+        oextra: { oname: ')'.repeat(220) },
+    });
+    state.uarmg = gloves;
+    state.u.uprops[GLIB] = { intrinsic: 1 };
+    assert.equal(xnameFresh(gloves, state).at(-1), ')');
+    assert.equal(donameFresh(gloves, state).at(-1), ';');
+});
+
+test('gameover xname disclosures and distant_name object-id masking match C',
+    () => {
+        const disclosureState = namingState();
+        disclosureState.program_state.gameover = 1;
+        // C maps ALCHEMY_SMOCK to the name "apron" and indexes
+        // APRON_MESSAGES by o_id; id 3 selects its fourth entry.
+        const smock = objectOf(disclosureState, ALCHEMY_SMOCK, {
+            dknown: true,
+            o_id: 3,
+        });
+        assert.equal(
+            xnameFresh(smock, disclosureState),
+            'apron with text "Don\'t make me poison you"',
+        );
+
+        // C distant_name zeroes o_id before its near/far decision and restores
+        // it afterward. The floor item is three squares away, outside the
+        // radius-2 near threshold, so this exercises the distant branch.
+        const distantState = distantNamingState(10, 5);
+        distantState.program_state.gameover = 1;
+        distantState.u.ux = 7;
+        const shirt = objectOf(distantState, T_SHIRT, {
+            dknown: true,
+            o_id: 3,
+            where: OBJ_FLOOR,
+            ox: 10,
+            oy: 5,
+        });
+        let idDuringName;
+        const name = distant_name(shirt, (object, state) => {
+            idDuringName = object.o_id;
+            return xnameFresh(object, state);
+        }, distantState);
+        assert.equal(idDuringName, 0);
+        assert.equal(shirt.o_id, 3);
+        assert.doesNotMatch(name, /with text/u);
+        assert.equal(distantState.gd.distantname, 0);
+    });
+
 // C ref: objnam.c doname_base():1391, the `(obj == uskin)` arm of the same
-// conditional. wornSuffix() emits only " (being worn)", so this one branch of
-// the ARMOR_CLASS arm still has to stop.
-test('armor fused to the hero\'s skin still refuses', () => {
+// conditional. This also pins the single state owner for the fused scales.
+test('armor fused to the hero\'s skin uses its C-owned worn suffix', () => {
     const state = namingState();
     const scales = objectOf(state, RED_DRAGON_SCALES,
         { owornmask: W_ARM, bknown: true, known: true, spe: 0 });
-    state.u.uskin = scales;
-    assert.throws(
-        () => donameFresh(scales, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'skin-embedded armor suffix',
-    );
-    // The refusal is uskin's alone. Ordinary worn scales name themselves.
-    state.u.uskin = null;
+    state.uskin = scales;
+    assert.match(donameFresh(scales, state), / \(embedded in your skin\)$/u);
+    // uskin selects one phrase; ordinary worn scales keep the adjacent arm.
+    state.uskin = null;
     assert.match(donameFresh(scales, state), / \(being worn\)$/u);
 });
 
@@ -1312,23 +1480,16 @@ test('two-weapon combat renames no other worn slot', () => {
     assert.match(worn(ARROW, W_QUIVER), / \(in quiver\)$/u);
 });
 
-// C:1592's "tethered to" arm of the same word choice. An aklys is attached to
-// the hand by a thong, and naming it that way is not ported.
-test('a wielded aklys still refuses', () => {
+// C:1592's "tethered to" arm of the same word choice. The ordinary and
+// dual-wielded cases use the same hand owner; the AKLYS source label precedes
+// the dual-wield label.
+test('a wielded aklys names its tether before the selected hand', () => {
     const state = dualWieldState(AKLYS);
-    assert.throws(
-        () => donameFresh(state.uwep, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'tethered weapon suffix',
-    );
-    // The refusal follows the object into two-weapon combat, where C would
-    // still print "tethered to" rather than "wielded in".
+    const ordinary = donameFresh(state.uwep, state);
+    assert.match(ordinary, / \(tethered to right hand\)$/u);
+    // In two-weapon combat C still selects AKLYS's "tethered to" label.
     state.u.twoweap = true;
-    assert.throws(
-        () => donameFresh(state.uwep, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'tethered weapon suffix',
-    );
+    assert.match(donameFresh(state.uwep, state), / \(tethered to right hand\)$/u);
 });
 
 test('container and tin names follow doname()\'s own branches', () => {
@@ -1457,9 +1618,9 @@ test('override_ID forces the container and lock flags doname() reads', () => {
     state.iflags.override_ID = 0;
 
     // override_ID forces cknown, so a container with contents shows its
-    // count. doname_base():1373 counts contents through pickup.c
-    // count_contents(). A bag of tricks still stops because :1310-1311
-    // judges its emptiness by charges rather than contents.
+    // count. doname_base():1373 counts contents through invent.c:count_contents.
+    // A bag of tricks still judges emptiness by its known charge count rather
+    // than the contents chain; forced known charges suppress "empty".
     const stuffed = objectOf(state, SACK, { bknown: true });
     stuffed.cobj = objectOf(state, DART);
     assert.equal(donameFresh(stuffed, state), 'an uncursed bag');
@@ -1469,11 +1630,9 @@ test('override_ID forces the container and lock flags doname() reads', () => {
     assert.equal(
         donameFresh(stuffed, state), 'an uncursed sack containing 1 item',
     );
-    assert.throws(
-        () => donameFresh(tricks, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'charge-based emptiness',
-    );
+    // override_ID forces known charges; C therefore adds (0:0) and omits
+    // both the redundant "empty" and "uncursed" words.
+    assert.equal(donameFresh(tricks, state), 'a bag of tricks (0:0)');
 });
 
 test('override_ID forces rknown, the tin variety, and the egg species', () => {
@@ -1566,10 +1725,9 @@ test('override_ID lets a unique amulet and a named artifact name themselves',
         // C's guard at objnam.c:337 is a conjunction, and gameover is its
         // other half: once the game is over the tombstone names the artifact
         // whatever the hero learned about it. It is asserted on the function
-        // rather than through doname(), because js/objnam.js refuses
-        // "end-of-game object text" one frame above, so no ported naming path
-        // reaches this half today. A port keeping only the override_ID half
-        // answers the case above correctly and this one wrongly.
+        // rather than through doname(), so the test isolates the conjunction's
+        // gameover half from the rest of object formatting. A port keeping
+        // only the override_ID half answers this case wrongly.
         state.iflags.override_ID = 0;
         assert.equal(obj_is_pname(artifact, state), false);
         state.program_state = { ...state.program_state, gameover: 1 };
@@ -2103,7 +2261,63 @@ test('doname appends remembered price quotes after the object name', () => {
     );
 });
 
-test('unsupported naming branches fail before discovery or state changes', () => {
+test('append_price_quote measures multibyte C buffer contents in bytes', () => {
+    const state = namingState();
+    const type = state.objects[POT_HEALING];
+    Object.assign(type, {
+        oc_buy_minseen: 20,
+        oc_buy_maxseen: 30,
+        oc_sell_minseen: 5,
+        oc_sell_maxseen: 8,
+    });
+    const quote = ' {buy 20-30 sell 5-8}';
+
+    // shk.c:append_price_quote compares byte lengths against BUFSZ=256.
+    // Its 21-byte suffix fits after 116 two-byte names (23 bytes remain),
+    // while 117 leave exactly 21 bytes and fail C's strict `<` check.
+    assert.equal(
+        append_price_quote('é'.repeat(116), POT_HEALING, state), quote,
+    );
+    assert.equal(
+        append_price_quote('é'.repeat(117), POT_HEALING, state), '',
+    );
+});
+
+test('doname keeps C cached capacity after appending a remembered quote', () => {
+    const state = namingState();
+    state.iflags.pricequotes = true;
+    state.wizard = true;
+    state.iflags.wizweight = true;
+    const type = state.objects[DART];
+    Object.assign(type, {
+        // init_objects() marks this DART's type known for this startup fixture;
+        // C's remembered-price branch requires an unknown type.
+        oc_name_known: 0,
+        oc_buy_minseen: 20,
+        oc_buy_maxseen: 30,
+        oc_sell_minseen: 5,
+        oc_sell_maxseen: 8,
+    });
+
+    // C has BUFSZ=256 and PREFIX=80, leaving 175 bytes after xname. The
+    // 11-byte `dart named ` prefix plus this 149-byte name makes a 160-byte
+    // body and caches 15 bytes. append_price_quote's separate BUFSZ guard
+    // accepts its 21-byte suffix, but does not refresh bpspaceleft; the
+    // following eight-byte wizard suffix therefore still uses those 15.
+    const named = objectOf(state, DART, {
+        dknown: true,
+        owt: 1,
+        oextra: { oname: 'x'.repeat(149) },
+    });
+    const body = xnameFresh(named, state);
+    assert.equal(body.length, 160);
+    assert.equal(
+        donameFresh(named, state),
+        `a ${body} {buy 20-30 sell 5-8} (1 aum)`,
+    );
+});
+
+test('doname uses peek_timer for the active candle burn interval', () => {
     const state = namingState();
     const wieldedForXname = objectOf(state, DART, { owornmask: W_WEP });
     assert.equal(xnameFresh(wieldedForXname, state), 'dart');
@@ -2116,15 +2330,17 @@ test('unsupported naming branches fail before discovery or state changes', () =>
     assert.equal(donameFresh(calledWand, state), 'a wand called napper');
     assert.equal(calledWand.dknown, true);
 
+    // timeout.c:1471 adds age 149 to the absolute expiry 150, then subtracts
+    // moves 100: 199 turns remain, one below this source type's 200-turn
+    // full-burn threshold. The timer is attached before naming, as in a lit
+    // candle that is already burning during play.
+    state.moves = 100;
     const litCandle = objectOf(state, TALLOW_CANDLE, {
-        lamplit: true,
+        age: 149, lamplit: true,
     });
-    assert.throws(
-        () => donameFresh(litCandle, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'lit candle timer adjustment',
-    );
-    assert.equal(litCandle.dknown, false);
+    start_timer(50, TIMER_OBJECT, BURN_OBJECT, litCandle, state);
+    assert.equal(donameFresh(litCandle, state), 'a partly used candle (lit)');
+    assert.equal(litCandle.dknown, true);
 });
 
 test('an() applies just_an()\'s article rules', () => {

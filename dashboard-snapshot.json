@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T22:15:03.593Z",
+  "capturedAt": "2026-10-01T23:26:25.840Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -14086,12 +14086,157 @@
         "type": "accepted",
         "at": "2026-10-01T22:14:38.551Z",
         "task": "B80"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B80-published-7e6638c4",
+        "type": "published",
+        "at": "2026-10-01T22:15:18.995Z",
+        "task": "B80",
+        "commit": "7e6638c482c84a82d3b0024cb0d22fccf41d4a92"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A69-integrating-f6e5da4d",
+        "type": "integrating",
+        "at": "2026-10-01T22:21:29.929Z",
+        "task": "A69",
+        "integration": "f6e5da4decdf5e772df498629d3c9e06c3eb377f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A69-level-arrival-test-correction-required",
+        "type": "feedback",
+        "at": "2026-10-01T22:24:55.740Z",
+        "task": "A69",
+        "delivery": "cbfcf9b860b6c7d8727e3e1ac13fa7c368007488"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A69-level-arrival-test-20261001-01",
+        "type": "resume",
+        "at": "2026-10-01T22:26:27.625Z",
+        "task": "A69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-33666ddce14f3d5203462c56f868110834da9060",
+        "type": "ready",
+        "at": "2026-10-01T22:50:05.201Z",
+        "task": "A69",
+        "delivery": "33666ddce14f3d5203462c56f868110834da9060"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A69-arrival-received-33666ddc",
+        "type": "received",
+        "at": "2026-10-01T22:52:16.540Z",
+        "task": "A69",
+        "delivery": "33666ddce14f3d5203462c56f868110834da9060"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A69-integrating-99889b82",
+        "type": "integrating",
+        "at": "2026-10-01T22:52:56.252Z",
+        "task": "A69",
+        "integration": "99889b823aa12206a22bec10277f2a3c8b5d9524"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A69-integrating-c842043c",
+        "type": "integrating",
+        "at": "2026-10-01T22:54:46.856Z",
+        "task": "A69",
+        "integration": "c842043c989d321c10404073a9cc57190a675d85"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-53286bd75c1eaa01d7ad1c2dd94b4c426519d39b",
+        "type": "ready",
+        "at": "2026-10-01T22:58:54.715Z",
+        "task": "B81",
+        "delivery": "53286bd75c1eaa01d7ad1c2dd94b4c426519d39b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B81-received-53286bd7",
+        "type": "received",
+        "at": "2026-10-01T23:02:18.858Z",
+        "task": "B81",
+        "delivery": "53286bd75c1eaa01d7ad1c2dd94b4c426519d39b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B81-pure-predicate-evidence-correction",
+        "type": "feedback",
+        "at": "2026-10-01T23:02:19.490Z",
+        "task": "B81",
+        "delivery": "53286bd75c1eaa01d7ad1c2dd94b4c426519d39b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B81-pure-predicate-test-20261001T2301Z",
+        "type": "resume",
+        "at": "2026-10-01T23:03:03.510Z",
+        "task": "B81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A70-20261001-snuff-candle",
+        "type": "assign",
+        "at": "2026-10-01T23:04:33.191Z",
+        "task": "A70",
+        "worker": "A2",
+        "goal": "port-apply-snuff-candle-lit-throw-v15-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A69-validated-c842043c",
+        "type": "validated",
+        "at": "2026-10-01T23:06:11.823Z",
+        "task": "A69",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A69-accepted-c842043c",
+        "type": "accepted",
+        "at": "2026-10-01T23:06:12.226Z",
+        "task": "A69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-ec99c46af0ac551051aeee17c8914d8c5933c4d0",
+        "type": "ready",
+        "at": "2026-10-01T23:06:14.080Z",
+        "task": "B81",
+        "delivery": "ec99c46af0ac551051aeee17c8914d8c5933c4d0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B81-correction-received-ec99c46a",
+        "type": "received",
+        "at": "2026-10-01T23:09:56.533Z",
+        "task": "B81",
+        "delivery": "ec99c46af0ac551051aeee17c8914d8c5933c4d0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B82-mhitm-ad-were-20261001",
+        "type": "assign",
+        "at": "2026-10-01T23:18:27.872Z",
+        "task": "B82",
+        "worker": "B",
+        "goal": "port-uhitm-mhitm-ad-were-synthetic-v17-20261001",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "773af83383d42a4cbec583a298a100c949c92392",
-    "measuredAt": "2026-10-01T22:09:12.196Z",
+    "executionCommit": "5ac067d41dcef6d216f7c9284b9806e8a19ae450",
+    "measuredAt": "2026-10-01T23:25:54.282Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
