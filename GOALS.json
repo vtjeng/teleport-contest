@@ -129860,7 +129860,7 @@
     {
       "id": "port-wield-can-twoweapon-drop-uswapwep-synthetic-v13-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete two-weapon eligibility and secondary-weapon drop",
       "cFile": "wield.c",
       "sessions": [
@@ -129874,8 +129874,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "can_twoweapon",
@@ -130169,6 +130172,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
