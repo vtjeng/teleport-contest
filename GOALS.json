@@ -130607,6 +130607,205 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-full-healing-synthetic-v16-20261001",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete the full-healing potion effect",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v16/wizard-quaffs-full-healing-after-acid-damage"
+      ],
+      "selectionReason": "The admitted v16 investigation synthetic/v16/wizard-quaffs-full-healing-after-acid-damage reaches the production quaff path and stops at step 82 because js/potion.js:peffects still throws UnsupportedQuaffError for POT_FULL_HEALING. C potion.c:peffect_full_healing prints the complete-healing message, calls healup(400, 4 + 4*bcsign(otmp), !otmp->cursed, TRUE), restores one lost level only for a blessed potion, clears hallucination, exercises Strength then Constitution, and heals wounded legs under the blessing/curse/mount condition. The admitted case has 82/83 screens and cursor positions matched and stops at the missing source branch. It depends on B73 delivery 40b821eaadbd4a20b7036c1a80ca4f89d1e48976, whose make_sick/healup implementation is an ancestor in this worktree and remains pending acceptance. Root verified the current saved batch measurements and the complete source definitions. Only potion.c:peffect_full_healing receives whole-function credit; supporting callers retain their explicit source and runtime limits.",
+      "detail": "Port whole potion.c:peffect_full_healing and its quaff dispatcher. Preserve BUC healing arithmetic, blessed lost-level restoration, hallucination cure, Strength then Constitution exercise, and mounted wound condition. B73 supplies the accepted sickness helper. Matching v16 quaff evidence executes the complete effect; peffects receives no whole-function credit.",
+      "openedAt": "610e53292757ab07a1ec1e5c6e1c384f6025eaa8",
+      "openStanding": {
+        "sha": "52349747fb821e9310ad8d9ab9f9d294c28c1dd8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "peffect_full_healing",
+          "line": 1144,
+          "endLine": 1164,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1144,
+        "to": 1164
+      },
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-quaffs-full-healing-after-acid-damage": {
+          "session": "synthetic/v16/wizard-quaffs-full-healing-after-acid-damage",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-quaffs-full-healing-after-acid-damage",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.session.json",
+          "recordingSha256": "4a58c40608b512f057e627e73d982167fdaa4c008ebbf5649612480fa06ad09c",
+          "evaluationPath": "challenges/evaluations/20261001140404-v16.json",
+          "evaluationCommit": "52349747fb821e9310ad8d9ab9f9d294c28c1dd8"
+        }
+      },
+      "activeStanding": {
+        "sha": "52349747fb821e9310ad8d9ab9f9d294c28c1dd8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-quaffs-full-healing-after-acid-damage",
+          "session": "synthetic/v16/wizard-quaffs-full-healing-after-acid-damage",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.session.json",
+          "recordingSha256": "4a58c40608b512f057e627e73d982167fdaa4c008ebbf5649612480fa06ad09c",
+          "recipe": "challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.recipe.session.json",
+          "recipeSha256": "92a367675c282e6f3936282b88fff645e1f4515febdfd93dbbb00233cf642962",
+          "replayInputSha256": "23771940c4d8927d31d4b3ec5863347061b4ff80672433e4c4d05fbe7f158ec4",
+          "evaluationPath": "challenges/evaluations/20261001140404-v16.json",
+          "evaluationCommit": "52349747fb821e9310ad8d9ab9f9d294c28c1dd8",
+          "evaluationArtifact": "challenges/evaluations/20261001140404-v16.json",
+          "evaluationUtc": "2026-10-01T14:04:40.715Z",
+          "remainingScreens": 1,
+          "recordedSteps": 83,
+          "previousScreensMatched": 82,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 82,
+              "total": 83
+            },
+            "rng": {
+              "matched": 2789,
+              "total": 2809
+            },
+            "cursors": {
+              "matched": 82,
+              "total": 83
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_full_healing()",
+            "step": 82
+          },
+          "step": 82,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_full_healing",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_full_healing()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-quaffs-full-healing-after-acid-damage.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-quaffs-full-healing-after-acid-damage",
+              "session": "synthetic/v16/wizard-quaffs-full-healing-after-acid-damage",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "4a58c40608b512f057e627e73d982167fdaa4c008ebbf5649612480fa06ad09c",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 1,
+              "recordedSteps": 83,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-quaffs-full-healing-after-acid-damage",
+                "session": "synthetic/v16/wizard-quaffs-full-healing-after-acid-damage",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.session.json",
+                "recordingSha256": "4a58c40608b512f057e627e73d982167fdaa4c008ebbf5649612480fa06ad09c",
+                "recipe": "challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.recipe.session.json",
+                "recipeSha256": "92a367675c282e6f3936282b88fff645e1f4515febdfd93dbbb00233cf642962",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 1,
+                "recordedSteps": 83,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 82,
+                    "total": 83
+                  },
+                  "rng": {
+                    "matched": 2789,
+                    "total": 2809
+                  },
+                  "cursors": {
+                    "matched": 82,
+                    "total": 83
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_full_healing()",
+                  "step": 82
+                },
+                "step": 82,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_full_healing",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_full_healing()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The quaff command reaches POT_FULL_HEALING, but JS refuses the effect before it runs. C potion.c peffect_full_healing() prints “You feel completely healed.”, heals up to 400 HP with a blessing-sensitive maximum-HP increase, then applies its remaining cure, attribute, level, and leg-wound effects.",
+              "source": {
+                "file": "potion.c",
+                "branch": "When peffects() selects POT_FULL_HEALING, peffect_full_healing() always reports complete healing and calls healup(400, 4 + 4*bcsign(otmp), !otmp->cursed, TRUE). Blessed potions restore one lost level when u.ulevel is below u.ulevelmax; all potions clear hallucination and exercise Strength then Constitution; blessed potions heal leg wounds even while riding, while uncursed potions do so only when not riding. healup() receives curesick=true for every non-cursed potion and itself delegates sickness clearing to make_sick().",
+                "functions": [
+                  "peffect_full_healing"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/potion.c:1333-1425 peffects() dispatches POT_FULL_HEALING at 1401-1403 to peffect_full_healing(); js/potion.js:1715-1800 mirrors the dispatch but throws UnsupportedQuaffError at the POT_FULL_HEALING case instead of calling the effect.",
+                  "nethack-c/upstream/src/cmd.c:1809-1810 maps q to dodrink(); potion.c:526-625 sends the selected potion through dodrink(), dopotion(), and peffects(). The JS production path is js/extcmdlist_data.js:102 quaff -> js/cmd.js runQuaffCommand() -> js/potion.js dodrink() -> dopotion() -> peffects()."
+                ],
+                "dependencies": [
+                  "potion.c healup",
+                  "potion.c make_sick"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/potion.c:1144-1162 is the complete peffect_full_healing() source function; it emits the heal message, calls healup(), optionally restores one lost level for a blessed potion, clears hallucination, exercises A_STR then A_CON, and conditionally heals wounded legs. nethack-c/upstream/src/potion.c:1401-1403 is the POT_FULL_HEALING caller. js/potion.js:1784-1785 currently stops at UnsupportedQuaffError instead of implementing this function, so the source scope is the whole peffect_full_healing() function in potion.c.",
+                "nethack-c/upstream/src/cmd.c:1809-1810 maps q to dodrink(); nethack-c/upstream/src/potion.c:526-625 runs dodrink() -> dopotion() -> peffects(). JS wiring is js/extcmdlist_data.js:102 -> js/cmd.js:3394-3395 -> js/potion.js:1875-1980 -> js/potion.js:1834-1839 -> js/potion.js:1715-1785. The failure is in the production dispatch, not an unreachable helper.",
+                "The full-healing source call makes helper completion part of the source contract: potion.c:1147 passes curesick=true for the recorded uncursed potion; potion.c healup() at 1428-1458 calls make_sick(0, NULL, TRUE, SICK_ALL) at 1452-1455. js/potion.js healup() at 2772-2799 currently has the required HP and blindness/deafness path but records note_unported(\"potion.c make_sick\") when curesick is true. Keep potion.c healup and potion.c make_sick as explicit source dependencies; do not treat a locally correct healup call as complete sickness behavior.",
+                "The saved C recording challenges/cases/v16/wizard-quaffs-full-healing-after-acid-damage.session.json has 83 steps. At step 81 the wizard chooses the potion; step 82 shows “You feel completely healed.” and HP 16(16), after acid damage left HP 8(12) at step 78. .cache/v16-investigations/10.json and challenges/evaluations/20261001125731-v16.json record a stop on step 82, with 82/83 screens and cursors matched and 2789/2809 RNG calls matched. The saved case shows the missing effect and its visible outcome without making its seed, inputs, or inventory a special case.",
+                "A search for potion.c, peffect_full_healing, healup, and make_sick in nethack-c/patches returned no matches. The recorder-specific behavior for this case is therefore the upstream potion.c behavior cited above; no patch-specific branch changes the effect."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
