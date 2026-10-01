@@ -125950,6 +125950,282 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-burning-oil-explosion-synthetic-v15-20261001",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete burning-oil explosion helpers and wire their callers",
+      "cFile": "explode.c",
+      "sessions": [
+        "synthetic/v15/wizard-throws-lit-oil-potion-to-floor"
+      ],
+      "selectionReason": "The v15 investigation traces the observed first mismatch to two adjacent complete functions in explode.c:explode_oil and splatter_burning_oil. The source functions extinguish the lit potion, mark how_lost as LOST_EXPLODING, roll the diluted or ordinary oil damage, and invoke the already implemented fiery explode path. The related wizard-quaffs-lit-oil-resist case enters a separate mkobj.c:dealloc_obj timer-cleanup path after peffect_oil; it is not the explosion path and remains a separate source task. Root verified the complete current fifteen-batch evaluations, exact submitted source commit, two independent source-reaching recordings, and six saved check logs. B66 is accepted and published; no other worker owns these functions. Only the adjacent explode.c helpers receive source completion credit.",
+      "detail": "Whole explode.c:splatter_burning_oil and explode_oil preserve dilution capture, end_burn, LOST_EXPLODING assignment, damage dice and explosion order. Supporting breakobj and potionhit lit-oil arms are wired without whole-caller credit. Helper-only entryPoints is empty; floor-impact and monster-impact runtime evidence executes both selected impure functions. Hero-target potionhit is wired but its runtime remains uncovered. The invalid unlit-oil diagnostic retains the exact discarded-void pline.c:impossible gap.",
+      "openedAt": "a5dcea2211cd54d011f894e9f5588b76b7d8d89b",
+      "openStanding": {
+        "sha": "090b04c8dae58144172a338f4665899b458416dc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "splatter_burning_oil",
+          "line": 962,
+          "endLine": 973,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "explode_oil",
+          "line": 974,
+          "endLine": 986,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 962,
+        "to": 986
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-throws-lit-oil-potion-to-floor": {
+          "session": "synthetic/v15/wizard-throws-lit-oil-potion-to-floor",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-throws-lit-oil-potion-to-floor",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-throws-lit-oil-potion-to-floor.session.json",
+          "recordingSha256": "f59dff9f109fd82cb044a65081187d7b5ec0afe770b9b76857c570e9d658a38a",
+          "evaluationPath": "challenges/evaluations/20261001060946-v15.json",
+          "evaluationCommit": "090b04c8dae58144172a338f4665899b458416dc"
+        }
+      },
+      "activeStanding": {
+        "sha": "090b04c8dae58144172a338f4665899b458416dc",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-throws-lit-oil-potion-to-floor",
+          "session": "synthetic/v15/wizard-throws-lit-oil-potion-to-floor",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-throws-lit-oil-potion-to-floor.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-throws-lit-oil-potion-to-floor.session.json",
+          "recordingSha256": "f59dff9f109fd82cb044a65081187d7b5ec0afe770b9b76857c570e9d658a38a",
+          "recipe": "challenges/cases/v15/wizard-throws-lit-oil-potion-to-floor.recipe.session.json",
+          "recipeSha256": "09e3881ab788cd7e9c43e8de242c2e60346326a69d84d347f2149db26ef204ad",
+          "replayInputSha256": "f4036d9e79fe68c5c1a7b2be6b60ebd36913c9026088177e9da51226a3cc54a7",
+          "evaluationPath": "challenges/evaluations/20261001060946-v15.json",
+          "evaluationCommit": "090b04c8dae58144172a338f4665899b458416dc",
+          "evaluationArtifact": "challenges/evaluations/20261001060946-v15.json",
+          "evaluationUtc": "2026-10-01T06:10:19.539Z",
+          "remainingScreens": 1,
+          "recordedSteps": 32,
+          "previousScreensMatched": 31,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 31,
+              "total": 32
+            },
+            "rng": {
+              "matched": 2616,
+              "total": 2624
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 32
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 31,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 33,
+              "cCell": {
+                "ch": "B",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2616,
+              "cEntry": "d(4,4)=13",
+              "cCaller": "splatter_burning_oil(explode.c:964)",
+              "jsEntry": "rn2(100)=55",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 31,
+                "key": "l"
+              },
+              "stepIndex": 31
+            },
+            "cursor": null
+          },
+          "step": 31,
+          "kind": "rng",
+          "sourceFile": "explode.c",
+          "function": "splatter_burning_oil",
+          "message": null,
+          "cFile": "explode.c",
+          "luaFile": null,
+          "line": 964,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-throws-lit-oil-potion-to-floor.json",
+            "result": {
+              "session": "synthetic/v15/wizard-throws-lit-oil-potion-to-floor",
+              "remainingScreens": 1,
+              "recordedSteps": 32,
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-throws-lit-oil-potion-to-floor",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "f59dff9f109fd82cb044a65081187d7b5ec0afe770b9b76857c570e9d658a38a",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-oil-potion-to-floor",
+                "session": "synthetic/v15/wizard-throws-lit-oil-potion-to-floor",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-throws-lit-oil-potion-to-floor.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-throws-lit-oil-potion-to-floor.session.json",
+                "recordingSha256": "f59dff9f109fd82cb044a65081187d7b5ec0afe770b9b76857c570e9d658a38a",
+                "recipe": "challenges/cases/v15/wizard-throws-lit-oil-potion-to-floor.recipe.session.json",
+                "recipeSha256": "09e3881ab788cd7e9c43e8de242c2e60346326a69d84d347f2149db26ef204ad",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 1,
+                "recordedSteps": 32,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 31,
+                    "total": 32
+                  },
+                  "rng": {
+                    "matched": 2616,
+                    "total": 2624
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 32
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 31,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 33,
+                    "cCell": {
+                      "ch": "B",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2616,
+                    "cEntry": "d(4,4)=13",
+                    "cCaller": "splatter_burning_oil(explode.c:964)",
+                    "jsEntry": "rn2(100)=55",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 31,
+                      "key": "l"
+                    },
+                    "stepIndex": 31
+                  },
+                  "cursor": null
+                },
+                "step": 31,
+                "kind": "rng",
+                "sourceFile": "explode.c",
+                "function": "splatter_burning_oil",
+                "message": null,
+                "cFile": "explode.c",
+                "luaFile": null,
+                "line": 964
+              },
+              "summary": "Throwing a lit oil potion onto a hard floor reaches explode.c:explode_oil through dothrow.c:throwit -> breakobj. explode_oil extinguishes the potion, marks it LOST_EXPLODING, then splatter_burning_oil rolls the explosion damage and calls the fiery explosion path. The current JavaScript refusal skips both functions and incorrectly labels explode_oil as belonging to potion.c; the first C-owned RNG call is d(4,4) in explode.c:splatter_burning_oil.",
+              "source": {
+                "file": "explode.c",
+                "branch": "When a lit POT_OIL potion breaks, dothrow.c:breakobj calls explode_oil. For the investigated throw, dothrow.c:throwit reaches breakobj after the potion lands on a hard floor and passes breaktest. explode_oil saves obj->odiluted, extinguishes the lit source with end_burn, sets obj->how_lost to LOST_EXPLODING, and calls splatter_burning_oil; that function rolls 4d4 for undiluted oil or 3d4 for diluted oil and passes the damage to a fiery BURNING_OIL explosion.",
+                "functions": [
+                  "splatter_burning_oil",
+                  "explode_oil"
+                ],
+                "callers": [
+                  "dothrow.c:throwit (1779-1791) calls breakobj after a thrown object lands on a hard tile and passes breaktest; dothrow.c:breakobj (2493-2502) calls explode_oil when the broken potion is lit POT_OIL.",
+                  "potion.c:potionhit (1683-1688, 1866-1868) calls explode_oil when a lit oil potion hits the hero or a monster.",
+                  "explode.c:explode_oil (982) calls splatter_burning_oil."
+                ],
+                "dependencies": [
+                  "rnd.c:d (175 onward): its return from d(diluted_oil ? 3 : 4, 4) initializes dmg in splatter_burning_oil and is consumed by the subsequent explode call; the recording reaches the undiluted d(4,4) branch.",
+                  "timeout.c:end_burn (1804 onward): explode_oil calls end_burn(obj, TRUE) to extinguish the light before setting LOST_EXPLODING; its return is void.",
+                  "explode.c:explode (199 onward): consumes the damage, location, BURNING_OIL source, and fiery type to apply the explosion; its return is void.",
+                  "impossible(): called only when explode_oil receives an unlit object, to report the violated precondition; that branch is not reached by this recording."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The supplied diagnostic .cache/synthetic-scans/v15/wizard-throws-lit-oil-potion-to-floor.json reports the first difference at segment 0, step 31, key l: C has B at screen cell (0,33), while JavaScript has a space. At that point C logs d(4,4)=13 from splatter_burning_oil(explode.c:964), while the JavaScript log has rn2(100)=55 and the diagnostic lists the skipped path as unported potion.c explode_oil.",
+                "The C recording challenges/cases/v15/wizard-throws-lit-oil-potion-to-floor.session.json has the same step-31 call sequence, including obj_resists followed by d(4,4)=13 @ splatter_burning_oil(explode.c:964), and captures the lit-oil fiery explosion frames. The recording and queue entry are retained as the evidence for the observed behavior; neither is an implementation rule.",
+                "At nethack-c/upstream/src/dothrow.c:1780-1791, throwit calls breakobj after a thrown object lands on a hard tile and passes breaktest. At dothrow.c:2493-2502, breakobj marks potions in use and calls explode_oil only for POT_OIL with lamplit set. This is the active source route in the recording.",
+                "At nethack-c/upstream/src/explode.c:962-969, splatter_burning_oil rolls d(diluted_oil ? 3 : 4, 4) and passes the resulting damage to explode with type 11, BURNING_OIL, and EXPL_FIERY. At explode.c:971-983, explode_oil preserves odiluted, checks the lit invariant, calls end_burn(obj, TRUE), sets how_lost to LOST_EXPLODING, and invokes splatter_burning_oil. These are adjacent whole functions and the minimal source-port scope for this omitted behavior.",
+                "The same explode_oil function has another direct caller: potion.c:potionhit, at 1683-1688 when oil hits the hero and 1866-1868 when it hits a monster. Thus the function-family scope covers both throwing a lit potion and potion-impact entry points. The JavaScript stub labels the missing owner as potion.c, but the pinned C definitions for both functions are in explode.c."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
