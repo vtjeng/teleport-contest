@@ -125652,7 +125652,7 @@
           "line": 218,
           "endLine": 230,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -125876,7 +125876,71 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cant_reach_floor",
+            "implementation": "js/engrave.js",
+            "symbol": "cant_reach_floor",
+            "sourceReview": "Whole engrave.c:cant_reach_floor definition, lines 218–228, at the assigned C source gitlink. The helper formats the subject (hero or wand), selects ceiling(x,y) when up is true, otherwise chooses “bottom of the pit” only when check_pit and can_reach_floor(FALSE), and falls back to surface(x,y). It emits through the caller-provided pline callback and makes no RNG or game-state changes. The up=true branch now calls the existing dungeon.c:ceiling port; the downward branches preserve source order and wording. C callers discard this helper’s void result. The existing downward callers remain wired in dig.c:use_pick_axe2, engrave.c:u_can_engrave/doengrave, and lock.c:forcelock. This task wires apply.c:use_stethoscope’s upward arm and pickup.c:able_to_loot’s unreachable-floor arm. For an unskilled rider, C calls the discarded void steed.c:rider_cant_reach; JS records note_unported('steed.c rider_cant_reach') at that exact arm. Other non-rider unreachable-floor paths emit cant_reach_floor and return false.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stethoscope",
+                "source": "apply.c:use_stethoscope calls cant_reach_floor at lines 363–364 after its direction selection; the up=true caller is covered by the admitted v15 range."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "able_to_loot",
+                "source": "pickup.c:able_to_loot calls cant_reach_floor at line 2052 when the hero cannot reach the floor; its production callers are doloot at line 2220 and dotip at line 3594."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "use_pick_axe2",
+                "source": "dig.c:use_pick_axe2 calls the helper at lines 1317 and 1327 for downward refusals; this existing JS caller remains wired."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "u_can_engrave",
+                "source": "engrave.c:u_can_engrave calls the helper at line 512; this existing JS caller remains wired."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls the helper at lines 1005 and 1102; this existing JS caller remains wired."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "forcelock",
+                "source": "lock.c:forcelock calls the helper at line 703; this existing JS caller remains wired."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-stethoscope.test.mjs",
+              "scripts/engrave-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/able-to-loot-levitating-room-square-b66.session.json",
+              "recordings/pickup.c/able-to-loot-tip-levitating-complete-b66.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "healer-stethoscope-ceiling",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "apply.c:doapply -> apply.c:use_stethoscope (dz<0) -> engrave.c:cant_reach_floor(up=TRUE); the source message appears at the final cited step."
+              }
+            ],
+            "checkedAt": "d678c214cef1c821d0ca413ee3517f972598df9d"
+          }
+        ],
+        "entryPointReview": "The selected source range is the helper-only engrave.c:cant_reach_floor function. Its active direct production callers are apply.c:use_stethoscope, pickup.c:able_to_loot (through doloot and dotip), dig.c:use_pick_axe2, engrave.c:u_can_engrave/doengrave, and lock.c:forcelock. The existing downward dig/engrave/lock callers were already wired and remain unchanged. B66 wires the upward stethoscope branch and the unreachable-floor arm in able_to_loot. The admitted v15 Healer range exercises use_stethoscope -> cant_reach_floor(up=TRUE). The independent #loot recording executes doloot -> able_to_loot -> cant_reach_floor; the complete #tip recording executes dotip -> able_to_loot -> cant_reach_floor, then continues through C’s inventory-selection fallback and cancels it. Source-pinned tests cover ceiling, pit-bottom, surface, and wand wording. The unskilled-rider arm retains the exact discarded-void steed.c:rider_cant_reach gap and has no fabricated output. Failed setup/fixture attempts remain in .cache/B66-logs; only the two fully matching recordings are in recordings/. Per .agents/validation.md, this single selected helper uses the helper-only evidence form with entryPoints empty; its production call graph and all task-added runtime routes are explained above, while function-level synthetic and recording evidence proves the helper executes through real callers.",
+        "entryPoints": []
+      }
     }
   ]
 }
