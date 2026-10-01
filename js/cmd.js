@@ -5488,9 +5488,12 @@ export async function rhack(key, state = game) {
                 state,
             );
         } else if (state.multi > 0 && command !== null && command !== 'pay'
+            && command !== 'pickup'
             && !Object.hasOwn(MOVEMENT_INTENTS, command)) {
             // shk.c dopay:1755 clears multi before its first action, so pay
-            // never reaches the repeated-command path refused here.
+            // never reaches the repeated-command path refused here. Likewise,
+            // hack.c dopickup consumes gc.command_count and clears gm.multi
+            // before pickup_checks(), so a counted comma is one pickup.
             // cmd.c's MOVEMENTCMD rows are dispatched below even when gm.multi
             // is positive; their domove() call is the source movement arm and
             // is already wired here. Other rows leave the count for

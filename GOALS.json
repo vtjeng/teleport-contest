@@ -130868,6 +130868,522 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-royal-jelly-synthetic-v16-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete royal-jelly application and rubbing",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg"
+      ],
+      "selectionReason": "Selected from the complete v16 investigation wizard-smears-blessed-royal-jelly-on-bee-egg: the admitted C session reaches the apply.c:doapply royal-jelly arm at zero-based segment 0 step 64, where JS currently refuses object type 286. The same whole helper has an independent active #rub caller in apply.c:dorub, so both caller arms are included. This is a seed-continuation implementation task from the accepted published C56 boundary; B73 reserves only apply.c:use_unicorn_horn, a separate source function. Root verified the current saved batch measurements and the complete source definitions. Only apply.c:jelly_ok and use_royal_jelly receive whole-function credit; supporting doapply and dorub arms retain their source limits.",
+      "detail": "Port whole jelly_ok and use_royal_jelly in source order, including split and removal before target selection, rollback, egg species, timer and parent marker, messages and consumption. Wire doapply and dorub. Use the admitted v16 blessed bee-egg range and two independent matching rub recordings; the blessed plain egg is a no-op target miss. Preserve the named discarded timeout.c:kill_egg gap.",
+      "openedAt": "c443d7c9794293bbf32127d78bd90c1f54c246e5",
+      "openStanding": {
+        "sha": "65ee2a5a1a4291d151faef8736cb1559becc30b0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "dd87ead60375beb18f1176fd6d77b911212b603d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "jelly_ok",
+          "line": 3607,
+          "endLine": 3615,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "use_royal_jelly",
+          "line": 3616,
+          "endLine": 3685,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3607,
+        "to": 3685
+      },
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg": {
+          "session": "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+          "recordingSha256": "a33baf838a8cea95c513611544b49d62dda2f891eabcb4e14742b163161388e8",
+          "evaluationPath": "challenges/evaluations/20261001141933-v16.json",
+          "evaluationCommit": "65ee2a5a1a4291d151faef8736cb1559becc30b0"
+        }
+      },
+      "activeStanding": {
+        "sha": "65ee2a5a1a4291d151faef8736cb1559becc30b0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+          "session": "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+          "recordingSha256": "a33baf838a8cea95c513611544b49d62dda2f891eabcb4e14742b163161388e8",
+          "recipe": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.recipe.session.json",
+          "recipeSha256": "d2a4f3776436877beb4e511db06630ca1aaf7817651f2cf34425449161e2f11d",
+          "replayInputSha256": "f7189bec8ea8930cfcb36cefcb9a17c4429ef3806103efcc6658f024fe81cab2",
+          "evaluationPath": "challenges/evaluations/20261001141933-v16.json",
+          "evaluationCommit": "65ee2a5a1a4291d151faef8736cb1559becc30b0",
+          "evaluationArtifact": "challenges/evaluations/20261001141933-v16.json",
+          "evaluationUtc": "2026-10-01T14:20:12.015Z",
+          "remainingScreens": 2,
+          "recordedSteps": 66,
+          "previousScreensMatched": 64,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 64,
+              "total": 66
+            },
+            "rng": {
+              "matched": 4800,
+              "total": 4804
+            },
+            "cursors": {
+              "matched": 64,
+              "total": 66
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 286",
+            "step": 64
+          },
+          "step": 64,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 286",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.json",
+            "result": {
+              "session": "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "a33baf838a8cea95c513611544b49d62dda2f891eabcb4e14742b163161388e8",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 2,
+              "recordedSteps": 66,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+                "session": "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+                "recordingSha256": "a33baf838a8cea95c513611544b49d62dda2f891eabcb4e14742b163161388e8",
+                "recipe": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.recipe.session.json",
+                "recipeSha256": "d2a4f3776436877beb4e511db06630ca1aaf7817651f2cf34425449161e2f11d",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 2,
+                "recordedSteps": 66,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 64,
+                    "total": 66
+                  },
+                  "rng": {
+                    "matched": 4800,
+                    "total": 4804
+                  },
+                  "cursors": {
+                    "matched": 64,
+                    "total": 66
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 286",
+                  "step": 64
+                },
+                "step": 64,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 286",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a blessed lump of royal jelly is refused after object selection because apply.c:doapply() lacks its named arm and use_royal_jelly() is not ported. C then prompts for an egg and, for the recorded killer bee egg, changes its species to queen bee and produces the source quiver message; the blessed-parent marker is set only when the egg’s spe field is zero. The helper consumes the jelly and spends a turn. The same source helper is also reached from #rub; its cursed branch depends on the still-unported timeout.c:kill_egg().",
+              "source": {
+                "file": "apply.c",
+                "branch": "After #apply or #rub selects a lump of royal jelly, use_royal_jelly() splits one unit from a stack if needed, removes it from inventory, and prompts for an egg. Cancellation restores the jelly and returns ECMD_CANCEL. For a selected egg, killer bee species changes to queen bee before the cursed check; cursed jelly kills the egg and consumes itself. Otherwise, a non-NON_PM egg without a hatch timer gets attach_egg_hatch_timeout(), blessed jelly sets spe=2 unless the egg was laid by the hero, the quiver message depends on timer, parent-marker, or species changes, and the jelly is consumed with ECMD_TIME.",
+                "functions": [
+                  "jelly_ok",
+                  "use_royal_jelly"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/apply.c:doapply() case LUMP_OF_ROYAL_JELLY (4262-4264) calls use_royal_jelly(&obj); js/apply.js:doapply() is reached through js/cmd.js:runApplyCommand() (3302-3304) and the doapply command dispatch (5150-5151).",
+                  "nethack-c/upstream/src/apply.c:dorub() food-class branch (1796-1804) calls use_royal_jelly(&obj); js/apply.js:dorub() is reached through js/cmd.js:runRubCommand() (3309-3310) and the dorub command dispatch (5152-5153).",
+                  "nethack-c/upstream/src/apply.c:use_royal_jelly() supplies jelly_ok to invent.c:getobj() for the secondary egg prompt (3629-3631); js/invent.js:getobj() invokes the callback to rank selectable inventory objects."
+                ],
+                "dependencies": [
+                  "mkobj.c:splitobj() returns the single jelly object when splitting a stack; js/obj.js:splitobj() is implemented. Preserve the freeinv-before-secondary-prompt ordering, inventory restoration on cancellation (unsplitobj/update_inventory or addinv_nomerge), and source pointer clearing after consumption (setnotworn/obfree). The corresponding JS helpers are present in js/invent.js, js/obj.js, and js/worn.js.",
+                  "timeout.c:attach_egg_hatch_timeout() is called only for a species egg without an active timer; js/timeout.js:attach_egg_hatch_timeout() is implemented and its bounded rnd() loop must remain in source order.",
+                  "timeout.c:kill_egg() is a void call whose result is discarded in the cursed branch. No JS implementation exists; js/zap.js currently records note_unported('timeout.c kill_egg') for a separate caller. Per the gap rule, the cursed branch can record the same named gap and skip the call until that helper is ported."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261001125731-v16.json records the first stop at zero-based segment 0 step 64: 64/66 screens and cursors match and the PRNG logs match 4800/4804 calls. The mismatch is the existing UnsupportedApplyError boundary for object type 286 (LUMP_OF_ROYAL_JELLY) in apply.c:doapply().",
+                "The immutable C recording challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json shows step 64 key o opening “What do you want to rub the royal jelly on? [p or ?*]” and step 65 key p producing “You smear royal jelly all over your egg. The egg quivers briefly.” The recipe comment identifies the input sequence as applying wished blessed royal jelly to a killer bee egg.",
+                "nethack-c/upstream/src/apply.c:3615-3682 defines jelly_ok() and the whole use_royal_jelly() helper, including stack split, inventory rollback, killer-bee-to-queen-bee conversion, cursed and blessed branches, egg timer handling, jelly consumption, and ECMD_* result. The direct callers are apply.c:doapply() at 4262-4264 and apply.c:dorub() at 1796-1804.",
+                "js/apply.js:3867-3875 still lists LUMP_OF_ROYAL_JELLY in DOAPPLY_UNPORTED_NAMED_ARMS, and js/apply.js:4947-4950 throws for it after the doapply switch. js/apply.js:2218-2221 independently throws for royal jelly in dorub(). Add use_royal_jelly()/jelly_ok() in js/apply.js, wire both callers, and remove these two jelly-specific refusal paths while retaining the other named-arm gaps.",
+                "Production command routes are nethack-c/upstream/src/cmd.c:1677-1678 (apply key a) and 1835-1836 (rub extended command); js/cmd.js:3302-3310 and 5150-5153 route doapply and dorub to their apply.js handlers.",
+                "Source patch search `rg -n \"use_royal_jelly|attach_egg_hatch_timeout|doapply|dorub|egg.*hatch\" nethack-c/patches` returned no matches; this behavior comes directly from upstream apply.c and timeout.c.",
+                "jelly_ok() is pure: it returns GETOBJ_SUGGEST for EGG and GETOBJ_EXCLUDE for every other object or null. Pin both outcomes with source-derived tests when implementing this helper."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "jelly_ok",
+            "implementation": "js/apply.js",
+            "symbol": "jelly_ok",
+            "sourceReview": "Read apply.c:3607-3614 completely. The pure selector suggests only a non-null EGG and otherwise excludes the object; it makes no random call, output, or state change. The JavaScript selector uses the same GETOBJ_SUGGEST/GETOBJ_EXCLUDE outcomes.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_royal_jelly",
+                "source": "apply.c:use_royal_jelly passes jelly_ok to getobj(\"rub the royal jelly on\", ..., GETOBJ_PROMPT)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply-royal-jelly.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "ca2099973d1b005ce0fcb889f696e1e979331f9b"
+          },
+          {
+            "name": "use_royal_jelly",
+            "implementation": "js/apply.js",
+            "symbol": "use_royal_jelly",
+            "sourceReview": "Read apply.c:3616-3682 completely. Preserves stack split/freeinv before target selection, cancellation rollback, message order, killer-bee to queen conversion before cursed handling, timed egg attachment and blessed parent marker order for species eggs, no-effect outcomes for plain eggs, then worn-state cleanup, deallocation and pointer nulling. The cursed branch calls kill_egg as a discarded void result; JavaScript records note_unported(\"timeout.c kill_egg\") and skips it. No return value from note_unported is used. Removed the obsolete LUMP_OF_ROYAL_JELLY refusal in doapply and dorub.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply case LUMP_OF_ROYAL_JELLY calls use_royal_jelly(&obj)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "apply.c:dorub FOOD_CLASS branch calls use_royal_jelly(&obj) for royal jelly."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-royal-jelly.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/royal-jelly-rubs-plain-egg-c57-independent.session.json",
+              "recordings/apply.c/royal-jelly-rubs-blessed-plain-egg-c57-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+                "segment": 0,
+                "fromStep": 64,
+                "throughStep": 65,
+                "source": "apply.c:doapply LUMP_OF_ROYAL_JELLY -> use_royal_jelly -> getobj(jelly_ok); the second boundary selects the killer-bee egg and completes the blessed timed-egg path."
+              }
+            ],
+            "checkedAt": "ca2099973d1b005ce0fcb889f696e1e979331f9b"
+          }
+        ],
+        "entryPointReview": "The selected range has two active production entry points: doapply dispatches an inventory royal-jelly lump to use_royal_jelly, and dorub dispatches the food-class royal-jelly branch to the same helper. The helper uses jelly_ok through getobj in both routes. The admitted v16 case exercises doapply, killer-bee conversion, blessed species-egg marker and timeout behavior. The two independent #rub recordings exercise dorub on plain eggs; the blessed plain-egg variation records the actual C no-effect path because corpsenm is NON_PM, so it does not evidence the parent-marker branch. The cursed kill_egg callee remains an explicit discarded-void gap.",
+        "entryPoints": [
+          {
+            "name": "doapply royal-jelly application",
+            "functions": [
+              "jelly_ok",
+              "use_royal_jelly"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+                "segment": 0,
+                "fromStep": 64,
+                "throughStep": 65,
+                "source": "apply.c:doapply case LUMP_OF_ROYAL_JELLY calls use_royal_jelly; target prompt uses jelly_ok; selecting the killer-bee egg reaches the blessed egg effects and cleanup."
+              }
+            ]
+          },
+          {
+            "name": "#rub royal-jelly application",
+            "functions": [
+              "jelly_ok",
+              "use_royal_jelly"
+            ],
+            "recordings": [
+              "recordings/apply.c/royal-jelly-rubs-plain-egg-c57-independent.session.json",
+              "recordings/apply.c/royal-jelly-rubs-blessed-plain-egg-c57-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "dd87ead60375beb18f1176fd6d77b911212b603d",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-counted-pickup-command-admission-synthetic-v16-20261001",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Allow counted pickup to reach its count-consuming handler",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v16/wizard-picks-up-five-dropped-daggers"
+      ],
+      "selectionReason": "The saved A67 work queue selects synthetic/v16/wizard-picks-up-five-dropped-daggers with one unmatched screen at step 26. The exact clean worker base after merging accepted A67 publication 07b9be1 is 9969ead6bdbfdac3e744f351be0f2d0c3a4162ee; bounded replay run-GGSbz1 reproduces 26/27 screens and cursors, 2251/2267 RNG calls, and stops before pickup dispatch. The investigation traces the C comma row through rhack() to dopickup(), where command_count is consumed and multi is cleared. This source correction is independent of A68 and C57; B74 remains a pending ancestor delivery dependency but owns only potion.c:peffects and related paths. Root verified the canonical investigation and current saved evaluation: implemented counted pickup is blocked by an overbroad rhack admission guard.",
+      "detail": "Segment 0 step 26 stops before comma dispatch. C parse supplies command_count=5 and multi=4; rhack calls dopickup, which clears multi before pickup_checks and pickup(-count). Exempt pickup in the JavaScript positive-multi gate and retain other unsupported repeated-command refusals. Only rhack behavior changes; hack.js receives a corrected comment. This divergence repair receives no whole-function completion credit. Keep the independent counted-inventory recipe blocked outside the passing corpus.",
+      "openedAt": "62cb562fe50173ad87f58209f6048f1336da3930",
+      "openStanding": {
+        "sha": "dd87ead60375beb18f1176fd6d77b911212b603d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "a6a28c74b6d6b6aec8fe0e72cd136406b351ed1b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "rhack",
+      "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+      "step": 26,
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-picks-up-five-dropped-daggers": {
+          "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-picks-up-five-dropped-daggers",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+          "recordingSha256": "ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb",
+          "evaluationPath": "challenges/evaluations/20261001180419-v16.json",
+          "evaluationCommit": "dd87ead60375beb18f1176fd6d77b911212b603d"
+        }
+      },
+      "activeStanding": {
+        "sha": "dd87ead60375beb18f1176fd6d77b911212b603d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-picks-up-five-dropped-daggers",
+          "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+          "recordingSha256": "ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb",
+          "recipe": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.recipe.session.json",
+          "recipeSha256": "0a09274f8f3f58135a4d6d5d759a56ddf49ebc7d94d3d726f04836d36e6cd3bf",
+          "replayInputSha256": "07ee3ff346008d882d45378708de74d2b84e21f8d54a50592ebd27e2d0d9a87d",
+          "evaluationPath": "challenges/evaluations/20261001180419-v16.json",
+          "evaluationCommit": "dd87ead60375beb18f1176fd6d77b911212b603d",
+          "evaluationArtifact": "challenges/evaluations/20261001180419-v16.json",
+          "evaluationUtc": "2026-10-01T18:04:56.556Z",
+          "remainingScreens": 1,
+          "recordedSteps": 27,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 27
+            },
+            "rng": {
+              "matched": 2251,
+              "total": 2267
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 27
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": "cmd.c",
+          "function": "parse",
+          "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+          "cFile": "cmd.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-picks-up-five-dropped-daggers.json",
+            "result": {
+              "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-picks-up-five-dropped-daggers",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 1,
+              "recordedSteps": 27,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-picks-up-five-dropped-daggers",
+                "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+                "recordingSha256": "ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb",
+                "recipe": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.recipe.session.json",
+                "recipeSha256": "0a09274f8f3f58135a4d6d5d759a56ddf49ebc7d94d3d726f04836d36e6cd3bf",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 1,
+                "recordedSteps": 27,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 26,
+                    "total": 27
+                  },
+                  "rng": {
+                    "matched": 2251,
+                    "total": 2267
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 27
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+                  "step": 26
+                },
+                "step": 26,
+                "kind": "stop",
+                "sourceFile": "cmd.c",
+                "function": "parse",
+                "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+                "cFile": "cmd.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The remaining screen is blocked by js/cmd.js rhack() rejecting a count-prefixed nonmovement command before it dispatches the already implemented pickup path. C parse() sets command_count=5 and gm.multi=4, but the comma binding reaches hack.c:dopickup(), which copies command_count and immediately sets gm.multi=0 before calling pickup(-count). This is one counted pickup, not an automatic repeat. The actionable scope is a divergence fix to the cmd.c:rhack() count gate; the saved queue annotation naming parse()/moveloop_core() as the refusal owner is too broad.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "For a count-prefixed comma command on a reachable floor square with one five-dagger stack, cmd.c:parse() leaves gc.command_count=5 and gm.multi=4. The comma row at cmd.c:1799 binds to dopickup; cmd.c:rhack() calls the bound function without a count-specific refusal. hack.c:dopickup() copies gc.command_count, sets gm.multi=0, and calls pickup(-count), so this handler consumes the count as the requested item quantity and prevents moveloop_core() from repeating it. In js/cmd.js, the generic state.multi > 0 nonmovement guard rejects the command before runPickupCommand() reaches js/hack.js:dopickup() and js/pickup.js:pickup(). The mismatch is an overbroad refusal in an implemented command path, not a missing pickup selection function.",
+                "functions": [
+                  "rhack"
+                ],
+                "callers": [
+                  "allmain.c:moveloop_core() calls rhack(0) for a fresh command and rhack(gc.cmd_key) for a pending positive count (515-531); js/allmain.js:moveloop_core() maps these to rhack(0) and rhack(g.cmdKey) (1701-1706).",
+                  "cmd.c:rhack() calls parse() on a fresh command, then resolves the comma binding and invokes its function pointer (3652-3654, 3679-3685, 3724-3748); js/cmd.js:rhack() calls parseCommand(), maps the comma key to pickup, and currently refuses at the counted-command guard before dispatch (5373-5381, 5503-5527, 5858-5878).",
+                  "cmd.c:1799 binds comma to dopickup; hack.c:dopickup() calls pickup_checks() and pickup(-count) (3876-3891); js/cmd.js:runPickupCommand() dispatches js/hack.js:dopickup(), which calls pickup_checks() and js/pickup.js:pickup() (js/cmd.js:3435-3441, 5873-5878; js/hack.js:4344-4362)."
+                ],
+                "dependencies": [
+                  "cmd.c:parse() (5096-5149) reads the command count, stores it in gc.command_count, assigns gm.multi, and decrements gm.multi once. js/cmd.js:parse() already maps these values to state.commandCount and state.multi.",
+                  "hack.c:dopickup() (3876-3891) consumes gc.command_count and clears gm.multi before calling pickup(-count); js/hack.js:dopickup() already preserves both transitions, although its comment says counts above one cannot arrive because of the guard.",
+                  "pickup.c:pickup() (693-696, 759-772, 809-817, 894-910) consumes a negative quantity and returns whether an item was tried. js/pickup.js:pickup() already has the counted menu path and the single-floor-stack path; pickup_object() and capacity preflight remain runtime dependencies for the selected stack.",
+                  "hack.c:pickup_checks() (3788-3871) has the ordinary reachable floor-pile result required here. Its swallowed/loot_mon, pool, lava, and cannot-reach-floor paths remain unsupported in js/hack.js, but the recipe uses a reachable floor pile with an object and does not enter those arms.",
+                  "pickup.c:pickup() conditionally calls mon.c:hideunder() in its floor tail (894-897). js/pickup.js retains note_unported('mon.c hideunder') only when hides_under() is true; the recipe uses a human Valkyrie, so this gap is not active for this case."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved baseline challenges/evaluations/20261001125731-v16.json records the same input recipe SHA-256 0a09274f8f3f58135a4d6d5d759a56ddf49ebc7d94d3d726f04836d36e6cd3bf and recording SHA-256 ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb. Its first mismatch is a stop at segment 0, step 26 (comma): 26/27 screens and cursors match; C has 2267 RNG calls versus JS 2251. The message is the generic counted nonmovement refusal from js/cmd.js; no pickup function has run yet.",
+                "The admitted v16 manifest case wizard-picks-up-five-dropped-daggers identifies the reached C behavior as pickup.c:pickup: one count-prefixed command collects the floor stack and spends a turn. The input-only recipe is challenges/cases/v16/wizard-picks-up-five-dropped-daggers.recipe.session.json; the immutable C recording is challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json. The saved evaluation records an independent C replay as byte-identical to that recording.",
+                "Upstream cmd.c:parse() at 5096-5149 sets gc.command_count from the 5 prefix and then sets gm.multi to 4. Upstream cmd.c:rhack() at 3627-3843 resolves the comma binding and calls its function at 3724-3748 without rejecting a positive gm.multi. The command table at 1799 binds comma to dopickup.",
+                "Upstream hack.c:dopickup() at 3876-3891 copies gc.command_count to count, immediately clears gm.multi, then calls pickup(-count) after pickup_checks() succeeds. Thus this input never reaches allmain.c:moveloop_core() repeat handling for positive multi. Upstream pickup.c:pickup() at 693-696 interprets the negative argument as an item count and at 809-817 picks min(stack quantity, count) for a single traditional floor object; the menu path sets the requested count at 763-772.",
+                "At examined commit fa7aad456f8e2071d96ec4f804c9ecdae6a898d2, js/cmd.js:rhack() has the generic refusal at 5503-5527 before the pickup dispatch at 5858-5878. js/hack.js:dopickup() at 4347-4362 already copies state.commandCount, clears state.multi, and calls js/pickup.js:pickup(-count). The code comment at js/hack.js:4351-4352 documents why the guard currently blocks larger counts.",
+                "The source patch series is limited to deterministic runtime, stable sorting, RNG logging, and terminal capture according to nethack-c/patches/README.md; searching nethack-c/patches for cmd.c, hack.c, pickup.c, and allmain.c finds no edits to these gameplay functions. The actionable difference therefore lies in JavaScript command admission, not recorder patch behavior."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a6a28c74b6d6b6aec8fe0e72cd136406b351ed1b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
