@@ -117,11 +117,11 @@ import {
     inside_gas_cloud,
 } from '../js/region.js';
 import {
-    UnsupportedObjectOperationError,
     newObject,
     place_object,
 } from '../js/obj.js';
 import { UnsupportedObjectNameError } from '../js/objnam.js';
+import { UnsupportedShopError } from '../js/shk.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
@@ -3197,11 +3197,10 @@ async function prepareFetchingPet(buildObject) {
 
 // C ref: dogmove.c dog_invent()'s carry arm (443-472). It splits the stack
 // through splitobj(), names the result through distant_name(), and hands it to
-// mpickobj(), all from inside the monster scan the elapsed turn dry runs. Each
-// of those three owners refuses with a class of its own, and js/jsmain.js ends
-// a segment only for a turn boundary, so a class the conversion misses escapes
-// runSegment() and discards every screen the segment had already matched
-// instead of stopping on the last one.
+// mpickobj(), all from inside the monster scan the elapsed turn dry runs. A
+// naming or unpaid-bill refusal reaches the planning boundary list; if its
+// class is missing there, it escapes runSegment() and discards the matching
+// prefix instead of stopping on the last screen.
 test('a refused planned pickup becomes a turn boundary, not a hard failure',
     async () => {
         for (const [name, buildObject, refusal] of [
@@ -3217,16 +3216,19 @@ test('a refused planned pickup becomes a turn boundary, not a hard failure',
             ],
             [
                 // can_carry() caps a nohands pet at one item, so a stack of two
-                // splits before anything is named. splitobj() reaches obj.js's
-                // splitBill hook first, which is why this row refuses with a
-                // different class than the row above despite the same `unpaid`
-                // bit; the class assertion is what holds the two apart.
+                // splits before anything is named. splitobj() now performs
+                // C's split, records its discarded splitbill gap, and returns
+                // the child. The later distant_name() path asks onbill() about
+                // that still-unpaid child, so this row stops at shk.c:onbill()
+                // rather than refusing in splitobj(). The planning boundary
+                // list must recognize the same UnsupportedShopError already
+                // converted at the live-scan caller.
                 'split',
                 (x, y) => Object.assign(
                     fetchedFloorObject(x, y, DAGGER, 9302),
                     { quan: 2, owt: 20, unpaid: true },
                 ),
-                UnsupportedObjectOperationError,
+                UnsupportedShopError,
             ],
         ]) {
             const replay = await prepareFetchingPet(buildObject);
