@@ -2717,6 +2717,9 @@ function requiredHook(env, name, obj) {
 //
 // Predicates: artifactConfersLuck(obj, env), isReviver(species, env),
 // samePrice(obj, target, env), isDeadSpecies(species, includeGone, env).
+// consume_obj_charge's optional call-site checkUnpaid(obj, state) adapter
+// intercepts only invent.c's discarded void billing call; absent it, the
+// existing check_unpaid implementation remains in effect.
 // Inventory effects: removeSpecialInventoryEffects(obj, env),
 // archeologistDeciphersScroll(obj, env), recordAchievement(id, env),
 // updateInventory(state).
@@ -4990,10 +4993,15 @@ export function useup(obj, env = {}) {
 
 // C ref: invent.c consume_obj_charge() (1336-1347).  The optional billing
 // check precedes the decrement, and a known charged object refreshes the
-// permanent inventory immediately after the write.
+// permanent inventory immediately after the write. A caller can replace only
+// that check with `checkUnpaid(obj, state)`; absent the seam, the existing
+// shk.c adapter remains authoritative for every current caller.
 export function consume_obj_charge(obj, maybe_unpaid, env = {}) {
     const normalized = inventoryEnv(env);
-    if (maybe_unpaid) check_unpaid(obj, normalized.state);
+    if (maybe_unpaid) {
+        const checkUnpaid = normalized.checkUnpaid ?? check_unpaid;
+        checkUnpaid(obj, normalized.state);
+    }
     obj.spe -= 1;
     if (obj.known) update_inventory(normalized);
     return obj;

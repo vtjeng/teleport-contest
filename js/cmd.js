@@ -370,7 +370,7 @@ import {
     dopoly, doremove, dospinweb, dospit, dosummon,
 } from './polyself.js';
 import {
-    wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change,
+    wiz_detect, wiz_genesis, wiz_identify, wiz_intrinsic, wiz_level_change,
     wiz_level_tele, wiz_map, wiz_polyself, wiz_wish, wiz_where,
 } from './wizcmds.js';
 import {
@@ -3516,6 +3516,12 @@ async function runMapCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_map(state));
 }
 
+// C ref: wizcmds.c wiz_detect(). findit() is awaited before the wizard
+// command returns ECMD_OK, even though C explicitly discards its count.
+async function runDetectCommand(key, state) {
+    return failClosedCommand(key, state, () => wiz_detect(state));
+}
+
 // C ref: wizcmds.c wiz_where(). The handler waits for the informational
 // dungeon window before returning ECMD_OK, so the extended command cannot
 // advance the game until its output is dismissed.
@@ -5241,6 +5247,8 @@ async function doextcmd(key, state) {
         return await runGenesisCommand(key, state);
     case 'wiz_map':
         return await runMapCommand(key, state);
+    case 'wiz_detect':
+        return await runDetectCommand(key, state);
     case 'wiz_where':
         return await runWhereCommand(key, state);
     case 'wiz_intrinsic':
