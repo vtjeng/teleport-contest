@@ -131185,7 +131185,7 @@
     {
       "id": "fix-counted-pickup-command-admission-synthetic-v16-20261001",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Allow counted pickup to reach its count-consuming handler",
       "cFile": "cmd.c",
       "sessions": [
@@ -131199,8 +131199,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a6a28c74b6d6b6aec8fe0e72cd136406b351ed1b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "rhack",
       "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
       "step": 26,
@@ -131374,7 +131377,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a6a28c74b6d6b6aec8fe0e72cd136406b351ed1b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
