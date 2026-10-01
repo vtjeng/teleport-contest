@@ -129511,6 +129511,232 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-read-unpunish-synthetic-v15-20261001",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete punishment removal and wire its callers",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v15/wizard-blessed-remove-curse-unpunishes-hero"
+      ],
+      "selectionReason": "The first RNG divergence is caused by the skipped read.c:unpunish() call, not by later monster-turn behavior. For a punished, non-confused hero, seffect_remove_curse() calls unpunish(), which deletes the chain through delobj(); delobj_core() reaches obj_resists() and consumes rn2(100) even though an ordinary iron chain has 0% resistance. read.js currently records note_unported(\"read.c unpunish\") at this branch. Root checked current A66 evaluations, the whole unpunish source and every direct C caller. Only read.c:unpunish receives whole-source credit; caller wiring uses existing worn/object owners.",
+      "detail": "Save uchain, clear W_CHAIN through setworn, delete the saved chain through delobj with its obj_resists RNG and floor redraw, then clear W_BALL while preserving the ball. Wire direct source callers, replace the bury.js duplicate and obsolete ball/chain refusals, and preserve explicit caller overrides. Polymon adds only the source slip conditional; buried_ball_to_freedom remains a named discarded void gap.",
+      "openedAt": "e32b60076381ef65670e5ec30a07d23ae4ae24ed",
+      "openStanding": {
+        "sha": "fb4e7f34c20fce13155dda6da98867ac869ded10",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "unpunish",
+          "line": 3066,
+          "endLine": 3081,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3066,
+        "to": 3081
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-blessed-remove-curse-unpunishes-hero": {
+          "session": "synthetic/v15/wizard-blessed-remove-curse-unpunishes-hero",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-blessed-remove-curse-unpunishes-hero",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.session.json",
+          "recordingSha256": "3a43e55f51a069f4339c80e72264bcca24195db86adb8bda992b409338737164",
+          "evaluationPath": "challenges/evaluations/20261001113039-v15.json",
+          "evaluationCommit": "fb4e7f34c20fce13155dda6da98867ac869ded10"
+        }
+      },
+      "activeStanding": {
+        "sha": "fb4e7f34c20fce13155dda6da98867ac869ded10",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-blessed-remove-curse-unpunishes-hero",
+          "session": "synthetic/v15/wizard-blessed-remove-curse-unpunishes-hero",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.session.json",
+          "recordingSha256": "3a43e55f51a069f4339c80e72264bcca24195db86adb8bda992b409338737164",
+          "recipe": "challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.recipe.session.json",
+          "recipeSha256": "2d34968c4e43e4dddc47e0b16c625e7973b3b719d8d606c57b1c2715427dbd1a",
+          "replayInputSha256": "1e3cd81aea0df30286af1e69b91b67c45cc48d0cdcd109f7a80a9b9813bd139f",
+          "evaluationPath": "challenges/evaluations/20261001113039-v15.json",
+          "evaluationCommit": "fb4e7f34c20fce13155dda6da98867ac869ded10",
+          "evaluationArtifact": "challenges/evaluations/20261001113039-v15.json",
+          "evaluationUtc": "2026-10-01T11:31:09.833Z",
+          "remainingScreens": 0,
+          "recordedSteps": 87,
+          "previousScreensMatched": 87,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 87,
+              "total": 87
+            },
+            "rng": {
+              "matched": 2934,
+              "total": 2940
+            },
+            "cursors": {
+              "matched": 87,
+              "total": 87
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2929,
+              "cEntry": "rn2(100)=45",
+              "cCaller": "obj_resists(zap.c:1469)",
+              "jsEntry": "rn2(5)=0",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 86,
+                "key": " "
+              },
+              "stepIndex": 86
+            },
+            "cursor": null
+          },
+          "step": 86,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "obj_resists",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 1469,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-blessed-remove-curse-unpunishes-hero.json",
+            "result": {
+              "session": "synthetic/v15/wizard-blessed-remove-curse-unpunishes-hero",
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-blessed-remove-curse-unpunishes-hero",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingPath": "challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.session.json",
+              "recordingSha256": "3a43e55f51a069f4339c80e72264bcca24195db86adb8bda992b409338737164",
+              "recipePath": "challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.recipe.session.json",
+              "recipeSha256": "2d34968c4e43e4dddc47e0b16c625e7973b3b719d8d606c57b1c2715427dbd1a",
+              "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "remainingScreens": 0,
+              "recordedSteps": 87,
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-blessed-remove-curse-unpunishes-hero",
+                "session": "synthetic/v15/wizard-blessed-remove-curse-unpunishes-hero",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.session.json",
+                "recordingSha256": "3a43e55f51a069f4339c80e72264bcca24195db86adb8bda992b409338737164",
+                "recipe": "challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.recipe.session.json",
+                "recipeSha256": "2d34968c4e43e4dddc47e0b16c625e7973b3b719d8d606c57b1c2715427dbd1a",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 0,
+                "recordedSteps": 87,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 87,
+                    "total": 87
+                  },
+                  "rng": {
+                    "matched": 2934,
+                    "total": 2940
+                  },
+                  "cursors": {
+                    "matched": 87,
+                    "total": 87
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2929,
+                    "cEntry": "rn2(100)=45",
+                    "cCaller": "obj_resists(zap.c:1469)",
+                    "jsEntry": "rn2(5)=0",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 86,
+                      "key": " "
+                    },
+                    "stepIndex": 86
+                  },
+                  "cursor": null
+                },
+                "step": 86,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "obj_resists",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 1469
+              },
+              "summary": "The first RNG divergence is caused by the skipped read.c:unpunish() call, not by later monster-turn behavior. For a punished, non-confused hero, seffect_remove_curse() calls unpunish(), which deletes the chain through delobj(); delobj_core() reaches obj_resists() and consumes rn2(100) even though an ordinary iron chain has 0% resistance. read.js currently records note_unported(\"read.c unpunish\") at this branch.",
+              "source": {
+                "file": "read.c",
+                "branch": "Whole-function scope is read.c:unpunish() (3064-3077), reached from seffect_remove_curse() when Punished is true and Confusion is false. In this recording, the hero is punished by the prior wished-for uncursed punishment scroll before reading a blessed remove-curse scroll. unpunish() clears W_CHAIN, deletes the saved chain, then clears W_BALL; the deletion path has observable RNG and object/map state effects.",
+                "functions": [
+                  "unpunish"
+                ],
+                "callers": [
+                  "C: read.c:doread() calls seffects() at 635; read.c:seffects() dispatches SCR_REMOVE_CURSE and SPE_REMOVE_CURSE to seffect_remove_curse() at 2225-2227; read.c:seffect_remove_curse() calls unpunish() only under Punished && !confused at 1598-1599.",
+                  "JavaScript: cmd.js:runReadCommand() -> read.js:doread() -> read.js:seffects() -> read.js:seffect_remove_curse(). The SCR_REMOVE_CURSE branch dispatches at read.js:3358-3360, but read.js:2028-2032 calls note_unported() instead of unpunish(). A private analogue in js/bury.js:209 is reached only from bury_an_obj() at 268."
+                ],
+                "dependencies": [
+                  "read.c:unpunish() calls worn.c:setworn(NULL, W_CHAIN), then delobj(savechain), then setworn(NULL, W_BALL) (read.c:3068-3076). setworn() clears the chain and ball worn masks and the corresponding hero pointers; preserve this order and its state effects.",
+                  "invent.c:delobj() (1428-1433) calls delobj_core(obj, FALSE); delobj_core() (1435-1462) calls zap.c:obj_resists(obj, 0, 0) before object extraction, floor redraw, and obfree(). These are side effects of the void call and cannot be omitted merely because its return is unused.",
+                  "zap.c:obj_resists() (1458-1472) returns early only for the Amulet, invocation objects, and Rider corpses. For an ordinary iron chain it calls rn2(100) unconditionally, even with zero resistance chances. JavaScript counterparts exist in js/invent.js:delobj()/delobj_core() and js/bury.js:obj_resists()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved scan .cache/synthetic-scans/v15/wizard-blessed-remove-curse-unpunishes-hero.json identifies the first mismatch at zero-based step 86, RNG index 2929: C has rn2(100)=45 at zap.c:1469 while JavaScript has rn2(5)=0 at monmove.c:538. Its unported list names read.c unpunish. This establishes that the next C draw is missing before JavaScript reaches the later monster movement draw; the zap.c annotation names the draw helper, not the earlier source owner.",
+                "The immutable recording challenges/cases/v15/wizard-blessed-remove-curse-unpunishes-hero.session.json reaches step 86 on the confirmation space after wishing for an uncursed scroll of punishment and a blessed scroll of remove curse. The C RNG log for step 86 starts with rn2(100)=45 @ obj_resists(zap.c:1469), followed by distfleeck() and monster-turn draws.",
+                "In the frozen source at commit 6d2c675aad59f170ec44980d6afce47f08ae7423, read.c:seffect_remove_curse() (1489-1605) executes its Punished && !confused branch at 1598-1599. The complete target function read.c:unpunish() (3064-3077) saves uchain, clears W_CHAIN, calls delobj(savechain), and only then clears W_BALL. This is the source behavior that the read path must reach; the source function scope is the whole unpunish(), not an isolated RNG insertion.",
+                "The first C draw follows the call chain read.c:unpunish() -> invent.c:delobj() -> invent.c:delobj_core(FALSE) -> zap.c:obj_resists(). delobj_core() tests obj_resists() at invent.c:1444-1446; obj_resists() draws rn2(100) at zap.c:1469 for ordinary objects. A punishment chain is not one of the protected object types, so the 0% chance comparison still consumes the recorded draw.",
+                "The examined JavaScript read.js:seffect_remove_curse() reaches state.uball && !confused and records note_unported(\"read.c unpunish\") at 2028-2032, so it skips chain deletion as well as clearing the ball slot. js/bury.js has a private helper named unpunish() at 206-229 that preserves the obj_resists() draw, but its only caller is bury_an_obj() at 267-269; the remove-curse caller does not reach it. Treat this as the read.c unpunish source-function port and caller wiring, retaining its full W_CHAIN -> delobj -> W_BALL order and shared object-slot state."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
