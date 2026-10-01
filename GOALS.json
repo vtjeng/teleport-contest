@@ -134739,8 +134739,8 @@
           "name": "summonmu",
           "line": 956,
           "endLine": 1032,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -134920,7 +134920,37 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "summonmu",
+            "implementation": "js/mhitu.js",
+            "symbol": "summonmu",
+            "sourceReview": "Read and compared the complete static mhitu.c:summonmu definition (956-1030). The JS implementation preserves the demon exclusions and rn2 gate, discarded msummon result, separate human/animal were form-change conditions, refreshed mdat, rn2(10) helper gate, preface/output order, numhelp/numseen feedback, and Deaf/growl behavior. The unseen message helper follows C grammar: an(genericwere) for one visible helper, makeplural(genericwere) for several, upstart(buf), and “ from nowhere” only for Deaf. The same state and random owner flows through new_were, were_summon, makemon and msummon. The direct mattacku caller retains its source preconditions, new-flee early return and mdat refresh. The consumed were_summon result and creation tail are preserved; source’s tamedog result is discarded. new_were’s existing conditional weapon.c:possibly_unwield note_unported remains when a monster carries a weapon. The later uhitm.c:mhitm_ad_were attack path is outside this function/task and remains a downstream boundary. Supporting makemon runtime wiring is narrowly admitted for the exact were_summon hero-square/NO_MM_FLAGS creation call; it does not claim makemon.c whole-function completion. The supporting Protection_from_shape_changers helper is a pure youprop.h:355-360 macro expansion; its source-pinned test checks both the intrinsic and extrinsic truth arms and the zero/zero false case.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku calls summonmu(mtmp, youseeit) after cancellation/cham/range checks at 729-740, then checks newly set mflee and refreshes mdat."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/summonmu-werewolf-protection-ring-variation-b81.session.json",
+              "recordings/minion.c/msummon-water-demon-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "5e22e8c4339d2222357fd58418786b871e68390a"
+          }
+        ],
+        "entryPointReview": "The helper has one source call site, in mhitu.c:mattacku at 733, under the active uncancelled, non-shapechanged demon-or-were gate. The demon branch runs the rn2(Inhell?10:16) gate before the were branch enters the form-change and helper-summon logic. Both are branches of the same monster-turn production entry: js/mhitu.js:mattacku. The independent B81 recording reaches the were branch through this caller at segment 0 step 77 and matches the complete 78-screen/4,677-RNG replay. The existing minion recording reaches the demon branch through the same caller at segment 0 steps 46 and 103 and matches its complete 104-screen/3,419-RNG replay. Source search of mhitu.c finds only the declaration, this caller, and the definition; no other active summonmu caller is omitted. The selected v17 case also reaches the source helper, but its full replay remains unmatched later in combat and is not cited. Supporting makemon helper-creation tests directly exercise the C-selected species and creation tail; they are not production entry-point evidence. This range has no command entry point, so entryPoints is empty as required for helper-only evidence.",
+        "entryPoints": []
+      }
     }
   ]
 }
