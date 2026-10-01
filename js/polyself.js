@@ -108,6 +108,7 @@ import {
     SHOCK_RES,
     SHOPBASE,
     SICK,
+    SICK_ALL,
     SICK_RES,
     SLEEP_RES,
     SLIMED,
@@ -205,6 +206,7 @@ import {
     weirdnonliving,
     can_teleport,
     control_teleport,
+    defended,
     your_race,
     name_to_monclass,
     name_to_monplus,
@@ -241,7 +243,9 @@ import {
     unconscious,
 } from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
-import { make_blinded, make_glib, set_itimeout } from './potion.js';
+import {
+    make_blinded, make_glib, make_sick, set_itimeout,
+} from './potion.js';
 import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
 import { setnotworn, setworn } from './worn.js';
@@ -1147,7 +1151,17 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     }
 
     // Stone_resistance && Stoned — not exercised for gnome
-    // Sick_resistance && Sick — not exercised for gnome
+    // polyself.c:838-841 and youprop.h:69-70. Sick_resistance includes the
+    // form's property plus defended()'s AD_DISE suit check.
+    const sicknessResistance = u.uprops[SICK_RES];
+    const sickResistant = Boolean(
+        sicknessResistance.intrinsic || sicknessResistance.extrinsic
+        || defended(state.youmonst, M.AD_DISE, state),
+    );
+    if (sickResistant && u.uprops[SICK].intrinsic) {
+        await make_sick(0, null, false, SICK_ALL, state, env);
+        await message('You no longer feel sick.', state, env);
+    }
     // Slimed — not exercised for gnome
 
     await check_strangling(false, state, env); // maybe stop strangling
@@ -1527,7 +1541,7 @@ export async function newman(state = game) {
 
         u.uhunger = rn1(500, 500);
         if (u.uprops[SICK].intrinsic)
-            note_unported('potion.c make_sick');
+            await make_sick(0, null, false, SICK_ALL, state);
         if (u.uprops[STONED].intrinsic)
             note_unported('potion.c make_stoned');
         if (u.uhp <= 0) {

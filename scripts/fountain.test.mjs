@@ -913,21 +913,19 @@ test('vomit keeps unrelated special eat.c paths fail-closed', async () => {
         altar = false,
         multi = 0,
         polymorphed = false,
-        sick = false,
         uhs = 1,
     } = {}) {
         const uprops = Array.from(
             { length: SICK + 1 },
             () => ({ intrinsic: 0 }),
         );
-        if (sick) uprops[SICK].intrinsic = 1;
         return {
             u: {
                 umonnum: polymorphed ? species.pmidx : normal.pmidx,
                 umonster: normal.pmidx,
                 uhs,
                 uprops,
-                usick_type: sick ? SICK_VOMITABLE : 0,
+                usick_type: 0,
                 ux: 1,
                 uy: 1,
             },
@@ -942,7 +940,6 @@ test('vomit keeps unrelated special eat.c paths fail-closed', async () => {
             polymorphed: true,
         })],
         ['cantvomit form', stateFor(game.mons[PM_SEWER_RAT])],
-        ['sickness', stateFor(normal, { sick: true })],
         ['dry heave', stateFor(normal, { uhs: FAINTING })],
         ['existing multi-turn action', stateFor(normal, { multi: 1 })],
         ['acid breath', stateFor(game.mons[PM_YELLOW_DRAGON])],
@@ -957,6 +954,25 @@ test('vomit keeps unrelated special eat.c paths fail-closed', async () => {
         await assert.rejects(() => vomit(state), UnsupportedEatError, name);
         assert.equal(state.multi, multiBefore, name);
     }
+});
+
+test('vomit cures food poisoning before installing its C delay', async () => {
+    await startedGame();
+    // eat.c:3745-3746 cures any positive Sick timeout of SICK_VOMITABLE;
+    // one turn exercises that branch without a second illness type.
+    game.u.uprops[SICK].intrinsic = 1;
+    game.u.usick_type = SICK_VOMITABLE;
+    game.level.at(game.u.ux, game.u.uy).typ = ROOM;
+    game.nhDisplay.terminal._inputQueue.push(32, 32, 32);
+
+    await vomit(game);
+
+    // potion.c:167-168 clears both the last type and the Sick intrinsic.
+    assert.equal(game.u.uprops[SICK].intrinsic, 0);
+    assert.equal(game.u.usick_type, 0);
+    // eat.c:3759-3763 then installs the two-turn vomiting delay.
+    assert.equal(game.multi, -2);
+    assert.equal(game.multi_reason, 'vomiting');
 });
 
 test('vomit reaches altar_wrath after installing its C delay', async () => {

@@ -57,6 +57,7 @@ import {
     SEARCHING,
     SHOCK_RES,
     SICK,
+    SICK_ALL,
     SLIMED,
     STEALTH,
     STONE_RES,
@@ -233,7 +234,7 @@ import { P_MAX_SKILL, spell_skilltype } from './startup_skills.js';
 import { spelleffects } from './spell.js';
 import { seffects } from './read.js';
 import { charge_ok, recharge } from './read.js';
-import { healup, make_blinded } from './potion.js';
+import { healup, make_blinded, make_sick } from './potion.js';
 import { dropx, maybe_lvltport_feedback, goto_level } from './do.js';
 import { select_menu } from './windows.js';
 import { clr2colorname } from './coloratt.js';
@@ -2314,7 +2315,7 @@ async function invoke_healing(obj, state) {
             u.uhp += healamt;
     }
     if (sick) {
-        note_unported('eat.c make_sick');
+        await make_sick(0, null, false, SICK_ALL, state);
     }
     if (slimed) {
         note_unported('hack.c make_slimed');

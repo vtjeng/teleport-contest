@@ -52,6 +52,7 @@ import {
     OBJ_INVENT,
     SATIATED,
     SICK,
+    SICK_VOMITABLE,
     VOMITING,
     WEAK,
     W_TOOL,
@@ -1061,8 +1062,8 @@ test('the FOOD rows carry three materials, one of them metallic', () => {
 test('fpostfx keeps the source order for sickness and vomiting cures', async () => {
     // youprop.h:108 and :111 define Sick and Vomiting from the intrinsic only.
     // A worn-source bit alone must not reach either C call. Sick's void
-    // make_sick() is still a named gap, after which C proceeds to the selected
-    // make_vomiting() cure when both intrinsic values are present.
+    // make_sick() clears the selected food-poisoning bit before C proceeds to
+    // make_vomiting() when both intrinsic values are present.
     //
     // No role starts with a eucalyptus leaf and no ported command picks one
     // up, so the leaf goes into the pack by hand. The Priest's sprig of
@@ -1076,8 +1077,15 @@ test('fpostfx keeps the source order for sickness and vomiting cures', async () 
         leaf.otyp = EUCALYPTUS_LEAF;
         leaf.owt = weight(leaf, { state: game });
         configure(game.u.uprops[index]);
+        // f selects the leaf. Capture C's pline calls so the assertion pins
+        // their source order without depending on how many --More-- prompts
+        // the TTY layout produces for the joined messages.
         game.nhDisplay.pushKey('f'.charCodeAt(0));
-        return doeat(game);
+        const messages = [];
+        const result = await doeat(game, {
+            message: async (text) => { messages.push(text); },
+        });
+        return { messages, result };
     };
 
     // Drive each intrinsic separately, then both together. The hard-coded 1
@@ -1085,42 +1093,51 @@ test('fpostfx keeps the source order for sickness and vomiting cures', async () 
     for (const [name, index] of [['Sick', SICK], ['Vomiting', VOMITING]]) {
         // W_TOOL stands for a worn source, the shape an extrinsic takes
         // elsewhere.
+        const extrinsic = await eatLeaf(
+            index, (malady) => { malady.extrinsic = W_TOOL; },
+        );
         assert.equal(
-            await eatLeaf(index, (malady) => { malady.extrinsic = W_TOOL; }),
+            extrinsic.result,
             ECMD_TIME,
             `an extrinsic-only ${name} must leave the arm alone`,
         );
-        const result = await eatLeaf(
-            index, (malady) => { malady.intrinsic = 1; },
+        const { messages, result } = await eatLeaf(
+            index, (malady) => {
+                malady.intrinsic = 1;
+                if (index === SICK)
+                    game.u.usick_type = SICK_VOMITABLE;
+            },
         );
         assert.equal(result, ECMD_TIME,
             `an intrinsic ${name} follows its C void effect`);
         if (name === 'Sick') {
-            assert.equal(game.unported.has('potion.c make_sick'), true,
-                'the earlier unported make_sick void call remains named');
+            assert.equal(game.unported.has('potion.c make_sick'), false,
+                'make_sick is implemented and called before meal completion');
+            assert.equal(game.u.uprops[SICK].intrinsic, 0);
+            assert.equal(game.u.usick_type, 0);
         } else {
             assert.equal(game.u.uprops[VOMITING].intrinsic, 0,
                 'make_vomiting clears the active timeout');
-            assert.equal(
-                topLine().includes('You feel much less nauseated now.'),
-                true,
-                'C queues the cure line after this test meal\'s finish line',
-            );
+            assert.deepEqual(messages, [
+                'You feel much less nauseated now.',
+            ]);
         }
     }
 
-    await eatLeaf(SICK, (malady) => {
+    const combined = await eatLeaf(SICK, (malady) => {
         malady.intrinsic = 1;
+        game.u.usick_type = SICK_VOMITABLE;
         game.u.uprops[VOMITING].intrinsic = 1;
     });
-    assert.equal(game.unported.has('potion.c make_sick'), true);
+    assert.equal(game.unported.has('potion.c make_sick'), false);
+    assert.equal(game.u.uprops[SICK].intrinsic, 0);
+    assert.equal(game.u.usick_type, 0);
     assert.equal(game.u.uprops[VOMITING].intrinsic, 0,
         'C reaches the vomiting cure after the preceding make_sick call');
-    assert.equal(
-        topLine().includes('You feel much less nauseated now.'),
-        true,
-        'C queues the cure line after this test meal\'s finish line',
-    );
+    assert.deepEqual(combined.messages, [
+        'You feel cured.  What a relief!',
+        'You feel much less nauseated now.',
+    ]);
 });
 
 test('the option variations reach the same meal', async () => {

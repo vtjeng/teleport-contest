@@ -24,6 +24,7 @@ import {
     CONFUSION,
     CONFLICT,
     COST_BITE,
+    CXN_NORMAL,
     CXN_PFX_THE,
     CXN_SINGULAR,
     DEAF,
@@ -76,6 +77,7 @@ import {
     SEE_INVIS,
     SHOCK_RES,
     SICK,
+    SICK_ALL,
     SICK_RES,
     SICK_VOMITABLE,
     SLEEP_RES,
@@ -151,6 +153,7 @@ import {
 } from './invent.js';
 import { dropx, dropy, trycall } from './do.js';
 import { makeplural } from './fruit.js';
+import { were_beastie } from './were.js';
 import { staleEgg } from './dogfood.js';
 import { iter_mons_safe, mon_offmap, pm_to_cham, rescham } from './mon.js';
 import {
@@ -279,7 +282,8 @@ import {
 import { change_luck } from './moveloop_preamble.js';
 import {
     dopotion, incr_itimeout, make_blinded, make_confused, make_deaf,
-    make_glib, make_hallucinated, make_stoned, make_vomiting, self_invis_message,
+    make_glib, make_hallucinated, make_sick, make_stoned, make_vomiting,
+    self_invis_message,
     set_itimeout,
 } from './potion.js';
 import {
@@ -2001,10 +2005,10 @@ async function choke(food, state, env = {}) {
 
 // C ref: eat.c vomit() (3736-3785). This is the ordinary, unpolymorphed hero
 // continuation used by fountain.c's foul-water arm. The other arms are kept
-// explicit boundaries: their C callees (make_sick(), ubreatheu(),
-// melt_ice(), and several other branches are not ported, and dry-heaving has
-// its own body-part message. Keep those branches explicit while allowing the
-// source-owned altar_wrath() call after nomul().
+// explicit boundaries: ubreatheu(), melt_ice(), and several other branches
+// are not ported, and dry-heaving has its own body-part message. Keep those
+// branches explicit while allowing the source-owned altar_wrath() call after
+// nomul().
 export async function vomit(state = game) {
     const hero = state.u;
     const species = state.youmonst?.data;
@@ -2016,8 +2020,8 @@ export async function vomit(state = game) {
     if (cantvomit(species))
         throw new UnsupportedEatError('vomit() cantvomit() arm');
     if (hero.uprops?.[SICK]?.intrinsic
-        || (hero.usick_type & SICK_VOMITABLE)) {
-        throw new UnsupportedEatError('vomit() sickness arm');
+        && (hero.usick_type & SICK_VOMITABLE)) {
+        await make_sick(0, null, true, SICK_VOMITABLE, state);
     }
     if (hero.uhs >= FAINTING)
         throw new UnsupportedEatError('vomit() dry-heave arm');
@@ -2163,15 +2167,8 @@ async function maybe_cannibal(pm, allowmsg, state) {
        about cannibalism--hero's innate traits aren't altered) */
     if (!CANNIBAL_ALLOWED(state)) {
         const own_kind = your_race(fptr, state)
-            || (Upolyd(u) && same_race(state.youmonst.data, fptr));
-
-        if (!own_kind && ismnum(u.ulycn)) {
-            // C's third disjunct is `were_beastie(pm) == u.ulycn`. were.c
-            // were_beastie() has no port because js/u_init.js:368 writes NON_PM
-            // into u.ulycn and nothing writes it again, so this disjunct has no
-            // reachable input.
-            throw new UnsupportedEatError('were_beastie()');
-        }
+            || (Upolyd(u) && same_race(state.youmonst.data, fptr))
+            || (ismnum(u.ulycn) && were_beastie(pm) === u.ulycn);
         if (own_kind) {
             if (allowmsg) {
                 if (Upolyd(u) && your_race(fptr, state)) {
@@ -2785,7 +2782,9 @@ const PALATABLE_MSGS = Object.freeze([
 // meal starts: the conducts it breaks, how far it has rotted, the harm it does,
 // how many turns it takes and what it tastes like. Answers 0 to eat normally,
 // 1 to skip start_eating(), and 2 when the corpse is gone.
-async function eatcorpse(otmp, state) {
+// doeat() supplies eatOperations() so these global C useup/useupf calls can
+// reach the same object-timer and floor-extraction owners as done_eating().
+async function eatcorpse(otmp, state, env = {}) {
     const u = state.u;
     let retcode = 0;
     let tp = 0;
@@ -2858,10 +2857,39 @@ async function eatcorpse(otmp, state) {
 
     /* 5.0: globs don't become tainted, they shrink away */
     if (!glob && !stoneable && !slimeable && rotted > 5) {
-        // The tainted arm: maybe_cannibal(mnum, FALSE), "Ulch - that %s was
-        // tainted%s!", and then make_sick() with an rn1(10, 10) timeout unless
-        // the hero resists sickness.
-        throw new UnsupportedEatError('make_sick() for a tainted corpse');
+        const cannibal = await maybe_cannibal(mnum, false, state);
+        const food = state.mons[mnum].mlet === S_FUNGUS
+            ? 'fungoid vegetation'
+            : vegetarian(state.mons[mnum]) ? 'protoplasm' : 'meat';
+        await ttyPline(
+            `Ulch - that ${food} was tainted${cannibal ? ', you cannibal' : ''}!`,
+            state,
+        );
+        if (sickResistance(state)) {
+            await ttyPline(
+                "It doesn't seem at all sickening, though...", state,
+            );
+        } else {
+            let sickTime = rn1(10, 10);
+            const sick = hungerProperty(state, SICK).intrinsic;
+            if (sick && sickTime > sick)
+                sickTime = sick > 1 ? sick - 1 : 1;
+            await make_sick(
+                sickTime,
+                corpse_xname(otmp, 'rotted', CXN_NORMAL, state),
+                true,
+                SICK_VOMITABLE,
+                state,
+            );
+            await ttyPline(
+                '(It must have died too long ago to be safe to eat.)', state,
+            );
+        }
+        if (carried(otmp))
+            useup(otmp, env);
+        else
+            await useupf(otmp, 1, env);
+        return 2;
     } else if (acidic(corpse) && !propertyActive(state, ACID_RES)) {
         tp++;
         /* not body_part() */
@@ -2929,9 +2957,9 @@ async function eatcorpse(otmp, state) {
             if (!retcode)
                 await ttyPline('The corpse rots away completely.', state);
             if (carried(otmp))
-                useup(otmp, { state });
+                useup(otmp, env);
             else
-                await useupf(otmp, 1, { state });
+                await useupf(otmp, 1, env);
             retcode = 2;
         }
 
@@ -3024,11 +3052,8 @@ async function fpostfx(otmp, state, env) {
         throw new UnsupportedEatError("fpostfx()'s petrifying egg arm");
     case EUCALYPTUS_LEAF:
         if (!otmp.cursed) {
-            if (hungerProperty(state, SICK).intrinsic && state === game) {
-                // C calls the still-unported void make_sick() first, then
-                // continues to the selected make_vomiting() call below.
-                note_unported('potion.c make_sick');
-            }
+            if (hungerProperty(state, SICK).intrinsic)
+                await make_sick(0, null, true, SICK_ALL, state, env);
             if (hungerProperty(state, VOMITING).intrinsic)
                 await make_vomiting(0, true, state, env);
         }
@@ -4215,10 +4240,10 @@ export async function doeat(state = game, env = {}) {
      */
     // eatcorpse() answers 1 after rottenfood() fainting and 2 when the
     // corpse is used up (no nutrition after rotting, or tainted).  The
-    // make_sick() taint path still stops inside eatcorpse().
+    // tainted-corpse path returns from eatcorpse() before starting a meal.
     let dont_start = false;
     if (otmp.otyp === CORPSE || otmp.globby) {
-        const tmp = await eatcorpse(otmp, state);
+        const tmp = await eatcorpse(otmp, state, eatEnv);
 
         if (tmp === 2) {
             /* used up */

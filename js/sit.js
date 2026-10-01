@@ -40,6 +40,7 @@ import {
     POISON_RES,
     PROTECTION,
     SEE_INVIS,
+    SICK_ALL,
     SHOCK_RES,
     SLIMED,
     SPIKED_PIT,
@@ -328,7 +329,10 @@ async function throne_sit_effect(state, rawEnv = {}) {
             u.ucreamed = 0;
             const { make_blinded } = await import('./potion.js');
             await make_blinded(0, true, state, { ...rawEnv, message });
-            note_unported('potion.c make_sick');
+            const { make_sick } = await import('./potion.js');
+            await make_sick(0, null, false, SICK_ALL, state, {
+                ...rawEnv, message,
+            });
             const { heal_legs } = await import('./do.js');
             await heal_legs(state, { message });
             state.disp ??= {};
