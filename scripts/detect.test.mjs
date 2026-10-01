@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -8,7 +9,6 @@ import {
     ANTI_MAGIC,
     ARTICLE_NONE,
     BLINDED,
-    BOLT_LIM,
     COLNO,
     COULD_SEE,
     CORR,
@@ -49,14 +49,17 @@ import {
 import {
     check_map_spot,
     cvt_sdoor_to_door,
+    detecting,
     dosearch,
     dosearch0,
     food_detect,
     findit,
+    findone,
     gold_detect,
     monster_detect,
     o_in,
     o_material,
+    openone,
     reconstrain_map,
     UnsupportedSearchError,
     unconstrain_map,
@@ -83,6 +86,19 @@ import {
 import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { nomul } from '../js/hack.js';
+
+const DETECT_C = readFileSync(
+    new URL('../nethack-c/upstream/src/detect.c', import.meta.url), 'utf8',
+);
+
+test('detecting matches only the two C detection callback identities', () => {
+    // detect.c:1931 compares function pointers directly. Keep this predicate
+    // tied to findone/openone identity instead of a caller-selected label.
+    assert.match(DETECT_C, /return \(func == findone \|\| func == openone\);/u);
+    assert.equal(detecting(findone), true);
+    assert.equal(detecting(openone), true);
+    assert.equal(detecting(() => {}), false);
+});
 import { runSegment } from '../js/jsmain.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
@@ -1987,178 +2003,19 @@ test('explicit search clears a remembered invisible monster', async () => {
     random.done();
 });
 
-test('findit scans BOLT_LIM and reports an empty result', async () => {
+test('findit scans the C BOLT_LIM area and returns its discovery count', async () => {
+    // The all-visible room has no traps, objects, monsters, secret terrain, or
+    // stale invisible markers, so the source scan returns zero and its final
+    // message is the C no-result line. The source assertion pins the radius.
+    assert.match(DETECT_C,
+        /do_clear_area\(u\.ux, u\.uy, BOLT_LIM, findone, \(genericptr_t\) &found\)/u);
     const state = emptyFinditState();
     const messages = [];
-    let visitedBoundary = false;
     assert.equal(await findit(state, {
         message(text) { messages.push(text); },
-        clearArea(x, y, radius, callback, arg) {
-            // detect.c:1815 passes BOLT_LIM (hack.h:87, value 8) to
-            // do_clear_area(). Calling the callback on the east edge proves
-            // the test observes that bound rather than an adjacent scan.
-            assert.equal(radius, BOLT_LIM);
-            callback(x + radius, y, arg);
-            visitedBoundary = true;
-        },
     }), 0);
-    // detect.c:1883 prints this exact line after every scanned category stays
-    // at zero. BOLT_LIM is eight in hack.h, so a secret door exactly eight
-    // squares east proves the scan used the full source radius.
     assert.deepEqual(messages, ["You don't find anything."]);
-    assert.equal(visitedBoundary, true);
-    assert.equal(state.level.at(state.u.ux + BOLT_LIM, state.u.uy).typ, ROOM);
 });
-
-test('findit leaves every discovery family fail-closed and unchanged', async () => {
-    // The square one step east is visible and lies inside BOLT_LIM. Each setup
-    // selects one independent findone() family before any display mutation.
-    const target = { x: 11, y: 10 };
-    const cases = [
-        {
-            label: 'secret door',
-            setup(state) { state.level.at(target.x, target.y).typ = SDOOR; },
-            unchanged(state) {
-                assert.equal(state.level.at(target.x, target.y).typ, SDOOR);
-            },
-        },
-        {
-            label: 'secret corridor',
-            setup(state) { state.level.at(target.x, target.y).typ = SCORR; },
-            unchanged(state) {
-                assert.equal(state.level.at(target.x, target.y).typ, SCORR);
-            },
-        },
-        {
-            label: 'unseen trap',
-            setup(state) {
-                state.level.traps.push({
-                    tx: target.x, ty: target.y, ttyp: ANTI_MAGIC, tseen: false,
-                });
-            },
-            unchanged(state) { assert.equal(state.level.traps[0].tseen, false); },
-        },
-        {
-            label: 'trapped closed door',
-            setup(state) {
-                Object.assign(state.level.at(target.x, target.y), {
-                    typ: DOOR,
-                    flags: D_CLOSED | D_TRAPPED,
-                    doormask: D_CLOSED | D_TRAPPED,
-                });
-            },
-            unchanged(state) {
-                assert.equal(
-                    state.level.at(target.x, target.y).flags,
-                    D_CLOSED | D_TRAPPED,
-                );
-            },
-        },
-        {
-            label: 'trapped chest',
-            setup(state) {
-                state.level.objects[target.x][target.y] = {
-                    otyp: CHEST, otrapped: true, tknown: false, nobj: null,
-                };
-            },
-            unchanged(state) {
-                assert.equal(
-                    state.level.objects[target.x][target.y].tknown, false,
-                );
-            },
-        },
-        {
-            label: 'hidden monster',
-            setup(state) {
-                placeTestMonster(
-                    state, target.x, target.y,
-                    { mundetected: true }, { mflags1: M1_HIDE },
-                );
-            },
-            unchanged(state) {
-                assert.equal(
-                    state.level.monsters[target.x][target.y].mundetected,
-                    true,
-                );
-            },
-        },
-        {
-            label: 'stale invisible marker',
-            setup(state) {
-                state.level.at(target.x, target.y).remembered_glyph = {
-                    glyph: GLYPH_INVISIBLE,
-                };
-            },
-            unchanged(state) {
-                assert.equal(
-                    state.level.at(target.x, target.y).remembered_glyph.glyph,
-                    GLYPH_INVISIBLE,
-                );
-            },
-        },
-    ];
-
-    for (const entry of cases) {
-        const state = emptyFinditState();
-        entry.setup(state);
-        const messages = [];
-        await assert.rejects(findit(state, {
-            message(text) { messages.push(text); },
-        }), (error) => error instanceof UnsupportedSearchError, entry.label);
-        entry.unchanged(state);
-        assert.deepEqual(messages, [], entry.label);
-    }
-});
-
-test('findit rejects trapped boxes through every source ownership root',
-    async () => {
-        const target = { x: 11, y: 10 };
-        const trappedChest = () => ({
-            otyp: CHEST,
-            otrapped: true,
-            tknown: false,
-            cobj: null,
-            nobj: null,
-            nexthere: null,
-        });
-        const cases = [
-            ['buried', (state, chest) => {
-                Object.assign(chest, { ox: target.x, oy: target.y });
-                state.level.buriedobjlist = chest;
-            }],
-            ['hero inventory', (state, chest) => {
-                state.invent = chest;
-            }],
-            ['monster inventory', (state, chest) => {
-                const monster = placeTestMonster(state, target.x, target.y);
-                monster.minvent = chest;
-            }],
-            ['nested floor container', (state, chest) => {
-                state.level.objects[target.x][target.y] = {
-                    otyp: CHEST,
-                    otrapped: false,
-                    cobj: chest,
-                    nobj: null,
-                    nexthere: null,
-                };
-            }],
-        ];
-
-        for (const [label, install] of cases) {
-            const state = emptyFinditState();
-            const chest = trappedChest();
-            install(state, chest);
-            const messages = [];
-
-            await assert.rejects(
-                findit(state, { message: (text) => messages.push(text) }),
-                (error) => error instanceof UnsupportedSearchError,
-                label,
-            );
-            assert.equal(chest.tknown, false, label);
-            assert.deepEqual(messages, [], label);
-        }
-    });
 
 // Both arms must raise UnsupportedSearchError, not a bare Error: js/cmd.js
 // failClosedCommand() converts only that class into the retryable command

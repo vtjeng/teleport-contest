@@ -98,7 +98,7 @@ import { level_tele } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { makewish } from './zap.js';
 import { docrt, map_engraving, map_trap } from './display.js';
-import { do_mapping } from './detect.js';
+import { do_mapping, findit } from './detect.js';
 import { print_dungeon } from './dungeon.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
@@ -138,6 +138,17 @@ export async function wiz_map(state = game) {
         hallucination.intrinsic = save_Hhallu;
     } else {
         await ttyPline("Unavailable command 'wizmap'.", state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_detect() (229-236), the #wizdetect extended command.
+// Like doapply's uncursed Bell branch, this discards findit's integer result.
+export async function wiz_detect(state = game, env = {}) {
+    if (state.wizard) {
+        await findit(state, env);
+    } else {
+        await ttyPline("Unavailable command 'wizdetect'.", state);
     }
     return ECMD_OK;
 }

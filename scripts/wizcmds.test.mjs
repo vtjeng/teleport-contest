@@ -7,13 +7,34 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    BLINDED, KILLED_BY, LAST_PROP, STONED, TIMEOUT,
+    BLINDED, ECMD_OK, KILLED_BY, LAST_PROP, STONED, TIMEOUT,
 } from '../js/const.js';
 import { delayed_killer } from '../js/end.js';
 import { GameDisplay } from '../js/game_display.js';
 import { resetGame } from '../js/gstate.js';
 import { make_stoned } from '../js/potion.js';
-import { wiz_intrinsic } from '../js/wizcmds.js';
+import { wiz_detect, wiz_intrinsic } from '../js/wizcmds.js';
+
+test('wiz_detect awaits findit and discards its count like the C caller',
+    async () => {
+        const source = readFileSync(
+            new URL('../nethack-c/upstream/src/wizcmds.c', import.meta.url),
+            'utf8',
+        );
+        assert.match(source,
+            /wiz_detect\(void\)[\s\S]*if \(wizard\)\s*\(void\) findit\(\);[\s\S]*return ECMD_OK;/u);
+        // The swallowed findit early return precedes C map access, isolating
+        // wiz_detect's async call and discarded integer result in this unit.
+        const state = {
+            wizard: true,
+            u: { uswallow: true },
+        };
+        const messages = [];
+        assert.equal(await wiz_detect(state, {
+            message(text) { messages.push(text); },
+        }), ECMD_OK);
+        assert.deepEqual(messages, []);
+    });
 
 test('wizcmds.c keeps blindness out of the generic timeout arm', () => {
     const source = readFileSync(

@@ -648,6 +648,7 @@ export async function do_clear_area_async(
     callback,
     argument = null,
     state = game,
+    rawEnv = {},
 ) {
     if (typeof callback !== 'function')
         throw new TypeError('do_clear_area_async requires a callback');
@@ -670,6 +671,11 @@ export async function do_clear_area_async(
     }
 
     if (state === game && game.vision_full_recalc) vision_recalc(0);
+    // vision.c only bypasses couldsee() for a centered detection callback on
+    // the air or water plane. Other async area effects keep normal visibility.
+    const overrideVision = Boolean(rawEnv.detecting
+        && (on_level(state.u.uz, state.water_level)
+            || on_level(state.u.uz, state.air_level)));
     const minY = Math.max(0, srow - range);
     const maxY = Math.min(ROWNO - 1, srow + range);
     for (let y = minY; y <= maxY; ++y) {
@@ -677,7 +683,7 @@ export async function do_clear_area_async(
         const minX = Math.max(1, scol - offset);
         const maxX = Math.min(COLNO - 1, scol + offset);
         for (let x = minX; x <= maxX; ++x) {
-            if (couldsee(x, y, state))
+            if (overrideVision || couldsee(x, y, state))
                 await callback(x, y, argument);
         }
     }
