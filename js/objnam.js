@@ -11,33 +11,36 @@
 // object construction through js/obj.js.
 
 import {
-    ART_EYES_OF_THE_OVERWORLD, ART_ORB_OF_DETECTION, artifact_name,
-    artiname,
+    ART_EYES_OF_THE_OVERWORLD, ART_ORB_OF_DETECTION, artifact_light,
+    artifact_name, artiname, glow_color, glow_verb,
     find_artifact,
     permapoisoned,
 } from './artifacts.js';
 import {
-    BLINDED, BUFSZ, COST_CONTENTS, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_HISTORIC,
+    BLINDED, BUFSZ, BURN_OBJECT, COST_CONTENTS, CORPSTAT_FEMALE,
+    CORPSTAT_GENDER, CORPSTAT_HISTORIC,
     CORPSTAT_MALE, CORPSTAT_RANDOM, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
-    CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, HALLUC, HALLUC_RES, HAND,
+    CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, FM_FMON, ismnum,
+    HAND, MV_KNOWS_EGG,
     MALE, NEUTRAL, NON_PM,
-    OBJ_CONTAINED, OBJ_FLOOR, OBJ_INVENT, OBJ_MINVENT, QBUFSZ,
+    QBUFSZ,
     P_BOW, W_AMUL, W_ARMOR, W_BALL, W_CHAIN, W_QUIVER, W_RING, W_RINGR,
-    W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP, plur,
+    WARN_OF_MON, W_SADDLE, W_SWAPWEP, W_TOOL, W_WEP, plur,
 } from './const.js';
 import {
     fruit_from_indx, fruit_from_name, makeplural, makesingular,
     matching_artifact_fruit,
 } from './fruit.js';
-import { obj_pmname, pmname } from './do_name.js';
+import { noit_mon_nam, obj_pmname } from './do_name.js';
+import { doffing, donning } from './do_wear.js';
 import { tin_details } from './eat.js';
 import { game } from './gstate.js';
-import { currency } from './invent.js';
+import { count_contents, currency } from './invent.js';
 import {
     digit, dist2, encodeUtf8ByteString, highc, lowc, mungspaces, s_suffix,
     strcasecpy, strstri, truncateByteString,
 } from './hacklib.js';
-import { get_obj_location } from './light.js';
+import { arti_light_description, find_mid, get_obj_location } from './light.js';
 import { cansee } from './vision.js';
 import { body_part } from './polyself.js';
 import { RIGHT_HANDED } from './u_init.js';
@@ -48,6 +51,7 @@ import {
 } from './monsters.js';
 import { type_is_pname } from './mondata.js';
 import { genders } from './roles.js';
+import { peek_timer } from './timeout.js';
 import { CapitalMon } from './random_text.js';
 import { observe_object } from './o_init.js';
 import {
@@ -67,7 +71,7 @@ import {
     CHEST, COIN_CLASS, CORPSE, CRYSKNIFE, DIAMOND, DILITHIUM_CRYSTAL, EGG,
     ELVEN_SHIELD, EMERALD, FAKE_AMULET_OF_YENDOR, FIGURINE, FLINT, FOOD_CLASS,
     GEMSTONE, GEM_CLASS, GRAY_DRAGON_SCALE_MAIL, GRAY_DRAGON_SCALES, IRON,
-    LARGE_BOX, LENSES, MAGIC_HARP, MAGIC_LAMP, MINERAL, MITHRIL,
+    LARGE_BOX, LEASH, LENSES, MAGIC_HARP, MAGIC_LAMP, MEAT_RING, MINERAL, MITHRIL,
     MAXOCLASSES,
     MUMMY_WRAPPING, OBJ_DESCR, OBJ_NAME, OIL_LAMP, OPAL, ORCISH_SHIELD,
     POTION_CLASS, POT_OIL, POT_WATER, RING_CLASS, ROBE, ROCK_CLASS, RUBY,
@@ -89,6 +93,7 @@ import {
 // naming helpers from this file in turn; the cycle is safe because neither
 // side calls the other during module evaluation.
 import { Glib } from './wield.js';
+import { note_unported } from './unported.js';
 
 // C ref: objnam.c erosion_matters() (1197-1215). obj.js exports a
 // compatibility adapter for its existing callers; keep the source-owned
@@ -162,6 +167,9 @@ function sourceDescription(obj, type, state, actual) {
 
 // C objnam.c reserves PREFIX bytes for doname's prefixes in each BUFSZ buffer.
 const PREFIX = 80;
+const DONAME_WITH_PRICE = 1;
+const DONAME_VAGUE_QUAN = 2;
+const DONAME_FOR_MENU = 4;
 
 // C ref: objnam.c xcalled():558–572. JavaScript returns the appended buffer;
 // siz includes the terminating NUL, and only the user-supplied suffix truncates.
@@ -421,32 +429,8 @@ function preflightXname(obj, state) {
         unsupported('end-of-game object text', obj);
 }
 
-function preflightDoname(obj, type, state) {
+function preflightDoname(obj, state) {
     preflightXname(obj, state);
-    const { cknown } = identificationFlags(obj, type, state);
-    // objnam.c:1563 and :1592. wornSuffix() below ports the "wielded in" and
-    // "weapon in" arms of that word choice; "tethered to" would also have to
-    // follow the aklys back to the hand it is attached to, so it still stops.
-    if ((obj.owornmask & W_WEP) && obj.otyp === AKLYS)
-        unsupported('tethered weapon suffix', obj);
-    // objnam.c:1391 names uskin " (embedded in your skin)" instead of
-    // " (being worn)". wornSuffix() below emits only the latter, so dragon
-    // scales fused to a polymorphed hero must still refuse. Only two lines
-    // set uskin: polyself.c break_armor():656, which fuses them, and
-    // worn.c setworn():80, which restores the fusion from a saved game.
-    // Neither is ported, so nothing reaches this today.
-    if ((obj.owornmask & W_ARMOR) && obj === state.u?.uskin)
-        unsupported('skin-embedded armor suffix', obj);
-    if (obj.owornmask && obj.lamplit)
-        unsupported('lit worn-object suffix', obj);
-    // These two judge emptiness by charges rather than contents, and the
-    // charge suffix that makes the prefix redundant is a separate branch.
-    if (cknown
-        && (obj.otyp === BAG_OF_TRICKS || obj.otyp === HORN_OF_PLENTY)) {
-        unsupported('charge-based emptiness', obj);
-    }
-    if (isCandle(obj) && obj.lamplit)
-        unsupported('lit candle timer adjustment', obj);
 }
 function xnameBase(obj, type, state, ident) {
     const knownType = ident.nameKnown;
@@ -1135,21 +1119,14 @@ function corpseDoname(obj, modifiers, state) {
 // observe_object() as it formats, so a caller that must not change discovery
 // state until every object is nameable runs this over all of them first.
 export function assertObjectNameable(obj, state = game) {
-    preflightDoname(obj, objectType(obj, state), state);
+    preflightDoname(obj, state);
 }
 
 // C refs: objnam.c doname_base(DONAME_WITH_PRICE) and invent.c currency().
 // This check is mutation-free so movement can refuse every pile member before
 // the hero, discovery catalog, quote catalog, or display changes.
 export function assertPricedObjectNameable(obj, state = game) {
-    const type = objectType(obj, state);
-    preflightDoname(obj, type, state);
-    const hallucination = state.u?.uprops?.[HALLUC];
-    const resistance = state.u?.uprops?.[HALLUC_RES];
-    if (hallucination?.intrinsic
-        && !(resistance?.intrinsic || resistance?.extrinsic)) {
-        unsupported('hallucinated currency', obj);
-    }
+    preflightDoname(obj, state);
     return get_cost_of_shop_item(obj, state, { observed: true });
 }
 
@@ -1158,26 +1135,13 @@ export function assertPricedObjectNameable(obj, state = game) {
 // and quiver phrases follow the charge and lit text, which is the order the
 // port assembles them in too.
 //
-// objnam.c:1391-1395 prefers " (being doffed)" or " (being donned)" over
-// " (being worn)" while a Wear or Take-off is under way, and its own comment
-// names a perm_invent redraw as the case that reaches it. Both windows are
-// open in this port, and there are more of them than there once were. Doffing
-// holds only for the suit, whose armoroff() leaves ga.afternmv at Armor_off;
-// armoroff() refuses the other delayed slots. Donning holds for every slot
-// whose oc_delay is non-zero, which accessory_or_armor_on() now reaches for
-// four of them: the suit at 0 to 5 turns, spread as objects.h gives it, with
-// the leather jacket at 0 opening no window at all, both mithril-coats at 1,
-// leather and studded leather armor at 3 and the remaining thirty rows at 5;
-// the helmet at 1 for all but the fedora and the dented pot; the gloves at 1
-// and the boots at 2. Neither ever
-// reaches a name, because
-// nothing in this port redraws inventory on its own and moveloop_core() reads
-// no key while gm.multi is negative, so nothing is formatted inside either
-// window.
+// C ref: objnam.c:1391-1621. Keep the class-switch worn text and the later
+// weapon/swap/quiver suffixes in this source order.
 function wornSuffix(obj, type, state) {
     const mask = obj.owornmask ?? 0;
     if (!mask) return '';
-    const classForSuffix = is_weptool(obj, state) ? WEAPON_CLASS : obj.oclass;
+    const classForSuffix = obj.otyp === MEAT_RING ? RING_CLASS
+        : is_weptool(obj, state) ? WEAPON_CLASS : obj.oclass;
     let suffix = '';
     // objnam.c:1540-1546. Punishment's ball and chain are named before the
     // remaining worn-mask phrases; W_BALL takes precedence when both bits
@@ -1186,20 +1150,24 @@ function wornSuffix(obj, type, state) {
         && (mask & (W_BALL | W_CHAIN))) {
         suffix += ` (${mask & W_BALL ? 'chained' : 'attached'} to you)`;
     }
-    if ((classForSuffix === AMULET_CLASS && (mask & W_AMUL))
-        || (classForSuffix === ARMOR_CLASS && (mask & W_ARMOR))
+    if (classForSuffix === ARMOR_CLASS && (mask & W_ARMOR)) {
+        const phrase = obj === state.uskin ? 'embedded in your skin'
+            : doffing(obj, state) ? 'being doffed'
+                : donning(obj, state) ? 'being donned' : 'being worn';
+        suffix += ` (${phrase})`;
+        // objnam.c:1404-1406 changes the just-written closing paren for
+        // slippery gloves, then :1410-1414 adds an artifact's light text.
+        if (obj === state.uarmg && Glib(state) && suffix.endsWith(')'))
+            suffix = `${suffix.slice(0, -1)}; slippery)`;
+        if (!heroIsBlind(state) && obj.lamplit && artifact_light(obj)
+            && suffix.endsWith(')')) {
+            suffix = `${suffix.slice(0, -1)}, ${arti_light_description(
+                obj, state,
+            )} lit)`;
+        }
+    } else if ((classForSuffix === AMULET_CLASS && (mask & W_AMUL))
         || (classForSuffix === TOOL_CLASS && (mask & (W_TOOL | W_SADDLE)))) {
         suffix += ' (being worn)';
-        // objnam.c:1404-1406. Slippery fingers are a condition of the hero,
-        // not of the gloves, but C describes worn gloves as slippery while she
-        // has them: Concat(bp, 1, "; slippery)") backs up over the closing
-        // paren it just wrote, turning "(being worn)" into
-        // "(being worn; slippery)". C guards that with bp_eos[-1] == ')' at
-        // :1401 in case the name overran BUFSZ and lost the paren. This port
-        // builds names as JavaScript strings with no length bound, so the
-        // paren is always the last character here and the guard is vacuous.
-        if (obj === state.uarmg && Glib(state))
-            suffix = `${suffix.slice(0, -1)}; slippery)`;
     }
     // objnam.c:1492-1499. Ring class adds "(on right hand)" or "(on left hand)"
     // based on which ring slot the hero wears it in. body_part(HAND) adapts
@@ -1231,10 +1199,26 @@ function wornSuffix(obj, type, state) {
                 ? makeplural(hand)
                 : `${state.u.uhandedness === RIGHT_HANDED ? 'right' : 'left'
                 } ${hand}`;
-            // objnam.c:1591-1595. The "tethered to" arm of the same choice is
-            // an AKLYS, which preflightDoname() refuses above.
-            suffix += ` (${twoweapPrimary ? 'wielded in' : 'weapon in'
-            } ${hands})`;
+            // objnam.c:1591-1595. An AKLYS uses the dedicated tethered phrase
+            // while every other single weapon follows the same hand choice.
+            const handPrefix = obj.otyp === AKLYS ? 'tethered to'
+                : twoweapPrimary ? 'wielded in' : 'weapon in';
+            suffix += ` (${handPrefix} ${hands})`;
+            const warnCount = Math.trunc(state.warn_obj_cnt ?? 0);
+            const warnOfMon = Math.trunc(
+                state.u?.uprops?.[WARN_OF_MON]?.extrinsic ?? 0,
+            );
+            if (!heroIsBlind(state) && suffix.endsWith(')')
+                && warnCount && obj === state.uwep && (warnOfMon & W_WEP)) {
+                suffix = `${suffix.slice(0, -1)}, ${glow_verb(
+                    warnCount, true,
+                )} ${glow_color(obj.oartifact, state)})`;
+            } else if (!heroIsBlind(state) && suffix.endsWith(')')
+                && obj.lamplit && artifact_light(obj)) {
+                suffix = `${suffix.slice(0, -1)}, ${arti_light_description(
+                    obj, state,
+                )} lit)`;
+            }
         }
     }
     if (mask & W_SWAPWEP) {
@@ -1608,33 +1592,37 @@ export function Yname2(obj, state = game) {
     return highc(s[0]) + s.slice(1);
 }
 
-// C ref: objnam.c doname(). Shop, known-container, worn-item, end-game, and
-// lit-candle branches stop before xname() can mutate discovery state. The
-// private pricing flags are owned by doname_with_price(). The remembered
-// quote is part of ordinary doname(), while a live price is appended by the
-// caller after this ordinary name is complete.
-function donameFreshInternal(
+// C ref: objnam.c doname_base() (1223-1752). `xname()` is deliberately first;
+// every flag below is read after its source-ordered discovery updates.
+function doname_base(
     obj,
-    state,
-    { allowLiveShopPrice = false, includeRememberedPriceQuote = false } = {},
+    donameFlags = 0,
+    state = game,
+    { currencyName = currency } = {},
 ) {
+    const withPrice = Boolean(donameFlags & DONAME_WITH_PRICE);
+    const vagueQuantity = Boolean(donameFlags & DONAME_VAGUE_QUAN);
+    const forMenu = Boolean(donameFlags & DONAME_FOR_MENU);
     const type = objectType(obj, state);
-    preflightDoname(obj, type, state);
+    preflightDoname(obj, state);
+    const omndx = Math.trunc(obj.corpsenm ?? NON_PM);
     let base = xnameFresh(obj, state);
-    // C ref: objnam.c doname_base():1254-1262, which reads these after its own
-    // `bp = xname(obj)` at :1247. xnameFresh() above can clear obj.known for
-    // an undiscovered unique type, so the order matters here as it does there.
+    const xnameResult = base;
+    // objnam.c:1254-1262 reads these after `bp = xname(obj)` at :1247;
+    // xnameFresh() can clear known for an undiscovered unique object.
     const ident = identificationFlags(obj, type, state);
     const quantity = Math.trunc(obj.quan);
     const modifiers = [];
+    const fakeArtifact = obj.otyp === SLIME_MOLD
+        ? matching_artifact_fruit(xnameResult, state) : null;
     const buc = bucWord(obj, type, state, ident);
     if (buc) modifiers.push(buc);
-    // C ref: objnam.c doname(). "empty" comes first, before the blessed or
-    // uncursed word, when the contents are known and there are none. A bag of
-    // tricks or horn of plenty judges emptiness by its charges instead, and
-    // both stop above.
-    if (ident.cknown && (isContainer(obj) || obj.otyp === STATUE)
-        && !hasContents(obj)) {
+    // objnam.c:1291-1300. Known bags of tricks and horns judge emptiness by
+    // charges; other containers and statues use their known content chain.
+    if (ident.cknown
+        && ((obj.otyp === BAG_OF_TRICKS || obj.otyp === HORN_OF_PLENTY)
+            ? obj.spe === 0 && !ident.known
+            : (isContainer(obj) || obj.otyp === STATUE) && !hasContents(obj))) {
         modifiers.unshift('empty');
     }
     // A box announces a known trap and its known lock state before the
@@ -1648,25 +1636,17 @@ function donameFreshInternal(
         );
     }
     if (obj.greased) modifiers.push('greased');
-    // C ref: objnam.c doname_base():1373-1380. Append " containing N items"
-    // when the container's contents are known and non-empty. The inline count
-    // is count_contents(obj, FALSE, FALSE, TRUE, FALSE) -- every stack counted
-    // once, no nesting -- avoiding a circular import from invent.js.
-    if (ident.cknown && hasContents(obj)) {
-        let itemcount = 0;
-        for (let o = obj.cobj; o; o = o.nobj) itemcount++;
+    // objnam.c:1373-1380 counts top-level stacks, not quantities or nested
+    // contents. Keep invent.c's count_contents as the one implementation.
+    if (ident.cknown && hasContents(obj)
+        && encodeUtf8ByteString(base).length < BUFSZ - PREFIX - 1) {
+        const itemcount = count_contents(obj, false, false, true, false, state);
         base += ` containing ${itemcount} item${itemcount !== 1 ? 's' : ''}`;
     }
-    // C ref: objnam.c doname_base():1382. One switch on
-    // `is_weptool(obj) ? WEAPON_CLASS : obj->oclass` picks both the prefix
-    // words below and the parenthesized suffix further down, so a weapon-tool
-    // takes the enchantment prefix and never reaches the `charges:` label at
-    // :1484. This port splits that switch three ways rather than two: the
-    // prefix switch below, the suffix chain further down, and wornSuffix() at
-    // :745, which holds the switch's AMULET_CLASS, ARMOR_CLASS and TOOL_CLASS
-    // worn arms. All three derive the class the same way; wornSuffix() computes
-    // it for itself because it is called from elsewhere too.
+    // objnam.c:1382-1537. One class switch determines prefix words and tool,
+    // charge, candle, corpse, egg and ring-specific suffixes.
     const nameClass = is_weptool(obj, state) ? WEAPON_CLASS : obj.oclass;
+    let allowToolChargeSuffix = true;
     switch (nameClass) {
     case WEAPON_CLASS:
     case ARMOR_CLASS:
@@ -1678,10 +1658,44 @@ function donameFreshInternal(
         if (ident.known) modifiers.push(signed(obj.spe));
         break;
     case TOOL_CLASS:
-        if (isCandle(obj)) {
-            const fullBurnTime = 20 * type.oc_cost;
-            if (obj.age < fullBurnTime)
-                modifiers.push('partly used');
+        if (obj.owornmask & (W_TOOL | W_SADDLE)) {
+            allowToolChargeSuffix = false;
+            break;
+        }
+        if (obj.otyp === LEASH && obj.leashmon) {
+            const monster = find_mid(obj.leashmon, FM_FMON, state);
+            if (monster && monster.mhp >= 1) {
+                base += ` (attached to ${noit_mon_nam(monster, state)})`;
+            } else {
+                note_unported('pline.c impossible');
+                obj.leashmon = 0;
+            }
+            allowToolChargeSuffix = false;
+            break;
+        }
+        if (obj.otyp === CANDELABRUM_OF_INVOCATION) {
+            const candles = Math.trunc(obj.spe);
+            base += ` (${candles} of 7 candle${plur(candles)}`
+                + `${obj.lamplit ? ', lit' : ' attached'})`;
+            allowToolChargeSuffix = false;
+            break;
+        }
+        if (obj.otyp === OIL_LAMP || obj.otyp === MAGIC_LAMP
+            || obj.otyp === BRASS_LANTERN || isCandle(obj)) {
+            if (isCandle(obj)) {
+                const fullBurnTime = 20 * Math.trunc(type.oc_cost);
+                let turnsLeft = Math.trunc(obj.age);
+                if (obj.lamplit) {
+                    // timeout.c:1471 obtains the absolute BURN_OBJECT timer;
+                    // subtracting current moves recovers its remaining burn.
+                    turnsLeft += peek_timer(BURN_OBJECT, obj, state)
+                        - Math.trunc(state.moves ?? 0);
+                }
+                if (turnsLeft < fullBurnTime)
+                    modifiers.push('partly used');
+            }
+            if (obj.lamplit) base += ' (lit)';
+            allowToolChargeSuffix = false;
         }
         break;
     case RING_CLASS:
@@ -1690,6 +1704,28 @@ function donameFreshInternal(
         break;
     case FOOD_CLASS:
         if (obj.oeaten) modifiers.push('partly eaten');
+        if (obj.otyp === CORPSE) {
+            const countPrefix = quantity !== 1
+                ? (ident.dknown || !vagueQuantity
+                    ? String(quantity) : 'some') : '';
+            const adjective = [countPrefix, ...modifiers].filter(Boolean)
+                .join(' ');
+            const corpseFlags = (quantity === 1 ? CXN_ARTICLE : 0)
+                | CXN_NOCORPSE;
+            base = `${corpse_xname(obj, adjective, corpseFlags, state)} `
+                + `corpse${plur(quantity)}`;
+            if (obj.oextra?.oname && ident.dknown)
+                base += ` named ${obj.oextra.oname}`;
+            modifiers.length = 0;
+        } else if (obj.otyp === EGG && ismnum(omndx)
+            && (ident.known
+                || (state.mvitals?.[omndx]?.mvflags & MV_KNOWS_EGG))) {
+            base = `${state.mons[omndx].pmnames[NEUTRAL]} ${base}`;
+            if (obj.spe === 1) base += ' (laid by you)';
+        } else if (obj.otyp === MEAT_RING) {
+            if (ident.known && type.oc_charged)
+                modifiers.push(signed(obj.spe));
+        }
         break;
     case BALL_CLASS:
     case CHAIN_CLASS:
@@ -1699,107 +1735,92 @@ function donameFreshInternal(
     default:
         break;
     }
-    if (obj.otyp === CORPSE)
-        return appendUnpaidPrice(corpseDoname(obj, modifiers, state), obj, state);
-    if (obj.otyp === EGG && obj.corpsenm !== NON_PM && ident.known) {
-        base = `${pmname(state.mons[obj.corpsenm], NEUTRAL)} ${base}`;
-        if (obj.spe === 1) base += ' (laid by you)';
-    }
-    if (obj.otyp === CANDELABRUM_OF_INVOCATION) {
-        const candles = Math.trunc(obj.spe);
-        base += ` (${candles} of 7 candle${candles === 1 ? '' : 's'}`
-            + `${obj.lamplit ? ', lit' : ' attached'})`;
-    } else if (obj.otyp === OIL_LAMP
-        || obj.otyp === MAGIC_LAMP
-        || obj.otyp === BRASS_LANTERN
-        || isCandle(obj)) {
-        if (obj.lamplit) base += ' (lit)';
-    } else if (obj.otyp === POT_OIL && obj.lamplit) {
+    if (nameClass === POTION_CLASS && obj.otyp === POT_OIL && obj.lamplit) {
         base += ' (lit)';
     } else if (nameClass === WAND_CLASS
-        || (nameClass === TOOL_CLASS && type.oc_charged)) {
+        || (nameClass === TOOL_CLASS && type.oc_charged
+            && allowToolChargeSuffix)) {
         base += chargedSuffix(obj, type, ident.known);
     }
-    // objnam.c:1549-1559 sits between the class switch above and the
-    // owornmask suffixes wornSuffix() holds, and this is that position. The
-    // CORPSE arm of the same branch is in corpseDoname(), which the early
-    // return above took.
+    // objnam.c:1549-1621 adds wizard gender before every owornmask phrase.
     base += wizmgenderSuffix(obj, state);
     base += wornSuffix(obj, type, state);
-    base = appendUnpaidPrice(base, obj, state);
-    // C ref: objnam.c doname_base():1750-1752. This runs after the worn
-    // suffixes but before the article prefix is prepended. The live-price
-    // caller enables the same remembered fallback for contained objects;
-    // when a positive live price exists, its caller appends that suffix after
-    // this ordinary name and does not request the remembered one.
-    if (!state.iflags?.suppress_price && !state.program_state?.restoring
-        && !is_unpaid(obj)
-        && includeRememberedPriceQuote && state.iflags?.pricequotes
+
+    // objnam.c:1648-1749 performs unpaid/live/remembered pricing, then adds
+    // wizard weight before the constructed prefix is prepended.
+    const pricesSuppressed = Boolean(
+        state.iflags?.suppress_price || state.program_state?.restoring,
+    );
+    if (!pricesSuppressed && is_unpaid(obj)) {
+        const quotedprice = unpaid_cost(obj, COST_CONTENTS, state);
+        base += ` (${obj.unpaid ? 'unpaid' : 'contents'}, ${quotedprice} ${
+            currencyName(quotedprice, state)})`;
+        record_price_quote(
+            obj.otyp, Math.trunc(quotedprice / obj.quan), true, state,
+        );
+    } else if (!pricesSuppressed && withPrice) {
+        const quote = get_cost_of_shop_item(obj, state);
+        if (quote.cost > 0) {
+            base += ` (${quote.noCharge ? 'contents' : 'for sale'}, `
+                + `${quote.cost} ${currencyName(quote.cost, state)})`;
+            record_price_quote(
+                obj.otyp, Math.trunc(quote.cost / obj.quan), true, state,
+            );
+        } else if (quote.noCharge) {
+            base += ' (no charge)';
+        } else if (state.iflags?.pricequotes && !type.oc_name_known) {
+            base += append_price_quote(base, obj.otyp, state);
+        }
+    } else if (!pricesSuppressed && state.iflags?.pricequotes
         && !type.oc_name_known) {
         base += append_price_quote(base, obj.otyp, state);
     }
-    const words = [...modifiers, base].join(' ');
-    if (quantity !== 1)
-        return `${quantity} ${words}`;
-    const fakeArtifact = obj.otyp === SLIME_MOLD
-        ? matching_artifact_fruit(base, state) : null;
-    if (fakeArtifact?.forceThe
+
+    // The C buffer starts at PREFIX for xname() and appends suffixes only
+    // through BUFSZ - 1. Match those sequential Concat() writes before the
+    // separately held prefix is prepended below.
+    base = truncateByteString(base, BUFSZ - PREFIX - 1);
+    const corpsePrefixConsumed = obj.otyp === CORPSE;
+    let words = [...modifiers, base].filter(Boolean).join(' ');
+    if (state.wizard && state.iflags?.wizweight) {
+        const amount = `${Math.trunc(obj.owt)} aum`;
+        if (withPrice && words.endsWith(')'))
+            words = `${words.slice(0, -1)}, ${amount})`;
+        else
+            words += ` (${amount})`;
+    }
+    if (corpsePrefixConsumed) {
+        // corpse_xname() already supplied both its article and any stack count.
+    } else if (quantity !== 1) {
+        words = `${ident.dknown || !vagueQuantity ? quantity : 'some'} ${words}`;
+    } else if (fakeArtifact?.forceThe
         || obj_is_pname(obj, state)
         || theUniqueObject(obj, type, state)) {
-        return `the ${words.replace(/^the /iu, '')}`;
+        words = `the ${words.replace(/^the /iu, '')}`;
+    } else if (!fakeArtifact) {
+        words = articleName(words);
     }
-    if (fakeArtifact) return words;
-    return articleName(words);
+
+    const byteLength = encodeUtf8ByteString(words).length;
+    if (byteLength > BUFSZ - 1)
+        throw new RangeError('doname: long object description overflow.');
+    const menuOffset = forMenu ? 4 : 0;
+    if (byteLength + menuOffset >= BUFSZ - 1)
+        words = truncateByteString(words, BUFSZ - 1 - menuOffset);
+    return words;
 }
 
 // C ref: objnam.c doname_base() (1648-1664), shared by ordinary inventory
 // names and the existing separate corpse formatter.
-function appendUnpaidPrice(name, obj, state) {
-    if (state.iflags?.suppress_price || state.program_state?.restoring
-        || !is_unpaid(obj)) return name;
-    const quotedprice = unpaid_cost(obj, COST_CONTENTS, state);
-    const result = `${name} (${obj.unpaid ? 'unpaid' : 'contents'}, ${
-        quotedprice} ${currency(quotedprice, state)})`;
-    record_price_quote(obj.otyp, Math.trunc(quotedprice / obj.quan), true, state);
-    return result;
-}
-
-export function donameFresh(obj, state) {
-    return donameFreshInternal(obj, state, {
-        includeRememberedPriceQuote: true,
-    });
-}
-
-// C ref: doname_base(DONAME_WITH_PRICE)'s floor/container branch. The
-// shopkeeper's `nochrg` flag labels a positive contained-only price as
-// "contents"; it does not turn that price into "no charge".
-function appendLiveShopPrice(name, obj, quote, currencyName, state) {
-    if (!quote.applicable) return donameFresh(obj, state);
-    if (quote.cost > 0) {
-        const label = quote.noCharge && quote.contentsCost > 0
-            ? 'contents' : 'for sale';
-        const suffix = `${quote.cost} ${currencyName(quote.cost, state)}`;
-        const result = `${name} (${label}, ${suffix})`;
-        // get_cost_of_shop_item() totals get_pricing_units(), but C remembers
-        // the displayed quote per object quantity, which can be a different
-        // divisor.
-        record_price_quote(obj.otyp, quote.cost / obj.quan, true, state);
-        return result;
-    }
-    if (quote.noCharge) return `${name} (no charge)`;
-    return name;
+export function donameFresh(obj, state = game) {
+    return doname_base(obj, 0, state);
 }
 
 // C ref: objnam.c doname_vague_quan(). Farlook keeps an unknown stack's
 // quantity vague while preserving the ordinary doname formatter for every
 // other object and identification state.
 export function doname_vague_quan(obj, state = game) {
-    const name = donameFresh(obj, state);
-    if (obj.quan !== 1 && !obj.dknown
-        && !state.iflags?.override_ID) {
-        return name.replace(/^\d+ /u, 'some ');
-    }
-    return name;
+    return doname_base(obj, DONAME_VAGUE_QUAN, state);
 }
 
 // C ref: objnam.c Doname2() (2303-2309).
@@ -1853,44 +1874,9 @@ export function paydoname(obj, state = game) {
 export function doname_with_price(
     obj,
     state,
-    { currencyName } = {},
+    { currencyName = currency } = {},
 ) {
-    if (state.iflags?.suppress_price || state.program_state?.restoring
-        || is_unpaid(obj)) return donameFresh(obj, state);
-    if (obj.where !== OBJ_FLOOR) {
-        if (obj.where !== OBJ_CONTAINED && obj.where !== OBJ_INVENT
-            && obj.where !== OBJ_MINVENT)
-            unsupported('non-floor price suffix', obj);
-        preflightDoname(obj, objectType(obj, state), state);
-        if (obj.where === OBJ_CONTAINED) {
-            const name = donameFreshInternal(obj, state, {
-                allowLiveShopPrice: true,
-            });
-            const quote = get_cost_of_shop_item(obj, state);
-            return appendLiveShopPrice(
-                name,
-                obj,
-                quote,
-                currencyName,
-                state,
-            );
-        }
-        // Paid inventory items fall through to the remembered-price branch;
-        // unpaid inventory and container contents were handled above.
-        return donameFreshInternal(obj, state, {
-            allowLiveShopPrice: true,
-            includeRememberedPriceQuote: true,
-        });
-    }
-    if (typeof currencyName !== 'function')
-        throw new TypeError('doname_with_price needs the currency owner');
-    let name;
-    assertPricedObjectNameable(obj, state);
-    name = donameFreshInternal(obj, state, {
-        allowLiveShopPrice: true,
-    });
-    const quote = get_cost_of_shop_item(obj, state);
-    return appendLiveShopPrice(name, obj, quote, currencyName, state);
+    return doname_base(obj, DONAME_WITH_PRICE, state, { currencyName });
 }
 
 // C ref: objnam.c distant_name(). Format an object seen from wherever the

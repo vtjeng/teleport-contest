@@ -3858,12 +3858,10 @@ test('a sighted hero looks at an ordinary corpse without stopping',
     assert.equal(game.context.move, 0);
 });
 
-test('the inventory command stops before drawing an unformattable item',
+test('the inventory command draws a charge-known bag of tricks',
     async () => {
-    // Every starting pack formats, so this turns the Rogue's sack into a bag
-    // of tricks: with cknown already set, the charge-based emptiness branch
-    // fires. The stop has to leave the screen and the keystroke exactly as
-    // the admission seam would.
+    // The Rogue supplies a known-empty sack; replacing its type reaches C's
+    // known-charge bag case, where the inventory menu names its (0:0) charges.
     const replay = await runSegment({
         seed: 840022,
         datetime: COMMAND_DATETIME,
@@ -3879,39 +3877,33 @@ test('the inventory command stops before drawing an unformattable item',
     assert.ok(sack, 'the Rogue carries a sack');
     assert.ok(sack.cknown, 'the Rogue knows the sack is empty');
     sack.otyp = BAG_OF_TRICKS;
+    // The fixture means to exercise the identified type's full name, just as
+    // the known-empty flag above exercises its charge suffix.
+    game.objects[BAG_OF_TRICKS].oc_name_known = true;
     const key = commandKeyCode('i');
-    const screens = replay.getScreens().length;
     const startingMoves = game.moves;
-    const discoveryState = () => game.objects.map((type) => [
-        type.oc_name_known, type.oc_encountered,
-    ]);
-    const discoveryBefore = discoveryState();
+    const inputScreens = [];
+    const readKey = game.nhDisplay.readKey.bind(game.nhDisplay);
+    game.nhDisplay.readKey = (options) => {
+        inputScreens.push(game.nhDisplay.grid
+            .map((row) => row.map(({ ch }) => ch).join(''))
+            .join('\n'));
+        return readKey(options);
+    };
     game.nhDisplay.pushKey(key);
-
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === key
-            && /charge-based emptiness/u.test(error.message),
-    );
+    // Escape closes the inventory menu after its first selectable row.
+    game.nhDisplay.pushKey(27);
+    try {
+        await moveloop_core();
+    } finally {
+        game.nhDisplay.readKey = readKey;
+    }
 
     assert.equal(game.context.move, 0);
     assert.equal(game.moves, startingMoves);
-    // Formatting a name marks its type discovered, so a refusal part-way
-    // through the pack would leave earlier items discovered. Nothing may
-    // move.
-    assert.deepEqual(discoveryState(), discoveryBefore);
-    // One capture for the prompt the refused keystroke was read at, and no
-    // menu cells anywhere on it.
-    assert.equal(replay.getScreens().length, screens + 1);
-    assert.deepEqual(replay.getScreens().at(-1), replay.getScreens().at(-2));
-    assert.deepEqual(replay.getRngSlices().at(-1), []);
-    // The retry contract: pressing it again reaches the same stop.
-    game.nhDisplay.pushKey(key);
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError,
-    );
+    assert.ok(inputScreens.some((screen) => /bag of tricks \(0:0\)/u
+        .test(screen)), inputScreens.join('\n--- input ---\n'));
+    assert.equal(replay.getRngSlices().at(-1).length, 0);
 });
 
 test('Escape at a command prompt prints nothing and takes no time',

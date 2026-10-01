@@ -15,6 +15,7 @@ import {
     LOST_NONE,
     LOST_STOLEN,
     LOST_THROWN,
+    LS_OBJECT,
     NON_PM,
     OBJ_FLOOR,
     OBJ_FREE,
@@ -33,7 +34,6 @@ import { game } from '../js/gstate.js';
 import { count_unpaid } from '../js/invent.js';
 import { AT_ENGL, PM_WOOD_NYMPH } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
-import { UnsupportedObjectNameError } from '../js/objnam.js';
 import {
     findgold,
     mpickobj,
@@ -44,6 +44,7 @@ import {
     UnsupportedMonsterPickupOperationError,
 } from '../js/steal.js';
 import { runSegment } from '../js/jsmain.js';
+import { light_globals_init, new_light_source } from '../js/light.js';
 import { init_objects } from '../js/o_init.js';
 import {
     APPLE,
@@ -887,17 +888,12 @@ test('a dropped wielded weapon is unwielded before it lands', async () => {
     assert.equal(wielder.held.owornmask, 0);
 });
 
-test('a dropped lamplit suit of armor stops before its light is ended',
+test('a dropped lamplit suit is named before its light is ended',
     async () => {
-        // worn.c extract_from_minvent():1399-1400 ends the light on a worn
-        // object that artifact_light() recognizes, and js/worn.js asks for the
-        // endArtifactLight hook there. mdrop_obj() supplies no such hook, so
-        // something ahead of that arm has to stop this drop, and it is
-        // steal.c:823's distant_name(): the port's doname() refuses any lamplit
-        // worn object, which is wider than the arm's own W_ARM test, before
-        // extract_from_minvent() is reached. Remove that refusal and this drop
-        // throws worn.js's bare "worn requires endArtifactLight" Error, which
-        // js/jsmain.js does not recognize as a boundary.
+        // worn.c extract_from_minvent():1399-1400 ends a worn object's light
+        // before steal.c mdrop_obj() places it. Initialize the same object
+        // light source that end_burn() must remove so the test proves naming
+        // runs first and extraction completes in source order.
         const lit = dropFixture({
             // Gold dragon scale mail worn as W_ARM is what artifact.c
             // artifact_light():2268-2270 calls lit armor; nothing else a
@@ -910,16 +906,20 @@ test('a dropped lamplit suit of armor stops before its light is ended',
             },
             carrier: { mhp: 0, misc_worn_check: W_ARM },
         });
-
-        await assert.rejects(
-            relobj(lit.carrier, 0, false, lit.env),
-            (error) => error instanceof UnsupportedObjectNameError
-                && error.branch === 'lit worn-object suffix',
+        light_globals_init(lit.gameState);
+        new_light_source(
+            DROP_X, DROP_Y, 1, LS_OBJECT, lit.held, lit.gameState,
         );
-        // The name is taken first, so the suit has not left minvent and still
-        // carries the mask extract_from_minvent() would have read.
-        assert.equal(lit.held.where, OBJ_MINVENT);
-        assert.equal(lit.held.owornmask, W_ARM);
+
+        await relobj(lit.carrier, 0, true, lit.env);
+
+        assert.equal(lit.carrier.minvent, null);
+        assert.equal(lit.held.where, OBJ_FLOOR);
+        assert.equal(lit.held.owornmask, 0);
+        assert.equal(lit.held.lamplit, false);
+        assert.equal(lit.gameState.gl.light_base, null);
+        assert.equal(lit.messages.length, 1);
+        assert.match(lit.messages[0], /drops .*gold dragon scale mail/u);
     });
 
 // ── mdrop_obj()'s saddle no_charge exemption (steal.c 826-832) ──

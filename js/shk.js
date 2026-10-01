@@ -10,17 +10,20 @@
 
 import {
     A_CHA,
+    ACID_RES,
     ARTICLE_THE,
     BILLSZ,
     ANY_SHOP,
     ACH_SHOP,
     BUFSZ,
+    COLD_RES,
     COST_CONTENTS,
     COST_SINGLEOBJ,
     CONTAINED_TOO,
     CONFLICT,
     DETECT_MONSTERS,
     DEAF,
+    DISINT_RES,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -57,17 +60,26 @@ import {
     RLOC_NOMSG,
     ROOMOFFSET,
     SHOPBASE,
+    FIRE_RES,
+    POISON_RES,
+    SHOCK_RES,
+    SLEEP_RES,
+    STONE_RES,
     TELEPAT,
+    TELEPORT,
+    TELEPORT_CONTROL,
     Upolyd,
     plur,
     u_at,
 } from './const.js';
 import { acurr, adjalign } from './attrib.js';
+import { arti_cost } from './artifacts.js';
 import { yn_function } from './cmd.js';
 import { bot, map_invisible } from './display.js';
 import { assign_level, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
+import { intrinsic_possible } from './eat.js';
 import { dist2, online2, sgn, s_suffix, strncmpi } from './hacklib.js';
 import { inv_cnt, nh_delay_output } from './hack.js';
 import {
@@ -91,32 +103,52 @@ import { angry_guards, mnearto, mongone, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
     carried, dealloc_obj, hasContents, isCandle, is_pick,
-    newObject, next_ident, newomid, objectType, sobj_at, splitobj,
+    newObject, next_ident, newomid, objectType, sobj_at, splitobj, weight,
 } from './obj.js';
 import {
+    AGATE,
+    AMBER,
+    AMETHYST,
     ARMOR_CLASS,
     BALL_CLASS,
+    BLACK_OPAL,
+    CHRYSOBERYL,
     COIN_CLASS,
     CORPSE,
+    CITRINE,
     DUNCE_CAP,
+    DIAMOND,
     DWARVISH_MATTOCK,
+    EMERALD,
     EGG,
+    FLUORITE,
     FOOD_CLASS,
     GEM_CLASS,
     GEMSTONE,
     GLASS,
+    FIRST_GLASS_GEM,
     FIRST_REAL_GEM,
+    JADE,
+    JACINTH,
+    JASPER,
+    JET,
     LARGE_BOX,
     MIRROR,
+    OPAL,
     POTION_CLASS,
     POT_WATER,
     PICK_AXE,
+    RUBY,
+    SAPPHIRE,
     SCROLL_CLASS,
     SPBOOK_CLASS,
+    STRANGE_OBJECT,
     TIN,
+    TOPAZ,
     TOOL_CLASS,
     WAND_CLASS,
     WEAPON_CLASS,
+    AQUAMARINE,
 } from './objects.js';
 import {
     PM_KEYSTONE_KOP,
@@ -138,6 +170,7 @@ import {
     mhim,
     pronoun_gender,
     resist_conflict,
+    unique_corpstat,
     type_is_pname,
 } from './mondata.js';
 import { Hello } from './role_init.js';
@@ -973,12 +1006,19 @@ export function record_price_quote(
     }
 }
 
-// C ref: shk.c get_pricing_units(). This slice admits ordinary stacks; globs
-// remain at the pricing preflight because their units depend on weight().
-export function get_pricing_units(obj) {
-    if (obj.globby)
-        throw new UnsupportedShopError('globby pricing units');
-    return Math.trunc(obj.quan);
+// C ref: shk.c get_pricing_units() (2846-2859). Ordinary items price by
+// quantity. A glob prices by ceiling(weight / base object weight), using its
+// stored weight when available and the canonical object weight otherwise.
+export function get_pricing_units(obj, state = game) {
+    let units = Math.trunc(obj.quan);
+    if (obj.globby) {
+        const unitWeight = Math.trunc(objectType(obj, state).oc_weight);
+        const totalWeight = Math.trunc(obj.owt) > 0
+            ? Math.trunc(obj.owt) : weight(obj, { state });
+        if (unitWeight)
+            units = Math.trunc((totalWeight + unitWeight - 1) / unitWeight);
+    }
+    return units;
 }
 
 // C ref: shk.c oid_price_adjustment(). The port has no discount result, just
@@ -992,14 +1032,43 @@ export function oid_price_adjustment(obj, oid, state = game) {
     return 0;
 }
 
-// C ref: shk.c getprice(), reached selling-to-hero branches. The live floor-
-// merchandise caller, get_cost_of_shop_item(), excludes artifact and
-// corpse-family adjustments before it reaches this common pricing subset.
+// C ref: shk.c getprice() (4319-4358).
+export function corpsenm_price_adj(obj, state = game) {
+    if (![TIN, EGG, CORPSE].includes(obj.otyp) || !ismnum(obj.corpsenm))
+        return 0;
+
+    const monster = state.mons[obj.corpsenm];
+    const intrinsicCosts = [
+        [FIRE_RES, 2], [SLEEP_RES, 3], [COLD_RES, 2],
+        [DISINT_RES, 5], [SHOCK_RES, 4], [POISON_RES, 2],
+        [ACID_RES, 1], [STONE_RES, 3], [TELEPORT, 2],
+        [TELEPORT_CONTROL, 3], [TELEPAT, 5],
+    ];
+    let multiplier = 1;
+    for (const [intrinsic, cost] of intrinsicCosts) {
+        if (intrinsic_possible(intrinsic, monster)) multiplier += cost;
+    }
+    if (unique_corpstat(monster)) multiplier += 50;
+
+    let value = Math.max(1, (Math.trunc(monster.mlevel) - 1) * 2);
+    if (obj.otyp === CORPSE)
+        value += Math.max(1, Math.trunc(monster.cnutrit / 30));
+    return value * multiplier;
+}
+
+// C ref: shk.c getprice() (4319-4358). This price is shared by floor
+// purchases, shop sales, bills and naming, so every object-class adjustment
+// stays in the same source-owned helper.
 export function getprice(obj, shk_buying, state = game) {
     const type = objectType(obj, state);
     let price = Math.trunc(type.oc_cost);
+    if (obj.oartifact) {
+        price = arti_cost(obj, state);
+        if (shk_buying) price = Math.trunc(price / 4);
+    }
     switch (obj.oclass) {
     case FOOD_CLASS:
+        price += corpsenm_price_adj(obj, state);
         if (state.u.uhs >= HUNGRY && !shk_buying)
             price *= Math.trunc(state.u.uhs);
         if (obj.oeaten) price = 0;
@@ -1025,8 +1094,20 @@ export function getprice(obj, shk_buying, state = game) {
     return price;
 }
 
-// C ref: shk.c get_cost(). This function returns the per-unit price. The
-// caller multiplies it by get_pricing_units() after ownership is established.
+const GLASS_GEM_PRICE_TYPES = Object.freeze([
+    [DIAMOND, OPAL],
+    [SAPPHIRE, AQUAMARINE],
+    [RUBY, JASPER],
+    [AMBER, TOPAZ],
+    [JACINTH, AGATE],
+    [CITRINE, CHRYSOBERYL],
+    [BLACK_OPAL, JET],
+    [EMERALD, JADE],
+    [AMETHYST, FLUORITE],
+]);
+
+// C ref: shk.c get_cost() (2877-2988). Returns one unit's sale price after
+// deterministic identification, role, charisma, artifact and anger modifiers.
 export function get_cost(obj, shopkeeper, state = game) {
     let price = getprice(obj, false, state);
     let multiplier = 1;
@@ -1036,18 +1117,30 @@ export function get_cost(obj, shopkeeper, state = game) {
     const type = objectType(obj, state);
     if (!obj.dknown || !type.oc_name_known) {
         if (obj.oclass === GEM_CLASS && type.oc_material === GLASS) {
-            throw new UnsupportedShopError('unidentified glass-gem pricing');
-        }
-        if (oid_price_adjustment(obj, obj.o_id, state) > 0) {
+            // C hashes the birthday and object type into a stable substitute;
+            // it makes no RNG call and keeps both halves of each gem family
+            // equal until the hero has learned its real identity.
+            const birthday = Math.trunc(state.ubirthday ?? 0) | 0;
+            const pseudorand = birthday % obj.otyp
+                >= Math.trunc(obj.otyp / 2);
+            const pair = GLASS_GEM_PRICE_TYPES[obj.otyp - FIRST_GLASS_GEM];
+            const pricedType = pair
+                ? pair[pseudorand ? 0 : 1] : STRANGE_OBJECT;
+            if (!pair) note_unported('shk.c get_cost impossible bad glass gem');
+            price = Math.trunc(objectType(pricedType, state).oc_cost);
+        } else if (oid_price_adjustment(obj, obj.o_id, state) > 0) {
             multiplier *= 4;
             divisor *= 3;
         }
     }
-    if (state.uarmh?.otyp === DUNCE_CAP)
-        throw new UnsupportedShopError('Dunce cap pricing adjustment');
-    if ((state.urole?.mnum === PM_TOURIST && state.u.ulevel < 15)
+    if (state.uarmh?.otyp === DUNCE_CAP) {
+        multiplier *= 4;
+        divisor *= 3;
+    } else if ((state.urole?.mnum === PM_TOURIST
+            && state.u.ulevel < Math.trunc(MAXULEV / 2))
         || (state.uarmu && !state.uarm && !state.uarmc)) {
-        throw new UnsupportedShopError('tourist pricing adjustment');
+        multiplier *= 4;
+        divisor *= 3;
     }
 
     const charisma = acurr(state, A_CHA);
@@ -1074,10 +1167,10 @@ export function get_cost(obj, shopkeeper, state = game) {
         price += 5;
         price = Math.trunc(price / 10);
     }
-    if (obj.oartifact)
-        throw new UnsupportedShopError('artifact pricing');
+    if (price <= 0) price = 1;
+    if (obj.oartifact) price *= 4;
     if (shopkeeper?.mextra?.eshk?.surcharge)
-        throw new UnsupportedShopError('shopkeeper surcharge');
+        price += Math.trunc((price + 2) / 3);
     return price;
 }
 
@@ -1085,11 +1178,8 @@ function firstRoom(buffer) {
     return Math.trunc(buffer?.[0] ?? 0);
 }
 
-// C get_cost_of_shop_item() leaves `nochrg` at -1 when the object is not
-// applicable to the hero's current shop.  Keep that no-live-price result
-// distinct from an actually applicable item whose price is zero or no-charge;
-// callers must not turn an unrelated shop pricing refusal into an ordinary
-// name.
+// JavaScript's `applicable` and `noCharge` fields preserve C's `nochrg` values
+// (-1, 0, 1) alongside the returned price for existing display callers.
 function noShopPrice(noCharge = false) {
     return {
         applicable: false,
@@ -1102,23 +1192,19 @@ function noShopPrice(noCharge = false) {
     };
 }
 
-// C ref: shk.c get_cost_of_shop_item(), for the selected common generated-
-// shop floor branch. Every refused condition is checked before naming or
-// movement mutates the object, quote catalog, hero, or display state.
+// C ref: shk.c get_cost_of_shop_item() (2809-2843). `observed` is a naming
+// admission adapter: xname() runs before this C helper and may set dknown, so
+// its mutation-free caller can project that earlier write for arithmetic.
 export function get_cost_of_shop_item(
     obj,
     state = game,
     options = {},
 ) {
     const observed = Boolean(options.observed);
-    if (state.iflags?.suppress_price || state.program_state?.restoring)
-        throw new UnsupportedShopError('suppressed or restoring price');
 
-    // C's entire shop applicability predicate precedes get_cost() and all of
-    // its object-specific pricing branches.  In particular, an artifact,
-    // container, glob, or unsupported adjustment outside an applicable shop
-    // simply has no live price; only once this predicate succeeds may those
-    // still-unported pricing arms fail closed.
+    // C's entire shop applicability predicate precedes get_cost() and the
+    // contents walk. Non-shop objects therefore return the -1 `nochrg`
+    // representation without evaluating object-specific pricing.
     if (!obj) return noShopPrice();
     const position = get_obj_location(obj, CONTAINED_TOO, state);
     const currentShop = firstRoom(state.u?.ushops);
@@ -1148,33 +1234,11 @@ export function get_cost_of_shop_item(
     // bypasses all object-specific pricing guards; a carried object is priced
     // only when its own unpaid bit is set.
     const noCharge = top.where === OBJ_FLOOR && (obj.no_charge || freespot);
-    const needsPrice = top.where === OBJ_INVENT ? Boolean(obj.unpaid) : !noCharge;
+    const needsPrice = carried(top) ? Boolean(obj.unpaid) : !noCharge;
     let objectCost = 0;
     let pricingUnitCost = 0;
     if (needsPrice) {
-        // The remaining guards describe an applicable item whose C path reaches
-        // get_cost() or its pricing-unit helper.  Keep these source-attributed
-        // refusals visible until their complete helpers land; callers must not
-        // turn them into an ordinary no-live-price result.
-        if (obj.globby)
-            throw new UnsupportedShopError('globby pricing units');
-        if (obj.oartifact)
-            throw new UnsupportedShopError('artifact pricing');
-        if (obj.otyp === CORPSE || obj.otyp === TIN || obj.otyp === EGG)
-            throw new UnsupportedShopError('corpse, tin, or egg pricing adjustment');
-        if (!shopkeeper.mpeaceful)
-            throw new UnsupportedShopError('angry shopkeeper pricing');
-        if (shopkeeper.mextra.eshk.surcharge)
-            throw new UnsupportedShopError('shopkeeper surcharge');
-
-        const type = objectType(obj, state);
-        if (!type.oc_name_known && obj.oclass === GEM_CLASS
-            && type.oc_material === GLASS) {
-            throw new UnsupportedShopError('unidentified glass-gem pricing');
-        }
-        const units = get_pricing_units(obj);
-        if (!Number.isInteger(units) || units < 1)
-            throw new UnsupportedShopError('invalid pricing quantity');
+        const units = get_pricing_units(obj, state);
         // xname() observes a nearby object before doname_base() appends its price.
         // Movement admission cannot mutate discovery state, so project that one
         // source-ordered write for its arithmetic preflight.
@@ -1236,7 +1300,8 @@ export function contained_cost(obj, shkp, price, usell, unpaid_only, state = gam
             }
         } else if (onFloor ? !item.no_charge && !freespot
             : item.unpaid || !unpaid_only) {
-            price += get_cost(item, shkp, state) * get_pricing_units(item);
+            price += get_cost(item, shkp, state)
+                * get_pricing_units(item, state);
         }
         if (hasContents(item))
             price = contained_cost(item, shkp, price, usell, unpaid_only, state);
