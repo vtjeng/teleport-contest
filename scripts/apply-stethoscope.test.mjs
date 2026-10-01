@@ -972,13 +972,6 @@ test('doapply uses C default messages for ordinary foods and a hallucinated bana
         assert.equal((getRngLog() ?? []).length, drawsBefore, `otyp ${obj.otyp}`);
     }
 
-    // apply.c names LUMP_OF_ROYAL_JELLY before the default. It is not part of
-    // this fallback because its return-valued use_royal_jelly() is unported.
-    const jelly = await prepare(LUMP_OF_ROYAL_JELLY);
-    await assert.rejects(doapply(game), {
-        branch: `doapply()'s arm for object type ${LUMP_OF_ROYAL_JELLY}`,
-    });
-
     await prepare(BANANA, true);
     assert.equal(await doapply(game), ECMD_TIME);
     assert.equal(pendingTopLine(), "It rings! ... But no-one answers.");

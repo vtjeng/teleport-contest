@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 12957403,
+      "datetime": "20571021123456",
+      "nethackrc": "OPTIONS=name:C57Rub,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " \u0017uncursed lump of royal jelly\n \u0017uncursed egg\n#rub\nop",
+      "comment": "Independent male-Wizard route for apply.c:dorub -> use_royal_jelly. Wish an uncursed royal jelly and a plain uncursed egg, then use #rub. The o/p selector inputs are frozen before C; retain the observed C target or selector outcome without changing this recipe from JavaScript feedback. This route differs from the admitted v16 #apply blessed killer-bee egg case."
+    }
+  ]
+}
