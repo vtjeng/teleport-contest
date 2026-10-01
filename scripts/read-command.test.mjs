@@ -55,7 +55,8 @@ import {
 } from '../js/read.js';
 import { getobj } from '../js/invent.js';
 import { not_fully_identified } from '../js/objnam.js';
-import { initRng } from '../js/rng.js';
+import { getRngLog, initRng } from '../js/rng.js';
+import { scrolltele } from '../js/teleport.js';
 import {
     READ_MORE as CONFUSED_TELEPORT_MORE,
     confusedTeleportSetupMoves,
@@ -605,6 +606,44 @@ test('a confused blessed teleport scroll reaches level_tele and schedules goto',
     // scroll (rn2(19) beats Wisdom), and discover_object() exercises again
     // because gk.known is true and the scroll type was not yet identified.
     assert.equal(game.u.aexe[A_WIS], wisdomExerciseBefore + 2);
+});
+
+test('a blocked teleport scroll is learned before scrolltele returns',
+    async () => {
+    // The debug wish supplies a real teleport scroll; clearing wizard mode
+    // lets the C noteleport-level guard reject it as an ordinary player's
+    // scroll would.
+    await runSegment(debugWishSegment('uncursed scroll of teleportation'));
+    let scroll = game.invent;
+    while (scroll && scroll.otyp !== SCR_TELEPORTATION) scroll = scroll.nobj;
+    assert.ok(scroll, 'the debug wish creates the scrolltele input object');
+
+    game.wizard = false;
+    game.level.flags.noteleport = true;
+    scroll.dknown = true;
+    game.objects[SCR_TELEPORTATION].oc_name_known = false;
+    // Remove the wished type from the discovery list so learnscrolltyp()
+    // follows C's newly-discovered-object branch and credits Wisdom.
+    game.svd.disco = game.svd.disco.map((otyp) =>
+        otyp === SCR_TELEPORTATION ? 0 : otyp);
+    const drawsBefore = getRngLog().length;
+    // The debug wish leaves its discovery line pending; this Space dismisses
+    // that line before scrolltele writes the level-restriction message.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    await scrolltele(scroll, game);
+
+    // The C boolean flag is stored as integer TRUE in the object table.
+    assert.equal(game.objects[SCR_TELEPORTATION].oc_name_known, 1);
+    assert.equal(
+        pendingTopLine(),
+        'A mysterious force prevents you from teleporting!',
+    );
+    const discoveryDraws = getRngLog().slice(drawsBefore);
+    // read.c:learnscrolltyp() calls discover_object(), which credits
+    // exercise(A_WIS, TRUE); attrib.c:exercise() consumes one rn2(19).
+    assert.equal(discoveryDraws.length, 1);
+    assert.match(discoveryDraws[0], /^rn2\(19\)=\d+$/u);
 });
 
 test('ordinary identify preserves the conditional second rn2(5)', async () => {
