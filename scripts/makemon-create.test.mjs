@@ -109,6 +109,7 @@ import {
     PM_BUGBEAR,
     PM_CAVE_SPIDER,
     PM_CHAMELEON,
+    PM_COYOTE,
     PM_DOPPELGANGER,
     PM_DOG,
     PM_ASMODEUS,
@@ -124,6 +125,7 @@ import {
     PM_FOREST_CENTAUR,
     PM_GARTER_SNAKE,
     PM_GHOST,
+    PM_GIANT_RAT,
     PM_GIANT_MUMMY,
     PM_GIANT_EEL,
     PM_GIANT_ZOMBIE,
@@ -166,6 +168,7 @@ import {
     PM_ROCK_MOLE,
     PM_ROCK_TROLL,
     PM_RED_DRAGON,
+    PM_RABID_RAT,
     PM_SEWER_RAT,
     PM_SKELETON,
     PM_SMALL_MIMIC,
@@ -181,9 +184,15 @@ import {
     PM_VAMPIRE_BAT,
     PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
+    PM_WARG,
+    PM_WEREJACKAL,
+    PM_WERERAT,
+    PM_WEREWOLF,
     PM_WINGED_GARGOYLE,
     PM_WIZARD,
     PM_WOODLAND_ELF,
+    PM_WINTER_WOLF,
+    PM_WOLF,
     PM_YELLOW_LIGHT,
     PM_WOOD_NYMPH,
     PM_WUMPUS,
@@ -280,6 +289,7 @@ import {
 } from '../js/objects.js';
 import { timeout_globals_init } from '../js/timeout.js';
 import { InMemoryStorage } from '../js/storage.js';
+import { were_summon } from '../js/were.js';
 import { extra_pref, update_mon_extrinsics } from '../js/worn.js';
 import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
@@ -288,6 +298,7 @@ import { loadMonsterPickupRecipe } from './run-monster-pickup.mjs';
 const MAKEMON_C_SOURCE = readFileSync(
     'nethack-c/upstream/src/makemon.c', 'utf8',
 );
+const WERE_C_SOURCE = readFileSync('nethack-c/upstream/src/were.c', 'utf8');
 const MAKEMON_JS_SOURCE = readFileSync('js/makemon_create.js', 'utf8');
 const MONSTERS_C_SOURCE = readFileSync(
     'nethack-c/upstream/include/monsters.h', 'utf8',
@@ -2992,6 +3003,193 @@ test('makemon accepts the generic explicit-coordinate MM_NOMSG runtime shape',
             assert.equal(state.level.monsters[x][y], monster);
             assert.equal(state.mvitals[mndx].born, 1);
         }
+    });
+
+test('were_summon creates each source-selected species through runtime makemon',
+    async () => {
+        // were.c:142-188 selects these nine helper species from the three
+        // lycanthrope tables.  The documented selector draws force each table
+        // arm; the remaining scripted source returns exercise makemon's
+        // existing placement, initialization, and awaited runtime tail.
+        assert.match(
+            WERE_C_SOURCE,
+            /makemon\(&mons\[typ\],\s*u\.ux,\s*u\.uy,\s*NO_MM_FLAGS\)/u,
+        );
+        assert.match(
+            MAKEMON_JS_SOURCE,
+            /normalized\._wereSummon === true[\s\S]*?mmflags === NO_MM_FLAGS/u,
+        );
+        const cases = [
+            [PM_WERERAT, PM_SEWER_RAT, [[3, 1]], 'rat'],
+            [PM_WERERAT, PM_GIANT_RAT, [[3, 0], [3, 1]], 'rat'],
+            [PM_WERERAT, PM_RABID_RAT, [[3, 0], [3, 0]], 'rat'],
+            [PM_WEREJACKAL, PM_JACKAL, [[7, 1]], 'jackal'],
+            [PM_WEREJACKAL, PM_COYOTE, [[7, 0], [3, 1]], 'jackal'],
+            [PM_WEREJACKAL, PM_FOX, [[7, 0], [3, 0]], 'jackal'],
+            [PM_WEREWOLF, PM_WOLF, [[5, 1]], 'wolf'],
+            [PM_WEREWOLF, PM_WARG, [[5, 0], [2, 1]], 'wolf'],
+            [PM_WEREWOLF, PM_WINTER_WOLF, [[5, 0], [2, 0]], 'wolf'],
+        ];
+
+        for (const [wereIndex, helperIndex, tableDraws, helperNoun]
+            of cases) {
+            const state = initialLevelState();
+            state.in_mklev = false;
+            state.u.ux = MON_X;
+            state.u.uy = MON_Y;
+            state.u.uprops = [];
+            state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+                intrinsic: 0,
+                extrinsic: 0,
+            };
+            state.viz_array = Array.from(
+                { length: ROWNO },
+                () => new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE),
+            );
+            state.level.at(MON_X, MON_Y).typ = ROOM;
+            // C's hero-square makemon request relocates to any open adjacent
+            // square. Mark all eight neighboring cells open because enexto
+            // shuffles their source-defined order before choosing one.
+            for (let dx = -1; dx <= 1; ++dx) {
+                for (let dy = -1; dy <= 1; ++dy) {
+                    if (dx || dy)
+                        state.level.at(MON_X + dx, MON_Y + dy).typ = ROOM;
+                }
+            }
+            const pendingTableDraws = tableDraws.map(([bound, result]) => ({
+                bound,
+                result,
+            }));
+            const random = recordingRandom({
+                // rnd(5)=1 asks for exactly one helper, as in the recorded
+                // source path. Other rnd calls retain a valid lower bound.
+                rndResult: () => 1,
+                // Consume only the leading source table selectors; later
+                // makemon draws use bound-1, the established deterministic
+                // endpoint for this creation fixture.
+                rn2Result: (bound) => {
+                    const draw = pendingTableDraws[0];
+                    if (draw) {
+                        assert.equal(bound, draw.bound, helperNoun);
+                        pendingTableDraws.shift();
+                        return draw.result;
+                    }
+                    return Math.max(0, bound - 1);
+                },
+            });
+            const messages = [];
+            const visible = { value: 0 };
+            const genericWere = { value: 'creature' };
+            const count = await were_summon(
+                state.mons[wereIndex], false, visible, genericWere, state,
+                random.random,
+                {
+                    message: async (text) => messages.push(text),
+                    norepMessage: async (text) => messages.push(text),
+                },
+            );
+            const monster = state.level.monlist;
+
+            assert.deepEqual(pendingTableDraws, [], helperNoun);
+            assert.equal(count, 1, helperNoun);
+            assert.equal(monster.data, state.mons[helperIndex], helperNoun);
+            assert.notEqual(monster.mx, state.u.ux, helperNoun);
+            assert.equal(state.mvitals[helperIndex].born, 1, helperNoun);
+            assert.equal(genericWere.value, helperNoun, helperNoun);
+            assert.ok(messages.some((text) =>
+                text.includes('suddenly appears')), helperNoun);
+            assert.deepEqual(
+                random.calls.slice(0, tableDraws.length + 1)
+                    .map(({ kind, args, result }) => [kind, ...args, result]),
+                [
+                    ['rnd', 5, 1],
+                    ...tableDraws.map(([bound, result]) =>
+                        ['rn2', bound, result]),
+                ],
+                `${helperNoun} source selector draw order`,
+            );
+        }
+
+        // The marker is tied to the exact C call contract, not a general
+        // runtime-creation bypass: moving one square, changing flags, or
+        // omitting the marker must fail before any source random draw.
+        for (const [name, marker, x, flags] of [
+            ['away from hero', true, MON_X + 1, NO_MM_FLAGS],
+            ['wrong flags', true, MON_X, MM_NOCOUNTBIRTH],
+            ['missing marker', false, MON_X, NO_MM_FLAGS],
+        ]) {
+            const state = initialLevelState();
+            state.in_mklev = false;
+            state.u.ux = MON_X;
+            state.u.uy = MON_Y;
+            const random = recordingRandom();
+            await assert.rejects(
+                makemon_runtime(
+                    state.mons[PM_WOLF], x, MON_Y, flags,
+                    {
+                        state,
+                        random: random.random,
+                        message: async () => {},
+                        norepMessage: async () => {},
+                        ...(marker ? { _wereSummon: true } : {}),
+                    },
+                ),
+                /outside mklev/u,
+                name,
+            );
+            assert.deepEqual(random.calls, [], name);
+            assert.equal(state.level.monlist, null, name);
+        }
+
+        // polyself.c's were_summon call uses yours=TRUE, so the same runtime
+        // creation must finish before tamedog marks the helper as a pet.
+        assert.match(
+            WERE_C_SOURCE,
+            /if\s*\(yours\s*&&\s*mtmp\)\s*\(void\)\s*tamedog\(mtmp,/u,
+        );
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        state.u.uprops = [];
+        state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = {
+            intrinsic: 0,
+            extrinsic: 0,
+        };
+        state.viz_array = Array.from(
+            { length: ROWNO },
+            () => new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE),
+        );
+        state.level.at(MON_X, MON_Y).typ = ROOM;
+        for (let dx = -1; dx <= 1; ++dx) {
+            for (let dy = -1; dy <= 1; ++dy) {
+                if (dx || dy)
+                    state.level.at(MON_X + dx, MON_Y + dy).typ = ROOM;
+            }
+        }
+        const random = recordingRandom({
+            // rnd(5)=1 makes one helper; rn2(5)=1 selects the source wolf arm.
+            rndResult: () => 1,
+            rn2Result: (bound) => bound === 5 ? 1 : Math.max(0, bound - 1),
+        });
+        const count = await were_summon(
+            state.mons[PM_WEREWOLF], true, { value: 0 }, { value: 'creature' },
+            state, random.random,
+            { message: async () => {}, norepMessage: async () => {} },
+        );
+        const pet = state.level.monsters.flat().find((monster) =>
+            monster?.data === state.mons[PM_WOLF]);
+
+        assert.equal(count, 1);
+        assert.ok(pet);
+        assert.ok(pet.mtame > 0);
+        assert.equal(pet.mpeaceful, true);
+        assert.deepEqual(
+            random.calls.slice(0, 2)
+                .map(({ kind, args, result }) => [kind, ...args, result]),
+            [['rnd', 5, 1], ['rn2', 5, 1]],
+            'the yours path reuses the source-selected random owner',
+        );
     });
 
 test('nasty runtime creation admits explicit species by the C pointer contract',

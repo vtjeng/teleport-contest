@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B81 diagnostic retained outside recordings. The wizard-genesis parser resolves this `hostile human wererat` request to an ordinary wererat, so it does not establish the human-form summon branch. C later reaches summonmu, but the complete replay diverges when JavaScript reaches the unported uhitm.c:mhitm_ad_were behavior. The 32 m. rests are a C-only overrun probe; do not count this as a matching recording.",
+  "segments": [
+    {
+      "seed": 8111401,
+      "datetime": "20271002090000",
+      "nethackrc": "OPTIONS=name:B81HumanWererat,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nring of protection from shape changers\nPnr #wizgenesis\nhostile human wererat\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

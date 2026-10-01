@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved B81 setup miss: the blessed +7 gray dragon scale mail was inventory slot o, but the frozen Wn input selected a non-armor item and C printed “That is a silly thing to wear.” The C artifact and output are retained in B81 scratch, outside passing recordings.",
+  "segments": [
+    {
+      "seed": 8111509,
+      "datetime": "20271103151800",
+      "nethackrc": "OPTIONS=name:B81Armor,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nblessed +7 gray dragon scale mail\nWn #wizgenesis\nhostile werewolf\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

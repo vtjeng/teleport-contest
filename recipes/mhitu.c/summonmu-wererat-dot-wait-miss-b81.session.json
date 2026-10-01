@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Setup miss retained as input history: plain wait (.) is refused after the wizard-created hostile monster appears with “Are you waiting to get hit?”; C directs this debug case to use the m. no-op rest command. This exact recording reaches monster creation but does not execute summonmu.",
+  "segments": [
+    {
+      "seed": 8110709,
+      "datetime": "20270423113700",
+      "nethackrc": "OPTIONS=name:B81Werat,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #levelchange\n20\n                     #wizgenesis\nhostile wererat\n........................................"
+    }
+  ]
+}

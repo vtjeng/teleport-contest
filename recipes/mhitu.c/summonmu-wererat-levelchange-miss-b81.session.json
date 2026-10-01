@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Setup miss retained as input history: the #levelchange 20 command emitted repeated level-up --More-- pages, so the following wizard-genesis text was consumed by those pages and no were creature was created. This exact C recording does not exercise summonmu.",
+  "segments": [
+    {
+      "seed": 8110709,
+      "datetime": "20270423113700",
+      "nethackrc": "OPTIONS=name:B81Werat,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #levelchange\n20\n #wizgenesis\nhostile wererat\n........................................"
+    }
+  ]
+}

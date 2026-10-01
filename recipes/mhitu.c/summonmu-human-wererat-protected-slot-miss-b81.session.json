@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved B81 setup miss: C assigned the wished ring inventory letter n, but the frozen `Po` selection guessed o. The resulting “You don’t have that object” pager consumed the later genesis command; no were_summon caller was reached. The C artifact and output are retained in B81 scratch, outside passing recordings.",
+  "segments": [
+    {
+      "seed": 8111401,
+      "datetime": "20271002090000",
+      "nethackrc": "OPTIONS=name:B81HumanWererat,role:Wizard,race:human,gender=female,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nring of protection from shape changers\nPor#wizgenesis\nhostile human wererat\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

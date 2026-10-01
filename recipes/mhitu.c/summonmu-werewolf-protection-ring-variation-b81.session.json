@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B81 independent C-first variation. The wished +7 ring lowers AC to 2; on the second werewolf action, C changes animal form to human and reaches `mattacku -> summonmu -> were_summon -> makemon` before later attack resolution. The short two-turn input ends at C’s summon pager. The wizard/armor setup is independent of the admitted werejackal case.",
+  "segments": [
+    {
+      "seed": 8111531,
+      "datetime": "20271119110900",
+      "nethackrc": "OPTIONS=name:B81Ring,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nblessed +7 ring of protection\nPnr #wizgenesis\nhostile werewolf\nm.m."
+    }
+  ]
+}

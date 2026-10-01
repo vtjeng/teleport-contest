@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first overrun retained as input history: this valid hostile wererat setup reaches the wererat summon and sewer-rat creation at step 90, then the remaining m. inputs arrive while C is still waiting at its “--More--” prompt. It executes the helper but is not the short strict-replay recipe.",
+  "segments": [
+    {
+      "seed": 8110709,
+      "datetime": "20270423113700",
+      "nethackrc": "OPTIONS=name:B81Werat,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #levelchange\n20\n                     #wizgenesis\nhostile wererat\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}
