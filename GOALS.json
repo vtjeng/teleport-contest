@@ -130868,6 +130868,217 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-royal-jelly-synthetic-v16-20261001",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete royal-jelly application and rubbing",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg"
+      ],
+      "selectionReason": "Selected from the complete v16 investigation wizard-smears-blessed-royal-jelly-on-bee-egg: the admitted C session reaches the apply.c:doapply royal-jelly arm at zero-based segment 0 step 64, where JS currently refuses object type 286. The same whole helper has an independent active #rub caller in apply.c:dorub, so both caller arms are included. This is a seed-continuation implementation task from the accepted published C56 boundary; B73 reserves only apply.c:use_unicorn_horn, a separate source function. Root verified the current saved batch measurements and the complete source definitions. Only apply.c:jelly_ok and use_royal_jelly receive whole-function credit; supporting doapply and dorub arms retain their source limits.",
+      "detail": "Port whole jelly_ok and use_royal_jelly in source order, including split and removal before target selection, rollback, egg species, timer and parent marker, messages and consumption. Wire doapply and dorub. Use the admitted v16 blessed bee-egg range and two independent matching rub recordings; the blessed plain egg is a no-op target miss. Preserve the named discarded timeout.c:kill_egg gap.",
+      "openedAt": "c443d7c9794293bbf32127d78bd90c1f54c246e5",
+      "openStanding": {
+        "sha": "65ee2a5a1a4291d151faef8736cb1559becc30b0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "jelly_ok",
+          "line": 3607,
+          "endLine": 3615,
+          "declared": false,
+          "complete": false
+        },
+        {
+          "name": "use_royal_jelly",
+          "line": 3616,
+          "endLine": 3685,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3607,
+        "to": 3685
+      },
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg": {
+          "session": "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+          "recordingSha256": "a33baf838a8cea95c513611544b49d62dda2f891eabcb4e14742b163161388e8",
+          "evaluationPath": "challenges/evaluations/20261001141933-v16.json",
+          "evaluationCommit": "65ee2a5a1a4291d151faef8736cb1559becc30b0"
+        }
+      },
+      "activeStanding": {
+        "sha": "65ee2a5a1a4291d151faef8736cb1559becc30b0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+          "session": "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+          "recordingSha256": "a33baf838a8cea95c513611544b49d62dda2f891eabcb4e14742b163161388e8",
+          "recipe": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.recipe.session.json",
+          "recipeSha256": "d2a4f3776436877beb4e511db06630ca1aaf7817651f2cf34425449161e2f11d",
+          "replayInputSha256": "f7189bec8ea8930cfcb36cefcb9a17c4429ef3806103efcc6658f024fe81cab2",
+          "evaluationPath": "challenges/evaluations/20261001141933-v16.json",
+          "evaluationCommit": "65ee2a5a1a4291d151faef8736cb1559becc30b0",
+          "evaluationArtifact": "challenges/evaluations/20261001141933-v16.json",
+          "evaluationUtc": "2026-10-01T14:20:12.015Z",
+          "remainingScreens": 2,
+          "recordedSteps": 66,
+          "previousScreensMatched": 64,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 64,
+              "total": 66
+            },
+            "rng": {
+              "matched": 4800,
+              "total": 4804
+            },
+            "cursors": {
+              "matched": 64,
+              "total": 66
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 286",
+            "step": 64
+          },
+          "step": 64,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 286",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.json",
+            "result": {
+              "session": "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "a33baf838a8cea95c513611544b49d62dda2f891eabcb4e14742b163161388e8",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 2,
+              "recordedSteps": 66,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+                "session": "synthetic/v16/wizard-smears-blessed-royal-jelly-on-bee-egg",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json",
+                "recordingSha256": "a33baf838a8cea95c513611544b49d62dda2f891eabcb4e14742b163161388e8",
+                "recipe": "challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.recipe.session.json",
+                "recipeSha256": "d2a4f3776436877beb4e511db06630ca1aaf7817651f2cf34425449161e2f11d",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 2,
+                "recordedSteps": 66,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 64,
+                    "total": 66
+                  },
+                  "rng": {
+                    "matched": 4800,
+                    "total": 4804
+                  },
+                  "cursors": {
+                    "matched": 64,
+                    "total": 66
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 286",
+                  "step": 64
+                },
+                "step": 64,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 286",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Applying a blessed lump of royal jelly is refused after object selection because apply.c:doapply() lacks its named arm and use_royal_jelly() is not ported. C then prompts for an egg and, for the recorded killer bee egg, changes its species to queen bee and produces the source quiver message; the blessed-parent marker is set only when the egg’s spe field is zero. The helper consumes the jelly and spends a turn. The same source helper is also reached from #rub; its cursed branch depends on the still-unported timeout.c:kill_egg().",
+              "source": {
+                "file": "apply.c",
+                "branch": "After #apply or #rub selects a lump of royal jelly, use_royal_jelly() splits one unit from a stack if needed, removes it from inventory, and prompts for an egg. Cancellation restores the jelly and returns ECMD_CANCEL. For a selected egg, killer bee species changes to queen bee before the cursed check; cursed jelly kills the egg and consumes itself. Otherwise, a non-NON_PM egg without a hatch timer gets attach_egg_hatch_timeout(), blessed jelly sets spe=2 unless the egg was laid by the hero, the quiver message depends on timer, parent-marker, or species changes, and the jelly is consumed with ECMD_TIME.",
+                "functions": [
+                  "jelly_ok",
+                  "use_royal_jelly"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/apply.c:doapply() case LUMP_OF_ROYAL_JELLY (4262-4264) calls use_royal_jelly(&obj); js/apply.js:doapply() is reached through js/cmd.js:runApplyCommand() (3302-3304) and the doapply command dispatch (5150-5151).",
+                  "nethack-c/upstream/src/apply.c:dorub() food-class branch (1796-1804) calls use_royal_jelly(&obj); js/apply.js:dorub() is reached through js/cmd.js:runRubCommand() (3309-3310) and the dorub command dispatch (5152-5153).",
+                  "nethack-c/upstream/src/apply.c:use_royal_jelly() supplies jelly_ok to invent.c:getobj() for the secondary egg prompt (3629-3631); js/invent.js:getobj() invokes the callback to rank selectable inventory objects."
+                ],
+                "dependencies": [
+                  "mkobj.c:splitobj() returns the single jelly object when splitting a stack; js/obj.js:splitobj() is implemented. Preserve the freeinv-before-secondary-prompt ordering, inventory restoration on cancellation (unsplitobj/update_inventory or addinv_nomerge), and source pointer clearing after consumption (setnotworn/obfree). The corresponding JS helpers are present in js/invent.js, js/obj.js, and js/worn.js.",
+                  "timeout.c:attach_egg_hatch_timeout() is called only for a species egg without an active timer; js/timeout.js:attach_egg_hatch_timeout() is implemented and its bounded rnd() loop must remain in source order.",
+                  "timeout.c:kill_egg() is a void call whose result is discarded in the cursed branch. No JS implementation exists; js/zap.js currently records note_unported('timeout.c kill_egg') for a separate caller. Per the gap rule, the cursed branch can record the same named gap and skip the call until that helper is ported."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261001125731-v16.json records the first stop at zero-based segment 0 step 64: 64/66 screens and cursors match and the PRNG logs match 4800/4804 calls. The mismatch is the existing UnsupportedApplyError boundary for object type 286 (LUMP_OF_ROYAL_JELLY) in apply.c:doapply().",
+                "The immutable C recording challenges/cases/v16/wizard-smears-blessed-royal-jelly-on-bee-egg.session.json shows step 64 key o opening “What do you want to rub the royal jelly on? [p or ?*]” and step 65 key p producing “You smear royal jelly all over your egg. The egg quivers briefly.” The recipe comment identifies the input sequence as applying wished blessed royal jelly to a killer bee egg.",
+                "nethack-c/upstream/src/apply.c:3615-3682 defines jelly_ok() and the whole use_royal_jelly() helper, including stack split, inventory rollback, killer-bee-to-queen-bee conversion, cursed and blessed branches, egg timer handling, jelly consumption, and ECMD_* result. The direct callers are apply.c:doapply() at 4262-4264 and apply.c:dorub() at 1796-1804.",
+                "js/apply.js:3867-3875 still lists LUMP_OF_ROYAL_JELLY in DOAPPLY_UNPORTED_NAMED_ARMS, and js/apply.js:4947-4950 throws for it after the doapply switch. js/apply.js:2218-2221 independently throws for royal jelly in dorub(). Add use_royal_jelly()/jelly_ok() in js/apply.js, wire both callers, and remove these two jelly-specific refusal paths while retaining the other named-arm gaps.",
+                "Production command routes are nethack-c/upstream/src/cmd.c:1677-1678 (apply key a) and 1835-1836 (rub extended command); js/cmd.js:3302-3310 and 5150-5153 route doapply and dorub to their apply.js handlers.",
+                "Source patch search `rg -n \"use_royal_jelly|attach_egg_hatch_timeout|doapply|dorub|egg.*hatch\" nethack-c/patches` returned no matches; this behavior comes directly from upstream apply.c and timeout.c.",
+                "jelly_ok() is pure: it returns GETOBJ_SUGGEST for EGG and GETOBJ_EXCLUDE for every other object or null. Pin both outcomes with source-derived tests when implementing this helper."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
