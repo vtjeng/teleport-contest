@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T04:37:38.271Z",
+  "capturedAt": "2026-10-01T04:54:45.003Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -12103,12 +12103,61 @@
         "type": "accepted",
         "at": "2026-10-01T04:37:04.990Z",
         "task": "B64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B64-published-9b0df911",
+        "type": "published",
+        "at": "2026-10-01T04:37:49.822Z",
+        "task": "B64",
+        "commit": "9b0df911be445ba28499e54998cd1118245b8ee1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A62-integrating-92e4c050",
+        "type": "integrating",
+        "at": "2026-10-01T04:40:53.561Z",
+        "task": "A62",
+        "integration": "92e4c0508b392e82322130d356d60e412dd44a6c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A62-evidence-integrating-c914412c",
+        "type": "integrating",
+        "at": "2026-10-01T04:44:41.721Z",
+        "task": "A62",
+        "integration": "c914412c437b5acf638e49c2381c6e8c2268be3c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A63-amulet-off-v15-20261001",
+        "type": "assign",
+        "at": "2026-10-01T04:54:03.144Z",
+        "task": "A63",
+        "worker": "A2",
+        "goal": "port-do-wear-amulet-off-synthetic-v15-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A62-validated-c914412c",
+        "type": "validated",
+        "at": "2026-10-01T04:54:32.198Z",
+        "task": "A62",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A62-accepted-c914412c",
+        "type": "accepted",
+        "at": "2026-10-01T04:54:32.541Z",
+        "task": "A62"
       }
     ]
   },
   "development": {
-    "executionCommit": "3451c1b95570396666069f24277e25d2bf6e109e",
-    "measuredAt": "2026-10-01T04:33:43.342Z",
+    "executionCommit": "c914412c437b5acf638e49c2381c6e8c2268be3c",
+    "measuredAt": "2026-10-01T04:50:46.222Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

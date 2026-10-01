@@ -1,0 +1,10 @@
+{
+  "_comment": "Independent C witness for active ELVEN_BOOTS helper wiring through Boots_on(). The Wizard debug wish creates the boots; W selects the C-observed inventory letter, a space dismisses the adjacent newt's unrelated pager, and two wait turns run the boots' source oc_delay callback. The recipe ends at the C walk-quietly feedback. The seed/date and character name are independent of the selected challenge case.",
+  "version": 5,
+  "segments": [{
+    "seed": 7310203,
+    "datetime": "20370813141516",
+    "nethackrc": "OPTIONS=name:BootsCase,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+    "moves": " \u0017elven boots\nWo "
+  }]
+}
