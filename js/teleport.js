@@ -1598,14 +1598,15 @@ export async function vault_tele(state = game) {
     await tele(state);
 }
 
-// C ref: teleport.c scrolltele() (849-915). The calm uncontrolled scroll
-// branch reaches safe_teleds(); controlled, level-restricted, and direct
-// teleport-command branches remain bounded to their existing callers.
+// C ref: teleport.c scrolltele() (849-915). Read.c passes the scroll object;
+// teleport.c:tele() passes null. Keep discovery and the wizard override at
+// their source positions around the controlled destination query.
 export async function scrolltele(scroll, state = game) {
     const message = ttyPline;
 
     if (noteleport_level(state.youmonst, state) && !state.wizard) {
         await message("A mysterious force prevents you from teleporting!", state);
+        if (scroll) learnscroll(scroll, state);
         return;
     }
 
@@ -1615,11 +1616,15 @@ export async function scrolltele(scroll, state = game) {
     if ((state.u?.uhave?.amulet || On_W_tower_level(state.u.uz, state))
         && !rn2(3)) {
         await message("You feel disoriented for a moment.", state);
-        return;
+        if (!state.wizard)
+            return;
+        const { y_n } = await import('./cmd.js');
+        if (await y_n('Override?', state) !== 'y'.charCodeAt(0))
+            return;
     }
 
-    if ((Teleport_control_prop(state) && !Stunned_prop(state))
-        || state.wizard) {
+    if (((Teleport_control_prop(state) || Boolean(scroll?.blessed))
+        && !Stunned_prop(state)) || state.wizard) {
         if (unconscious(state)) {
             await message(
                 "Being unconscious, you cannot control your teleport.",
@@ -1633,6 +1638,7 @@ export async function scrolltele(scroll, state = game) {
                 `Where do ${whobuf} want to be teleported?`,
                 state,
             );
+            if (scroll) learnscroll(scroll, state);
             const cc = { x: state.u.ux, y: state.u.uy };
             const tcc = state.iflags?.travelcc;
             if (tcc && isok(tcc.x, tcc.y)) {

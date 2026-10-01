@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 24681357,
+      "datetime": "20420512104500",
+      "nethackrc": "OPTIONS=name:SideRoute,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ".\u0017uncursed scroll of teleportation\nrk  \u001b",
+      "comment": "Blocked setup variation. The independent seed, date and Valkyrie role changed the wished scroll's inventory letter to e, but this input selects k; read.c:doread -> getobj reports that the hero does not have k, so scrolltele is never called. The exact C setup-miss output is preserved under .cache/B68-logs/scrolltele-controlled-cancel-20261001-setup-miss.session.json."
+    }
+  ],
+  "comment": "C-first setup-miss recipe; no scrolltele runtime credit."
+}
