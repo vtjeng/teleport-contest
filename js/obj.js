@@ -905,10 +905,6 @@ export function splitobj(obj, quantity, env = {}) {
             + 'and an empty object',
         );
     }
-    const splitLight = obj_sheds_light(obj);
-    if (obj.timed) requiredHook(normalized, 'splitObjectTimers', obj);
-    if (splitLight) requiredHook(normalized, 'splitObjectLight', obj);
-
     const child = newObject({
         ...obj,
         oextra: null,
@@ -944,10 +940,18 @@ export function splitobj(obj, quantity, env = {}) {
     // C: if (has_omid(otmp)) free_omid(otmp); /* only one association */
     if (child.oextra && child.oextra.omid)
         free_omid(child);
-    if (obj.timed)
-        normalized.hooks.splitObjectTimers(obj, child, normalized);
-    if (splitLight)
-        normalized.hooks.splitObjectLight(obj, child, normalized);
+    if (obj.timed) {
+        if (typeof normalized.hooks.splitObjectTimers === 'function')
+            normalized.hooks.splitObjectTimers(obj, child, normalized);
+        else if (normalized.state === game)
+            note_unported('timeout.c obj_split_timers');
+    }
+    if (obj_sheds_light(obj)) {
+        if (typeof normalized.hooks.splitObjectLight === 'function')
+            normalized.hooks.splitObjectLight(obj, child, normalized);
+        else if (normalized.state === game)
+            note_unported('light.c obj_split_light_source');
+    }
     return child;
 }
 
