@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 850075,
+      "datetime": "20330402112233",
+      "nethackrc": "OPTIONS=name:CountProbe,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " 4i",
+      "comment": "Blocked B75 scope witness: the leading space dismisses startup, and count 4 leaves gm.multi=3 after the first inventory dispatch. C cmd.c:rhack dispatches the counted inventory row; allmain.c:moveloop_core repeats it while gm.multi remains positive. JavaScript rhack deliberately still refuses this non-comma repeat path; B75 admits comma because hack.c:dopickup consumes its count. The seed and Saturday, April 2, 2033 clock vary startup independently and avoid Friday-the-13th calendar messages. The female neutral gnome Archeologist differs from the admitted Wizard setup while retaining ordinary inventory access. Keep this recipe outside recordings; it is not passing evidence."
+    }
+  ]
+}
