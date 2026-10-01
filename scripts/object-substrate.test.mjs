@@ -732,29 +732,13 @@ test('splitobj tests light ownership with obj_sheds_light()', () => {
     random.done();
 });
 
-test('splitobj rejects missing owners and ids before mutating the stack', () => {
+test('splitobj rejects an uninitialized shared id before mutating the stack', () => {
     const state = initializedState();
     // A two-object stack split by one is the smallest valid split request.
     const originalQuantity = 2;
     const splitQuantity = 1;
     // Id 9 uses the normal unidentified-object shop-price class.
     const parentId = 9;
-    const timedStack = plainObject(DART, state, {
-        o_id: parentId,
-        quan: originalQuantity,
-        timed: 1,
-    });
-    const noDraws = scriptedRandom([]);
-
-    assert.throws(
-        () => splitobj(timedStack, splitQuantity, { state, ...noDraws }),
-        (error) => error instanceof UnsupportedObjectOperationError
-            && error.operation === 'splitObjectTimers',
-    );
-    assert.equal(timedStack.quan, originalQuantity);
-    assert.equal(timedStack.nobj, null);
-    noDraws.done();
-
     const missingIdState = initializedState();
     delete missingIdState.context.ident;
     const unidentifiedStack = plainObject(DART, missingIdState, {
@@ -774,6 +758,100 @@ test('splitobj rejects missing owners and ids before mutating the stack', () => 
     assert.equal(unidentifiedStack.nobj, null);
     assert.equal(missingIdState.context.ident, undefined);
     stillNoDraws.done();
+});
+
+test('splitobj records missing timer and light helpers after making the child', () => {
+    const initializeLiveGame = () => {
+        resetGame();
+        game.context = { ident: 10 };
+        game.flags = {};
+        game.moves = 0;
+        game.u = { ulevel: 1 };
+        objects_globals_init(game);
+        init_objects(game, () => 0);
+        game.unported = new Set();
+        return game;
+    };
+
+    const timerState = initializeLiveGame();
+    const timerStack = plainObject(DART, timerState, {
+        o_id: 9,
+        quan: 2,
+        timed: 1,
+    });
+    const timerRandom = scriptedRandom([
+        { name: 'rnd', args: [2], result: 1 },
+    ]);
+    const timerChild = splitobj(timerStack, 1, {
+        state: timerState,
+        ...timerRandom,
+    });
+
+    // mkobj.c reaches obj_split_timers only after nextoid, quantity/weight,
+    // context, and ownership-link updates; its C result is discarded.
+    assert.equal(timerStack.quan, 1);
+    assert.equal(timerChild.quan, 1);
+    assert.equal(timerStack.nobj, timerChild);
+    assert.equal(timerState.unported.has('timeout.c obj_split_timers'), true);
+    timerRandom.done();
+
+    const lightState = initializeLiveGame();
+    const lightStack = plainObject(TALLOW_CANDLE, lightState, {
+        o_id: 9,
+        quan: 2,
+        lamplit: true,
+    });
+    const lightRandom = scriptedRandom([
+        { name: 'rnd', args: [2], result: 1 },
+    ]);
+    const lightChild = splitobj(lightStack, 1, {
+        state: lightState,
+        ...lightRandom,
+    });
+
+    // obj_sheds_light() is checked at its C site, after the preceding timer
+    // call. The absent light.c helper is a named discarded-void gap.
+    assert.equal(lightStack.quan, 1);
+    assert.equal(lightStack.nobj, lightChild);
+    assert.equal(lightChild.lamplit, false);
+    assert.equal(
+        lightState.unported.has('light.c obj_split_light_source'),
+        true,
+    );
+    lightRandom.done();
+});
+
+test('splitobj checks light ownership after the timer call', () => {
+    const state = initializedState();
+    state.context.ident = 10;
+    const stack = plainObject(TALLOW_CANDLE, state, {
+        lamplit: true,
+        o_id: 9,
+        quan: 2,
+        timed: 1,
+    });
+    const events = [];
+    const random = scriptedRandom([
+        { name: 'rnd', args: [2], result: 1 },
+    ]);
+
+    splitobj(stack, 1, {
+        state,
+        ...random,
+        hooks: {
+            splitObjectTimers(parent) {
+                events.push('timers');
+                // The C light predicate is evaluated after this call.
+                parent.lamplit = false;
+            },
+            splitObjectLight() {
+                events.push('light');
+            },
+        },
+    });
+
+    assert.deepEqual(events, ['timers']);
+    random.done();
 });
 
 test('is_flammable follows material and source exceptions', () => {

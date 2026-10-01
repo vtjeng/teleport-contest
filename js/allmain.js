@@ -1157,6 +1157,11 @@ function elapsedTurnPlanningRefusals() {
         UnsupportedObjectNameError,
         UnsupportedObjectOperationError,
         UnsupportedMonsterPickupOperationError,
+        // dogmove.c dog_invent() may split an unpaid stack through
+        // mkobj.c splitobj() (whose splitbill result is discarded), then
+        // reach shk.c onbill() while distant_name() names the returned child.
+        // The live-scan catch already converts this same shop refusal.
+        UnsupportedShopError,
         // mon.c mondead() forgets the invisible-monster marker through
         // display.c unmap_object(), which refuses an engraved square. A
         // monster dying on a square that carries both reaches that refusal

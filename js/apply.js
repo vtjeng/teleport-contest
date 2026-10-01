@@ -262,8 +262,6 @@ import {
     nxtobj,
     obj_extract_self,
     obfree,
-    preflight_obfree,
-    preflight_update_inventory,
     update_inventory,
     useupall,
     useup,
@@ -1686,82 +1684,64 @@ function heroDeaf(state) {
         || state.u?.uroleplay?.deaf);
 }
 
-// Keep every state outside the selected use_cream_pie() boundary ahead of
-// its first message and mutation. The source branches still exist in C, but
-// their plural wording, hallucination, protection, polymorph, shop, and
-// lifecycle effects belong to later slices.
-function preflightCreamPie(obj, state, env) {
-    const blindness = state.u?.uprops?.[BLINDED];
-    if (!blindness)
-        throw new Error('cream-pie application requires BLINDED state');
-    if (obj.quan !== 1)
-        throw new UnsupportedApplyError('a cream pie stack');
-    if (heroHallucinating(state))
-        throw new UnsupportedApplyError('a hallucinating cream pie user');
-    if (Upolyd(state.u) || state.urace?.noun !== 'human')
-        throw new UnsupportedApplyError('a non-human cream pie user');
-    if (blindness.intrinsic || blindness.extrinsic || blindness.blocked
-        || state.u.ucreamed) {
-        throw new UnsupportedApplyError(
-            'cream pie with protected or blind eyes',
+// C ref: apply.c use_cream_pie() (3568-3603). The C-discarded shop
+// alteration remains a named gap for billed inventory when its implementation
+// is not supplied; the ordinary paid inventory path is costly_alteration()'s
+// source fast path.
+async function use_cream_pie(obj, state = game, rawEnv = {}) {
+    const random = { d, rn1, rn2, rnd, rne, rnz, ...(rawEnv.random ?? {}) };
+    const env = { ...rawEnv, state, random };
+    const wasblind = heroIsBlind(state);
+    const wascreamed = Boolean(state.u.ucreamed);
+    const several = obj.quan > 1;
+
+    if (several)
+        obj = splitobj(obj, 1, env);
+
+    if (heroHallucinating(state)) {
+        await ttyPline('You give yourself a facial.', state);
+    } else {
+        const pieName = the(xnameFresh(obj, state), state);
+        const pieDescription = several
+            ? `one of ${makeplural(pieName)}`
+            : pieName;
+        await ttyPline(
+            `You immerse your ${body_part(FACE, state.youmonst)} in ${pieDescription}.`,
+            state,
         );
     }
-    if (!can_blnd(null, state.youmonst, AT_WEAP, obj, state)) {
-        throw new UnsupportedApplyError(
-            'cream pie against eyes it cannot blind',
+
+    if (can_blnd(null, state.youmonst, AT_WEAP, obj, state)) {
+        const blindinc = random.rnd(25);
+        state.u.ucreamed += blindinc;
+        const blindness = state.u.uprops[BLINDED];
+        await make_blinded(
+            (blindness.intrinsic & TIMEOUT) + blindinc,
+            false,
+            state,
+            env,
         );
-    }
-    if (obj.unpaid)
-        throw new UnsupportedApplyError('an unpaid cream pie');
-    if (obj.owornmask || obj.timed || obj.lamplit || obj.cobj) {
-        throw new UnsupportedApplyError(
-            'a cream pie with unported lifecycle state',
-        );
-    }
-    if (obj.where !== OBJ_INVENT)
-        throw new UnsupportedApplyError('a cream pie outside inventory');
-    let carried = false;
-    for (let current = state.invent; current; current = current.nobj) {
-        if (current === obj) {
-            carried = true;
-            break;
+        if (!heroIsBlind(state) || wasblind) {
+            await ttyPline(
+                `There's ${wascreamed ? 'more ' : ''}sticky goop all over your ${
+                    body_part(FACE, state.youmonst)}.`,
+                state,
+            );
+        } else {
+            await ttyPline(
+                `You can't see through all the sticky goop on your ${
+                    body_part(FACE, state.youmonst)}.`,
+                state,
+            );
         }
     }
-    if (!carried)
-        throw new UnsupportedApplyError('a cream pie outside inventory');
-
-    preflight_update_inventory(env);
-    preflight_obfree(obj, null, env);
-}
-
-// C ref: apply.c use_cream_pie() (3568-3603), restricted to one paid,
-// ordinary pie and the sighted human state preflightCreamPie() admits.
-async function use_cream_pie(obj, state = game, rawEnv = {}) {
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnz };
-    const env = { ...rawEnv, state, random };
-    preflightCreamPie(obj, state, env);
-
-    await ttyPline(
-        `You immerse your ${body_part(FACE, state.youmonst)} in ${
-            the(xnameFresh(obj, state), state)}.`,
-        state,
-    );
-    const blindinc = random.rnd(25);
-    state.u.ucreamed += blindinc;
-    const blindness = state.u.uprops[BLINDED];
-    await make_blinded(
-        (blindness.intrinsic & TIMEOUT) + blindinc,
-        false,
-        state,
-    );
-    await ttyPline(
-        `You can't see through all the sticky goop on your ${
-            body_part(FACE, state.youmonst)}.`,
-        state,
-    );
 
     setnotworn(obj, env);
-    costly_alteration(obj, COST_SPLAT, env);
+    if (obj.unpaid && typeof env.hooks?.costlyAlteration !== 'function') {
+        if (state === game) note_unported('mkobj.c costly_alteration');
+    } else {
+        costly_alteration(obj, COST_SPLAT, env);
+    }
     obj_extract_self(obj, env);
     delobj(obj, env);
     return ECMD_OK;
