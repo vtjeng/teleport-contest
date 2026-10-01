@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved C-first setup miss for read.c:seffect_mail spe==2. The debug Wizard learned mail, selected marker q and blank paper p, and write.c:dowrite successfully created the mail scroll in slot r. The frozen input then selected p, so read.c:doread -> invent.c:getobj rejected it and the stamped-scroll effect did not execute. The exact C artifact is retained in .cache/B65-scratch; it is not a passing recording.",
+  "segments": [
+    {
+      "seed": 71232025,
+      "datetime": "20590101103000",
+      "nethackrc": "OPTIONS=name:B65StampMail,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed scroll of mail\nro #wizwish\nscroll of blank paper\n#wizwish\nmagic marker\naqpmail\nrp "
+    }
+  ]
+}

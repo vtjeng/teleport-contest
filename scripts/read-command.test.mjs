@@ -36,6 +36,7 @@ import {
     SCR_ENCHANT_WEAPON,
     SCR_IDENTIFY,
     SCR_MAGIC_MAPPING,
+    SCR_MAIL,
     SCR_PUNISHMENT,
     SCR_TELEPORTATION,
     HEAVY_IRON_BALL,
@@ -49,6 +50,7 @@ import {
 import {
     doread,
     read_ok,
+    seffects,
     seffect_punishment,
 } from '../js/read.js';
 import { getobj } from '../js/invent.js';
@@ -386,6 +388,55 @@ test('an ordinary enchant-weapon scroll raises the wielded weapon', async () => 
         replay.getRngSlices()[38],
         ['rn2(19)=0'],
     );
+});
+
+test('reading a wished mail scroll prints its source message and discovers it',
+    async () => {
+    // read.c:seffect_mail() uses o_id parity for the spe==1 text, then
+    // doread() consumes gk.known to discover the scroll through learnscroll().
+    await runSegment(debugWishSegment('uncursed scroll of mail', '', 'Knight'));
+    let scroll = game.invent;
+    while (scroll && scroll.otyp !== SCR_MAIL) scroll = scroll.nobj;
+    assert.ok(scroll, 'the debug wish creates a mail scroll');
+    assert.equal(scroll.spe, 1);
+
+    const expected = Math.trunc(scroll.o_id) % 2 === 1
+        ? 'This seems to be a chain letter threatening your luck.'
+        : 'This seems to be junk mail addressed to the finder of the Eye of Larn.';
+    for (const key of `r ${scroll.invlet} `)
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doread(game), ECMD_TIME);
+
+    assert.equal(game._pending_message, expected);
+    assert.equal(game.gk.known, true);
+    assert.equal(game.objects[SCR_MAIL].oc_name_known, 1);
+    assert.ok(!inventorySnapshot().some((obj) => obj.otyp === SCR_MAIL));
+});
+
+test('read.c seffect_mail selects all stamped and ordinary mail messages',
+    async () => {
+    await runSegment(debugWishSegment('uncursed scroll of mail', '', 'Wizard'));
+
+    // read.c:seffect_mail computes odd from o_id % 2; its source switch has
+    // spe==2 for marker-written stamps and spe==1 for wished/bones mail.
+    // Minimal positive odd/even IDs pin both message arms without RNG.
+    const cases = [
+        [1, 2, 'This scroll is marked "Postage Due".'],
+        [2, 2, 'This scroll is marked "Return to Sender".'],
+        [1, 1, 'This seems to be a chain letter threatening your luck.'],
+        [2, 1,
+            'This seems to be junk mail addressed to the finder of the Eye of Larn.'],
+    ];
+    for (const [o_id, spe, expected] of cases) {
+        const messages = [];
+        game.gk.known = false;
+        await seffects({ otyp: SCR_MAIL, spe, o_id }, game, {
+            random: { rn2: () => 0 },
+            message: async (text) => messages.push(text),
+        });
+        assert.deepEqual(messages, [expected]);
+        assert.equal(game.gk.known, true);
+    }
 });
 
 test('a punishment scroll attaches a ball and chain, then grows the ball',
