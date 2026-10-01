@@ -132647,7 +132647,7 @@
     {
       "id": "port-apply-catch-lit-synthetic-v16-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete fire ignition of objects",
       "cFile": "apply.c",
       "sessions": [
@@ -132661,8 +132661,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "catch_lit",
@@ -132911,6 +132914,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
