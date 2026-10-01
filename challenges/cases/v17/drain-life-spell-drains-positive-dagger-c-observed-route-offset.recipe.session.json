@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first alternate route, frozen before recording and before any JavaScript comparison. A prior source-route recording showed the tame kitten moved onto the dropped dagger square when the hero stepped south and immediately cast north. This route steps south then west, so the pet follows onto the south tile while the spell is fired northeast through the dropped dagger at the original square. Source path: spell.c:dowizcast -> spelleffects(SPE_DRAIN_LIFE) -> zap.c:weffects -> zap.c:bhito -> drain_item. C must confirm the ray hits the positive dagger and reveal the source resistance/drain result; if a blocker or pet still intercepts, retain the observed target miss.",
+  "segments": [
+    {
+      "seed": 39108247,
+      "datetime": "21280923132700",
+      "nethackrc": "OPTIONS=name:C56Drain,role:Wizard,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " .#levelchange\n20\n                   \u0017+1 dagger\ndo jh#wizcast\nnu"
+    }
+  ]
+}

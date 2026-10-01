@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected route, frozen before recording and before any JavaScript comparison. Starting from the independent positive-dagger candidate, select the C-observed dagger slot o at the drop prompt, move south onto open floor, then #wizcast Drain Life (menu key n) north (direction key k) through the dagger left on the original square. Source path: spell.c:dowizcast -> spelleffects(SPE_DRAIN_LIFE) -> zap.c:weffects -> zap.c:bhito -> drain_item. C must confirm the floor object receives the ray and report the resistance/drain result; a target miss remains valid provenance.",
+  "segments": [
+    {
+      "seed": 39108247,
+      "datetime": "21280923132700",
+      "nethackrc": "OPTIONS=name:C56Drain,role:Wizard,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " .#levelchange\n20\n                   \u0017+1 dagger\ndo j#wizcast\nnk"
+    }
+  ]
+}
