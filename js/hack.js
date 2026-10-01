@@ -4345,11 +4345,9 @@ export async function pickup_checks(state = game) {
 // #pickup command". The loot_mon() arm at 3884-3887 is not written out:
 // pickup_checks() answers -2 only from its swallowed arm, which throws above.
 export async function dopickup(state = game) {
-    // C's gc.command_count. parse() collects it whether or not a prefix ran,
-    // so both `1,` and `m1,` reach here with commandCount 1 and pickup(-count)
-    // is not pickup(0). pickup()'s `what < 0` arm is the refusal that meets it.
-    // A larger count cannot arrive: rhack() refuses one that left gm.multi
-    // above 0.
+    // C's gc.command_count. A count prefix reaches the comma command as
+    // commandCount; this function consumes it and clears multi before
+    // pickup_checks(), then sends pickup() its negative selection count.
     const count = Math.trunc(state.commandCount ?? 0);
     state.multi = 0; /* always reset */
 

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -147,6 +148,15 @@ import {
     clearTtyMessageWindow,
     ttyPline,
 } from '../js/tty_message.js';
+
+const CMD_C = readFileSync(
+    new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8',
+);
+const HACK_C = readFileSync(
+    new URL('../nethack-c/upstream/src/hack.c', import.meta.url), 'utf8',
+);
+const CMD_JS = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
+const HACK_JS = readFileSync(new URL('../js/hack.js', import.meta.url), 'utf8');
 
 // This non-Friday-the-13th, non-moon-boundary afternoon keeps command tests
 // free of calendar messages while still exercising fixed-datetime startup.
@@ -2923,6 +2933,54 @@ test('number-pad count prefix feeds the same saturating parser', async () => {
     assert.equal(state.commandCount, 32767);
     assert.equal(state.multi, 32766);
     assert.equal(topLine(state), '');
+});
+
+test('counted comma pickup reaches the handler that consumes its count', () => {
+    // cmd.c binds comma directly to dopickup; the row's M-prefix flag also
+    // lets the same handler receive a menu-requested pickup.
+    assert.match(CMD_C,
+        /^\s*\{ ',',\s*"pickup",\s*"pick up things at the current location",\s*dopickup,\s*CMD_M_PREFIX,\s*NULL \},/mu);
+
+    // rhack dispatches the selected row's function pointer. dopickup copies
+    // command_count and clears multi before checking the square, so the
+    // count is consumed even when pickup_checks() declines the pickup.
+    const cRhackStart = CMD_C.indexOf('rhack(int key)');
+    const cRhackEnd = CMD_C.indexOf(
+        '\n/* convert an x,y pair into a direction code */', cRhackStart,
+    );
+    assert.ok(cRhackStart >= 0 && cRhackEnd > cRhackStart);
+    const cRhack = CMD_C.slice(cRhackStart, cRhackEnd);
+    assert.match(cRhack,
+        /func = \(\(struct ext_func_tab \*\) tlist\)->ef_funct;[\s\S]*?res = \(\*func\)\(\);/u);
+
+    const cPickupStart = HACK_C.indexOf('dopickup(void)');
+    const cPickupEnd = HACK_C.indexOf('\n}\n', cPickupStart);
+    assert.ok(cPickupStart >= 0 && cPickupEnd > cPickupStart);
+    const cPickup = HACK_C.slice(cPickupStart, cPickupEnd);
+    const cCount = cPickup.indexOf('count = (int) gc.command_count;');
+    const cReset = cPickup.indexOf('gm.multi = 0; /* always reset */');
+    const cChecks = cPickup.indexOf('pickup_checks()');
+    const cSelect = cPickup.indexOf('pickup(-count)');
+    assert.ok(cCount >= 0 && cCount < cReset && cReset < cChecks);
+    assert.ok(cChecks < cSelect);
+
+    // Preserve the refusals for other counted nonmovement commands while
+    // admitting comma to the existing, source-ordered pickup dispatch.
+    assert.match(CMD_JS,
+        /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
+    assert.match(CMD_JS,
+        /if \(command === 'pickup'\)[\s\S]*?runPickupCommand\(key, state\)/u);
+
+    const jsPickupStart = HACK_JS.indexOf('export async function dopickup(');
+    const jsPickupEnd = HACK_JS.indexOf('\n}\n', jsPickupStart);
+    assert.ok(jsPickupStart >= 0 && jsPickupEnd > jsPickupStart);
+    const jsPickup = HACK_JS.slice(jsPickupStart, jsPickupEnd);
+    const jsCount = jsPickup.indexOf('const count = Math.trunc(state.commandCount ?? 0);');
+    const jsReset = jsPickup.indexOf('state.multi = 0; /* always reset */');
+    const jsChecks = jsPickup.indexOf('await pickup_checks(state)');
+    const jsSelect = jsPickup.indexOf('pickup(-count, state)');
+    assert.ok(jsCount >= 0 && jsCount < jsReset && jsReset < jsChecks);
+    assert.ok(jsChecks < jsSelect);
 });
 
 test('a committed count is retained as a parsed command after dispatch refusal',
