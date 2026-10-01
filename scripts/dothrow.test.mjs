@@ -58,6 +58,7 @@ import {
     ROOM,
     STONE_RES,
     STUNNED,
+    STR19,
     TT_WEB,
     TIMER_OBJECT,
     TRAPDOOR,
@@ -159,7 +160,11 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import {
-    ART_EXCALIBUR, ART_MJOLLNIR, init_artifacts,
+    ART_EYE_OF_THE_AETHIOPICA,
+    ART_EXCALIBUR,
+    ART_LONGBOW_OF_DIANA,
+    ART_MJOLLNIR,
+    init_artifacts,
 } from '../js/artifacts.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
@@ -172,6 +177,7 @@ import {
 import { boomhit, skiprange } from '../js/zap.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
+import { aligns } from '../js/roles.js';
 
 const DOTHROW_C = readFileSync(
     new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url), 'utf8',
@@ -748,6 +754,17 @@ function carry(state, ...items) {
     });
     state.invent = items[0] ?? null;
     return items[0] ?? null;
+}
+
+// C permits an object to carry an artifact ID only after that artifact exists.
+// The test fixture builds the canonical artifact table, supplies a valid
+// role_init alignment row, and marks the selected artifact as already created.
+function markArtifactExisting(state, artifact) {
+    state.flags.initalign = aligns.findIndex(
+        (alignment) => alignment.name === 'neutral',
+    );
+    init_artifacts(state);
+    state.artiexist[artifact].exists = 1;
 }
 
 // Every draw so far, as `name(argument)`. The answers are dropped: dothrow.c
@@ -1566,6 +1583,70 @@ test('throw_obj removes a singleton wielded item before freeing it', async () =>
     assert.deepEqual(pileAt(state, 9, 4), [weapon]);
 });
 
+test('throw_obj applies C\'s wield and strength gates only to Mjollnir',
+    async () => {
+        const source = DOTHROW_C.slice(
+            DOTHROW_C.indexOf('\nthrow_obj('),
+            DOTHROW_C.indexOf('\n/* common to dothrow'),
+        );
+        assert.match(source,
+            /is_art\(obj, ART_MJOLLNIR\) && obj != uwep/u);
+        assert.match(source,
+            /is_art\(obj, ART_MJOLLNIR\) && ACURR\(A_STR\) < STR19\(25\)/u);
+        assert.match(DOTHROW_JS,
+            /if \(is_art\(obj, ART_MJOLLNIR\) && obj !== state\.uwep\)/u);
+        assert.match(DOTHROW_JS,
+            /acurr\(state, A_STR\) < STR19\(25\)/u);
+
+        // The first C guard is before the weight check. An unwielded Mjollnir
+        // at STR19(25) still receives the wield message and remains carried.
+        const loose = arena({ str: STR19(25) });
+        markArtifactExisting(loose, ART_MJOLLNIR);
+        const looseHammer = item(loose, WAR_HAMMER,
+            { oartifact: ART_MJOLLNIR });
+        carry(loose, looseHammer);
+        aimEast(loose);
+        loose._ttyToplines = '';
+        assert.equal(await throw_obj(looseHammer, 0, loose), ECMD_OK);
+        assert.match(
+            loose._ttyToplines,
+            /war hammer must be wielded before it can be thrown/u,
+            'without discovery, C xname uses the artifact base type',
+        );
+        assert.equal(loose.invent, looseHammer,
+            'the unwielded artifact stays in inventory');
+
+        // STR19(25) is 125 in attrib.h; one point below it takes the heavy
+        // branch after the wielded-item guard passes.
+        const weak = arena({ str: STR19(25) - 1 });
+        const weakHammer = item(weak, WAR_HAMMER,
+            { oartifact: ART_MJOLLNIR, owornmask: W_WEP });
+        carry(weak, weakHammer);
+        weak.uwep = weakHammer;
+        aimEast(weak);
+        weak._ttyToplines = '';
+        assert.equal(await throw_obj(weakHammer, 0, weak), ECMD_TIME);
+        assert.match(weak._ttyToplines, /It's too heavy\./u);
+        assert.equal(weak.invent, weakHammer,
+            'the below-threshold hammer is not removed');
+
+        // At the exact C threshold, the strength conjunct is false. A Wizard
+        // is used so AutoReturn does not put Mjollnir back in the hand after
+        // the ordinary throw path.
+        const strong = arena({ role: PM_WIZARD, str: STR19(25) });
+        markArtifactExisting(strong, ART_MJOLLNIR);
+        const strongHammer = item(strong, WAR_HAMMER,
+            { oartifact: ART_MJOLLNIR, owornmask: W_WEP });
+        carry(strong, strongHammer);
+        strong.uwep = strongHammer;
+        aimEast(strong);
+        strong._ttyToplines = '';
+        assert.equal(await throw_obj(strongHammer, 0, strong), ECMD_TIME);
+        assert.doesNotMatch(strong._ttyToplines, /too heavy/u);
+        assert.equal(strongHammer.where, OBJ_FLOOR,
+            'the threshold-strength hammer follows the throw path');
+    });
+
 test('throw_obj() lets gloves carry a petrifying corpse', async () => {
     // dothrow.c:139-143, `!uarmg && obj->otyp == CORPSE
     // && touch_petrifies(...) && !Stone_resistance`. The port carries all
@@ -1782,30 +1863,66 @@ test('throw_obj() gives the racial bow bonus only for its own arrow',
         }
     });
 
-test('throw_obj() stops for a quest artifact launcher', async () => {
-    // dothrow.c:220-222, `uwep && is_quest_artifact(uwep)
-    // && ammo_and_launcher(obj, uwep)`. An ordinary bow fails the second
-    // conjunct, so a plain elven Ranger's volley never reaches the arm.
-    const plain = arena({ role: PM_RANGER, race: PM_ELF });
-    const bow = item(plain, ELVEN_BOW, { owornmask: W_WEP });
-    plain.uwep = bow;
-    const arrows = item(plain, ELVEN_ARROW, { quan: 5 });
-    carry(plain, bow, arrows);
-    plain.uquiver = arrows;
-    aimEast(plain);
-    assert.equal(await throw_obj(arrows, 0, plain), ECMD_TIME);
-    // Marking the same bow as an artifact reaches it.
-    const quest = arena({ role: PM_RANGER, race: PM_ELF });
-    const relic = item(quest, ELVEN_BOW, { owornmask: W_WEP, oartifact: 1 });
-    quest.uwep = relic;
-    const shafts = item(quest, ELVEN_ARROW, { quan: 5 });
-    carry(quest, relic, shafts);
-    quest.uquiver = shafts;
-    aimEast(quest);
-    await assert.rejects(
-        () => throw_obj(shafts, 0, quest), /is_quest_artifact/u,
-    );
-});
+test('throw_obj adds a volley only for the hero\'s quest-artifact launcher',
+    async () => {
+        const source = DOTHROW_C.slice(
+            DOTHROW_C.indexOf('\nthrow_obj('),
+            DOTHROW_C.indexOf('\n/* common to dothrow'),
+        );
+        assert.match(source,
+            /if \(uwep && is_quest_artifact\(uwep\)[\s\S]*?ammo_and_launcher\(obj, uwep\)\)\s*\+\+multishot;/u);
+
+        // The ordinary Ranger receives its C role bonus, but has neither the
+        // racial-arrow bonus (human, not elf) nor a quest-artifact launcher.
+        // A five-arrow stack is enough to observe the source's volley bound.
+        const ordinary = arena({ role: PM_RANGER, race: PM_HUMAN });
+        const plainBow = item(ordinary, BOW, { owornmask: W_WEP });
+        ordinary.uwep = plainBow;
+        const arrows = item(ordinary, ARROW, { quan: 5 });
+        carry(ordinary, plainBow, arrows);
+        ordinary.uquiver = arrows;
+        ordinary.urole.questarti = ART_LONGBOW_OF_DIANA;
+        aimEast(ordinary);
+        assert.equal(await throw_obj(arrows, 0, ordinary), ECMD_TIME);
+        assert.equal(draws()[0], 'rnd(2)',
+            'the Ranger bonus alone gives a two-shot roll');
+
+        // roles.c assigns the Longbow of Diana to Rangers. Matching that
+        // artifact ID and launcher type exercises C's own-quest-artifact
+        // conjunct; the extra +1 changes only the source volley bound.
+        const ranger = arena({ role: PM_RANGER, race: PM_HUMAN });
+        const diana = item(ranger, BOW, {
+            owornmask: W_WEP,
+            oartifact: ART_LONGBOW_OF_DIANA,
+        });
+        ranger.uwep = diana;
+        ranger.urole.questarti = ART_LONGBOW_OF_DIANA;
+        const rangerArrows = item(ranger, ARROW, { quan: 5 });
+        carry(ranger, diana, rangerArrows);
+        ranger.uquiver = rangerArrows;
+        aimEast(ranger);
+        assert.equal(await throw_obj(rangerArrows, 0, ranger), ECMD_TIME);
+        assert.equal(draws()[0], 'rnd(3)',
+            'the quest-artifact launcher adds exactly one volley');
+
+        // A Wizard carrying the same Ranger artifact fails is_quest_artifact:
+        // roles.c gives Wizards the Eye of the Aethiopica, so the launcher
+        // must not gain the Ranger-only bonus from artifact status alone.
+        const otherRole = arena({ role: PM_WIZARD, race: PM_HUMAN });
+        const foreignBow = item(otherRole, BOW, {
+            owornmask: W_WEP,
+            oartifact: ART_LONGBOW_OF_DIANA,
+        });
+        otherRole.uwep = foreignBow;
+        otherRole.urole.questarti = ART_EYE_OF_THE_AETHIOPICA;
+        const wizardArrows = item(otherRole, ARROW, { quan: 5 });
+        carry(otherRole, foreignBow, wizardArrows);
+        otherRole.uquiver = wizardArrows;
+        aimEast(otherRole);
+        assert.equal(await throw_obj(wizardArrows, 0, otherRole), ECMD_TIME);
+        assert.equal(draws()[0], 'rnd(1)',
+            'another role\'s artifact receives no quest-launcher volley');
+    });
 
 // dothrow.c:228-231, the crossbow reload. All four conjuncts have to hold
 // before the volley is rolled twice, and 18 is the strength that loads one

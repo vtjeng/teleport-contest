@@ -2072,13 +2072,18 @@ export async function throw_obj(obj, shotlimit, state = game) {
         res = ECMD_OK;
         return finishThrowObj(res, unsplitTarget, save_osplit, state);
     }
-    if (obj.oartifact) {
-        /* is_art(obj, ART_MJOLLNIR) and its two messages */
-        throw new UnsupportedThrowError('throwing an artifact');
+    if (is_art(obj, ART_MJOLLNIR) && obj !== state.uwep) {
+        await ttyPline(
+            `${The(xnameFresh(obj, state), state)} must be wielded before it can be thrown.`,
+            state,
+        );
+        res = ECMD_OK;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
     }
-    if (obj.otyp === BOULDER
-        && !throws_rocks(state.youmonst?.data
-            ?? state.mons[state.u.umonnum])) {
+    if ((is_art(obj, ART_MJOLLNIR) && acurr(state, A_STR) < STR19(25))
+        || (obj.otyp === BOULDER
+            && !throws_rocks(state.youmonst?.data
+                ?? state.mons[state.u.umonnum]))) {
         await ttyPline("It's too heavy.", state);
         res = ECMD_TIME;
         return finishThrowObj(res, unsplitTarget, save_osplit, state);
@@ -2166,10 +2171,10 @@ export async function throw_obj(obj, shotlimit, state = game) {
                 break; /* No bonus */
             }
 
-            /* the quest artifact launcher bonus; no ported hero holds one */
-            if (state.uwep && state.uwep.oartifact
+            /* dothrow.c:220-222 awards +1 only for this role's quest artifact. */
+            if (state.uwep && is_quest_artifact(state.uwep, state)
                 && ammo_and_launcher(obj, state.uwep, state)) {
-                throw new UnsupportedThrowError('is_quest_artifact()');
+                multishot++;
             }
         }
 

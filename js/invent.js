@@ -3205,19 +3205,9 @@ export function container_weight(container, env) {
 
 function preflightFreeinvCore(obj, env) {
     if (obj.oclass === COIN_CLASS) return { confersLuck: false };
-    if (obj.otyp === AMULET_OF_YENDOR
-        || obj.otyp === CANDELABRUM_OF_INVOCATION
-        || obj.otyp === BELL_OF_OPENING
-        || obj.otyp === SPE_BOOK_OF_THE_DEAD
-        || obj.oartifact) {
-        requiredHook(env, 'removeSpecialInventoryEffects', obj);
-    }
-    let confersLuck = obj.otyp === LUCKSTONE;
-    if (obj.oartifact && obj.otyp !== LUCKSTONE) {
-        confersLuck = Boolean(
-            requiredHook(env, 'artifactConfersLuck', obj)(obj, env),
-        );
-    }
+    // artifact.c:confers_luck() is pure; use its source implementation while
+    // preflighting the later C freeinv_core() branch.
+    const confersLuck = confers_luck(obj, env.state);
     if (!confersLuck && obj.otyp === FIGURINE && obj.timed) {
         requiredHook(env, 'stopFigurineTimer', obj);
     }
@@ -3225,36 +3215,50 @@ function preflightFreeinvCore(obj, env) {
 }
 
 function freeinv_core(obj, env, facts) {
+    const { state } = env;
     if (obj.oclass === COIN_CLASS) {
-        env.state.disp ??= {};
-        env.state.disp.botl = true;
+        state.disp ??= {};
+        state.disp.botl = true;
         return;
     }
-    if (obj.otyp === AMULET_OF_YENDOR
-        || obj.otyp === CANDELABRUM_OF_INVOCATION
-        || obj.otyp === BELL_OF_OPENING
-        || obj.otyp === SPE_BOOK_OF_THE_DEAD
-        || obj.oartifact) {
-        requiredHook(env, 'removeSpecialInventoryEffects', obj)(obj, env);
+    const have = state.u.uhave;
+    if (obj.otyp === AMULET_OF_YENDOR) {
+        if (!have?.amulet) note_unported('pline.c impossible');
+        if (have) have.amulet = 0;
+    } else if (obj.otyp === CANDELABRUM_OF_INVOCATION) {
+        if (!have?.menorah) note_unported('pline.c impossible');
+        if (have) have.menorah = 0;
+    } else if (obj.otyp === BELL_OF_OPENING) {
+        if (!have?.bell) note_unported('pline.c impossible');
+        if (have) have.bell = 0;
+    } else if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
+        if (!have?.book) note_unported('pline.c impossible');
+        if (have) have.book = 0;
+    } else if (obj.oartifact) {
+        if (is_quest_artifact(obj, state)) {
+            if (!have?.questart) note_unported('pline.c impossible');
+            if (have) have.questart = 0;
+        }
+        // invent.c:freeinv_core() discards this void helper's result. Its
+        // carried-artifact removal branch is not ported in artifacts.js.
+        note_unported('artifact.c set_artifact_intrinsic');
     }
 
     if (obj.otyp === LOADSTONE) {
         curse(obj, env);
-    } else if (obj.otyp === LUCKSTONE || obj.oartifact) {
-        if (facts.confersLuck) {
-            set_moreluck(env.state);
-            env.state.disp ??= {};
-            env.state.disp.botl = true;
-        }
+    } else if (facts.confersLuck) {
+        set_moreluck(state);
+        state.disp ??= {};
+        state.disp.botl = true;
     } else if (obj.otyp === FIGURINE && obj.timed) {
         requiredHook(env, 'stopFigurineTimer', obj)(obj, env);
         if (obj.timed)
             throw new Error('stopFigurineTimer must clear obj.timed');
     }
 
-    if (env.state.context?.tin?.tin === obj) {
-        env.state.context.tin.tin = null;
-        env.state.context.tin.o_id = 0;
+    if (state.context?.tin?.tin === obj) {
+        state.context.tin.tin = null;
+        state.context.tin.o_id = 0;
     }
 }
 
