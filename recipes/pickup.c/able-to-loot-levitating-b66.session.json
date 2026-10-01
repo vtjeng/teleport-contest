@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup miss retained outside recordings: the correct box key o succeeds, but the hero starts on the stairs; dropping there prints “A large box hits the stairs,” and #loot reaches only can_reach_floor refusal for the stairs, not able_to_loot. The exact C artifact and run-zEWUBP receipt are in .cache/B66-logs. The next frozen variation steps onto an ordinary room square before dropping.",
+  "segments": [
+    {
+      "seed": 66021001,
+      "datetime": "20420217141200",
+      "nethackrc": "OPTIONS=name:B66LootCeiling,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizwish\npotion of levitation\nqn#wizwish\nlarge box\ndo#loot\n"
+    }
+  ]
+}

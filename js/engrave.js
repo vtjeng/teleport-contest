@@ -1,6 +1,6 @@
 // Engraving commands, creation, and erosion.
-// C ref: engrave.c doengrave(), u_can_engrave(), engrave(), make_engr_at(),
-// wipe_engr_at(), wipeout_text(), and freehand().
+// C ref: engrave.c cant_reach_floor(), doengrave(), u_can_engrave(),
+// engrave(), make_engr_at(), wipe_engr_at(), wipeout_text(), and freehand().
 
 import {
     ACCESSIBLE,
@@ -43,7 +43,7 @@ import {
 } from './const.js';
 import { exercise_nonphysical } from './attrib.js';
 import { ART_FIRE_BRAND, is_art } from './artifacts.js';
-import { on_level, surface, surface_typ } from './dungeon.js';
+import { ceiling, on_level, surface, surface_typ } from './dungeon.js';
 import { game } from './gstate.js';
 import {
     decodeUtf8ByteString,
@@ -1222,9 +1222,7 @@ export async function cant_reach_floor(
         : 'You';
     let what;
     if (up) {
-        // ceiling() imported from dungeon.js is not needed in this port's
-        // callers yet; the only live call passes up=false.
-        throw new Error('cant_reach_floor up=true not ported');
+        what = ceiling(x, y, state);
     } else {
         what = (checkPit && can_reach_floor(false, state))
             ? 'bottom of the pit'

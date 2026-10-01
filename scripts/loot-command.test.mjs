@@ -6,7 +6,14 @@ import {
     BAG_OF_HOLDING, CHEST, GOLD_PIECE, ICE_BOX, LARGE_BOX, LEASH,
     SCR_IDENTIFY, TOOL_CLASS,
 } from '../js/objects.js';
-import { ECMD_TIME, OBJ_INVENT, SELL_NORMAL } from '../js/const.js';
+import {
+    ECMD_TIME,
+    LEVITATION,
+    OBJ_INVENT,
+    P_RIDING,
+    SELL_NORMAL,
+} from '../js/const.js';
+import { surface } from '../js/dungeon.js';
 import { add_to_container } from '../js/invent.js';
 import {
     container_at,
@@ -118,6 +125,39 @@ test('container_at counts containers on a square', async () => {
     assert.equal(container_at(ux, uy, false, state), 1,
         'chest + ice box (countem=false) -> count 1 (early exit)');
 });
+
+test('doloot routes an unreachable floor through cant_reach_floor',
+    async () => {
+        const state = await heroOnCleanSquare();
+        const { ux, uy } = state.u;
+        placeFloorObjects(state, [{ otyp: LARGE_BOX, olocked: 0 }]);
+        state.u.uprops[LEVITATION] = { intrinsic: 1 };
+        clearTtyMessageWindow(state);
+
+        // pickup.c:2220 calls able_to_loot before opening a floor container;
+        // its false return ends #loot after cant_reach_floor emits the source
+        // surface wording.
+        assert.equal(await doloot(state), 0);
+        assert.equal(state.nhDisplay?.toplines,
+            `You can't reach the ${surface(ux, uy, state)}.`);
+    });
+
+test('doloot retains the source-named unskilled-rider output gap',
+    async () => {
+        const state = await heroOnCleanSquare();
+        const { ux, uy } = state.u;
+        placeFloorObjects(state, [{ otyp: LARGE_BOX, olocked: 0 }]);
+        state.u.usteed = {};
+        state.u.weapon_skills ??= [];
+        state.u.weapon_skills[P_RIDING] = { skill: 0 };
+        clearTtyMessageWindow(state);
+        const toplinesBefore = state.nhDisplay?.toplines ?? '';
+
+        assert.equal(await doloot(state), 0);
+        assert.ok(state.unported.has('steed.c rider_cant_reach'));
+        assert.equal(state.nhDisplay?.toplines ?? '', toplinesBefore);
+        assert.equal(state.level.objects[ux][uy]?.otyp, LARGE_BOX);
+    });
 
 // -- isContainer boundary check --
 

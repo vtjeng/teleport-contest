@@ -21,12 +21,14 @@ import {
     STONE,
 } from '../js/const.js';
 import {
+    cant_reach_floor,
     doengrave,
     engr_at,
     make_engr_at,
     read_engr_at,
     u_can_engrave,
 } from '../js/engrave.js';
+import { surface } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -64,6 +66,43 @@ function engravingGateEnv(state, {
 } = {}) {
     return { cantWield, checkCapacity, message, state };
 }
+
+test('cant_reach_floor selects the C ceiling, pit, surface, and wand wording',
+    async () => {
+        const segment = loadEngraveFingertipDustRecipe().segments[0];
+        await runSegment({ ...segment, moves: '' });
+        const state = game;
+        const { ux, uy } = state.u;
+        const messages = [];
+        const pline = async (message) => messages.push(message);
+
+        // engrave.c:224-228 selects ceiling(x,y) before any pit/floor test
+        // when up is true; the admitted Healer trace names this room ceiling.
+        await cant_reach_floor(
+            ux, uy, true, true, false, state, { pline },
+        );
+        assert.deepEqual(messages, ["You can't reach the ceiling."]);
+
+        // engrave.c uses can_reach_floor(FALSE) only when check_pit is true.
+        messages.length = 0;
+        await cant_reach_floor(
+            ux, uy, false, true, false, state, { pline },
+        );
+        assert.deepEqual(messages, ["You can't reach the bottom of the pit."]);
+
+        // A levitating hero cannot reach the surface; the wand subject is
+        // selected independently at engrave.c:222-224.
+        state.u.uprops[LEVITATION] = { intrinsic: 1 };
+        const surfaceName = surface(ux, uy, state);
+        messages.length = 0;
+        await cant_reach_floor(
+            ux, uy, false, true, true, state, { pline },
+        );
+        assert.deepEqual(messages, [
+            'The wand does nothing more, and the tip of the wand '
+                + `can't reach the ${surfaceName}.`,
+        ]);
+    });
 
 test('u_can_engrave follows C terrain, engulfing, and return checks', async () => {
     for (const [typ, expected] of [

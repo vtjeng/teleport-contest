@@ -125626,6 +125626,330 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-engrave-cant-reach-floor-synthetic-v15-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete floor-reach messages and wire their callers",
+      "cFile": "engrave.c",
+      "sessions": [
+        "synthetic/v15/healer-stethoscope-ceiling"
+      ],
+      "selectionReason": "Select synthetic/v15/healer-stethoscope-ceiling from the complete fifteen-batch evaluations and its completed investigation. The missing ceiling refusal is whole engrave.c:cant_reach_floor, whose existing JavaScript body refuses up=true while use_stethoscope skips its upward call. Complete that helper and wire both the upward apply.c:use_stethoscope arm and pickup.c:able_to_loot unreachable-floor arm; its independent doloot and dotip recordings match. Existing dig, engrave, and lock downward callers remain source-aligned. Only cant_reach_floor receives primary completion credit. The unskilled-rider branch retains its exact discarded-void steed.c:rider_cant_reach gap. Fixed44 is clean, B65 is accepted and published, and no other worker owns these reserved functions.",
+      "detail": "Whole engrave.c:cant_reach_floor218–228 preserves subject formatting, ceiling-first selection, conditional can_reach_floor(FALSE), surface fallback, and pline timing. Apply and pickup caller changes remove their helper gap/refusal without claiming whole commands. Root verified source and immutable check logs; helper-only entryPoints are empty with production callers and runtime evidence recorded.",
+      "openedAt": "6d39f5b17ffc588ba1425a09fabb25b026b365dc",
+      "openStanding": {
+        "sha": "d23e5f2d8fa377e5ff69d9cf62e4b7ad85cdb698",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "090b04c8dae58144172a338f4665899b458416dc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "cant_reach_floor",
+          "line": 218,
+          "endLine": 230,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 218,
+        "to": 230
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/healer-stethoscope-ceiling": {
+          "session": "synthetic/v15/healer-stethoscope-ceiling",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "healer-stethoscope-ceiling",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/healer-stethoscope-ceiling.session.json",
+          "recordingSha256": "2243f26d182c9e5c7294ec34239fd94621f46047375967b35958a5d15e6e3051",
+          "evaluationPath": "challenges/evaluations/20261001052642-v15.json",
+          "evaluationCommit": "d23e5f2d8fa377e5ff69d9cf62e4b7ad85cdb698"
+        }
+      },
+      "activeStanding": {
+        "sha": "d23e5f2d8fa377e5ff69d9cf62e4b7ad85cdb698",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "healer-stethoscope-ceiling",
+          "session": "synthetic/v15/healer-stethoscope-ceiling",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/healer-stethoscope-ceiling.session.json",
+          "recordingPath": "challenges/cases/v15/healer-stethoscope-ceiling.session.json",
+          "recordingSha256": "2243f26d182c9e5c7294ec34239fd94621f46047375967b35958a5d15e6e3051",
+          "recipe": "challenges/cases/v15/healer-stethoscope-ceiling.recipe.session.json",
+          "recipeSha256": "9a050db2c4f61c01e2a28b2531ab8f7230428f16533217ded6326bac7cb4fd1e",
+          "replayInputSha256": "7dada8e2b40e65e7f30e9e68e5ad301ec4ef986150ca9c1d7e69744286be52ff",
+          "evaluationPath": "challenges/evaluations/20261001052642-v15.json",
+          "evaluationCommit": "d23e5f2d8fa377e5ff69d9cf62e4b7ad85cdb698",
+          "evaluationArtifact": "challenges/evaluations/20261001052642-v15.json",
+          "evaluationUtc": "2026-10-01T05:27:15.163Z",
+          "remainingScreens": 1,
+          "recordedSteps": 26,
+          "previousScreensMatched": 25,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 25,
+              "total": 26
+            },
+            "rng": {
+              "matched": 2737,
+              "total": 2737
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 26
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 25,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 25,
+                "key": "<"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 25,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/healer-stethoscope-ceiling.json",
+            "result": {
+              "session": "synthetic/v15/healer-stethoscope-ceiling",
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "healer-stethoscope-ceiling",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingPath": "challenges/cases/v15/healer-stethoscope-ceiling.session.json",
+              "recordingSha256": "2243f26d182c9e5c7294ec34239fd94621f46047375967b35958a5d15e6e3051",
+              "recipePath": "challenges/cases/v15/healer-stethoscope-ceiling.recipe.session.json",
+              "recipeSha256": "9a050db2c4f61c01e2a28b2531ab8f7230428f16533217ded6326bac7cb4fd1e",
+              "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "remainingScreens": 1,
+              "recordedSteps": 26,
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "healer-stethoscope-ceiling",
+                "session": "synthetic/v15/healer-stethoscope-ceiling",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/healer-stethoscope-ceiling.session.json",
+                "recordingPath": "challenges/cases/v15/healer-stethoscope-ceiling.session.json",
+                "recordingSha256": "2243f26d182c9e5c7294ec34239fd94621f46047375967b35958a5d15e6e3051",
+                "recipe": "challenges/cases/v15/healer-stethoscope-ceiling.recipe.session.json",
+                "recipeSha256": "9a050db2c4f61c01e2a28b2531ab8f7230428f16533217ded6326bac7cb4fd1e",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 1,
+                "recordedSteps": 26,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 25,
+                    "total": 26
+                  },
+                  "rng": {
+                    "matched": 2737,
+                    "total": 2737
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 26
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 25,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 25,
+                      "key": "<"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 25,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At step 25/key <, the Healer points a stethoscope upward from a room tile. C apply.c:use_stethoscope calls engrave.c:cant_reach_floor(u.ux, u.uy, TRUE, TRUE, FALSE), which emits “You can't reach the ceiling.” The saved diagnostic shows that JavaScript skips this call with note_unported(\"engrave.c cant_reach_floor\"), leaving the message out while all RNG entries and cursor positions still match. The actionable source owner is the whole engrave.c:cant_reach_floor function, with the use_stethoscope call wired through its already-present JavaScript helper.",
+              "source": {
+                "file": "engrave.c",
+                "functions": [
+                  "cant_reach_floor"
+                ],
+                "branch": "Whole-function scope is engrave.c:cant_reach_floor() (217-228), called after a caller establishes that the hero cannot reach. For the assigned path, apply.c:use_stethoscope() has u.dz < 0 and passes up=TRUE, check_pit=TRUE, wand_engraving=FALSE, so ceiling(x,y) supplies “ceiling” and the emitted line is “You can't reach the ceiling.” The complete function also keeps the downward bottom-of-pit versus surface choice and the wand-engraving subject wording.",
+                "callers": [
+                  "apply.c:use_stethoscope() (363-364), selected by apply.c:doapply() for STETHOSCOPE (4327-4329). The assigned input uses #wizwish to obtain the stethoscope, applies it, then sends <. In frozen js/apply.js, doapply() dispatches to use_stethoscope(), whose u.dz < 0 arm records note_unported(\"engrave.c cant_reach_floor\") at 2435-2436 instead of calling the existing JS helper. The C helper returns void; use_stethoscope() returns its ECMD result to doapply().",
+                  "pickup.c:able_to_loot() (2052), called by doloot() (2220) and dotip() (3594). js/pickup.js:able_to_loot() currently refuses the unreachable-floor branch before calling either rider_cant_reach() or cant_reach_floor(); this is a separate incomplete caller path and is not reached by the assigned case.",
+                  "dig.c:use_pick_axe2() (1317, 1327) calls the helper for two downward-reach refusals; frozen js/dig.js already routes the corresponding arms to js/engrave.js:cant_reach_floor().",
+                  "engrave.c:u_can_engrave() (512) and engrave.c:doengrave() (1005, 1102) call the helper for swallowed, floor-reach, and wand-engraving refusals; frozen js/engrave.js already routes these downward arms to the helper.",
+                  "lock.c:forcelock() (703) calls the helper for the floor-reach refusal; frozen js/lock.js already routes that arm to the helper."
+                ],
+                "dependencies": [
+                  "dungeon.c:ceiling() (1714-1746) returns the description consumed by the up=true message. Its JavaScript counterpart exists at js/dungeon.js:1731, but js/engrave.js does not currently import it.",
+                  "dungeon.c:surface() supplies the downward non-pit description; js/engrave.js already imports and uses its JavaScript counterpart.",
+                  "engrave.c:can_reach_floor(FALSE) supplies the Boolean used by the downward check_pit wording; its JavaScript counterpart is already implemented in js/engrave.js.",
+                  "C pline() emits the message. The JavaScript helper represents this output through its injected pline callback. cant_reach_floor() returns void, and its callers discard the result."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved diagnostic .cache/synthetic-scans/v15/healer-stethoscope-ceiling.json reports 25/26 screens matched, 2737/2737 RNG entries matched, and 26/26 cursors matched. Its only mismatch is the screen at segment 0, step 25, key <; cell row 0, column 0 is C “Y” versus JavaScript space. It records engrave.c cant_reach_floor as unported. The immutable challenges/cases/v15/healer-stethoscope-ceiling.session.json shows the C screen at step 25 beginning “You can't reach the ceiling.”; the input recipe is challenges/cases/v15/healer-stethoscope-ceiling.recipe.session.json.",
+                "The source owner is engrave.c:cant_reach_floor() at 217-228. It emits pline(\"%s can't reach the %s.\", ...), using ceiling(x,y) when up is true and otherwise selecting “bottom of the pit” or surface(x,y); wand_engraving selects the message subject. The contextual source path is apply.c:use_stethoscope() at 363-364, reached from apply.c:doapply() at 4327-4329. This resolves the manifest’s caller-level attribution to use_stethoscope into the direct message-producing function.",
+                "Frozen js/apply.js:2435-2436 skips the upward call with note_unported(\"engrave.c cant_reach_floor\"). Frozen js/engrave.js:1215-1232 already ports the helper’s downward branch but throws when up=true; the helper currently does not import the existing js/dungeon.js:ceiling(). Port the entire C helper and route the existing use_stethoscope caller through it to cover the assigned mismatch.",
+                "The helper is directly called by pickup.c:able_to_loot (2052), dig.c:use_pick_axe2 (1317, 1327), engrave.c:u_can_engrave (512), engrave.c:doengrave (1005, 1102), and lock.c:forcelock (703). The JS dig, engraving, and lock callers already use the helper for their downward branches; pickup.js still refuses its unreachable-floor branch because both rider_cant_reach() and cant_reach_floor() are missing there. That branch is separate from the assigned upward stethoscope path."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "cant_reach_floor",
+            "implementation": "js/engrave.js",
+            "symbol": "cant_reach_floor",
+            "sourceReview": "Whole engrave.c:cant_reach_floor definition, lines 218–228, at the assigned C source gitlink. The helper formats the subject (hero or wand), selects ceiling(x,y) when up is true, otherwise chooses “bottom of the pit” only when check_pit and can_reach_floor(FALSE), and falls back to surface(x,y). It emits through the caller-provided pline callback and makes no RNG or game-state changes. The up=true branch now calls the existing dungeon.c:ceiling port; the downward branches preserve source order and wording. C callers discard this helper’s void result. The existing downward callers remain wired in dig.c:use_pick_axe2, engrave.c:u_can_engrave/doengrave, and lock.c:forcelock. This task wires apply.c:use_stethoscope’s upward arm and pickup.c:able_to_loot’s unreachable-floor arm. For an unskilled rider, C calls the discarded void steed.c:rider_cant_reach; JS records note_unported('steed.c rider_cant_reach') at that exact arm. Other non-rider unreachable-floor paths emit cant_reach_floor and return false.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_stethoscope",
+                "source": "apply.c:use_stethoscope calls cant_reach_floor at lines 363–364 after its direction selection; the up=true caller is covered by the admitted v15 range."
+              },
+              {
+                "path": "js/pickup.js",
+                "symbol": "able_to_loot",
+                "source": "pickup.c:able_to_loot calls cant_reach_floor at line 2052 when the hero cannot reach the floor; its production callers are doloot at line 2220 and dotip at line 3594."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "use_pick_axe2",
+                "source": "dig.c:use_pick_axe2 calls the helper at lines 1317 and 1327 for downward refusals; this existing JS caller remains wired."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "u_can_engrave",
+                "source": "engrave.c:u_can_engrave calls the helper at line 512; this existing JS caller remains wired."
+              },
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave calls the helper at lines 1005 and 1102; this existing JS caller remains wired."
+              },
+              {
+                "path": "js/lock.js",
+                "symbol": "forcelock",
+                "source": "lock.c:forcelock calls the helper at line 703; this existing JS caller remains wired."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-stethoscope.test.mjs",
+              "scripts/engrave-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/able-to-loot-levitating-room-square-b66.session.json",
+              "recordings/pickup.c/able-to-loot-tip-levitating-complete-b66.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "healer-stethoscope-ceiling",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "apply.c:doapply -> apply.c:use_stethoscope (dz<0) -> engrave.c:cant_reach_floor(up=TRUE); the source message appears at the final cited step."
+              }
+            ],
+            "checkedAt": "d678c214cef1c821d0ca413ee3517f972598df9d"
+          }
+        ],
+        "entryPointReview": "The selected source range is the helper-only engrave.c:cant_reach_floor function. Its active direct production callers are apply.c:use_stethoscope, pickup.c:able_to_loot (through doloot and dotip), dig.c:use_pick_axe2, engrave.c:u_can_engrave/doengrave, and lock.c:forcelock. The existing downward dig/engrave/lock callers were already wired and remain unchanged. B66 wires the upward stethoscope branch and the unreachable-floor arm in able_to_loot. The admitted v15 Healer range exercises use_stethoscope -> cant_reach_floor(up=TRUE). The independent #loot recording executes doloot -> able_to_loot -> cant_reach_floor; the complete #tip recording executes dotip -> able_to_loot -> cant_reach_floor, then continues through C’s inventory-selection fallback and cancels it. Source-pinned tests cover ceiling, pit-bottom, surface, and wand wording. The unskilled-rider arm retains the exact discarded-void steed.c:rider_cant_reach gap and has no fabricated output. Failed setup/fixture attempts remain in .cache/B66-logs; only the two fully matching recordings are in recordings/. Per .agents/validation.md, this single selected helper uses the helper-only evidence form with entryPoints empty; its production call graph and all task-added runtime routes are explained above, while function-level synthetic and recording evidence proves the helper executes through real callers.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "090b04c8dae58144172a338f4665899b458416dc",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

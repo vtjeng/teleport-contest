@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Complete independent C-first #tip witness for pickup.c:able_to_loot through dotip(). The frozen target prefix reached cant_reach_floor and ended on its More prompt; C source shows dotip then falls through to inventory selection when able_to_loot returns false. Add space to dismiss the helper message and Escape to cancel the inventory selector so strict replay covers that source continuation as well.",
+  "segments": [
+    {
+      "seed": 66021002,
+      "datetime": "20420218141200",
+      "nethackrc": "OPTIONS=name:B66TipCeiling,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizwish\npotion of levitation\nqol#wizwish\nlarge box\ndp#tip\n \u001b"
+    }
+  ]
+}

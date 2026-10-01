@@ -1052,11 +1052,12 @@ test('use_stethoscope follows early branches and reports mounted and held monste
     assert.equal(down.error, undefined);
     assert.match(pendingTopLine(), /^The (?:floor|stairs) seems healthy enough\.$/);
 
-    // C's vertical order precedes the cursed heartbeat roll. The upward
-    // cant_reach_floor() call is void and remains a named source gap.
+    // C's vertical order precedes the cursed heartbeat roll. Its void helper
+    // call still emits the ceiling refusal before the cursed heartbeat roll.
     const up = await drive(() => {}, ['c', '<']);
     assert.equal(up.error, undefined);
-    assert.ok(game.unported.has('engrave.c cant_reach_floor'));
+    assert.equal(pendingTopLine(), "You can't reach the ceiling.");
+    assert.equal(game.unported.has('engrave.c cant_reach_floor'), false);
 
     // C's cursed arm is `obj->cursed && !rn2(2)`. It must make the one source
     // draw and either hear a beat or fall through to the direction prompt.

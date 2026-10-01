@@ -68,6 +68,8 @@ import {
     OBJ_FLOOR,
     OBJ_MINVENT,
     ONAME_NO_FLAGS,
+    P_BASIC,
+    P_RIDING,
     PICK_ANY,
     PICK_ONE,
     JUSTPICKED,
@@ -118,7 +120,12 @@ import { hliquid } from './do_name.js';
 import { ceiling, surface, surface_typ } from './dungeon.js';
 import { doaltarobj, dropy, revive_corpse, trycall } from './do.js';
 import { exercise } from './attrib.js';
-import { can_reach_floor, freehand, read_engr_at } from './engrave.js';
+import {
+    can_reach_floor,
+    cant_reach_floor,
+    freehand,
+    read_engr_at,
+} from './engrave.js';
 import { makesingular } from './fruit.js';
 import { christen_monst, Monnam, oname, rndmonnam } from './do_name.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -1722,18 +1729,22 @@ export function container_at(x, y, countem, state = game) {
 }
 
 // C ref: pickup.c able_to_loot() (2041-2069). Returns true when the hero can
-// loot or tip at (x, y). The only call in this slice passes looting = true.
+// loot or tip at (x, y); doloot() and dotip() pass different looting values.
 async function able_to_loot(x, y, looting, state) {
     const verb = looting ? 'loot' : 'tip';
     const trap = t_at(x, y, state);
     if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
-        // C's two arms need rider_cant_reach() and cant_reach_floor(), neither
-        // of which is exported. The hero must be levitating, riding, or in a
-        // pit to reach this point, and none of those states appear in the
-        // current witness.
-        throw new UnsupportedPickupError(
-            'able_to_loot: hero cannot reach the floor',
-        );
+        // pickup.c:2049-2053. The rider helper's result is discarded; keep its
+        // exact remaining output gap instead of fabricating the message.
+        const ridingSkill = state.u.weapon_skills?.[P_RIDING]?.skill ?? 0;
+        if (state.u.usteed && ridingSkill < P_BASIC) {
+            note_unported('steed.c rider_cant_reach');
+        } else {
+            await cant_reach_floor(
+                x, y, false, true, false, state, { pline: ttyPline },
+            );
+        }
+        return false;
     } else if ((is_pool(x, y, state) && (looting || !state.u.uinwater))
         || is_lava(x, y, state)) {
         await ttyPline(
