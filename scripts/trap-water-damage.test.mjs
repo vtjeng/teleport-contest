@@ -28,7 +28,17 @@ import {
     water_damage_chain,
     water_damage,
     water_damage_monster_equipment,
+    fire_damage,
 } from '../js/trap_water_damage.js';
+import { OIL_LAMP, TOOL_CLASS } from '../js/objects.js';
+import { init_objects } from '../js/o_init.js';
+
+// These valid coordinates route the carried object through the source
+// get_obj_location() case used by fire_damage() -> catch_lit().
+const HERO_X = 2;
+const HERO_Y = 3;
+const FUELED_LAMP_AGE = 100;
+const SINGULAR_LAMP_QUANTITY = 1;
 
 function wornObject(overrides = {}) {
     return {
@@ -45,6 +55,45 @@ test('a missing rust-trap target needs no water-damage operations',
     async () => {
         const result = await water_damage_monster_equipment(null, null);
         assert.equal(result, ER_NOTHING);
+    });
+
+test('fire_damage returns false when catch_lit handles a carried lamp',
+    async () => {
+        const state = {
+            gm: {},
+            u: { uprops: [], ux: HERO_X, uy: HERO_Y },
+        };
+        // Seed the source object catalog deterministically for Yname2().
+        init_objects(state, () => 0);
+        const lamp = {
+            age: FUELED_LAMP_AGE,
+            cursed: false,
+            lamplit: false,
+            otyp: OIL_LAMP,
+            oclass: TOOL_CLASS,
+            quan: SINGULAR_LAMP_QUANTITY,
+            spe: 1,
+            where: OBJ_INVENT,
+        };
+        const events = [];
+
+        const destroyed = await fire_damage(lamp, false, HERO_X, HERO_Y, {
+            beginBurn: (obj, alreadyLit) => {
+                events.push(['burn', obj, alreadyLit]);
+                obj.lamplit = true;
+            },
+            message: (line) => events.push(['message', line]),
+            random: {
+                rn2: () => assert.fail(
+                    'catch_lit returning true skips fire destruction',
+                ),
+            },
+            state,
+        });
+
+        assert.equal(destroyed, false);
+        assert.equal(lamp.lamplit, true);
+        assert.deepEqual(events.map((event) => event[0]), ['message', 'burn']);
     });
 
 test('non-equipment is rejected before an illuminated item can mutate',

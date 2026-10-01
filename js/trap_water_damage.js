@@ -30,7 +30,7 @@ import {
     W_ARMOR,
     W_WEP,
 } from './const.js';
-import { catch_item_light } from './apply_catch_lit.js';
+import { catch_lit } from './apply_catch_lit.js';
 import { splash_monster_light } from './apply_splash_lit.js';
 import { obj_resists } from './bury.js';
 import {
@@ -334,11 +334,9 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const visible = floorFireVisible(x, y, state);
 
-    // apply.c catch_lit() returns TRUE when the fire is handled by starting a
-    // controlled burn.  It has a complete floor-object owner; use it before
-    // the destruction tests, as the C call does.
-    const catchLit = rawEnv.catchLit ?? catch_item_light;
-    if (await catchLit(obj, {
+    // C trap.c calls apply.c catch_lit() before fire damage; TRUE means the
+    // controlled burn handled this object, so skip destruction.
+    if (await catch_lit(obj, {
         ...rawEnv,
         state,
         random,
