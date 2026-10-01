@@ -51,6 +51,7 @@ import { S_upstair } from '../js/symbols.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { inv_weight, weight_cap } from '../js/hack.js';
+import { check_special_room } from '../js/rooms.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     UnsupportedRegionPlacementError,
@@ -73,14 +74,24 @@ import {
     APPLE, CORPSE, DWARVISH_MATTOCK, ELVEN_DAGGER, PICK_AXE, TIN,
 } from '../js/objects.js';
 import {
+    autopick_testobj,
     pickup,
     preflight_projected_random_arrival_pickup,
 } from '../js/pickup.js';
 import { com_pager } from '../js/questpgr.js';
-import { create_region, visible_region_at } from '../js/region.js';
+import {
+    create_region,
+    in_out_region,
+    visible_region_at,
+} from '../js/region.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { roles } from '../js/roles.js';
-import { costly_spot, inside_shop, u_entered_shop } from '../js/shk.js';
+import {
+    costly_spot,
+    get_cost_of_shop_item,
+    inside_shop,
+    u_entered_shop,
+} from '../js/shk.js';
 import { shkname } from '../js/shknam.js';
 import { SHTYPES } from '../js/shtypes_data.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
@@ -1003,7 +1014,9 @@ test('rejected overweight random arrival preserves the live weight cache',
         );
     });
 
-test('random shop arrival preflights owned stock pricing', async () => {
+test('random shop arrival admits and manually bills source-priced stock', async () => {
+    // This fixed setup produces an active shop; the test finds an empty shop
+    // square dynamically so the placement input is not tied to map geometry.
     await runSegment({
         seed: 7621001,
         datetime: '20310417113000',
@@ -1039,17 +1052,6 @@ test('random shop arrival preflights owned stock pricing', async () => {
         false,
         objectGenerationEnv({ state: game }),
     );
-    // mksobj_at() prepends, so this supported object is visited before the
-    // unsupported tin. A dry preflight must not discover or quote it before
-    // the later member refuses the whole arrival.
-    const eligible = mksobj_at(
-        APPLE,
-        destination.x,
-        destination.y,
-        false,
-        false,
-        objectGenerationEnv({ state: game }),
-    );
     game.dndest = {
         lx: destination.x,
         ly: destination.y,
@@ -1057,7 +1059,7 @@ test('random shop arrival preflights owned stock pricing', async () => {
         hy: destination.y,
     };
     const extension = room.resident.mextra.eshk;
-    const quoteSnapshot = () => [...new Set([eligible.otyp, tin.otyp])]
+    const quoteSnapshot = () => [...new Set([tin.otyp])]
         .sort((left, right) => left - right)
         .map((otyp) => {
             const type = game.objects[otyp];
@@ -1069,100 +1071,50 @@ test('random shop arrival preflights owned stock pricing', async () => {
                 type.oc_sell_maxseen,
             ];
         });
-    enableRngLog();
-    const before = {
-        hero: structuredClone(game.u),
-        rng: structuredClone(game.coreCtx),
-        log: [...getRngLog()],
-        achievement: [...game.u.uachieved],
-        shop: structuredClone({
-            visitct: extension.visitct,
-            customer: extension.customer,
-            bill_p: extension.bill_p,
-            following: extension.following,
-        }),
-        objects: [eligible, tin].map((object) => ({
-            dknown: object.dknown,
-            where: object.where,
-            nobj: object.nobj,
-            nexthere: object.nexthere,
-        })),
-        floor: game.level.objects[destination.x][destination.y],
-        list: game.level.objlist,
-        quotes: quoteSnapshot(),
-        toplines: game._ttyToplines,
-        grid: structuredClone(game.nhDisplay.grid),
-        cursor: [
-            game.nhDisplay.cursorCol,
-            game.nhDisplay.cursorRow,
-            game.nhDisplay.cursorVisible,
-        ],
-    };
+    const beforeBillCount = extension.billct;
+    const beforeQuotes = quoteSnapshot();
 
-    await assert.rejects(
-        () => place_random_arrival(0, game),
-        /corpse, tin, or egg pricing adjustment/u,
-    );
-
-    assert.deepEqual(game.u, before.hero);
-    assert.deepEqual(game.coreCtx, before.rng);
-    assert.deepEqual(getRngLog(), before.log);
-    assert.deepEqual(game.u.uachieved, before.achievement);
-    assert.deepEqual({
-        visitct: extension.visitct,
-        customer: extension.customer,
-        bill_p: extension.bill_p,
-        following: extension.following,
-    }, before.shop);
-    assert.deepEqual([eligible, tin].map((object) => ({
-        dknown: object.dknown,
-        where: object.where,
-        nobj: object.nobj,
-        nexthere: object.nexthere,
-    })), before.objects);
-    assert.equal(game.level.objects[destination.x][destination.y],
-        before.floor);
-    assert.equal(game.level.objlist, before.list);
-    assert.deepEqual(quoteSnapshot(), before.quotes);
-    assert.equal(game._ttyToplines, before.toplines);
-    assert.deepEqual(game.nhDisplay.grid, before.grid);
-    assert.deepEqual([
-        game.nhDisplay.cursorCol,
-        game.nhDisplay.cursorRow,
-        game.nhDisplay.cursorVisible,
-    ], before.cursor);
-
-    // A supported owned object must pass with the destination shop projected
-    // as current. Treating this as new-level room clearing loses u.ushops and
-    // turns valid pricing into an ownership refusal.
-    let admitted = null;
-    for (let x = room.lx; x <= room.hx && !admitted; ++x) {
-        for (let y = room.ly; y <= room.hy; ++y) {
-            if (!game.level.at(x, y).edge
-                && !game.level.objects[x]?.[y]
-                && !m_at(x, y, game)) {
-                admitted = { x, y };
-                break;
-            }
-        }
-    }
-    assert.ok(admitted);
-    mksobj_at(
-        APPLE,
-        admitted.x,
-        admitted.y,
-        false,
-        false,
-        objectGenerationEnv({ state: game }),
-    );
-    game.dndest = {
-        lx: admitted.x,
-        ly: admitted.y,
-        hx: admitted.x,
-        hy: admitted.y,
-    };
+    // do.c:goto_level() uses u_on_rndspot(0) for this arrival branch, then
+    // performs its special-room and region callbacks before pickup(1). The
+    // helper call below tests the same placement preflight; the remaining
+    // calls preserve that source order before the arrival autopickup.
     await place_random_arrival(0, game);
-    assert.deepEqual([game.u.ux, game.u.uy], [admitted.x, admitted.y]);
+    assert.deepEqual([game.u.ux, game.u.uy], [destination.x, destination.y]);
+    assert.deepEqual(quoteSnapshot(), beforeQuotes);
+    assert.equal(extension.billct, beforeBillCount);
+    assert.equal(tin.where, OBJ_FLOOR);
+
+    await check_special_room(false, game);
+    assert.equal(
+        await in_out_region(game.u.ux, game.u.uy, { state: game }),
+        true,
+    );
+
+    const quote = get_cost_of_shop_item(tin, game);
+    assert.equal(quote.applicable, true);
+    assert.ok(quote.cost > 0);
+    assert.equal(costly_spot(tin.ox, tin.oy, game), true);
+    // pickup.c:autopick_testobj rejects ordinary shop stock on a costly
+    // square; the manual player pickup below is the source path that bills it.
+    assert.equal(autopick_testobj(tin, true, game), false);
+
+    // A single-item manual pickup skips the class menu, asks for confirmation,
+    // and bills the tin at the quote computed from its active shopkeeper.
+    // The C addtobill price line and following pickup line each cause one
+    // page wait here; a space only dismisses that wait, not a game action.
+    game.nhDisplay.pushKey('y'.charCodeAt(0));
+    for (let index = 0; index < 2; ++index)
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+    assert.equal(await pickup(0, game), 1);
+    assert.equal(game.nhDisplay.inputQueueLength, 0);
+    assert.equal(tin.where, OBJ_INVENT);
+    assert.equal(tin.unpaid, 1);
+    assert.equal(extension.billct, beforeBillCount + 1);
+    assert.deepEqual(
+        extension.bill_p.slice(beforeBillCount, extension.billct)
+            .map(({ bo_id, price }) => [bo_id, price]),
+        [[tin.o_id, quote.cost]],
+    );
 });
 
 test('the Quest portal pager spends its private shuffle before exact lines',
