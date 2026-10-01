@@ -358,11 +358,14 @@ test('makewish supplies invent.c the dead-species predicate for a cursed figurin
         const segment = recipe.segments[0];
         // The source setup's seed yields rnd(9000)=3558; timeout.c adds 200,
         // so attach_fig_transform_timeout schedules 3,758 turns from the
-        // current move. This test stops at that attachment boundary; the
-        // independent C/JS recording exercises the later callback.
+        // current move. Its 10,000-turn invulnerability makes nh_timeout()
+        // return before run_timers(), so the preserved C recipe reaches only
+        // attachment. The later callback is recorded separately in
+        // figurine-timeout-wizard-wish-a61-timer-callback.session.json and
+        // figurine-timeout-wizard-wish-a61-timer-callback-seed-variation.session.json.
         const moves = segment.moves.slice(0, segment.moves.lastIndexOf('4000.'));
         assert.ok(moves.length < segment.moves.length,
-            'the recipe ends with a 4,000-turn wait covering timer expiry');
+            'the preserved attachment recipe ends with a 4,000-turn wait');
         const boundaries = [];
         await runSegment({ ...segment, moves }, {
             onBoundary(error) { boundaries.push(error); },
