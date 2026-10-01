@@ -133591,7 +133591,7 @@
     {
       "id": "port-music-charm-monsters-synthetic-v17-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete magic harp monster charm",
       "cFile": "music.c",
       "sessions": [
@@ -133605,8 +133605,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "773af83383d42a4cbec583a298a100c949c92392",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "charm_monsters",
@@ -133930,6 +133933,12 @@
         ],
         "entryPointReview": "This is a helper-only range. charm_monsters is static and its sole direct C caller is music.c:do_improvisation(MAGIC_HARP). That caller is already reached by apply.c:doapply -> music.c:do_play_instrument in the reference build. The selected v17 recording reaches the in-range hostile orc and the resistance/taming path; the independent recording reaches the in-range hostile jackal, resistance, and tamedog output through the same dispatcher. There are no additional direct helper callers in the selected range. `entryPoints` is empty under the helper-only evidence rule; this does not claim do_improvisation or do_play_instrument as complete source units.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "773af83383d42a4cbec583a298a100c949c92392",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
