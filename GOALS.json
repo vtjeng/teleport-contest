@@ -132921,6 +132921,672 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-tin-variety-metadata-synthetic-v17-20261001",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Restore source nutrition and grease values for tin varieties",
+      "cFile": "eat.c",
+      "sessions": [
+        "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+        "synthetic/v17/tin-human-wererat-cpostfx-slot-n"
+      ],
+      "selectionReason": "The published v17 baseline has two unmatched tin-consumption cases with the same source mismatch at segment 0 step 50. In orc-wizard-tin-lycanthropy-cursed-water-corrected-letters, eat.c:tin_variety selects index 7 (dried, C values 55/1/0), and js/eat.js consume_tin reads undefined nutrition from TIN_VARIETIES[7], making hunger NaN. In tin-human-wererat-cpostfx-slot-n, C selects index 9 (szechuan, 70/1/0) and requires the same metadata; its separate skipped cprefx effect limits how far that case can support replay evidence. Fix the entire source metadata table and its consuming contract; preserve separate cprefx, set_ulycn and retouch_equipment gaps. Both sessions, their v17 manifest identity, evaluation, and recording digests are retained below. Root verified all current batch evaluations, full source table fields, immutable source commit, and two independent strict runtime recordings.",
+      "detail": "Read complete eat.c tintxts[] and consume_tin/start_tin/opentin; compared all fifteen selectable rows and all four mapped fields, preserving trailing sentinel exclusion. The only game diff supplies nutrition and greasy metadata, retaining consumer order: corpse effects, rotten or source nutrition branch, homemade-only clamp, tin deletion before lesshungry, then greasy rn1/make_glib/message. Independent French-fried and deep-fried records establish restored impure grease runtime. Existing cprefx, set_ulycn and retouch_equipment gaps remain outside this single-function data correction. No complete consume_tin port credit. Original selected tin metadata produced NaN hunger at segment0 step50; restored metadata leaves a source-traced were.c:set_ulycn/artifact.c:retouch_equipment RNG gap in allmain.c after consume_tin. Human wererat remains blocked earlier by eat.c:cprefx/maybe_cannibal. No full consume_tin completion credit.",
+      "openedAt": "e0b696e9858570186c78c48e2433e049acd1aaf7",
+      "openStanding": {
+        "sha": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "1f29dddb7791d0584379eeb425ef34791d600acc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "consume_tin",
+      "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+      "step": 50,
+      "syntheticProvenance": {
+        "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters": {
+          "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+          "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+          "evaluationPath": "challenges/evaluations/20261001212440-v17.json",
+          "evaluationCommit": "e72bca0f49a6a3f0b0916114391cca2e53720a0e"
+        },
+        "synthetic/v17/tin-human-wererat-cpostfx-slot-n": {
+          "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "tin-human-wererat-cpostfx-slot-n",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+          "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+          "evaluationPath": "challenges/evaluations/20261001212440-v17.json",
+          "evaluationCommit": "e72bca0f49a6a3f0b0916114391cca2e53720a0e"
+        }
+      },
+      "activeStanding": {
+        "sha": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+          "recordingPath": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+          "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+          "recipe": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.recipe.session.json",
+          "recipeSha256": "b2ac2d535918bf55bf9cebcd14460c857b9455463d70e0fd1be37f2cf8093dcd",
+          "replayInputSha256": "9404bd9afc9600dde476a84e133acaebacd32f1050578a6c5c184fdd989d0575",
+          "evaluationPath": "challenges/evaluations/20261001212440-v17.json",
+          "evaluationCommit": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+          "evaluationArtifact": "challenges/evaluations/20261001212440-v17.json",
+          "evaluationUtc": "2026-10-01T21:25:34.872Z",
+          "remainingScreens": 28,
+          "recordedSteps": 78,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 78
+            },
+            "rng": {
+              "matched": 2669,
+              "total": 2694
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 78
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+            "step": 50
+          },
+          "step": 50,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "newuhs",
+          "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.json",
+            "result": {
+              "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 28,
+              "recordedSteps": 78,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+                "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+                "recordingPath": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+                "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+                "recipe": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.recipe.session.json",
+                "recipeSha256": "b2ac2d535918bf55bf9cebcd14460c857b9455463d70e0fd1be37f2cf8093dcd",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 28,
+                "recordedSteps": 78,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 78
+                  },
+                  "rng": {
+                    "matched": 2669,
+                    "total": 2694
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 78
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+                  "step": 50
+                },
+                "step": 50,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "newuhs",
+                "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first cause is incomplete tin-variety metadata used by the already-ported eat.c consume_tin(): C selects dried tin (index 7) and adds 55 nutrition, while JS TIN_VARIETIES[7].nutrition is undefined. lesshungry(undefined) turns hunger into NaN, which the JS hunger classifier maps to FAINTING and newuhs() refuses at step 50. The newuhs annotation is the downstream stop site, not the source defect. The same reached tin also has separate skipped cprefx and lycanthropy/equipment effects; the later cursed-water action is not reached before this stop.",
+              "source": {
+                "file": "eat.c",
+                "branch": "In consume_tin(), after the player accepts non-spinach contents from an ordinary untrapped tin, tin_variety() returns DRIED_TIN (r=7) for this recording; the C tintxts[7] entry supplies nut=55 and greasy=0 before lesshungry().",
+                "functions": [
+                  "consume_tin"
+                ],
+                "callers": [
+                  "cmd.c's 'e' command table entry dispatches to eat.c doeat().",
+                  "eat.c doeat() selects a tin and calls start_tin().",
+                  "For the recorded easy-open occupation, eat.c start_tin() installs opentin(); eat.c opentin() calls consume_tin() when the opening delay completes.",
+                  "The alternate zero-delay branch in eat.c start_tin() calls consume_tin() directly.",
+                  "The JavaScript production route is js/cmd.js runEatCommand() -> js/eat.js doeat() -> start_tin() -> opentin() -> consume_tin()."
+                ],
+                "dependencies": [
+                  "eat.c tin_variety() returns the variety index consumed by consume_tin(); the step-47 trace is rn2(15)=7 @ eat.c:1503, selecting the eighth tintxts[] entry.",
+                  "eat.c tintxts[] at eat.c:138-159 defines dried as {\"dried\", 55, 1, 0}; js/eat.js TIN_VARIETIES index 7 has name and healthFood only, so nutrition and greasy are undefined. A generalized divergence fix should carry the C nutrition and greasy fields for every table row, while retaining the existing healthFood/fodder mapping.",
+                  "C consume_tin() passes nutamt=55 to the void lesshungry(); lesshungry() adds it to u.uhunger and calls newuhs(FALSE). In JS, undefined + u.uhunger yields NaN, hungerStatus(NaN) falls through to FAINTING, and newuhs() throws its unsupported-transition marker. The valid C value does not request a fainting transition.",
+                  "consume_tin() calls void cprefx(mnum) and cpostfx(mnum), discarding both results. JS records note_unported(\"eat.c cprefx\"); cpostfx() recognizes PM_HUMAN_WERERAT but records note_unported(\"were.c set_ulycn\") and note_unported(\"artifact.c retouch_equipment\") for the C lycanthropy/equipment calls. Preserve these independent source gaps for follow-up; they do not produce the NaN nutrition stop.",
+                  "CANNIBAL_ALLOWED() in eat.c:51 includes Race_if(PM_ORC), so the current Orc does not receive the non-Orc cannibal penalty in maybe_cannibal(); cprefx remains an explicitly recorded void gap, not the reason newuhs() refuses.",
+                  "nethack-c/patches/README.md documents deterministic seed/time, stable sort, RNG logging, and screen-capture instrumentation; these patches do not alter the eat.c tin or hunger behavior."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Source: nethack-c/upstream/src/eat.c:138-160 defines tintxts[]; the dried row (index 7) is {\"dried\", 55, 1, 0}. eat.c:1488-1511 returns the tin variety, and consume_tin() at eat.c:1528-1700 selects that row and passes its nut value to lesshungry() at lines 1626-1631.",
+                "Recorded C evidence: challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json step 47 has key o and rn2(15)=7 @ tin_variety(eat.c:1503); step 48 smells like wererats, step 49 asks whether to eat it, and step 50 key y records \"You consume dried wererat.\" The first C RNG on that step is rn2(5)=3 @ distfleeck(monmove.c:538), after C has completed the consumption and returned to the turn loop.",
+                "Saved evaluation: challenges/evaluations/20261001190602-v17.json reports 50/78 screens matched and a stop at step 50 in newuhs(); the queue records 28 remaining screens. The prior accepted-preparation row missionPlanEvidence.fullSourceActionCrosswalk.retainedCases[10] independently records the same step-50 boundary and C recording SHA-256 70af4f5e…08cc0d5e.",
+                "JavaScript: js/eat.js:431-449 defines TIN_VARIETIES without nutrition or greasy fields; js/eat.js:1076-1183 consume_tin() reads both. js/eat.js:2048-2105 lesshungry() adds the supplied number, and js/eat.js:573-583 hungerStatus() maps NaN through its comparison fallthrough to FAINTING; js/eat.js:1821-1850 then throws the recorded UnsupportedHungerTransitionError marker.",
+                "The stop annotation names eat.c newuhs(), but source order and state flow show it only consumes the invalid NaN produced by missing table data. Fix the data contract from C for the complete tintxts[] table; do not make newuhs() accept invalid numeric state.",
+                "The same accepted PM_HUMAN_WERERAT tin reaches C cpostfx() at eat.c:1129-1325; JS cpostfx() at js/eat.js:2514-2748 has explicit note_unported gaps for set_ulycn and retouch_equipment. The C call cprefx() is also represented by note_unported at js/eat.js:1159-1162. These are distinct remaining source effects, not the cause of the step-50 NaN stop. The recipe’s later cursed-water input has not yet been reached.",
+                "The six recorder patches listed in nethack-c/patches/README.md provide deterministic runtime, RNG, and screen capture and do not patch gameplay behavior in eat.c."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "tin-human-wererat-cpostfx-slot-n",
+          "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+          "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+          "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+          "recipe": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.recipe.session.json",
+          "recipeSha256": "83d14defb71e451c8c58d8086465d28751945439e8c1e509ea961430d3b099d2",
+          "replayInputSha256": "9404bd9afc9600dde476a84e133acaebacd32f1050578a6c5c184fdd989d0575",
+          "evaluationPath": "challenges/evaluations/20261001212440-v17.json",
+          "evaluationCommit": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+          "evaluationArtifact": "challenges/evaluations/20261001212440-v17.json",
+          "evaluationUtc": "2026-10-01T21:25:34.872Z",
+          "remainingScreens": 1,
+          "recordedSteps": 51,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 51
+            },
+            "rng": {
+              "matched": 2623,
+              "total": 2632
+            },
+            "cursors": {
+              "matched": 50,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+            "step": 50
+          },
+          "step": 50,
+          "kind": "stop",
+          "sourceFile": "eat.c",
+          "function": "newuhs",
+          "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/tin-human-wererat-cpostfx-slot-n.json",
+            "result": {
+              "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "tin-human-wererat-cpostfx-slot-n",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+              "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 1,
+              "recordedSteps": 51,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "tin-human-wererat-cpostfx-slot-n",
+                "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+                "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+                "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+                "recipe": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.recipe.session.json",
+                "recipeSha256": "83d14defb71e451c8c58d8086465d28751945439e8c1e509ea961430d3b099d2",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 1,
+                "recordedSteps": 51,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 2623,
+                    "total": 2632
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 51
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+                  "step": 50
+                },
+                "step": 50,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "newuhs",
+                "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The earliest source gap in this recording is eat.c:cprefx() on the tin-consumption path, despite the cpostfx wording in the case title. C opens the blessed homemade tin, asks whether to eat its human-wererat contents, then consume_tin() calls cprefx() before cpostfx(). cprefx() calls maybe_cannibal(pm, TRUE); the recorded human Wizard is not allowed to eat its own human species, so C prints “You cannibal! You will regret this!” and consumes rn2(4)=1 in change_luck. JS currently records note_unported(\"eat.c cprefx\") in consume_tin(), skipping that earlier message, state change, and draw. The evaluation later stops in JS newuhs() after consuming the tin: C tintxts[9] supplies Szechuan nutrition 70 and greasy 0, but JS TIN_VARIETIES[9] lacks both fields; its undefined nutrition makes lesshungry() turn u.uhunger into NaN, which hungerStatus() classifies as FAINTING and exposes through the current newuhs() stop marker. This is a missing table-data effect, not an independently exercised C fainting transition. The genuine later lycanthropy/equipment gaps in cpostfx() remain; a separate newuhs() fainting/starvation port applies only if a valid numeric hunger transition independently reaches that C branch. The actionable source task is a whole-function file-port of eat.c:cprefx() and its production caller wiring.",
+              "source": {
+                "file": "eat.c",
+                "branch": "The Wizard uses #eat on a blessed homemade tin of human wererat meat, passes the opening prompt, and answers yes to “Eat it?”. The opening roll rn2(2)=1 takes start_tin() through the opentin() occupation to consume_tin(); the variety roll rn2(15)=9 selects tintxts[9], szechuan. C calls cprefx(PM_HUMAN_WERERAT) before cpostfx(); cprefx() calls maybe_cannibal(pm, TRUE), and the recording confirms its own-species branch through the message and rn2(4)=1. C later reads tintxts[9].nut=70 and tintxts[9].greasy=0. JS lacks those fields in TIN_VARIETIES[9], so nutrition is undefined and the saved stop follows NaN hunger state rather than a valid C fainting transition.",
+                "functions": [
+                  "cprefx"
+                ],
+                "callers": [
+                  "C eat.c:consume_tin() (1610-1613) calls cprefx(mnum), then cpostfx(mnum) if the tin remains. For this case consume_tin() is reached through eat.c:start_tin() and opentin() (1703-1718) after the blessed-tin delay. JS eat.js:consume_tin() (1158-1162) currently records note_unported(\"eat.c cprefx\") at this exact call site.",
+                  "The production command path is cmd.c #eat -> eat.c:doeat() tin arm (2953-2959) -> start_tin() (1723-1796); JS cmd.js:runEatCommand() (3233-3239) -> eat.js:doeat() -> start_tin() (4203-4208) -> opentin() (1243-1258) -> consume_tin().",
+                  "C also calls cprefx() from eat.c:start_eating() (2041) for corpse meals; JS eat.js:start_eating() (3357) already calls its cprefx helper on that route. Preserve that caller while wiring the missing tin route."
+                ],
+                "dependencies": [
+                  "cprefx() is void. It calls maybe_cannibal(pm, TRUE) and discards the boolean result, but the message, luck change, aggravation state, and rn1(4, 2) draw are required. JS already has maybe_cannibal() at eat.js:2153-2189; consume_tin() skips it by skipping cprefx().",
+                  "The whole cprefx() body consumes return values from flesh_petrifies(), poly_when_stoned(), polymon(), revive_corpse(), and acidic() in branch conditions. Existing JS counterparts are in mondata.js, polyself.js, do.js, and eat.js; the current cprefx helper still has explicit UnsupportedEatError arms for some source branches, so the file-port scope must account for the full C function and any return-dependent callee that remains unported.",
+                  "The later stop has a separate, concrete table-data cause: C eat.c tintxts[9] is {\"szechuan\", 70, 1, 0}, while JS eat.js TIN_VARIETIES[9] defines only name and healthFood. consume_tin() reads nutrition and passes undefined to lesshungry(); lesshungry() adds it to u.uhunger, producing NaN, and hungerStatus(NaN) falls through to FAINTING before the saved newuhs() refusal. The missing greasy field is part of the same incomplete table mapping; for this selected variety C greasy=0, so it is not itself the NaN cause or an exercised slippery-fingers effect.",
+                  "The recorded PM_HUMAN_WERERAT path also has genuine later JS void gaps: cpostfx() records note_unported(\"were.c set_ulycn\") and note_unported(\"artifact.c retouch_equipment\"). These are downstream effects, independent of the NaN table-data stop. A separate newuhs() fainting/starvation port is conditional on another trace reaching that C transition branch with valid numeric hunger; this recording does not independently exercise it."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20261001190602-v17.json at 518d4526ccba82c89752a8babb892ba9bc48bc60 reports 50/51 screens, 2623/2632 RNG calls, and 50/51 cursors; its step-50 stop message is “an occupation reached the hunger clock reached newuhs() fainting or starvation”. Source data flow explains this measured stop: the selected Szechuan row has C nutrition 70, while JS passes undefined to lesshungry(), yielding NaN that falls through hungerStatus() to FAINTING. The stop therefore does not demonstrate a valid C fainting transition, and it occurs after the earlier cprefx() call in consume_tin().",
+                "Immutable challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json step 47 records the blessed tin opening roll rn2(2)=1; steps 48-49 dismiss the opening/smell pages and answer the prompt, and step 50 shows “You consume szechuan wererat. You cannibal! You will regret this!”. Step 50 starts its nine C draws with rn2(4)=1 @ maybe_cannibal(eat.c:784). This is the first draw after the 2623-call matching prefix and directly confirms cprefx() reached maybe_cannibal().",
+                "Upstream nethack-c/upstream/src/eat.c:758-788 defines maybe_cannibal(); lines 791-864 define cprefx(), whose first operation is the maybe_cannibal(pm, TRUE) call at line 793. consume_tin() calls cprefx() at line 1611 before cpostfx() at line 1613. The C recording confirms the own-species message, random draw, and continuing tin-consumption screen.",
+                "Current js/eat.js:1158-1162 replaces the C call with note_unported(\"eat.c cprefx\"). A JS cprefx helper exists at 2194-2244 and maybe_cannibal at 2153-2189, while the ordinary corpse-meal caller invokes cprefx at 3357. The tin caller is therefore the skipped production route; it must wire the whole source function rather than inventing behavior in cpostfx.",
+                "Historical .cache/C56-accepted-preparation-evidence.json retainedCases[20] identifies the same route consume_tin -> cprefx -> maybe_cannibal and names maybe_cannibal as the observed first RNG mismatch. This is verified against the current saved C recording and upstream source; it is not an inference from a later RNG caller. The case title’s cpostfx target is downstream of that first cause.",
+                "Upstream nethack-c/upstream/src/eat.c:143-158 defines tintxts[9] as {\"szechuan\", 70, 1, 0}; eat.c:1617-1634 reads its nutrition and greasy flag. The C step-47 rn2(15)=9 selects this row, confirmed by the step-50 “You consume szechuan wererat” screen.",
+                "Current js/eat.js:431-449 gives TIN_VARIETIES[9] only name and healthFood; consume_tin() at 1165-1179 reads its missing nutrition and greasy fields. At 1168 the undefined nutrition is passed to lesshungry(); js/eat.js:2057 adds it to u.uhunger, hungerStatus() at 581-583 classifies NaN through its fallthrough as FAINTING, and newuhs() has the saved stop marker at 1843-1850. For index 9 the missing nutrition explains the measured stop; greasy is absent but C expects 0, so no greasy effect would occur on this row.",
+                "The v17 canonical corpus digest from readChallengeBatches() and challengeState() is 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada, matching the saved queue identity.",
+                "The later newuhs() unsupported FAINTING/starvation branch is a possible separate port gap only when a valid numeric hunger value reaches the corresponding C branch. The observed step-50 stop is instead caused by undefined Szechuan nutrition becoming NaN; the record does not treat that as an independently exercised C fainting branch."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "session": "synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+          "recordingPath": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+          "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+          "recipe": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.recipe.session.json",
+          "recipeSha256": "b2ac2d535918bf55bf9cebcd14460c857b9455463d70e0fd1be37f2cf8093dcd",
+          "replayInputSha256": "f613e308a782216f90cf667f3e45652b9a4b09431b15fcca3f9f2a6ad3abaf0d",
+          "evaluationPath": "challenges/evaluations/20261001214251-v17.json",
+          "evaluationCommit": "1f29dddb7791d0584379eeb425ef34791d600acc",
+          "evaluationArtifact": "challenges/evaluations/20261001214251-v17.json",
+          "evaluationUtc": "2026-10-01T21:43:58.598Z",
+          "remainingScreens": 1,
+          "recordedSteps": 78,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 77,
+              "total": 78
+            },
+            "rng": {
+              "matched": 2682,
+              "total": 2694
+            },
+            "cursors": {
+              "matched": 77,
+              "total": 78
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 77,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 77,
+                "key": "p"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 33,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2682,
+              "cEntry": "rn2(80)=73",
+              "cCaller": "moveloop_core(allmain.c:328)",
+              "jsEntry": "rn2(20)=13",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "stepIndex": 50
+            },
+            "cursor": {
+              "index": 77,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 77,
+                "key": "p"
+              },
+              "cCursor": [
+                67,
+                0,
+                1
+              ],
+              "jsCursor": [
+                41,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 50,
+          "kind": "rng",
+          "sourceFile": "allmain.c",
+          "function": "moveloop_core",
+          "message": null,
+          "cFile": "allmain.c",
+          "luaFile": null,
+          "line": 328,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.json",
+            "previousRemainingScreens": 28
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "tin-human-wererat-cpostfx-slot-n",
+          "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+          "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+          "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+          "recipe": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.recipe.session.json",
+          "recipeSha256": "83d14defb71e451c8c58d8086465d28751945439e8c1e509ea961430d3b099d2",
+          "replayInputSha256": "f613e308a782216f90cf667f3e45652b9a4b09431b15fcca3f9f2a6ad3abaf0d",
+          "evaluationPath": "challenges/evaluations/20261001214251-v17.json",
+          "evaluationCommit": "1f29dddb7791d0584379eeb425ef34791d600acc",
+          "evaluationArtifact": "challenges/evaluations/20261001214251-v17.json",
+          "evaluationUtc": "2026-10-01T21:43:58.598Z",
+          "remainingScreens": 1,
+          "recordedSteps": 51,
+          "previousScreensMatched": 50,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 50,
+              "total": 51
+            },
+            "rng": {
+              "matched": 2624,
+              "total": 2632
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 51
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 50,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 31,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2623,
+              "cEntry": "rn2(4)=1",
+              "cCaller": "maybe_cannibal(eat.c:784)",
+              "jsEntry": "rn2(5)=4",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 50,
+                "key": "y"
+              },
+              "stepIndex": 50
+            },
+            "cursor": null
+          },
+          "step": 50,
+          "kind": "rng",
+          "sourceFile": "eat.c",
+          "function": "maybe_cannibal",
+          "message": null,
+          "cFile": "eat.c",
+          "luaFile": null,
+          "line": 784,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/tin-human-wererat-cpostfx-slot-n.json",
+            "result": {
+              "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "tin-human-wererat-cpostfx-slot-n",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+              "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 1,
+              "recordedSteps": 51,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "tin-human-wererat-cpostfx-slot-n",
+                "session": "synthetic/v17/tin-human-wererat-cpostfx-slot-n",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+                "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+                "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+                "recipe": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.recipe.session.json",
+                "recipeSha256": "83d14defb71e451c8c58d8086465d28751945439e8c1e509ea961430d3b099d2",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 1,
+                "recordedSteps": 51,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 50,
+                    "total": 51
+                  },
+                  "rng": {
+                    "matched": 2623,
+                    "total": 2632
+                  },
+                  "cursors": {
+                    "matched": 50,
+                    "total": 51
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+                  "step": 50
+                },
+                "step": 50,
+                "kind": "stop",
+                "sourceFile": "eat.c",
+                "function": "newuhs",
+                "message": "an occupation reached the hunger clock reached newuhs() fainting or starvation",
+                "cFile": "eat.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The earliest source gap in this recording is eat.c:cprefx() on the tin-consumption path, despite the cpostfx wording in the case title. C opens the blessed homemade tin, asks whether to eat its human-wererat contents, then consume_tin() calls cprefx() before cpostfx(). cprefx() calls maybe_cannibal(pm, TRUE); the recorded human Wizard is not allowed to eat its own human species, so C prints “You cannibal! You will regret this!” and consumes rn2(4)=1 in change_luck. JS currently records note_unported(\"eat.c cprefx\") in consume_tin(), skipping that earlier message, state change, and draw. The evaluation later stops in JS newuhs() after consuming the tin: C tintxts[9] supplies Szechuan nutrition 70 and greasy 0, but JS TIN_VARIETIES[9] lacks both fields; its undefined nutrition makes lesshungry() turn u.uhunger into NaN, which hungerStatus() classifies as FAINTING and exposes through the current newuhs() stop marker. This is a missing table-data effect, not an independently exercised C fainting transition. The genuine later lycanthropy/equipment gaps in cpostfx() remain; a separate newuhs() fainting/starvation port applies only if a valid numeric hunger transition independently reaches that C branch. The actionable source task is a whole-function file-port of eat.c:cprefx() and its production caller wiring.",
+              "source": {
+                "file": "eat.c",
+                "branch": "The Wizard uses #eat on a blessed homemade tin of human wererat meat, passes the opening prompt, and answers yes to “Eat it?”. The opening roll rn2(2)=1 takes start_tin() through the opentin() occupation to consume_tin(); the variety roll rn2(15)=9 selects tintxts[9], szechuan. C calls cprefx(PM_HUMAN_WERERAT) before cpostfx(); cprefx() calls maybe_cannibal(pm, TRUE), and the recording confirms its own-species branch through the message and rn2(4)=1. C later reads tintxts[9].nut=70 and tintxts[9].greasy=0. JS lacks those fields in TIN_VARIETIES[9], so nutrition is undefined and the saved stop follows NaN hunger state rather than a valid C fainting transition.",
+                "functions": [
+                  "cprefx"
+                ],
+                "callers": [
+                  "C eat.c:consume_tin() (1610-1613) calls cprefx(mnum), then cpostfx(mnum) if the tin remains. For this case consume_tin() is reached through eat.c:start_tin() and opentin() (1703-1718) after the blessed-tin delay. JS eat.js:consume_tin() (1158-1162) currently records note_unported(\"eat.c cprefx\") at this exact call site.",
+                  "The production command path is cmd.c #eat -> eat.c:doeat() tin arm (2953-2959) -> start_tin() (1723-1796); JS cmd.js:runEatCommand() (3233-3239) -> eat.js:doeat() -> start_tin() (4203-4208) -> opentin() (1243-1258) -> consume_tin().",
+                  "C also calls cprefx() from eat.c:start_eating() (2041) for corpse meals; JS eat.js:start_eating() (3357) already calls its cprefx helper on that route. Preserve that caller while wiring the missing tin route."
+                ],
+                "dependencies": [
+                  "cprefx() is void. It calls maybe_cannibal(pm, TRUE) and discards the boolean result, but the message, luck change, aggravation state, and rn1(4, 2) draw are required. JS already has maybe_cannibal() at eat.js:2153-2189; consume_tin() skips it by skipping cprefx().",
+                  "The whole cprefx() body consumes return values from flesh_petrifies(), poly_when_stoned(), polymon(), revive_corpse(), and acidic() in branch conditions. Existing JS counterparts are in mondata.js, polyself.js, do.js, and eat.js; the current cprefx helper still has explicit UnsupportedEatError arms for some source branches, so the file-port scope must account for the full C function and any return-dependent callee that remains unported.",
+                  "The later stop has a separate, concrete table-data cause: C eat.c tintxts[9] is {\"szechuan\", 70, 1, 0}, while JS eat.js TIN_VARIETIES[9] defines only name and healthFood. consume_tin() reads nutrition and passes undefined to lesshungry(); lesshungry() adds it to u.uhunger, producing NaN, and hungerStatus(NaN) falls through to FAINTING before the saved newuhs() refusal. The missing greasy field is part of the same incomplete table mapping; for this selected variety C greasy=0, so it is not itself the NaN cause or an exercised slippery-fingers effect.",
+                  "The recorded PM_HUMAN_WERERAT path also has genuine later JS void gaps: cpostfx() records note_unported(\"were.c set_ulycn\") and note_unported(\"artifact.c retouch_equipment\"). These are downstream effects, independent of the NaN table-data stop. A separate newuhs() fainting/starvation port is conditional on another trace reaching that C transition branch with valid numeric hunger; this recording does not independently exercise it."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20261001190602-v17.json at 518d4526ccba82c89752a8babb892ba9bc48bc60 reports 50/51 screens, 2623/2632 RNG calls, and 50/51 cursors; its step-50 stop message is “an occupation reached the hunger clock reached newuhs() fainting or starvation”. Source data flow explains this measured stop: the selected Szechuan row has C nutrition 70, while JS passes undefined to lesshungry(), yielding NaN that falls through hungerStatus() to FAINTING. The stop therefore does not demonstrate a valid C fainting transition, and it occurs after the earlier cprefx() call in consume_tin().",
+                "Immutable challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json step 47 records the blessed tin opening roll rn2(2)=1; steps 48-49 dismiss the opening/smell pages and answer the prompt, and step 50 shows “You consume szechuan wererat. You cannibal! You will regret this!”. Step 50 starts its nine C draws with rn2(4)=1 @ maybe_cannibal(eat.c:784). This is the first draw after the 2623-call matching prefix and directly confirms cprefx() reached maybe_cannibal().",
+                "Upstream nethack-c/upstream/src/eat.c:758-788 defines maybe_cannibal(); lines 791-864 define cprefx(), whose first operation is the maybe_cannibal(pm, TRUE) call at line 793. consume_tin() calls cprefx() at line 1611 before cpostfx() at line 1613. The C recording confirms the own-species message, random draw, and continuing tin-consumption screen.",
+                "Current js/eat.js:1158-1162 replaces the C call with note_unported(\"eat.c cprefx\"). A JS cprefx helper exists at 2194-2244 and maybe_cannibal at 2153-2189, while the ordinary corpse-meal caller invokes cprefx at 3357. The tin caller is therefore the skipped production route; it must wire the whole source function rather than inventing behavior in cpostfx.",
+                "Historical .cache/C56-accepted-preparation-evidence.json retainedCases[20] identifies the same route consume_tin -> cprefx -> maybe_cannibal and names maybe_cannibal as the observed first RNG mismatch. This is verified against the current saved C recording and upstream source; it is not an inference from a later RNG caller. The case title’s cpostfx target is downstream of that first cause.",
+                "Upstream nethack-c/upstream/src/eat.c:143-158 defines tintxts[9] as {\"szechuan\", 70, 1, 0}; eat.c:1617-1634 reads its nutrition and greasy flag. The C step-47 rn2(15)=9 selects this row, confirmed by the step-50 “You consume szechuan wererat” screen.",
+                "Current js/eat.js:431-449 gives TIN_VARIETIES[9] only name and healthFood; consume_tin() at 1165-1179 reads its missing nutrition and greasy fields. At 1168 the undefined nutrition is passed to lesshungry(); js/eat.js:2057 adds it to u.uhunger, hungerStatus() at 581-583 classifies NaN through its fallthrough as FAINTING, and newuhs() has the saved stop marker at 1843-1850. For index 9 the missing nutrition explains the measured stop; greasy is absent but C expects 0, so no greasy effect would occur on this row.",
+                "The v17 canonical corpus digest from readChallengeBatches() and challengeState() is 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada, matching the saved queue identity.",
+                "The later newuhs() unsupported FAINTING/starvation branch is a possible separate port gap only when a valid numeric hunger value reaches the corresponding C branch. The observed step-50 stop is instead caused by undefined Szechuan nutrition becoming NaN; the record does not treat that as an independently exercised C fainting branch."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "1f29dddb7791d0584379eeb425ef34791d600acc",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

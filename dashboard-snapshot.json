@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T21:30:54.702Z",
+  "capturedAt": "2026-10-01T21:58:14.902Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -13990,12 +13990,61 @@
         "type": "accepted",
         "at": "2026-10-01T21:29:01.587Z",
         "task": "C58"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C58-published-e0b696e9",
+        "type": "published",
+        "at": "2026-10-01T21:31:09.270Z",
+        "task": "C58",
+        "commit": "e0b696e9858570186c78c48e2433e049acd1aaf7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B79-integrating-1f29dddb",
+        "type": "integrating",
+        "at": "2026-10-01T21:32:11.317Z",
+        "task": "B79",
+        "integration": "1f29dddb7791d0584379eeb425ef34791d600acc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B81-mhitu-summonmu-20261001",
+        "type": "assign",
+        "at": "2026-10-01T21:42:45.870Z",
+        "task": "B81",
+        "worker": "B",
+        "goal": "port-mhitu-summonmu-synthetic-v17-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B79-validated-1f29dddb",
+        "type": "validated",
+        "at": "2026-10-01T21:48:00.886Z",
+        "task": "B79",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B79-accepted-1f29dddb",
+        "type": "accepted",
+        "at": "2026-10-01T21:48:01.426Z",
+        "task": "B79"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cbfcf9b860b6c7d8727e3e1ac13fa7c368007488",
+        "type": "ready",
+        "at": "2026-10-01T21:57:07.160Z",
+        "task": "A69",
+        "delivery": "cbfcf9b860b6c7d8727e3e1ac13fa7c368007488"
       }
     ]
   },
   "development": {
-    "executionCommit": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
-    "measuredAt": "2026-10-01T21:24:29.719Z",
+    "executionCommit": "1f29dddb7791d0584379eeb425ef34791d600acc",
+    "measuredAt": "2026-10-01T21:41:40.058Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
