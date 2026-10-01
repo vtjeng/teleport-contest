@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-09-30T14:04:57.637Z",
+  "capturedAt": "2026-10-01T01:19:55.301Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -11697,6 +11697,32 @@
         "type": "accepted",
         "at": "2026-09-30T14:04:57.399Z",
         "task": "A60"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A60-published-ab28eacf",
+        "type": "published",
+        "at": "2026-09-30T14:05:19.204Z",
+        "task": "A60",
+        "commit": "ab28eacfbb29d6378b2552d1958267ca4d53ec52"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A61-familiar-figurine-20260930",
+        "type": "assign",
+        "at": "2026-09-30T14:21:49.693Z",
+        "task": "A61",
+        "worker": "A2",
+        "goal": "port-dog-make-familiar-and-figurine-callers-v14-20260930",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2ac17ca1d26a51f81798b0aa87093a6a6bdae0fa",
+        "type": "ready",
+        "at": "2026-09-30T15:37:45.194Z",
+        "task": "A61",
+        "delivery": "2ac17ca1d26a51f81798b0aa87093a6a6bdae0fa"
       }
     ]
   },
