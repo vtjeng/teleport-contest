@@ -129515,7 +129515,7 @@
     {
       "id": "port-read-unpunish-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete punishment removal and wire its callers",
       "cFile": "read.c",
       "sessions": [
@@ -129529,8 +129529,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d6d6658adfb072006581fa2ac0dcbc3605f93f34",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "unpunish",
@@ -129846,6 +129849,12 @@
         ],
         "entryPointReview": "Helper-only range: entryPoints is empty under .agents/validation.md. Source call-site inventory is complete for the actual direct C calls: read.c:seffect_remove_curse:1599; apply.c:use_bell:1280; eat.c:eatspecial:2479,2481; dig.c:bury_an_obj:1993; zap.c:bhito:2186 and zapyourself:2939; pray.c:fix_worst_trouble:524; polyself.c:polymon:994 and doremove:1492; steal.c:remove_worn_item:281; trap.c:chest_trap:6382; invent.c:delallobj:1419; explode.c:scatter:756; mon.c:m_consume_obj:1403,1406; and bones.c:savebones:440. The old zap.c:bhitm and explode.c:explode_objects reservation labels were planning mistakes; C rg confirms the actual sites are zapyourself and scatter. The two other raw rg matches are comments in restore.c and display.c, not calls. Existing JS callers now use unpunish at their source sites; delallobj keeps its injected override and scatter keeps its callback override with the canonical helper as fallback. polyself.c:polymon now wires the source amorphous/whirly/unsolid slip branch and preserves the separate discarded dig.c:buried_ball_to_freedom call as a named gap; this is supporting caller wiring, not whole polymon evidence. The matching v15 synthetic citation executes the helper through read.c:seffect_remove_curse. The refreshed blessed-bell recording verifies use_bell remains matched but does not enter its newly wired unpunish conditional. The existing polyself-raven recording verifies an ordinary transformation path but does not exercise the punished slippery-form arm. B72 refreshes the existing apply.c:use_bell caller evidence with recordings/apply.c/bell-opening-blessed-a65-independent.session.json: all 40 screens/cursors and 2669 RNG calls match the changed caller. The former read.c:unpunish gap is now implemented; other use_bell void gaps retain their source owners. This refresh preserves the prior use_bell completion credit and does not claim that this recording executes the punishment conditional. recordings/polyself.c/polyself-raven-independent.session.json also matches all 18 screens/cursors and 3586 RNG calls after supporting polymon wiring; it does not execute the new punishment arm.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d6d6658adfb072006581fa2ac0dcbc3605f93f34",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
