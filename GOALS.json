@@ -125260,7 +125260,7 @@
     {
       "id": "port-read-seffect-mail-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port mail-scroll effects and their reading caller",
       "cFile": "read.c",
       "sessions": [
@@ -125274,8 +125274,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "d23e5f2d8fa377e5ff69d9cf62e4b7ad85cdb698",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "seffect_mail",
@@ -125616,6 +125619,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d23e5f2d8fa377e5ff69d9cf62e4b7ad85cdb698",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
