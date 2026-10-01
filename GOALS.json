@@ -126344,8 +126344,8 @@
           "name": "Amulet_off",
           "line": 1090,
           "endLine": 1192,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -126570,7 +126570,72 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Amulet_off",
+            "implementation": "js/do_wear.js",
+            "symbol": "Amulet_off",
+            "sourceReview": "Read and compared the whole do_wear.c:Amulet_off definition (1090-1189). The implementation preserves takeoff.mask clearing, the ESP early W_AMUL removal/off_msg/see_monsters order, no-effect arms, magical-breathing removal before underwater and region_danger checks, strangulation timeout/status/message order, restful-sleep timeout-bit handling, flying removal before float_vs_flight and terrain message, guarding find_ac, and the shared final setworn/off_msg/makeknown tail. It preserves C return-value handling: drown() is awaited for side effects and its value is discarded; hack.c:spoteffects is a discarded void call and is skipped with note_unported(\"hack.c spoteffects\"). State and caller environment stay supplied-state based. Tests pin source arms, ordering, and forwarding of planning message/redraw operations without live-game output. The supplied message/redraw environment is specifically pinned on the ESP branch; the magical-breathing branch calls existing trap.js:drown(state), which accepts no env and uses global RNG/tty, so this evidence does not claim planning safety for every branch.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "armor_or_accessory_off",
+                "source": "do_wear.c:armor_or_accessory_off (1771-1829), obj == uamul branch at 1819; doremring routes R through this helper. The admitted v15 recording exercises this production path."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "do_takeoff",
+                "source": "do_wear.c:do_takeoff (2824-2896), WORN_AMUL branch at 2875-2878. The helper arm is wired, but do_wear.c:take_off is not ported and this arm has no production recording claim."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "remove_worn_item",
+                "source": "steal.c:remove_worn_item (213-290), W_AMUL branch at 264-266; the matching recording reaches it through worn_item_removal/steal and the animal success branch of uhitm.c:mhitm_ad_sedu. The correction forwards the nullable stolen-name output buffer and the Amulet_off message/redraw environment."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "worn_item_removal",
+                "source": "steal.c:worn_item_removal (294-334) calls remove_worn_item after its source-ordered theft message. JS carries the existing planning/live environment through the helper."
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "steal",
+                "source": "steal.c:steal (342-614), the matching monkey theft selects the worn AMULET_CLASS object, calls worn_item_removal, and reaches remove_worn_item/Amulet_off. Only the relevant call/result path is evidenced; there is no whole-function completion claim."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_sedu",
+                "source": "uhitm.c:mhitm_ad_sedu (4623-4692) calls steal(magr,buf); on positive animal success with a nonempty buf and canseemon, it prints the locomotion line before monflee. The matching C recording exercises this caller into steal.c:remove_worn_item and do_wear.c:Amulet_off."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/amulet-off.test.mjs",
+              "scripts/take-off-armor.test.mjs",
+              "scripts/steal.test.mjs",
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/a63-esp-one-hostile-monkey-amulet-off-callback.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-removes-reflection-amulet-p-slot",
+                "segment": 0,
+                "fromStep": 43,
+                "throughStep": 43,
+                "source": "cmd.c:doremring -> do_wear.c:armor_or_accessory_off -> do_wear.c:Amulet_off (reflection amulet shared tail)"
+              }
+            ],
+            "checkedAt": "d6854bb74272f0b4ba1927757a6f90c4e7f098f9"
+          }
+        ],
+        "entryPointReview": "Amulet_off is a helper-only selected range; production R/theft commands are callers, not primary entry points in this range. The independent two-space recipe reaches a hostile monkey stealing a worn ESP amulet. Bounded strict differential run-vVvGIR matches the complete C recording: 2,581 RNG values, 69 screens and cursors, and no animation frames. C do_wear.c:Amulet_off is reached through steal.c:steal -> worn_item_removal -> remove_worn_item; uhitm.c:mhitm_ad_sedu then prints the visible animal/runaway line with the nullable stolen-name buffer before monflee. The exact source/entry path is in the recipe and recording listed above. The admitted v15 wizard-removes-reflection-amulet-p-slot range independently covers the active R-removal caller through segment 0 step 43 (verified by bounded run-r2muXI). The active R-removal and hostile-animal theft entry points have matching evidence. C do_wear.c:do_takeoff reaches Amulet_off through the WORN_AMUL branch, but JS take_off remains unported; pray.c:offer_real_amulet is another named unported outer route. These limitations are not represented as inactive branches or whole-caller completion. Historical one-space, multi-monkey, nymph, and drop-blocked attempts remain in recipes/do_wear.c; the one-space recording still stops at the earlier pager, while the final two-space matching recipe is an independent complete witness. This task does not port all uhitm.c:mhitm_ad_sedu or steal.c:steal behavior. The ESP branch's supplied message/redraw path is source-pinned by planning-clone tests; the magical-breathing branch calls trap.js:drown(state) without env and uses global RNG/tty, so planning safety is not claimed for every Amulet_off branch. hack.c:spoteffects remains the explicit discarded-void gap, skipped with note_unported.",
+        "entryPoints": []
+      }
     }
   ]
 }
