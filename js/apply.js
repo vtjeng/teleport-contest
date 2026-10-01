@@ -483,6 +483,7 @@ import {
     make_deaf,
     make_glib,
     make_hallucinated,
+    make_vomiting,
     set_itimeout,
 } from './potion.js';
 import { canSpotMonster, heroIsBlind, messageAt, sensesMonster } from './startup_a11y.js';
@@ -3392,7 +3393,7 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
             if (intrinsic(VOMITING))
                 recordGap('eat.c vomit');
             else
-                recordGap('potion.c make_vomiting');
+                await make_vomiting(14, false, state, env);
             break;
         case 5:
             await make_hallucinated(
@@ -3459,7 +3460,7 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
             didProp++;
             break;
         case VOMITING:
-            recordGap('potion.c make_vomiting');
+            await make_vomiting(0, true, state, env);
             didProp++;
             break;
         case CONFUSION:

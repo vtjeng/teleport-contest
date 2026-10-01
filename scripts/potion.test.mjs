@@ -12,12 +12,13 @@ import { setuhpmax } from '../js/attrib.js';
 import {
     A_CON, A_DEX, A_MAX, A_STR, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
     DETECT_MONSTERS, FAST, FREE_ACTION,
-    FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
+    FAINTED, FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
     POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SICK, SLEEP_RES, WEAK,
-    KILLED_BY, STONED, TELEPAT, TIMEOUT, UNCHANGING, WOUNDED_LEGS, W_RINGL,
+    KILLED_BY, STONED, TELEPAT, TIMEOUT, UNCHANGING, VOMITING,
+    WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
 import { trycall } from '../js/do.js';
@@ -75,6 +76,7 @@ import {
     make_hallucinated,
     make_glib,
     make_stoned,
+    make_vomiting,
     peffects,
     potionbreathe,
     potionhit,
@@ -384,6 +386,65 @@ function potionSource() {
         'utf8',
     );
 }
+
+test('make_vomiting follows the C timeout, status and message order', async () => {
+    const source = potionSource();
+    const signature = source.indexOf('make_vomiting(long xtime, boolean talk)');
+    const start = source.lastIndexOf('void', signature);
+    const end = source.indexOf('\n}', signature);
+    assert.ok(start >= 0 && signature > start && end > signature);
+    const body = source.slice(start, end).replace(/\s+/gu, ' ');
+    assert.match(body,
+        /long old = Vomiting; if \(Unaware\) talk = FALSE; set_itimeout\(&Vomiting, xtime\); disp\.botl = TRUE; if \(!xtime && old\) if \(talk\) You_feel\("much less nauseated now\."\);/u);
+
+    const state = {
+        multi: 0,
+        u: {
+            uhs: 0,
+            uprops: [],
+        },
+        disp: { botl: false },
+    };
+    // VOMITING is a timeout property. Preserve its source flag while setting
+    // four turns, then clear the three-turn timeout and observe C's cure line.
+    state.u.uprops[VOMITING] = {
+        intrinsic: FROMOUTSIDE | 7,
+        extrinsic: 0,
+        blocked: 0,
+    };
+    const lines = [];
+    await make_vomiting(4, true, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.equal(state.u.uprops[VOMITING].intrinsic, FROMOUTSIDE | 4);
+    assert.equal(state.disp.botl, true);
+    assert.deepEqual(lines, [], 'setting a nonzero timeout has no talk branch');
+
+    // With no old intrinsic, the same requested cure message is omitted.
+    state.u.uprops[VOMITING].intrinsic = 0;
+    await make_vomiting(0, true, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.deepEqual(lines, []);
+
+    // C's old intrinsic is nonzero here, so clearing it reports once.
+    state.u.uprops[VOMITING].intrinsic = FROMOUTSIDE | 3;
+    await make_vomiting(0, true, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.deepEqual(lines, ['You feel much less nauseated now.']);
+    assert.equal(state.u.uprops[VOMITING].intrinsic, FROMOUTSIDE);
+
+    // A negative multi plus FAINTED makes C's Unaware true and suppresses talk.
+    state.multi = -1;
+    state.u.uhs = FAINTED;
+    state.u.uprops[VOMITING].intrinsic = 2;
+    await make_vomiting(0, true, state, {
+        message: async (line) => lines.push(line),
+    });
+    assert.deepEqual(lines, ['You feel much less nauseated now.']);
+    assert.equal(state.u.uprops[VOMITING].intrinsic, 0);
+});
 
 test('dodrink preserves the C occupant availability and chance order', () => {
     const source = potionSource();

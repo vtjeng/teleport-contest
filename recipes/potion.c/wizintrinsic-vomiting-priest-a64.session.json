@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first A64 entry recording for potion.c:make_vomiting through wizcmds.c:wiz_intrinsic. The Wizard-mode command selects the VOMITING row (the eleventh property, key k) once, so the helper receives the source default 30-turn increment and talk=FALSE without entering a later timeout turn.",
+  "segments": [
+    {
+      "seed": 64920173,
+      "datetime": "20321001140000",
+      "nethackrc": "OPTIONS=name:A64Priest,role:Priest,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizintrinsic\nk\n"
+    }
+  ]
+}

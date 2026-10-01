@@ -95,7 +95,7 @@ function effectiveCorpseAge(obj, state) {
     return age;
 }
 
-function staleEgg(obj, state) {
+export function staleEgg(obj, state) {
     // obj.h MAX_EGG_HATCH_TIME is 200; stale_egg uses twice that age.
     return Math.trunc(state.moves ?? 0) - Math.trunc(obj.age ?? 0) > 400;
 }

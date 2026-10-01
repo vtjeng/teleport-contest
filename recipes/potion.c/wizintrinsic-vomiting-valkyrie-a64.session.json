@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap role variation for potion.c:make_vomiting through wizcmds.c:wiz_intrinsic. The source menu's eleventh property is VOMITING (key k); one default selection exercises the same 30-turn, talk=FALSE call under a Valkyrie instead of the Priest in the primary recipe.",
+  "segments": [
+    {
+      "seed": 64920174,
+      "datetime": "20321002140000",
+      "nethackrc": "OPTIONS=name:A64Valkyrie,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizintrinsic\nk\n"
+    }
+  ]
+}
