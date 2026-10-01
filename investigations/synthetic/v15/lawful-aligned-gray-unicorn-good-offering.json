@@ -1,0 +1,142 @@
+{
+  "session": "synthetic/v15/lawful-aligned-gray-unicorn-good-offering",
+  "remainingScreens": 3,
+  "recordedSteps": 127,
+  "corpus": "synthetic",
+  "batch": "v15",
+  "caseId": "lawful-aligned-gray-unicorn-good-offering",
+  "manifestPath": "challenges/manifests/v15.json",
+  "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+  "recordingSha256": "5e4cd589c30b6d1cf13b80f0de01ecfb7a5902b0eb1bff4a88711f44cf811928",
+  "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+  "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "status": "complete",
+  "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v15",
+    "caseId": "lawful-aligned-gray-unicorn-good-offering",
+    "session": "synthetic/v15/lawful-aligned-gray-unicorn-good-offering",
+    "manifestPath": "challenges/manifests/v15.json",
+    "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+    "recording": "challenges/cases/v15/lawful-aligned-gray-unicorn-good-offering.session.json",
+    "recordingPath": "challenges/cases/v15/lawful-aligned-gray-unicorn-good-offering.session.json",
+    "recordingSha256": "5e4cd589c30b6d1cf13b80f0de01ecfb7a5902b0eb1bff4a88711f44cf811928",
+    "recipe": "challenges/cases/v15/lawful-aligned-gray-unicorn-good-offering.recipe.session.json",
+    "recipeSha256": "c1d2c17ff0031fc522d5c232277fce80aca0dda4fabb6ebe7b2e0d56269346b6",
+    "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+    "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+    "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationUtc": "2026-10-01T02:29:26.613Z",
+    "remainingScreens": 3,
+    "recordedSteps": 127,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 124,
+        "total": 127
+      },
+      "rng": {
+        "matched": 10777,
+        "total": 10816
+      },
+      "cursors": {
+        "matched": 125,
+        "total": 127
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 124,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 124,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 10718,
+        "cEntry": "rn2(100)=8",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "jsEntry": "rn2(5)=3",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 125,
+          "key": " "
+        },
+        "stepIndex": 125
+      },
+      "cursor": {
+        "index": 124,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 124,
+          "key": "y"
+        },
+        "cCursor": [
+          54,
+          0,
+          1
+        ],
+        "jsCursor": [
+          51,
+          7,
+          1
+        ]
+      }
+    },
+    "step": 124,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first C-owned output mismatch remains pray.c:eval_offering at step 124, but the source defect is the altar-mask alias read by dosacrifice. The recording identifies the destination as Arc-loca and the selected altar as the upper lawful altar. C creates Arc-loca altars through sp_lev.c:create_altar, which writes levl[x][y].altarmask; rm.h defines altarmask as an alias of flags. The JavaScript special-level create_altar writes loc.flags, but pray.js:a_align reads only loc.altarmask. With no alias, its bitwise mask is zero and Amask2align returns A_NONE. That sends the lawful hero’s corpse offering into offer_corpse’s cross-alignment branch, consistent with the diagnostic’s unported offer_different_alignment_altar path and the stale T at the first mismatching cell.",
+  "source": {
+    "file": "pray.c",
+    "branch": "In dosacrifice, while standing on the upper lawful Arc-loca altar and selecting a CORPSE, altaralign is captured as a_align(u.ux,u.uy). C must read the altar alignment bits through rm.h’s altarmask/flags alias; JavaScript currently reads an absent altarmask after special-level altar creation stored those bits in flags, producing A_NONE. The downstream offer_corpse/eval_offering path then treats the lawful altar as cross-aligned.",
+    "functions": [
+      "dosacrifice"
+    ],
+    "callers": [
+      "cmd.c command table (1775-1776) registers #offer to dosacrifice.",
+      "iactions.c IA_SACRIFICE (199-201) also enqueues dosacrifice."
+    ],
+    "dependencies": [
+      "pray.c:a_align macro (107), used by dosacrifice at 1858 to read altar alignment.",
+      "include/rm.h:214 aliases altarmask to flags; sp_lev.c:create_altar (2446-2471) stores special-level altar alignment through levl[x][y].altarmask.",
+      "dat/Arc-loca.lua:68 defines the upper altar at (26,05); sp_lev.c:lspo_altar (4283-4315) routes des.altar to create_altar.",
+      "pray.c:offer_corpse (1959-2120) consumes altaralign, then eval_offering (1898-1956) emits the first differing message for the neutral gray unicorn on the lawful altar."
+    ]
+  },
+  "goalKind": "divergence-fix",
+  "evidence": [
+    "The supplied C recording challenges/cases/v15/lawful-aligned-gray-unicorn-good-offering.session.json shows wizard-level teleport to the Arc-loca context at steps 18-19, then offers the gray unicorn corpse at step 123 and confirms at step 124. Its C step-124 screen is “You feel you are thoroughly on the right path.--More--”; the supplied diagnostic .cache/synthetic-scans/v15/lawful-aligned-gray-unicorn-good-offering.json records the first mismatch at that step, with C cell Y and JavaScript cell T.",
+    "The frozen level source dat/Arc-loca.lua:67-70 places three altars; line 68 is the upper altar identified by the recording’s `_comment`, with the C branch confirming the lawful alignment. It is created by des.altar -> sp_lev.c:lspo_altar (4283-4315) -> sp_lev.c:create_altar (2446-2471), which assigns the alignment mask to levl[x][y].altarmask. In include/rm.h:213-215, altarmask is a preprocessor alias for the same flags storage.",
+    "The JavaScript source path is mklev.js:create_altar (1368-1395), which stores the same mask in loc.flags. pray.js:a_align (296-299), called while dosacrifice captures altaralign at pray.c:1858, reads only state.level.at(x,y).altarmask. With no JavaScript alias, undefined & AM_MASK is zero; const.js:164-168 maps zero to A_NONE. Thus this case’s lawful altar supplies A_NONE to dosacrifice, unlike C.",
+    "The resulting A_NONE makes lawful u.ualign.type differ from altaralign. In pray.c:offer_corpse, the cross-alignment guard at 2024-2027 calls offer_different_alignment_altar instead of taking the lawful same-alignment path; this matches the supplied diagnostic’s aggregate unported entry and explains why the JavaScript screen still begins with T at step 124. The output owner is eval_offering (1920-1940), which would print the C message only after receiving the correct altaralign; the source defect is the alias read in the implemented dosacrifice/a_align path, not a missing eval_offering branch.",
+    "The separate RNG mismatch starts at step 125 in obj_resists (zap.c:1469), after the step-124 output divergence."
+  ]
+}

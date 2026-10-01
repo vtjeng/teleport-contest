@@ -1,0 +1,139 @@
+{
+  "session": "synthetic/v15/wizard-uncursed-scroll-teleports-within-level",
+  "remainingScreens": 1,
+  "recordedSteps": 52,
+  "corpus": "synthetic",
+  "batch": "v15",
+  "caseId": "wizard-uncursed-scroll-teleports-within-level",
+  "manifestPath": "challenges/manifests/v15.json",
+  "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+  "recordingSha256": "5277864431943f55d5c1dd95e4a160afb9c64361b237c1f56d0a57749cdfa1db",
+  "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+  "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "status": "partial",
+  "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v15",
+    "caseId": "wizard-uncursed-scroll-teleports-within-level",
+    "session": "synthetic/v15/wizard-uncursed-scroll-teleports-within-level",
+    "manifestPath": "challenges/manifests/v15.json",
+    "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+    "recording": "challenges/cases/v15/wizard-uncursed-scroll-teleports-within-level.session.json",
+    "recordingPath": "challenges/cases/v15/wizard-uncursed-scroll-teleports-within-level.session.json",
+    "recordingSha256": "5277864431943f55d5c1dd95e4a160afb9c64361b237c1f56d0a57749cdfa1db",
+    "recipe": "challenges/cases/v15/wizard-uncursed-scroll-teleports-within-level.recipe.session.json",
+    "recipeSha256": "e750285cb18beebad708d48ca86ab98ee5804607ca93c4d2f656069fcd9ad754",
+    "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+    "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+    "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationUtc": "2026-10-01T02:29:26.613Z",
+    "remainingScreens": 1,
+    "recordedSteps": 52,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 51,
+        "total": 52
+      },
+      "rng": {
+        "matched": 2710,
+        "total": 2715
+      },
+      "cursors": {
+        "matched": 51,
+        "total": 52
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 51,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 51,
+          "key": "."
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 40,
+        "cCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2710,
+        "cEntry": "rn2(19)=7",
+        "cCaller": "exercise(attrib.c:509)",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 46,
+          "key": " "
+        },
+        "stepIndex": 46
+      },
+      "cursor": {
+        "index": 51,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 51,
+          "key": "."
+        },
+        "cCursor": [
+          26,
+          16,
+          1
+        ],
+        "jsCursor": [
+          48,
+          0,
+          1
+        ]
+      }
+    },
+    "step": 46,
+    "kind": "rng",
+    "sourceFile": "attrib.c",
+    "function": "exercise",
+    "message": null,
+    "cFile": "attrib.c",
+    "luaFile": null,
+    "line": 509
+  },
+  "summary": "The first unmatched C RNG call is exercise(attrib.c:509), rn2(19)=7 at step 46. C exercise() draws on the increasing branch when abs(AEXE(i)) is below 50; read.c:seffects() calls exercise(A_WIS, TRUE) for a magic scroll before dispatching its effect. The saved trace does not expose AEXE(WIS) or the exercise caller for the second draw, so it cannot distinguish a missing/extra call from earlier attribute exercise state. Separately, the last screen mismatch follows the Wizard controlled scrolltele() path through getpos(), teleok(), and teleds(): at step 51, C cursor is [26,16,1] and JS cursor is [48,0,1], with a space/hyphen difference at row 0, column 40.",
+  "source": {
+    "file": "attrib.c",
+    "branch": "exercise(i, TRUE) reaches rn2(19) when i is not A_INT/A_CHA, the hero is not polymorphed (unless i is A_WIS), and abs(AEXE(i)) < 50; the draw increments AEXE(i) only when it exceeds ACURR(i).",
+    "functions": [
+      "exercise"
+    ],
+    "callers": [
+      "read.c:seffects() calls exercise(A_WIS, TRUE) before dispatching a magic scroll at lines 2194-2200; the session reads an uncursed teleportation scroll."
+    ],
+    "dependencies": [
+      "AEXE(i) is u.aexe.a[i] (include/attrib.h:23); ACURR(i) calls acurr(i) (include/attrib.h:24).",
+      "Upolyd gates physical attribute exercise; rn2(19) or rn2(2) supplies the exercise draw.",
+      "svm.moves and encumber_msg() matter only for Strength or Constitution after play begins, not this Wisdom branch."
+    ]
+  },
+  "evidence": [
+    ".cache/synthetic-scans/v15/wizard-uncursed-scroll-teleports-within-level.json records 1 remaining screen out of 52, the first RNG mismatch at global index 2710 / segment 0 step 46 (`rn2(19)=7 @ exercise(attrib.c:509)`), and the final screen/cursor mismatch at step 51 after `.`.",
+    "challenges/cases/v15/wizard-uncursed-scroll-teleports-within-level.session.json records `rn2(19)=5 @ exercise` after key `n` at step 45 and `rn2(19)=7 @ exercise` after the space at step 46. The C screen then opens the teleport destination prompt; the final `.` reaches a C cursor of [26,16,1].",
+    "Frozen C source at attrib.c:489-514 defines the 50-point AEXE limit and the increasing branch `rn2(19) > ACURR(i)`; include/attrib.h:23-24 maps AEXE to `u.aexe.a` and ACURR to `acurr(i)`. read.c:2194-2200 performs one generic Wisdom exercise for a magic scroll before the effect switch.",
+    "The C source route after that generic draw is read.c:2015-2032 `seffect_teleportation()` → teleport.c:849-915 `scrolltele()`. With an uncursed, unconfused scroll and wizard control, scrolltele() calls getpos(), then teleok(), then teleds() for the selected same-level coordinate.",
+    "At the examined baseline, js/attrib.js:946-995 maps C AEXE to `u.aexe`, uses limit 50, and applies `rn2(19) > acurr(state, index)`; js/read.js:3319-3324 calls `exercise(A_WIS, true)` before its effect switch. Static comparison shows the same threshold and draw formula but cannot establish the per-call AEXE state or caller at the second RNG event.",
+    "Next source-backed probe: in a bounded replay of this assigned case, trace each exercise() invocation around steps 45-46 with its caller, attribute index, increase flag, AEXE(WIS), and move count; compare those values with the C branch and preserve the subsequent getpos() target / teleds() cursor discrepancy as a separate downstream gap."
+  ]
+}
