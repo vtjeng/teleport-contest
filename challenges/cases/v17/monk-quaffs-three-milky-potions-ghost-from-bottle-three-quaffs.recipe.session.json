@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first bounded continuation frozen from the recorded three-potion selector and source order before recording and JavaScript comparison. The prior C selector showed `k - 3 milky potions.` and `[d k or ?*]`. C potion.c:dodrink tests the milky descriptor and live-ghost flag for each bottle, rolls rn2(13+2*ghosts-born), calls ghost_from_bottle only on zero, otherwise proceeds to dopotion; each attempt consumes one bottle. The suffix makes at most three attempts and preserves ordinary random-arm misses.",
+  "segments": [
+    {
+      "seed": 67381249,
+      "datetime": "21091213140700",
+      "nethackrc": "OPTIONS=name:C56Ghost,role:Monk,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u00173 uncursed milky potions\n qkqkqk"
+    }
+  ]
+}

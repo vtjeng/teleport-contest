@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-observed source continuation frozen before recording and JavaScript comparison. The predecessor’s final space clears the observed taste pager and advances eating to a new burden-change pager, with no stop-eating message. C SIZ gives Stalker weight 900; eatcorpse sets reqtime=17, the initial bite is already done, and the first occupation tick was advanced by that appended space. Append 16 spaces to clear the current pager and supply any further input needed for the remaining source occupation ticks; preserve any C-produced finish/cpostfx screen exactly.",
+  "segments": [
+    {
+      "seed": 40821763,
+      "datetime": "21730814095200",
+      "nethackrc": "OPTIONS=name:C56Stalker,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed stalker corpse\n eo                 "
+    }
+  ]
+}

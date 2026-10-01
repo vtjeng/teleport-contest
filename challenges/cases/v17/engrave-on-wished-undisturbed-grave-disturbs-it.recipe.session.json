@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first probe frozen before recording and JavaScript comparison. Move to a floor tile, wish a grave underfoot with the debug wish command, then use #engrave with an inventory writing implement. C source says doengrave calls grave.c:disturb_grave for a not-yet-disturbed grave before the engraving text phase; retain whatever C actually reaches.",
+  "segments": [
+    {
+      "seed": 41827461,
+      "datetime": "20940807114600",
+      "nethackrc": "OPTIONS=name:C56GraveWriter,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " hj\u0017grave\n#engrave\na"
+    }
+  ]
+}

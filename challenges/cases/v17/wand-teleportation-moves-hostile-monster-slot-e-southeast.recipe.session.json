@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-observed correction of the independently frozen first attempt, before JavaScript comparison. The original recording showed the wished wand in slot e and the hostile orc one square southeast of the hero. Keep seed, date, role, wish, and monster creation unchanged; select e and direction n to enter zap.c:bhitm(WAN_TELEPORTATION) -> teleport.c:u_teleport_mon.",
+  "segments": [
+    {
+      "seed": 31487901,
+      "datetime": "20760223105400",
+      "nethackrc": "OPTIONS=name:C56Relocate,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed wand of teleportation\n\u0007hostile orc\nzen"
+    }
+  ]
+}

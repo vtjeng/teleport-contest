@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v17 mission for sit.c:throne_sit_effect effect 7. Wish a throne at the hero square, invoke #sit, and when C opens its debug effect prompt select 7. C effect 7 voices the court and summons court monsters through courtmon()/makemon(); capture the actual effect, monster placement, output and RNG before JavaScript comparison. The closest historical throne probe is v10 effect 5 (take_gold), a different selected branch and state transition.",
+  "segments": [
+    {
+      "seed": 80246137,
+      "datetime": "21470718111500",
+      "nethackrc": "OPTIONS=name:C56CourtSummons,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017throne\n#sit\n 7\n"
+    }
+  ]
+}

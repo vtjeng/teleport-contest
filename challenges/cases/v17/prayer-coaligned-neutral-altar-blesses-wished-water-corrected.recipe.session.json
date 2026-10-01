@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent corrected C-first prayer probe. The earlier lawful-Barbarian attempt exposed C’s alignment menu because that role cannot be lawful; this recipe keeps the same role/date/seed and uses its valid neutral alignment, then follows the startup More and wishes a neutral altar plus clear water. It drops the potion, invokes #pray, answers the observed paranoid confirmation and a possible debug force prompt, and supplies five continuation keys so the three-turn prayer can finish. Freeze is based only on the preceding C menu, not JavaScript.",
+  "segments": [
+    {
+      "seed": 91346725,
+      "datetime": "21180322135500",
+      "nethackrc": "OPTIONS=name:C56PrayerNeutral,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017neutral altar\n\u0017uncursed potion of water\nde#pray\nyy     "
+    }
+  ]
+}

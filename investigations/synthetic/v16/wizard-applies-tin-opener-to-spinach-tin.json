@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+  "corpus": "synthetic",
+  "batch": "v16",
+  "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+  "manifestPath": "challenges/manifests/v16.json",
+  "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+  "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+  "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+  "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+  "remainingScreens": 3,
+  "recordedSteps": 33,
+  "status": "complete",
+  "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v16",
+    "caseId": "wizard-applies-tin-opener-to-spinach-tin",
+    "session": "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin",
+    "manifestPath": "challenges/manifests/v16.json",
+    "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+    "recording": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+    "recordingPath": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json",
+    "recordingSha256": "07971ae1cc9fab91d8591c48b56686420b40201c7f0923909f0bf6103bfa877e",
+    "recipe": "challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.recipe.session.json",
+    "recipeSha256": "2b8404cd7fc04c6ef5548901fd52171b3a88c4b6d6d2f23a65b47ff1e440bfe2",
+    "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+    "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+    "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+    "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+    "evaluationUtc": "2026-10-01T12:57:41.763Z",
+    "remainingScreens": 3,
+    "recordedSteps": 33,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 30,
+        "total": 33
+      },
+      "rng": {
+        "matched": 3432,
+        "total": 3440
+      },
+      "cursors": {
+        "matched": 30,
+        "total": 33
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+      "step": 30
+    },
+    "step": 30,
+    "kind": "stop",
+    "sourceFile": "apply.c",
+    "function": "doapply",
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 239",
+    "cFile": "apply.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The stop at zero-based step 30 is caused by the missing TIN_OPENER arm in the partially ported apply.c:doapply. C selects the opener and reaches the existing eat.c:use_tin_opener -> start_tin path; this is missing source behavior, not a tin-opening divergence.",
+  "source": {
+    "file": "apply.c",
+    "branch": "With usable hands and capacity, after getobj selects a valid object that survives retouch_object and is not a wand, spellbook, or coin, TIN_OPENER must set doapply’s result from use_tin_opener and then reach the common artifact-speech tail.",
+    "functions": [
+      "doapply"
+    ],
+    "callers": [
+      "Direct command: C cmd.c extcmdlist's 'a' entry (1677-1678) dispatches to doapply; JS extcmdlist_data.js's apply row is dispatched by cmd.js dispatchHandler -> runApplyCommand -> apply.js doapply (cmd.js 3302-3304, 5150-5151).",
+      "Queued C callers: cmd.c MCMD_LOCK_DOOR and MCMD_APPLY_SADDLE (4705, 4751); apply.c use_whip, use_pole, and use_grapple (2966, 3442, 3745); dig.c use_pick_axe (1104); iactions.c itemactions_pushkeys (156). These queue the same doapply command handled by the JS command dispatcher."
+    ],
+    "dependencies": [
+      "eat.c use_tin_opener is already implemented in js/eat.js:1416-1442 and its ECMD result is consumed by doapply. It selects the tin and calls start_tin, whose existing JS implementation is js/eat.js:1260-1367.",
+      "The whole doapply function also has a missing LUMP_OF_ROYAL_JELLY arm: C calls apply.c use_royal_jelly and consumes its ECMD result (apply.c:4262-4264; definition 3616 onward), while JS doapply falls through to UnsupportedApplyError and js/apply.js dorub still refuses the same helper path (2218-2221). This is a separate arm from the selected case but must be resolved if completing every doapply branch under the callee-return rule.",
+      "The FLINT, LUCKSTONE, LOADSTONE, and TOUCHSTONE arm is also absent from the JS switch, although js/apply.js already implements use_stone (2041 onward); the doapply fallback currently refuses those named types. TOWEL is present as an explicit arm before the fallback, so its stale membership in DOAPPLY_UNPORTED_NAMED_ARMS does not block it.",
+      "The selected recording ends on start_tin setting the tin-opening occupation. It does not continue through a later opentin turn or tin consumption; the existing eat.c consume_tin path retains note_unported('eat.c cprefx') in js/eat.js and is beyond these three missing boundaries."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C source apply.c:4214-4424 defines the whole doapply function. Its explicit TIN_OPENER arm at 4364-4366 assigns res = use_tin_opener(obj), then the function reaches its shared artifact tail at 4419-4424. This is the complete source unit selected for a file-port.",
+    "The omission is visible in js/apply.js:4722-4958: no TIN_OPENER case exists; TIN_OPENER is object type 239 (js/objects.js:314), is listed in DOAPPLY_UNPORTED_NAMED_ARMS (js/apply.js:3867-3875), and throws UnsupportedApplyError in the default branch (4947-4950).",
+    "The saved evaluation challenges/evaluations/20261001125731-v16.json and manifest case wizard-applies-tin-opener-to-spinach-tin agree on first mismatch segment 0, step 30: JS stops before C handles the opener. C records 33 screens, 3440 RNG calls; the evaluation matches 30 screens/cursors and 3432 RNG calls, leaving exactly 3 unmatched screens.",
+    "The assigned C recording challenges/cases/v16/wizard-applies-tin-opener-to-spinach-tin.session.json shows the remaining boundaries: key o (step 30) yields “You now wield a tin opener.”; space (step 31) prompts “What do you want to open?”; p (step 32) yields “Using your tin opener you try to open the tin.” The first RNG call at step 32 is rn2(2)=1 in eat.c:start_tin (1750), so this input schedules the existing opening occupation instead of consuming the tin immediately.",
+    "C continuation is apply.c:4364-4366 -> eat.c:use_tin_opener (3097-3127) -> eat.c:start_tin (1723-1797). JS already wires the latter two at js/eat.js:1416-1442 and 1260-1367. The direct command caller is cmd.c:1677-1678 and js/cmd.js:3302-3304, 5150-5151; queued C entry sites are listed in source.callers.",
+    "nethack-c/patches/README.md describes recorder patches as deterministic runtime, sorting, RNG logging, and screen capture; rg found no doapply or use_tin_opener references in nethack-c/patches. The behavior owner is the upstream apply.c function."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pager continuation frozen from the prior C recording, which ended after choosing y with `--More--` following the harp melody. This recipe preserves the complete prior setup and action prefix byte-for-byte, then adds one space to let C reveal the wood nymph response from calm_nymphs. The shorter source-hit pair remains separate immutable provenance; this input is a strict prefix extension and will not count as a new first-mismatch bucket.",
+  "segments": [
+    {
+      "seed": 58214037,
+      "datetime": "20421109091700",
+      "nethackrc": "OPTIONS=name:C56Calm,role:Barbarian,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#levelchange\n30\n                             \u0017uncursed wooden harp\n\u0007hostile nymph\naey "
+    }
+  ]
+}

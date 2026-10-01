@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source probe frozen before recording or JavaScript comparison. In wizard mode, wish ICE under the hero, move one tile east, wish an uncursed wand of fire, and aim its ray west at that same tile. C objnam.c:readobjnam accepts the ice terrain wish; zap.c:zap_over_floor should reach melt_ice on the target square. Crosswalk: v15 fire-scroll inventory ignition and v16 scroll-of-fire target/inventory history do not exercise a fire ray over an ICE terrain square.",
+  "segments": [
+    {
+      "seed": 83521961,
+      "datetime": "21640322114300",
+      "nethackrc": "OPTIONS=name:C56FireIce,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017ice\nl\u0017uncursed wand of fire\nzeh"
+    }
+  ]
+}

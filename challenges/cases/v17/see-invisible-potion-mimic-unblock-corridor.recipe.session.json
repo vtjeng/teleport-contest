@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v17 candidate, frozen before C and JavaScript comparison: move north into the visible open corridor before creating an invisible mimic, so makemon.c:set_mimic_sym can assign BOULDER when the chosen adjacent cell has roomno < 0. Drink see-invisible, finish the potion naming prompt, and wait to observe display.c:set_mimic_blocking after See_invisible changes. Preserve the existing room-mimic attempt as a nonblocking-appearance miss.",
+  "segments": [
+    {
+      "seed": 58274019,
+      "datetime": "21090611124300",
+      "nethackrc": "OPTIONS=name:C56CorridorMimic,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed potion of see invisible\nk\u0007invisible mimic\nqe \n....."
+    }
+  ]
+}

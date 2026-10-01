@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source candidate for zap.c:weffects(SPE_DRAIN_LIFE) -> bhito -> drain_item. A debug Wizard is raised to level 20, wishes a +1 dagger, drops it, moves one tile east, then uses #wizcast to send Drain Life west through the dropped object. C must confirm wish/drop/menu inputs, direction, object hit/resistance and the actual drain outcome; a miss remains a valid target miss.",
+  "segments": [
+    {
+      "seed": 39108247,
+      "datetime": "21280923132700",
+      "nethackrc": "OPTIONS=name:C56Drain,role:Wizard,race:human,gender=male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " .#levelchange\n20\n                   \u0017+1 dagger\nde l#wizcast\nnh"
+    }
+  ]
+}

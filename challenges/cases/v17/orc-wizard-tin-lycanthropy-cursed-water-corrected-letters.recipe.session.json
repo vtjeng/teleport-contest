@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-menu-corrected continuation of the frozen Orc human-wererat tin/cursed-water route. The prior independent C recording showed the tin as slot o and the newly wished water potion as slot p; this recipe changes only those two selector letters before any JavaScript comparison. Intended C source route remains eat.c:consume_tin -> cpostfx(PM_HUMAN_WERERAT) -> were.c:set_ulycn, then potion.c:peffect_water -> were.c:you_were. Keep the earlier selector-miss recipe and recording unchanged.",
+  "segments": [
+    {
+      "seed": 61294387,
+      "datetime": "21870514110500",
+      "nethackrc": "OPTIONS=name:C56LycanTin,role:Wizard,race:orc,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017blessed homemade tin of human wererat meat\neo  y \u0017cursed potion of water\nqp"
+    }
+  ]
+}

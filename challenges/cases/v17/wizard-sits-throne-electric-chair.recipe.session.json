@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v17 probe for sit.c:throne_sit_effect effect 3. Wish a throne at the hero square, invoke #sit, and answer 3 only if the debug effect prompt appears. Preserve the exact gate, electric-shock damage, Constitution exercise and resulting state/output before JavaScript comparison. This is a different selected source branch from the deferred case-7 court-summons attempts.",
+  "segments": [
+    {
+      "seed": 48931726,
+      "datetime": "21731010121700",
+      "nethackrc": "OPTIONS=name:C56ElectricChair,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017throne\n#sit\n 3\n"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "session": "synthetic/v16/wizard-quaffs-uncursed-enlightenment-potion",
+  "corpus": "synthetic",
+  "batch": "v16",
+  "caseId": "wizard-quaffs-uncursed-enlightenment-potion",
+  "manifestPath": "challenges/manifests/v16.json",
+  "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+  "recordingSha256": "4341769fa8f4a90aa3b5e2432b2a028971190313891f9289c2c5a829fb65be9c",
+  "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+  "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+  "remainingScreens": 1,
+  "recordedSteps": 46,
+  "status": "complete",
+  "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v16",
+    "caseId": "wizard-quaffs-uncursed-enlightenment-potion",
+    "session": "synthetic/v16/wizard-quaffs-uncursed-enlightenment-potion",
+    "manifestPath": "challenges/manifests/v16.json",
+    "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+    "recording": "challenges/cases/v16/wizard-quaffs-uncursed-enlightenment-potion.session.json",
+    "recordingPath": "challenges/cases/v16/wizard-quaffs-uncursed-enlightenment-potion.session.json",
+    "recordingSha256": "4341769fa8f4a90aa3b5e2432b2a028971190313891f9289c2c5a829fb65be9c",
+    "recipe": "challenges/cases/v16/wizard-quaffs-uncursed-enlightenment-potion.recipe.session.json",
+    "recipeSha256": "d00dc21e1fa0a3ce2e58e8d4fffecac64197c635c0a95c9e9cbddbe4712b8887",
+    "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+    "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+    "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+    "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+    "evaluationUtc": "2026-10-01T12:57:41.763Z",
+    "remainingScreens": 1,
+    "recordedSteps": 46,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 45,
+        "total": 46
+      },
+      "rng": {
+        "matched": 8692,
+        "total": 8692
+      },
+      "cursors": {
+        "matched": 45,
+        "total": 46
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_enlightenment()",
+      "step": 45
+    },
+    "step": 45,
+    "kind": "stop",
+    "sourceFile": "potion.c",
+    "function": "peffect_enlightenment",
+    "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_enlightenment()",
+    "cFile": "potion.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The uncursed enlightenment potion reaches potion.c peffect_enlightenment(), but js/potion.js still refuses its POT_ENLIGHTENMENT dispatch before the effect runs. The complete source unit also includes the cursed unease/exercise path and the blessed INT/WIS adjustments. The shared zap.c do_enlightenment_effect() already has a JavaScript implementation; preserve its downstream insight.c polymorph and status/attribute gaps.",
+  "source": {
+    "file": "potion.c",
+    "branch": "For a cursed potion, peffect_enlightenment increments gp.potion_unkn, prints the uneasy-feeling message, and exercises Wisdom downward. For a noncursed potion, a blessed potion first increases INT and WIS with adjattrib (discarding both return values), then both blessed and uncursed potions call do_enlightenment_effect(). The selected recording takes the uncursed branch.",
+    "functions": [
+      "peffect_enlightenment"
+    ],
+    "callers": [
+      "potion.c::peffects() directly dispatches POT_ENLIGHTENMENT to peffect_enlightenment() at 1349-1351.",
+      "The recorded player path is cmd.c command-table q -> potion.c::dodrink() -> potion.c::dopotion() -> potion.c::peffects(); matching JavaScript dispatch is cmd.js::runQuaffCommand() -> potion.js::dodrink() -> potion.js::dopotion() -> potion.js::peffects().",
+      "Other production entry paths reach dopotion() from fountain.c::drinksink() and eat.c::doeat(); they may pass POT_ENLIGHTENMENT through the same peffects() dispatch. spell.c calls peffects() for SPE_* aliases, not POT_ENLIGHTENMENT."
+    ],
+    "dependencies": [
+      "attrib.c::exercise() is used for the cursed Wisdom-loss branch; attrib.c::adjattrib() is used twice for blessed INT/WIS gains, and C discards each return value. Existing implementations are in js/attrib.js; preserve state and message effects and do not use the adjattrib return as data.",
+      "zap.c::do_enlightenment_effect() is the shared downstream callee for every noncursed potion. Its source order is the self-knowledge message, message-window wait, MAGICENLIGHTENMENT display, trailing subsiding line, then positive Wisdom exercise; js/zap.js already implements that order.",
+      "The shared effect delegates to insight.c::enlightenment(). js/zap.js retains note_unported('insight.c enlightenment') for polymorphed heroes; js/insight.js also keeps named refusals for unsupported status and special attribute branches. Preserve these downstream gaps unless an independently traced replay reaches them."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved evaluation challenges/evaluations/20261001125731-v16.json at 452fff60d85992524c72a8282bae13a5e32a906 reports 45/46 screens and cursors, all 8692 RNG calls matched, and a stop at segment 0 step 45: “quaffing requires peffect_enlightenment()”. The immutable recipe challenges/cases/v16/wizard-quaffs-uncursed-enlightenment-potion.recipe.session.json has an uncursed enlightenment potion and the moves “ #wizwish\\nuncursed potion of enlightenment\\nqo”.",
+    "nethack-c/upstream/src/potion.c:795-808 contains the whole peffect_enlightenment() function: cursed increments potion_unkn, emits the uneasy-feeling message, and exercises A_WIS negatively; blessed adjusts A_INT then A_WIS; both noncursed branches call do_enlightenment_effect(). potion.c:1349-1351 wires POT_ENLIGHTENMENT to this function.",
+    "Production call sites are cmd.c:1809-1810 (q -> dodrink), potion.c:526-614 (dodrink -> dopotion), and potion.c:618-640 (dopotion -> peffects); js/cmd.js:3394-3395 and js/potion.js:1834-1839, 1875-1980 provide the corresponding running path. js/potion.js:1734-1735 still throws UnsupportedQuaffError for POT_ENLIGHTENMENT, which explains the measured stop before any potion effect.",
+    "nethack-c/upstream/src/zap.c:2525-2532 confirms the helper emits the self-knowledge line, waits for the message window, calls enlightenment(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS), emits “The feeling subsides.” and exercises Wisdom. js/zap.js:6127-6154 implements the same order. Its existing polymorphed-hero note_unported and insight.js refusals are separate downstream gaps, not the uncursed branch that first stops this recording.",
+    "A targeted search, rg -n \"peffect_enlightenment|do_enlightenment_effect|potion.c\" nethack-c/patches, found no patch hunks for these functions; upstream potion.c and zap.c define the compared behavior."
+  ],
+  "plannedWholeFunctionScope": {
+    "primary": {
+      "file": "potion.c",
+      "functions": [
+        "peffect_enlightenment"
+      ]
+    },
+    "callerWiring": [
+      "Replace the POT_ENLIGHTENMENT refusal in js/potion.js::peffects() with the full potion.c::peffect_enlightenment() behavior. The dispatch and outer quaff path are already present."
+    ],
+    "downstreamSourceDependency": {
+      "file": "zap.c",
+      "function": "do_enlightenment_effect",
+      "status": "Existing JavaScript source implementation; retain its insight.c polymorph/status/attribute gaps."
+    },
+    "wholeFunctionBranches": [
+      "Cursed potion: potion_unkn++, uneasy-feeling message, negative A_WIS exercise.",
+      "Blessed potion: adjattrib(A_INT, 1, FALSE), then adjattrib(A_WIS, 1, FALSE), then do_enlightenment_effect().",
+      "Uncursed potion: do_enlightenment_effect(); covered by this case after the refusal is ported."
+    ]
+  }
+}
