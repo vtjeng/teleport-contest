@@ -1,5 +1,6 @@
 // apply.js -- the `a` command: using a tool.
-// C refs: src/apply.c apply_ok(), doapply(), fig_transform(),
+// C refs: src/apply.c apply_ok(), doapply(), fig_transform(), jelly_ok(),
+// use_royal_jelly(),
 // figurine_location_checks(), use_figurine(), get_mleash(), light_cocktail(),
 // use_cream_pie(), use_whistle(), use_magic_whistle(), magic_whistled(),
 // use_whip(), the
@@ -250,6 +251,7 @@ import {
     delobj,
     addinv_runtime,
     freeinv,
+    addinv_nomerge,
     carrying,
     consume_obj_charge,
     getobj,
@@ -341,6 +343,7 @@ import {
     is_wet_towel,
     carried,
     splitobj,
+    unsplitobj,
     mksobj,
     remove_object,
     weight,
@@ -396,6 +399,7 @@ import {
     LENSES,
     LOCK_PICK,
     LUMP_OF_ROYAL_JELLY,
+    EGG,
     MAGIC_MARKER,
     MAGIC_LAMP,
     OIL_LAMP,
@@ -480,7 +484,8 @@ import {
     AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_AMOROUS_DEMON,
     PM_ARCHEOLOGIST, PM_FLOATING_EYE, PM_HEALER, PM_MEDUSA,
     PM_HORSE, PM_STONE_GOLEM, PM_UMBER_HULK, PM_WOOD_NYMPH,
-    PM_WATER_NYMPH, PM_MOUNTAIN_NYMPH, S_GHOST, S_NYMPH,
+    PM_WATER_NYMPH, PM_MOUNTAIN_NYMPH, PM_KILLER_BEE, PM_QUEEN_BEE,
+    NON_PM, S_GHOST, S_NYMPH,
     S_VAMPIRE, S_EEL, S_MIMIC, PM_GNOME, PM_LONG_WORM,
 } from './monsters.js';
 import { body_part, mbodypart, poly_gender, polymon } from './polyself.js';
@@ -500,6 +505,7 @@ import { canSpotMonster, heroIsBlind, messageAt, sensesMonster } from './startup
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
+    attach_egg_hatch_timeout,
     obj_has_timer,
     obj_stop_timers,
     start_timer,
@@ -2216,9 +2222,7 @@ export async function dorub(state = game, env = {}) {
         if (is_graystone(obj))
             return use_stone(obj, state, env);
         if (obj.otyp === LUMP_OF_ROYAL_JELLY)
-            throw new UnsupportedApplyError(
-                'apply.c use_royal_jelly() return path',
-            );
+            return use_royal_jelly({ obj }, state, env);
         await ttyPline("Sorry, I don't know how to use that.", state);
         return ECMD_OK;
     }
@@ -3864,8 +3868,85 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
     if (wakem) await wake_nearby(true, { ...rawEnv, state, random });
 }
 
+// C ref: apply.c jelly_ok() (3607-3614), the pure getobj selector for the
+// royal-jelly target prompt.
+export function jelly_ok(obj) {
+    return obj?.otyp === EGG ? GETOBJ_SUGGEST : GETOBJ_EXCLUDE;
+}
+
+// C ref: apply.c use_royal_jelly() (3616-3682). The holder preserves C's
+// struct obj ** updates across both production callers. The cursed kill_egg()
+// result is discarded and remains a named gap until timeout.c:kill_egg() lands.
+async function use_royal_jelly(objp, state = game, rawEnv = {}) {
+    let obj = objp.obj;
+    const env = { ...rawEnv, state };
+    const message = env.message ?? ttyPline;
+    const splitit = obj.quan > 1;
+
+    if (splitit) obj = splitobj(obj, 1, env);
+    freeinv(obj, env);
+
+    const eobj = await getobj(
+        'rub the royal jelly on', jelly_ok, GETOBJ_PROMPT, state,
+    );
+    if (!eobj) {
+        if (splitit) {
+            unsplitobj(obj, env);
+            update_inventory(env);
+        } else {
+            addinv_nomerge(obj, env);
+        }
+        return ECMD_CANCEL;
+    }
+
+    await message(`You smear royal jelly all over ${yname(eobj, state)}.`, state);
+    if (eobj.otyp !== EGG) {
+        await message(nothing_happens, state);
+    } else {
+        const oldCorpsenm = eobj.corpsenm;
+        if (eobj.corpsenm === PM_KILLER_BEE)
+            eobj.corpsenm = PM_QUEEN_BEE;
+
+        if (obj.cursed) {
+            if (eobj.timed || eobj.corpsenm !== oldCorpsenm) {
+                await message(
+                    `The ${xnameFresh(eobj, state)} `
+                        + `${otense(eobj, 'quiver')} feebly.`,
+                    state,
+                );
+            } else {
+                await message(nothing_seems_to_happen, state);
+            }
+            note_unported('timeout.c kill_egg');
+        } else {
+            const wasTimed = eobj.timed;
+            if (eobj.corpsenm !== NON_PM) {
+                if (!eobj.timed)
+                    attach_egg_hatch_timeout(eobj, 0, env);
+                // Blessed jelly marks only eggs not laid by the hero.
+                if (obj.blessed && !eobj.spe) eobj.spe = 2;
+            }
+
+            if ((eobj.timed && !wasTimed) || eobj.spe === 2
+                || eobj.corpsenm !== oldCorpsenm) {
+                await message(
+                    `The ${xnameFresh(eobj, state)} `
+                        + `${otense(eobj, 'quiver')} briefly.`,
+                    state,
+                );
+            } else {
+                await message(nothing_seems_to_happen, state);
+            }
+        }
+    }
+
+    setnotworn(obj, env);
+    obfree(obj, null, env);
+    objp.obj = null;
+    return ECMD_TIME;
+}
+
 const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
-    LUMP_OF_ROYAL_JELLY,
     TOWEL,
     TIN_OPENER,
     FLINT,
@@ -4779,6 +4860,11 @@ export async function doapply(state = game, env = {}) {
         return use_leash(obj, state, env);
     case CREAM_PIE:
         return use_cream_pie(obj, state, env);
+    case LUMP_OF_ROYAL_JELLY: {
+        const result = await use_royal_jelly(objp, state, env);
+        obj = objp.obj;
+        return result;
+    }
     case BULLWHIP:
         return use_whip(obj, state, env);
     case GRAPPLING_HOOK:
