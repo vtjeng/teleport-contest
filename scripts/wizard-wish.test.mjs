@@ -8,6 +8,7 @@
 // caller branches no current recipe reaches, and values a screen never carries.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -15,7 +16,7 @@ import {
 } from '../js/cmd.js';
 import { init_artifacts } from '../js/artifacts.js';
 import {
-    A_CON, A_STR, MOD_ENCUMBER, UNENCUMBERED,
+    A_CON, A_STR, FIG_TRANSFORM, MOD_ENCUMBER, UNENCUMBERED,
 } from '../js/const.js';
 import { UnsupportedDropError } from '../js/do.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
@@ -26,10 +27,11 @@ import { roles } from '../js/roles.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import {
-    BOULDER, DAGGER, GEM_CLASS, HEAVY_IRON_BALL, SACK, SCR_BLANK_PAPER,
+    BOULDER, DAGGER, FIGURINE, GEM_CLASS, HEAVY_IRON_BALL, SACK, SCR_BLANK_PAPER,
     objects_globals_init,
 } from '../js/objects.js';
 import { makewish } from '../js/zap.js';
+import { peek_timer } from '../js/timeout.js';
 import {
     CASES as CONTAINER_CASES, loadWishedContainerRecipe,
 } from './run-wished-container.mjs';
@@ -48,6 +50,9 @@ import {
 // makes 0xFF the only byte that reads back as -1. It is the one input that
 // raises iflags.term_gone.
 const EOF_BYTE = '\xFF';
+const C_INVENT = readFileSync(
+    new URL('../nethack-c/upstream/src/invent.c', import.meta.url), 'utf8',
+);
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -338,6 +343,43 @@ test('Escape over a typed wish restarts the prompt instead of ending it',
     });
     assert.equal(topLine(), 'For what do you wish? ri');
 });
+
+test('makewish supplies invent.c the dead-species predicate for a cursed figurine',
+    async () => {
+        // C invent.c:carry_obj_effects() attaches the timer only after
+        // dead_species(obj->corpsenm, TRUE) says the species is viable.
+        assert.match(C_INVENT,
+            /if \(obj->otyp == FIGURINE\) \{\s*if \(obj->cursed && obj->corpsenm != NON_PM\s*&& !dead_species\(obj->corpsenm, TRUE\)\) \{\s*attach_fig_transform_timeout\(obj\);/u);
+
+        const recipe = JSON.parse(readFileSync(new URL(
+            '../recipes/apply.c/figurine-timeout-wizard-wish-a61-independent.session.json',
+            import.meta.url,
+        ), 'utf8'));
+        const segment = recipe.segments[0];
+        // The source setup's seed yields rnd(9000)=3558; timeout.c adds 200,
+        // so attach_fig_transform_timeout schedules 3,758 turns from the
+        // current move. This test stops at that attachment boundary; the
+        // independent C/JS recording exercises the later callback.
+        const moves = segment.moves.slice(0, segment.moves.lastIndexOf('4000.'));
+        assert.ok(moves.length < segment.moves.length,
+            'the recipe ends with a 4,000-turn wait covering timer expiry');
+        const boundaries = [];
+        await runSegment({ ...segment, moves }, {
+            onBoundary(error) { boundaries.push(error); },
+        });
+        assert.deepEqual(boundaries, []);
+
+        let figurine = game.invent;
+        while (figurine && figurine.otyp !== FIGURINE)
+            figurine = figurine.nobj;
+        assert.ok(figurine, 'the wished-for figurine remains in inventory');
+        assert.equal(figurine.cursed, true);
+        assert.equal(figurine.timed, 1);
+        assert.equal(
+            peek_timer(FIG_TRANSFORM, figurine, game) - game.moves,
+            3758,
+        );
+    });
 
 // zap.c:makewish writes wish conduct before invent.c:hold_another_object adds
 // an over-limit object and calls do.c:dropx. The partial dropz port then
