@@ -167,7 +167,6 @@ import {
 import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
-import { UnsupportedObjectNameError } from '../js/objnam.js';
 
 const DATETIME = '20260725120000';
 const REGION_SOURCE = readFileSync(
@@ -4671,15 +4670,10 @@ test('the planning clone remaps a light source and a timer onto the copy',
         );
     });
 
-// The pickup arm calls distant_name(), splitobj() and mpickobj() from inside
-// the monster scan, so refusal classes that never used to reach the elapsed
-// turn now can. This pins the first half of that: the class the naming path
-// actually raises. The second half -- that js/allmain.js converts it into a
-// turn boundary rather than letting js/jsmain.js rethrow it and discard the
-// segment -- is not pinned here, because advanceElapsedTurn() is not exported
-// and driving moveloop_core() from this fixture does not reach the arm.
-// That gap is unported.
-test('a planned pickup raises the naming class the turn must convert',
+// The planned starting-pet pickup reaches distant_name() for a lit floor
+// candle. objnam.c:doname_base now owns that timer-sensitive name; the dry
+// run must still leave the live state and ISAAC stream untouched.
+test('a planned pickup names a lit candle on the planning clone',
     async () => {
         const target = await prepareStartingPetAction(PM_PONY);
         target.monster.mextra.edog.apport = 20;
@@ -4695,13 +4689,17 @@ test('a planned pickup raises the naming class the turn must convert',
         // distant_name()'s near branch is the one that formats through
         // doname(); the far branch never reaches preflightObjectName().
         game.u.xray_range = 3;
-        // Lit candles still reach the timer-adjustment naming refusal.
-        // Type aliases and unpaid prices now have source owners.
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const beforeRandom = rngSnapshot();
 
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedObjectNameError,
+        const plan = await preflightSimpleMonsterActions(game);
+
+        assert.equal(typeof plan.upkeepCount, 'number');
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
         );
+        assert.deepEqual(rngSnapshot(), beforeRandom);
     });
 
 // The transparency-index restore in preflightSimpleMonsterActions()'s finally

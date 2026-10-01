@@ -4,7 +4,6 @@ import test from 'node:test';
 import {
     domove,
     requireSimpleHeroDestination,
-    UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -24,6 +23,7 @@ import {
     FOOD_RATION,
     GOLD_PIECE,
     DART,
+    LONG_SWORD,
     POT_HEALING,
     SACK,
     TIN,
@@ -32,6 +32,7 @@ import {
 import {
     HALLUC,
     HALLUC_RES,
+    BURN_OBJECT,
     OBJ_CONTAINED,
     OBJ_FLOOR,
     NON_PM,
@@ -39,13 +40,16 @@ import {
     ROOMOFFSET,
     SHARED,
     SHOPBASE,
+    TIMER_OBJECT,
 } from '../js/const.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import { PM_TOURIST } from '../js/monsters.js';
+import { PM_FIRE_ANT, PM_NEWT, PM_TOURIST } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
 import { create_region } from '../js/region.js';
 import { check_special_room } from '../js/rooms.js';
-import { get_cost_of_shop_item } from '../js/shk.js';
+import { corpsenm_price_adj, get_cost_of_shop_item } from '../js/shk.js';
+import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
+import { start_timer } from '../js/timeout.js';
 
 const DIRECTIONS = [
     { dx: -1, dy: 0 },
@@ -370,194 +374,185 @@ test('plain xname does not apply doname-only shop suffix guards', async () => {
     assert.equal(upper.dknown, true);
 });
 
-test('shop pricing applies C ownership before object-specific guards',
+test('corpsenm_price_adj uses source monster intrinsics and corpse nutrition',
+    async () => {
+        const { state } = await generatedShopPile();
+        // C monst.c gives the fire ant mlevel 3, cnutrit 10 and MR_FIRE; its
+        // corpse therefore has base value 4 + 1, multiplied by 1 + FIRE_RES 2.
+        const fireAntCorpse = {
+            otyp: CORPSE,
+            corpsenm: PM_FIRE_ANT,
+        };
+        assert.equal(corpsenm_price_adj(fireAntCorpse, state), 15);
+
+        // shk.c returns zero for a non-food object and for a food object whose
+        // corpsenm is NON_PM; these pin the two short-circuit conditions.
+        assert.equal(corpsenm_price_adj({ otyp: DART, corpsenm: PM_FIRE_ANT }, state), 0);
+        assert.equal(corpsenm_price_adj({ otyp: CORPSE, corpsenm: NON_PM }, state), 0);
+    });
+
+test('shop pricing follows source ownership and object-value branches',
     async () => {
         const cases = [
-            ['coin', /coin pricing/u, ({ state, upper }) => {
+            ['coin', 'noPrice', ({ state, upper }) => {
                 changeObjectType(upper, GOLD_PIECE, state);
             }],
-            ['punishment object', /punishment-object/u,
+            ['punishment object', 'noPrice',
                 ({ state, upper }) => { state.uball = upper; }],
-            ['contained object', /unused/u,
-                ({ upper }) => {
-                    upper.where = OBJ_CONTAINED;
-                    upper.ocontainer = newObject({
-                        where: OBJ_FLOOR,
-                        ox: upper.ox,
-                        oy: upper.oy,
-                    });
-                }],
-            ['other current shop', /other or shared/u,
+            ['contained object', 'priced', ({ upper }) => {
+                upper.where = OBJ_CONTAINED;
+                upper.ocontainer = newObject({
+                    where: OBJ_FLOOR,
+                    ox: upper.ox,
+                    oy: upper.oy,
+                });
+            }],
+            ['other current shop', 'noPrice',
                 ({ state }) => { state.u.ushops[0] = ROOMOFFSET + 1; }],
-            ['missing current shop', /other or shared/u,
+            ['missing current shop', 'noPrice',
                 ({ state }) => { state.u.ushops[0] = 0; }],
-            ['shared square', /other or shared/u,
-                ({ state, target }) => {
-                    state.level.at(target.x, target.y).roomno = SHARED;
-                }],
-            ['shop boundary', /shop boundary/u,
-                ({ state, target }) => {
-                    state.level.at(target.x, target.y).edge = true;
-                }],
-            ['keeper freespot', /freespot/u,
-                ({ keeper, target }) => {
-                    keeper.mextra.eshk.shk = { x: target.x, y: target.y };
-                }],
-            ['no charge', /unpaid or no-charge/u,
-                ({ upper }) => { upper.no_charge = true; }],
-            ['unpaid', /unpaid or no-charge/u,
-                ({ upper }) => { upper.unpaid = true; }],
-            ['absent keeper', /absent or displaced/u,
-                ({ state }) => { state.level.rooms[0].resident = null; }],
-            ['displaced keeper', /absent or displaced/u,
-                ({ keeper }) => { keeper.mx = keeper.my = 0; }],
-            ['angry keeper', /angry/u,
-                ({ keeper }) => { keeper.mpeaceful = false; }],
-            ['surcharged keeper', /surcharge/u,
-                ({ keeper }) => { keeper.mextra.eshk.surcharge = true; }],
-            ['container', null, ({ state, upper }) => {
+            ['shared square', 'noPrice', ({ state, target }) => {
+                state.level.at(target.x, target.y).roomno = SHARED;
+            }],
+            ['shop boundary', 'noPrice', ({ state, target }) => {
+                state.level.at(target.x, target.y).edge = true;
+            }],
+            ['keeper freespot', 'noCharge', ({ keeper, target }) => {
+                keeper.mextra.eshk.shk = { x: target.x, y: target.y };
+            }],
+            ['no charge', 'noCharge', ({ upper }) => {
+                upper.no_charge = true;
+            }],
+            ['unpaid floor item', 'priced', ({ upper }) => {
+                upper.unpaid = true;
+            }],
+            ['absent keeper', 'noPrice', ({ state }) => {
+                state.level.rooms[0].resident = null;
+            }],
+            ['displaced keeper', 'noPrice', ({ keeper }) => {
+                keeper.mx = keeper.my = 0;
+            }],
+            ['angry keeper', 'priced', ({ keeper }) => {
+                keeper.mpeaceful = false;
+            }],
+            ['surcharged keeper', 'priced', ({ keeper }) => {
+                keeper.mextra.eshk.surcharge = true;
+            }],
+            ['container', 'priced', ({ state, upper }) => {
                 changeObjectType(upper, SACK, state);
             }],
-            ['ordinary object contents', null,
-                ({ state, upper }) => {
-                    upper.cobj = newObject({
-                        otyp: DART,
-                        oclass: state.objects[DART].oc_class,
-                        quan: 1,
-                        dknown: true,
-                    });
-                }],
-            ['free container contents', null,
-                ({ state, upper }) => {
-                    changeObjectType(upper, SACK, state);
-                    upper.no_charge = true;
-                    upper.cobj = newObject({
-                        otyp: DART,
-                        oclass: state.objects[DART].oc_class,
-                        quan: 1,
-                        dknown: true,
-                    });
-                }],
-            ['glob', /globby/u, ({ upper }) => { upper.globby = true; }],
-            ['artifact', /artifact pricing/u,
-                ({ upper }) => { upper.oartifact = 1; }],
-            ['corpse adjustment', /corpse, tin, or egg/u,
-                ({ state, upper }) => changeObjectType(upper, CORPSE, state)],
-            ['tin adjustment', /corpse, tin, or egg/u,
-                ({ state, upper }) => changeObjectType(upper, TIN, state)],
-            ['egg adjustment', /corpse, tin, or egg/u,
-                ({ state, upper }) => changeObjectType(upper, EGG, state)],
-            ['unidentified glass gem', /glass-gem/u,
-                ({ state, upper }) => {
-                    changeObjectType(upper, FIRST_GLASS_GEM, state);
-                    upper.dknown = false;
-                    state.objects[FIRST_GLASS_GEM].oc_name_known = 0;
-                }],
-            ['Dunce cap', /Dunce cap/u,
-                ({ state }) => { state.uarmh = { otyp: DUNCE_CAP }; }],
-            ['young Tourist', /tourist pricing/u, ({ state }) => {
+            ['ordinary object contents', 'priced', ({ state, upper }) => {
+                upper.cobj = newObject({
+                    otyp: DART,
+                    oclass: state.objects[DART].oc_class,
+                    quan: 1,
+                    dknown: true,
+                });
+            }],
+            ['free container contents', 'contents', ({ state, upper }) => {
+                changeObjectType(upper, SACK, state);
+                upper.no_charge = true;
+                upper.cobj = newObject({
+                    otyp: DART,
+                    oclass: state.objects[DART].oc_class,
+                    quan: 1,
+                    dknown: true,
+                });
+            }],
+            ['glob', 'priced', ({ upper }) => { upper.globby = true; }],
+            ['artifact', 'priced', ({ state, upper }) => {
+                changeObjectType(upper, LONG_SWORD, state);
+                upper.oartifact = ART_EXCALIBUR;
+            }],
+            ['corpse adjustment', 'priced', ({ state, upper }) => {
+                changeObjectType(upper, CORPSE, state);
+                upper.corpsenm = PM_NEWT;
+            }],
+            ['tin adjustment', 'priced', ({ state, upper }) => {
+                changeObjectType(upper, TIN, state);
+                upper.corpsenm = PM_NEWT;
+            }],
+            ['egg adjustment', 'priced', ({ state, upper }) => {
+                changeObjectType(upper, EGG, state);
+                upper.corpsenm = PM_NEWT;
+            }],
+            ['unidentified glass gem', 'priced', ({ state, upper }) => {
+                changeObjectType(upper, FIRST_GLASS_GEM, state);
+                upper.dknown = false;
+                state.objects[FIRST_GLASS_GEM].oc_name_known = 0;
+            }],
+            ['Dunce cap', 'priced', ({ state }) => {
+                state.uarmh = { otyp: DUNCE_CAP };
+            }],
+            ['young Tourist', 'priced', ({ state }) => {
                 state.urole = { ...state.urole, mnum: PM_TOURIST };
                 state.u.ulevel = 14;
             }],
-            ['visible undershirt', /tourist pricing/u,
-                ({ state }) => { state.uarmu = {}; }],
-            ['suppressed price', /suppressed or restoring/u,
-                ({ state }) => { state.iflags.suppress_price = true; }],
-            ['restore price', /suppressed or restoring/u,
-                ({ state }) => { state.program_state.restoring = true; }],
-            ['zero quantity', /invalid pricing quantity/u,
-                ({ upper }) => { upper.quan = 0; }],
-            ['hallucinated currency', /hallucinated currency/u,
-                ({ state }) => {
-                    state.u.uprops[HALLUC].intrinsic = 1;
-                    state.u.uprops[HALLUC_RES].intrinsic = 0;
-                    state.u.uprops[HALLUC_RES].extrinsic = 0;
-                }],
-            ['unsupported base name', /lit candle timer adjustment/u,
-                ({ state, upper }) => {
-                    // The timer-dependent candle suffix remains unported;
-                    // assigned type aliases are now supported.
-                    changeObjectType(upper, WAX_CANDLE, state);
-                    upper.lamplit = true;
-                }],
+            ['visible undershirt', 'priced', ({ state }) => {
+                state.uarmu = {};
+            }],
+            ['suppressed display flag', 'priced', ({ state }) => {
+                state.iflags.suppress_price = true;
+            }],
+            ['restore state', 'priced', ({ state }) => {
+                state.program_state.restoring = true;
+            }],
+            // C still calculates a unit quote before multiplying by zero;
+            // this arithmetic boundary pins both values without naming it as
+            // a valid in-game object state.
+            ['zero quantity', 'zeroPrice', ({ upper }) => {
+                upper.quan = 0;
+            }],
+            ['lit candle', 'priced', ({ state, upper }) => {
+                changeObjectType(upper, WAX_CANDLE, state);
+                upper.lamplit = true;
+                // age 1 is below the C full-burn threshold of 20 * oc_cost.
+                upper.age = 1;
+            }],
         ];
 
         const noPriceCases = new Set([
-            'coin',
-            'punishment object',
-            'other current shop',
-            'missing current shop',
-            'shared square',
-            'shop boundary',
-            'absent keeper',
-            'displaced keeper',
+            'coin', 'punishment object', 'other current shop',
+            'missing current shop', 'shared square', 'shop boundary',
+            'absent keeper', 'displaced keeper',
         ]);
-        const noChargeCases = new Set(['keeper freespot', 'no charge']);
-        const pricedCases = new Set([
-            'contained object', 'unpaid', 'container', 'ordinary object contents',
-        ]);
-        const contentsPriceCases = new Set(['free container contents']);
-        for (const [name, expected, prepare] of cases) {
+        for (const [name, kind, prepare] of cases) {
             const fixture = await generatedShopPile();
             prepare(fixture);
-            const namingOwner = name === 'hallucinated currency'
-                || name === 'unsupported base name';
+            const quote = get_cost_of_shop_item(
+                fixture.upper,
+                fixture.state,
+                { observed: true },
+            );
             if (noPriceCases.has(name)) {
-                const quote = get_cost_of_shop_item(
-                    fixture.upper,
-                    fixture.state,
-                    { observed: true },
-                );
                 assert.deepEqual(
                     [quote.applicable, quote.cost, quote.noCharge],
                     [false, 0, false],
                     name,
                 );
-            } else if (noChargeCases.has(name)) {
-                const quote = get_cost_of_shop_item(
-                    fixture.upper,
-                    fixture.state,
-                    { observed: true },
-                );
+            } else if (kind === 'noCharge') {
                 assert.deepEqual(
                     [quote.applicable, quote.cost, quote.noCharge],
                     [true, 0, true],
                     name,
                 );
-            } else if (contentsPriceCases.has(name)) {
-                const quote = get_cost_of_shop_item(
-                    fixture.upper,
-                    fixture.state,
-                    { observed: true },
-                );
+            } else if (kind === 'contents') {
                 assert.equal(quote.applicable, true, name);
                 assert.equal(quote.noCharge, true, name);
                 assert.ok(quote.contentsCost > 0, name);
                 assert.equal(quote.cost, quote.contentsCost, name);
-            } else if (pricedCases.has(name)) {
-                const quote = get_cost_of_shop_item(
-                    fixture.upper,
-                    fixture.state,
-                    { observed: true },
+            } else if (kind === 'zeroPrice') {
+                assert.deepEqual(
+                    [quote.applicable, quote.cost, quote.noCharge,
+                        quote.objectCost],
+                    [true, 0, false, 0],
+                    name,
                 );
+                assert.ok(quote.pricingUnitCost > 0, name);
+            } else {
                 assert.equal(quote.applicable, true, name);
                 assert.equal(quote.noCharge, false, name);
                 assert.ok(quote.cost > 0, name);
-            } else {
-                assert.throws(
-                    () => namingOwner
-                        ? assertPricedObjectNameable(
-                            fixture.upper,
-                            fixture.state,
-                        )
-                        : get_cost_of_shop_item(
-                            fixture.upper,
-                            fixture.state,
-                            { observed: true },
-                        ),
-                    expected,
-                    name,
-                );
             }
             assert.equal(fixture.upper.dknown, false, name);
         }
@@ -658,16 +653,33 @@ test('movement displays the non-shop remembered-price fallback',
         assert.equal(upper.dknown, false);
     });
 
-test('doname_with_price preserves applicable pricing failures', async () => {
-    const { state, upper } = await generatedShopPile();
-    upper.oartifact = 1;
-    assert.throws(
-        () => doname_with_price(upper, state, {
-            currencyName: () => 'zorkmids',
-        }),
-        /artifact pricing/u,
-    );
-});
+test('doname_with_price prices an artifact without exposing its name',
+    async () => {
+        const { state, upper } = await generatedShopPile();
+        // runSegment builds the game but does not initialize its artifact
+        // catalog; C's normal new-game route does, so establish that catalog
+        // before assigning the source artifact ID below.
+        init_artifacts(state);
+        // This fixture represents an already-created Excalibur, so C's
+        // artiexist slot must carry the same exists bit as artifact creation.
+        state.artiexist[ART_EXCALIBUR].exists = 1;
+        changeObjectType(upper, LONG_SWORD, state);
+        upper.oartifact = ART_EXCALIBUR;
+        // Match xname()'s observation in the pure price probe; the formatter
+        // then performs that source-ordered write before using the same price.
+        const quote = get_cost_of_shop_item(
+            upper, state, { observed: true },
+        );
+        const name = doname_with_price(upper, state, {
+            currencyName: (amount) => amount === 1 ? 'zorkmid' : 'zorkmids',
+        });
+        assert.ok(quote.cost > 0);
+        // C prices the artifact bonus but xname() keeps the unidentified
+        // instance's ordinary object name.
+        assert.match(name, new RegExp(
+            `a long sword \\(for sale, ${quote.cost} zorkmids?\\)$`, 'u',
+        ));
+    });
 
 test('movement displays and records every eligible generated-shop pile price',
     async () => {
@@ -727,20 +739,33 @@ test('a no-charge second pile member follows the live price result',
         assert.equal(lower.dknown, true);
     });
 
-test('movement translates an object-name exclusion at its public boundary',
+test('movement prices a lit candle through the shared name formatter',
     async () => {
-        const { keeper, state, target, upper } = await generatedShopPile();
-        // Keep exercising error conversion with a real remaining name refusal.
+        const { state, target, upper } = await generatedShopPile();
         changeObjectType(upper, WAX_CANDLE, state);
+        // A tallow candle burns for 200 turns; age 149 plus a 50-turn timer
+        // means 199 remain in C's formula, so the visible row says used.
+        upper.age = 149;
         upper.lamplit = true;
-        const before = movementSnapshot(state, target, keeper);
-
-        await assert.rejects(
-            () => domove(state),
-            (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                && /lit candle timer adjustment/u.test(error.message),
-        );
-        assertMovementSnapshot(state, target, before, keeper);
+        start_timer(50, TIMER_OBJECT, BURN_OBJECT, upper, state);
+        const screens = [];
+        const readKey = state.nhDisplay.readKey.bind(state.nhDisplay);
+        state.nhDisplay.readKey = (options) => {
+            screens.push(state.nhDisplay.grid
+                .map((row) => row.map(({ ch }) => ch).join(''))
+                .join('\n'));
+            return readKey(options);
+        };
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
+        try {
+            await domove(state);
+        } finally {
+            state.nhDisplay.readKey = readKey;
+        }
+        assert.deepEqual([state.u.ux, state.u.uy], [target.x, target.y]);
+        assert.equal(upper.dknown, true);
+        assert.match(screens.join('\n'),
+            /partly used candle \(lit\) \(for sale, \d+ zorkmids?\)/u);
     });
 
 test('the costly pile-limit count moves without naming or recording prices',

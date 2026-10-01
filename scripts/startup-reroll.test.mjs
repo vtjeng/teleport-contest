@@ -316,11 +316,11 @@ test('the reroll menu raises and lowers both naming counters', () => {
     assert.equal(state.iflags.override_ID, 0);
     assert.equal(state.gd.distantname, 0);
 
-    // A refusal from any formatter has to lower them too. A blindfold worn and
-    // lit reaches preflightDoname()'s 'lit worn-object suffix' stop, the one
-    // arm of that preflight a startup kit could carry.
-    const lamp = object(state, O.OIL_LAMP, { owornmask: 1, lamplit: 1 });
-    assert.throws(() => menuInventoryNames(state, [lamp]), /unsupported/u);
+    // A lit oil lamp reaches doname_base()'s TOOL_CLASS lighting suffix. This
+    // verifies the counters are lowered after the now-supported formatter.
+    const lamp = object(state, O.OIL_LAMP, { lamplit: 1 });
+    const [lampName] = menuInventoryNames(state, [lamp]);
+    assert.match(lampName, /\(lit\)$/u);
     assert.equal(state.iflags.override_ID, 0);
     assert.equal(state.gd.distantname, 0);
 });

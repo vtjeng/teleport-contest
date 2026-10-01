@@ -45,6 +45,8 @@ import {
     W_TOOL,
     W_SWAPWEP,
     W_QUIVER,
+    BURN_OBJECT,
+    TIMER_OBJECT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import {
@@ -75,7 +77,6 @@ import {
     simpleonames,
     simple_typename,
     suit_simple_name,
-    UnsupportedObjectNameError,
     donameFresh,
     erosion_matters,
     vtense,
@@ -158,6 +159,7 @@ import {
     LUCKSTONE,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
 
 function deferred() {
@@ -203,6 +205,7 @@ function namingState() {
     objects_globals_init(state);
     // Zero choices deterministically initialize every randomized description.
     init_objects(state, () => 0);
+    timeout_globals_init(state);
     monst_globals_init(state);
     init_artifacts(state);
     return state;
@@ -530,8 +533,8 @@ test('swallowed look_here admission returns before floor object names', () => {
 });
 
 test('look_here admission skips names before blind unreachable return', () => {
-    // invent.c:4218-4235 returns after the tactile reach check. An object
-    // whose ordinary name is still unsupported must not be inspected first.
+    // invent.c:4218-4235 returns after the tactile reach check. An object's
+    // name and discovery flags must remain untouched before that return.
     const state = lookState(ROOM, objectOf(namingState(), BAG_OF_TRICKS), {
         blind: true,
     });
@@ -1149,20 +1152,15 @@ test('worn gloves take the slippery clause and nothing else does', () => {
 });
 
 // C ref: objnam.c doname_base():1391, the `(obj == uskin)` arm of the same
-// conditional. wornSuffix() emits only " (being worn)", so this one branch of
-// the ARMOR_CLASS arm still has to stop.
-test('armor fused to the hero\'s skin still refuses', () => {
+// conditional. This also pins the single state owner for the fused scales.
+test('armor fused to the hero\'s skin uses its C-owned worn suffix', () => {
     const state = namingState();
     const scales = objectOf(state, RED_DRAGON_SCALES,
         { owornmask: W_ARM, bknown: true, known: true, spe: 0 });
-    state.u.uskin = scales;
-    assert.throws(
-        () => donameFresh(scales, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'skin-embedded armor suffix',
-    );
-    // The refusal is uskin's alone. Ordinary worn scales name themselves.
-    state.u.uskin = null;
+    state.uskin = scales;
+    assert.match(donameFresh(scales, state), / \(embedded in your skin\)$/u);
+    // uskin selects one phrase; ordinary worn scales keep the adjacent arm.
+    state.uskin = null;
     assert.match(donameFresh(scales, state), / \(being worn\)$/u);
 });
 
@@ -1312,23 +1310,16 @@ test('two-weapon combat renames no other worn slot', () => {
     assert.match(worn(ARROW, W_QUIVER), / \(in quiver\)$/u);
 });
 
-// C:1592's "tethered to" arm of the same word choice. An aklys is attached to
-// the hand by a thong, and naming it that way is not ported.
-test('a wielded aklys still refuses', () => {
+// C:1592's "tethered to" arm of the same word choice. The ordinary and
+// dual-wielded cases use the same hand owner; the AKLYS source label precedes
+// the dual-wield label.
+test('a wielded aklys names its tether before the selected hand', () => {
     const state = dualWieldState(AKLYS);
-    assert.throws(
-        () => donameFresh(state.uwep, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'tethered weapon suffix',
-    );
-    // The refusal follows the object into two-weapon combat, where C would
-    // still print "tethered to" rather than "wielded in".
+    const ordinary = donameFresh(state.uwep, state);
+    assert.match(ordinary, / \(tethered to right hand\)$/u);
+    // In two-weapon combat C still selects AKLYS's "tethered to" label.
     state.u.twoweap = true;
-    assert.throws(
-        () => donameFresh(state.uwep, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'tethered weapon suffix',
-    );
+    assert.match(donameFresh(state.uwep, state), / \(tethered to right hand\)$/u);
 });
 
 test('container and tin names follow doname()\'s own branches', () => {
@@ -1457,9 +1448,9 @@ test('override_ID forces the container and lock flags doname() reads', () => {
     state.iflags.override_ID = 0;
 
     // override_ID forces cknown, so a container with contents shows its
-    // count. doname_base():1373 counts contents through pickup.c
-    // count_contents(). A bag of tricks still stops because :1310-1311
-    // judges its emptiness by charges rather than contents.
+    // count. doname_base():1373 counts contents through invent.c:count_contents.
+    // A bag of tricks still judges emptiness by its known charge count rather
+    // than the contents chain; forced known charges suppress "empty".
     const stuffed = objectOf(state, SACK, { bknown: true });
     stuffed.cobj = objectOf(state, DART);
     assert.equal(donameFresh(stuffed, state), 'an uncursed bag');
@@ -1469,11 +1460,9 @@ test('override_ID forces the container and lock flags doname() reads', () => {
     assert.equal(
         donameFresh(stuffed, state), 'an uncursed sack containing 1 item',
     );
-    assert.throws(
-        () => donameFresh(tricks, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'charge-based emptiness',
-    );
+    // override_ID forces known charges; C therefore adds (0:0) and omits
+    // both the redundant "empty" and "uncursed" words.
+    assert.equal(donameFresh(tricks, state), 'a bag of tricks (0:0)');
 });
 
 test('override_ID forces rknown, the tin variety, and the egg species', () => {
@@ -2103,7 +2092,7 @@ test('doname appends remembered price quotes after the object name', () => {
     );
 });
 
-test('unsupported naming branches fail before discovery or state changes', () => {
+test('doname uses peek_timer for the active candle burn interval', () => {
     const state = namingState();
     const wieldedForXname = objectOf(state, DART, { owornmask: W_WEP });
     assert.equal(xnameFresh(wieldedForXname, state), 'dart');
@@ -2116,15 +2105,17 @@ test('unsupported naming branches fail before discovery or state changes', () =>
     assert.equal(donameFresh(calledWand, state), 'a wand called napper');
     assert.equal(calledWand.dknown, true);
 
+    // timeout.c:1471 adds age 149 to the absolute expiry 150, then subtracts
+    // moves 100: 199 turns remain, one below this source type's 200-turn
+    // full-burn threshold. The timer is attached before naming, as in a lit
+    // candle that is already burning during play.
+    state.moves = 100;
     const litCandle = objectOf(state, TALLOW_CANDLE, {
-        lamplit: true,
+        age: 149, lamplit: true,
     });
-    assert.throws(
-        () => donameFresh(litCandle, state),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'lit candle timer adjustment',
-    );
-    assert.equal(litCandle.dknown, false);
+    start_timer(50, TIMER_OBJECT, BURN_OBJECT, litCandle, state);
+    assert.equal(donameFresh(litCandle, state), 'a partly used candle (lit)');
+    assert.equal(litCandle.dknown, true);
 });
 
 test('an() applies just_an()\'s article rules', () => {
