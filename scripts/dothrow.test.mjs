@@ -1111,6 +1111,30 @@ test('throwit() breaks what lands hard and drowns what lands wet',
         assert.equal(wetDagger.where, OBJ_FLOOR);
     });
 
+test('breakobj wires the lit-oil source branch before object cleanup', () => {
+    const c = readFileSync(
+        new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url),
+        'utf8',
+    );
+    const cStart = c.indexOf('breakobj(\n    struct obj *obj,');
+    const cEnd = c.indexOf('\n}\n\n/*', cStart);
+    assert.ok(cStart > 0 && cEnd > cStart);
+    const cBody = c.slice(cStart, cEnd).replace(/\s+/gu, ' ');
+    assert.match(cBody,
+        /if \(obj->otyp == POT_OIL && obj->lamplit\) \{ explode_oil\(obj, x, y\);/u);
+
+    const js = readFileSync(new URL('../js/dothrow.js', import.meta.url), 'utf8');
+    const jsStart = js.indexOf('export async function breakobj(');
+    const jsEnd = js.indexOf('\n}\n\nfunction next2u', jsStart);
+    assert.ok(jsStart > 0 && jsEnd > jsStart);
+    const jsBody = js.slice(jsStart, jsEnd);
+    assert.match(jsBody,
+        /obj\.in_use = 1;[\s\S]*?if \(obj\.otyp === POT_OIL && obj\.lamplit\) \{\s*await explode_oil\(obj, x, y, state,/u);
+    assert.ok(jsBody.indexOf('await explode_oil(obj, x, y, state,')
+        < jsBody.indexOf('if (!fracture) delobj(obj, objectEnv)'));
+    assert.equal(jsBody.includes("note_unported('potion.c explode_oil')"), false);
+});
+
 test('throwit() sounds a landing in liquid exactly where C sounds it',
     async () => {
         // dothrow.c:1794-1802, `!Deaf && !Underwater` over

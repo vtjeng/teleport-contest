@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B67 retained target-selection miss: the Wizard has oil in slot o and the bug north, but the input selects n and aims west. C does not enter potion.c:potionhit or explode.c:splatter_burning_oil; preserve its C artifact under .cache/B67-logs/non-entry-c-matches, not recordings/.",
+  "segments": [
+    {
+      "seed": 84630218,
+      "datetime": "20391202160731",
+      "nethackrc": "OPTIONS=name:OilBugHit,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nlit potion of oil\n\u0007grid bug\ntnh"
+    }
+  ]
+}

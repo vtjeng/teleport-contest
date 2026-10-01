@@ -14,6 +14,7 @@ import {
     DISP_BEAM,
     DISP_CHANGE,
     DISP_END,
+    EXPL_FIERY,
     EXPL_FROSTY,
     EXPL_MAGICAL,
     EXPL_MUDDY,
@@ -28,6 +29,7 @@ import {
     LARGEST_INT,
     KILLED_BY,
     KILLED_BY_AN,
+    LOST_EXPLODING,
     MON_EXPLODE,
     BURNING_OIL,
     TRAP_EXPLODE,
@@ -121,7 +123,7 @@ import {
 import {
     burnarmor,
 } from './trap_erode_obj.js';
-import { burn_away_slime } from './timeout.js';
+import { burn_away_slime, end_burn } from './timeout.js';
 import { rehumanize, ugolemeffects } from './polyself.js';
 import {
     cmap_to_glyph,
@@ -1155,4 +1157,36 @@ export async function scatter(
     if (lostGoods && shopkeeper)
         await creditReport(shopkeeper, 1, false);
     return total;
+}
+
+// C ref: explode.c splatter_burning_oil() (962-970). The roll is consumed by
+// explode() as the damage value, so keep it in this source function and pass
+// the caller's RNG owner through unchanged.
+export async function splatter_burning_oil(
+    x,
+    y,
+    dilutedOil,
+    state = game,
+    rawEnv = {},
+) {
+    const env = { ...rawEnv, state };
+    const random = { d, rn1, rn2, rnl, rnd, rne, ...env.random };
+    const damage = random.d(dilutedOil ? 3 : 4, 4);
+    await explode(x, y, 11, damage, BURNING_OIL, EXPL_FIERY, state,
+        { ...env, random });
+}
+
+// C ref: explode.c explode_oil() (971-983). C calls impossible() only as a
+// discarded diagnostic for a violated lit-oil precondition, then continues.
+// It extinguishes the light and marks the object before the explosion can
+// kill the hero or save bones.
+export async function explode_oil(obj, x, y, state = game, rawEnv = {}) {
+    const dilutedOil = Boolean(obj.odiluted);
+    const env = { ...rawEnv, state };
+    const random = { d, rn1, rn2, rnl, rnd, rne, ...env.random };
+
+    if (!obj.lamplit) note_unported('pline.c impossible');
+    end_burn(obj, true, env);
+    obj.how_lost = LOST_EXPLODING;
+    await splatter_burning_oil(x, y, dilutedOil, state, { ...env, random });
 }
