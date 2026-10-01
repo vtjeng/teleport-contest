@@ -38,6 +38,7 @@ import {
     FUMBLING,
     HALLUC,
     HALLUC_RES,
+    KEY_ESC,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
@@ -56,7 +57,6 @@ import {
     P_SKILLED,
     P_SLING,
     ROOM,
-    STONE_RES,
     STUNNED,
     STR19,
     TT_WEB,
@@ -111,7 +111,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { UnsupportedObjectOperationError, newObject } from '../js/obj.js';
+import { UnsupportedObjectOperationError, newObject, splitobj } from '../js/obj.js';
 import {
     AKLYS,
     ARROW,
@@ -137,7 +137,6 @@ import {
     IRON,
     LEATHER,
     LEATHER_ARMOR,
-    LEATHER_GLOVES,
     LANCE,
     MINERAL,
     LENSES,
@@ -152,6 +151,7 @@ import {
     SHURIKEN,
     SLING,
     SPEAR,
+    TOWEL,
     SCR_IDENTIFY,
     WAR_HAMMER,
     WOOD,
@@ -1647,58 +1647,101 @@ test('throw_obj applies C\'s wield and strength gates only to Mjollnir',
             'the threshold-strength hammer follows the throw path');
     });
 
-test('throw_obj() lets gloves carry a petrifying corpse', async () => {
-    // dothrow.c:139-143, `!uarmg && obj->otyp == CORPSE
-    // && touch_petrifies(...) && !Stone_resistance`. The port carries all
-    // four conjuncts. The gloved case below fails the first, so the
-    // cockatrice corpse leaves those hands unharmed; the two stone-resistant
-    // cases fail the fourth, which is what C grants a hero who cannot be
-    // petrified. instapetrify() is the half that stays unported, and it is
-    // where a bare-handed hero without the resistance stops.
-    const gloved = arena();
-    gloved.uarmg = item(gloved, LEATHER_GLOVES, { owt: 10 });
-    const corpse = item(gloved, CORPSE,
-        { corpsenm: PM_COCKATRICE, owt: 30 });
-    carry(gloved, corpse);
-    gloved.uquiver = corpse;
-    aimEast(gloved);
-    assert.equal(await throw_obj(corpse, 0, gloved), ECMD_TIME);
-    assert.deepEqual(pileAt(gloved, gloved.gb.bhitpos.x, 4), [corpse]);
-    // Bare hands reach the same corpse's third conjunct.
-    const bare = arena();
-    const deadly = item(bare, CORPSE, { corpsenm: PM_COCKATRICE, owt: 30 });
-    carry(bare, deadly);
-    bare.uquiver = deadly;
-    aimEast(bare);
-    await assert.rejects(() => throw_obj(deadly, 0, bare), /instapetrify/u);
+test('throw_obj() preserves the corpse message before discarded instapetrify',
+    async () => {
+        // dothrow.c:139-143 gates this on no gloves, a petrifying corpse, and
+        // no Stone_resistance. The C void instapetrify() call remains a named
+        // gap after its message and killer-name setup.
+        const state = arena();
+        const corpse = item(state, CORPSE, { corpsenm: PM_COCKATRICE });
+        carry(state, corpse);
+        state.uquiver = corpse;
+        aimEast(state);
 
-    // Stone resistance fails the fourth conjunct on its own, so the same
-    // bare-handed throw of the same corpse costs nothing and lands.
-    const immune = arena();
-    const harmless = item(immune, CORPSE,
-        { corpsenm: PM_COCKATRICE, owt: 30 });
-    carry(immune, harmless);
-    immune.uquiver = harmless;
-    immune.u.uprops[STONE_RES].intrinsic = 1;
-    aimEast(immune);
-    immune._ttyToplines = '';
-    assert.equal(await throw_obj(harmless, 0, immune), ECMD_TIME);
-    assert.deepEqual(pileAt(immune, immune.gb.bhitpos.x, 4), [harmless]);
-    // C's message belongs to the branch this hero skips, so it must not
-    // appear; the throw itself prints nothing.
-    assert.doesNotMatch(immune._ttyToplines, /bare/u);
-    // The extrinsic half of youprop.h Stone_resistance (63-65) reads the same
-    // way. Nothing this port equips grants it, so the assertion is what keeps
-    // the union honest.
-    const worn = arena();
-    const spare = item(worn, CORPSE, { corpsenm: PM_COCKATRICE, owt: 30 });
-    carry(worn, spare);
-    worn.uquiver = spare;
-    worn.u.uprops[STONE_RES].extrinsic = 1;
-    aimEast(worn);
-    assert.equal(await throw_obj(spare, 0, worn), ECMD_TIME);
-    assert.deepEqual(pileAt(worn, worn.gb.bhitpos.x, 4), [spare]);
-});
+        const sourceStart = DOTHROW_C.indexOf('\nthrow_obj(');
+        const sourceEnd = DOTHROW_C.indexOf('\n/* common to dothrow()', sourceStart);
+        const source = DOTHROW_C.slice(sourceStart, sourceEnd);
+        const messageAt = source.indexOf('You("throw %s with your bare %s."');
+        const killerAt = source.indexOf('Sprintf(svk.killer.name, "throwing %s bare-handed"');
+        const helperAt = source.indexOf('instapetrify(svk.killer.name);');
+        assert.ok(messageAt >= 0 && messageAt < killerAt && killerAt < helperAt,
+            'C prints, sets svk.killer.name, then calls the void helper');
+        assert.match(source,
+            /corpse_xname\(obj, \(const char \*\) 0, CXN_PFX_THE\)/u);
+        assert.match(source, /makeplural\(body_part\(HAND\)\)/u);
+
+        const previousUnported = game.unported;
+        game.unported = new Set();
+        try {
+            const result = await throw_obj(corpse, 0, state);
+            // C has no later throw_obj branch before the void helper returns;
+            // this gap test asserts the preceding effects without inventing
+            // instapetrify's terminal side effects.
+            assert.equal(result, ECMD_TIME);
+            assert.match(state._ttyToplines,
+                /You throw the cockatrice corpse with your bare hands\./u);
+            assert.match(state.svk.killer.name,
+                /^throwing .*cockatrice corpse bare-handed$/u);
+            assert.equal(game.unported.has('trap.c instapetrify'), true);
+            assert.equal(corpse.where, OBJ_FLOOR,
+                'after the discarded helper boundary, throw_obj continues');
+        } finally {
+            game.unported = previousUnported;
+        }
+    });
+
+// Source order has canletgo() before throw_obj()'s later welded() branch;
+// canletgo() rejects the same wielded-and-cursed item, so weldmsg() is a C
+// source branch but is not reachable from a valid throw_obj caller state.
+test('throw_obj keeps wet-towel drying as a named void gap and continues',
+    async () => {
+        const sourceStart = DOTHROW_C.indexOf('\nthrow_obj(');
+        const sourceEnd = DOTHROW_C.indexOf('\n/* common to dothrow()', sourceStart);
+        const source = DOTHROW_C.slice(sourceStart, sourceEnd);
+        const canletgoAt = source.indexOf('canletgo(obj, "throw")');
+        const weldedAt = source.indexOf('if (welded(obj))');
+        const dryAt = source.indexOf('dry_a_towel(obj, -1, FALSE);');
+        const multishotAt = source.indexOf('/* Multishot calculations');
+        assert.ok(canletgoAt < weldedAt && weldedAt < dryAt && dryAt < multishotAt,
+            'C tests the canletgo guard, then welded, then dries before multishot');
+        assert.match(source, /weldmsg\(obj\);/u);
+
+        const previousUnported = game.unported;
+        game.unported = new Set();
+        try {
+            // A cursed wielded dagger exercises canletgo()'s welded guard;
+            // that earlier guard returns before the later weldmsg() call.
+            const stuck = arena();
+            const dagger = item(stuck, DAGGER, {
+                cursed: 1,
+                bknown: 1,
+                owornmask: W_WEP,
+            });
+            carry(stuck, dagger);
+            stuck.uwep = dagger;
+            aimEast(stuck);
+            assert.equal(await throw_obj(dagger, 0, stuck), ECMD_OK);
+            assert.equal(game.unported.has('wield.c weldmsg'), false,
+                'the valid C caller cannot reach the later welded arm');
+            assert.equal(stuck.invent, dagger);
+
+            // is_wet_towel() reads positive spe as wetness; one is its minimal
+            // wet value. dry_a_towel(obj,-1,FALSE) is a discarded void call.
+            const state = arena();
+            const towel = item(state, TOWEL, { spe: 1 });
+            carry(state, towel);
+            state.uquiver = towel;
+            aimEast(state);
+            assert.equal(await throw_obj(towel, 0, state), ECMD_TIME);
+            assert.equal(towel.spe, 1,
+                'the unported discarded helper leaves wetness unchanged');
+            assert.equal(game.unported.has('weapon.c dry_a_towel'), true);
+            assert.equal(towel.where, OBJ_FLOOR,
+                'the source continues to throw after dry_a_towel');
+        } finally {
+            game.unported = previousUnported;
+        }
+    });
 
 test('throw_obj() opens the multishot block only for a stack it can volley',
     async () => {
@@ -2025,31 +2068,47 @@ test('throw_obj() empties the slot when a stack ends', async () => {
     assert.deepEqual(draws(), ['rn2(100)']);
 });
 
-test('throw_obj() puts a partly thrown stack back together', async () => {
-    // dothrow.c:284-286. The undo wants an object that is not the quiver and
-    // whose o_id matches one of the two svc.context.objsplit remembers, so a
-    // second throw from the same unquivered stack is where it fires: the
-    // first throw's split is what objsplit still holds.
-    const state = arena();
-    const stack = item(state, DAGGER, { quan: 5 });
-    carry(state, stack);
-    state.uquiver = null;
-    aimEast(state);
-    assert.equal(await throw_obj(stack, 0, state), ECMD_TIME);
-    assert.equal(state.context.objsplit.parent_oid, stack.o_id);
-    aimEast(state);
-    await assert.rejects(() => throw_obj(stack, 0, state), /unsplitobj/u);
-    // The same stack quivered is exempt, because dofire() throws from there
-    // every time and would otherwise undo its own split.
-    const quivered = arena();
-    const readied = item(quivered, DAGGER, { quan: 5 });
-    carry(quivered, readied);
-    quivered.uquiver = readied;
-    aimEast(quivered);
-    await throw_obj(readied, 0, quivered);
-    aimEast(quivered);
-    assert.equal(await throw_obj(readied, 0, quivered), ECMD_TIME);
-});
+test('throw_obj restores saved split context before the unsplitobj cleanup',
+    async () => {
+        // Split one item from this five-item DAGGER stack to model getobj's
+        // counted selection; splitobj creates the parent/child context C saves.
+        const state = arena();
+        const stack = item(state, DAGGER, { quan: 5 });
+        carry(state, stack);
+        state.uquiver = null;
+        const child = splitobj(stack, 1, { state });
+        const savedSplit = { ...state.context.objsplit };
+        assert.deepEqual(savedSplit,
+            { parent_oid: stack.o_id, child_oid: child.o_id },
+            'splitobj saves the parent and selected child IDs for cleanup');
+
+        const sourceStart = DOTHROW_C.indexOf('\nthrow_obj(');
+        const cleanupAt = DOTHROW_C.indexOf('unsplit_stack:', sourceStart);
+        const restoreAt = DOTHROW_C.indexOf('svc.context.objsplit = save_osplit;', cleanupAt);
+        const unsplitAt = DOTHROW_C.indexOf('(void) unsplitobj(obj);', cleanupAt);
+        assert.ok(cleanupAt >= 0 && restoreAt > cleanupAt && unsplitAt > restoreAt,
+            'C restores the saved context before discarding unsplitobj()');
+        const finishAt = DOTHROW_JS.indexOf('function finishThrowObj(');
+        const finishEnd = DOTHROW_JS.indexOf('\n}', finishAt) + 2;
+        const finishSource = DOTHROW_JS.slice(finishAt, finishEnd);
+        assert.ok(finishSource.indexOf('state.context.objsplit = save_osplit;')
+            < finishSource.indexOf('unsplitobj(obj, { state });'));
+
+        // KEY_ESC is the getdir cancellation key. C then follows unsplit_stack
+        // with ECMD_CANCEL and merges the selected child into its parent.
+        state.nhDisplay.clearInputQueue();
+        state.nhDisplay.pushKey(KEY_ESC);
+        assert.equal(await throw_obj(child, 0, state), ECMD_CANCEL);
+        assert.equal(state.invent, stack);
+        assert.equal(stack.quan, 5,
+            'source cleanup reunites the child with its parent');
+        assert.ok(child.where === OBJ_FREE || child.where === OBJ_DELETED);
+        // mkobj.c:dealloc_obj() clears both IDs when it frees a just-merged
+        // split half; restoring savedSplit first is what made this merge find
+        // the parent and return the stack to its original quantity.
+        assert.deepEqual(state.context.objsplit,
+            { parent_oid: 0, child_oid: 0 });
+    });
 
 test('dofire() asks whether the hero can throw at all', async () => {
     // dothrow.c:302-311. Each of the three refusals answers FALSE, which
