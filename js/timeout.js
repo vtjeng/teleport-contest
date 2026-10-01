@@ -352,7 +352,11 @@ const timeout_funcs = [
     { name: 'zombify_mon' },
     { name: 'burn_object' },
     { name: 'hatch_egg' },
-    { name: 'fig_transform' },
+    {
+        name: 'fig_transform',
+        f: figTransformCallback,
+        unported: () => null,
+    },
     { name: 'shrink_glob', f: shrinkGlobCallback, unported: unportedShrinkGlobReason },
     { name: 'melt_ice_away' },
 ];
@@ -376,6 +380,27 @@ function shrinkGlobCallback(arg, timeout, env) {
         },
     };
     return shrink_glob(arg, timeout, shrinkEnv);
+}
+
+// C ref: timeout.c timeout_funcs[FIG_TRANSFORM]. Importing apply.js only when
+// the timer fires keeps its doapply.js -> timeout.js dependency acyclic.
+async function figTransformCallback(arg, timeout, env) {
+    const { fig_transform } = await import('./apply.js');
+    const hooks = {
+        extractExternalObject: remove_object,
+        stopFigurineTimer: (obj, hookEnv) => stop_timer(
+            FIG_TRANSFORM, obj, hookEnv.state ?? env.state, hookEnv,
+        ),
+        stopObjectTimers: (obj, hookEnv) => obj_stop_timers(
+            obj, hookEnv.state ?? env.state, hookEnv,
+        ),
+        ...(env.hooks ?? {}),
+    };
+    if (hooks.updateInventory === undefined
+        && typeof env.state?.hooks?.updateInventory === 'function') {
+        hooks.updateInventory = env.state.hooks.updateInventory;
+    }
+    return fig_transform(arg, timeout, { ...env, hooks });
 }
 
 // The environment run_timers() hands a timeout function. dig.c rot_corpse()

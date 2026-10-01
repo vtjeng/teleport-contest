@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61193019,
+      "datetime": "20420930131400",
+      "nethackrc": "OPTIONS=name:FigTimer,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+      "moves": " .#wizintrinsic\n10000a\n #wizwish\ncursed figurine of a little dog\n4000."
+    }
+  ],
+  "comment": "Attachment-only diagnostic for apply.c:fig_transform through an inventory-held cursed figurine; it does not establish callback runtime. The wizard setup uses wizcmds.c:wiz_intrinsic and 10000a to select the first menu property, invulnerable, and sets u.uinvulnerable's timeout to 10,000. C records rnd(9000)=3558 in timeout.c:attach_fig_transform_timeout, so start_timer receives 3,758 turns. The 4,000-repeat wait ends at zero-based step 70 with 'You stop waiting.' It never reaches the timer callback: timeout.c:nh_timeout returns while u.uinvulnerable is true before the intrinsic countdown loop and its later run_timers() call. The two separate callback records are recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback.session.json and recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback-seed-variation.session.json."
+}

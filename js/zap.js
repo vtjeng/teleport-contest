@@ -727,7 +727,7 @@ import { mdrop_obj, remove_worn_item } from './steal.js';
 import {
     burn_away_slime, fall_asleep, obj_stop_timers, spot_stop_timers,
     spot_time_left, attach_egg_hatch_timeout, peek_timer, stop_timer,
-    start_timer,
+    start_timer, attach_fig_transform_timeout,
 } from './timeout.js';
 import {
     displayPendingTtyMessageWindow,
@@ -2419,6 +2419,15 @@ export async function makewish(state = game) {
                 'You learn more about your items by comparing them.',
                 state,
             ),
+            // invent.c:carry_obj_effects() calls dead_species() before it
+            // attaches a cursed figurine's FIG_TRANSFORM timer.
+            isDeadSpecies: (species, includeGone, hookEnv) => dead_species(
+                species, includeGone, hookEnv,
+            ),
+            // invent.c:carry_obj_effects() attaches the timer after its
+            // dead_species() guard; timeout.c owns the timer queue and draw.
+            attachFigurineTimer: (obj, hookEnv) =>
+                attach_fig_transform_timeout(obj, hookEnv),
             newsym,
             dropObject: dropx,
             dropy,

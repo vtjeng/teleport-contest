@@ -95,6 +95,7 @@ import {
     SPE_CHARM_MONSTER,
     SPE_CONFUSE_MONSTER,
     SPE_CREATE_MONSTER,
+    SPE_CREATE_FAMILIAR,
     SPE_DETECT_FOOD,
     SPE_DETECT_MONSTERS,
     SPE_DETECT_TREASURE,
@@ -148,7 +149,7 @@ import { erode_obj } from './trap_erode_obj.js';
 import { body_part } from './polyself.js';
 import { cansee, canseemon } from './vision.js';
 import { On_stairs } from './stairs.js';
-import { tamedog } from './dog.js';
+import { make_familiar, tamedog } from './dog.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { iter_mons_async } from './mon.js';
@@ -1445,6 +1446,16 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     case SPE_MAGIC_MAPPING:
     case SPE_CREATE_MONSTER:
         await seffects(pseudo, state, env);
+        break;
+
+    // C spell.c:spelleffects() calls dog.c:make_familiar() directly; its
+    // returned monster pointer is discarded before pseudo-book cleanup.
+    case SPE_CREATE_FAMILIAR:
+        await make_familiar(null, state.u.ux, state.u.uy, false, {
+            ...env,
+            random: { d, rn1, rn2, rnd, rne, rnz, ...random },
+            state,
+        });
         break;
 
     // Potion-duplicate spells.

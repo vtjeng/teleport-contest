@@ -1,5 +1,6 @@
 // apply.js -- the `a` command: using a tool.
-// C refs: src/apply.c apply_ok(), doapply(), get_mleash(), light_cocktail(),
+// C refs: src/apply.c apply_ok(), doapply(), fig_transform(),
+// figurine_location_checks(), use_figurine(), get_mleash(), light_cocktail(),
 // use_cream_pie(), use_whistle(), use_magic_whistle(), magic_whistled(),
 // use_whip(), the
 // polearm helpers and use_pole(), use_stethoscope(), the grappling-hook
@@ -50,6 +51,7 @@ import {
     ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
+    FIG_TRANSFORM,
     FLASHED_LIGHT,
     FREE_ACTION,
     FEMALE,
@@ -86,15 +88,19 @@ import {
     HAND,
     KILLED_BY,
     has_mcorpsenm,
+    IS_TREE,
     isok,
     MCORPSENM,
     M_AP_FURNITURE,
     M_AP_MONSTER,
+    M_AP_NOTHING,
     M_AP_OBJECT,
     M_AP_TYPE,
     nothing_happens,
     nothing_seems_to_happen,
     OBJ_INVENT,
+    OBJ_FLOOR,
+    OBJ_MINVENT,
     PRONOUN_NO_IT,
     REVIVE_MON,
     RLOC_MSG,
@@ -170,6 +176,7 @@ import {
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
     TIMEOUT,
+    TIMER_OBJECT,
     Upolyd,
     uhim,
     u_at,
@@ -211,15 +218,17 @@ import {
     unmap_invisible,
 } from './display.js';
 import {
-    Amonnam, l_monnam, Monnam, noit_mon_nam, c_obj_colors, hcolor, mon_nam, monverbself, obj_pmname,
+    Amonnam, a_monnam, l_monnam, m_monnam, Monnam, noit_mon_nam, c_obj_colors, hcolor, mon_nam, monverbself, obj_pmname,
     pmname, x_monnam, y_monnam,
 } from './do_name.js';
 import { can_reach_floor, cant_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
+import { make_familiar } from './dog.js';
 import {
     check_capacity,
     invocation_pos,
     losehp,
+    may_passwall,
     near_capacity,
     nomul,
     overexertion,
@@ -240,6 +249,7 @@ import {
     hands_obj,
     nxtobj,
     obj_extract_self,
+    obfree,
     preflight_obfree,
     preflight_update_inventory,
     update_inventory,
@@ -277,6 +287,9 @@ import {
     pronoun_gender,
     slithy,
     throws_rocks,
+    passes_walls,
+    hides_under,
+    locomotion,
     type_is_pname,
     bigmonst,
     strongmonst,
@@ -459,7 +472,7 @@ import {
     AD_BLND, AT_ENGL, AT_WEAP, MZ_TINY, PM_AMOROUS_DEMON,
     PM_ARCHEOLOGIST, PM_FLOATING_EYE, PM_HEALER, PM_MEDUSA,
     PM_HORSE, PM_STONE_GOLEM, PM_UMBER_HULK, S_GHOST, S_NYMPH,
-    S_VAMPIRE, PM_GNOME, PM_LONG_WORM,
+    S_VAMPIRE, S_EEL, S_MIMIC, PM_GNOME, PM_LONG_WORM,
 } from './monsters.js';
 import { body_part, mbodypart, poly_gender, polymon } from './polyself.js';
 import { attacktype_fordmg } from './mondata.js';
@@ -473,12 +486,14 @@ import {
     make_hallucinated,
     set_itimeout,
 } from './potion.js';
-import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
+import { canSpotMonster, heroIsBlind, messageAt, sensesMonster } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
     obj_has_timer,
     obj_stop_timers,
+    start_timer,
+    stop_timer,
     spot_stop_timers,
 } from './timeout.js';
 import {
@@ -552,7 +567,7 @@ import {
     flash_hits_mon,
     force_attack,
 } from './uhitm.js';
-import { transient_light_cleanup } from './light.js';
+import { get_obj_location, transient_light_cleanup } from './light.js';
 import {
     bhit,
     bhitm,
@@ -3474,13 +3489,245 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
 // apply.c:doapply() switch cases whose handlers are not ported in this
 // JavaScript slice. Keep them out of the generic default, which C reaches
 // only after every named case has failed to match.
+function figurineObjectEnv(state, env = {}) {
+    const hooks = { ...(env.hooks ?? {}) };
+    hooks.extractExternalObject ??= (obj, hookEnv) => remove_object(obj, {
+        ...hookEnv,
+        state: hookEnv.state ?? state,
+    });
+    hooks.stopFigurineTimer ??= (obj, hookEnv) => stop_timer(
+        FIG_TRANSFORM, obj, hookEnv.state ?? state, hookEnv,
+    );
+    hooks.stopObjectTimers ??= (obj, hookEnv) => obj_stop_timers(
+        obj, hookEnv.state ?? state, hookEnv,
+    );
+    if (hooks.updateInventory === undefined
+        && typeof state.hooks?.updateInventory === 'function') {
+        hooks.updateInventory = state.hooks.updateInventory;
+    }
+    return { ...env, state, hooks };
+}
+
+// C ref: apply.c fig_transform() (2398-2508). This is timeout.c's object
+// timer owner; it retains the object location before placement and deletion,
+// and only redraws a visible floor location after freeing the figurine.
+export async function fig_transform(figurine, timeout, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const env = figurineObjectEnv(state, rawEnv);
+    const random = { d, rn1, rn2, rnd, rne, rnz, ...(env.random ?? {}) };
+    const message = env.message ?? ttyPline;
+    if (!figurine) {
+        note_unported('pline.c impossible');
+        return;
+    }
+
+    const silent = Math.trunc(timeout) !== Math.trunc(state.moves ?? 0);
+    let location = get_obj_location(figurine, 0, state);
+    let okaySpot = Boolean(location);
+    if (figurine.where === OBJ_INVENT || figurine.where === OBJ_MINVENT) {
+        if (location) {
+            const nearby = enexto(
+                location.x,
+                location.y,
+                state.mons?.[figurine.corpsenm],
+                env,
+            );
+            okaySpot = Boolean(nearby);
+            if (nearby) location = nearby;
+        } else {
+            okaySpot = false;
+        }
+    }
+    if (!okaySpot
+        || !await figurine_location_checks(
+            figurine, location, true, state, env,
+        )) {
+        // C discards start_timer()'s Boolean result; keep the retry draw and
+        // due time at this exact source point.
+        start_timer(
+            random.rnd(5000), TIMER_OBJECT, FIG_TRANSFORM, figurine, state,
+        );
+        return;
+    }
+
+    const { x, y } = location;
+    const canSeeSpot = cansee(x, y, state);
+    const monster = await make_familiar(figurine, x, y, true, env);
+    let redraw = false;
+    if (monster) {
+        const shelter = state.level?.objects?.[monster.mx]?.[monster.my] ?? null;
+        const monsterName = an(m_monnam(monster, state, env));
+        let andVanish = '';
+        let suppressSee = (monster.minvis
+            && !applyPropertyActive(SEE_INVIS, state))
+            || (monster.data?.mlet === S_MIMIC
+                && M_AP_TYPE(monster) !== M_AP_NOTHING);
+
+        if (monster.mundetected) {
+            if (hides_under(monster.data) && shelter) {
+                andVanish = ` and ${locomotion(monster.data, 'crawl')} under `
+                    + donameFresh(shelter, state);
+            } else if (monster.data?.mlet === S_MIMIC
+                || monster.data?.mlet === S_EEL) {
+                suppressSee = true;
+            } else {
+                andVanish = ' and vanish';
+            }
+        }
+
+        switch (figurine.where) {
+        case OBJ_INVENT:
+            if (heroIsBlind(state) || suppressSee) {
+                await message(
+                    `You feel something ${locomotion(monster.data, 'drop')} `
+                        + 'from your pack!',
+                    state,
+                );
+            } else {
+                await message(
+                    `You see ${monsterName} `
+                        + `${locomotion(monster.data, 'drop')} out of your `
+                        + `pack${andVanish}!`,
+                    state,
+                );
+            }
+            break;
+        case OBJ_FLOOR:
+            if (canSeeSpot && !silent) {
+                const text = suppressSee
+                    ? `${an(xnameFresh(figurine, state))} suddenly vanishes!`
+                    : `You see a figurine transform into ${monsterName}`
+                        + `${andVanish}!`;
+                await message(messageAt(text, x, y, state), state);
+                redraw = true;
+            }
+            break;
+        case OBJ_MINVENT:
+            if (canSeeSpot && !silent && !suppressSee) {
+                const carrier = figurine.ocarry;
+                let carriedBy;
+                if (canseemon(carrier, state)
+                    && (!carrier.wormno || cansee(carrier.mx, carrier.my, state))) {
+                    carriedBy = `${s_suffix(a_monnam(carrier, { ...env, state }))} pack`;
+                } else if (is_pool(carrier.mx, carrier.my, state)) {
+                    carriedBy = 'empty water';
+                } else {
+                    carriedBy = 'thin air';
+                }
+                await message(
+                    `You see ${monsterName} `
+                        + `${locomotion(monster.data, 'drop')} out of `
+                        + `${carriedBy}${andVanish}!`,
+                    state,
+                );
+            }
+            break;
+        default:
+            note_unported('pline.c impossible');
+            break;
+        }
+    }
+
+    // C removes a carried object through useup(); other object owners first
+    // extract it, then discard it with obfree().
+    if (carried(figurine)) {
+        useup(figurine, env);
+    } else {
+        obj_extract_self(figurine, env);
+        obfree(figurine, null, env);
+    }
+    if (redraw) newsym(location.x, location.y, state);
+}
+
+// C ref: apply.c figurine_location_checks() (2511-2541). Read-only location
+// and monster-ability predicate shared by manual use and the timer callback.
+export async function figurine_location_checks(
+    obj, cc, quietly = false, state = game, rawEnv = {},
+) {
+    const env = { ...rawEnv, state };
+    const message = env.message ?? ttyPline;
+    if (carried(obj) && state.u?.uswallow) {
+        if (!quietly)
+            await message("You don't have enough room in here.", state);
+        return false;
+    }
+    const x = cc ? cc.x : state.u.ux;
+    const y = cc ? cc.y : state.u.uy;
+    if (!isok(x, y)) {
+        if (!quietly)
+            await message('You cannot put the figurine there.', state);
+        return false;
+    }
+    const type = state.level.at(x, y).typ;
+    const species = state.mons?.[obj.corpsenm];
+    if (IS_OBSTRUCTED(type)
+        && !(passes_walls(species) && may_passwall(x, y, state))) {
+        if (!quietly) {
+            await message(
+                `You cannot place a figurine in ${IS_TREE(type)
+                    ? 'a tree' : 'solid rock'}!`,
+                state,
+            );
+        }
+        return false;
+    }
+    if (sobj_at(BOULDER, x, y, state)
+        && !passes_walls(species) && !throws_rocks(species)) {
+        if (!quietly)
+            await message('You cannot fit the figurine on the boulder.', state);
+        return false;
+    }
+    return true;
+}
+
+// C ref: apply.c use_figurine() (2544-2581). Direction cancellation, target
+// validation, familiar creation, timer removal, and consumption stay ordered
+// as in the command's pointer-returning arm.
+export async function use_figurine(objp, state = game, rawEnv = {}) {
+    const obj = objp.obj;
+    const env = figurineObjectEnv(state, rawEnv);
+    if (state.u.uswallow
+        && !await figurine_location_checks(obj, null, false, state, env)) {
+        return ECMD_OK;
+    }
+    if (!await getdir(null, state)) {
+        state.context.move = 0;
+        state.multi = 0;
+        return ECMD_CANCEL;
+    }
+    const x = state.u.ux + state.u.dx;
+    const y = state.u.uy + state.u.dy;
+    const cc = { x, y };
+    if (!await figurine_location_checks(obj, cc, false, state, env))
+        return ECMD_TIME;
+
+    const action = (state.u.dx || state.u.dy)
+        ? 'set the figurine beside you'
+        : (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz)
+            || is_pool(x, y, state))
+            ? 'release the figurine'
+            : state.u.dz < 0
+                ? 'toss the figurine into the air'
+                : 'set the figurine on the ground';
+    await (env.message ?? ttyPline)(
+        `You ${action} and it ${heroIsBlind(state) ? 'supposedly ' : ''}`
+            + 'transforms.',
+        state,
+    );
+    await make_familiar(obj, x, y, false, env);
+    stop_timer(FIG_TRANSFORM, obj, state, env);
+    useup(obj, env);
+    if (heroIsBlind(state)) map_invisible(x, y, state);
+    objp.obj = null;
+    return ECMD_TIME;
+}
+
 const DOAPPLY_UNPORTED_NAMED_ARMS = new Set([
     LUMP_OF_ROYAL_JELLY,
     BELL,
     BELL_OF_OPENING,
     TOWEL,
     TIN_OPENER,
-    FIGURINE,
     FLINT,
     LUCKSTONE,
     LOADSTONE,
@@ -4493,6 +4740,10 @@ export async function doapply(state = game, env = {}) {
                 },
             }),
         });
+    case FIGURINE:
+        // apply.c:4367. use_figurine() updates the pointer to NULL after the
+        // source consumes the selected object.
+        return use_figurine(objp, state, env);
     case UNICORN_HORN:
         // apply.c:4371. use_unicorn_horn() is void; retain doapply's initial
         // ECMD_TIME while applying its property effects.

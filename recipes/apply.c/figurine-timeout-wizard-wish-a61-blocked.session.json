@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61193019,
+      "datetime": "20420930131400",
+      "nethackrc": "OPTIONS=name:FigTimer,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,playmode:debug\n",
+      "moves": " .#wizintrinsic\n10000a\n #wizwish\ncursed figurine of a little dog\n"
+    }
+  ],
+  "comment": "Blocked C-only setup for apply.c:fig_transform runtime evidence. C reaches invent.c:carry_obj_effects, which calls dead_species before timeout.c:attach_fig_transform_timeout schedules the transformation. The JavaScript #wizwish caller in zap.c:makewish does not provide the required isDeadSpecies inventory hook, so the fresh JS replay stops before timer attachment. Preserve the C output in .cache/A61-logs/figurine-timeout-wizard-wish-c-only.session.json; this recipe is not matching runtime evidence for fig_transform."
+}

@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe",
+  "remainingScreens": 4,
+  "recordedSteps": 29,
+  "corpus": "synthetic",
+  "batch": "v15",
+  "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+  "manifestPath": "challenges/manifests/v15.json",
+  "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+  "recordingSha256": "f65498afb4ef4a6e990ab7af979d951edb2875f14fd434fa06de976e1b7d9893",
+  "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+  "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "status": "complete",
+  "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v15",
+    "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+    "session": "synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe",
+    "manifestPath": "challenges/manifests/v15.json",
+    "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+    "recording": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.session.json",
+    "recordingPath": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.session.json",
+    "recordingSha256": "f65498afb4ef4a6e990ab7af979d951edb2875f14fd434fa06de976e1b7d9893",
+    "recipe": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.recipe.session.json",
+    "recipeSha256": "5b7511c5d1fdeef05d0de74535836392587a69a29a9c134610cac323938a1f2a",
+    "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+    "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+    "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+    "evaluationUtc": "2026-10-01T02:29:26.613Z",
+    "remainingScreens": 4,
+    "recordedSteps": 29,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 25,
+        "total": 29
+      },
+      "rng": {
+        "matched": 2532,
+        "total": 2541
+      },
+      "cursors": {
+        "matched": 25,
+        "total": 29
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+      "step": 25
+    },
+    "step": 25,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first stop is the lit-candle branch of objnam.c:doname_base while zap.c:makewish formats the wish result. C then continues to throw the Wizard’s starting magic marker with input n; the candle is only the naming probe, so this recording does not exercise candle extinguishing. After the marker lands, JS records apply.c:snuff_candle as a later gap, but C returns false immediately for that non-candle.",
+  "source": {
+    "file": "objnam.c",
+    "branch": "In doname_base(), a wished object satisfies Is_candle(obj) and obj->lamplit while its BURN_OBJECT timer is active. The TOOL_CLASS naming branch adjusts obj->age by peek_timer(BURN_OBJECT, &timer) - svm.moves before comparing turns_left with 20 * objects[obj->otyp].oc_cost, then appends the lit suffix.",
+    "functions": [
+      "doname_base"
+    ],
+    "callers": [
+      "objnam.c:doname() (1753-1757) calls doname_base with ordinary flags. The observed route is cmd.c:extcmdlist[\"wizwish\"] -> wizcmds.c:wiz_wish() -> zap.c:makewish() -> doname(otmp) at zap.c:6388.",
+      "objnam.c:doname_with_price(), doname_vague_quan(), and paydoname() are the other direct wrappers into doname_base (objnam.c:1761-1764, 1782, 2326); they are not reached by this recording.",
+      "After the wish-result string, zap.c:makewish() may format the added object through invent.c:hold_another_object() -> prinv() -> xprname() -> doname(); that second render is later than the failing call."
+    ],
+    "dependencies": [
+      "objnam.c:xname(obj) runs first in doname_base and can update discovery state; js/objnam.js:xnameFresh() is already implemented and its ordering must be preserved.",
+      "timeout.c:peek_timer(BURN_OBJECT, &timer) returns an absolute timer expiry that is consumed in the turns_left calculation. js/timeout.js:peek_timer() already returns the matching timer timeout by function index and object identity.",
+      "The exercised branch consumes BURN_OBJECT, svm.moves, obj->age, obj->lamplit, objects[obj->otyp].oc_cost, and the Is_candle(obj) classification. Preserve the zeroed anything timer with timer.a_obj = obj."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Source: frozen checkout 6d2c675aad59f170ec44980d6afce47f08ae7423, nethack-c/upstream/src/objnam.c:1223-1751 is the complete doname_base() function. Its candle arm at :1456-1477 calculates full burn time from objects[].oc_cost and, for a lit candle, adjusts stored age using peek_timer(BURN_OBJECT) - svm.moves before deciding whether to add \"partly used\".",
+    "Source caller: nethack-c/upstream/src/zap.c:6388 calls doname(otmp) to build the wish-result string before hold_another_object() at :6419. objnam.c:1753-1757 routes doname() to doname_base(). The command route is cmd.c:2000-2001 -> wizcmds.c:32-40 -> zap.c:makewish().",
+    "Diagnostic: .cache/synthetic-scans/v15/wizard-throws-magic-marker-during-lit-candle-probe.json reports a stop at segment 0, step 25 with \"unsupported object name branch: lit candle timer adjustment\". The current source-root implementation reaches this refusal in js/objnam.js:448-449 before formatting the candle; js/timeout.js:1155-1161 already ports peek_timer().",
+    "C recording: challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.session.json has 29 steps. At step 25, the wish answer produces \"o - a candle (lit).\". The recipe then issues throw, selects n, and gives direction l. n selects the Wizard starter magic marker from the Wizard inventory in nethack-c/upstream/src/u_init.c:168-176; it is not the wished candle at o. Thus the recorded play reaches a marker throw, not a lit-candle throw.",
+    "Later source path: dothrow.c:351-375 dispatches the throw selection and :1818 calls (void) snuff_candle(obj) after floor effects. For the selected magic marker, apply.c:1472-1494 returns false before any output or timer change because it is neither a candle nor the candelabrum. js/dothrow.js:2693 still records note_unported(\"apply.c snuff_candle\") on this later marker-landing path. A throw of the lit candle at o would exercise snuff_candle() side effects, but this recording does not provide evidence for that branch."
+  ]
+}

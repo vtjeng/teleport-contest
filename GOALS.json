@@ -124035,6 +124035,354 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-dog-make-familiar-and-figurine-callers-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port familiar creation and its figurine, spell and timer callers",
+      "cFile": "dog.c",
+      "sessions": [
+        "synthetic/v14/wizard-applies-uncursed-figurine"
+      ],
+      "selectionReason": "Select synthetic/v14/wizard-applies-uncursed-figurine from current complete evaluations across all 15 admitted batches. Its first stop is apply.c:doapply at step 41; the consumed make_familiar result in the independent FIG_TRANSFORM caller requires the whole dog.c pick_familiar_pm..make_familiar family. This queued worker delivery predates the v15 baseline and completes the three direct caller families without overlapping B64 or A62 reservations. The fixed 44-session scan is clean. Only the two dog.c units receive completion credit; supporting apply figurine helpers, spell dispatch, timer callback, MM_IGNOREWATER placement, and wizard-wish timer hooks stay attributed to their exact C sites.",
+      "detail": "Whole dog.c pick_familiar_pm104–135 and make_familiar138–215 preserve species selection, birth limits, retry, makemon return pointer, pool handling, figurine BUC attitude, naming, pet initialization and wield order. Active callers are apply.use_figurine, spell.spelleffects CREATE_FAMILIAR and apply.fig_transform through FIG_TRANSFORM. Root verified immutable packets/log hashes and independent callback C recordings through steps295/573, with attachment-only invulnerability attempts explicitly excluded from callback credit.",
+      "openedAt": "253cd39785d42e15eb33258462765e968ada1847",
+      "openStanding": {
+        "sha": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "d5c00e3012d390c9f058db52b3c440fb2841fff0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "pick_familiar_pm",
+          "line": 104,
+          "endLine": 137,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "make_familiar",
+          "line": 138,
+          "endLine": 218,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 104,
+        "to": 218
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/wizard-applies-uncursed-figurine": {
+          "session": "synthetic/v14/wizard-applies-uncursed-figurine",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-applies-uncursed-figurine",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+          "recordingSha256": "15bd026827df17c25a72c152209f1961577bfa7ce67b7b7e88eb336636675ba3",
+          "evaluationPath": "challenges/evaluations/20261001021820-v14.json",
+          "evaluationCommit": "41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82"
+        }
+      },
+      "activeStanding": {
+        "sha": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "wizard-applies-uncursed-figurine",
+          "session": "synthetic/v14/wizard-applies-uncursed-figurine",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+          "recordingPath": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+          "recordingSha256": "15bd026827df17c25a72c152209f1961577bfa7ce67b7b7e88eb336636675ba3",
+          "recipe": "challenges/cases/v14/wizard-applies-uncursed-figurine.recipe.session.json",
+          "recipeSha256": "4c7d9fd3d54830dd256d98d7f918cb71bf8a4a4d83628a49d3ad2fd45ae4c674",
+          "replayInputSha256": "557de9e4ebfe39e5073ad4aca78f10a2ffea804c05c2167953411c25b4fa5443",
+          "evaluationPath": "challenges/evaluations/20261001021820-v14.json",
+          "evaluationCommit": "41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82",
+          "evaluationArtifact": "challenges/evaluations/20261001021820-v14.json",
+          "evaluationUtc": "2026-10-01T02:18:44.933Z",
+          "remainingScreens": 3,
+          "recordedSteps": 44,
+          "previousScreensMatched": 41,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 41,
+              "total": 44
+            },
+            "rng": {
+              "matched": 3039,
+              "total": 3049
+            },
+            "cursors": {
+              "matched": 41,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 241",
+            "step": 41
+          },
+          "step": 41,
+          "kind": "stop",
+          "sourceFile": "apply.c",
+          "function": "doapply",
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 241",
+          "cFile": "apply.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/wizard-applies-uncursed-figurine.json",
+            "result": {
+              "session": "synthetic/v14/wizard-applies-uncursed-figurine",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "wizard-applies-uncursed-figurine",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "15bd026827df17c25a72c152209f1961577bfa7ce67b7b7e88eb336636675ba3",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 3,
+              "recordedSteps": 44,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "wizard-applies-uncursed-figurine",
+                "session": "synthetic/v14/wizard-applies-uncursed-figurine",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+                "recordingPath": "challenges/cases/v14/wizard-applies-uncursed-figurine.session.json",
+                "recordingSha256": "15bd026827df17c25a72c152209f1961577bfa7ce67b7b7e88eb336636675ba3",
+                "recipe": "challenges/cases/v14/wizard-applies-uncursed-figurine.recipe.session.json",
+                "recipeSha256": "4c7d9fd3d54830dd256d98d7f918cb71bf8a4a4d83628a49d3ad2fd45ae4c674",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 3,
+                "recordedSteps": 44,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 41,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 3039,
+                    "total": 3049
+                  },
+                  "cursors": {
+                    "matched": 41,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 241",
+                  "step": 41
+                },
+                "step": 41,
+                "kind": "stop",
+                "sourceFile": "apply.c",
+                "function": "doapply",
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires doapply()'s arm for object type 241",
+                "cFile": "apply.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The unmatched behavior is apply.c doapply() dispatch for FIGURINE (object type 241). In the assigned Wizard case, applying an uncursed gnome figurine to a valid adjacent floor square reaches use_figurine(), which asks for a direction and calls make_familiar(); the frozen JavaScript doapply() instead throws from its unported named-arm guard. The responsible apply.c source family is figurine_location_checks() and use_figurine(), with the FIGURINE dispatch wired in doapply(). Exact downstream parity also needs dog.c make_familiar() and its pick_familiar_pm() dependency: the C trace records make_familiar()'s rn2(10) result and creature outcome.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "figurine_location_checks",
+                  "use_figurine"
+                ],
+                "branch": "A carried FIGURINE is selected by doapply(); the hero is not swallowed; getdir() selects an in-bounds adjacent floor square that is not obstructed or blocked by a boulder. The v14 input uses an uncursed gnome figurine and selects east.",
+                "callers": [
+                  "nethack-c/upstream/src/apply.c: doapply() FIGURINE case calls use_figurine(&obj) and returns its ECMD result (lines 4367-4368); production JavaScript path is js/cmd.js runApplyCommand() -> js/apply.js doapply(). The frozen doapply() routes FIGURINE through DOAPPLY_UNPORTED_NAMED_ARMS and throws instead of reaching a handler (js/apply.js lines 3383-3394, 4447-4450).",
+                  "nethack-c/upstream/src/cmd.c: command table maps the a/apply command to doapply() (line 1678); JavaScript mirrors this in js/extcmdlist_data.js and dispatches doapply through js/cmd.js (lines 3302-3307, 5148-5149)."
+                ],
+                "dependencies": [
+                  "dog.c:make_familiar() is called by use_figurine() at apply.c:2574 and its return is discarded. The call still creates/configures the monster and consumes RNG; the v14 sourceTraceEvidence records rn2(10)=2 at dog.c:186. Leaving this call as note_unported preserves the explicit gap but cannot reproduce the recorded outcome.",
+                  "dog.c:pick_familiar_pm() supplies a return value used by make_familiar(); for a FIGURINE it chooses mons[otmp->corpsenm] unless that monster is extinct. If make_familiar() is included, this helper must be included too.",
+                  "apply.c:fig_transform() is the other source caller of dog.c:make_familiar() (apply.c:2424); it uses the returned monster. A whole make_familiar() port therefore has a second timed-transformation caller beyond the active apply path."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved diagnostic: .cache/synthetic-scans/v14/wizard-applies-uncursed-figurine.json stops after 41 emitted JavaScript screens at “applying a tool requires doapply()'s arm for object type 241”; challenges/evaluations/20260929225551-v14.json records 41/44 screens and 3 remaining screens. The manifest sourceTraceEvidence reports the next C RNG call as rn2(10)=2 at make_familiar(dog.c:186).",
+                "Source: nethack-c/upstream/src/apply.c:2510-2541 defines figurine_location_checks() for swallowed, bounds, obstruction and boulder checks; apply.c:2544-2581 defines use_figurine(), including its getdir() prompt, location check, transformation message, make_familiar() call, timer cancellation, object consumption, blind mapping, and ECMD_TIME result. apply.c:4367-4368 dispatches FIGURINE to use_figurine(&obj).",
+                "Frozen implementation: js/objects.js:316 defines FIGURINE as 241. At the examined commit, js/apply.js:3390 includes FIGURINE in DOAPPLY_UNPORTED_NAMED_ARMS and js/apply.js:4447-4450 throws for that set. The saved trace and evaluation identify the resulting stop; no assigned-session replay was needed.",
+                "Dependency trace: nethack-c/upstream/src/dog.c:138-215 contains make_familiar(); it uses pick_familiar_pm() at line 149, invokes makemon(), then for a figurine draws rn2(10) and chooses tame/peaceful/hostile effects. apply.c:2424 shows fig_transform() as its other caller."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pick_familiar_pm",
+            "implementation": "js/dog.js",
+            "symbol": "pick_familiar_pm",
+            "sourceReview": "Read the complete dog.c:pick_familiar_pm definition (104-135). An object supplies its figurine species and checks extinction against the two special birth-limited monster classes; a null object selects a usual pet with rn2(3) == 0 or calls rndmonst_adj over 3 * P_SKILL(create familiar). Quiet checks control only the source messages. Keep object and spell selection in the same function and preserve random selection order.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "make_familiar",
+                "source": "dog.c:make_familiar calls pick_familiar_pm(otmp, quietly) on every retry"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_figurine",
+                "source": "apply.c:use_figurine -> dog.c:make_familiar(figurine, x, y, FALSE)"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects SPE_CREATE_FAMILIAR -> dog.c:make_familiar(NULL, u.ux, u.uy, FALSE)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/figurine.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/create-familiar-wizcast-a61-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-applies-uncursed-figurine",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 43,
+                "source": "cmd.c:doapply -> apply.c:use_figurine -> dog.c:make_familiar -> dog.c:pick_familiar_pm"
+              }
+            ],
+            "checkedAt": "c948aefffdfc45cb2daaa812263220fabfb8a172"
+          },
+          {
+            "name": "make_familiar",
+            "implementation": "js/dog.js",
+            "symbol": "make_familiar",
+            "sourceReview": "Read the complete dog.c:make_familiar definition (138-215). Preserve the retry loop, MM_EDOG|MM_IGNOREWATER|NO_MINVENT|MM_NOMSG plus optional figurine gender flags, makemon return-pointer use, pool minliquid check, figurine rn2(10) attitude mapping and BUC override, naming, initedog, malign, redraw, and wield order. The void free_emin call is named with note_unported after C clears isminion. Supporting makemon work forwards MM_IGNOREWATER and recognizes only this exact familiar runtime call shape; it does not claim whole makemon.c:makemon completion.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_figurine",
+                "source": "apply.c:use_figurine:2574 calls make_familiar(obj, cc.x, cc.y, FALSE) and discards its result"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "fig_transform",
+                "source": "apply.c:fig_transform:2424 calls make_familiar(figurine, cc.x, cc.y, TRUE) and consumes its pointer; FIG_TRANSFORM callback is covered by two exact C/JS recordings through the callback message."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects:1569-1571 calls make_familiar(NULL, u.ux, u.uy, FALSE)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/figurine.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/create-familiar-wizcast-a61-independent.session.json",
+              "recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback.session.json",
+              "recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback-seed-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-applies-uncursed-figurine",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 43,
+                "source": "cmd.c:doapply -> apply.c:use_figurine -> dog.c:make_familiar"
+              }
+            ],
+            "checkedAt": "c948aefffdfc45cb2daaa812263220fabfb8a172"
+          }
+        ],
+        "entryPointReview": "C has three direct make_familiar callers: spell.c:spelleffects(SPE_CREATE_FAMILIAR), apply.c:use_figurine, and apply.c:fig_transform. The wizard spell entry matches at recordings/spell.c/create-familiar-wizcast-a61-independent.session.json (13 screens, 2,816 RNG calls). The uncursed inventory figurine entry is covered by admitted v14/wizard-applies-uncursed-figurine segment 0 through step 43. The FIG_TRANSFORM caller is now independently covered twice: recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback.session.json (seed 60293889, attachment draw rnd(9000)=1 at step 90, make_familiar at 294, callback message through step 295) and recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback-seed-variation.session.json (seed 65425610, draw 38 at step 90, make_familiar at 572, callback message through step 573). In both, zap.c:makewish supplies carry_obj_effects the dead_species and attach_fig_transform_timeout hooks; JS matches the full C output through timer expiry and the familiar callback.",
+        "entryPoints": [
+          {
+            "name": "Apply an uncursed figurine",
+            "functions": [
+              "make_familiar",
+              "pick_familiar_pm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-applies-uncursed-figurine",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 43,
+                "source": "cmd.c:doapply -> apply.c:doapply -> apply.c:use_figurine -> dog.c:make_familiar"
+              }
+            ]
+          },
+          {
+            "name": "Cast create familiar",
+            "functions": [
+              "make_familiar",
+              "pick_familiar_pm"
+            ],
+            "recordings": [
+              "recordings/spell.c/create-familiar-wizcast-a61-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "FIG_TRANSFORM timer caller",
+            "functions": [
+              "make_familiar"
+            ],
+            "recordings": [
+              "recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback.session.json",
+              "recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback-seed-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d5c00e3012d390c9f058db52b3c440fb2841fff0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

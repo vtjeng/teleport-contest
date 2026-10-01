@@ -69,6 +69,7 @@ import {
     PM_ACID_BLOB,
     PM_ARCHEOLOGIST,
     PM_FAMINE,
+    PM_GNOME,
     PM_HEALER,
     PM_COCKATRICE,
     PM_KOBOLD,
@@ -1123,8 +1124,8 @@ test('run_timers drains the due prefix head-first and stops at the future',
 //
 // Every unported row is driven through run_timers() here, indexed by the
 // js/const.js constant, so the table is pinned against the enum rather than
-// against itself. ROT_CORPSE and SHRINK_GLOB are absent because they are
-// ported rows; the drain tests above cover them.
+// against itself. ROT_CORPSE, FIG_TRANSFORM, and SHRINK_GLOB are absent
+// because they are ported rows; their focused tests cover those callbacks.
 test('every unported timeout row names its own C function', async () => {
     const rows = [
         [ROT_ORGANIC, 'rot_organic'],
@@ -1132,11 +1133,10 @@ test('every unported timeout row names its own C function', async () => {
         [ZOMBIFY_MON, 'zombify_mon'],
         [BURN_OBJECT, 'burn_object'],
         [HATCH_EGG, 'hatch_egg'],
-        [FIG_TRANSFORM, 'fig_transform'],
         [MELT_ICE_AWAY, 'melt_ice_away'],
     ];
-    // Two short of the enum: ROT_CORPSE and SHRINK_GLOB are ported.
-    assert.equal(rows.length, NUM_TIME_FUNCS - 2);
+    // Three short of the enum: ROT_CORPSE, FIG_TRANSFORM, and SHRINK_GLOB.
+    assert.equal(rows.length, NUM_TIME_FUNCS - 3);
 
     for (const [index, name] of rows) {
         const state = rottingState(100);
@@ -1423,6 +1423,37 @@ test('figurine and glob helpers preserve source delay calculations', () => {
     assert.equal(peek_timer(FIG_TRANSFORM, figurine, state), 220);
     assert.equal(peek_timer(SHRINK_GLOB, glob, state), 30);
 });
+
+test('due figurine timers enter apply.c fig_transform and retry blocked spots',
+    async () => {
+        // C apply.c rejects map x=0 through isok(), then retries with rnd(5000).
+        // The injected result 6 makes the replacement timer expire at move 16.
+        const state = timerState(10);
+        const figurine = {
+            where: OBJ_FLOOR,
+            ox: 0,
+            oy: 0,
+            corpsenm: PM_GNOME,
+            timed: 0,
+        };
+        start_timer(0, TIMER_OBJECT, FIG_TRANSFORM, figurine, state);
+        const draws = [];
+        await run_timers(state, {
+            random: {
+                rnd: (bound) => {
+                    draws.push(bound);
+                    assert.equal(bound, 5000);
+                    return 6;
+                },
+            },
+            newsym: () => {},
+        });
+        assert.deepEqual(draws, [5000]);
+        assert.equal(state.gt.timer_base.func_index, FIG_TRANSFORM);
+        assert.equal(state.gt.timer_base.timeout, 16);
+        assert.strictEqual(state.gt.timer_base.arg, figurine);
+        assert.equal(figurine.timed, 1);
+    });
 
 test('ordinary corpse decay uses the source age and rnz adjustment', () => {
     const state = monsterTimerState(1);
