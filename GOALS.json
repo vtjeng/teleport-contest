@@ -125975,15 +125975,15 @@
           "name": "splatter_burning_oil",
           "line": 962,
           "endLine": 973,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "explode_oil",
           "line": 974,
           "endLine": 986,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -126225,7 +126225,91 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "splatter_burning_oil",
+            "implementation": "js/explode.js",
+            "symbol": "splatter_burning_oil",
+            "sourceReview": "Whole explode.c:splatter_burning_oil definition (962–970). It draws d(diluted_oil ? 3 : 4,4), passes that value to explode(x,y,11,damage,BURNING_OIL,EXPL_FIERY), and returns. JavaScript uses the caller RNG owner and awaits the existing explode implementation. The pure order/parameter source test asserts the diluted and normal mocked draw sequence [[3,4],[4,4]].",
+            "callers": [
+              {
+                "path": "js/explode.js",
+                "symbol": "explode_oil",
+                "source": "explode.c:explode_oil calls splatter_burning_oil(x,y,diluted_oil) after capturing dilution, extinguishing the object, and setting LOST_EXPLODING; js/explode.js preserves that order and awaits the helper."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/explode.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/explode.c/lit-oil-potionhit-monster-target-b67-samurai-hit.session.json",
+              "recordings/explode.c/lit-oil-potionhit-monster-target-b67-dexterity-hit.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-oil-potion-to-floor",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 31,
+                "source": "dothrow.c:throwit -> dothrow.c:breakobj (lit POT_OIL) -> explode.c:explode_oil -> explode.c:splatter_burning_oil; the floor explosion first diverged at C d(4,4) before this port."
+              }
+            ],
+            "checkedAt": "67c2717eaaa3a4e3d5b7d145f56c0f216bf228c0"
+          },
+          {
+            "name": "explode_oil",
+            "implementation": "js/explode.js",
+            "symbol": "explode_oil",
+            "sourceReview": "Whole explode.c:explode_oil definition (971–983). It captures obj->odiluted, diagnoses an invalid unlit object through the discarded void impossible() call, calls end_burn(obj,TRUE), sets obj->how_lost=LOST_EXPLODING, and then calls splatter_burning_oil. JavaScript keeps the diagnostic as note_unported at the same branch and follows the same end-burn/state/explosion order. end_burn’s return is discarded in C and its existing JS implementation is synchronous; explode’s void result is awaited only for JS output/state completion.",
+            "callers": [
+              {
+                "path": "js/dothrow.js",
+                "symbol": "breakobj",
+                "source": "dothrow.c:breakobj lit-oil branch around line 2501 calls explode_oil(obj,x,y). Its production throwit path is exercised by the admitted v15 floor-impact case and the independent Samurai role-variation floor break."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "potionhit",
+                "source": "potion.c:potionhit isyou POT_OIL arm at lines 1683–1688 calls explode_oil(obj,u.ux,u.uy); JS is wired. This B67 active caller branch is not reached by the cited recordings and is explicitly uncovered."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "potionhit",
+                "source": "potion.c:potionhit monster-target POT_OIL arm at lines 1866–1868 calls explode_oil(obj,tx,ty); the independent Samurai/Dexterity25 recording reaches this source branch."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/explode.test.mjs",
+              "scripts/dothrow.test.mjs",
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/explode.c/lit-oil-potionhit-monster-target-b67-samurai-hit.session.json",
+              "recordings/explode.c/lit-oil-potionhit-monster-target-b67-dexterity-hit.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-oil-potion-to-floor",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 31,
+                "source": "dothrow.c:throwit -> dothrow.c:breakobj (lit POT_OIL) -> explode.c:explode_oil -> explode.c:splatter_burning_oil; the floor explosion first diverged at C d(4,4) before this port."
+              }
+            ],
+            "checkedAt": "67c2717eaaa3a4e3d5b7d145f56c0f216bf228c0"
+          }
+        ],
+        "entryPointReview": "The assigned explode.c range is helper-only, so entryPoints is empty as .agents/validation.md specifies. Its production call graph is: dothrow.c:breakobj’s lit-oil branch invokes explode_oil and reaches it from throwit; potion.c:potionhit invokes explode_oil in distinct hero-target and monster-target POT_OIL arms; explode_oil invokes splatter_burning_oil. The admitted v15 Wizard range (segment 0, steps 0–31) exercises breakobj -> both explode helpers. The independent Samurai role variation misses the bug at dothrow.c:thitmonst rnd(25)=19 with Dexterity 17, then breaks its lit oil on the floor and independently exercises breakobj -> both helpers. The independent Samurai/Dexterity25 variation hits the grid bug and executes potion.c:potionhit’s monster-target arm (source line 1866), then both explode helpers. The potionhit hero-target arm at lines 1683–1688 is wired but lacks a matching B67 runtime route: its C production routes include dothrow.c:toss_up and mthrowu.c:thitmu, while the cited independent cases exercise floor impact or monster impact. Do not infer this branch inactive or claim its runtime coverage. C potionhit production callers include dothrow.c:toss_up/throwit, mthrowu.c:thitmu/thitm/m_throw, and uhitm.c:thitmonst; those outer callers are not ports in this task. The two selected explode.c helpers are the only credited units.",
+        "entryPoints": []
+      }
     }
   ]
 }
