@@ -1,0 +1,10 @@
+{
+  "_comment": "Independent C witness for an active elven-cloak wear. Wizard.c starts this role in a cloak of magic resistance; after the debug wish, T auto-selects the only worn cloak and frees the slot. W then selects the wished cloak by its C-observed o inventory letter and reaches accessory_or_armor_on(), Cloak_on(), and toggle_stealth(). The seed, date and name are independently chosen for this source branch.",
+  "version": 5,
+  "segments": [{
+    "seed": 7310202,
+    "datetime": "20370812131415",
+    "nethackrc": "OPTIONS=name:CloakCase,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+    "moves": " \u0017elven cloak\nTWo"
+  }]
+}

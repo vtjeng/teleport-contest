@@ -36,6 +36,7 @@
 // names the C function it stops in front of.
 
 import {
+    ARTICLE_YOUR,
     A_CG_HELM_OFF,
     A_CG_HELM_ON,
     A_CHA,
@@ -106,6 +107,9 @@ import {
     st_petrifies,
     TIMEOUT,
     TELEPAT,
+    STEALTH,
+    SUPPRESS_HALLUCINATION,
+    SUPPRESS_SADDLE,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_INFLOOR,
@@ -139,7 +143,7 @@ import {
     plur,
 } from './const.js';
 import { newsym, see_monsters } from './display.js';
-import { obj_pmname } from './do_name.js';
+import { obj_pmname, x_monnam } from './do_name.js';
 import { HCOLORS } from './random_text_data.js';
 import { has_ceiling, surface } from './dungeon.js';
 import { makeplural, makesingular } from './fruit.js';
@@ -183,7 +187,9 @@ import {
 import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
-import { Levitation, float_down, float_up, unconscious } from './trap.js';
+import {
+    Flying, Levitation, float_down, float_up, unconscious,
+} from './trap.js';
 import {
     WrappingAllowed,
     is_boots,
@@ -734,10 +740,10 @@ export class UnsupportedRingOnError extends Error {
 // fire/cold/shock resistance, conflict, teleport control, polymorph,
 // polymorph control, free action, slow digestion, sustain ability, and meat.
 //
-// Four types call helpers this port has not reached: stealth
-// (toggle_stealth), see invisible (set_mimic_blocking + see_monsters),
-// invisibility (self_invis_message), levitation (float_up + spoteffects),
-// and protection from shape changers (rescham), which is ported below.
+// Three remaining branches call helpers this port has not reached: warning
+// (see_monsters), see invisible (set_mimic_blocking + see_monsters), and
+// invisibility (self_invis_message). Levitation and protection from shape
+// changers use helpers already ported below.
 //
 // The remaining arms -- warning (see_monsters), gain strength/constitution/
 // adornment (adjust_attrib), increase accuracy/damage (uhitinc/udaminc), and
@@ -785,9 +791,8 @@ export async function Ring_on(obj, state = game) {
         /* wearing a meat ring does not affect vegan conduct */
         break;
     case RIN_STEALTH:
-        throw new UnsupportedRingOnError(
-            `toggle_stealth() for otyp ${obj.otyp}`,
-        );
+        await toggle_stealth(obj, maskedOldprop, true, state);
+        break;
     case RIN_WARNING:
         // see_monsters() redraws; the extrinsic from setworn() is the real
         // behavioral change. The redraw is unported but the property is live.
@@ -882,9 +887,13 @@ async function Ring_off_or_gone(obj, gone, state = game) {
     case MEAT_RING:
         break;
     case RIN_STEALTH:
-        throw new UnsupportedTakeOffError(
-            `toggle_stealth() for Ring_off otyp ${obj.otyp}`,
+        await toggle_stealth(
+            obj,
+            (state.u.uprops[STEALTH]?.extrinsic ?? 0) & ~mask,
+            false,
+            state,
         );
+        break;
     case RIN_WARNING:
         // see_monsters() redraws; the extrinsic change is already done.
         throw new UnsupportedTakeOffError(
@@ -1490,9 +1499,9 @@ const SUPPORTED_BOOTS_ON = new Set([
 // on the turn the 'W' is typed: nomul(-2) spends two helpless turns first and
 // allmain.c moveloop_core() reaches the callback through unmul().
 //
-// Every boots arm is represented here. ELVEN_BOOTS' discarded toggle_stealth()
-// call remains an explicit gap; the other property and terrain effects follow
-// the source order.
+// Every boots arm is represented here. ELVEN_BOOTS' source helper call is
+// awaited in its original branch; the other property and terrain effects
+// follow the source order.
 async function Boots_on(state) {
     const otyp = state.uarmf.otyp;
     const type = objectType(state.uarmf, state);
@@ -1520,7 +1529,7 @@ async function Boots_on(state) {
             );
         }
     } else if (otyp === ELVEN_BOOTS) {
-        note_unported('do_wear.c toggle_stealth');
+        await toggle_stealth(state.uarmf, oldprop, true, state);
     } else if (otyp === FUMBLE_BOOTS) {
         // HFumbling is the intrinsic field of FUMBLING. C masks the footwear
         // source from oldprop before checking for another source or timeout.
@@ -1616,9 +1625,7 @@ export async function Boots_off(state = game) {
         break;
     }
     case ELVEN_BOOTS:
-        // toggle_stealth() is a void source call and has no owner yet. Keep
-        // the exact gap at its call site after removing the boots.
-        note_unported('do_wear.c toggle_stealth');
+        await toggle_stealth(otmp, oldprop, false, state);
         break;
     case FUMBLE_BOOTS: {
         const fumbling = state.u?.uprops?.[FUMBLING] ?? {};
@@ -1720,75 +1727,59 @@ export async function toggle_displacement(
     return 0;
 }
 
-// The cloaks each half of the slot handles with a bare `break`, which is not
-// the same list twice. Cloak_off() has seven such labels at do_wear.c:393-400;
-// Cloak_on() has five at 332-337, because three types do something on the way
-// on that they do not do on the way off: CLOAK_OF_PROTECTION calls makeknown(),
-// CLOAK_OF_DISPLACEMENT calls toggle_displacement() and OILSKIN_CLOAK prints
-// through Tobjnam() at 365-367. Wearing any of these through the take-off list
-// would run neither, so the two sets are named apart even though five of their
-// members coincide.
-//
-// Every cloak carries an oc_delay of 0 (objects.h:611-650), so all twelve
-// types reach Cloak_off(), and Cloak_on() always runs on the turn the 'W' is
-// typed rather than several turns later.
-const PLAIN_CLOAKS_OFF = new Set([
-    ORCISH_CLOAK, DWARVISH_CLOAK, CLOAK_OF_PROTECTION,
-    CLOAK_OF_MAGIC_RESISTANCE, OILSKIN_CLOAK, ROBE, LEATHER_CLOAK,
-]);
-const PLAIN_CLOAKS_ON = new Set([
-    ORCISH_CLOAK, DWARVISH_CLOAK, CLOAK_OF_MAGIC_RESISTANCE, ROBE,
-    LEATHER_CLOAK,
-]);
+// C ref: do_wear.c toggle_stealth() (107-140). Worn-slot ownership lives in
+// setworn(); this helper only reveals the item and reports a real change in
+// the hero's stealth. initial_don and cancelled_don suppress feedback while
+// startup gear is replayed or a takeoff callback has been cancelled.
+async function toggle_stealth(obj, oldprop, on, state = game, rawEnv = {}) {
+    const env = wearOperationEnv(rawEnv);
+    if (on ? state.initial_don : takeoffContext(state).cancelled_don)
+        return;
 
-// The cloak types Cloak_on() carries: the five with no statement of their own,
-// plus the three whose statement stays inside do_wear.c. Only
-// accessory_or_armor_on() asks, because every cloak's oc_delay is 0 and so the
-// callback would otherwise run with the slot and the status line already
-// moved; set_wear() asks nothing, for the reason Cloak_on() records below.
-function cloakOnPorted(otyp) {
-    return otyp === CLOAK_OF_DISPLACEMENT
-        || otyp === OILSKIN_CLOAK || otyp === ALCHEMY_SMOCK
-        || PLAIN_CLOAKS_ON.has(otyp);
+    const stealth = state.u.uprops[STEALTH];
+    if (!oldprop && !stealth.intrinsic && !stealth.blocked) {
+        if (obj.otyp === RIN_STEALTH)
+            learnring(obj, true, state);
+        else
+            discover_object(obj.otyp, true, true, true, state, env);
+
+        if (on) {
+            const message = !is_boots(obj, state)
+                ? 'You move very quietly.'
+                : Levitation(state) || Flying(state)
+                    ? 'You float imperceptibly.'
+                    : 'You walk very quietly.';
+            await env.message(message, state, env);
+        } else {
+            const steed = state.u.usteed;
+            const subject = steed
+                ? `and ${x_monnam(
+                    steed,
+                    ARTICLE_YOUR,
+                    null,
+                    SUPPRESS_SADDLE | SUPPRESS_HALLUCINATION,
+                    false,
+                    state,
+                )}`
+                : 'sure';
+            await env.message(`You ${subject} are noisy.`, state, env);
+        }
+    }
 }
+
+// C's Cloak_on() switch explicitly breaks for five ordinary types, then has
+// separate effects for protection, stealth, displacement, mummy wrapping,
+// invisibility, oilskin, and the alchemy smock. Every cloak has oc_delay 0
+// (objects.h:611-650), so the callback runs on the turn 'W' is typed; the full
+// switch below handles every valid type without a hoisted type guard.
 
 // C ref: do_wear.c Cloak_on() (325-380), the ga.afternmv callback
 // accessory_or_armor_on() installs for the cloak slot.
 //
-// C's switch has no statement of its own for the five types PLAIN_CLOAKS_ON
-// names, and the three arms below are the whole of what the other seven do
-// without leaving do_wear.c: CLOAK_OF_DISPLACEMENT calls the ported
-// toggle_displacement() at 344, OILSKIN_CLOAK prints at 365-367, and
-// ALCHEMY_SMOCK raises acid resistance at 369-371. The remaining four -- and
-// C's `default:`
-// impossible() -- reach outside this file, so accessory_or_armor_on() refuses
-// those four by otyp above setworn(): hoisting is what keeps the refusal
-// honest, because by the time this callback runs unmul() has already worn the
-// cloak and moved AC. Armor_on()'s dragon-armor guard sits there for the same
-// reason.
-//
-// The switch below therefore has no `default:`, and that is a second decision
-// rather than a consequence of the first. set_wear() reaches this callback at
-// startup with whatever u_init.c wore, which for a Ranger or an elf Ranger is
-// a cloak the hoisted test would refuse -- so a guard here would stop a game C
-// finishes. Falling through is safe because the arms those cloaks take,
-// toggle_stealth() and toggle_displacement(), return without acting while
-// gi.initial_don is set; set_wear()'s own comment carries that derivation.
-//
-// C computes `oldprop` at 328 before the switch because the displacement arm
-// now uses it. The stealth and invisibility arms remain outside this span.
-//
-// Neither arm here touches AC or the slot: worn.c setworn() has already raised
-// the extrinsic objects.h names as the type's oc_oprop, which for the smock is
-// POISON_RES (630-632). C's comment at 368 says why this arm exists at all --
-// the smock is the one cloak conferring two resistances, and only the second
-// needs a statement.
-//
-// The `known` write then runs whatever the switch did, and it is what tells a
-// cloak this callback finished donning from one setworn() merely moved. Only a
-// cloak the game creates after startup witnesses it: mkobj.c mksobj() (864)
-// leaves obj->known 0 for armor where u_init.c ini_inv_adjust_obj()
-// (1215-1216) sets it to 1.
+// Preserve every switch arm in C order. The stealth, displacement, and
+// invisibility helpers run after setworn() has installed the cloak's
+// extrinsic. Cloak_on() then marks the individual item known and refreshes the
+// inventory, even when a helper returned early for initial_don or oldprop.
 async function Cloak_on(state, rawEnv = {}) {
     const env = wearOperationEnv(rawEnv);
     const cloak = state.uarmc;
@@ -1797,8 +1788,48 @@ async function Cloak_on(state, rawEnv = {}) {
         .extrinsic & ~WORN_CLOAK;
 
     switch (otyp) {
+    case ORCISH_CLOAK:
+    case DWARVISH_CLOAK:
+    case CLOAK_OF_MAGIC_RESISTANCE:
+    case ROBE:
+    case LEATHER_CLOAK:
+        break;
+    case CLOAK_OF_PROTECTION:
+        discover_object(otyp, true, true, true, state, env);
+        break;
+    case ELVEN_CLOAK:
+        await toggle_stealth(cloak, oldprop, true, state, env);
+        break;
     case CLOAK_OF_DISPLACEMENT:
         await toggle_displacement(cloak, oldprop, true, state, env);
+        break;
+    case MUMMY_WRAPPING:
+        if ((state.u.uprops[INVIS].intrinsic
+            || state.u.uprops[INVIS].extrinsic)
+            && !heroIsBlind(state)) {
+            env.redraw(state.u.ux, state.u.uy, state);
+            const seeInvisible = state.u.uprops[SEE_INVIS];
+            await env.message(
+                `You can ${seeInvisible.intrinsic || seeInvisible.extrinsic
+                    ? 'no longer see through yourself' : 'see yourself'}!`,
+                state,
+                env,
+            );
+        }
+        break;
+    case CLOAK_OF_INVISIBILITY:
+        if (!oldprop && !state.u.uprops[INVIS].intrinsic
+            && !heroIsBlind(state)) {
+            discover_object(otyp, true, true, true, state, env);
+            env.redraw(state.u.ux, state.u.uy, state);
+            const seeInvisible = state.u.uprops[SEE_INVIS];
+            await env.message(
+                `Suddenly you can${seeInvisible.intrinsic
+                    || seeInvisible.extrinsic ? ' see through' : 'not see'} yourself.`,
+                state,
+                env,
+            );
+        }
         break;
     case OILSKIN_CLOAK:
         await env.message(
@@ -1811,6 +1842,10 @@ async function Cloak_on(state, rawEnv = {}) {
     case ALCHEMY_SMOCK:
         state.u.uprops[ACID_RES].extrinsic |= WORN_CLOAK;
         break;
+    default:
+        // C's impossible() result is discarded for an invalid cloak type.
+        note_unported('pline.c impossible');
+        break;
     }
     if (cloak && !cloak.known) { /* no known instance of !uarmc */
         /* cloak's +/- evident because of status line AC */
@@ -1822,10 +1857,8 @@ async function Cloak_on(state, rawEnv = {}) {
 
 // C ref: do_wear.c Cloak_off() (382-431). C computes `oldprop` at 385 for
 // toggle_stealth(), toggle_displacement() and the invisibility arm, and runs
-// its switch after setworn().  The ordinary and polymorph paths below retain
-// the source order; only toggle_stealth() remains at its discarded-call
-// boundary, while displacement and self-redraw operations use the caller's
-// planning seams.
+// its switch after setworn(). The ordinary and polymorph paths retain source
+// order; both cloak helpers use the caller's planning seams.
 export async function Cloak_off(state = game, rawEnv = {}) {
     const env = wearOperationEnv(rawEnv);
     const { message, redraw } = env;
@@ -1851,7 +1884,7 @@ export async function Cloak_off(state = game, rawEnv = {}) {
         state.u.uprops[ACID_RES].extrinsic &= ~WORN_CLOAK;
         break;
     case ELVEN_CLOAK:
-        note_unported('do_wear.c toggle_stealth');
+        await toggle_stealth(cloak, oldprop, false, state, env);
         break;
     case MUMMY_WRAPPING:
         // Invisibility is recalculated by setworn() before this branch.  The
@@ -3435,13 +3468,11 @@ async function accessory_or_armor_on(obj, state = game) {
         // outside do_wear.c before anything is written -- the shape
         // armoroff()'s delayed branch uses above.
         //
-        // Every otyp refusal below is hoisted out of its callback rather
-        // than left in it, because a callback runs too late to stop
-        // anything: by then setworn() has moved AC, and on the delayed arm
-        // the helpless turns are spent as well. Above setworn() a refusal
-        // leaves the hero as it found her. Boots_on(), Helmet_on() and
-        // Gloves_on() keeps the source's old-property calculation inside the
-        // callback, because all four glove arms are now implemented.
+        // Unported callbacks still have their type checks here, before
+        // setworn() moves AC or spends a delayed turn. Cloak_on() covers every
+        // valid cloak type, so the source dispatches its callback directly.
+        // Boots_on(), Helmet_on() and Gloves_on() keep the source's old-
+        // property calculation inside their callbacks.
         let afternmv;
 
         switch (mask) {
@@ -3458,10 +3489,6 @@ async function accessory_or_armor_on(obj, state = game) {
             afternmv = Armor_on;
             break;
         case W_ARMC:
-            if (!cloakOnPorted(obj.otyp))
-                throw new UnsupportedWearError(
-                    `Cloak_on() for otyp ${obj.otyp}`,
-                );
             afternmv = Cloak_on;
             break;
         case W_ARMH:
