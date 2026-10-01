@@ -124977,6 +124977,285 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-wear-cloak-on-stealth-v15-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port cloak donning and its stealth helper callers",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v15/wizard-enchants-high-elven-armor"
+      ],
+      "selectionReason": "Select synthetic/v15/wizard-enchants-high-elven-armor from the current complete fifteen-batch evaluations and its completed investigation. Its first refusal occurs at step30 in do_wear.c:Cloak_on for an elven cloak. The immutable A62 delivery implements the whole callback and required toggle_stealth helper, wires all existing helper callers, and removes the obsolete cloak type guard. Only Cloak_on receives primary completion credit; independent recordings cover both startup and active W entry points. Boots-off remains blocked in select_off and receives no completion credit. The fixed44 scan is clean; B64 is accepted and no reservation overlaps this source unit.",
+      "detail": "Whole do_wear.c:Cloak_on preserves oldprop, all switch cases, discovery and redraw/message order, final known/inventory writes, and immediate cloak callback dispatch. Supporting toggle_stealth preserves initial_don/cancelled_don, source-property checks, discovery and on/off feedback through existing boots, cloak and ring callers. Root verified both primary entry-point recordings, complete C definitions and immutable check hashes.",
+      "openedAt": "9b0df911be445ba28499e54998cd1118245b8ee1",
+      "openStanding": {
+        "sha": "3451c1b95570396666069f24277e25d2bf6e109e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c914412c437b5acf638e49c2381c6e8c2268be3c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Cloak_on",
+          "line": 326,
+          "endLine": 382,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 326,
+        "to": 382
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-enchants-high-elven-armor": {
+          "session": "synthetic/v15/wizard-enchants-high-elven-armor",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-enchants-high-elven-armor",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-enchants-high-elven-armor.session.json",
+          "recordingSha256": "edbf59914316474589f542d30ffd4f9a5b16beb4050b5a96fc93d4f79da2dcbc",
+          "evaluationPath": "challenges/evaluations/20261001043403-v15.json",
+          "evaluationCommit": "3451c1b95570396666069f24277e25d2bf6e109e"
+        }
+      },
+      "activeStanding": {
+        "sha": "3451c1b95570396666069f24277e25d2bf6e109e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-enchants-high-elven-armor",
+          "session": "synthetic/v15/wizard-enchants-high-elven-armor",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-enchants-high-elven-armor.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-enchants-high-elven-armor.session.json",
+          "recordingSha256": "edbf59914316474589f542d30ffd4f9a5b16beb4050b5a96fc93d4f79da2dcbc",
+          "recipe": "challenges/cases/v15/wizard-enchants-high-elven-armor.recipe.session.json",
+          "recipeSha256": "92bd4ea3c0ecfffb216b76057edfc83306c9566e70fdb78ee4685df4f2a62133",
+          "replayInputSha256": "6df03644c84c5f01c6cb5431c950fc2eafa9efb385c70da5cf6ecb4a1eea4339",
+          "evaluationPath": "challenges/evaluations/20261001043403-v15.json",
+          "evaluationCommit": "3451c1b95570396666069f24277e25d2bf6e109e",
+          "evaluationArtifact": "challenges/evaluations/20261001043403-v15.json",
+          "evaluationUtc": "2026-10-01T04:34:34.899Z",
+          "remainingScreens": 47,
+          "recordedSteps": 77,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 77
+            },
+            "rng": {
+              "matched": 2784,
+              "total": 2813
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 77
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Cloak_on() for otyp 139",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": "do_wear.c",
+          "function": "Cloak_on",
+          "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Cloak_on() for otyp 139",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-enchants-high-elven-armor.json",
+            "result": {
+              "session": "synthetic/v15/wizard-enchants-high-elven-armor",
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-enchants-high-elven-armor",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingPath": "challenges/cases/v15/wizard-enchants-high-elven-armor.session.json",
+              "recordingSha256": "edbf59914316474589f542d30ffd4f9a5b16beb4050b5a96fc93d4f79da2dcbc",
+              "recipePath": "challenges/cases/v15/wizard-enchants-high-elven-armor.recipe.session.json",
+              "recipeSha256": "92bd4ea3c0ecfffb216b76057edfc83306c9566e70fdb78ee4685df4f2a62133",
+              "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "remainingScreens": 47,
+              "recordedSteps": 77,
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-enchants-high-elven-armor",
+                "session": "synthetic/v15/wizard-enchants-high-elven-armor",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-enchants-high-elven-armor.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-enchants-high-elven-armor.session.json",
+                "recordingSha256": "edbf59914316474589f542d30ffd4f9a5b16beb4050b5a96fc93d4f79da2dcbc",
+                "recipe": "challenges/cases/v15/wizard-enchants-high-elven-armor.recipe.session.json",
+                "recipeSha256": "92bd4ea3c0ecfffb216b76057edfc83306c9566e70fdb78ee4685df4f2a62133",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 47,
+                "recordedSteps": 77,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 77
+                  },
+                  "rng": {
+                    "matched": 2784,
+                    "total": 2813
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 77
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Cloak_on() for otyp 139",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "Cloak_on",
+                "message": "unsupported hero command: an unported branch of this command: wear reached an unported branch: Cloak_on() for otyp 139",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the JavaScript wear path refusing an elven cloak before C’s Cloak_on() runs. In do_wear.c, the ELVEN_CLOAK arm calls toggle_stealth(); the saved C recording shows “You move very quietly.” at step 30. The later +6 enchantment evaporation belongs to read.c and remains a separate downstream behavior.",
+              "source": {
+                "file": "do_wear.c",
+                "functions": [
+                  "Cloak_on"
+                ],
+                "branch": "Whole-function scope is do_wear.c:Cloak_on() (325-380): after an armor cloak has been set in uarmc, compute oldprop from its oc_oprop with WORN_CLOAK stripped, dispatch all 12 cloak-type cases (including ELVEN_CLOAK -> toggle_stealth), perform the final known/update_inventory handling, and retain the default impossible branch. The assigned C path reaches the ELVEN_CLOAK case when accessory_or_armor_on() has accepted the cloak, set W_ARMC, and invoked the zero-delay callback. toggle_stealth() reports/discovers stealth only when no other extrinsic, intrinsic, or blocked stealth state applies and this is not initial donning. Cloak_on() returns 0; both source callers discard that result.",
+                "callers": [
+                  "do_wear.c:2209-2428 accessory_or_armor_on() sets ga.afternmv=Cloak_on after setworn() when obj==uarmc (2388-2389), then calls unmul() immediately for zero-delay cloaks (2395-2402). do_wear.c:2432-2450 dowear() and :2454-2469 doputon() dispatch selected items into this helper.",
+                  "hack.c:4177-4207 unmul() clears and invokes ga.afternmv, explicitly discarding its int result (4200-4206); JavaScript production path is js/hack.js unmul() invoking state.afternmv.",
+                  "do_wear.c:1537-1568 set_wear() directly calls Cloak_on() for an already-worn startup or transformed cloak (1557-1558); allmain.c:73 invokes startup set_wear(). JavaScript production path is js/moveloop_preamble.js -> js/do_wear.js set_wear().",
+                  "The assigned user command is wired through js/cmd.js W -> js/do_wear.js dowear() -> accessory_or_armor_on(); js/do_wear.js also wires P -> doputon() -> the same helper. Its current cloakOnPorted() guard rejects ELVEN_CLOAK before setworn(), while its partial Cloak_on() has no ELVEN_CLOAK case."
+                ],
+                "dependencies": [
+                  "do_wear.c:107-145 toggle_stealth(obj, oldprop, TRUE) is the direct same-file dependency for ELVEN_CLOAK. Its return is void and nothing consumes a return value, but its source effects are required by this case: when the stealth checks pass it calls makeknown() and emits “You move very quietly.”; oldprop is the STEALTH extrinsic with WORN_CLOAK removed, and the helper also reads HStealth, BStealth, and gi.initial_don.",
+                  "The cloak slot and property state are written before the callback: accessory_or_armor_on() calls setworn(obj, mask) at do_wear.c:2376, and Cloak_on() reads uarmc->otyp, objects[otyp].oc_oprop, and u.uprops[oc_oprop].extrinsic. Cloak_on() and unmul()/set_wear() return values are discarded by their callers.",
+                  "The rest of the complete Cloak_on() body has branch-local calls/state effects that remain in its whole-function scope: toggle_displacement() for CLOAK_OF_DISPLACEMENT; makeknown() for protection/invisibility cases; newsym() and visibility/invisibility state for mummy wrapping and cloak of invisibility; Tobjnam()/pline() for oilskin; EAcid_resistance for the alchemy smock; and update_inventory() after marking an unknown cloak. These branches are not the assigned case’s first mismatch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved diagnostic .cache/synthetic-scans/v15/wizard-enchants-high-elven-armor.json is for this exact v15 case and reports screensEmitted=30, stop at zero-based step 30, key “o”, with refusal “unsupported hero command: an unported branch of this command: wear reached an unported branch: Cloak_on() for otyp 139”. Its stop context is after #wizwish +6 elven cloak, takeoff of the prior cloak, and the W wear command.",
+                "The immutable C recording challenges/cases/v15/wizard-enchants-high-elven-armor.session.json has 77 steps. At zero-based step 30, selecting the elven cloak produces “You move very quietly.  You are now wearing an elven cloak.” C source do_wear.c:325-379 owns the callback: its ELVEN_CLOAK case calls toggle_stealth() at 341-343, then marks an unknown cloak known and updates inventory at 375-378. The JavaScript guard in js/do_wear.js:3459-3465 rejects this otyp before setworn(), so the queue annotation naming Cloak_on() is consistent with the first missing C behavior.",
+                "C source do_wear.c:2388-2402 establishes runtime reachability from dowear()/doputon() through accessory_or_armor_on(), and hack.c:4200-4206 invokes the deferred callback while discarding its return. do_wear.c:1557-1558 and allmain.c:73 establish the independent startup set_wear() caller.",
+                "Keep the later read path separate: the same C recording reaches step 75 with rn2(6)=5 at read.c:1179 and step 76 reports that the +6 elven cloak “violently glows silver for a while, then evaporates.” read.c:1164-1189 owns that enchant-armor threshold behavior; it is downstream of the do_wear.c first mismatch and is not part of this investigation’s source scope."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Cloak_on",
+            "implementation": "js/do_wear.js",
+            "symbol": "Cloak_on",
+            "sourceReview": "Read and compared the complete do_wear.c:Cloak_on definition at lines 326-380, including oldprop evaluation before the switch and the exact source order. The five valid ordinary cases (ORCISH_CLOAK, DWARVISH_CLOAK, CLOAK_OF_MAGIC_RESISTANCE, ROBE, LEATHER_CLOAK) explicitly break before CLOAK_OF_PROTECTION. Protection calls the discovery path; ELVEN_CLOAK calls the complete do_wear.c:toggle_stealth helper; displacement delegates to toggle_displacement; mummy wrapping checks HInvis/EInvis and Blind, redraws before its message; invisibility cloak checks oldprop/HInvis/Blind, makes the type known, redraws and reports in C order; oilskin prints its fit message; alchemy smock adds WORN_CLOAK to acid resistance. The default corresponds to C impossible(), whose void result is discarded, and uses note_unported(\"pline.c impossible\") without consuming its return. The final known and update_inventory writes and return 0 follow every switch arm. Removed the stale valid-cloak preflight refusal from accessory_or_armor_on and deleted cloakOnPorted/PLAIN_CLOAKS_ON so all valid source types reach this callback.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "accessory_or_armor_on",
+                "source": "nethack-c/upstream/src/do_wear.c:accessory_or_armor_on, W_ARMC arm (2377-2396): setworn installs uarmc, ga.afternmv becomes Cloak_on, and unmul runs it immediately because all cloaks have oc_delay 0."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "set_wear",
+                "source": "nethack-c/upstream/src/do_wear.c:set_wear (1539-1568), uarmc branch calls Cloak_on while initial_don is true."
+              },
+              {
+                "path": "js/moveloop_preamble.js",
+                "symbol": "moveloop_preamble",
+                "source": "nethack-c/upstream/src/allmain.c:moveloop_preamble line 73 calls set_wear(NULL) for starting gear side effects; u_init.c:ini_inv_use_obj assigns the starting cloak and the elf substitution."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "dowear",
+                "source": "nethack-c/upstream/src/do_wear.c:dowear (2430-2450) routes the W command through accessory_or_armor_on; the JavaScript command handler enters do_wear.js:dowear, and valid cloak types continue to the W_ARMC callback."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/a62-elf-ranger-startup-elven-cloak-independent.session.json",
+              "recordings/do_wear.c/a62-wizard-wears-elven-cloak-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "92e4c0508b392e82322130d356d60e412dd44a6c"
+          }
+        ],
+        "entryPointReview": "Cloak_on has two selected production entry points: startup and active cloak wear. The independent Elf Ranger recording reaches allmain.c:moveloop_preamble -> do_wear.c:set_wear(NULL) -> Cloak_on; u_init.c:ini_inv_use_obj applies the elf cloak substitution, and the startup helper returns under initial_don. The Wizard recording reaches cmd.c:dowear -> accessory_or_armor_on W_ARMC -> setworn/unmul -> Cloak_on -> toggle_stealth. The v15 case remains task-selection provenance; it is admitted on current main, but its manifest is absent from this frozen worker base and is not used as completion evidence here. Supporting toggle_stealth caller evidence also includes Boots_on through the independent elven-boots recording and Ring_on followed by Ring_off_or_gone through the stealth-ring recording. Those records match all C/JS RNG calls, screens and cursor positions. Five ordinary cloak types now have explicit C-ordered bare breaks; focused caller tests assert they are admitted and never record the invalid-type impossible gap. The Boots_off T recipe and its C attempt are preserved, but the production JavaScript path stops first at select_off() boot checks, so no Boots_off caller-completion credit is claimed. Direct helper tests cover cloak/boots/ring on/off effects; they do not replace caller runtime evidence. A62 claims Cloak_on as the sole primary source unit, not full completion of the supporting caller functions. The later read.c enchant-evaporation branch is a separate source task.",
+        "entryPoints": [
+          {
+            "name": "starting worn cloak callback",
+            "functions": [
+              "Cloak_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/a62-elf-ranger-startup-elven-cloak-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "active cloak wear through W",
+            "functions": [
+              "Cloak_on"
+            ],
+            "recordings": [
+              "recordings/do_wear.c/a62-wizard-wears-elven-cloak-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c914412c437b5acf638e49c2381c6e8c2268be3c",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
