@@ -132398,7 +132398,7 @@
           "line": 3568,
           "endLine": 3606,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -132575,7 +132575,65 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_cream_pie",
+            "implementation": "js/apply.js",
+            "symbol": "use_cream_pie",
+            "sourceReview": "Compared the complete upstream nethack-c/upstream/src/apply.c:use_cream_pie() body at 3568-3603 with js/apply.js:use_cream_pie(). The port saves Blind and u.ucreamed before mutation, splits one object and uses splitobj()'s returned child when quan > 1, then emits either the hallucinated facial line or the normal face-immersion line with C's “one of” pluralization. It calls mondata.c:can_blnd() with the source attack type and object. Only a true result draws rnd(25), adds to ucreamed, awaits make_blinded(BlindedTimeout + blindinc, FALSE), then selects the final line using post-effect blindness plus the saved wasblind/wascreamed values. It finally calls setnotworn(), costly_alteration(), obj_extract_self(), and delobj() in source order and returns ECMD_OK. The prior preflight refusals are removed; the selected branch uses real production helpers, preserves the returned split child, and has no fabricated effect or RNG. Supporting callee audit: mkobj.c:splitobj() at 457-502 returns the real child and its consumed return is used by use_cream_pie. It preserves supplied splitBill/splitObjectTimers/splitObjectLight hooks; when absent on live state, it records exact C-discarded void gaps at the C sites: note_unported('shk.c splitbill') after links, note_unported('timeout.c obj_split_timers') after copy_oextra/free_omid, then evaluates the implemented obj_sheds_light(obj) predicate, and only after that may record note_unported('light.c obj_split_light_source'). The old timer/light hook preflights are gone; source-pinned tests establish that missing hooks do not refuse before mutation and that a timer callback precedes the light predicate. mondata.c:can_blnd(), potion.c:make_blinded(), worn.c:setnotworn(), invent.c:obj_extract_self()/delobj(), and zap.c:obj_resists() are existing implementations. mkobj.c:costly_alteration() is void and JS has only the unbilled paid/free fast path; billed inventory without an established costlyAlteration hook is named at the call site with note_unported('mkobj.c costly_alteration') and does not fabricate shop effects. These exact void gaps apply only to unpaid/shop or split lifecycle variants; the independently matched ordinary paid stack route does not enter them. No whole-function completion credit is claimed for supporting splitobj or costly_alteration.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() CREAM_PIE arm at 4258-4259 calls use_cream_pie(obj); js/apply.js:doapply() CREAM_PIE arm at 4844-4845 awaits and returns use_cream_pie(obj, state, env)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c apply-command dispatch through rhack() reaches doapply(); js/cmd.js:runApplyCommand() dispatches the apply command to js/apply.js:doapply()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-cream-pie.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-applies-cream-pie-stack-to-self",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 29,
+                "source": "cmd.c:rhack apply-command dispatch -> apply.c:doapply CREAM_PIE arm -> apply.c:use_cream_pie -> mkobj.c:splitobj, mondata.c:can_blnd, potion.c:make_blinded, invent.c:obj_extract_self/delobj"
+              }
+            ],
+            "checkedAt": "5c7b3a24e4f145b3f7866654a4fd9c5745c3ce79"
+          }
+        ],
+        "entryPointReview": "The selected source range has one active production entry point: apply a cream pie. C command dispatch reaches apply.c:doapply() and its CREAM_PIE arm, which calls use_cream_pie(); JavaScript dispatch is js/cmd.js:runApplyCommand() -> js/apply.js:doapply() -> use_cream_pie(). The admitted v16 session executes this production path through segment 0 step 29 and matches all screens, cells, cursors, and RNG calls. That recording exercises the ordinary paid two-pie stack, real splitobj returned-child path, can_blnd success, blindness transition, and deletion. The hallucination line, already-blind message choice, and can_blnd false/no-RNG branch are pinned by source-focused tests; these are branches of the same apply command, not separate production entry points. The C-discarded splitbill, obj_split_timers, obj_split_light_source, and costly_alteration gaps are explicitly named at their source call sites; the ordinary paid admitted route does not enter them. This packet credits only apply.c:use_cream_pie; it does not credit doapply, command dispatch, splitobj, or costly_alteration as whole-source units.",
+        "entryPoints": [
+          {
+            "name": "Apply a cream pie from inventory",
+            "functions": [
+              "use_cream_pie"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-applies-cream-pie-stack-to-self",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 29,
+                "source": "cmd.c:rhack apply-command dispatch -> apply.c:doapply CREAM_PIE arm -> apply.c:use_cream_pie -> mkobj.c:splitobj, mondata.c:can_blnd, potion.c:make_blinded, invent.c:obj_extract_self/delobj"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
