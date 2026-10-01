@@ -131692,8 +131692,8 @@
           "name": "peffect_enlightenment",
           "line": 795,
           "endLine": 810,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -131888,7 +131888,71 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_enlightenment",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_enlightenment",
+            "sourceReview": "Compared the complete static void definition at nethack-c/upstream/src/potion.c:794-808 and the POT_ENLIGHTENMENT switch arm in potion.c:1349-1351. C checks cursed first; that branch increments gp.potion_unkn, emits the uneasy-feeling message, calls exercise(A_WIS, FALSE), and returns. Otherwise, the blessed branch calls adjattrib(A_INT, 1, FALSE) then adjattrib(A_WIS, 1, FALSE), discarding both results, before the common do_enlightenment_effect() call; uncursed skips both adjustments and reaches the same helper. JS preserves that condition order and awaits each output/stateful operation in order, passes the existing potionEffectEnvironment to the branch helpers, and replaces the old POT_ENLIGHTENMENT UnsupportedQuaffError dispatch. Existing adjattrib/exercise implementations preserve their state effects; do_enlightenment_effect is the existing zap.js helper. Its separate polymorphed insight.c:enlightenment note_unported boundary remains downstream and is not claimed by this source unit; ordinary-form branch behavior is verified by the cited complete recordings and admitted range.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects(), POT_ENLIGHTENMENT arm at 1349-1351"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion() calls peffects(otmp) at 624"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink() returns dopotion(otmp) at 614"
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c:quaff() routes the quaff command to dodrink()"
+              },
+              {
+                "path": "js/fountain.js",
+                "symbol": "drinksink",
+                "source": "fountain.c:drinksink() calls dopotion(otmp) at 648"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:doeat() calls dopotion(otmp) at 2450-2451"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/enlightenment-cursed-branch-b76.session.json",
+              "recordings/potion.c/enlightenment-blessed-branch-b76.session.json",
+              "recordings/potion.c/enlightenment-uncursed-branch-b76.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-quaffs-uncursed-enlightenment-potion",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 45,
+                "source": "cmd.c:quaff -> potion.c:dodrink/dopotion/peffects -> peffect_enlightenment -> do_enlightenment_effect"
+              }
+            ],
+            "checkedAt": "e5de828525a48d8fe510aec5725d66a5cddf88da"
+          }
+        ],
+        "entryPointReview": "This is a helper-only range, so entryPoints is empty. Its production entry is the POT_ENLIGHTENMENT arm in potion.c:peffects(), reached through potion.c:dopotion() and the normal quaff/dodrink path; the independent cursed, blessed, and uncursed recordings and admitted v16 quaff range exercise the selected helper through production dispatch. Other active dopotion callers in fountain.c:drinksink (648) and eat.c:doeat (2450-2451) share the same peffects dispatcher and do not have caller-specific enlightenment behavior. The other direct C peffects callers are spell.c:spelleffects (1545), whose explicit potion-duplicate spell list does not include POT_ENLIGHTENMENT, and end.c:fuzzer_savelife (967, 974), which passes only blessed POT_WATER and POT_RESTORE_ABILITY. They therefore cannot enter the selected arm. The downstream polymorphed branch of zap.js:do_enlightenment_effect still records note_unported('insight.c enlightenment'); no polymorphed status-menu completion is claimed.",
+        "entryPoints": []
+      }
     }
   ]
 }
