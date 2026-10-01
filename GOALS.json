@@ -128456,8 +128456,8 @@
           "name": "use_bell",
           "line": 1202,
           "endLine": 1318,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -128630,7 +128630,86 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_bell",
+            "implementation": "js/apply.js",
+            "symbol": "use_bell",
+            "sourceReview": "Read the whole apply.c:use_bell definition (1202-1316). The implementation preserves Hero_playnotes/You order, underwater and swallowed-muffled guard, invocation checks, cursed ordinary-bell rn2(4) and nymph creation/breakage/speed/multi outcomes, charged Bell of Opening consumption, swallowed/cursed/invoking/blessed/uncursed branch order, returned openit/findit counts, deferred makeknown and wake_nearby effects, and C's struct obj ** clearing before doapply's shared artifact-speech tail. doapply wiring covers only BELL and BELL_OF_OPENING; no whole doapply credit. Required integer returns from detect.c:openit/findit are implemented. Discarded void gaps remain source-named: minion.c:mkundead, read.c:unpunish, dig.c:buried_ball_to_freedom, and mhitu.c:expels(TRUE); use_bell also records the partial shk.c:check_unpaid gap only when the charged object is unpaid in a shop, then preserves consume_obj_charge's charge decrement and inventory refresh.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply BELL and BELL_OF_OPENING case arms (4214-4470); C's void call is followed by the shared artifact tail only for a surviving object pointer."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-bell.test.mjs",
+              "scripts/apply.test.mjs",
+              "scripts/detect.test.mjs",
+              "scripts/invent.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/bell-opening-blessed-a65-independent.session.json",
+              "recordings/apply.c/bell-opening-uncursed-a65-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "ordinary-bell-rings",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 26,
+                "source": "apply.c:doapply(BELL) -> apply.c:use_bell ordinary bell branch"
+              }
+            ],
+            "checkedAt": "7d624be0df848e18e964465d34c820e8d4bb074f"
+          }
+        ],
+        "entryPointReview": "The selected apply.c:use_bell function has a matching ordinary BELL production entry through admitted synthetic/v13/ordinary-bell-rings segment 0 step 26. Two independent strict C recordings reach charged Bell of Opening branches through apply.c:doapply: the blessed recording exercises openit and opens/reveals nearby features; the uncursed recording exercises findit and reveals the chosen target. Supporting findit has three active direct callers in C: use_bell, zap.c:zapnodir and wizcmds.c:wiz_detect; all remain wired and have matching recordings (the zapnodir recipe predates A65 and was strictly rechecked). cmd.c registers #wizdetect as a wizard command; the new independent recording reaches its full caller path and says “You reveal a secret door and a trap!” before returning. detect.c:detecting is the pure identity predicate used by both findit and openit and is pinned against C callback identity. invent.c:consume_obj_charge retains C's check-before-decrement/update order; only use_bell replaces that discarded billing callback with an explicit shk.c gap adapter, while all other callers use the existing default. vision.c:do_clear_area's additional override is limited to centered findone/openone callbacks on the air or water plane; ordinary centered and off-center traversal preserve their prior visibility paths. Tests pin the air/water predicate and callback identity. C source-named discarded-void gaps are minion.c:mkundead, read.c:unpunish, dig.c:buried_ball_to_freedom, dbridge.c:open_drawbridge, mhitu.c:expels(TRUE), and the applicable unpaid shk.c:check_unpaid fee path; no replacement RNG, result, message or state effect is invented. Whole-function credit remains limited to apply.c:use_bell; supporting caller edits and bounded helper scope do not claim whole doapply, wiz_detect dispatch, zapnodir, invent.c, or vision.c completion.",
+        "entryPoints": [
+          {
+            "name": "apply.c:doapply with ordinary BELL",
+            "functions": [
+              "use_bell"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "ordinary-bell-rings",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 26,
+                "source": "cmd.c apply command -> apply.c:doapply(BELL) -> apply.c:use_bell"
+              }
+            ]
+          },
+          {
+            "name": "apply.c:doapply with charged blessed Bell of Opening",
+            "functions": [
+              "use_bell"
+            ],
+            "recordings": [
+              "recordings/apply.c/bell-opening-blessed-a65-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "apply.c:doapply with charged uncursed Bell of Opening",
+            "functions": [
+              "use_bell"
+            ],
+            "recordings": [
+              "recordings/apply.c/bell-opening-uncursed-a65-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }

@@ -5,6 +5,7 @@ import test from 'node:test';
 import { ART_EXCALIBUR } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
+    DOOR,
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
@@ -690,7 +691,9 @@ test('a secret-door-detection wand reports an empty findit result', async () => 
     assert.deepEqual(getRngLog(), ['rn2(19)=3']);
 });
 
-test('a findit refusal clears the transient current wand', async () => {
+test('secret-door discovery clears the transient current wand', async () => {
+    // detect.c findone() converts an adjacent SDOOR to DOOR; zap.c
+    // zapnodir() consumes its findit() result before dozap() clears the wand.
     const wand = await heroCarryingWand({
         otyp: WAN_SECRET_DOOR_DETECTION,
         spe: 4,
@@ -703,13 +706,14 @@ test('a findit refusal clears the transient current wand', async () => {
     initRng(49);
     enableRngLog();
 
-    await assert.rejects(
-        () => dozap(game),
-        /findone\(\) discovery is not ported/u,
-    );
+    assert.equal(await dozap(game), ECMD_TIME);
     assert.equal(wand.spe, 3, 'zappable spent the charge before the effect');
     assert.equal(game.current_wand, null);
-    assert.equal(hidden.typ, SDOOR, 'the fail-closed preflight changed nothing');
+    assert.equal(hidden.typ, DOOR);
+    assert.equal(pendingTopLine(), 'You reveal a secret door!');
+    // As in the empty-scan case above, known-wand Wisdom exercise is the
+    // only draw: discovering the secret door adds no game RNG calls.
+    assert.deepEqual(getRngLog(), ['rn2(19)=3']);
 });
 
 test('empty secret-door detection discovers a seen unknown wand', async () => {
