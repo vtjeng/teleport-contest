@@ -130872,7 +130872,7 @@
     {
       "id": "port-apply-royal-jelly-synthetic-v16-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete royal-jelly application and rubbing",
       "cFile": "apply.c",
       "sessions": [
@@ -130886,8 +130886,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "dd87ead60375beb18f1176fd6d77b911212b603d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "jelly_ok",
@@ -131171,6 +131174,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "dd87ead60375beb18f1176fd6d77b911212b603d",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
