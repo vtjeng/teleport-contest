@@ -861,10 +861,10 @@ function mktemple(state, random) {
     const spot = shrine_pos(roomIndex, state, random);
     const lev = state.level.at(spot.x, spot.y);
     lev.typ = ALTAR;
-    lev.altarmask = induced_align(80, state, random.rn2);
+    lev.flags = induced_align(80, state, random.rn2);
     priestini(state.u.uz, sroom, spot.x, spot.y, false,
         { state, random });
-    lev.altarmask |= AM_SHRINE;
+    lev.flags |= AM_SHRINE;
     state.level.flags.has_temple = true;
 }
 

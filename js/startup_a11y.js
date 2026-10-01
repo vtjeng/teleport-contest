@@ -1009,7 +1009,7 @@ function surfaceType(location) {
 }
 
 function altarDescription(location, x, y, state) {
-    const mask = location.altarmask ?? location.flags ?? 0;
+    const mask = location.flags ?? 0;
     const hiddenAstralAlignment = (mask & AM_SANCTUM)
         && sameLevel(state.u?.uz, state.astral_level)
         && !adjacentToHero(x, y, state);

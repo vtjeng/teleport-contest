@@ -107,10 +107,9 @@ const ALGN_DEVOUT = 14;
 // C ref: you.h `char urooms[5]`.
 const ROOM_STRING_SIZE = 5;
 
-// rm.altarmask aliases flags in C. altarmask remains a compatibility input
-// for focused fixtures and older persisted state.
+// C rm.altarmask aliases flags; JS stores that one value in location.flags.
 function altarMask(location) {
-    return location?.altarmask ?? location?.flags ?? 0;
+    return location?.flags ?? 0;
 }
 
 // C ref: priest.c mon_aligntyp().
@@ -294,7 +293,7 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
     // source roomnoidx assigned by add_subroom() when available.
     epri.shroom = ((sroom.roomnoidx ?? state.level.rooms.indexOf(sroom))
         + ROOMOFFSET);
-    epri.shralign = Amask2align(state.level.at(sx, sy).altarmask);
+    epri.shralign = Amask2align(state.level.at(sx, sy).flags);
     epri.shrpos = { x: sx, y: sy };
     assign_level(epri.shrlevel, lvl);
     mon_learns_traps(priest, ALL_TRAPS);

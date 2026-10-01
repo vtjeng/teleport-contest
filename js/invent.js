@@ -443,9 +443,9 @@ export function dfeature_at(x, y, state = game) {
         cmap = S_sink;
     } else if (IS_ALTAR(ltyp)) {
         const altarAlignment = Amask2align(
-            (lev.altarmask ?? 0) & ~AM_SHRINE,
+            (lev.flags ?? 0) & ~AM_SHRINE,
         );
-        dfeature = `${(lev.altarmask & AM_SANCTUM) ? 'high ' : ''}altar to `
+        dfeature = `${(lev.flags & AM_SANCTUM) ? 'high ' : ''}altar to `
             + `${altarDeityName(altarAlignment, state)} (${alignmentName(
                 altarAlignment,
             )})`;

@@ -251,7 +251,7 @@ function nestedTempleState() {
     const roomno = nested.roomnoidx + ROOMOFFSET;
     state.level.at(7, 7).roomno = roomno;
     state.level.at(7, 7).typ = ALTAR;
-    state.level.at(7, 7).altarmask = AM_LAWFUL;
+    state.level.at(7, 7).flags = AM_LAWFUL;
     return { nested, roomno, state };
 }
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T08:56:55.733Z",
+  "capturedAt": "2026-10-01T09:44:22.401Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -12620,12 +12620,61 @@
         "type": "accepted",
         "at": "2026-10-01T08:56:15.224Z",
         "task": "A64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A64-published-c50daab2",
+        "type": "published",
+        "at": "2026-10-01T08:57:07.284Z",
+        "task": "A64",
+        "commit": "c50daab2a092f2e136d93ee19c5e87a940cb94d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B69-integrating-45762d04",
+        "type": "integrating",
+        "at": "2026-10-01T08:59:10.799Z",
+        "task": "B69",
+        "integration": "45762d042f5a2d7f8dd43db2b5c856b8ee6bd39c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B70-assign-lit-oil-20261001",
+        "type": "assign",
+        "at": "2026-10-01T09:13:06.807Z",
+        "task": "B70",
+        "worker": "B",
+        "goal": "fix-lit-oil-quaff-deallocation-lifecycle-synthetic-v15-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B69-integrating-2323e454",
+        "type": "integrating",
+        "at": "2026-10-01T09:25:59.610Z",
+        "task": "B69",
+        "integration": "2323e454ebe23e6369342fef435a8461267b8371"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B69-validated-2323e454",
+        "type": "validated",
+        "at": "2026-10-01T09:44:05.289Z",
+        "task": "B69",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B69-accepted-2323e454",
+        "type": "accepted",
+        "at": "2026-10-01T09:44:05.793Z",
+        "task": "B69"
       }
     ]
   },
   "development": {
-    "executionCommit": "ea58b9a6de7091405270a0ab094cec750294ed5a",
-    "measuredAt": "2026-10-01T08:51:39.011Z",
+    "executionCommit": "2323e454ebe23e6369342fef435a8461267b8371",
+    "measuredAt": "2026-10-01T09:34:45.319Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
