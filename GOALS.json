@@ -132643,6 +132643,284 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-catch-lit-synthetic-v16-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete fire ignition of objects",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v16/wizard-reads-uncursed-scroll-of-fire"
+      ],
+      "selectionReason": "Selected from the saved B73 queue after merging accepted B74 publication c443d7c9794293bbf32127d78bd90c1f54c246e5; task base is 43787a35e43fd4f8d8a243f0891caf51a525fbe4. The admitted v16 wizard-reads-uncursed-scroll-of-fire recording reaches an OBJ_INVENT potion of oil through read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items and stops at the catch_lit refusal. The complete C function has two direct callers: trap.c:ignite_items discards its boolean; trap.c:fire_damage consumes TRUE to skip further damage. The current branch also contains C57 delivery acfa43c336905ffd784995e39c2ef55684012c3a, which remains an explicit dependency. Existing C57 reservations use other apply.c functions. B75 owns cmd.c:rhack/js/cmd.js dispatch, so the JS-only failClosedCommandRefusals edit is limited to its separately reserved command-refusal-class-registry contract. Root verified whole primary scope, production callers, current saved evaluation and packet evidence. Supporting helpers and dispatcher arms receive no additional whole-function credit.",
+      "detail": "Compared whole apply.c:catch_lit and obj.h macros: type/location/already-lit gate, fuel/lantern/cursed guards, lamp RNG, message visibility/blindness and grammar, oil discovery, unpaid shop order, burn startup and Boolean return. Existing ignite_items discards result and fire_damage consumes TRUE to stop damage. Independent dig.c lava-wall pick and mattock recordings exercise actual fire_damage then nonignitable catch_lit guard; admitted scroll-fire inventory oil path exercises true ignition. Source-named discarded gaps set_msg_xy/check_unpaid remain; sound voice macro is empty in recorder build. Removed stale refusal and class registration.",
+      "openedAt": "45cdfbe327ee8a598e5e4fad15e78554649251a8",
+      "openStanding": {
+        "sha": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "catch_lit",
+          "line": 1577,
+          "endLine": 1627,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1577,
+        "to": 1627
+      },
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-reads-uncursed-scroll-of-fire": {
+          "session": "synthetic/v16/wizard-reads-uncursed-scroll-of-fire",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-reads-uncursed-scroll-of-fire",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+          "recordingSha256": "4a54e7ee791124df4448163607595df745c4f484771a8684084dc67dcf57b329",
+          "evaluationPath": "challenges/evaluations/20261001210849-v16.json",
+          "evaluationCommit": "f7cb0fa0d1e9396635dddfb247062c2a356e9919"
+        }
+      },
+      "activeStanding": {
+        "sha": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-reads-uncursed-scroll-of-fire",
+          "session": "synthetic/v16/wizard-reads-uncursed-scroll-of-fire",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+          "recordingSha256": "4a54e7ee791124df4448163607595df745c4f484771a8684084dc67dcf57b329",
+          "recipe": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.recipe.session.json",
+          "recipeSha256": "65ae338033a937cf9c1ee2a619e933c37cd475fa5960897ba5224fda30097176",
+          "replayInputSha256": "8a0fdb2e21b92bdcf7280e1c68181499c31077a0faebd0f1ce90d169ea44a737",
+          "evaluationPath": "challenges/evaluations/20261001210849-v16.json",
+          "evaluationCommit": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+          "evaluationArtifact": "challenges/evaluations/20261001210849-v16.json",
+          "evaluationUtc": "2026-10-01T21:09:40.105Z",
+          "remainingScreens": 1,
+          "recordedSteps": 38,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 38
+            },
+            "rng": {
+              "matched": 2860,
+              "total": 2877
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 38
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported item ignition: the hero's own pack",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported item ignition: the hero's own pack",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-reads-uncursed-scroll-of-fire.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-reads-uncursed-scroll-of-fire",
+              "session": "synthetic/v16/wizard-reads-uncursed-scroll-of-fire",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "4a54e7ee791124df4448163607595df745c4f484771a8684084dc67dcf57b329",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 1,
+              "recordedSteps": 38,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-reads-uncursed-scroll-of-fire",
+                "session": "synthetic/v16/wizard-reads-uncursed-scroll-of-fire",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+                "recordingSha256": "4a54e7ee791124df4448163607595df745c4f484771a8684084dc67dcf57b329",
+                "recipe": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.recipe.session.json",
+                "recipeSha256": "65ae338033a937cf9c1ee2a619e933c37cd475fa5960897ba5224fda30097176",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 1,
+                "recordedSteps": 38,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 38
+                  },
+                  "rng": {
+                    "matched": 2860,
+                    "total": 2877
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 38
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported item ignition: the hero's own pack",
+                  "step": 37
+                },
+                "step": 37,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported item ignition: the hero's own pack",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The scroll’s self-centered fire blast reaches an ignitable object in the hero’s inventory. C apply.c catch_lit() handles the carried potion of oil and starts its burn; js/apply_catch_lit.js instead throws for OBJ_INVENT, stopping the only remaining screen before the explosion finishes.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For an unlit ignitable object whose location is found and which passes the empty, burnt-out, brass-lantern, cursed-candelabrum, and cursed-lamp guards, catch_lit() reports the object when carried, discovers potion of oil, bills carried unpaid stock in a costly shop, starts burning, and returns TRUE. This case reaches that branch for a potion of oil after an unconfused uncursed scroll of fire hits the hero.",
+                "functions": [
+                  "catch_lit"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/trap.c:4465-4467 fire_damage() calls catch_lit(obj) and uses TRUE to skip further burning; js/trap_water_damage.js fire_damage() wires catch_item_light as its default catchLit operation.",
+                  "nethack-c/upstream/src/trap.c:7161-7171 ignite_items() calls catch_lit(obj) for each object that is neither lamplit nor in_use; js/apply_catch_lit.js ignite_items() calls catch_item_light().",
+                  "nethack-c/upstream/src/read.c:1850-1917 seffect_fire() calls explode.c explode(); nethack-c/upstream/src/explode.c:613-617 handles hero fire damage by calling trap.c ignite_items(gi.invent) before zap.c destroy_items(). The JS route is js/read.js seffect_fire() -> js/explode.js explode() -> js/apply_catch_lit.js ignite_items() -> catch_item_light()."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/apply.c:1577-1623 is the complete catch_lit() definition. Its eligible carried-object branch at 1598-1621 prints the light message, makes POT_OIL known, handles shop billing, calls begin_burn(), and returns TRUE. js/apply_catch_lit.js:60-99 mirrors earlier guards but throws UnsupportedItemIgnitionError for every surviving OBJ_INVENT object instead of this source branch; the implementation scope is the whole catch_lit() function, not a correction to the existing branches.",
+                "Caller trace: nethack-c/upstream/src/trap.c:7161-7171 ignite_items() reaches catch_lit(); nethack-c/upstream/src/explode.c:613-617 reaches ignite_items(gi.invent) for hero AD_FIRE; nethack-c/upstream/src/read.c:1850-1917 seffect_fire() places an uncursed, unconfused scroll explosion at the hero. The other direct caller, trap.c:4455-4467 fire_damage(), consumes catch_lit()’s boolean return. Existing JS wiring is js/apply_catch_lit.js ignite_items() and js/trap_water_damage.js fire_damage().",
+                "The saved C recording challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json has one segment with 38 steps. Step 36 shows the scroll erupting in a tower of flame; step 37 shows “Your cloak smoulders! Your potion of oil catches light!” The queue/evaluation at .cache/v16-investigations/5.json and challenges/evaluations/20261001125731-v16.json record the JS stop at step 37, with 37/38 screens matched and 2860/2877 RNG calls matched. This ties the failure to the carried-object branch without making the recipe’s seed, inputs, or inventory a special case.",
+                "The current JS refusal comment in js/apply_catch_lit.js:92-98 cites zap.c zhitu() as a caller, but this recording reaches the same missing catch_lit() branch through explode.c explode(). Keep the existing js/read.js note_unported(\"timeout.c burn_away_slime\") separate; it marks the slimed-hero behavior outside this source function. explode.c calls zap.c destroy_items() after ignite_items(), so this saved stop does not establish that later portion of step 37 and a replay after the port should inspect any next mismatch."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "catch_lit",
+            "implementation": "js/apply_catch_lit.js",
+            "symbol": "catch_lit",
+            "sourceReview": "Read apply.c:catch_lit() at 1577-1625 and the obj.h ignitable(), age_is_relative(), and carried() macros at 332, 388-400. Preserve the source order: initial !lamplit/type/location gate; empty magic-lamp/candelabrum, relative-age zero, brass-lantern, cursed candelabrum, then cursed-lamp rn2(2); visible/inventory message and floor-only set_msg_xy; POT_OIL makeknown; carried unpaid costly-shop lookup, check_unpaid, verbalize, bill_dummy_object; begin_burn; TRUE/FALSE result. Removed the hero-inventory UnsupportedItemIgnitionError and command-refusal registration. The void set_msg_xy and check_unpaid calls remain named note_unported gaps; SetVoice is an empty macro in the no-sound recording build.",
+            "callers": [
+              {
+                "path": "js/apply_catch_lit.js",
+                "symbol": "ignite_items",
+                "source": "trap.c:ignite_items() calls catch_lit(obj) for each eligible chain object and discards its Boolean result."
+              },
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "fire_damage",
+                "source": "trap.c:fire_damage() calls catch_lit(obj) before other fire processing and returns FALSE when it returns TRUE."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-catch-lit.test.mjs",
+              "scripts/trap-water-damage.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/fire-damage-lava-wall-pick-c58-open-west-route.session.json",
+              "recordings/apply.c/fire-damage-lava-wall-mattock-c58-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-reads-uncursed-scroll-of-fire",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 37,
+                "source": "read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items(gi.invent) -> apply.c:catch_lit; the carried POT_OIL catches light and begins burning."
+              }
+            ],
+            "checkedAt": "a5b94c39adfd95ceb942d46f0461956b9eef21d6"
+          }
+        ],
+        "entryPointReview": "The selected v16 scroll-of-fire case reaches read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items -> apply.c:catch_lit with a carried potion of oil. The direct trap.c:fire_damage caller is independently exercised from dig.c:use_pick_axe2’s LAVAWALL branch by the two C recordings below; C reaches the catch_lit non-ignitable guard and fire_damage’s rn2(20) draw, and both full routes strictly match on accepted A68 main 2573677f. scripts/trap-water-damage.test.mjs also pins fire_damage returning FALSE when catch_lit handles an item. Earlier liquid-drop attempts remain preserved but do not establish this runtime route: hitfloor/hero_breaks precedes the intended flooreffects path in C, while JS do.c:dropx refuses liquid terrain. The fire-wand lamp/candle attempts are ignite_items evidence only. Source-discarded void calls remain named at their C positions: note_unported(\"pline.c set_msg_xy\") for a visible floor object and note_unported(\"shk.c check_unpaid\") before shop speech/billing; SetVoice compiles away in the recorder build.",
+        "entryPoints": [
+          {
+            "name": "read an uncursed scroll of fire with a carried potion of oil",
+            "functions": [
+              "catch_lit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-reads-uncursed-scroll-of-fire",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 37,
+                "source": "read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items(gi.invent) -> apply.c:catch_lit; the carried POT_OIL catches light and begins burning."
+              }
+            ]
+          },
+          {
+            "name": "dig an adjacent wall of lava with an uncursed pick tool",
+            "functions": [
+              "catch_lit"
+            ],
+            "recordings": [
+              "recordings/apply.c/fire-damage-lava-wall-pick-c58-open-west-route.session.json",
+              "recordings/apply.c/fire-damage-lava-wall-mattock-c58-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
