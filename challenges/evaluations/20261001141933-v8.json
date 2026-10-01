@@ -1,0 +1,736 @@
+{
+  "version": 1,
+  "batch": "v8",
+  "manifestPath": "challenges/manifests/v8.json",
+  "sha": "65ee2a5a1a4291d151faef8736cb1559becc30b0",
+  "utc": "2026-10-01T14:20:48.211Z",
+  "status": "complete",
+  "manifestSha256": "6a5159501af18a7f926f794d89e817375cd00a3589c4899fb97392ae04dbe8ba",
+  "scorerSha256": "affaf6935cb627ba42f02c5689605a1dfa6c98ccc862118642c4f961471266d7",
+  "scorerFiles": {
+    "frozen/isaac64.js": "0e6f41b795f49e58f0d410785c8d14c8dd9d68ac9143ae68319bd555ea247d1e",
+    "frozen/playability_runner.mjs": "70fcf202cf555c9adec2b29f5b65ba906aaf15eb164a8e5bec9d9f62ba5743dd",
+    "frozen/ps_test_runner.mjs": "05057f3f4f9c99125ea21dd320804ec7dad3c68f4cc485d622fe4c14b0c5761e",
+    "frozen/screen-decode.mjs": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+    "frozen/session_loader.mjs": "fb382efa89c272dae8cb700b7dadd075b926ff039ab3eb17480d84ed65029ce6",
+    "frozen/storage.js": "38804e1048c8b2520d60c2dcbe90f86c47627a6d3094a832b85af8756a07fe6c",
+    "frozen/terminal.js": "10fa540ff6e476421327ecc2f683221cef603565f75e988130992ab8cfd25b76"
+  },
+  "inputsSha256": "bbdacc5652c9d0c443889937f8ad7e7fcce75084e901a27a2ce1f7d0fcbc9482",
+  "inputFiles": [
+    "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.recipe.session.json",
+    "challenges/cases/v8/apply-blessed-touchstone-identifies-gem.session.json",
+    "challenges/cases/v8/artifact-heart-invoke-cycle.recipe.session.json",
+    "challenges/cases/v8/artifact-heart-invoke-cycle.session.json",
+    "challenges/cases/v8/camera-directional-flash.recipe.session.json",
+    "challenges/cases/v8/camera-directional-flash.session.json",
+    "challenges/cases/v8/gnome-king-hurls-potion.recipe.session.json",
+    "challenges/cases/v8/gnome-king-hurls-potion.session.json",
+    "challenges/cases/v8/magic-whistle-recalls-tame-dog.recipe.session.json",
+    "challenges/cases/v8/magic-whistle-recalls-tame-dog.session.json",
+    "challenges/cases/v8/mirror-monster-reflection.recipe.session.json",
+    "challenges/cases/v8/mirror-monster-reflection.session.json",
+    "challenges/cases/v8/pit-trap-trigger.recipe.session.json",
+    "challenges/cases/v8/pit-trap-trigger.session.json",
+    "challenges/cases/v8/prayer-cooldown-repeat.recipe.session.json",
+    "challenges/cases/v8/prayer-cooldown-repeat.session.json",
+    "challenges/cases/v8/read-blessed-enchant-weapon.recipe.session.json",
+    "challenges/cases/v8/read-blessed-enchant-weapon.session.json",
+    "challenges/cases/v8/read-confuse-monster-scroll.recipe.session.json",
+    "challenges/cases/v8/read-confuse-monster-scroll.session.json",
+    "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.recipe.session.json",
+    "challenges/cases/v8/read-create-monster-scroll-no-prior-monsters.session.json",
+    "challenges/cases/v8/read-cursed-destroy-armor-scroll.recipe.session.json",
+    "challenges/cases/v8/read-cursed-destroy-armor-scroll.session.json",
+    "challenges/cases/v8/read-fire-scroll-effect.recipe.session.json",
+    "challenges/cases/v8/read-fire-scroll-effect.session.json",
+    "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.recipe.session.json",
+    "challenges/cases/v8/read-fire-scroll-effect.setup-miss-attempt1.session.json",
+    "challenges/cases/v8/read-remove-curse-loadstone.recipe.session.json",
+    "challenges/cases/v8/read-remove-curse-loadstone.session.json",
+    "challenges/cases/v8/read-scare-monster-scroll.recipe.session.json",
+    "challenges/cases/v8/read-scare-monster-scroll.session.json",
+    "challenges/cases/v8/read-taming-scroll-hostile-monster.recipe.session.json",
+    "challenges/cases/v8/read-taming-scroll-hostile-monster.session.json",
+    "challenges/cases/v8/stethoscope-monster-examination.recipe.session.json",
+    "challenges/cases/v8/stethoscope-monster-examination.session.json",
+    "challenges/cases/v8/tip-container-contents.trapped-box-probe.recipe.session.json",
+    "challenges/cases/v8/tip-container-contents.trapped-box-probe.session.json",
+    "challenges/cases/v8/towel-clean-face.recipe.session.json",
+    "challenges/cases/v8/towel-clean-face.session.json",
+    "challenges/cases/v8/wear-conflict-ring.recipe.session.json",
+    "challenges/cases/v8/wear-conflict-ring.session.json",
+    "challenges/manifests/v8.json",
+    "frozen/isaac64.js",
+    "frozen/play.sh",
+    "frozen/playability_runner.mjs",
+    "frozen/ps_test_runner.mjs",
+    "frozen/score.sh",
+    "frozen/screen-decode.mjs",
+    "frozen/session_loader.mjs",
+    "frozen/set-category.sh",
+    "frozen/storage.js",
+    "frozen/terminal.js",
+    "js/air_level_data.js",
+    "js/air_levels.js",
+    "js/allmain.js",
+    "js/apply_catch_lit.js",
+    "js/apply_next_to_u.js",
+    "js/apply_splash_lit.js",
+    "js/apply.js",
+    "js/artifacts.js",
+    "js/asmodeus_levels.js",
+    "js/attrib.js",
+    "js/baalz_levels.js",
+    "js/ball.js",
+    "js/bigrm.js",
+    "js/bones.js",
+    "js/bury.js",
+    "js/calendar.js",
+    "js/castle_levels.js",
+    "js/cfgfiles.js",
+    "js/cmd_autocomplete.js",
+    "js/cmd.js",
+    "js/color_data.js",
+    "js/coloratt.js",
+    "js/command_bindings.js",
+    "js/config_statement_data.js",
+    "js/const.js",
+    "js/corpstat.js",
+    "js/data_base_data.js",
+    "js/dbridge.js",
+    "js/detect.js",
+    "js/dig.js",
+    "js/display.js",
+    "js/do_name.js",
+    "js/do_wear.js",
+    "js/do.js",
+    "js/dog.js",
+    "js/dogfood.js",
+    "js/dogmove.js",
+    "js/dokick.js",
+    "js/dothrow.js",
+    "js/drawing.js",
+    "js/dungeon_data.js",
+    "js/dungeon.js",
+    "js/eat.js",
+    "js/end.js",
+    "js/engrave.js",
+    "js/exper.js",
+    "js/explode.js",
+    "js/extcmdlist_data.js",
+    "js/extralev.js",
+    "js/files.js",
+    "js/fire_level_data.js",
+    "js/fire_levels.js",
+    "js/fountain.js",
+    "js/fruit.js",
+    "js/game_display.js",
+    "js/game.js",
+    "js/getline.js",
+    "js/getpos.js",
+    "js/glyph_ids.js",
+    "js/glyph_offsets.js",
+    "js/glyphs.js",
+    "js/grave.js",
+    "js/gstate.js",
+    "js/hack.js",
+    "js/hacklib.js",
+    "js/hell_levels.js",
+    "js/help_data.js",
+    "js/iactions.js",
+    "js/input.js",
+    "js/insight.js",
+    "js/invent.js",
+    "js/isaac64.js",
+    "js/jsmain.js",
+    "js/juiblex_levels.js",
+    "js/kni_goal_level_data.js",
+    "js/legacy_startup.js",
+    "js/light.js",
+    "js/lock.js",
+    "js/makemon_create.js",
+    "js/makemon.js",
+    "js/mcastu.js",
+    "js/mdlib.js",
+    "js/medusa_levels.js",
+    "js/mhitm.js",
+    "js/mhitu.js",
+    "js/mineralize.js",
+    "js/mines_levels.js",
+    "js/minion.js",
+    "js/mklev.js",
+    "js/mkmaze.js",
+    "js/mkobj_hornoplenty.js",
+    "js/mkroom.js",
+    "js/mktrap.js",
+    "js/mon.js",
+    "js/moncarry.js",
+    "js/mondata.js",
+    "js/monmove.js",
+    "js/monst.js",
+    "js/monster_object.js",
+    "js/monsters.js",
+    "js/moveloop_preamble.js",
+    "js/mthrowu.js",
+    "js/muse.js",
+    "js/music.js",
+    "js/nasties_data.js",
+    "js/nethack.js",
+    "js/nhlua.js",
+    "js/o_init.js",
+    "js/obj.js",
+    "js/object_generation.js",
+    "js/objects.js",
+    "js/objnam_data.js",
+    "js/objnam_readobjnam.js",
+    "js/objnam.js",
+    "js/options_escapes.js",
+    "js/options.js",
+    "js/optlist_data.js",
+    "js/orcus_levels.js",
+    "js/pager.js",
+    "js/pickup.js",
+    "js/player_selection_tty.js",
+    "js/player_selection.js",
+    "js/pline.js",
+    "js/polyself.js",
+    "js/posixregex.js",
+    "js/potion.js",
+    "js/pray.js",
+    "js/priest.js",
+    "js/quest_levels.js",
+    "js/quest_text_data.js",
+    "js/quest.js",
+    "js/questpgr.js",
+    "js/random_engraving.js",
+    "js/random_text_data.js",
+    "js/random_text.js",
+    "js/read.js",
+    "js/rect.js",
+    "js/regen.js",
+    "js/region.js",
+    "js/restore.js",
+    "js/rng.js",
+    "js/role_init.js",
+    "js/role_skills.js",
+    "js/roles.js",
+    "js/room_coordinates.js",
+    "js/room_features.js",
+    "js/rooms.js",
+    "js/sanctum_level_data.js",
+    "js/sanctum_levels.js",
+    "js/save.js",
+    "js/sfbase.js",
+    "js/shk.js",
+    "js/shknam.js",
+    "js/shtypes_data.js",
+    "js/sit.js",
+    "js/sokoban_levels.js",
+    "js/sound_effects_data.js",
+    "js/sounds.js",
+    "js/sp_lev_object.js",
+    "js/spell.js",
+    "js/stairs.js",
+    "js/startup_a11y.js",
+    "js/startup_reroll.js",
+    "js/startup_skills.js",
+    "js/steal.js",
+    "js/steed.js",
+    "js/storage.js",
+    "js/symbol_data.js",
+    "js/symbols.js",
+    "js/teleport.js",
+    "js/terminal.js",
+    "js/terrain.js",
+    "js/themeroom_data.js",
+    "js/themeroom_fill.js",
+    "js/themerooms.js",
+    "js/timeout.js",
+    "js/topten.js",
+    "js/track.js",
+    "js/trap_effects.js",
+    "js/trap_erode_obj.js",
+    "js/trap_names_data.js",
+    "js/trap_water_damage.js",
+    "js/trap.js",
+    "js/tribute_data.js",
+    "js/tty_menu.js",
+    "js/tty_message.js",
+    "js/tty_rawprint.js",
+    "js/tty_startup.js",
+    "js/tutorial_level.js",
+    "js/tutorial_startup.js",
+    "js/u_init_inventory_attrs.js",
+    "js/u_init_inventory_data.js",
+    "js/u_init_inventory_use.js",
+    "js/u_init_inventory.js",
+    "js/u_init.js",
+    "js/uhitm.js",
+    "js/unported_monster_actions.js",
+    "js/unported.js",
+    "js/valley_levels.js",
+    "js/vault.js",
+    "js/version.js",
+    "js/vision.js",
+    "js/weapon.js",
+    "js/were.js",
+    "js/wield.js",
+    "js/windows.js",
+    "js/wintty.js",
+    "js/wizard.js",
+    "js/wizard1_levels.js",
+    "js/wizard2_levels.js",
+    "js/wizcmds.js",
+    "js/worm.js",
+    "js/worn.js",
+    "js/write.js",
+    "js/zap_destroy_items.js",
+    "js/zap.js",
+    "package-lock.json",
+    "package.json",
+    "scripts/challenge-results.mjs",
+    "scripts/score-challenges.mjs",
+    "scripts/scoring-workspace.mjs"
+  ],
+  "cases": [
+    {
+      "id": "artifact-heart-invoke-cycle",
+      "recordingSha256": "816c8353f3fea197a0e99d8bd83f53f622a02d45fe61a59784dcfd479862cfd8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 44,
+          "total": 44
+        },
+        "rng": {
+          "matched": 2303,
+          "total": 2303
+        },
+        "cursors": {
+          "matched": 44,
+          "total": 44
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "camera-directional-flash",
+      "recordingSha256": "0f3aedb6abc5e40ce1ad20672d712813e139eb371dd7ce95160feb5d21960b23",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 3586,
+          "total": 3586
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "mirror-monster-reflection",
+      "recordingSha256": "5a93e5e54a296bb99490629a4ae61cd5c907a463a6f5280d3437a9c4f2735d45",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 3015,
+          "total": 3015
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "gnome-king-hurls-potion",
+      "recordingSha256": "b1361889c6ce00bab22d1a2b86febc4bede198ca883dc92142531e21a75b76f0",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 33,
+          "total": 33
+        },
+        "rng": {
+          "matched": 2856,
+          "total": 2856
+        },
+        "cursors": {
+          "matched": 33,
+          "total": 33
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "stethoscope-monster-examination",
+      "recordingSha256": "e2b48cd3b6512afde2cfdffd939ee728d3d31391a91dd3c83bb19ba7e210fe95",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 36,
+          "total": 36
+        },
+        "rng": {
+          "matched": 2461,
+          "total": 2461
+        },
+        "cursors": {
+          "matched": 36,
+          "total": 36
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "pit-trap-trigger",
+      "recordingSha256": "f7ad4b65dd95a6a1916cb838a14789224e511811702b474b96a0d92a5cf19959",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 10,
+          "total": 10
+        },
+        "rng": {
+          "matched": 3043,
+          "total": 3043
+        },
+        "cursors": {
+          "matched": 10,
+          "total": 10
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "prayer-cooldown-repeat",
+      "recordingSha256": "c5fbde6805d622bfcd51ae7e4fed004fbc262d2a39c78ae40b4ab1702a38032a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 27,
+          "total": 27
+        },
+        "rng": {
+          "matched": 2417,
+          "total": 2417
+        },
+        "cursors": {
+          "matched": 27,
+          "total": 27
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "towel-clean-face",
+      "recordingSha256": "eb0047f4948ab5f5386eb0159bbbd02cf7346895152a1ad5dbc126fbd0f5960a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 11,
+          "total": 11
+        },
+        "rng": {
+          "matched": 2675,
+          "total": 2675
+        },
+        "cursors": {
+          "matched": 11,
+          "total": 11
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "wear-conflict-ring",
+      "recordingSha256": "40f1c7f83b9f58e31622ea61ebb6d6d783f3edb01499ba03ff1a7917b93e0253",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 53,
+          "total": 53
+        },
+        "rng": {
+          "matched": 2759,
+          "total": 2759
+        },
+        "cursors": {
+          "matched": 53,
+          "total": 53
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "tip-container-contents-trapped-box-probe",
+      "recordingSha256": "e77de911cae8b931eb2dca6528a3cab3f3a03a084fe5eb094b156acbfdd94df8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 72,
+          "total": 72
+        },
+        "rng": {
+          "matched": 2787,
+          "total": 2787
+        },
+        "cursors": {
+          "matched": 72,
+          "total": 72
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "magic-whistle-recalls-tame-dog",
+      "recordingSha256": "cf957da92f219e57d15e2ee66f8a57ff0bb743f59cba9c7c9c2ca3b9b54c675a",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 29,
+          "total": 29
+        },
+        "rng": {
+          "matched": 2524,
+          "total": 2524
+        },
+        "cursors": {
+          "matched": 29,
+          "total": 29
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-fire-scroll-effect",
+      "recordingSha256": "9fc878b044ff61247bc0dee1bbc943b5f55ba78f17967641301bb1ccb26d47b7",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 20,
+          "total": 20
+        },
+        "rng": {
+          "matched": 2797,
+          "total": 2797
+        },
+        "cursors": {
+          "matched": 20,
+          "total": 20
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-fire-scroll-effect-setup-miss-attempt1",
+      "recordingSha256": "ee0e28cf295b60138d51379d06273fcbc5022484cc4e2cb4d05e3060ad17eb4d",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 21,
+          "total": 21
+        },
+        "rng": {
+          "matched": 2782,
+          "total": 2782
+        },
+        "cursors": {
+          "matched": 21,
+          "total": 21
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-confuse-monster-scroll",
+      "recordingSha256": "69207cf1a491e36ac32f7f7de432ae70954b8e2d4c987c2c0d17676f3881c122",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 51,
+          "total": 51
+        },
+        "rng": {
+          "matched": 2356,
+          "total": 2356
+        },
+        "cursors": {
+          "matched": 51,
+          "total": 51
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-scare-monster-scroll",
+      "recordingSha256": "97225b67fb7098a550ce4b69696e06313a2c8635a3d550b4a1461cd49319f6ac",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 49,
+          "total": 49
+        },
+        "rng": {
+          "matched": 2600,
+          "total": 2600
+        },
+        "cursors": {
+          "matched": 49,
+          "total": 49
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-taming-scroll-hostile-monster",
+      "recordingSha256": "aa43f40887854473146ba71400cfed8fe0bcb7ec20c6d33af61721651be4e6b8",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 42,
+          "total": 42
+        },
+        "rng": {
+          "matched": 2552,
+          "total": 2552
+        },
+        "cursors": {
+          "matched": 42,
+          "total": 42
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-create-monster-scroll-no-prior-monsters",
+      "recordingSha256": "4b3f803e8ba3dc875766f2ca2a7a35f2e0423af8a5423bf51d0f69ac47f9a791",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 31,
+          "total": 31
+        },
+        "rng": {
+          "matched": 2414,
+          "total": 2414
+        },
+        "cursors": {
+          "matched": 31,
+          "total": 31
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-blessed-enchant-weapon",
+      "recordingSha256": "554a6afed2c716218943a4b42a5a9daefed78e77869fe346d286d19e7500666f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 38,
+          "total": 38
+        },
+        "rng": {
+          "matched": 2758,
+          "total": 2758
+        },
+        "cursors": {
+          "matched": 38,
+          "total": 38
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-remove-curse-loadstone",
+      "recordingSha256": "db97488b67db6ed8e8185250916a81b3a3969c5f014cdcd56031be625729bad5",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 3141,
+          "total": 3141
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "read-cursed-destroy-armor-scroll",
+      "recordingSha256": "284496eb42e96abd55dc09a2f531660b33caeb09d61dd5fb1474e4eb1b052452",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 37,
+          "total": 37
+        },
+        "rng": {
+          "matched": 3095,
+          "total": 3095
+        },
+        "cursors": {
+          "matched": 37,
+          "total": 37
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "apply-blessed-touchstone-identifies-gem",
+      "recordingSha256": "c1ac831e5b8e20bf4777c016524fca8cec221b084adeb6eb14c7d9ca31a2071f",
+      "passed": true,
+      "metrics": {
+        "screens": {
+          "matched": 41,
+          "total": 41
+        },
+        "rng": {
+          "matched": 6212,
+          "total": 6212
+        },
+        "cursors": {
+          "matched": 41,
+          "total": 41
+        }
+      },
+      "error": null
+    }
+  ],
+  "totals": {
+    "sessions": {
+      "matched": 21,
+      "total": 21
+    },
+    "screens": {
+      "matched": 758,
+      "total": 758
+    },
+    "rng": {
+      "matched": 61133,
+      "total": 61133
+    },
+    "cursors": {
+      "matched": 758,
+      "total": 758
+    }
+  }
+}

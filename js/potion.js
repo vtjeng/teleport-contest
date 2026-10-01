@@ -1544,6 +1544,39 @@ async function peffect_extra_healing(otmp, state = game) {
     }
 }
 
+// C ref: potion.c peffect_full_healing() (1144-1162). Keep the level return,
+// sickness cure, exercise and mounted-leg conditions in the source order.
+async function peffect_full_healing(otmp, state = game, env = {}) {
+    const { message, random, encumberMessage } = env;
+
+    await message('You feel completely healed.', state);
+    await healup(
+        400,
+        4 + 4 * bcsign(otmp),
+        !otmp.cursed,
+        true,
+        state,
+        env,
+    );
+
+    if (otmp.blessed && state.u.ulevel < state.u.ulevelmax) {
+        // C lowers the highest attained level before pluslvl() returns one
+        // level and restores that former maximum.
+        state.u.ulevelmax -= 1;
+        await pluslvl(false, state, { message, random });
+    }
+
+    await make_hallucinated(0, true, 0, state, env);
+    await exercise(A_STR, true, state, random, { encumberMessage });
+    await exercise(A_CON, true, state, random, { encumberMessage });
+
+    const wounded = state.u.uprops[WOUNDED_LEGS];
+    if ((wounded.intrinsic || wounded.extrinsic)
+        && (otmp.blessed || (!otmp.cursed && !state.u.usteed))) {
+        await heal_legs(state, { message });
+    }
+}
+
 // C ref: potion.c peffect_polymorph() (1318-1331). The called polyself()
 // result is void and ignored in C; its transformation side effects still
 // complete before this potion effect continues.
@@ -1846,7 +1879,8 @@ export async function peffects(otmp, state = game, env = {}) {
         await peffect_extra_healing(otmp, state);
         break;
     case POT_FULL_HEALING:
-        throw new UnsupportedQuaffError('peffect_full_healing()');
+        await peffect_full_healing(otmp, state, potionEffectEnvironment(env));
+        break;
     case POT_LEVITATION:
     case SPE_LEVITATION:
         await peffect_levitation(otmp, state);
