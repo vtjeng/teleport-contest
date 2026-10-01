@@ -2,6 +2,7 @@
 // C refs: apply.c snuff_candle(), snuff_lit(), and splash_lit().
 
 import { OBJ_MINVENT } from './const.js';
+import { game } from './gstate.js';
 import { get_obj_location } from './light.js';
 import {
     humanoid,
@@ -20,8 +21,10 @@ import {
     POT_OIL,
 } from './objects.js';
 import { xnameFresh } from './objnam.js';
+import { Shk_Your } from './shk.js';
 import { end_burn } from './timeout.js';
 import { is_pool } from './trap.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
 
@@ -79,27 +82,36 @@ async function stopBurn(obj, env) {
     return endBurn(obj, env);
 }
 
-export async function snuff_monster_candle(obj, env) {
+// C ref: apply.c snuff_candle() (1472-1494). The floor and hero-inventory
+// callers test Blind; monster inventory instead tests the carrier's square.
+export async function snuff_candle(obj, env = {}) {
+    const state = env.state ?? game;
     const candle = isCandle(obj);
     if ((!candle && obj.otyp !== CANDELABRUM_OF_INVOCATION)
         || !obj.lamplit) {
         return false;
     }
-    const location = monsterInventoryLocation(obj, env.state);
-    const squareVisible = splashOperation(env, 'squareVisible', cansee);
-    const message = splashOperation(env, 'message', ttyPline);
+    const context = { ...env, state };
+    const location = get_obj_location(obj, 0, state);
     const many = candle
         ? Math.trunc(obj.quan ?? 1) > 1
         : Math.trunc(obj.spe ?? 0) > 1;
-    if (location && squareVisible(location.x, location.y, env.state)) {
-        const kind = candle ? 'candle' : "candelabrum's candle";
+    const visible = obj.where === OBJ_MINVENT
+        ? Boolean(location && splashOperation(
+            context, 'squareVisible', cansee,
+        )(location.x, location.y, state))
+        : !(context.heroBlind ?? heroIsBlind)(state);
+    if (visible) {
+        const message = splashOperation(context, 'message', ttyPline);
         await message(
-            `The ${kind}${many ? "s'" : "'s"} flame`
+            `${Shk_Your(obj, state)}${candle ? '' : "candelabrum's "}`
+            + `candle${many ? "s'" : "'s"} flame`
             + `${many ? 's are' : ' is'} extinguished.`,
-            env.state,
+            state,
+            context,
         );
     }
-    await stopBurn(obj, env);
+    await stopBurn(obj, context);
     return true;
 }
 
@@ -122,7 +134,7 @@ export async function snuff_monster_light(obj, env) {
         await stopBurn(obj, env);
         return true;
     }
-    return snuff_monster_candle(obj, env);
+    return snuff_candle(obj, env);
 }
 
 export async function splash_monster_light(obj, env) {

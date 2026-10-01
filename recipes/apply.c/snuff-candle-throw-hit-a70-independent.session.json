@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A70 C-first runtime probe for dothrow.c:throwit -> dothrow.c:throwit_mon_hit -> apply.c:snuff_candle. The debug Wizard wishes for a lit wax candle and creates one hostile gremlin. C first showed it southwest of the hero; an east attempt and then a south attempt missed, so this frozen input throws from the `o` slot southwest. Both misses were observed in C before any JavaScript comparison. Seed 71004070 and fixed date 20310604092500 are independent setup values.",
+  "segments": [
+    {
+      "seed": 71004070,
+      "datetime": "20310604092500",
+      "nethackrc": "OPTIONS=name:CandleHitA70,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " #wizwish\nlit wax candle\n#wizgenesis\nhostile gremlin\ntob"
+    }
+  ]
+}

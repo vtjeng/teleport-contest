@@ -8,6 +8,7 @@ import {
     befriendWithObject,
     digests,
     thitmonst,
+    throwit_mon_hit,
 } from '../js/dothrow.js';
 import { mksobj } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
@@ -25,6 +26,7 @@ import {
     DAGGER,
     GRAY_DRAGON_SCALE_MAIL,
     HEAVY_IRON_BALL,
+    TALLOW_CANDLE,
 } from '../js/objects.js';
 
 // The startup input is independent of the recorded development play. The
@@ -93,6 +95,19 @@ test('thitmonst routes a thrown cream pie through hmon', async () => {
     assert.equal(pie.where, OBJ_DELETED);
     assert.equal(game.gt.thrownobj, null);
     assert.ok(messages.some((line) => line.includes('cream pie')));
+});
+
+test('throwit_mon_hit skips C’s guarded body when bhit has no monster', async () => {
+    const litCandle = {
+        lamplit: true, // C would snuff it only inside the non-null-monster arm.
+        otyp: TALLOW_CANDLE,
+        quan: 1, // A single candle makes any accidental snuff visible as state.
+        where: OBJ_FREE, // The null target cannot have a monster-carried owner.
+    };
+    const result = await throwit_mon_hit(null, litCandle, game);
+
+    assert.equal(result, false);
+    assert.equal(litCandle.lamplit, true);
 });
 
 test('thitmonst ports the source pure object and engulfing predicates', async () => {
