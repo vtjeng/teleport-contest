@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap independent variation for objnam.c:xname_flags gameover disclosure. This uses a new seed, date, character name and male Tourist while retaining the same source path: the starting Hawaiian shirt is formatted by end.c:disclose after the wished stinking cloud ends the game.",
+  "segments": [
+    {
+      "seed": 74011932,
+      "datetime": "20430712124500",
+      "nethackrc": "OPTIONS=name:MotifA69B,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " .\u0017scroll of stinking cloud\nrm    .   yy"
+    }
+  ]
+}

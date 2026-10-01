@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved C-first target-miss attempt for objnam.c:xname_flags gameover naming. The Tourist inventory menu exposed the wished scroll at m, but this attempt selected o and stopped at You do not have that object; the corrected continuation is a separate recipe.",
+  "segments": [
+    {
+      "seed": 74011931,
+      "datetime": "20430711124500",
+      "nethackrc": "OPTIONS=name:MotifA69,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " .\u0017scroll of stinking cloud\nro    .   yy"
+    }
+  ]
+}

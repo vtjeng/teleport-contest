@@ -558,6 +558,79 @@ test('shop pricing follows source ownership and object-value branches',
         }
     });
 
+test('get_cost_of_shop_item preserves C short-circuits and helper order', async () => {
+    const { state, upper } = await generatedShopPile();
+
+    // shk.c:2817-2824 checks the current shop and coin/punishment exclusions
+    // before get_obj_location(). A location read on these paths would reach
+    // the proxy trap and fail this source-order assertion.
+    state.u.ushops[0] = 0;
+    const untouched = new Proxy({}, {
+        get() {
+            throw new Error('C returns before reading an object without a shop');
+        },
+    });
+    assert.equal(get_cost_of_shop_item(untouched, state).applicable, false);
+
+    state.u.ushops[0] = ROOMOFFSET;
+    const coin = new Proxy({ oclass: state.objects[GOLD_PIECE].oc_class }, {
+        get(target, key, receiver) {
+            if (key === 'where')
+                throw new Error('C excludes coins before get_obj_location');
+            return Reflect.get(target, key, receiver);
+        },
+    });
+    assert.equal(get_cost_of_shop_item(coin, state).applicable, false);
+
+    // The attached punishment ball and chain are excluded by identity after
+    // the coin test and before get_obj_location(). Minimal non-coin proxies
+    // isolate those identity checks from object-location behavior.
+    for (const name of ['uball', 'uchain']) {
+        const punishmentObject = new Proxy({
+            oclass: state.objects[DART].oc_class,
+        }, {
+            get(target, key, receiver) {
+                if (key === 'where')
+                    throw new Error(`C excludes ${name} before get_obj_location`);
+                return Reflect.get(target, key, receiver);
+            },
+        });
+        state[name] = punishmentObject;
+        assert.equal(
+            get_cost_of_shop_item(punishmentObject, state).applicable,
+            false,
+        );
+        state[name] = null;
+    }
+
+    // C shk.c:2837 reads get_cost() before :2839 reads get_pricing_units().
+    // These independent object getters expose that call order without changing
+    // either helper's result or the fixture's price state.
+    const originalId = upper.o_id;
+    const originalGlobby = upper.globby;
+    const observedOrder = [];
+    Object.defineProperties(upper, {
+        o_id: {
+            configurable: true,
+            get() {
+                observedOrder.push('get_cost');
+                return originalId;
+            },
+        },
+        globby: {
+            configurable: true,
+            get() {
+                observedOrder.push('get_pricing_units');
+                return originalGlobby;
+            },
+        },
+    });
+
+    const quote = get_cost_of_shop_item(upper, state);
+    assert.ok(quote.cost > 0);
+    assert.deepEqual(observedOrder, ['get_cost', 'get_pricing_units']);
+});
+
 test('contained floor merchandise keeps its live shop price', async () => {
     const { state, upper } = await generatedShopPile();
     const contained = newObject({
