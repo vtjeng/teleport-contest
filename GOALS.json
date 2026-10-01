@@ -126319,6 +126319,258 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-wear-amulet-off-synthetic-v15-20261001",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete amulet removal and wire its callers",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v15/wizard-removes-reflection-amulet-p-slot"
+      ],
+      "selectionReason": "Continue after A62 resolved the v15 wizard-enchants-high-elven-armor case: a fresh bounded replay on this base matched all 77 screens and boundaries. The next independent current v15 mismatch is wizard-removes-reflection-amulet-p-slot. Fresh bounded run-yZRALr reproduces a screen-only divergence at segment 0, step 43, key R: C shows the final 'You were wearing ...' line while JS leaves the prior prompt; all 2307 RNG calls and 44 cursors match. JS reaches the explicit do_wear.c Amulet_off gap from the active doremring/remove caller. Port the whole C Amulet_off function and wire every direct caller whose JS site exists, while preserving the unported take_off occupation and offer_real_amulet paths as named limitations. Root verified the exact immutable original/correction commits, complete current fifteen-batch evidence, nine saved logs, and independent matching ESP theft recording. B67 is accepted and published; Amulet_off is the sole primary source unit. Supporting nullable stolen-name handoff and animal/runaway message restore the C pager boundary without changing terminal or monster planning code.",
+      "detail": "Whole do_wear.c:Amulet_off preserves C switch branches and state/message/discovery order. Supporting direct removal, partial do_takeoff, theft environment and nullable name handoff, and visible animal/runaway message are wired in their source sites. R and independent ESP theft evidence execute the selected impure helper. Helper-only entryPoints is empty; unported take_off/offer_real_amulet, discarded-void hack.c:spoteffects, and existing drown planning limitation remain explicit. Only Amulet_off receives completion credit.",
+      "openedAt": "709f96f4248024a9ea7264b67b855ed176b5b27c",
+      "openStanding": {
+        "sha": "915af215ab65c97525220b606b9b4932c1de5017",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "Amulet_off",
+          "line": 1090,
+          "endLine": 1192,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1090,
+        "to": 1192
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-removes-reflection-amulet-p-slot": {
+          "session": "synthetic/v15/wizard-removes-reflection-amulet-p-slot",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-removes-reflection-amulet-p-slot",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-removes-reflection-amulet-p-slot.session.json",
+          "recordingSha256": "4f87bed5c2dea58c092bc1fd5115f66ee51c7f237ff624afc1343a2b171308fd",
+          "evaluationPath": "challenges/evaluations/20261001071433-v15.json",
+          "evaluationCommit": "915af215ab65c97525220b606b9b4932c1de5017"
+        }
+      },
+      "activeStanding": {
+        "sha": "915af215ab65c97525220b606b9b4932c1de5017",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-removes-reflection-amulet-p-slot",
+          "session": "synthetic/v15/wizard-removes-reflection-amulet-p-slot",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-removes-reflection-amulet-p-slot.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-removes-reflection-amulet-p-slot.session.json",
+          "recordingSha256": "4f87bed5c2dea58c092bc1fd5115f66ee51c7f237ff624afc1343a2b171308fd",
+          "recipe": "challenges/cases/v15/wizard-removes-reflection-amulet-p-slot.recipe.session.json",
+          "recipeSha256": "916e0db29ed9a37c5fb6a0fec1cfb4afef5f150829745dc23b9c816779f796d7",
+          "replayInputSha256": "2beb75ba369daa67a17db7dc42db3fd981cf7cbf57323164f3c11d32eea245a4",
+          "evaluationPath": "challenges/evaluations/20261001071433-v15.json",
+          "evaluationCommit": "915af215ab65c97525220b606b9b4932c1de5017",
+          "evaluationArtifact": "challenges/evaluations/20261001071433-v15.json",
+          "evaluationUtc": "2026-10-01T07:15:08.202Z",
+          "remainingScreens": 1,
+          "recordedSteps": 44,
+          "previousScreensMatched": 43,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 43,
+              "total": 44
+            },
+            "rng": {
+              "matched": 2307,
+              "total": 2307
+            },
+            "cursors": {
+              "matched": 44,
+              "total": 44
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 43,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 43,
+                "key": "R"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 43,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-removes-reflection-amulet-p-slot.json",
+            "result": {
+              "session": "synthetic/v15/wizard-removes-reflection-amulet-p-slot",
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-removes-reflection-amulet-p-slot",
+              "remainingScreens": 1,
+              "recordedSteps": 44,
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "4f87bed5c2dea58c092bc1fd5115f66ee51c7f237ff624afc1343a2b171308fd",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-removes-reflection-amulet-p-slot",
+                "session": "synthetic/v15/wizard-removes-reflection-amulet-p-slot",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-removes-reflection-amulet-p-slot.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-removes-reflection-amulet-p-slot.session.json",
+                "recordingSha256": "4f87bed5c2dea58c092bc1fd5115f66ee51c7f237ff624afc1343a2b171308fd",
+                "recipe": "challenges/cases/v15/wizard-removes-reflection-amulet-p-slot.recipe.session.json",
+                "recipeSha256": "916e0db29ed9a37c5fb6a0fec1cfb4afef5f150829745dc23b9c816779f796d7",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 1,
+                "recordedSteps": 44,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 43,
+                    "total": 44
+                  },
+                  "rng": {
+                    "matched": 2307,
+                    "total": 2307
+                  },
+                  "cursors": {
+                    "matched": 44,
+                    "total": 44
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 43,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 43,
+                      "key": "R"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 43,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The final R step reaches the unported do_wear.c Amulet_off() branch. C removes the worn amulet through setworn(NULL, W_AMUL) before off_msg() formats “You were wearing a hexagonal amulet.”; JavaScript records the call as unported and skips both the reflection property/slot removal and message. This is a whole-function file port. Reflection removal does not identify the amulet: that switch arm leaves mkn false, so makeknown() is not called.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "When a worn amulet of reflection is removed through the R command, armor_or_accessory_off() calls Amulet_off(). Its AMULET_OF_REFLECTION switch arm has no effect-specific body; the shared tail clears W_AMUL through setworn() before calling off_msg(). With verbose output enabled, doname() therefore formats the item without a “being worn” suffix. This branch does not set mkn or identify the amulet.",
+                "functions": [
+                  "Amulet_off"
+                ],
+                "callers": [
+                  "do_wear.c armor_or_accessory_off() calls Amulet_off() when the selected item is uamul; doremring() (R) and dotakeoff() (T) reach this helper.",
+                  "do_wear.c do_takeoff() calls Amulet_off() for the WORN_AMUL arm of the multi-item takeoff command.",
+                  "steal.c remove_worn_item() calls Amulet_off() when a worn amulet is removed during theft.",
+                  "pray.c offer_real_amulet() calls Amulet_off() before consuming the worn Amulet of Yendor."
+                ],
+                "dependencies": [
+                  "worn.c setworn(NULL, W_AMUL) is the property and slot transition: it clears uamul and the object W_AMUL bit, removes the object-provided extrinsic property (reflection for this case), and calls update_inventory() and recalc_telepat_range().",
+                  "do_wear.c off_msg(amul) calls doname(amul) and prints only when flags.verbose is true. Amulet_off() calls it after setworn(), so the reported item name has no worn suffix; this is separate from setworn() refreshing inventory.",
+                  "do_wear.c makeknown(amul->otyp) is conditional on mkn. AMULET_OF_REFLECTION does not set mkn, so removing this amulet does not reveal its type. Other Amulet_off() switch arms set mkn when their observable effects warrant discovery.",
+                  "do_wear.c see_monsters() handles removal of ESP amulets after clearing the slot and sending the early off message.",
+                  "region_danger(), cant_drown(), drown(), and hliquid() support the magical-breathing branch. region_danger() and cant_drown() results control branches; drown() is explicitly called with its result discarded.",
+                  "do_wear.c find_ac() handles removal of an amulet of guarding.",
+                  "float_vs_flight(), is_pool_or_lava(), Is_waterlevel(), Is_airlevel(), and spoteffects(TRUE) support the flying-amulet branch and its landing effects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "At the examined root commit 6d2c675aad59f170ec44980d6afce47f08ae7423, `.cache/synthetic-scans/v15/wizard-removes-reflection-amulet-p-slot.json` records the only mismatch at segment 0, step 43, key R: C has Y at row 0, column 0 and JavaScript has a space. Its saved evaluation `challenges/evaluations/20261001022926-v15.json` reports 43/44 screens matched, all 2307 RNG calls matched, all 44 cursors matched, and one remaining screen.",
+                "The C recording `challenges/cases/v15/wizard-removes-reflection-amulet-p-slot.session.json`, segment 0, steps 40-43, shows the wish completing, P selecting the amulet, p confirming “a hexagonal amulet (being worn),” and R producing “You were wearing a hexagonal amulet.” in the C screen. The saved diagnostic shows the corresponding JavaScript final row begins blank.",
+                "The frozen source at the assigned root commit, `nethack-c/upstream/src/do_wear.c:1768-1829`, defines the whole `armor_or_accessory_off()` owner. Its amulet arm calls `Amulet_off()` at :1819 and returns ECMD_TIME; `dotakeoff()` and `doremring()` both route selected items through this helper. The command recording reaches it through doremring().",
+                "The actionable whole-function scope is `nethack-c/upstream/src/do_wear.c:1090-1190`, `Amulet_off()`. The AMULET_OF_REFLECTION case at :1105-1110 has no body; the shared tail at :1183-1189 clears W_AMUL with setworn(), then calls off_msg(amul). At the examined JavaScript source, `js/do_wear.js:3626-3630` instead records `note_unported('do_wear.c Amulet_off')`, so it skips both state removal and feedback.",
+                "`nethack-c/upstream/src/worn.c:73-145`, `setworn()`, supplies the property and inventory semantics: replacing the W_AMUL slot clears the object’s worn mask and its oc_oprop extrinsic bit, installs the null slot, then refreshes inventory and telepathy range. The reflection property disappears as part of this operation; Amulet_off() does not separately alter or identify it.",
+                "Identification and display are distinct from that state transition. In do_wear.c, `mkn` starts false and the reflection arm never sets it, so the final guarded makeknown() at :1187 does not run. `off_msg()` at :68-73 runs after setworn(); it formats the now-unworn object with doname(), yielding the C message without a “being worn” suffix.",
+                "Direct C callers found in the frozen source are `do_wear.c armor_or_accessory_off()` (:1819), `do_wear.c do_takeoff()` (:2878), `steal.c remove_worn_item()` (:265), and `pray.c offer_real_amulet()` (:1536). The associated JavaScript branches include the missing call in `js/do_wear.js:3626-3630` and a second unported gap in `js/steal.js:339-340`; the source port must preserve existing caller order where these paths are wired."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
