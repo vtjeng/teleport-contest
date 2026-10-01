@@ -130611,7 +130611,7 @@
     {
       "id": "port-potion-full-healing-synthetic-v16-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete the full-healing potion effect",
       "cFile": "potion.c",
       "sessions": [
@@ -130625,8 +130625,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "65ee2a5a1a4291d151faef8736cb1559becc30b0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_full_healing",
@@ -130858,6 +130861,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "65ee2a5a1a4291d151faef8736cb1559becc30b0",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
