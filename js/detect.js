@@ -2298,11 +2298,9 @@ export function trapped_door_at(ttyp, x, y, state = game) {
     return true;
 }
 
-function foundone(x, y, glyph, state) {
+export function foundone(x, y, glyph, state) {
     const location = state.level.at(x, y);
-    const memoryGlyph = location.remembered_glyph?.glyph;
-    if (glyph_is_cmap(memoryGlyph)
-        || memoryGlyph === GLYPH_UNEXPLORED_OFF) {
+    if (glyph_is_cmap(glyph) || glyph === GLYPH_UNEXPLORED_OFF) {
         location.seenv = SVALL;
     }
 
@@ -2367,7 +2365,7 @@ export async function findone(x, y, found, state) {
 
     await detect_obj_traps(state.level?.buriedobjlist ?? null,
         true, false, found, state);
-    await detect_obj_traps(state.level?.objects?.[x]?.[y] ?? null,
+    await detect_obj_traps(state.level?.objlist ?? null,
         true, false, found, state);
     if (monster)
         await detect_obj_traps(monster.minvent, true, false, found, state);
@@ -2548,7 +2546,6 @@ export async function findit(state = game, rawEnv = {}) {
             discoveries += categoryCount > 2 ? ', and ' : ' and ';
         discoveries += found.num_mons > 1
             ? `${found.num_mons} hidden monsters` : 'a hidden monster';
-        total += found.num_mons;
     }
     if (discoveries) await message(`You reveal ${discoveries}!`);
 

@@ -3771,15 +3771,15 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
             && !(state.mvitals[PM_WATER_NYMPH]?.mvflags & G_GONE)
             && !(state.mvitals[PM_MOUNTAIN_NYMPH]?.mvflags & G_GONE)) {
             const nymphSpecies = mkclass(S_NYMPH, 0, { state, random });
-            const monster = nymphSpecies
-                ? await makemon_runtime(
-                    nymphSpecies,
-                    state.u.ux,
-                    state.u.uy,
-                    NO_MINVENT | MM_NOMSG,
-                    { ...rawEnv, state, random },
-                )
-                : null;
+            // makemon(NULL, ...) selects a random species; mkclass returning
+            // null does not skip the C makemon call.
+            const monster = await makemon_runtime(
+                nymphSpecies,
+                state.u.ux,
+                state.u.uy,
+                NO_MINVENT | MM_NOMSG,
+                { ...rawEnv, state, random },
+            );
             if (monster) {
                 await message(`You summon ${a_monnam(monster, state)}!`);
                 if (!obj_resists(obj, 93, 100, { state, random })) {

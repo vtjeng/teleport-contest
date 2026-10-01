@@ -33,6 +33,7 @@ import {
     SCORR,
     SDOOR,
     STATUE_TRAP,
+    SVALL,
     TELEPAT,
     SV0,
     SV1,
@@ -54,6 +55,7 @@ import {
     dosearch0,
     food_detect,
     findit,
+    foundone,
     findone,
     gold_detect,
     monster_detect,
@@ -71,6 +73,7 @@ import {
     back_to_glyph,
     feel_location,
     GLYPH_INVISIBLE,
+    glyph_is_cmap,
     glyph_is_invisible,
     trap_to_glyph,
     map_glyphinfo,
@@ -83,7 +86,10 @@ import {
     trap_glyph_info,
     warning_of,
 } from '../js/display.js';
-import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
+import {
+    GLYPH_OBJ_OFF,
+    GLYPH_UNEXPLORED_OFF,
+} from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { nomul } from '../js/hack.js';
 
@@ -119,10 +125,12 @@ import { DEFAULT_PRIMARY_SYMBOLS } from '../js/symbol_data.js';
 import {
     M1_CONCEAL,
     M1_HIDE,
+    PM_CAVE_SPIDER,
     S_EEL,
     S_FELINE,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
+import { newObject } from '../js/obj.js';
 import { create_region } from '../js/region.js';
 import { canSpotMonster } from '../js/startup_a11y.js';
 import { ATR_INVERSE, CLR_WHITE } from '../js/terminal.js';
@@ -2015,6 +2023,127 @@ test('findit scans the C BOLT_LIM area and returns its discovery count', async (
         message(text) { messages.push(text); },
     }), 0);
     assert.deepEqual(messages, ["You don't find anything."]);
+});
+
+test('foundone tests its C glyph argument, not remembered square memory', async () => {
+    const foundoneStart = DETECT_C.indexOf(
+        'foundone(coordxy zx, coordxy zy, int glyph)',
+    );
+    const foundoneEnd = DETECT_C.indexOf('\n}\n', foundoneStart);
+    assert.notEqual(foundoneStart, -1);
+    const cFoundone = DETECT_C.slice(foundoneStart, foundoneEnd);
+    assert.ok(cFoundone.includes(
+        'glyph_is_cmap(glyph) || glyph_is_unexplored(glyph)',
+    ));
+
+    const target = await globalSearchState();
+    const location = game.level.at(target.x, target.y);
+    // C passes the newly displayed glyph, so an object glyph remembered in
+    // the map cannot override the supplied unexplored glyph's visibility.
+    const rememberedGlyph = GLYPH_OBJ_OFF;
+    const suppliedGlyph = GLYPH_UNEXPLORED_OFF;
+    assert.equal(glyph_is_cmap(rememberedGlyph), false);
+    location.remembered_glyph = { glyph: rememberedGlyph };
+    location.seenv = 0;
+
+    foundone(target.x, target.y, suppliedGlyph, game);
+
+    assert.equal(location.seenv, SVALL);
+});
+
+test('findit returns a hidden monster count once, following C findit()', async () => {
+    const cFindit = DETECT_C.slice(
+        DETECT_C.indexOf('\nfindit(void)'),
+        DETECT_C.indexOf('\n/*', DETECT_C.indexOf('\nfindit(void)') + 1),
+    );
+    assert.equal((cFindit.match(/num\s*\+=\s*found\.num_mons;/gu) ?? []).length, 1);
+
+    // Sight is enabled so this visible-cell callback reaches the C hider arm.
+    const target = await globalSearchState('', { blind: false });
+    for (const column of game.level.objects) column.fill(null);
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.objlist = null;
+    game.level.buriedobjlist = null;
+    game.level.monlist = null;
+    game.level.traps = [];
+    game.invent = null;
+
+    // One live cave spider (mhp 5 keeps it above C's dead-monster filter) is a
+    // source-valid hides-under species (monsters.h:940). M1_CONCEAL admits the
+    // hidden-monster arm, and the adjacent target cell is explicitly in the
+    // COULD_SEE map so the centered C area scan visits it.
+    game.viz_array[target.y][target.x] = COULD_SEE | IN_SIGHT;
+    const hidden = newMonster({
+        mx: target.x,
+        my: target.y,
+        mhp: 5,
+        mnum: PM_CAVE_SPIDER,
+        data: game.mons[PM_CAVE_SPIDER],
+        mundetected: true,
+    });
+    game.level.monsters[target.x][target.y] = hidden;
+    game.level.at(target.x, target.y).remembered_glyph = {
+        glyph: GLYPH_INVISIBLE,
+    };
+    const messages = [];
+
+    // Exactly one discovered monster contributes one to C findit's total.
+    assert.equal(await findit(game, {
+        message(text) { messages.push(text); },
+    }), 1);
+    assert.equal(hidden.mundetected, false);
+    assert.deepEqual(messages, ['You reveal a hidden monster!']);
+});
+
+test('findone scans global floor order for stacked trapped boxes', async () => {
+    const cFindone = DETECT_C.slice(
+        DETECT_C.indexOf('\nfindone(coordxy'),
+        DETECT_C.indexOf('\nstaticfn ', DETECT_C.indexOf('\nfindone(coordxy') + 1),
+    );
+    assert.match(cFindone, /detect_obj_traps\(fobj, TRUE, 0, found_p\)/u);
+
+    const target = await globalSearchState();
+    const { x, y } = target;
+    for (const column of game.level.objects) column.fill(null);
+    game.level.objlist = null;
+    game.level.buriedobjlist = null;
+    game.level.traps = [];
+    game.invent = null;
+
+    // Two one-item trapped chests share a square. C threads them by nobj
+    // globally and nexthere in the square pile; reverse those orders so a
+    // per-square nobj walk misses one trapped box.
+    const globalHead = newObject({
+        otyp: CHEST, where: OBJ_FLOOR, ox: x, oy: y,
+        otrapped: true, quan: 1,
+    });
+    const pileHead = newObject({
+        otyp: CHEST, where: OBJ_FLOOR, ox: x, oy: y,
+        otrapped: true, quan: 1,
+    });
+    globalHead.nobj = pileHead;
+    pileHead.nobj = null;
+    pileHead.nexthere = globalHead;
+    globalHead.nexthere = null;
+    game.level.objlist = globalHead;
+    game.level.objects[x][y] = pileHead;
+    const found = {
+        ft_cc: { x: 0, y: 0 },
+        num_sdoors: 0,
+        num_scorrs: 0,
+        num_traps: 0,
+        num_mons: 0,
+        num_invis: 0,
+        num_kept_invis: 0,
+        num_cleared_invis: 0,
+    };
+
+    await findone(x, y, found, game);
+
+    assert.notEqual(game.level.objlist, game.level.objects[x][y]);
+    assert.equal(found.num_traps, 2);
+    assert.equal(globalHead.tknown, true);
+    assert.equal(pileHead.tknown, true);
 });
 
 // Both arms must raise UnsupportedSearchError, not a bare Error: js/cmd.js
