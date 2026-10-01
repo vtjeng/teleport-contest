@@ -129223,7 +129223,7 @@
     {
       "id": "port-timeout-vomiting-dialogue-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete vomiting countdown dialogue",
       "cFile": "timeout.c",
       "sessions": [
@@ -129237,8 +129237,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "fb4e7f34c20fce13155dda6da98867ac869ded10",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "vomiting_dialogue",
@@ -129501,6 +129504,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fb4e7f34c20fce13155dda6da98867ac869ded10",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
