@@ -236,6 +236,7 @@ import {
     gloves_simple_name, otense, vtense, yname, Yobjnam2,
 } from './objnam.js';
 import { note_unported } from './unported.js';
+import { unpunish } from './read.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
 // js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps every
@@ -1227,7 +1228,7 @@ export async function fix_worst_trouble(trouble, state = game) {
         if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL)
             note_unported('dig.c buried_ball_to_freedom');
         else
-            note_unported('ball.c unpunish');
+            unpunish(state);
         break;
     case TROUBLE_FUMBLING:
         if (Cursed_obj(state.uarmg, GAUNTLETS_OF_FUMBLING)) {

@@ -8,7 +8,6 @@ import {
     ROT_ORGANIC,
     TIMER_OBJECT,
     TT_BURIEDBALL,
-    W_BALL,
     W_CHAIN,
 } from './const.js';
 import { del_engr_at } from './engrave.js';
@@ -44,6 +43,7 @@ import {
 } from './objects.js';
 import { rn1, rn2, rnd } from './rng.js';
 import { is_ice } from './terrain.js';
+import { unpunish } from './read.js';
 import {
     end_burn,
     preflight_end_burn,
@@ -145,11 +145,6 @@ function punishedObject(state, name) {
     return state[name] ?? state.go?.[name] ?? null;
 }
 
-function clearPunishedObject(state, name, object) {
-    if (state[name] === object) state[name] = null;
-    if (state.go?.[name] === object) state.go[name] = null;
-}
-
 function requireHook(env, name, obj) {
     const hook = env.hooks?.[name];
     if (typeof hook !== 'function')
@@ -203,31 +198,6 @@ function o_unleash(obj, env) {
     update_inventory(env);
 }
 
-// C ref: read.c unpunish() -> invent.c delobj_core(). Punishment chains have
-// no object properties, so clearing their worn mask directly is the
-// source-equivalent setworn effect.
-function unpunish(chain, ball, env) {
-    const { state } = env;
-    if (chain) {
-        chain.owornmask &= ~W_CHAIN;
-        clearPunishedObject(state, 'uchain', chain);
-        const { ox, oy } = chain;
-        const onFloor = chain.where === OBJ_FLOOR;
-        // delobj_core() calls obj_resists(chain, 0, 0) even though an iron
-        // chain cannot resist.  Preserve that visible rn2(100) boundary.
-        if (!obj_resists(chain, 0, 0, env)) {
-            if (onFloor) remove_object(chain, env);
-            if (onFloor) {
-                env.hooks.maybeUnhideAt(ox, oy, env);
-                env.hooks.newsym(ox, oy, env);
-            }
-            obfree(chain, null, env);
-        }
-    }
-    ball.owornmask &= ~W_BALL;
-    clearPunishedObject(state, 'uball', ball);
-}
-
 // C ref: trap.c set_utrap().
 function setBuriedBallTrap(turns, env) {
     const { state } = env;
@@ -265,7 +235,7 @@ export function bury_an_obj(obj, rawEnv = {}) {
     }
 
     if (isPunishmentBall) {
-        unpunish(punishmentChain, obj, env);
+        unpunish(state, env);
         setBuriedBallTrap(random.rn1(50, 20), env);
         plineThe('iron ball gets buried!', env);
     }

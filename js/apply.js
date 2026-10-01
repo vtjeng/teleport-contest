@@ -245,7 +245,7 @@ import {
 import { dist2, highc, isqrt, sgn, s_suffix, strstri, truncateByteString, upstart } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import { gulp_blnd_check } from './mhitu.js';
-import { litroom } from './read.js';
+import { litroom, unpunish } from './read.js';
 import {
     delobj,
     addinv_runtime,
@@ -3831,7 +3831,7 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
         } else if (obj.blessed) {
             let result = 0;
             if (state.uchain) {
-                note_unported('read.c unpunish');
+                unpunish(state, { ...rawEnv, random });
                 result = 1;
             } else if (state.u.utrap
                 && state.u.utraptype === TT_BURIEDBALL) {

@@ -11,9 +11,12 @@ import {
     M_AP_OBJECT,
     MMOVE_MOVED,
     OBJ_DELETED,
+    OBJ_FLOOR,
     POOL,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
+    W_BALL,
+    W_CHAIN,
 } from '../js/const.js';
 import {
     dog_eat,
@@ -57,7 +60,10 @@ import {
     COIN_CLASS,
     CORPSE,
     FOOD_CLASS,
+    HEAVY_IRON_BALL,
+    IRON_CHAIN,
     objects_globals_init,
+    TOOL_CLASS,
     TRIPE_RATION,
     WEAPON_CLASS,
 } from '../js/objects.js';
@@ -531,29 +537,52 @@ test('dog_eat prints no meal line for a pet sensed outside line of sight',
         assert.match(messages[0], /feels rather kitten-ish/u);
     });
 
-test('m_consume_obj rejects both punishment objects',
+test('m_consume_obj removes punished ball and chain in source order',
     async () => {
+        // C delobj(chain) always draws rn2(100); consuming the ball then calls
+        // delobj(ball), which adds its own source rn2(100) draw.
         const cases = [
-            ['punishment ball', ({ corpse, state }) => {
-                state.uball = corpse;
-            }, /unpunished object/u],
-            ['punishment chain', ({ corpse, state }) => {
-                state.uchain = corpse;
-            }, /unpunished object/u],
+            ['punishment ball', 'ball', [100, 100], OBJ_DELETED],
+            ['punishment chain', 'chain', [100], OBJ_FLOOR],
         ];
-        for (const [name, mutate, reason] of cases) {
+        for (const [name, consumedPart, expectedDraws, expectedBallWhere]
+            of cases) {
             const { monster, state } = quickState(false);
-            const corpse = floorMimicCorpse(state);
-            mutate({ corpse, state });
-            await assert.rejects(
-                m_consume_obj(monster, corpse, {
-                    ...eatingEnv(state),
-                    quickMimic: async () => assert.fail(name),
-                }),
-                reason,
-                name,
-            );
-            assert.equal(state.level.objects[5][5], corpse, name);
+            const ball = newObject({
+                oclass: TOOL_CLASS,
+                otyp: HEAVY_IRON_BALL,
+                quan: 1,
+                owornmask: W_BALL,
+            });
+            const chain = newObject({
+                oclass: TOOL_CLASS,
+                otyp: IRON_CHAIN,
+                quan: 1,
+                owornmask: W_CHAIN,
+            });
+            place_object(ball, 5, 5, { state });
+            place_object(chain, 5, 5, { state });
+            state.uball = ball;
+            state.uchain = chain;
+            const draws = [];
+            const env = eatingEnv(state);
+            env.random.rn2 = (bound) => {
+                draws.push(bound);
+                return 0; // C obj_resists(0, 0) returns the non-resistance result.
+            };
+
+            await m_consume_obj(monster, consumedPart === 'ball' ? ball : chain, {
+                ...env,
+                quickMimic: async () => assert.fail(name),
+            });
+
+            assert.deepEqual(draws, expectedDraws, name);
+            assert.equal(chain.where, OBJ_DELETED, name);
+            assert.equal(chain.owornmask, 0, name);
+            assert.equal(state.uchain, null, name);
+            assert.equal(state.uball, null, name);
+            assert.equal(ball.owornmask, 0, name);
+            assert.equal(ball.where, expectedBallWhere, name);
         }
     });
 

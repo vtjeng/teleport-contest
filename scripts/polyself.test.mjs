@@ -70,6 +70,16 @@ const JS_START = JS_SOURCE.indexOf('export async function polyself(');
 const JS_END = JS_SOURCE.indexOf('\n}\n\nconst HUMANOID_PARTS', JS_START) + 2;
 const C_FUNCTION = C_SOURCE.slice(C_START, C_END);
 const JS_FUNCTION = JS_SOURCE.slice(JS_START, JS_END);
+const C_POLYMON_START = C_SOURCE.indexOf('polymon(int mntmp)');
+const C_POLYMON_END = C_SOURCE.indexOf(
+    '\n}\n\n/* determine hero\'s temporary strength', C_POLYMON_START,
+) + 2;
+const C_POLYMON_FUNCTION = C_SOURCE.slice(C_POLYMON_START, C_POLYMON_END);
+const JS_POLYMON_START = JS_SOURCE.indexOf('export async function polymon(');
+const JS_POLYMON_END = JS_SOURCE.indexOf(
+    '\n}\n\n// ---------- polyman', JS_POLYMON_START,
+) + 2;
+const JS_POLYMON_FUNCTION = JS_SOURCE.slice(JS_POLYMON_START, JS_POLYMON_END);
 
 test('were_beastie maps every C were.c family member and rejects others', () => {
     const ratForms = [PM_WERERAT, PM_SEWER_RAT, PM_GIANT_RAT, PM_RABID_RAT];
@@ -211,6 +221,34 @@ test('break_armor consumes a worn shirt through the inventory lifecycle',
         'useup removes the destroyed shirt from the inventory chain');
     assert.equal(shirt.owornmask, 0,
         'useupall clears worn state before deallocation');
+});
+
+test('polymon releases punishment in the source slippery-form branch', () => {
+    // C polyself.c:991-999 runs after the pool/lava and Passes_walls checks;
+    // preserve the form predicates, message-before-unpunish order, and the
+    // alternative buried-ball message before its discarded void callee.
+    assert.ok(C_POLYMON_START >= 0 && C_POLYMON_END > C_POLYMON_START);
+    assert.ok(JS_POLYMON_START >= 0 && JS_POLYMON_END > JS_POLYMON_START);
+    const cSlip = C_POLYMON_FUNCTION.indexOf(
+        'You("slip out of the iron chain.")',
+    );
+    const cUnpunish = C_POLYMON_FUNCTION.indexOf('unpunish();', cSlip);
+    const jsSlip = JS_POLYMON_FUNCTION.indexOf(
+        "await message('You slip out of the iron chain.'",
+    );
+    const jsUnpunish = JS_POLYMON_FUNCTION.indexOf('unpunish(state, env)', jsSlip);
+    assert.match(C_POLYMON_FUNCTION,
+        /if \(amorphous\(gy\.youmonst\.data\) \|\| is_whirly\(gy\.youmonst\.data\)\s+\|\| unsolid\(gy\.youmonst\.data\)\)/u);
+    assert.match(JS_POLYMON_FUNCTION,
+        /if \(amorphous\(newForm\) \|\| is_whirly\(newForm\) \|\| unsolid\(newForm\)\)/u);
+    assert.ok(cSlip >= 0 && cSlip < cUnpunish,
+        'C prints the slip message before unpunish');
+    assert.ok(jsSlip >= 0 && jsSlip < jsUnpunish,
+        'JS awaits the slip message before unpunish');
+    assert.match(C_POLYMON_FUNCTION,
+        /else if \(u\.utrap && u\.utraptype == TT_BURIEDBALL\)[\s\S]*You\("slip free of the buried ball and chain\."\);[\s\S]*buried_ball_to_freedom\(\);/u);
+    assert.match(JS_POLYMON_FUNCTION,
+        /else if \(u\.utrap && u\.utraptype === TT_BURIEDBALL\)[\s\S]*await message\('You slip free of the buried ball and chain\.'[\s\S]*note_unported\('dig\.c buried_ball_to_freedom'\);/u);
 });
 
 test('polymon uses makemon golemhp without a random HP roll', async () => {

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T11:36:18.769Z",
+  "capturedAt": "2026-10-01T13:06:01.382Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -13004,12 +13004,95 @@
         "type": "accepted",
         "at": "2026-10-01T11:33:50.164Z",
         "task": "A66"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A66-published-e32b6007",
+        "type": "published",
+        "at": "2026-10-01T11:36:30.439Z",
+        "task": "A66",
+        "commit": "e32b60076381ef65670e5ec30a07d23ae4ae24ed"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A67-glib-dual-wield-20261001",
+        "type": "assign",
+        "at": "2026-10-01T11:55:55.319Z",
+        "task": "A67",
+        "worker": "A2",
+        "goal": "port-wield-can-twoweapon-drop-uswapwep-synthetic-v13-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-84d9663b4a75ca807c3935f9308057218afd4fd4",
+        "type": "ready",
+        "at": "2026-10-01T12:13:32.514Z",
+        "task": "B72",
+        "delivery": "84d9663b4a75ca807c3935f9308057218afd4fd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B72-received-84d9663b",
+        "type": "received",
+        "at": "2026-10-01T12:14:09.950Z",
+        "task": "B72",
+        "delivery": "84d9663b4a75ca807c3935f9308057218afd4fd4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B72-integrating-f71789b0",
+        "type": "integrating",
+        "at": "2026-10-01T12:18:56.902Z",
+        "task": "B72",
+        "integration": "f71789b08d712877abde4089ca6ad766bc9cc490"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B72-integrating-d6d6658a",
+        "type": "integrating",
+        "at": "2026-10-01T12:21:04.203Z",
+        "task": "B72",
+        "integration": "d6d6658adfb072006581fa2ac0dcbc3605f93f34"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B73-potion-make-sick-20261001",
+        "type": "assign",
+        "at": "2026-10-01T12:26:53.338Z",
+        "task": "B73",
+        "worker": "B",
+        "goal": "port-potion-make-sick-synthetic-v15-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B72-validated-d6d6658a",
+        "type": "validated",
+        "at": "2026-10-01T12:30:10.939Z",
+        "task": "B72",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B72-accepted-d6d6658a",
+        "type": "accepted",
+        "at": "2026-10-01T12:30:11.315Z",
+        "task": "B72"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B72-published-64589ae9",
+        "type": "published",
+        "at": "2026-10-01T12:32:11.968Z",
+        "task": "B72",
+        "commit": "64589ae95796486cf98be760c14ac332d84a6777"
       }
     ]
   },
   "development": {
-    "executionCommit": "fb4e7f34c20fce13155dda6da98867ac869ded10",
-    "measuredAt": "2026-10-01T11:30:16.713Z",
+    "executionCommit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+    "measuredAt": "2026-10-01T13:04:31.600Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

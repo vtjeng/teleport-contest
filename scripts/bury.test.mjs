@@ -12,6 +12,7 @@ import {
     ROT_CORPSE,
     ROT_ORGANIC,
     TIMER_OBJECT,
+    TELEPAT,
     TT_BURIEDBALL,
     W_BALL,
     W_CHAIN,
@@ -480,6 +481,15 @@ test('a punishment chain resists burial without RNG or ownership changes', () =>
 test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', () => {
     const state = burialState();
     state.u = { utrap: 0, utraptype: 0 };
+    // unpunish() uses canonical setworn(), which updates the hero's property
+    // table even for these zero-property punishment objects.
+    state.u.uprops = Array.from({ length: TELEPAT + 1 }, () => ({
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    }));
+    // worn.c:66-68 uses -1 for the C no-telepathy range.
+    state.u.unblind_telepat_range = -1;
     const lower = objectInstance(APPLE, state);
     const ball = objectInstance(HEAVY_IRON_BALL, state, {
         owornmask: W_BALL,
@@ -492,7 +502,7 @@ test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', ()
     place_object(lower, x, y, { state });
     place_object(ball, x, y, { state });
     place_object(chain, x, y, { state });
-    state.go = { uball: ball };
+    state.uball = ball;
     state.uchain = chain;
     const events = [];
     const script = scriptedRandom([
@@ -506,9 +516,9 @@ test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', ()
         random: script.random,
         hooks: {
             plineThe(message) { events.push(message); },
-            maybeUnhideAt(px, py) {
-                events.push(`maybe_unhide_at:${px},${py}`);
-            },
+            cancelDoff() {},
+            maybeUnhideAt() {},
+            monsterUnseesProperty() {},
             newsym(px, py) { events.push(`newsym:${px},${py}`); },
             floatVsFlight() { events.push('float_vs_flight'); },
         },
@@ -519,13 +529,12 @@ test('burying a punishment ball removes its chain and creates TT_BURIEDBALL', ()
     assert.equal(chain.owornmask, 0);
     assert.equal(ball.where, OBJ_BURIED);
     assert.equal(ball.owornmask, 0);
-    assert.equal(state.go.uball, null);
+    assert.equal(state.uball, null);
     assert.equal(state.uchain, null);
     assert.equal(state.u.utrap, 27);
     assert.equal(state.u.utraptype, TT_BURIEDBALL);
     assert.equal(state.disp.botl, true);
     assert.deepEqual(events, [
-        `maybe_unhide_at:${x},${y}`,
         `newsym:${x},${y}`,
         'float_vs_flight',
         'iron ball gets buried!',

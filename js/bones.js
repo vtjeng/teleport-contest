@@ -74,6 +74,7 @@ import {
 } from './monsters.js';
 import { peace_minded, propagate, set_malign } from './makemon.js';
 import { rn2 } from './rng.js';
+import { unpunish } from './read.js';
 import { vfsWriteFile, vfsReadFile, vfsDeleteFile } from './storage.js';
 import { roles, races, genders, aligns } from './roles.js';
 import { initrack } from './track.js';
@@ -361,8 +362,8 @@ export async function savebones(how, when, corpse, state) {
     // make_bones:
     // C: unleash_all() -- no leash logic to undo in this port's state.
 
-    // C: if (Punished) unpunish();
-    // The port has no punishment tracking; skip.
+    // C: if (Punished) unpunish(); Punished is uball != null.
+    if (state.uball) unpunish(state);
 
     // C: if (u.usteed) dismount_steed(DISMOUNT_BONES);
     // The port has no mount state in the exercised path; skip.
