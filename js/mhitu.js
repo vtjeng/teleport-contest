@@ -222,7 +222,7 @@ export function unseenWereSummonMessage(numseen, genericWere, deaf) {
 }
 
 // C expands youprop.h:Protection_from_shape_changers in mhitu.c and were.c.
-function Protection_from_shape_changers(state) {
+export function Protection_from_shape_changers(state) {
     const property = state.u.uprops[PROT_FROM_SHAPE_CHANGERS];
     return Boolean(property.intrinsic || property.extrinsic);
 }

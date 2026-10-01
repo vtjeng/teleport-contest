@@ -24,6 +24,7 @@ import {
     NO_WEAPON_WANTED,
     PIT,
     PROTECTION,
+    PROT_FROM_SHAPE_CHANGERS,
     FROMOUTSIDE,
     ROOM,
     RIGHT_SIDE,
@@ -65,6 +66,7 @@ import {
     MonsterDeathPlanningError,
     mswings_verb,
     mtrapped_in_pit,
+    Protection_from_shape_changers,
     ranged_attk_available,
     expels,
     gulp_blnd_check,
@@ -188,6 +190,31 @@ const UHITM_C = readFileSync(
 const MHITU_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
 );
+const YOUPROP_H = readFileSync(
+    new URL('../nethack-c/upstream/include/youprop.h', import.meta.url),
+    'utf8',
+);
+
+test('Protection_from_shape_changers matches the intrinsic/extrinsic macro', () => {
+    // youprop.h:355-360 defines the property as intrinsic || extrinsic.
+    const source = YOUPROP_H.replaceAll(/\\\n\s*/gu, ' ');
+    assert.match(
+        source,
+        /#define HProtection_from_shape_changers\s+u\.uprops\[PROT_FROM_SHAPE_CHANGERS\]\.intrinsic[\s\S]*?#define EProtection_from_shape_changers\s+u\.uprops\[PROT_FROM_SHAPE_CHANGERS\]\.extrinsic[\s\S]*?#define Protection_from_shape_changers\s+\(HProtection_from_shape_changers \|\| EProtection_from_shape_changers\)/u,
+    );
+    const state = { u: { uprops: [] } };
+    const property = { intrinsic: 0, extrinsic: 0 };
+    state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = property;
+
+    // C's || makes two zero flags false; each nonzero source flag is true on
+    // its own, so test intrinsic and extrinsic ownership separately.
+    assert.equal(Protection_from_shape_changers(state), false);
+    property.intrinsic = 1;
+    assert.equal(Protection_from_shape_changers(state), true);
+    property.intrinsic = 0;
+    property.extrinsic = 1;
+    assert.equal(Protection_from_shape_changers(state), true);
+});
 
 test('unseen summon text follows singular, plural and Deaf C branches', () => {
     // mhitu.c:1020-1026 uses `an(genericwere)` only for one visible helper,
