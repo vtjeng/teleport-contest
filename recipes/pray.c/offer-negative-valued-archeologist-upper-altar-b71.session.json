@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "B71 preserved C-first setup miss for pray.c:offer_negative_valued. This frozen level-port sequence met the new-moon/startup prompt at step 14, then C showed “Select one item:” at step 15 and “You cannot go down here” after the menu key. The later #offer ended with “You are not on an altar.” Keep the exact output in scratch; do not treat this as helper execution.",
+  "segments": [
+    {
+      "seed": 55512083,
+      "datetime": "20591105101500",
+      "nethackrc": "OPTIONS=name:B71AltOffer,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizlevelport\n?\n>z  \u0006\u0014  lllllllllllllllllllllllllllllllllllllllllllllllllkkkkkkkkkkk. #wizwish\nwhite unicorn corpse\n #offer\ny  ",
+      "recorderIsDst": true
+    }
+  ]
+}

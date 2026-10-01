@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B71 preserved C-first setup miss for pray.c:offer_negative_valued. The wizard-level menu reaches the Knight quest route, but the C observation ends at step 124 with “You are not on an altar.” The cursor route was derived from the Archeologist Arc-loca layout, so this Knight setup does not establish the offering caller. Keep the matching C artifact in scratch and out of recordings.",
+  "segments": [
+    {
+      "seed": 78102037,
+      "datetime": "20590318111700",
+      "nethackrc": "OPTIONS=name:B71Offering,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizwish\nwhite unicorn corpse\n #wizlevelport\n?\n>z  \u0006\u0014  lllllllllllllllllllllllllllllllllllllllllllllllllkkkkkkkkkkk. #offer\ny  "
+    }
+  ]
+}
