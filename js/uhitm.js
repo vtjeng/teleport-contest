@@ -254,6 +254,7 @@ import {
     is_elf,
     is_floater,
     is_flyer,
+    locomotion,
     is_orc,
     is_undead,
     is_vampshifter,
@@ -3692,7 +3693,10 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             return;
         }
 
-        const result = await steal(magr, state, env);
+        // C passes a caller-owned char buf to steal(); the return remains a
+        // separate numeric status. The animal follow-up reads that same text.
+        const stolenName = { value: '' };
+        const result = await steal(magr, state, env, stolenName);
         switch (result) {
         case -1:
             mhm.hitflags = M_ATTK_AGR_DIED;
@@ -3704,9 +3708,15 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             if (!is_anml
                 && !(await tele_restrict(magr, state, { ...env, message })))
                 await rloc(magr, RLOC_MSG, rlocEnv);
-            if (is_anml) {
-                // Animal tried to run off with item; message handled
-                // if canseemon. Not ported: locomotion() message for animal.
+            if (is_anml && stolenName.value && canseemon(magr, state)) {
+                // uhitm.c:mhitm_ad_sedu() reports the stolen name before
+                // monflee(), using the same caller-filled buffer as steal().
+                await message(
+                    `${Monnam(magr, state, env)} tries to `
+                        + `${locomotion(magr.data, 'run')} away with `
+                        + `${stolenName.value}.`,
+                    state,
+                );
             }
             await monflee(magr, 0, false, false, state, env);
             mhm.hitflags = M_ATTK_AGR_DONE;
