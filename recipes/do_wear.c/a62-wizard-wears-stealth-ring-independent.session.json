@@ -1,0 +1,10 @@
+{
+  "_comment": "Independent C witness for RIN_STEALTH through Ring_on() and Ring_off_or_gone(). A Wizard debug wish creates one stealth ring; P selects its C-observed o inventory letter, r selects the right finger, and R removes the ring. The C feedback confirms stealth changes on and off. The independent seed/date exercise the shared helper outside the challenge recipe.",
+  "version": 5,
+  "segments": [{
+    "seed": 7310204,
+    "datetime": "20370814151617",
+    "nethackrc": "OPTIONS=name:RingCase,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+    "moves": "\u0017ring of stealth\nPorR"
+  }]
+}

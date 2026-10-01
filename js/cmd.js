@@ -2851,10 +2851,10 @@ export function failClosedCommandRefusals() {
         UnsupportedTakeOffError,
         // do_wear.c accessory_or_armor_on() raises this above setworn() for
         // the quest helm, an artifact, armor held in a weapon slot, and the
-        // suit, cloak, helmet, glove and boot otyps whose <X>_on() reaches
-        // outside do_wear.c. Also raised for the headless-polymorph eyewear
-        // arm, which needs ansimpleoname(). No armor slot refuses wholesale:
-        // all seven reach a callback.
+        // suit, helmet, glove and boot otyps whose <X>_on() reaches outside
+        // do_wear.c. Cloak_on() handles every valid cloak type. Also raised
+        // for the headless-polymorph eyewear arm, which needs ansimpleoname().
+        // No armor slot refuses wholesale: all seven reach a callback.
         // set_wear() raises it too, from moveloop_preamble() rather than from
         // a command, which is the raiser the startup reader above converts.
         UnsupportedWearError,

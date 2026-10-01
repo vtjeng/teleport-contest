@@ -40,6 +40,7 @@ import {
     SICK_RES,
     SEE_INVIS,
     SLOW_DIGESTION,
+    STEALTH,
     STONE_RES,
     TIMEOUT,
     TELEPAT,
@@ -64,7 +65,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import {
-    UnsupportedRingOnError,
+    Ring_off,
     UnsupportedWearError,
     _doWearInternals,
     adj_abon,
@@ -223,7 +224,8 @@ import {
 } from './run-wear-armor.mjs';
 
 const { Armor_gone, Armor_on, Boots_on, Cloak_off, Cloak_on, Gloves_off, Gloves_on,
-    Helmet_on, Ring_on, Shield_on, Shirt_on, accessory_or_armor_on,
+    Helmet_on, Ring_on, Boots_off, Shield_on, Shirt_on,
+    accessory_or_armor_on,
     already_wearing, on_msg, toggle_displacement }
     = _doWearInternals;
 
@@ -985,11 +987,9 @@ test('a two-handed weapon keeps every shield off', async () => {
     }
 });
 
-test('an unported Ring_on arm stops at the ring boundary', async () => {
-    // do_wear.c Ring_on() arms that call unported helpers throw
-    // UnsupportedRingOnError. accessory_or_armor_on() wears the ring (setworn)
-    // before Ring_on() runs, so the error fires after the slot is filled.
-    // RIN_STEALTH reaches toggle_stealth(), which is not ported.
+test('the accessory caller reaches the stealth-ring on branch', async () => {
+    // do_wear.c:accessory_or_armor_on() calls Ring_on() after setworn(); the
+    // left ring is occupied so the wished RIN_STEALTH uses the right slot.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, WAIT);
     // Fill left ring so the ring goes straight to the right slot -- no prompt.
@@ -998,10 +998,11 @@ test('an unported Ring_on arm stops at the ring boundary', async () => {
     const ring = { oclass: RING_CLASS, otyp: RIN_STEALTH, owornmask: 0,
         quan: 1, spe: 0, dknown: false };
 
-    await assert.rejects(
-        () => accessory_or_armor_on(ring, game),
-        refusal(UnsupportedRingOnError, 'toggle_stealth()'),
-    );
+    assert.equal(await accessory_or_armor_on(ring, game), ECMD_TIME);
+    assert.equal(game.uright, ring);
+    assert.equal(ring.owornmask & W_RINGR, W_RINGR);
+    assert.equal(game.unported.has('do_wear.c toggle_stealth'), false);
+    assert.match(takePendingTopLine() || topLine(), /move very quietly/u);
 });
 
 test('every one of the seven slots installs its own callback', async () => {
@@ -1074,39 +1075,62 @@ test('every one of the seven slots installs its own callback', async () => {
     }
 });
 
-test('the four cloaks Cloak_on cannot run are refused unwritten',
+test('the remaining source-defined Cloak_on arms run after setworn',
     async () => {
-    // do_wear.c:338-363. Six of Cloak_on()'s labels fall to a bare break and
-    // three more act without leaving do_wear.c; the remaining four makeknown(),
-    // toggle stealth, or redraw the hero with the
-    // See_invisible messages, all outside this file. The refusal is hoisted
-    // above setworn(), so a refused cloak never reaches the slot and its
-    // oc_delay 0 never gets the chance to run the callback.
+    // C's four formerly refused arms are protection discovery, elven stealth,
+    // mummy-wrap visibility, and invisibility-cloak visibility. These values
+    // select those four source cases; each fresh setup leaves the cloak slot
+    // empty so accessory_or_armor_on() reaches the zero-delay callback.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
-    await setup(segment, OFF);
-    for (const otyp of [CLOAK_OF_PROTECTION, ELVEN_CLOAK, MUMMY_WRAPPING,
-        CLOAK_OF_INVISIBILITY]) {
+    const cases = [
+        [CLOAK_OF_PROTECTION, null],
+        [ELVEN_CLOAK, /move very quietly/u],
+        // Mummy wrapping does not itself make the wearer invisible; without
+        // another invisibility source C's HInvis/EInvis guard is false.
+        [MUMMY_WRAPPING, null],
+        [CLOAK_OF_INVISIBILITY, /Suddenly you cannot see yourself/u],
+    ];
+    for (const [otyp, expectedMessage] of cases) {
+        await setup(segment, OFF);
+        // The invisibility cloak first emits Cloak_on()'s source message;
+        // suppress on_msg()'s separate verbose wear line so this fixture does
+        // not need a pager key unrelated to the selected function.
+        if (otyp === CLOAK_OF_INVISIBILITY)
+            game.flags.verbose = false;
         const obj = armor(otyp, { dknown: 1, spe: 0 });
 
-        await assert.rejects(
-            () => accessory_or_armor_on(obj, game),
-            refusal(UnsupportedWearError, `Cloak_on() for otyp ${otyp}`),
-            `otyp ${otyp}`,
-        );
-        assert.equal(game.uarmc ?? null, null, `otyp ${otyp}`);
-        assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
+        assert.equal(await accessory_or_armor_on(obj, game), ECMD_TIME,
+            `otyp ${otyp}`);
+        assert.equal(game.uarmc, obj, `otyp ${otyp}`);
+        assert.equal(obj.known, true, `otyp ${otyp}`);
+        assert.equal(game.unported.has('do_wear.c toggle_stealth'), false,
+            `otyp ${otyp}`);
+        if (expectedMessage)
+            assert.match(takePendingTopLine() || topLine(), expectedMessage,
+                `otyp ${otyp}`);
     }
-    // Six of the eight that go on are silent here (oilskin and displacement
-    // are covered by their recording and focused callback tests).
-    // CLOAK_OF_PROTECTION is the one member of
-    // Cloak_off()'s bare-break set missing here, and it is why the two sets
-    // are named apart: reusing the take-off list would wear it with its
-    // makeknown() missing. The oilskin cloak is absent for a reason of the
-    // harness rather than the source: its arm prints, which makes a second
-    // message in the same turn and so a --More-- this test has no key for. The
-    // dedicated test above replays its recorded segment instead. No message is
-    // asserted here either, because four of the twelve cloak appearances are
-    // shuffled by o_init.c and the magic resistance one is among them.
+    // The other eight arms remain covered by their existing source-pinned
+    // tests and C recordings; this loop targets the four formerly guarded arms.
+});
+
+test('MUMMY_WRAPPING redraws only when an invisibility source is active',
+    async () => {
+    // C checks HInvis || EInvis after the cloak is worn. Set one non-cloak
+    // intrinsic source in the fixture so the message and redraw branch runs.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    game.u.uprops[INVIS].intrinsic = 1;
+    const cloak = armor(MUMMY_WRAPPING, { dknown: 1, spe: 0, known: false });
+
+    assert.equal(await accessory_or_armor_on(cloak, game), ECMD_TIME);
+    assert.equal(game.uarmc, cloak);
+    assert.match(takePendingTopLine() || topLine(), /You can see yourself!/u);
+});
+
+test('the remaining bare Cloak_on arms keep their source effects', async () => {
+    // C's five bare labels explicitly break; the smock is separate because it
+    // adds acid resistance after setworn() has already added poison resistance.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     for (const otyp of [ORCISH_CLOAK, DWARVISH_CLOAK,
         CLOAK_OF_MAGIC_RESISTANCE, ROBE, LEATHER_CLOAK, ALCHEMY_SMOCK]) {
         // A fresh segment per type, so each wearing starts from an empty
@@ -1118,6 +1142,8 @@ test('the four cloaks Cloak_on cannot run are refused unwritten',
             `otyp ${otyp}`);
         assert.equal(game.uarmc, obj, `otyp ${otyp}`);
         assert.equal(obj.known, true, `otyp ${otyp}`);
+        assert.equal(game.unported.has('pline.c impossible'), false,
+            `valid otyp ${otyp} must not reach Cloak_on()'s impossible arm`);
         // Only the smock's arm raises it, so every other type here shows the
         // hoisted test admitting a cloak without Cloak_on() acting on it.
         assert.equal(game.u.uprops[ACID_RES].extrinsic,
@@ -1207,8 +1233,8 @@ test('the four unported Helmet_on arms are refused, while DUNCE_CAP curses',
 });
 
 test('water-walking, elven, and levitation boots reach Boots_on()', async () => {
-    // do_wear.c:199-249. Water walking and levitation are ported; the elven
-    // boots arm records only its discarded toggle_stealth() call.
+    // do_wear.c:199-249. Water walking and levitation use their own source
+    // effects; ELVEN_BOOTS exercises toggle_stealth()'s boot-specific message.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     for (const otyp of [WATER_WALKING_BOOTS, ELVEN_BOOTS, LEVITATION_BOOTS]) {
         await setup(segment, OFF);
@@ -1220,8 +1246,11 @@ test('water-walking, elven, and levitation boots reach Boots_on()', async () => 
         assert.equal(game.afternmv, Boots_on, `otyp ${otyp}`);
         await Boots_on(game);
         assert.equal(obj.known, true, `otyp ${otyp}`);
-        if (otyp === ELVEN_BOOTS)
-            assert.ok(game.unported.has('do_wear.c toggle_stealth'));
+        if (otyp === ELVEN_BOOTS) {
+            assert.equal(game.unported.has('do_wear.c toggle_stealth'), false);
+            assert.match(takePendingTopLine() || topLine(),
+                /walk very quietly/u);
+        }
         if (otyp === LEVITATION_BOOTS)
             assert.match(takePendingTopLine(), /You start to float in the air!/u);
     }
@@ -3415,9 +3444,10 @@ test('Ring_on protection calls find_ac and learns the ring', async () => {
         'AC drops by 1 for a +1 ring of protection');
 });
 
-test('Ring_on throws UnsupportedRingOnError for stealth', async () => {
-    // The stealth arm (toggle_stealth) is unported. Ring_on must refuse it
-    // with the specific error class that failClosedCommandRefusals catches.
+test('Ring_on applies stealth feedback after the ring is worn', async () => {
+    // C's RIN_STEALTH arm calls toggle_stealth() with the already worn
+    // extrinsic masked from oldprop. The synthetic ring has no dknown flag, so
+    // learnring() does not discover it or consume an unrelated exercise draw.
     const debug = debugRingSegment('ring of stealth', `${WAIT}`);
     await setup(debug, debug.moves);
 
@@ -3425,10 +3455,56 @@ test('Ring_on throws UnsupportedRingOnError for stealth', async () => {
     ring.owornmask = W_RINGL;
     game.uleft = ring;
 
-    await assert.rejects(
-        () => Ring_on(ring, game),
-        refusal(UnsupportedRingOnError, 'toggle_stealth'),
-    );
+    await Ring_on(ring, game);
+    assert.match(takePendingTopLine(), /^You move very quietly\.$/u);
+    assert.equal(game.unported.has('do_wear.c toggle_stealth'), false);
+});
+
+test('Ring_off removes stealth before reporting noisy feedback', async () => {
+    // A ring of stealth in the left slot supplies W_RINGL to the same C
+    // helper branch used by Ring_off_or_gone(); this fixture installs the
+    // matching source extrinsic before asking Ring_off() to clear it.
+    const debug = debugRingSegment('ring of stealth', `${WAIT}`);
+    await setup(debug, debug.moves);
+    const ring = syntheticRing(RIN_STEALTH, 0);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+    game.u.uprops[STEALTH].extrinsic |= W_RINGL;
+
+    await Ring_off(ring, game);
+    assert.equal(game.uleft ?? null, null);
+    assert.equal(game.u.uprops[STEALTH].extrinsic & W_RINGL, 0);
+    assert.match(takePendingTopLine() || topLine(), /^You sure are noisy\.$/u);
+});
+
+test('elven cloak and boots removal share the source noisy message', async () => {
+    // ELVEN_CLOAK and ELVEN_BOOTS are the two non-ring object types that
+    // toggle_stealth() recognizes; each is removed only after setworn() clears
+    // its own extrinsic slot bit.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+
+    await setup(segment, OFF);
+    const cloak = armor(ELVEN_CLOAK, { dknown: 1, spe: 0, known: true });
+    await accessory_or_armor_on(cloak, game);
+    takePendingTopLine();
+    await Cloak_off(game);
+    assert.equal(game.uarmc ?? null, null);
+    assert.match(takePendingTopLine(), /^You sure are noisy\.$/u);
+
+    await setup(segment, OFF);
+    const boots = armor(ELVEN_BOOTS, { dknown: 1, spe: 0, known: true });
+    await accessory_or_armor_on(boots, game);
+    await Boots_on(game);
+    // setworn() gives these boots C's STEALTH extrinsic under W_ARMF.
+    assert.equal(game.u.uprops[STEALTH].extrinsic & W_ARMF, W_ARMF);
+    // This direct callback stands in for unmul(); C clears afternmv before it
+    // invokes the delayed callback, so a later take-off is not a cancelled don.
+    game.afternmv = null;
+    takePendingTopLine();
+    await Boots_off(game);
+    assert.equal(game.uarmf ?? null, null);
+    assert.equal(game.u.uprops[STEALTH].extrinsic & W_ARMF, 0);
+    assert.match(takePendingTopLine() || topLine(), /^You sure are noisy\.$/u);
 });
 
 test('P command puts a ring on through the full command flow', async () => {

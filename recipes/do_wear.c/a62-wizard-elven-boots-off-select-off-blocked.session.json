@@ -1,0 +1,10 @@
+{
+  "_comment": "Independent C route to the ELVEN_BOOTS take-off caller. The intended C trace proceeds from the debug wish through Boots_on(), then T and the C-observed o item letter reach Boots_off(). The current JS replay is blocked earlier by the existing `select_off() boot checks` refusal; retain this recipe as named blocked evidence rather than claiming production Boots_off() reachability.",
+  "version": 5,
+  "segments": [{
+    "seed": 7310203,
+    "datetime": "20370813141516",
+    "nethackrc": "OPTIONS=name:BootsCase,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,suppress_alert:3.4.3\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+    "moves": " \u0017elven boots\nWo ..To"
+  }]
+}

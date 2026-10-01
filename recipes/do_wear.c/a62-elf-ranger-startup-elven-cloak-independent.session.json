@@ -1,0 +1,10 @@
+{
+  "_comment": "Independent C witness for do_wear.c:set_wear() reaching Cloak_on() at game startup. u_init.c substitutes the Ranger's CLOAK_OF_DISPLACEMENT with ELVEN_CLOAK for an Elf; allmain.c:moveloop_core then sets initial_don while applying the starting cloak. The single first-turn wait records the startup callback without borrowing a challenge input.",
+  "version": 5,
+  "segments": [{
+    "seed": 7310201,
+    "datetime": "20370811121415",
+    "nethackrc": "OPTIONS=name:StartCloak,role:Ranger,race:elf,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\nOPTIONS=pettype:none,!acoustics,time\n",
+    "moves": "."
+  }]
+}
