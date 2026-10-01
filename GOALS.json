@@ -124409,8 +124409,8 @@
           "name": "attrcurse",
           "line": 644,
           "endLine": 765,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -124913,7 +124913,61 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "attrcurse",
+            "implementation": "js/sit.js",
+            "symbol": "attrcurse",
+            "sourceReview": "Whole sit.c:attrcurse at upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4, definition lines 644–762. Draw rnd(11) once, then preserve C fallthrough through cases 1–11, clearing only INTRINSIC from the first present property; retain exact message, return property enum, and return 0 when nothing is removable. Keep Blind && !Blind_telepat see_monsters refresh when losing the sole telepathy source. Losing See_invisible refreshes only when See_invisible becomes false, with the source set_mimic_blocking, see_monsters, newsym, hallucination-sensitive message order; set_mimic_blocking remains the exact discarded-void display.c gap. This is impure. Tests pin mapping, fallthrough, intrinsic-only clearing, output, RNG, return values and visibility behavior. All four direct production callers are source-traced: Vlad's Tower special_throne_effect case 7, eat.c:cpostfx PM_DISENCHANTER, pray.c:angrygods cases 4–5, and uhitm.c:mhitm_ad_curs monster-to-hero arm. Ordinary throne_sit_effect case 7 is separate court behavior. Supporting uhitm callers and their incomplete branches are documented in entryPointReview; they are not additional sit.c roadmap units.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "special_throne_effect",
+                "source": "sit.c:special_throne_effect case 7 calls attrcurse, then prints the amusement message; throne_sit_effect selects this path only for the Vlad's Tower special throne."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "cpostfx",
+                "source": "eat.c:cpostfx PM_DISENCHANTER arm calls attrcurse and discards its return."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c:angrygods cases 4–5 preserve gods_angry, optional glow, the rn2(2) short circuit and invoke attrcurse only on the source branch."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_curs",
+                "source": "uhitm.c:mhitm_ad_curs monster-to-hero arm passes attrcurse's returned property to mon_give_prop; its monster-to-monster sibling is separately documented as blocked before the source helper by dogmove.c:dog_move -> mhitm.c:mattackm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/attrcurse.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/vlad-tower-special-throne-attrcurse-candidate-8-b64.session.json",
+              "recordings/pray.c/angrygods-prayer-too-soon-attrcurse-prefix-b64.session.json",
+              "recordings/uhitm.c/mhitm-ad-curs-gremlin-monster-hero-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "eat-disenchanter-corpse-strips-intrinsic",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "eat.c:cpostfx PM_DISENCHANTER -> sit.c:attrcurse; exact admitted replay run-zyPMv1 matches through the cited final step."
+              }
+            ],
+            "checkedAt": "abf4d670a317b855c789596fa323ccced363410e"
+          }
+        ],
+        "entryPointReview": "attrcurse is a helper-only selected sit.c range, so entryPoints is empty. All four direct callers are source-enumerated and matching evidence exists: Vlad’s Tower throne_sit_effect -> special_throne_effect case 7 in recordings/sit.c/vlad-tower-special-throne-attrcurse-candidate-8-b64.session.json (run-3j0cK0, segment 0, steps 0–23); angry-gods cases 4–5 in recordings/pray.c/angrygods-prayer-too-soon-attrcurse-prefix-b64.session.json (run-wQP11x, segment 0, steps 0–22); cpostfx PM_DISENCHANTER in admitted v14 eat-disenchanter-corpse-strips-intrinsic (run-zyPMv1, segment 0, steps 0–27); and monster-to-hero mhitm_ad_curs -> attrcurse -> mon_give_prop in recordings/uhitm.c/mhitm-ad-curs-gremlin-monster-hero-independent.session.json (run-lJruMn, segment 0, steps 0–229). Ordinary throne_sit_effect case 7 remains the separate court branch. Supporting whole uhitm.c:mhitm_ad_curs has three active arms: polymorphed hero-to-monster and monster-to-hero strictly match run-xoNunJ and run-lJruMn; monster-to-monster has no matching JS evidence because the independent C-first Conflict/paper-golem recipe stops at C step 66 in the unported dogmove.c:dog_move -> mhitm.c:mattackm path (66/223 screens and 2733/5072 RNG matched). Keep that recipe blocked outside recordings and do not claim that supporting branch complete. The supporting hero-defender knockback path has a matching single-mummy recording (run-wbNSRV, 3216 RNG, 138/138 screens/cursors and 25 frames). The optional four-mummy variation is blocked at segment 0 step 120 after matching rn2(4)=0, rnd(21)=14 and d(3,4)=7: C calls discarded-void potion.c:make_stunned(knockdistance+1, TRUE) at uhitm.c:5397, printing “You stagger...” and setting HStun; JS records note_unported('potion.c make_stunned'), producing the first screen/cursor mismatch at boundary 121. Keep this recipe outside recordings, name the exact gap and make no broad stun/knockback completion claim. Other support runtime evidence and the explicit planner/object-pile/outer-command gaps are recorded in .cache/B64-context.json.",
+        "entryPoints": []
+      }
     }
   ]
 }
