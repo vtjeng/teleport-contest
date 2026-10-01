@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved B81 C-first overrun: with the +7 protection ring at AC 2, C changes the werewolf to human and reaches summonmu at step 77, then the remaining queued rests continue past the pager into later attack behavior. The full C trace is in B81 scratch. The corrected recipe ends on the summon pager and is independently re-recorded.",
+  "segments": [
+    {
+      "seed": 8111531,
+      "datetime": "20271119110900",
+      "nethackrc": "OPTIONS=name:B81Ring,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nblessed +7 ring of protection\nPnr #wizgenesis\nhostile werewolf\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

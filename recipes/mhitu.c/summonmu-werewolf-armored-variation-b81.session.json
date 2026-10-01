@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B81 independent C-first variation. A lawful Knight uses the ring mail and small shield from u_init.c:Knight, providing much lower AC than the Wizard setup. The level-20 debug setup gives the hostile werewolf repeated actions; the 32 m. no-op rests are a C-only overrun probe to locate the shortest summon turn. Keep it out of passing recordings until strict replay matches.",
+  "segments": [
+    {
+      "seed": 8111303,
+      "datetime": "20270914130600",
+      "nethackrc": "OPTIONS=name:B81Knight,role:Knight,race:human,gender=male,align=lawful,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #levelchange\n20\n                     #wizgenesis\nhostile werewolf\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

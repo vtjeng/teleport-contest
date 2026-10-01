@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T23:26:25.840Z",
+  "capturedAt": "2026-10-01T23:45:59.616Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -14231,12 +14231,51 @@
         "worker": "B",
         "goal": "port-uhitm-mhitm-ad-were-synthetic-v17-20261001",
         "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A69-published-2e3adac4",
+        "type": "published",
+        "at": "2026-10-01T23:26:43.945Z",
+        "task": "A69",
+        "commit": "2e3adac465398af2f74b030dd6293ce2c001b3bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B81-integrating-5e22e8c4",
+        "type": "integrating",
+        "at": "2026-10-01T23:28:13.379Z",
+        "task": "B81",
+        "integration": "5e22e8c4339d2222357fd58418786b871e68390a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B81-integrating-11734140",
+        "type": "integrating",
+        "at": "2026-10-01T23:30:16.843Z",
+        "task": "B81",
+        "integration": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B81-validated-11734140",
+        "type": "validated",
+        "at": "2026-10-01T23:44:16.739Z",
+        "task": "B81",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B81-accepted-11734140",
+        "type": "accepted",
+        "at": "2026-10-01T23:44:17.178Z",
+        "task": "B81"
       }
     ]
   },
   "development": {
-    "executionCommit": "5ac067d41dcef6d216f7c9284b9806e8a19ae450",
-    "measuredAt": "2026-10-01T23:25:54.282Z",
+    "executionCommit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+    "measuredAt": "2026-10-01T23:38:00.849Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

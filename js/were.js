@@ -5,7 +5,7 @@
 import { NO_MM_FLAGS, NON_PM, PROT_FROM_SHAPE_CHANGERS } from './const.js';
 import { tamedog } from './dog.js';
 import { game } from './gstate.js';
-import { makemon } from './makemon_create.js';
+import { makemon_runtime } from './makemon_create.js';
 import {
     PM_COYOTE,
     PM_FOX,
@@ -38,47 +38,69 @@ function Protection_from_shape_changers(state) {
 // the count the hero can see through `visible`, and the beast noun through
 // `genbuf` when the caller passes one; both out-parameters are objects with
 // a `value` field here.
-export async function were_summon(ptr, yours, visible, genbuf, state = game) {
+export async function were_summon(
+    ptr,
+    yours,
+    visible,
+    genbuf,
+    state = game,
+    random = null,
+    runtimeEnv = {},
+) {
     const pm = ptr.pmidx;
     let total = 0;
+    const draws = random ?? { rn2, rnd };
+    if (typeof draws.rn2 !== 'function' || typeof draws.rnd !== 'function') {
+        throw new TypeError('were_summon requires an rn2 and rnd source');
+    }
 
     visible.value = 0;
     if (Protection_from_shape_changers(state) && !yours)
         return 0;
-    for (let i = rnd(5); i > 0; i--) {
+    for (let i = draws.rnd(5); i > 0; i--) {
         let typ;
         switch (pm) {
         case PM_WERERAT:
         case PM_HUMAN_WERERAT:
-            typ = rn2(3) ? PM_SEWER_RAT
-                         : rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
+            typ = draws.rn2(3) ? PM_SEWER_RAT
+                               : draws.rn2(3) ? PM_GIANT_RAT : PM_RABID_RAT;
             if (genbuf)
                 genbuf.value = 'rat';
             break;
         case PM_WEREJACKAL:
         case PM_HUMAN_WEREJACKAL:
-            typ = rn2(7) ? PM_JACKAL : rn2(3) ? PM_COYOTE : PM_FOX;
+            typ = draws.rn2(7) ? PM_JACKAL
+                               : draws.rn2(3) ? PM_COYOTE : PM_FOX;
             if (genbuf)
                 genbuf.value = 'jackal';
             break;
         case PM_WEREWOLF:
         case PM_HUMAN_WEREWOLF:
-            typ = rn2(5) ? PM_WOLF : rn2(2) ? PM_WARG : PM_WINTER_WOLF;
+            typ = draws.rn2(5) ? PM_WOLF
+                               : draws.rn2(2) ? PM_WARG : PM_WINTER_WOLF;
             if (genbuf)
                 genbuf.value = 'wolf';
             break;
         default:
             continue;
         }
-        const mtmp = makemon(state.mons[typ], state.u.ux, state.u.uy,
-            NO_MM_FLAGS, { state });
+        const creationEnv = {
+            ...runtimeEnv,
+            state,
+            ...(random ? { random } : {}),
+            _wereSummon: true,
+        };
+        const mtmp = await makemon_runtime(
+            state.mons[typ], state.u.ux, state.u.uy,
+            NO_MM_FLAGS, creationEnv,
+        );
         if (mtmp) {
             total++;
             if (canseemon(mtmp, state))
                 visible.value += 1;
         }
         if (yours && mtmp)
-            await tamedog(mtmp, null, false, { state });
+            await tamedog(mtmp, null, false, creationEnv);
     }
     return total;
 }

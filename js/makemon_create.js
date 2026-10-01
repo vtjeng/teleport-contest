@@ -1276,6 +1276,16 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && Boolean(ptr)
         && mmflags === MM_NOGRP;
+    // were.c:were_summon() creates one of its source-selected compatible
+    // species at the hero square with NO_MM_FLAGS. makemon() relocates that
+    // request through enexto_core() before checking the destination, and C
+    // imposes no runtime species allowlist on this direct call.
+    const wereSummonCall = !state.in_mklev
+        && normalized._wereSummon === true
+        && Boolean(ptr)
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && mmflags === NO_MM_FLAGS;
     // C makemon() accepts explicit, inventoryless creation at the hero's
     // square on every runtime level. Its source-owned placement path first
     // relocates to enexto_core(); admission is based only on those arguments
@@ -1295,6 +1305,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && mmflags === MM_NOMSG;
     if (tutorialLevel && !runtimeExplicitRandomCall && !runtimeGroupCall
+        && !wereSummonCall
         && !explicitInventorylessHeroCall
         && !explicitCoordinateRuntimeCall
         && (!state.in_mklev
@@ -1444,7 +1455,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || figurineAnimationCall || explicitInventorylessHeroCall
         || explicitCoordinateRuntimeCall
         || cloneuCall || minionSummonCall
-        || familiarCall
+        || familiarCall || wereSummonCall
         || (!state.in_mklev && statueInventoryCall)
         || nastyCall;
     if (runtimeCall
@@ -1494,7 +1505,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
     // terrain the template chose.  Guards are placed at wall positions that
     // invault() converts to doors immediately after creation.
     if (!state.in_mklev && !startingPetCall && !deadbookCall
-        && !familiarCall
+        && !familiarCall && !wereSummonCall
         && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !explicitInventorylessHeroCall && !randomCoordinates
         && !explicitCoordinateRuntimeCall && !vaultGuardCall
@@ -1550,6 +1561,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !statueInventoryCall
             && !specialRoomCall
             && !cloneuCall
+            && !wereSummonCall
             && !deadbookCall
             && !runtimeGroupCall
             && !createParticularCall

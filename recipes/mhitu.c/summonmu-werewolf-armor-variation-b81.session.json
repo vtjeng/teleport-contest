@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B81 independent C-first variation. A Wizard wishes blessed +7 gray dragon scale mail and wears it to lower AC, targeting source-correct misses on prior werewolf attacks so the summon pager can be reached before the out-of-scope uhitm.c:mhitm_ad_were bite. The 32 m. rests locate the shortest successful summon turn in C; keep the overrun out of recordings until strict replay passes.",
+  "segments": [
+    {
+      "seed": 8111509,
+      "datetime": "20271103151800",
+      "nethackrc": "OPTIONS=name:B81Armor,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nblessed +7 gray dragon scale mail\nWo #wizgenesis\nhostile werewolf\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

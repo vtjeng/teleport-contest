@@ -24,6 +24,7 @@ import {
     NO_WEAPON_WANTED,
     PIT,
     PROTECTION,
+    PROT_FROM_SHAPE_CHANGERS,
     FROMOUTSIDE,
     ROOM,
     RIGHT_SIDE,
@@ -65,9 +66,11 @@ import {
     MonsterDeathPlanningError,
     mswings_verb,
     mtrapped_in_pit,
+    Protection_from_shape_changers,
     ranged_attk_available,
     expels,
     gulp_blnd_check,
+    unseenWereSummonMessage,
 } from '../js/mhitu.js';
 import { sticks, thick_skinned } from '../js/mondata.js';
 import { newMonster, place_monster, remove_monster } from '../js/monst.js';
@@ -184,6 +187,54 @@ import { tp_sensemon } from '../js/display.js';
 const UHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
 );
+const MHITU_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
+);
+const YOUPROP_H = readFileSync(
+    new URL('../nethack-c/upstream/include/youprop.h', import.meta.url),
+    'utf8',
+);
+
+test('Protection_from_shape_changers matches the intrinsic/extrinsic macro', () => {
+    // youprop.h:355-360 defines the property as intrinsic || extrinsic.
+    const source = YOUPROP_H.replaceAll(/\\\n\s*/gu, ' ');
+    assert.match(
+        source,
+        /#define HProtection_from_shape_changers\s+u\.uprops\[PROT_FROM_SHAPE_CHANGERS\]\.intrinsic[\s\S]*?#define EProtection_from_shape_changers\s+u\.uprops\[PROT_FROM_SHAPE_CHANGERS\]\.extrinsic[\s\S]*?#define Protection_from_shape_changers\s+\(HProtection_from_shape_changers \|\| EProtection_from_shape_changers\)/u,
+    );
+    const state = { u: { uprops: [] } };
+    const property = { intrinsic: 0, extrinsic: 0 };
+    state.u.uprops[PROT_FROM_SHAPE_CHANGERS] = property;
+
+    // C's || makes two zero flags false; each nonzero source flag is true on
+    // its own, so test intrinsic and extrinsic ownership separately.
+    assert.equal(Protection_from_shape_changers(state), false);
+    property.intrinsic = 1;
+    assert.equal(Protection_from_shape_changers(state), true);
+    property.intrinsic = 0;
+    property.extrinsic = 1;
+    assert.equal(Protection_from_shape_changers(state), true);
+});
+
+test('unseen summon text follows singular, plural and Deaf C branches', () => {
+    // mhitu.c:1020-1026 uses `an(genericwere)` only for one visible helper,
+    // `makeplural(genericwere)` for several, and appends " from nowhere" only
+    // for Deaf heroes. These fixed noun/count inputs exercise each branch.
+    assert.match(
+        MHITU_C,
+        /if\s*\(numseen == 1\)[\s\S]*?an\(genericwere\)[\s\S]*?makeplural\(genericwere\)[\s\S]*?upstart\(buf\),\s*from_nowhere/u,
+    );
+    assert.equal(unseenWereSummonMessage(1, 'wolf', false), 'A wolf appears!');
+    assert.equal(unseenWereSummonMessage(2, 'wolf', false), 'Wolves appear!');
+    assert.equal(
+        unseenWereSummonMessage(1, 'wolf', true),
+        'A wolf appears from nowhere!',
+    );
+    assert.equal(
+        unseenWereSummonMessage(2, 'wolf', true),
+        'Wolves appear from nowhere!',
+    );
+});
 
 // mhitu.c magic_negation() reads the invent chain, the objects[] catalog,
 // u.uprops[PROTECTION], u.ublessed, u.uspellprot and youmonst.data. Nothing
@@ -972,16 +1023,17 @@ test('mattacku returns without attacking an invulnerable hero', async () => {
     assert.equal(state.multi, -3);
 });
 
-test('mattacku refuses each arm the slice leaves unported', async () => {
+test('mattacku attempts were summoning before an unported hug arm', async () => {
     const state = await meleeHero();
-    // mhitu.c:955-993, summonmu(). A were-creature next to the hero
-    // triggers the were-creature summoning arm before it strikes.
+    // mhitu.c:mattacku() reaches summonmu() for this adjacent wererat. The
+    // source draw answers 1 for rn2(30) and rn2(10), so this pins both gates
+    // without changing form or creating a helper; the 20 misses the following
+    // bite so this fixture stays before uhitm.c:mhitm_ad_were().
     const were = meleeAttacker(state, PM_WERERAT, 0, 1);
-    await assert.rejects(
-        () => mattacku(were, meleeEnv(state, [17]).env),
-        (error) => error.reason
-            === 'a were creature summoning critters',
-    );
+    const wereAttempt = meleeEnv(state, [20]);
+    assert.equal(await mattacku(were, wereAttempt.env), false);
+    assert.ok(wereAttempt.bounds.includes('rn2(30)'));
+    assert.ok(wereAttempt.bounds.includes('rn2(10)'));
 
     // mhitu.c:826-830, AT_HUGS. An owlbear next to the hero reaches the arm
     // through u.ustuck even when its earlier attacks all missed.
