@@ -7,8 +7,9 @@ import { ACH_TUNE, A_WIS, DB_EAST, DB_NORTH, DB_SOUTH, DB_WEST, DBWALL, DEAF,
 import { find_drawbridge, is_db_wall, is_drawbridge_wall } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { awaken_monsters, awaken_scare, awaken_soldiers, do_improvisation, do_play_instrument,
-    generic_lvl_desc, improvised_notes, put_monsters_to_sleep } from '../js/music.js';
+import { awaken_monsters, awaken_scare, awaken_soldiers, charm_monsters,
+    do_improvisation, do_play_instrument, generic_lvl_desc, improvised_notes,
+    put_monsters_to_sleep } from '../js/music.js';
 import { PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SOLDIER } from '../js/monsters.js';
 import { DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS, WOODEN_FLUTE } from '../js/objects.js';
 
@@ -89,6 +90,43 @@ function monster(state, overrides = {}) {
         mx: state.u.ux + 1, my: state.u.uy, msleeping: true, mcanmove: false,
         mfrozen: 8, mstrategy: 0, mtrack: [], ...overrides };
 }
+
+test('charm_monsters matches C dead, inclusive range, and resistance-before-taming order', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/music.c', import.meta.url), 'utf8');
+    const helper = source.match(/charm_monsters\(int distance\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(helper, 'C charm_monsters definition');
+    assert.match(helper, /if \(u\.uswallow\)\s*distance = 0/u);
+    assert.match(helper, /mtmp2 = mtmp->nmon;\s*if \(DEADMONSTER\(mtmp\)\)/u);
+    assert.match(helper, /mdistu\(mtmp\) <= distance/u);
+    const hackHeader = readFileSync(new URL('../nethack-c/upstream/include/hack.h', import.meta.url), 'utf8');
+    assert.match(hackHeader, /#define mdistu\(mon\) distu\(\(mon\)->mx, \(mon\)->my\)/u);
+    assert.match(hackHeader, /#define distu\(xx, yy\) dist2\(\(coordxy\) \(xx\), \(coordxy\) \(yy\), u\.ux, u\.uy\)/u);
+    assert.match(helper, /!resist\(mtmp, TOOL_CLASS, 0, NOTELL\) \|\| mtmp->isshk/u);
+    assert.match(helper, /\(void\) tamedog\(mtmp, \(struct obj \*\) 0, TRUE\)/u);
+
+    const state = await startedGame();
+    const dead = monster(state, { mhp: 0, msleeping: false, mcanmove: false, mfrozen: 0, mpeaceful: false });
+    const inRange = monster(state, { mx: state.u.ux + 1, msleeping: false,
+        mcanmove: false, mfrozen: 0, mpeaceful: false });
+    const diagonal = monster(state, { mx: state.u.ux + 1, my: state.u.uy + 1,
+        msleeping: false, mcanmove: false, mfrozen: 0, mpeaceful: false });
+    const far = monster(state, { mx: state.u.ux + 2, msleeping: false,
+        mcanmove: false, mfrozen: 0, mpeaceful: false });
+    dead.nmon = inRange; inRange.nmon = diagonal; diagonal.nmon = far; state.level.monlist = dead;
+    const draws = scripted([['rn2', 109, 108]]); // TOOL_CLASS attack10 versus defense1.
+    const messages = [];
+
+    await charm_monsters(1, state, { random: draws.random,
+        message: line => messages.push(line) });
+
+    draws.finished();
+    assert.equal(inRange.mpeaceful, true);
+    assert.equal(diagonal.mpeaceful, false); // C dist2 treats a diagonal offset as 2, beyond distance 1.
+    assert.equal(far.mpeaceful, false);
+    assert.equal(dead.mpeaceful, false);
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /seems more amiable/u);
+});
 
 test('awaken_scare skips resistance for waiting and mindless monsters', async () => {
     const state = await startedGame();
