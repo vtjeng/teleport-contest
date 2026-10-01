@@ -116,10 +116,10 @@ import {
     inside_gas_cloud,
 } from '../js/region.js';
 import {
-    UnsupportedObjectOperationError,
     newObject,
     place_object,
 } from '../js/obj.js';
+import { UnsupportedShopError } from '../js/shk.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
@@ -3195,24 +3195,25 @@ async function prepareFetchingPet(buildObject) {
 
 // C ref: dogmove.c dog_invent()'s carry arm (443-472). It splits the stack
 // through splitobj(), names the result through distant_name(), and hands it to
-// mpickobj(), all from inside the monster scan the elapsed turn dry runs.
-// Naming is now supported; the stack-splitting refusal remains the boundary
-// this test exercises. js/jsmain.js converts only turn-boundary errors, so a
-// missed class would escape runSegment() and discard earlier matched screens.
+// mpickobj(), all from inside the monster scan the elapsed turn dry runs. An
+// unpaid-bill refusal reaches the planning boundary list after naming is
+// supported; if its class is missing there, it escapes runSegment() and
+// discards the matching prefix instead of stopping on the last screen.
 test('a refused planned pickup becomes a turn boundary, not a hard failure',
     async () => {
         for (const [name, buildObject, refusal] of [
             [
                 // can_carry() caps a nohands pet at one item, so a stack of two
-                // splits before anything is named. splitobj() reaches obj.js's
-                // splitBill hook first, which remains an explicit object
-                // operation gap for this planned pickup.
+                // splits before anything is named. splitobj() performs C's
+                // split, records its discarded splitbill gap, and returns the
+                // child. distant_name() then asks onbill() about that unpaid
+                // child, so this row stops at shk.c:onbill(), not splitobj().
                 'split',
                 (x, y) => Object.assign(
                     fetchedFloorObject(x, y, DAGGER, 9302),
                     { quan: 2, owt: 20, unpaid: true },
                 ),
-                UnsupportedObjectOperationError,
+                UnsupportedShopError,
             ],
         ]) {
             const replay = await prepareFetchingPet(buildObject);

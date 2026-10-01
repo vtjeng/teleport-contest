@@ -132372,6 +132372,555 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-use-cream-pie-stack-synthetic-v16-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete cream pie application",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v16/wizard-applies-cream-pie-stack-to-self"
+      ],
+      "selectionReason": "Seed continuation from the saved v16 queue: synthetic/v16/wizard-applies-cream-pie-stack-to-self identifies the stack branch in apply.c:use_cream_pie. The immutable admitted recording hash is 13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1. It stops at segment 0, step 27 because JS preflightCreamPie rejects quan !== 1 before the C splitobj path. Exact clean-base replay run-Rv1ngQ at e92a3b874e281211b2e4a4e4666293d2e222a6b2 reproduced 27/30 screens and cursors and 2655/2658 RNG calls. C step 27 first splits the stack (rnd(2)=1 through next_ident), then the use_cream_pie blindness increase draws rnd(25)=25; the remaining match includes delobj’s rn2(100)=57 and the inventory retaining one pie. The earlier evaluation at 452fff60 and current saved accepted-queue evaluation at a6a28c74 both show 27/30. B77 and B76 are pending ancestors in this worker history, but their potion source changes are not required by or consumed by this apply.c scope. Root verified whole primary scope, production callers, current saved evaluation and packet evidence. Supporting helpers and dispatcher arms receive no additional whole-function credit.",
+      "detail": "Compared whole apply.c:use_cream_pie and the consumed mkobj.c:splitobj body against their JS: saved blindness/goop state, split-child result, face messages, can_blnd then rnd25 then make_blinded, post-effect messages, unworn state, source alteration call, extraction and deletion. Verified split quantities, weights, ids, links, copied extras, association clearing, unpaid billing, timer then light predicate and void helper calls after mutations. Only source-named discarded void gaps remain for costly_alteration and unsupported split billing/timers/light; supplied supported hooks remain. Existing doapply command caller stays wired.",
+      "openedAt": "b7c547c1cf9612799bef36faecb7c6a74ec573c0",
+      "openStanding": {
+        "sha": "439db53cc0cbf1dba3ee57185181f9ac924aaea8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "use_cream_pie",
+          "line": 3568,
+          "endLine": 3606,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3568,
+        "to": 3606
+      },
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-applies-cream-pie-stack-to-self": {
+          "session": "synthetic/v16/wizard-applies-cream-pie-stack-to-self",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-applies-cream-pie-stack-to-self",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.session.json",
+          "recordingSha256": "13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1",
+          "evaluationPath": "challenges/evaluations/20261001200226-v16.json",
+          "evaluationCommit": "439db53cc0cbf1dba3ee57185181f9ac924aaea8"
+        }
+      },
+      "activeStanding": {
+        "sha": "439db53cc0cbf1dba3ee57185181f9ac924aaea8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-applies-cream-pie-stack-to-self",
+          "session": "synthetic/v16/wizard-applies-cream-pie-stack-to-self",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.session.json",
+          "recordingSha256": "13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1",
+          "recipe": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.recipe.session.json",
+          "recipeSha256": "95ba184352effd65f6c96789bf5d438ac5b71c5556e7fdc82d3935b92716e0c8",
+          "replayInputSha256": "8c31ac9eaa5995f99759947da57d1971b9f7c73c1d9fac6ec61c183790218efd",
+          "evaluationPath": "challenges/evaluations/20261001200226-v16.json",
+          "evaluationCommit": "439db53cc0cbf1dba3ee57185181f9ac924aaea8",
+          "evaluationArtifact": "challenges/evaluations/20261001200226-v16.json",
+          "evaluationUtc": "2026-10-01T20:03:22.961Z",
+          "remainingScreens": 3,
+          "recordedSteps": 30,
+          "previousScreensMatched": 27,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 27,
+              "total": 30
+            },
+            "rng": {
+              "matched": 2655,
+              "total": 2658
+            },
+            "cursors": {
+              "matched": 27,
+              "total": 30
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: applying a tool requires a cream pie stack",
+            "step": 27
+          },
+          "step": 27,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: applying a tool requires a cream pie stack",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-applies-cream-pie-stack-to-self.json",
+            "result": {
+              "session": "synthetic/v16/wizard-applies-cream-pie-stack-to-self",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-applies-cream-pie-stack-to-self",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 3,
+              "recordedSteps": 30,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-applies-cream-pie-stack-to-self",
+                "session": "synthetic/v16/wizard-applies-cream-pie-stack-to-self",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.session.json",
+                "recordingSha256": "13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1",
+                "recipe": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.recipe.session.json",
+                "recipeSha256": "95ba184352effd65f6c96789bf5d438ac5b71c5556e7fdc82d3935b92716e0c8",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 3,
+                "recordedSteps": 30,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 27,
+                    "total": 30
+                  },
+                  "rng": {
+                    "matched": 2655,
+                    "total": 2658
+                  },
+                  "cursors": {
+                    "matched": 27,
+                    "total": 30
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: applying a tool requires a cream pie stack",
+                  "step": 27
+                },
+                "step": 27,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: applying a tool requires a cream pie stack",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The saved v16 evaluation matches 27 of 30 screens, then stops at step 27 because js/apply.js preflightCreamPie() rejects a stack with quan greater than one. Upstream apply.c:use_cream_pie() instead calls splitobj(obj, 1), applies the face-blinding effect, then removes that child through the object lifecycle. The C recording leaves one pie and shows all three calls after the matched prefix: splitobj/next_ident rnd(2), use_cream_pie rnd(25), and delobj/obj_resists rn2(100). The actionable scope is the whole apply.c:use_cream_pie() function and its already wired doapply() caller; keep other doapply arms and their unresolved gaps out of this task.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For an ordinary human Wizard with a paid two-pie inventory stack, no existing blindness or goop, no eyewear protection, and can_blnd() true, apply.c:doapply() dispatches CREAM_PIE to use_cream_pie(). The function splits one child, names the consumed pie as one of the stack, adds rnd(25) to u.ucreamed, applies blindness, emits the resulting message, then performs the COST_SPLAT and object deletion path. The full source function also includes Hallucination and can_blnd() false branches.",
+                "functions": [
+                  "use_cream_pie"
+                ],
+                "callers": [
+                  "C: apply.c:doapply() selects case CREAM_PIE at 4258-4261, calls use_cream_pie(obj), and clears its selected-object pointer after the call.",
+                  "JavaScript production route: cmd.js dispatches doapply to runApplyCommand(), which calls apply.js:doapply(); its CREAM_PIE arm at 4780-4781 calls use_cream_pie()."
+                ],
+                "dependencies": [
+                  "mkobj.c:splitobj() (457-508) returns the child consumed by use_cream_pie(); for this inventory stack it reduces the original quantity from two to one. js/obj.js:splitobj() and nextoid()/next_ident() already exist, and the recording shows the split consumes rnd(2). GOALS.json contains a splitobj declaration but no source-completion evidence entry, so review or cite that existing helper when establishing completion; do not replace its call with a quantity-only shortcut.",
+                  "mondata.c:can_blnd() (305-398) controls whether use_cream_pie() draws rnd(25) and changes u.ucreamed/BLINDED. Its returned Boolean is consumed; js/mondata.js already provides the corresponding helper.",
+                  "potion.c:make_blinded() is called with a discarded return but performs the blindness timeout, visibility, and message effects; js/potion.js already provides the corresponding helper.",
+                  "mkobj.c:costly_alteration(obj, COST_SPLAT) is a void call whose billing/message effects precede object extraction; keep its source order and do not silently suppress relevant shop effects.",
+                  "mkobj.c:obj_extract_self() then invent.c:delobj() perform object removal. delobj() calls zap.c:obj_resists(obj, 0, 0); for an ordinary cream pie that still consumes rn2(100), matching the third draw after the prior prefix. js/invent.js and js/bury.js contain these helpers.",
+                  "The selected scope is apply.c:use_cream_pie(), not the rest of apply.c:doapply(). Preserve its unrelated named-arm refusals and other unported dispatcher paths."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved first baseline evaluation challenges/evaluations/20261001125731-v16.json reports this case at 27/30 screens, 2655/2658 RNG calls, and 27/30 cursors. Its case row cites step 27 and bucket cream-pie-stack-split; challenges/manifests/v16.json says the C-first behavior is apply.c:use_cream_pie -> mkobj.c:splitobj for a wished stack of two. Recording SHA-256 is 13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1; recipe SHA-256 is 95ba184352effd65f6c96789bf5d438ac5b71c5556e7fdc82d3935b92716e0c8.",
+                "At nethack-c/upstream/src/apply.c:3568-3603, use_cream_pie() snapshots Blind/u.ucreamed, splits one object when quan > 1, selects Hallucination or face-immersion wording, calls can_blnd(), draws rnd(25) and calls make_blinded() when allowed, then calls setnotworn(), costly_alteration(COST_SPLAT), obj_extract_self(), and delobj() in that order. apply.c:doapply() wires the CREAM_PIE case at 4258-4261.",
+                "The actual JavaScript refusal is js/apply.js:1688-1689 in preflightCreamPie(): it throws UnsupportedApplyError when obj.quan !== 1 before use_cream_pie() emits a message or draws RNG. The existing JS caller is already wired from apply.js:doapply() case CREAM_PIE at 4780-4781; the broader runtime route is cmd.js:runApplyCommand() at 3302-3304 and dispatch case doapply at 5150-5151.",
+                "The recorded segment step 27 displays “You immerse your face in one of the cream pies.” and logs rnd(2)=1 at next_ident(mkobj.c:521), then rnd(25)=25 at use_cream_pie(apply.c:3585). Step 28 displays the sticky-goop blindness message and logs rn2(100)=57 at obj_resists(zap.c:1469), reached from delobj(); step 29 inventory displays one remaining cream pie. Those outputs establish why preserving the child split, RNG order, blindness update, and deletion matters.",
+                "Existing dependencies align with that trace: js/obj.js:897-946 implements splitobj(); js/bury.js:95-119 implements obj_resists() including its unconditional rn2(100) for ordinary objects at 0% odds; js/invent.js:3438-3448 wires delobj() through delobj_core(). GOALS.json declares splitobj in the mkobj.c function list but has no source-completion evidence record for splitobj, so its existing helper needs review or supporting evidence before anyone claims that source unit verified.",
+                "Ran `rg -n -i 'cream pie|ucreamed|apply\\.c' nethack-c/patches`; it returned no matches. The cream-pie behavior comes from upstream C and has no behavior-specific change in the recorder patches."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "use_cream_pie",
+            "implementation": "js/apply.js",
+            "symbol": "use_cream_pie",
+            "sourceReview": "Compared the complete upstream nethack-c/upstream/src/apply.c:use_cream_pie() body at 3568-3603 with js/apply.js:use_cream_pie(). The port saves Blind and u.ucreamed before mutation, splits one object and uses splitobj()'s returned child when quan > 1, then emits either the hallucinated facial line or the normal face-immersion line with C's “one of” pluralization. It calls mondata.c:can_blnd() with the source attack type and object. Only a true result draws rnd(25), adds to ucreamed, awaits make_blinded(BlindedTimeout + blindinc, FALSE), then selects the final line using post-effect blindness plus the saved wasblind/wascreamed values. It finally calls setnotworn(), costly_alteration(), obj_extract_self(), and delobj() in source order and returns ECMD_OK. The prior preflight refusals are removed; the selected branch uses real production helpers, preserves the returned split child, and has no fabricated effect or RNG. Supporting callee audit: mkobj.c:splitobj() at 457-502 returns the real child and its consumed return is used by use_cream_pie. It preserves supplied splitBill/splitObjectTimers/splitObjectLight hooks; when absent on live state, it records exact C-discarded void gaps at the C sites: note_unported('shk.c splitbill') after links, note_unported('timeout.c obj_split_timers') after copy_oextra/free_omid, then evaluates the implemented obj_sheds_light(obj) predicate, and only after that may record note_unported('light.c obj_split_light_source'). The old timer/light hook preflights are gone; source-pinned tests establish that missing hooks do not refuse before mutation and that a timer callback precedes the light predicate. mondata.c:can_blnd(), potion.c:make_blinded(), worn.c:setnotworn(), invent.c:obj_extract_self()/delobj(), and zap.c:obj_resists() are existing implementations. mkobj.c:costly_alteration() is void and JS has only the unbilled paid/free fast path; billed inventory without an established costlyAlteration hook is named at the call site with note_unported('mkobj.c costly_alteration') and does not fabricate shop effects. These exact void gaps apply only to unpaid/shop or split lifecycle variants; the independently matched ordinary paid stack route does not enter them. No whole-function completion credit is claimed for supporting splitobj or costly_alteration.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply() CREAM_PIE arm at 4258-4259 calls use_cream_pie(obj); js/apply.js:doapply() CREAM_PIE arm at 4844-4845 awaits and returns use_cream_pie(obj, state, env)."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runApplyCommand",
+                "source": "cmd.c apply-command dispatch through rhack() reaches doapply(); js/cmd.js:runApplyCommand() dispatches the apply command to js/apply.js:doapply()."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-cream-pie.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-applies-cream-pie-stack-to-self",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 29,
+                "source": "cmd.c:rhack apply-command dispatch -> apply.c:doapply CREAM_PIE arm -> apply.c:use_cream_pie -> mkobj.c:splitobj, mondata.c:can_blnd, potion.c:make_blinded, invent.c:obj_extract_self/delobj"
+              }
+            ],
+            "checkedAt": "5c7b3a24e4f145b3f7866654a4fd9c5745c3ce79"
+          }
+        ],
+        "entryPointReview": "The selected source range has one active production entry point: apply a cream pie. C command dispatch reaches apply.c:doapply() and its CREAM_PIE arm, which calls use_cream_pie(); JavaScript dispatch is js/cmd.js:runApplyCommand() -> js/apply.js:doapply() -> use_cream_pie(). The admitted v16 session executes this production path through segment 0 step 29 and matches all screens, cells, cursors, and RNG calls. That recording exercises the ordinary paid two-pie stack, real splitobj returned-child path, can_blnd success, blindness transition, and deletion. The hallucination line, already-blind message choice, and can_blnd false/no-RNG branch are pinned by source-focused tests; these are branches of the same apply command, not separate production entry points. The C-discarded splitbill, obj_split_timers, obj_split_light_source, and costly_alteration gaps are explicitly named at their source call sites; the ordinary paid admitted route does not enter them. This packet credits only apply.c:use_cream_pie; it does not credit doapply, command dispatch, splitobj, or costly_alteration as whole-source units.",
+        "entryPoints": [
+          {
+            "name": "Apply a cream pie from inventory",
+            "functions": [
+              "use_cream_pie"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-applies-cream-pie-stack-to-self",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 29,
+                "source": "cmd.c:rhack apply-command dispatch -> apply.c:doapply CREAM_PIE arm -> apply.c:use_cream_pie -> mkobj.c:splitobj, mondata.c:can_blnd, potion.c:make_blinded, invent.c:obj_extract_self/delobj"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-apply-catch-lit-synthetic-v16-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete fire ignition of objects",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v16/wizard-reads-uncursed-scroll-of-fire"
+      ],
+      "selectionReason": "Selected from the saved B73 queue after merging accepted B74 publication c443d7c9794293bbf32127d78bd90c1f54c246e5; task base is 43787a35e43fd4f8d8a243f0891caf51a525fbe4. The admitted v16 wizard-reads-uncursed-scroll-of-fire recording reaches an OBJ_INVENT potion of oil through read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items and stops at the catch_lit refusal. The complete C function has two direct callers: trap.c:ignite_items discards its boolean; trap.c:fire_damage consumes TRUE to skip further damage. The current branch also contains C57 delivery acfa43c336905ffd784995e39c2ef55684012c3a, which remains an explicit dependency. Existing C57 reservations use other apply.c functions. B75 owns cmd.c:rhack/js/cmd.js dispatch, so the JS-only failClosedCommandRefusals edit is limited to its separately reserved command-refusal-class-registry contract. Root verified whole primary scope, production callers, current saved evaluation and packet evidence. Supporting helpers and dispatcher arms receive no additional whole-function credit.",
+      "detail": "Compared whole apply.c:catch_lit and obj.h macros: type/location/already-lit gate, fuel/lantern/cursed guards, lamp RNG, message visibility/blindness and grammar, oil discovery, unpaid shop order, burn startup and Boolean return. Existing ignite_items discards result and fire_damage consumes TRUE to stop damage. Independent dig.c lava-wall pick and mattock recordings exercise actual fire_damage then nonignitable catch_lit guard; admitted scroll-fire inventory oil path exercises true ignition. Source-named discarded gaps set_msg_xy/check_unpaid remain; sound voice macro is empty in recorder build. Removed stale refusal and class registration.",
+      "openedAt": "45cdfbe327ee8a598e5e4fad15e78554649251a8",
+      "openStanding": {
+        "sha": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "catch_lit",
+          "line": 1577,
+          "endLine": 1627,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1577,
+        "to": 1627
+      },
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-reads-uncursed-scroll-of-fire": {
+          "session": "synthetic/v16/wizard-reads-uncursed-scroll-of-fire",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-reads-uncursed-scroll-of-fire",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+          "recordingSha256": "4a54e7ee791124df4448163607595df745c4f484771a8684084dc67dcf57b329",
+          "evaluationPath": "challenges/evaluations/20261001210849-v16.json",
+          "evaluationCommit": "f7cb0fa0d1e9396635dddfb247062c2a356e9919"
+        }
+      },
+      "activeStanding": {
+        "sha": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-reads-uncursed-scroll-of-fire",
+          "session": "synthetic/v16/wizard-reads-uncursed-scroll-of-fire",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+          "recordingSha256": "4a54e7ee791124df4448163607595df745c4f484771a8684084dc67dcf57b329",
+          "recipe": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.recipe.session.json",
+          "recipeSha256": "65ae338033a937cf9c1ee2a619e933c37cd475fa5960897ba5224fda30097176",
+          "replayInputSha256": "8a0fdb2e21b92bdcf7280e1c68181499c31077a0faebd0f1ce90d169ea44a737",
+          "evaluationPath": "challenges/evaluations/20261001210849-v16.json",
+          "evaluationCommit": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+          "evaluationArtifact": "challenges/evaluations/20261001210849-v16.json",
+          "evaluationUtc": "2026-10-01T21:09:40.105Z",
+          "remainingScreens": 1,
+          "recordedSteps": 38,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 38
+            },
+            "rng": {
+              "matched": 2860,
+              "total": 2877
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 38
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported item ignition: the hero's own pack",
+            "step": 37
+          },
+          "step": 37,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported item ignition: the hero's own pack",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-reads-uncursed-scroll-of-fire.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-reads-uncursed-scroll-of-fire",
+              "session": "synthetic/v16/wizard-reads-uncursed-scroll-of-fire",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "4a54e7ee791124df4448163607595df745c4f484771a8684084dc67dcf57b329",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 1,
+              "recordedSteps": 38,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-reads-uncursed-scroll-of-fire",
+                "session": "synthetic/v16/wizard-reads-uncursed-scroll-of-fire",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json",
+                "recordingSha256": "4a54e7ee791124df4448163607595df745c4f484771a8684084dc67dcf57b329",
+                "recipe": "challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.recipe.session.json",
+                "recipeSha256": "65ae338033a937cf9c1ee2a619e933c37cd475fa5960897ba5224fda30097176",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 1,
+                "recordedSteps": 38,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 38
+                  },
+                  "rng": {
+                    "matched": 2860,
+                    "total": 2877
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 38
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported item ignition: the hero's own pack",
+                  "step": 37
+                },
+                "step": 37,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported item ignition: the hero's own pack",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The scroll’s self-centered fire blast reaches an ignitable object in the hero’s inventory. C apply.c catch_lit() handles the carried potion of oil and starts its burn; js/apply_catch_lit.js instead throws for OBJ_INVENT, stopping the only remaining screen before the explosion finishes.",
+              "source": {
+                "file": "apply.c",
+                "branch": "For an unlit ignitable object whose location is found and which passes the empty, burnt-out, brass-lantern, cursed-candelabrum, and cursed-lamp guards, catch_lit() reports the object when carried, discovers potion of oil, bills carried unpaid stock in a costly shop, starts burning, and returns TRUE. This case reaches that branch for a potion of oil after an unconfused uncursed scroll of fire hits the hero.",
+                "functions": [
+                  "catch_lit"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/trap.c:4465-4467 fire_damage() calls catch_lit(obj) and uses TRUE to skip further burning; js/trap_water_damage.js fire_damage() wires catch_item_light as its default catchLit operation.",
+                  "nethack-c/upstream/src/trap.c:7161-7171 ignite_items() calls catch_lit(obj) for each object that is neither lamplit nor in_use; js/apply_catch_lit.js ignite_items() calls catch_item_light().",
+                  "nethack-c/upstream/src/read.c:1850-1917 seffect_fire() calls explode.c explode(); nethack-c/upstream/src/explode.c:613-617 handles hero fire damage by calling trap.c ignite_items(gi.invent) before zap.c destroy_items(). The JS route is js/read.js seffect_fire() -> js/explode.js explode() -> js/apply_catch_lit.js ignite_items() -> catch_item_light()."
+                ],
+                "dependencies": []
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/apply.c:1577-1623 is the complete catch_lit() definition. Its eligible carried-object branch at 1598-1621 prints the light message, makes POT_OIL known, handles shop billing, calls begin_burn(), and returns TRUE. js/apply_catch_lit.js:60-99 mirrors earlier guards but throws UnsupportedItemIgnitionError for every surviving OBJ_INVENT object instead of this source branch; the implementation scope is the whole catch_lit() function, not a correction to the existing branches.",
+                "Caller trace: nethack-c/upstream/src/trap.c:7161-7171 ignite_items() reaches catch_lit(); nethack-c/upstream/src/explode.c:613-617 reaches ignite_items(gi.invent) for hero AD_FIRE; nethack-c/upstream/src/read.c:1850-1917 seffect_fire() places an uncursed, unconfused scroll explosion at the hero. The other direct caller, trap.c:4455-4467 fire_damage(), consumes catch_lit()’s boolean return. Existing JS wiring is js/apply_catch_lit.js ignite_items() and js/trap_water_damage.js fire_damage().",
+                "The saved C recording challenges/cases/v16/wizard-reads-uncursed-scroll-of-fire.session.json has one segment with 38 steps. Step 36 shows the scroll erupting in a tower of flame; step 37 shows “Your cloak smoulders! Your potion of oil catches light!” The queue/evaluation at .cache/v16-investigations/5.json and challenges/evaluations/20261001125731-v16.json record the JS stop at step 37, with 37/38 screens matched and 2860/2877 RNG calls matched. This ties the failure to the carried-object branch without making the recipe’s seed, inputs, or inventory a special case.",
+                "The current JS refusal comment in js/apply_catch_lit.js:92-98 cites zap.c zhitu() as a caller, but this recording reaches the same missing catch_lit() branch through explode.c explode(). Keep the existing js/read.js note_unported(\"timeout.c burn_away_slime\") separate; it marks the slimed-hero behavior outside this source function. explode.c calls zap.c destroy_items() after ignite_items(), so this saved stop does not establish that later portion of step 37 and a replay after the port should inspect any next mismatch."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "catch_lit",
+            "implementation": "js/apply_catch_lit.js",
+            "symbol": "catch_lit",
+            "sourceReview": "Read apply.c:catch_lit() at 1577-1625 and the obj.h ignitable(), age_is_relative(), and carried() macros at 332, 388-400. Preserve the source order: initial !lamplit/type/location gate; empty magic-lamp/candelabrum, relative-age zero, brass-lantern, cursed candelabrum, then cursed-lamp rn2(2); visible/inventory message and floor-only set_msg_xy; POT_OIL makeknown; carried unpaid costly-shop lookup, check_unpaid, verbalize, bill_dummy_object; begin_burn; TRUE/FALSE result. Removed the hero-inventory UnsupportedItemIgnitionError and command-refusal registration. The void set_msg_xy and check_unpaid calls remain named note_unported gaps; SetVoice is an empty macro in the no-sound recording build.",
+            "callers": [
+              {
+                "path": "js/apply_catch_lit.js",
+                "symbol": "ignite_items",
+                "source": "trap.c:ignite_items() calls catch_lit(obj) for each eligible chain object and discards its Boolean result."
+              },
+              {
+                "path": "js/trap_water_damage.js",
+                "symbol": "fire_damage",
+                "source": "trap.c:fire_damage() calls catch_lit(obj) before other fire processing and returns FALSE when it returns TRUE."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-catch-lit.test.mjs",
+              "scripts/trap-water-damage.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/fire-damage-lava-wall-pick-c58-open-west-route.session.json",
+              "recordings/apply.c/fire-damage-lava-wall-mattock-c58-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-reads-uncursed-scroll-of-fire",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 37,
+                "source": "read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items(gi.invent) -> apply.c:catch_lit; the carried POT_OIL catches light and begins burning."
+              }
+            ],
+            "checkedAt": "a5b94c39adfd95ceb942d46f0461956b9eef21d6"
+          }
+        ],
+        "entryPointReview": "The selected v16 scroll-of-fire case reaches read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items -> apply.c:catch_lit with a carried potion of oil. The direct trap.c:fire_damage caller is independently exercised from dig.c:use_pick_axe2’s LAVAWALL branch by the two C recordings below; C reaches the catch_lit non-ignitable guard and fire_damage’s rn2(20) draw, and both full routes strictly match on accepted A68 main 2573677f. scripts/trap-water-damage.test.mjs also pins fire_damage returning FALSE when catch_lit handles an item. Earlier liquid-drop attempts remain preserved but do not establish this runtime route: hitfloor/hero_breaks precedes the intended flooreffects path in C, while JS do.c:dropx refuses liquid terrain. The fire-wand lamp/candle attempts are ignite_items evidence only. Source-discarded void calls remain named at their C positions: note_unported(\"pline.c set_msg_xy\") for a visible floor object and note_unported(\"shk.c check_unpaid\") before shop speech/billing; SetVoice compiles away in the recorder build.",
+        "entryPoints": [
+          {
+            "name": "read an uncursed scroll of fire with a carried potion of oil",
+            "functions": [
+              "catch_lit"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-reads-uncursed-scroll-of-fire",
+                "segment": 0,
+                "fromStep": 37,
+                "throughStep": 37,
+                "source": "read.c:seffect_fire -> explode.c:explode -> trap.c:ignite_items(gi.invent) -> apply.c:catch_lit; the carried POT_OIL catches light and begins burning."
+              }
+            ]
+          },
+          {
+            "name": "dig an adjacent wall of lava with an uncursed pick tool",
+            "functions": [
+              "catch_lit"
+            ],
+            "recordings": [
+              "recordings/apply.c/fire-damage-lava-wall-pick-c58-open-west-route.session.json",
+              "recordings/apply.c/fire-damage-lava-wall-mattock-c58-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e72bca0f49a6a3f0b0916114391cca2e53720a0e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
