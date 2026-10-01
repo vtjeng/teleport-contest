@@ -126671,7 +126671,7 @@
           "line": 849,
           "endLine": 918,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -126947,7 +126947,50 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "scrolltele",
+            "implementation": "js/teleport.js",
+            "symbol": "scrolltele",
+            "sourceReview": "Whole teleport.c:scrolltele definition (849-915). The port follows C branch and effect order: noteleport_level refusal then conditional learnscroll; make_blinded when sighted; amulet/Tower disorientation draw and wizard Override? response; controlled teleport when Teleport_control or a blessed scroll applies and Stunned is false, or for a wizard; unconscious message; controlled-location message and learnscroll before getpos; travelcc coordinate suggestion; immediate return on cancelled getpos; teleok result, teleds, and travelcc clearing on success; Sorry on an invalid selected square; fallback learnscroll and safe_teleds. The C getpos and teleok return values are consumed and preserved; safe_teleds is called in the same final fallback position. Existing helper async contracts are awaited without substituting values. scripts/teleport.test.mjs pins the complete relevant source order, including blocked-scroll learning, blessed control, wizard disorientation override and learning before getpos. scripts/read-command.test.mjs pins the production read caller's blocked-scroll discovery behavior.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_teleportation",
+                "source": "read.c:seffect_teleportation calls scrolltele(sobj) for an uncursed, unconfused teleport scroll (2027-2032); the JS production caller awaits scrolltele(scroll). The admitted v15 replay and independent corrected recording both enter through this read path."
+              },
+              {
+                "path": "js/teleport.js",
+                "symbol": "tele",
+                "source": "teleport.c:tele calls scrolltele(NULL) (841-845); the JS tele wrapper awaits scrolltele(null,state). This null-scroll caller remains wired but has no separate B68 runtime citation; its outer trap/command routes are outside the selected range."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/teleport.test.mjs",
+              "scripts/read-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/teleport.c/scrolltele-controlled-cancel-20261001-corrected.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-uncursed-scroll-teleports-within-level",
+                "segment": 0,
+                "fromStep": 45,
+                "throughStep": 51,
+                "source": "read.c:doread -> read.c:seffects -> read.c:seffect_teleportation -> teleport.c:scrolltele; the wizard accepts the controlled-location prompt and continues through getpos/teleds. The selected range now strictly matches, including the formerly missing learnscroll/discover_object rn2(19) draw before getpos."
+              }
+            ],
+            "checkedAt": "29528714cef9ff83135931e7ca05244530fd81f3"
+          }
+        ],
+        "entryPointReview": "The selected range is the helper-only teleport.c:scrolltele function, so entryPoints is empty. Its direct production callers are read.c:seffect_teleportation (scroll object) and teleport.c:tele (NULL). The read path is executed by both the admitted v15 range and the independent corrected recording; the latter matches all 43 frames and 2611 RNG calls through getpos cancellation, scrolltele's return to doread, and the following search command. The null-scroll tele wrapper remains wired, but this task has no separate matching recording for it. The outer tele trap/command paths are outside the selected source unit and are not claimed complete.",
+        "entryPoints": []
+      }
     }
   ]
 }
