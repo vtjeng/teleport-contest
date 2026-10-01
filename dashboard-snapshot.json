@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T12:32:00.153Z",
+  "capturedAt": "2026-10-01T13:06:01.382Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -13079,12 +13079,20 @@
         "type": "accepted",
         "at": "2026-10-01T12:30:11.315Z",
         "task": "B72"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B72-published-64589ae9",
+        "type": "published",
+        "at": "2026-10-01T12:32:11.968Z",
+        "task": "B72",
+        "commit": "64589ae95796486cf98be760c14ac332d84a6777"
       }
     ]
   },
   "development": {
-    "executionCommit": "d6d6658adfb072006581fa2ac0dcbc3605f93f34",
-    "measuredAt": "2026-10-01T12:26:15.047Z",
+    "executionCommit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+    "measuredAt": "2026-10-01T13:04:31.600Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
