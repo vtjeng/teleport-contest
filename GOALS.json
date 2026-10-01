@@ -131962,6 +131962,416 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potionhit-polymorph-synthetic-v16-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete polymorph potion impact effects",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v16/rogue-throws-polymorph-potion-at-orc"
+      ],
+      "selectionReason": "Seed continuation from B76: the saved v16 investigation for synthetic/v16/rogue-throws-polymorph-potion-at-orc identifies the sole selected scope potion.c:potionhit(). On exact worker base f6464dc1f9efdeb73bda08d13cb4c2918d08c3bc, bounded replay run-6VZeho reproduced the saved boundary at segment 0 step 67: 67/68 screens and cursors, 2988/2993 RNG; C next calls rn2(105)=56 in zap.c:resist(), while JS incorrectly proceeds to rn2(9) in potionhit()'s vapor tail. The existing JS function otherwise follows the selected C body, but its POT_POLYMORPH effect arm records note_unported('zap.c bhitm potion polymorph') instead of calling the already implemented bhitm(). B76 f6464dc1 is a pending ancestor and same-module source, so it is declared as a task dependency; B75 command-count behavior is unrelated. Accepted publication 62cb562fe50173ad87f58209f6048f1336da3930 was merged cleanly before source edits as 983b8b4672409328cdb1ef35c63c24d996b9b83e; post-merge potion focused suite run-Pt4ycr passed 106/106. Root verified whole primary scope, production callers, current saved evaluation and packet evidence. Supporting helpers and dispatcher arms receive no additional whole-function credit.",
+      "detail": "Compared complete potion.c:potionhit 1625–1928 and matching JS: bottle/target/saddle routing, impact and evaporation, hero/saddle/monster effect switches, wakeup, vapor/calling tail, shop disposition and release. Confirmed POT_POLYMORPH awaits existing zap.c:bhitm and discards its return. Checked the complete process RNG bundle with retained caller overrides. Enumerated all seven existing production caller sites in dothrow, mthrowu and uhitm. Only discarded void gaps sounds.c:Soundeffect and mon.c:mcureblindness remain.",
+      "openedAt": "82be1b000c149a9069025f052f4931e20da4a9f8",
+      "openStanding": {
+        "sha": "63de4f782c82def10e34467dcaedf190954d39ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "439db53cc0cbf1dba3ee57185181f9ac924aaea8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "potionhit",
+          "line": 1625,
+          "endLine": 1931,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1625,
+        "to": 1931
+      },
+      "syntheticProvenance": {
+        "synthetic/v16/rogue-throws-polymorph-potion-at-orc": {
+          "session": "synthetic/v16/rogue-throws-polymorph-potion-at-orc",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "rogue-throws-polymorph-potion-at-orc",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.session.json",
+          "recordingSha256": "f38a1ce188a6555bdd6a52c04a6713da4cb89b83b1c53daafb736047dc3439bb",
+          "evaluationPath": "challenges/evaluations/20261001194207-v16.json",
+          "evaluationCommit": "63de4f782c82def10e34467dcaedf190954d39ba"
+        }
+      },
+      "activeStanding": {
+        "sha": "63de4f782c82def10e34467dcaedf190954d39ba",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "rogue-throws-polymorph-potion-at-orc",
+          "session": "synthetic/v16/rogue-throws-polymorph-potion-at-orc",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.session.json",
+          "recordingPath": "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.session.json",
+          "recordingSha256": "f38a1ce188a6555bdd6a52c04a6713da4cb89b83b1c53daafb736047dc3439bb",
+          "recipe": "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.recipe.session.json",
+          "recipeSha256": "e21ef67cd74a4031751517b1177e38f7f69726f085ef63061551891cbaea9d2b",
+          "replayInputSha256": "d9d57a31d98651af667450a384d879559e3872d1c3eaf9138afe990055f80d08",
+          "evaluationPath": "challenges/evaluations/20261001194207-v16.json",
+          "evaluationCommit": "63de4f782c82def10e34467dcaedf190954d39ba",
+          "evaluationArtifact": "challenges/evaluations/20261001194207-v16.json",
+          "evaluationUtc": "2026-10-01T19:43:09.317Z",
+          "remainingScreens": 1,
+          "recordedSteps": 68,
+          "previousScreensMatched": 67,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 67,
+              "total": 68
+            },
+            "rng": {
+              "matched": 2988,
+              "total": 2993
+            },
+            "cursors": {
+              "matched": 67,
+              "total": 68
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 67,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 67,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 30,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2988,
+              "cEntry": "rn2(105)=56",
+              "cCaller": "resist(zap.c:6141)",
+              "jsEntry": "rn2(9)=5",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 67,
+                "key": " "
+              },
+              "stepIndex": 67
+            },
+            "cursor": {
+              "index": 67,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 67,
+                "key": " "
+              },
+              "cCursor": [
+                77,
+                0,
+                1
+              ],
+              "jsCursor": [
+                38,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 67,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "resist",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 6141,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/rogue-throws-polymorph-potion-at-orc.json",
+            "result": {
+              "session": "synthetic/v16/rogue-throws-polymorph-potion-at-orc",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "rogue-throws-polymorph-potion-at-orc",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingPath": "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.session.json",
+              "recordingSha256": "f38a1ce188a6555bdd6a52c04a6713da4cb89b83b1c53daafb736047dc3439bb",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 1,
+              "recordedSteps": 68,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "rogue-throws-polymorph-potion-at-orc",
+                "session": "synthetic/v16/rogue-throws-polymorph-potion-at-orc",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.session.json",
+                "recordingPath": "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.session.json",
+                "recordingSha256": "f38a1ce188a6555bdd6a52c04a6713da4cb89b83b1c53daafb736047dc3439bb",
+                "recipe": "challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.recipe.session.json",
+                "recipeSha256": "e21ef67cd74a4031751517b1177e38f7f69726f085ef63061551891cbaea9d2b",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 1,
+                "recordedSteps": 68,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 67,
+                    "total": 68
+                  },
+                  "rng": {
+                    "matched": 2988,
+                    "total": 2993
+                  },
+                  "cursors": {
+                    "matched": 67,
+                    "total": 68
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 67,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 67,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 30,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2988,
+                    "cEntry": "rn2(105)=56",
+                    "cCaller": "resist(zap.c:6141)",
+                    "jsEntry": "rn2(9)=5",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 67,
+                      "key": " "
+                    },
+                    "stepIndex": 67
+                  },
+                  "cursor": {
+                    "index": 67,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 67,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      77,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      38,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 67,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "resist",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 6141
+              },
+              "summary": "The first mismatch is at step 67, when the thrown polymorph potion should resume into potion.c potionhit() and call bhitm() on the orc. The JavaScript POT_POLYMORPH arm records note_unported() and skips the already implemented zap.c bhitm() polymorph behavior; the immediate actionable scope is the whole potionhit() source function and its production callers, while preserving unrelated named gaps.",
+              "source": {
+                "file": "potion.c",
+                "branch": "In potionhit(), when a potion hits a non-hero monster, the saddle-hit arm was not selected, and obj->otyp is POT_POLYMORPH, the effect switch calls (void) bhitm(mon, obj). The recorded hostile orc takes the ordinary head-hit path. bhitm() then runs its polymorph arm: skip a long worm already changed by this ray; honor magic resistance; call resist() with zero damage; then either apply the natural-form system-shock roll or call newcham(), followed by the function common tail.",
+                "functions": [
+                  "potionhit"
+                ],
+                "callers": [
+                  "Recorded route: cmd.c command dispatch reaches dothrow.c dothrow(), throwit(), throwit_mon_hit(), and thitmonst(); thitmonst() calls potionhit(mon, obj, POTHIT_HERO_THROW) at dothrow.c:2264. Production JS routes the t command through js/cmd.js to js/dothrow.js dothrow(), throwit(), throwit_mon_hit(), and thitmonst(), which calls js/potion.js potionhit() at js/dothrow.js:3092.",
+                  "Other dothrow.c callers are toss_up() at :1290 when a thrown potion hits the hero and throwit() at :1594 when it hits the steed; JS counterparts in js/dothrow.js call potionhit() at :1231 and :2591.",
+                  "Monster missile callers are mthrowu.c at :137, :367, and :699; JS counterparts in js/mthrowu.js call potionhit() for a monster projectile hitting the hero or another monster.",
+                  "uhitm.c hmon_hitmon_potion() calls potionhit() at :1105; js/uhitm.js hmon_hitmon_potion() calls the same production JS entry point at :2959."
+                ],
+                "dependencies": [
+                  "zap.c bhitm() at :160-610 owns the immediate polymorph mechanics. Its POT_POLYMORPH arm at :265-334 is already present in js/zap.js bhitm() at :4075-4144. Wire potionhit() to that implementation with the current state, random source, and operation environment. C casts away bhitm()'s int return, so use only its effects and do not make the result control potionhit().",
+                  "zap.c resist() at :6100-6158 is already implemented in js/zap.js. The potion class attack level is 6; the orc defense level in this recording yields the logged first draw rn2(105) at resist(zap.c:6141). It is reached only after potionhit() calls bhitm().",
+                  "mon.c newcham(), select_newcham_form(), and mgender_from_permonst() are implemented in js/mon.js. Their logged draws rn2(330), rn2(10), and d(11,8) follow the resistance and bhitm() natural-form roll in the C recording.",
+                  "Keep potionhit()'s common continuation after bhitm() in source order: target waking, the hero-distance vapor/calling decision, shop billing, and final obfree(). potionbreathe() is a separate function and is not the owner of this first mismatch."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved challenges/evaluations/20261001125731-v16.json, tied to evaluation commit 452fff60d85992524c72a8282fbae13a5e32a906, reports 67/68 screens, 67/68 cursors, and 2988/2993 RNG calls. Its first mismatch is segment 0 step 67, key space: C row 0 column 30 is a blank and JS has a hyphen; the C RNG entry is rn2(105)=56 from resist(zap.c:6141), while JS next calls rn2(9)=5.",
+                "The immutable recording challenges/cases/v16/rogue-throws-polymorph-potion-at-orc.session.json shows step 66 key h ending at “The jar crashes on the orc's head and breaks into shards.--More--”, after thitmonst() and potionhit() have logged rn2(7) in bottlename() and rn2(5) at potion.c:1675. At step 67, C resumes into the polymorph effect and logs rn2(105)=56 at resist(zap.c:6141), rn2(25)=9 at bhitm(zap.c:290), rn2(330)=136 at select_newcham_form(mon.c:5217), rn2(10)=7 at mgender_from_permonst(mon.c:5269), and d(11,8)=57 at newmonhp(makemon.c:1042). The resulting screen says the magenta potion evaporates and the orc turns into a baby red dragon, followed by another --More--.",
+                "Upstream nethack-c/upstream/src/potion.c potionhit() spans :1625-1928. In its non-hero, non-saddle effect switch, :1885-1887 calls (void) bhitm(mon, obj) for POT_POLYMORPH. This is the missing source call; the queue labels the first missing random draw by the downstream resist() function.",
+                "Upstream nethack-c/upstream/src/zap.c bhitm() :265-334 handles WAN_POLYMORPH, SPE_POLYMORPH, and POT_POLYMORPH. For a potion polyspot is false; the branch preserves long-worm and magic-resistance checks, consumes resist(), applies the natural-form rn2(25) system-shock check, or calls newcham(). Existing js/zap.js bhitm() has this branch, but js/potion.js potionhit() :2468-2472 currently calls note_unported('zap.c bhitm potion polymorph') instead of invoking it.",
+                "That skip explains the displaced next JS RNG call: after the note_unported() no-op, js/potion.js continues into potionhit()'s hero-distance vapor/calling tail at :2499-2509, where its next recorded draw is rn2(9). C has not reached that tail on step 67 because bhitm() has produced the polymorph continuation message and --More-- after its five logged draws.",
+                "Production caller evidence is dothrow.c thitmonst() :2264 and js/dothrow.js thitmonst() :3092. The recorded t, g, h, space inputs select the potion, throw west at the adjacent generated orc, show the crash screen, then resume the source effect. The same potionhit() function has additional production callers from dothrow.c toss_up()/throwit(), mthrowu.c monster throws, and uhitm.c hmon_hitmon_potion(); their JS counterparts already route to js/potion.js potionhit().",
+                "The C submodule gitlink at the examined commit fa7aad456f8e2071d96ec4f804c9ecdae6a898d2 points to upstream commit 16ff59115315917b93185d026aeefea06db9b0f4. The local nethack-c/patches series has no matches for potion, POT_POLYMORPH, or bhitm, so the behavior comes from upstream C rather than a project patch.",
+                "Keep the separate existing notes for sounds.c Soundeffect in potionhit(), mon.c mcureblindness, and unrelated unported zap.c bhitm effect arms. They do not replace the valid polymorph effect and are outside this recorded branch."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "The admitted recording exercises the hero #throw command through dothrow.c thitmonst() -> potionhit() -> bhitm() -> newcham(); its keys t, g, h, space cover potion selection, direction, impact, and continuation at segment 0 steps 64-67.",
+                  "The production function has additional call paths through thrown potions hitting the hero or steed, monster projectile hits, and a potion used against a monster in melee; these remain wired to potionhit() and are relevant to whole-function caller coverage."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "potion.c",
+                  "functions": [
+                    "potionhit"
+                  ]
+                },
+                "callerWiring": [
+                  "Complete js/potion.js potionhit() as the whole source function :1625-1928 and wire its POT_POLYMORPH case to the existing js/zap.js bhitm() implementation, passing the same game state, random source, and operation environment.",
+                  "Keep each existing production path to potionhit() intact: js/cmd.js -> js/dothrow.js for this throw; js/dothrow.js for hero-hit and steed-hit cases; js/mthrowu.js for monster throws; and js/uhitm.js for melee potion attacks."
+                ],
+                "returnValuedDependencies": [],
+                "downstreamUnresolvedGaps": [
+                  "Preserve the named sounds.c Soundeffect notes and the mcureblindness note in js/potion.js; this POT_POLYMORPH target branch does not require implementing those callees.",
+                  "Preserve unrelated partial or refused effects in zap.c bhitm(). Only its existing valid POT_POLYMORPH arm is needed for this case; do not widen the task to port the full wand/spell effect matrix.",
+                  "Keep potionhit() post-effect ordering and its separate potionbreathe(), trycall(), shop-billing, and obfree() continuation aligned to source. They are later call edges, not substitutes for the missing bhitm() invocation."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "potionhit",
+            "implementation": "js/potion.js",
+            "symbol": "potionhit",
+            "sourceReview": "Compared the complete upstream nethack-c/upstream/src/potion.c:potionhit() definition at 1625-1928 with js/potion.js:potionhit(). The source performs bottlename() first, determines hero versus monster target, checks the monster saddle in C short-circuit/RNG order, reports the crash and evaporation, then selects hero, saddle, or non-saddle monster effect branches. The monster switch preserves healing and Pestilence fallthrough, sickness resistance, confusion/booze resistance, invisibility visibility updates, sleep/paralysis/speed/blindness effects, blessed/cursed water, lit oil, acid damage and killer ownership, and polymorph. It wakes the surviving monster or clears msleeping, then performs the hero-distance vapor test or optional trycall, shop disposition, and final obfree in source order. The selected C POT_POLYMORPH arm calls (void) bhitm(mon, obj); JS now awaits the existing zap.js:bhitm(mon, obj, state, random, env) before the common target/vapor tail and discards its result. Because dothrow.js:thitmonst passes only rn1/rn2/rnd in its RNG object, potionhit merges all imported C process RNG methods before caller overrides; bhitm and its mon.js:wakeup/m_respond tail therefore receive the complete draw source while injected methods retain precedence. The module already imports zap.js helpers, and the new bhitm binding is exercised by the production replay. The two sounds.c:Soundeffect notes and the mon.c:mcureblindness note remain exact C-discarded void-call gaps; no gap stands in for the selected polymorph effect. No other potionhit call return is used as replacement state, and no unsupported refusal remains on the selected branch.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack() dispatches the throw command to dothrow.c:dothrow()"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "toss_up",
+                "source": "dothrow.c:toss_up() calls potionhit() at 1290"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit() calls potionhit() at 1594 for a potion hitting the steed"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst() calls potionhit() at 2264"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thitu",
+                "source": "mthrowu.c:thitu() calls potionhit() at 137 for a potion hitting the hero"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "mthrowu.c:ohitmon() calls potionhit() at 367 for a potion hitting another monster"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c:m_throw() calls potionhit() at 699 for a potion hitting the hero"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_potion",
+                "source": "uhitm.c:hmon_hitmon_potion() calls potionhit() at 1105"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potionhit-polymorph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "rogue-throws-polymorph-potion-at-orc",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 67,
+                "source": "cmd.c:rhack throw dispatch -> dothrow.c:dothrow/throw_obj/throwit/thitmonst -> potion.c:potionhit -> zap.c:bhitm/resist/newcham"
+              }
+            ],
+            "checkedAt": "beb4cc58cdba7c103c733b0c67fd8003c1f1aa69"
+          }
+        ],
+        "entryPointReview": "This is one helper-only source range, so entryPoints is empty. The source has seven direct potionhit call sites across dothrow.c, mthrowu.c and uhitm.c; their existing JS counterparts are listed in callers and already route to potionhit(). The selected admitted v16 session exercises the normal throw command: cmd.js dispatches t to js/dothrow.js:dothrow(), then the existing throw path reaches thitmonst() -> potionhit() -> bhitm() -> resist()/newcham(). The full recording matches through segment 0 step 67, including the polymorph message and common potionhit tail. The session does not claim to exercise the separate hero-hit, steed-hit, monster-projectile, or melee caller branches. This task changes no outer caller. The only remaining potionhit callee gaps are the discarded void sounds.c:Soundeffect calls and discarded void mon.c:mcureblindness call; those do not block the selected POT_POLYMORPH path.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "439db53cc0cbf1dba3ee57185181f9ac924aaea8",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

@@ -210,7 +210,7 @@ import {
 import { stairway_at } from './stairs.js';
 import { cansee, canseemon, vision_recalc } from './vision.js';
 import {
-    Cold_resistance, do_enlightenment_effect, Fire_resistance, makewish,
+    bhitm, Cold_resistance, do_enlightenment_effect, Fire_resistance, makewish,
     resist,
 } from './zap.js';
 import {
@@ -2306,7 +2306,12 @@ async function H2Opotion_dip(potion, target, useeit, objphrase, state, env) {
 // reach, optional calling, shop disposition, and final object release.
 export async function potionhit(mon, obj, how, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rnl, rne, rnz };
+    // C uses the process RNG. Merge method overrides so downstream callees
+    // retain the complete draw bundle when a caller injects only a subset.
+    const random = {
+        d, rn1, rn2, rnd, rnl, rne, rnz,
+        ...(rawEnv.random ?? {}),
+    };
     const message = rawEnv.message ?? ttyPline;
     const env = { ...rawEnv, state, random, message };
     const botlnam = bottlename(state, random);
@@ -2593,9 +2598,8 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             }
             break;
         case POT_POLYMORPH:
-            // C explicitly discards bhitm()'s return. The potion path in
-            // zap.c remains a named gap until that source arm is ported.
-            note_unported('zap.c bhitm potion polymorph');
+            // C discards bhitm()'s return after applying its effects.
+            await bhitm(mon, obj, state, random, env);
             break;
         }
 
