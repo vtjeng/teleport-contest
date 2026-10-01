@@ -129219,6 +129219,298 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-timeout-vomiting-dialogue-synthetic-v15-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete vomiting countdown dialogue",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures"
+      ],
+      "selectionReason": "Continue from the saved actionable B70 queue. The complete v15 case synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures reaches step 62 after A64's make_vomiting port. The first remaining mismatch is C rn2(2)=0 from exercise(A_CON,FALSE) at attrib.c:509, while JS advances to gethungry's rn2(20)=8 because timeout.js still records timeout.c:vomiting_dialogue as unported. Port the whole dialogue helper, its consumed Popeye return value, the active nh_timeout call arm, and the planner's live-timeout handoff. Preserve the case title as historical metadata: its initial cursed-horn result is Vomiting, not Confusion. Root verified current B71 evaluations and full vomiting_dialogue source, required pure Popeye and polyfood return contract, opentin identity, active nh_timeout caller and live planning handoff. Three saved successful checks stand. The cited v15 range proves the active helper and unconditional exercise; it does not reach case6/Popeye. Only vomiting_dialogue receives whole-source credit.",
+      "detail": "Whole vomiting_dialogue preserves pre-decrement countdown, text substitutions, case6-to9 dice order, consumed Popeye predicate, occupation/multi/hunger effects and final Constitution exercise. The active nh_timeout caller uses the existing live planning handoff. Pure Popeye and polyfood have pinned tests; make_stunned and vomit remain source-defined void gaps. Stoned and slime dialogue remain separate outer gaps.",
+      "openedAt": "92516e2565c6da7e8c3ad6ecee60b958aa4a3260",
+      "openStanding": {
+        "sha": "19dd0e5797590d50b125f8b4acab552ea08bd177",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "fb4e7f34c20fce13155dda6da98867ac869ded10",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "vomiting_dialogue",
+          "line": 197,
+          "endLine": 267,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 197,
+        "to": 267
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures": {
+          "session": "synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.session.json",
+          "recordingSha256": "7d9e209b16e0537a164c2a09fa9a8f8d5703a63dcf7f5a826afc342da81ea69a",
+          "evaluationPath": "challenges/evaluations/20261001110824-v15.json",
+          "evaluationCommit": "19dd0e5797590d50b125f8b4acab552ea08bd177"
+        }
+      },
+      "activeStanding": {
+        "sha": "19dd0e5797590d50b125f8b4acab552ea08bd177",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+          "session": "synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.session.json",
+          "recordingSha256": "7d9e209b16e0537a164c2a09fa9a8f8d5703a63dcf7f5a826afc342da81ea69a",
+          "recipe": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.recipe.session.json",
+          "recipeSha256": "c3b6e9e6504fba94ed577333c3522d9c96e16f1ee1d46fa0dc4a9545f1484910",
+          "replayInputSha256": "5d67b966df42efec92ba768a6085d7acd7265a27d2fabcaa641b29d1275a8d76",
+          "evaluationPath": "challenges/evaluations/20261001110824-v15.json",
+          "evaluationCommit": "19dd0e5797590d50b125f8b4acab552ea08bd177",
+          "evaluationArtifact": "challenges/evaluations/20261001110824-v15.json",
+          "evaluationUtc": "2026-10-01T11:08:55.136Z",
+          "remainingScreens": 0,
+          "recordedSteps": 66,
+          "previousScreensMatched": 66,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 66,
+              "total": 66
+            },
+            "rng": {
+              "matched": 2907,
+              "total": 2915
+            },
+            "cursors": {
+              "matched": 66,
+              "total": 66
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2907,
+              "cEntry": "rn2(2)=0",
+              "cCaller": "exercise(attrib.c:509)",
+              "jsEntry": "rn2(20)=8",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "n"
+              },
+              "stepIndex": 62
+            },
+            "cursor": null
+          },
+          "step": 62,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.json",
+            "result": {
+              "session": "synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+              "remainingScreens": 0,
+              "recordedSteps": 66,
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "7d9e209b16e0537a164c2a09fa9a8f8d5703a63dcf7f5a826afc342da81ea69a",
+              "evaluationPath": "challenges/evaluations/20261001085306-v15.json",
+              "evaluationCommit": "ea58b9a6de7091405270a0ab094cec750294ed5a",
+              "status": "complete",
+              "commit": "ea58b9a6de7091405270a0ab094cec750294ed5a",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+                "session": "synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.session.json",
+                "recordingSha256": "7d9e209b16e0537a164c2a09fa9a8f8d5703a63dcf7f5a826afc342da81ea69a",
+                "recipe": "challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.recipe.session.json",
+                "recipeSha256": "c3b6e9e6504fba94ed577333c3522d9c96e16f1ee1d46fa0dc4a9545f1484910",
+                "replayInputSha256": "42a341451007a8005f82e4928400cf38132b5fb134c38ab5906fb914bf5eeca9",
+                "evaluationPath": "challenges/evaluations/20261001085306-v15.json",
+                "evaluationCommit": "ea58b9a6de7091405270a0ab094cec750294ed5a",
+                "evaluationArtifact": "challenges/evaluations/20261001085306-v15.json",
+                "evaluationUtc": "2026-10-01T08:53:37.445Z",
+                "remainingScreens": 0,
+                "recordedSteps": 66,
+                "previousScreensMatched": 65,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 66,
+                    "total": 66
+                  },
+                  "rng": {
+                    "matched": 2907,
+                    "total": 2915
+                  },
+                  "cursors": {
+                    "matched": 66,
+                    "total": 66
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2907,
+                    "cEntry": "rn2(2)=0",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "jsEntry": "rn2(20)=8",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": "n"
+                    },
+                    "stepIndex": 62
+                  },
+                  "cursor": null
+                },
+                "step": 62,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509,
+                "investigation": {
+                  "status": "stale",
+                  "path": "investigations/synthetic/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.json",
+                  "previousRemainingScreens": 1
+                }
+              },
+              "summary": "The make_vomiting helper is now ported and sets timed Vomiting from cursed-horn case 4. The first remaining mismatch is the missing whole timeout.c:vomiting_dialogue helper: C nh_timeout calls it before decrementing the timeout, and its unconditional exercise(A_CON,FALSE) produces the step-62 rn2(2) call before gethungry. JavaScript still records that dialogue as unported. The historical case title says confuses, but this initial horn effect starts vomiting.",
+              "source": {
+                "file": "timeout.c",
+                "functions": [
+                  "vomiting_dialogue"
+                ],
+                "branch": "nh_timeout calls vomiting_dialogue whenever Vomiting is active. The whole helper dispatches on (Vomiting & TIMEOUT)-1, updates stun/confusion and occupation state, prints countdown text, handles the final vomit and always calls exercise(A_CON,FALSE) after the switch.",
+                "callers": [
+                  "timeout.c:nh_timeout calls vomiting_dialogue before timed-property decrement; JavaScript js/timeout.js:nh_timeout retains note_unported for this helper."
+                ],
+                "dependencies": [
+                  "potion.c:make_stunned: void state/output helper called at countdown case6; its gap needs source-based treatment without fabricated effects.",
+                  "potion.c:make_confused, eat.c:morehungry/vomit, hack.c:nomul/stop_occupation and attrib.c:exercise follow the C call order.",
+                  "TIMEOUT, Popeye, cantvomit, Hallucination, Stunned and Confusion are source-defined condition helpers; preserve their consumed return values."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Historical A64 selection evidence: C recording challenges/cases/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.session.json, segment 0 step 62, logs rn2(90)=3 for source expression rn1(90, 10), then rn2(13)=9 at apply.c:2267-2269. Since 9 / 2 selects case 4, not the confusion case 2, apply.c:2287-2291 takes the non-vomiting branch and calls make_vomiting(14L, FALSE); the recipe reaches this fresh Wizard through wishes and has no earlier vomiting-producing action.",
+                "Historical A64 selection evidence: The C recording at segment 0 step 65 logs d(2,2)=3 and rn2(3)=1 at apply.c:2341. The sole timed trouble is Vomiting (apply.c:2320-2321), so the one selected fix calls make_vomiting(0L, TRUE) at 2362-2364; the C screen begins “You feel much less nauseated now.”",
+                "Historical A64 selection evidence: The complete owner is potion.c:243-255: it snapshots old Vomiting, suppresses talk for Unaware, calls set_itimeout(&Vomiting, xtime), sets disp.botl, and emits the cure message only for !xtime && old && talk. The downstream RNG mismatch is attributed to attrib.c:exercise at step 62 because attrib.c:577-578 exercises Constitution when Vomiting is active; the saved diagnostic reports C rn2(2) versus JS rn2(20), followed by the step-65 screen mismatch.",
+                "Historical A64 selection evidence: The saved diagnostic .cache/synthetic-scans/v15/wizard-cursed-horn-confuses-then-uncursed-horn-cures.json identifies unported potion.c make_vomiting. In js/apply.js, use_unicorn_horn currently records that gap in both the cursed case-4 branch and the uncursed VOMITING cure branch (around lines 3375 and 3442); js/potion.js:healup also records the same helper gap for curesick.",
+                "A64 ports whole potion.c:make_vomiting and verifies it through two independent fully matching Priest/Valkyrie #wizintrinsic recordings. The admitted horn case is deliberately not runtime completion evidence because its first RNG mismatch remains at step62.",
+                "C timeout.c:nh_timeout calls vomiting_dialogue before decrementing timed properties. Whole timeout.c:vomiting_dialogue ends with exercise(A_CON,FALSE) even when its switch emits no text; this is not the five-turn exerper cadence described in the earlier investigation.",
+                "JavaScript js/timeout.js:nh_timeout retains note_unported('timeout.c vomiting_dialogue') when Vomiting is active. The worker replay after make_vomiting reports C rn2(2)=0 at exercise(attrib.c:509), while JS next calls rn2(20)=8 from gethungry; these follow the same horn selection draws."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "vomiting_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "vomiting_dialogue",
+            "sourceReview": "Whole timeout.c:vomiting_dialogue (196-265), including vomiting_texts[] (188-194), was read and compared. It selects on (Vomiting & TIMEOUT)-1 before property decrement; cases 14, 11, 6, 9, 8, 5, 2 and 0 preserve C's order, text, fallthrough, dice evaluation, occupation/multi transitions, asynchronous helper order, and final exercise(A_CON,FALSE). The case-6 expression (HStun & TIMEOUT)+d(2,4) is evaluated before note_unported('potion.c make_stunned'), the explicitly skipped discarded-void call. Popeye(VOMITING) is implemented as the consumed boolean helper; stop_occupation is conditional, then case 9 computes HConfusion+d(2,4), calls make_confused, and calls nomul(0) only for positive multi. Case 0 preserves stop_occupation, conditional morehungry(20), the You-vomit/hurl line and then note_unported('eat.c vomit') for its discarded-void callee. Selected text is output after the switch, followed unconditionally by exercise(A_CON,FALSE). timeout.c:nh_timeout's active Vomiting branch calls this helper before property countdown. Its planning wrapper now hands every active non-invulnerable Vomiting timeout to the existing live timeout path, so planning cannot omit the helper's random/state/output effects. The helper uses canonical supplied random/message wrappers. Other named gaps remain timeout.c:stoned_dialogue, timeout.c:slime_dialogue, potion.c:make_stunned, and eat.c:vomit; no other timeout helper or physiology is claimed.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout calls vomiting_dialogue() whenever Vomiting is active, before the timed-property decrement loop. The source-defined active arm is wired and the matching v15 turn recording executes it."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/allmain-turn.test.mjs",
+              "scripts/eat-tin.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 65,
+                "source": "allmain.c hero-turn timeout -> timeout.c:nh_timeout -> timeout.c:vomiting_dialogue; the cited range executes its active countdown and final exercise, without reaching case 6 or Popeye."
+              }
+            ],
+            "checkedAt": "f9ec5389a8c0b49841093da56941d1eea38f7ae3"
+          }
+        ],
+        "entryPointReview": "The selected impure unit has the active hero-turn timeout entry: allmain.js tests nh_timeout_requires_live_state before planning timeouts, then live allmain executes timeout.c:nh_timeout; that function calls vomiting_dialogue before timed-property decrement. Any active non-invulnerable Vomiting state now selects the live handoff. The admitted v15 wizard-cursed-horn-confuses-then-uncursed-horn-cures recording matches through segment 0 step 65 after the change, including the previous step-62 divergence and the entire 66-step/RNG/screen/cursor sequence. This proves the horn-induced active countdown entry and its unconditional Constitution exercise. It does not reach case 6 or Popeye; the pure helper is source-wired there and its return contract has source-pinned tests. Pure Popeye helper branches are pinned independently by eat-tin tests. C timeout.c also calls Popeye from stoned_dialogue and slime_dialogue, but those outer helpers remain named unported gaps; A66 does not claim those active routes. Case-6 potion.c:make_stunned and case-0 eat.c:vomit are discarded void gaps recorded at their source call sites. No whole nh_timeout or tin-opener caller completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "active Vomiting countdown during hero-turn timeout",
+            "functions": [
+              "vomiting_dialogue"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-cursed-horn-confuses-then-uncursed-horn-cures",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 65,
+                "source": "allmain.c hero-turn timeout -> timeout.c:nh_timeout active Vomiting arm -> timeout.c:vomiting_dialogue"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "fb4e7f34c20fce13155dda6da98867ac869ded10",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
