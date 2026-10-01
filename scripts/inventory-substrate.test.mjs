@@ -3261,19 +3261,7 @@ test('heavy wish drops stay on an up staircase and a doorway', async () => {
 
 test('ordinary drop preflight refuses excluded floor effects before mutation',
     () => {
-        const state = carryingState();
-        state.u.ux = 10;
-        state.u.uy = 5;
-        state.u.uz = { dnum: 0, dlevel: 1 };
-        state.youmonst = {
-            data: { mflags1: 0, msize: 2, mattk: [] },
-        };
-        state.level = new GameMap();
-        state.level.at(10, 5).typ = ROOM;
-        const ball = instance(HEAVY_IRON_BALL, state);
-        ball.where = OBJ_INVENT;
-        ball.invlet = 'a';
-        state.invent = ball;
+        const { hooks, obj: ball, state } = ordinaryDropFixture();
         // A shop level where the hero is NOT at a costly spot does not refuse
         // the drop -- sellobj() would be a no-op in C (shk.c:3938-3944).
         state.level.flags.has_shop = true;
@@ -3282,7 +3270,7 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         state.level.traps = [{ tx: 10, ty: 5 }];
 
         assert.throws(
-            () => preflight_dropx(ball, { state, hooks: {} }),
+            () => preflight_dropx(ball, { state, hooks }),
             /trap/u,
         );
         assert.equal(state.invent, ball);
@@ -3295,30 +3283,38 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         assert.doesNotThrow(
             () => preflight_dropx(ball, {
                 state,
-                hooks: {
-                    newsym() {},
-                    encumberMessage() {},
-                    extractExternalObject() {},
-                },
+                hooks,
             }),
             'grounded blindness has no special do.c dropz() effect',
         );
         state.u.uprops[BLINDED].intrinsic = 0;
         state.u.uprops[HALLUC].intrinsic = 1;
-        assert.throws(
-            () => preflight_dropx(ball, { state, hooks: {} }),
-            /hallucinated/u,
+        const beforeHallucinationAdmission = {
+            inventory: state.invent,
+            ownership: ball.where,
+            floor: state.level.objects[10][5],
+        };
+        const hallucinationAdmission = preflight_dropx(ball, { state, hooks });
+        assert.equal(hallucinationAdmission.object, ball);
+        assert.equal(hallucinationAdmission.state, state);
+        assert.equal(hallucinationAdmission.initialWhere, OBJ_INVENT);
+        assert.equal(hallucinationAdmission.consumed, false);
+        assert.equal(state.invent, beforeHallucinationAdmission.inventory);
+        assert.equal(ball.where, beforeHallucinationAdmission.ownership);
+        assert.equal(
+            state.level.objects[10][5],
+            beforeHallucinationAdmission.floor,
         );
         state.u.uprops[HALLUC].intrinsic = 0;
         state.u.uinwater = true;
         assert.throws(
-            () => preflight_dropx(ball, { state, hooks: {} }),
+            () => preflight_dropx(ball, { state, hooks }),
             /underwater/u,
         );
         state.u.uinwater = false;
         state.head_engr = { engr_x: 10, engr_y: 5, nxt_engr: null };
         assert.throws(
-            () => preflight_dropx(ball, { state, hooks: {} }),
+            () => preflight_dropx(ball, { state, hooks }),
             /engraving/u,
         );
         state.head_engr = null;
@@ -3327,7 +3323,7 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
         add_rect_to_reg(region, { lx: 10, ly: 5, hx: 10, hy: 5 });
         state.level.regions.push(region);
         assert.throws(
-            () => preflight_dropx(ball, { state, hooks: {} }),
+            () => preflight_dropx(ball, { state, hooks }),
             /visible region/u,
         );
     });

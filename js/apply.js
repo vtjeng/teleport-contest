@@ -4808,8 +4808,9 @@ export async function doapply(state = game, env = {}) {
 }
 
 // C ref: apply.c flip_coin() (4526-4556). splitobj()'s returned coin is used
-// for stacked drops. The ordinary floor drop is wired to do.c:dropx(); its
-// underwater and visible-Hallucination side-effect paths remain named gaps.
+// for stacked drops. Every lost coin calls do.c:dropx(), including under
+// Hallucination; only the separate underwater floor-effects path remains a
+// named gap.
 export async function flip_coin(obj, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const random = env.random ?? {};
@@ -4842,10 +4843,6 @@ export async function flip_coin(obj, state = game, env = {}) {
             // C discards dropx()'s result. Its underwater drop/floor effects
             // are still unported, so retain that source-named gap.
             note_unported('do.c dropx underwater');
-        } else if (heroHallucinating(state)) {
-            // dropx()'s hallucinated floor display is refused by its current
-            // source-admission boundary; the caller discards this void call.
-            note_unported('do.c dropx hallucinated display');
         } else {
             await dropx(coin, {
                 ...env,

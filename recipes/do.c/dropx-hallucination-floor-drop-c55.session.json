@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C-first recipe for do.c:dropx under active Hallucination. Before the drop command, display.c:map_object/obj_to_glyph diverges at row 9, column 24 (C “[” vs JavaScript “(”). This pre-drop display mismatch prevents the recording from establishing do.c:dropx runtime evidence; retain the frozen recipe and C output as blocked provenance.",
+  "segments": [
+    {
+      "seed": 82061493,
+      "datetime": "20560114081224",
+      "nethackrc": "OPTIONS=name:DropHalluC55,role:Archeologist,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " #wizintrinsic\nh\n dd"
+    }
+  ]
+}

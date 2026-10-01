@@ -17782,5 +17782,92 @@
       }
     },
     "recordedAt": "2026-09-30T01:30:11.322Z"
+  },
+  {
+    "kind": "review",
+    "head": "41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82",
+    "auditedRange": "cdb8fcd8409ab281c0c801a64e04c1cf75c31e82..41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82",
+    "level": "full",
+    "areas": [
+      "commands"
+    ],
+    "outcome": "no-change",
+    "evidence": "Counts: 0 raw, 0 deduplicated, 0 confirmed, 0 applied, 0 deferred, 0 rejected, 0 unverified. Five independent finders reviewed the removed Hallucination gates, awaited lost-coin caller and changed tests in an isolated committed worktree. No findings or workflow warnings. Machine readiness and source/completeness attestations passed. Existing underwater, visible glyph and impaired-throw caller gaps remain explicit and receive no completion credit.",
+    "auditMetrics": {
+      "wallTimeSeconds": 153,
+      "counts": {
+        "raw": 0,
+        "deduplicated": 0,
+        "confirmed": 0,
+        "applied": 0,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 0,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "Scope: js/do.js preflight_dropx and dropx; js/apply.js flip_coin, plus changed tests. Selected v14 admitted case segment0 step40 executes ordinary Hallucination dropping through preflight/dropx. Independent ordinary floor drop and Hallucination/Blind/Glib #apply lost-coin recordings execute preflight/dropx and flip_coin. Source-pinned tests pin floor and inventory quantities, active properties and caller ordering.",
+        "sourceReview": "Read complete upstream do.c:dropx/dropy/dropz and apply.c:flip_coin/doapply dispatch and corresponding JS preflight/dropx/flip_coin. Primary change removes only JS Hallucination gate and obsolete caller skip. C freeinv/shipping/altar/floor placement/stack/display sequence and splitobj/call/result ordering retained. Source-reviewed note_unported in flip_coin is do.c dropx underwater, a discarded void call; none in preflight_dropx/dropx. Preflight UnsupportedDropError sites are listed in remainingRefusals and include required hooks and imported preflight_update_inventory boundaries; all pre-existing partial branches, no whole-source credit.",
+        "completeness": "No note_unported call in scope substitutes for a value consumed by C. Underwater dropx returns void and its return is discarded. splitobj returned object and awaited drop lifecycle remain real values, never gap returns.",
+        "remainingRefusals": [
+          "object ownership ${obj.where}",
+          "a lit or globby object",
+          "the box whose lock is being picked",
+          "a swallowed hero",
+          "underwater or special-level display",
+          "an unreachable floor",
+          "a worn or attached object",
+          "an unpaid object",
+          "non-ordinary terrain",
+          "a costly shop spot",
+          "shipping or floor effects at a trap",
+          "liquid terrain",
+          "a boulder landing on the floor",
+          "non-ordinary terrain",
+          "an engraving under the drop",
+          "a visible region over the drop",
+          "impact disturbing a nearby buried corpse",
+          "a missing floor-object grid",
+          "a lit, timed, or globby object in the floor pile"
+        ],
+        "requiredHookRefusals": [
+          "newsym",
+          "encumberMessage",
+          "extractExternalObject"
+        ],
+        "externalPreflight": "preflight_update_inventory(normalized) preserves existing inventory admission checks."
+      },
+      "mode": "full",
+      "finders": [
+        "correctness",
+        "readability",
+        "tests",
+        "concurrency",
+        "variable-trace"
+      ],
+      "optionalFinders": {
+        "concurrency": "Enabled: newly admitted awaited inventory/floor lifecycle and rendering.",
+        "performance": "Disabled: no amplified work beyond source-required floor dropping."
+      },
+      "warnings": [],
+      "unverified": [],
+      "validation": {
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82/run-QWJuzt/summary.json",
+        "focused": ".cache/C55-focused-corrected.log",
+        "syntheticEvaluations": ".cache/C55-evaluation-paths.txt",
+        "fixedScan": ".cache/C55-scan.json"
+      },
+      "scope": "preflight_dropx, dropx, flip_coin and changed tests; divergence only, no whole-source completion credit"
+    },
+    "recordedAt": "2026-10-01T02:20:24.060Z"
   }
 ]

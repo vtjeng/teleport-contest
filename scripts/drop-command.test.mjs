@@ -470,9 +470,9 @@ test('a carried object lands on the square with its message', async () => {
 test('a grounded blind hero uses the ordinary drop tail', async () => {
     // do.c dropz():836 has a special map_object() call only for the conjunction
     // Blind && Levitation. Grounded blindness reaches place_object(), stackobj()
-    // and newsym() exactly like sighted play; Hallucination remains outside
-    // that admitted display path. An unreachable floor uses hitfloor() and the
-    // impact-drop tail.
+    // and newsym() exactly like sighted play. C has no Hallucination refusal in
+    // dropx(); the already-ported display path handles the resulting glyph
+    // draws. An unreachable floor uses hitfloor() and the impact-drop tail.
     const state = await startedGame();
     let ration = state.invent;
     while (ration && ration.invlet !== 'd') ration = ration.nobj;
@@ -488,9 +488,18 @@ test('a grounded blind hero uses the ordinary drop tail', async () => {
     while (hallucinatedRation && hallucinatedRation.invlet !== 'd')
         hallucinatedRation = hallucinatedRation.nobj;
     hallucinating.u.uprops[HALLUC].intrinsic = 1;
-    await assert.rejects(
-        () => _dropInternals.drop(hallucinatedRation, hallucinating),
-        /hallucinated display/u,
+    assert.equal(
+        await _dropInternals.drop(hallucinatedRation, hallucinating),
+        ECMD_TIME,
+    );
+    assert.equal(hallucinatedRation.where, OBJ_FLOOR);
+    assert.deepEqual(
+        pileAt(
+            hallucinating,
+            hallucinating.u.ux,
+            hallucinating.u.uy,
+        ),
+        [hallucinatedRation],
     );
 
     const floating = await startedGame();

@@ -877,9 +877,16 @@ test('throwit() treats unresisted hallucination as impaired', async () => {
     const hallucinating = arena();
     hallucinating.u.uprops[HALLUC].intrinsic = 1;
     const aklys = item(hallucinating, AKLYS);
+    // dothrow.c:throwit() tests the first rn2(100), then the impaired hero
+    // skips the successful-return rn2(100) and reaches the rn2(2) landing
+    // choice. js/dothrow.js:throwit() passes only `{ state }` to its dropy()
+    // call, so that existing caller lacks required hooks. The path stops in
+    // do.c:dropy() -> dropz() at the missing display.c:newsym check.
+    // This pins the impaired branch and current caller boundary; it does not
+    // claim that the object reaches the floor.
     await assert.rejects(
         () => throwit(aklys, W_WEP, false, null, hallucinating),
-        /hallucinated display/u,
+        /unsupported drop: missing newsym operation/u,
     );
     assert.notEqual(hallucinating.uwep, aklys);
     // The impaired arm goes directly to the damage test after its initial
