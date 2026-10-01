@@ -1037,21 +1037,25 @@ test('a covered piece is refused by armor_or_accessory_off', async () => {
     game.uarmu = null;
 });
 
-test('an amulet removal records its discarded helper gap', async () => {
-    // do_wear.c:1819. Amulet_off() returns void; until its source body is
-    // ported, the caller records and skips that discarded-result call.
+test('an amulet removal runs its source helper and clears the worn slot', async () => {
+    // do_wear.c:1819. The void Amulet_off() call owns the slot clear and
+    // off_msg; armor_or_accessory_off() must finish it before returning.
     const segment = segmentFor(TAKEOFF_KEY);
     await runSegment({ ...segment, moves: WAIT });
+    // One uncursed, single-copy amulet with C's W_AMUL worn bit; the
+    // description flags let the source-owned off_msg use the object catalog.
     const amulet = {
         oclass: AMULET_CLASS, otyp: AMULET_OF_ESP, owornmask: W_AMUL,
-        cursed: 0,
+        cursed: 0, dknown: true, known: false, bknown: true,
+        spe: 0, quan: 1, where: 0,
     };
-    game.uamul = amulet;
+    setworn(amulet, W_AMUL, setwornEnv(game));
+    game.flags.verbose = false;
     game.unported = new Set();
     assert.equal(await armor_or_accessory_off(amulet, game), ECMD_TIME);
-    assert.equal(game.uamul, amulet);
-    assert.equal(game.unported.has('do_wear.c Amulet_off'), true);
-    game.uamul = null;
+    assert.equal(game.uamul, null);
+    assert.equal(amulet.owornmask & W_AMUL, 0);
+    assert.equal(game.unported.has('do_wear.c Amulet_off'), false);
 
     const ring = {
         oclass: RING_CLASS, otyp: RIN_ADORNMENT, owornmask: W_RINGL,

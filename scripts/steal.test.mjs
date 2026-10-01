@@ -197,6 +197,9 @@ test('steal sends the worn-item preface and theft line to separate callbacks',
     const ordinary = [];
     const urgent = [];
     const randomBounds = [];
+    // C steal.c:421 selects the first weighted item on rn2(8)=0; its C
+    // objnambuf output is separate from the numeric success result.
+    const stolenName = { value: 'stale caller text' };
     const result = await steal(nymph, game, {
         random: {
             rn2: bound => {
@@ -206,13 +209,41 @@ test('steal sends the worn-item preface and theft line to separate callbacks',
         },
         message: async text => ordinary.push(text),
         urgentMessage: async text => urgent.push(text),
-    });
+    }, stolenName);
 
     assert.equal(result, 1);
     assert.deepEqual(randomBounds, [8]);
+    // objnam.c:yname() names this removed worn object from the hero's view.
+    assert.equal(stolenName.value, 'your spear');
     assert.equal(ordinary.length, 1);
     assert.match(ordinary[0], /^The wood nymph disarms your /u);
     assert.deepEqual(urgent, ['She stole a +1 spear.']);
+});
+
+test('steal clears a nullable C-style name buffer before an early return',
+    async () => {
+    // C steal.c:353 clears a supplied objnambuf before monnear() can return 0;
+    // the source also permits NULL when the caller does not need the name.
+    assert.match(STEAL_C,
+        /steal\(struct monst \*mtmp, char \*objnambuf\)[\s\S]*?if \(objnambuf\)\s*\*objnambuf = '\\0';[\s\S]*?if \(objnambuf\)\s*Strcpy\(objnambuf, yname\(otmp\)\);/u);
+
+    const thief = monster();
+    const gameState = state();
+    gameState.u.ux = 1;
+    gameState.u.uy = 1;
+    const output = { value: 'stale text' };
+    const bounds = [];
+
+    // The thief at (7, 9) is outside the neighboring square, so source
+    // monnear() returns before selection and consumes no random draws.
+    assert.equal(await steal(thief, gameState, {
+        random: { rn2: bound => { bounds.push(bound); return 0; } },
+    }, output), 0);
+    assert.equal(output.value, '');
+    assert.deepEqual(bounds, []);
+
+    // C permits a null output pointer; the JS call keeps its numeric result.
+    assert.equal(await steal(thief, gameState, {}, null), 0);
 });
 
 test('mpickobj preserves missing and attached-object return values', () => {

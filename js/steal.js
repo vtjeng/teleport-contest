@@ -32,6 +32,7 @@ import {
 import { newsym } from './display.js';
 import { flooreffects } from './do.js';
 import {
+    Amulet_off,
     Armor_off,
     Blindf_off,
     Boots_off,
@@ -336,8 +337,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
             else
                 setworn(null, obj.owornmask & W_ARMOR, setwornEnv(state));
         } else if (obj.owornmask & W_AMUL) {
-            // do_wear.c Amulet_off() has no port yet; C discards its result.
-            note_unported('do_wear.c Amulet_off');
+            await Amulet_off(state, env);
         } else if (obj.owornmask & W_RING) {
             await Ring_gone(obj, state);
         } else if (obj.owornmask & W_TOOL) {
@@ -481,7 +481,8 @@ async function stealarm(state = game, rawEnv = {}) {
 
 // C ref: steal.c worn_item_removal() (292-334). Message prefacing the removal
 // of a worn item during theft, followed by remove_worn_item().
-async function worn_item_removal(mon, obj, state = game, message = ttyPline) {
+async function worn_item_removal(mon, obj, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
     let objbuf = doname_with_price(obj, state);
 
     // Massage the object description: strip article and replace with "your".
@@ -506,13 +507,18 @@ async function worn_item_removal(mon, obj, state = game, message = ttyPline) {
     await message(`${Some_Monnam(mon, state)} ${verb} ${objbuf}.`, state);
     state.iflags ??= {};
     state.iflags.last_msg = PLNMSG_MON_TAKES_OFF_ITEM;
-    await remove_worn_item(obj, true, state);
+    await remove_worn_item(obj, true, state, env);
 }
 
 // C ref: steal.c steal() (342-614). Returns 1 when something was stolen,
-// -1 if the monster died, 0 otherwise. `objnambuf` is filled with the name
-// of the stolen item for use by the caller's message.
-export async function steal(mtmp, state = game, env = {}) {
+// -1 if the monster died, 0 otherwise. C's `objnambuf` output parameter is a
+// caller-owned mutable string holder; it does not replace the numeric result.
+export async function steal(
+    mtmp,
+    state = game,
+    env = {},
+    objnambuf = null,
+) {
     // C's worn_item_removal() uses ordinary pline(), while the final theft
     // line uses urgent_pline(). Keep the two display operations separate so
     // callers can silence both during planning without changing live message
@@ -521,11 +527,13 @@ export async function steal(mtmp, state = game, env = {}) {
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
     const random = env.random?.rn2 ?? rn2;
 
+    // C clears the caller's char buffer at entry, including unsuccessful
+    // calls that return before choosing an object.
+    if (objnambuf) objnambuf.value = '';
+
     const monkey_business = is_animal(mtmp.data);
     const seen = canSpotMonster(mtmp, state);
     const was_punished = Boolean(state.uball);
-
-    let objnambuf = '';
 
     // The following is true if successful on first of two attacks.
     if (!monnear(mtmp, state.u.ux, state.u.uy, state)) return 0;
@@ -541,7 +549,9 @@ export async function steal(mtmp, state = game, env = {}) {
         // C's attached chain is removed without giving an object to the thief.
         // remove_worn_item() records the still-unported void unpunish() call.
         if (state.uball && !monkey_business && random(4)) {
-            await worn_item_removal(mtmp, state.uchain, state, message);
+            await worn_item_removal(mtmp, state.uchain, state, {
+                ...env, message,
+            });
         } else if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL
             && !monkey_business && !random(4)) {
             await message(`${Monnambuf} takes off your unseen chain.`, state);
@@ -706,7 +716,7 @@ export async function steal(mtmp, state = game, env = {}) {
         case AMULET_CLASS:
         case RING_CLASS:
         case FOOD_CLASS: /* meat ring */
-            await worn_item_removal(mtmp, otmp, state, message);
+            await worn_item_removal(mtmp, otmp, state, { ...env, message });
             break;
         case ARMOR_CLASS: {
             let armordelay = objectType(otmp, state).oc_delay ?? 0;
@@ -716,7 +726,7 @@ export async function steal(mtmp, state = game, env = {}) {
                 if (armordelay >= 1 && !olddelay && random(10)) {
                     return await cantTake(otmp);
                 }
-                await worn_item_removal(mtmp, otmp, state, message);
+                await worn_item_removal(mtmp, otmp, state, { ...env, message });
             } else {
                 const curssv = otmp.cursed;
                 let slowly;
@@ -773,14 +783,16 @@ export async function steal(mtmp, state = game, env = {}) {
     } else if (otmp.owornmask) {
         // weapon or ball&chain
         const item = otmp === state.uball ? state.uchain : otmp;
-        await worn_item_removal(mtmp, item, state, message);
+        await worn_item_removal(mtmp, item, state, { ...env, message });
         // if the weapon was also wielded after uchain processing
         if (otmp.owornmask & W_WEAPONS)
             await remove_worn_item(otmp, false, state);
     }
 
     // do this before removing it from inventory
-    objnambuf = yname(otmp, state);
+    // C fills the caller's char buffer here, before freeing the object from
+    // hero inventory; mhitm_ad_sedu() uses the same text after steal returns.
+    if (objnambuf) objnambuf.value = yname(otmp, state);
 
     // set mavenge so knights won't suffer alignment penalty
     const conflict = state.u.uprops?.[CONFLICT];

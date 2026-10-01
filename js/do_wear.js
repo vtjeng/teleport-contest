@@ -22,7 +22,7 @@
 //        reset_remarm() (3012-3018), remarm_swapwep() (3059-3087),
 //        inaccessible_equipment() (3338-3400), equip_ok() (3402-3447),
 //        wear_ok() (3463-3468), takeoff_ok() (3470-3475), and glibr()
-//        (2528-2627).
+//        (2528-2627), Amulet_off() (1090-1189).
 //
 // do_wear.c find_ac() was ported earlier and lives in
 // js/u_init_inventory_attrs.js, beside the startup code that first calls it.
@@ -95,6 +95,8 @@ import {
     LEFT_HANDED,
     LEFT_RING,
     LEG,
+    MAGICAL_BREATHING,
+    NECK,
     PARANOID_REMOVE,
     RIGHT_RING,
     SEE_INVIS,
@@ -103,6 +105,7 @@ import {
     SLOW_DIGESTION,
     STONE_RES,
     STRANGLED,
+    SWIMMING,
     st_corpse,
     st_petrifies,
     TIMEOUT,
@@ -143,9 +146,9 @@ import {
     plur,
 } from './const.js';
 import { newsym, see_monsters } from './display.js';
-import { obj_pmname, x_monnam } from './do_name.js';
+import { hliquid, obj_pmname, x_monnam } from './do_name.js';
 import { HCOLORS } from './random_text_data.js';
-import { has_ceiling, surface } from './dungeon.js';
+import { has_ceiling, on_level, surface } from './dungeon.js';
 import { makeplural, makesingular } from './fruit.js';
 import { acurr, uchangealign } from './attrib.js';
 import {
@@ -160,6 +163,7 @@ import { obj_resists } from './bury.js';
 import { game } from './gstate.js';
 import { nomul, spoteffects, unmul } from './hack.js';
 import { rescham, restartcham } from './mon.js';
+import { region_danger } from './region.js';
 import {
     carrying_stoning_corpse,
     getobj,
@@ -172,11 +176,14 @@ import {
     can_be_strangled,
     cantweararm,
     cvt_prop_to_mseenres,
+    amphibious,
+    breathless,
     has_head,
     has_horns,
     humanoid,
     is_flyer,
     is_clinger,
+    is_swimmer,
     monstunseesu,
     nohands,
     nolimbs,
@@ -188,7 +195,8 @@ import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
 import {
-    Flying, Levitation, float_down, float_up, unconscious,
+    Flying, Levitation, drown, float_down, float_up, is_pool_or_lava,
+    unconscious,
 } from './trap.js';
 import {
     WrappingAllowed,
@@ -458,21 +466,31 @@ export function reset_remarm(state = game) {
 async function do_takeoff(state) {
     const wasTwoweap = Boolean(state.u.twoweap);
     const takeoff = takeoffContext(state);
+    let otmp = null;
 
     takeoff.mask |= I_SPECIAL;
-    if (takeoff.what !== W_SWAPWEP) {
+    if (takeoff.what === WORN_AMUL) {
+        // do_wear.c:2875-2878. The occupation caller consumes this pointer
+        // after Amulet_off() has performed its own source-ordered message.
+        otmp = state.uamul;
+        if (!await cursed(otmp, state))
+            await Amulet_off(state);
+    } else if (takeoff.what === W_SWAPWEP) {
+        // This direct command arm remains the only other helper branch wired.
+        setuswapwep(null, setwornEnv(state));
+        await ttyPline(
+            wasTwoweap
+                ? 'You are no longer wielding two weapons at once.'
+                : 'You no longer have a second weapon readied.',
+            state,
+        );
+    } else {
         throw new UnsupportedTakeOffError(
             `do_takeoff() mask ${takeoff.what}`,
         );
     }
-    setuswapwep(null, setwornEnv(state));
-    await ttyPline(
-        wasTwoweap
-            ? 'You are no longer wielding two weapons at once.'
-            : 'You no longer have a second weapon readied.',
-        state,
-    );
     takeoff.mask &= ~I_SPECIAL;
+    return otmp;
 }
 
 // C ref: do_wear.c remarm_swapwep() (3059-3087). This internal command is
@@ -1071,6 +1089,138 @@ async function Amulet_on(obj, state = game) {
         await on_msg(state.uamul, state);
 }
 
+// C ref: do_wear.c Amulet_off() (1090-1189). This callback clears the amulet
+// source before effects that depend on the remaining worn properties. C's
+// discarded spoteffects(TRUE) call stays an explicit void gap.
+export async function Amulet_off(state = game, env = {}) {
+    const amul = state.uamul;
+    // mhitu.c:mattacku supplies silent messages and redraw seams while it
+    // plans monster turns on a cloned state. Keep those caller-owned effects
+    // through the Amulet_of_ESP theft path as well as direct player removal.
+    const message = env.message ?? ttyPline;
+    let makeKnown = false;
+    let earlyOffMessage = false;
+
+    // do_wear.c:1095. I_SPECIAL belongs to a caller such as do_takeoff();
+    // this callback clears only its W_AMUL selection bit.
+    takeoffContext(state).mask &= ~W_AMUL;
+
+    switch (amul.otyp) {
+    case AMULET_OF_ESP:
+        // C removes the telepathy source before see_monsters() redraws.
+        setworn(null, W_AMUL, setwornEnv(state));
+        await off_msg(amul, state, message);
+        earlyOffMessage = true;
+        see_monsters(state, { redraw: env.redraw });
+        break;
+    case AMULET_OF_LIFE_SAVING:
+    case AMULET_VERSUS_POISON:
+    case AMULET_OF_REFLECTION:
+    case AMULET_OF_CHANGE:
+    case AMULET_OF_UNCHANGING:
+    case FAKE_AMULET_OF_YENDOR:
+        break;
+    case AMULET_OF_MAGICAL_BREATHING:
+        // C removes the amulet before both drowning and gas checks, and prints
+        // off_msg() before either branch's specific message.
+        setworn(null, W_AMUL, setwornEnv(state));
+        await off_msg(amul, state, message);
+        earlyOffMessage = true;
+
+        if (state.u.uinwater) {
+            const you = state.youmonst.data;
+            const swimming = state.u.uprops[SWIMMING];
+            if (!(is_swimmer(you) || amphibious(you) || breathless(you))
+                && !(swimming.intrinsic || swimming.extrinsic
+                    || (state.u.usteed
+                        && is_swimmer(state.u.usteed.data)))) {
+                await message(
+                    `You suddenly inhale an unhealthy amount of ${hliquid(
+                        'water', { state },
+                    )}!`,
+                    state,
+                );
+                makeKnown = true;
+                // C discards drown()'s return but completes its effects here.
+                await drown(state);
+            }
+        }
+        if (region_danger(state)) {
+            await message('You are breathing poison gas!', state);
+            makeKnown = true;
+        }
+        break;
+    case AMULET_OF_STRANGULATION: {
+        setworn(null, W_AMUL, setwornEnv(state));
+        await off_msg(amul, state, message);
+        earlyOffMessage = true;
+
+        if (state.u.uprops[STRANGLED].intrinsic) {
+            state.u.uprops[STRANGLED].intrinsic = 0;
+            state.disp.botl = true;
+            const magicalBreathing = state.u.uprops[MAGICAL_BREATHING];
+            if (magicalBreathing.intrinsic || magicalBreathing.extrinsic
+                || breathless(state.youmonst.data)) {
+                await message(
+                    `Your ${body_part(NECK, state.youmonst)} is no longer constricted!`,
+                    state,
+                );
+            } else {
+                await message('You can breathe more easily!', state);
+            }
+            makeKnown = true;
+        }
+        break;
+    }
+    case AMULET_OF_RESTFUL_SLEEP: {
+        setworn(null, W_AMUL, setwornEnv(state));
+        const sleepy = state.u.uprops[SLEEPY];
+        if (!sleepy.extrinsic && !(sleepy.intrinsic & ~TIMEOUT))
+            sleepy.intrinsic &= ~TIMEOUT;
+        break;
+    }
+    case AMULET_OF_FLYING: {
+        const wasFlying = Flying(state);
+
+        // Remove the source before recomputing flight; C deliberately calls
+        // float_vs_flight() before reading the new Flying value.
+        setworn(null, W_AMUL, setwornEnv(state));
+        await off_msg(amul, state, message);
+        earlyOffMessage = true;
+
+        float_vs_flight(state);
+        if (wasFlying && !Flying(state)) {
+            state.disp.botl = true;
+            const isOverWaterOrAir = is_pool_or_lava(
+                state.u.ux,
+                state.u.uy,
+                state,
+            ) || on_level(state.u.uz, state.water_level)
+                || on_level(state.u.uz, state.air_level);
+            await message(
+                isOverWaterOrAir ? 'You stop flying.' : 'You land.',
+                state,
+            );
+            makeKnown = true;
+            note_unported('hack.c spoteffects');
+        }
+        break;
+    }
+    case AMULET_OF_GUARDING:
+        find_ac(state);
+        break;
+    case AMULET_OF_YENDOR:
+        break;
+    }
+
+    // C always performs this second setworn(), even after an early removal.
+    setworn(null, W_AMUL, setwornEnv(state));
+    if (!earlyOffMessage)
+        await off_msg(amul, state, message);
+    if (makeKnown)
+        discover_object(amul.otyp, true, true, true, state);
+}
+
 // C ref: do_wear.c Blindf_on() (1461-1492). The eyewear half of
 // accessory_or_armor_on() dispatches here once the lenses or blindfold passes
 // the "already wearing" checks. Calls setworn() and on_msg() itself, then
@@ -1205,9 +1355,9 @@ async function already_wearing2(cc1, cc2, state) {
 
 // C ref: do_wear.c off_msg() (67-72). armoroff() calls this only after the
 // item has left its slot, so doname() adds no "(being worn)" suffix.
-async function off_msg(otmp, state) {
+async function off_msg(otmp, state, message = ttyPline) {
     if (state.flags.verbose)
-        await ttyPline(`You were wearing ${donameFresh(otmp, state)}.`, state);
+        await message(`You were wearing ${donameFresh(otmp, state)}.`, state);
 }
 
 // C ref: do_wear.c on_msg() (75-99). For rings and amulets (and terse
@@ -3651,9 +3801,7 @@ export async function armor_or_accessory_off(obj, state = game) {
         await off_msg(obj, state);
         await Ring_off(obj, state);
     } else if (obj === state.uamul) {
-        // Amulet_off() has no return value; until its C body is ported, retain
-        // the explicit discarded-call gap and skip its effects.
-        note_unported('do_wear.c Amulet_off');
+        await Amulet_off(state);
     } else if (obj === state.ublindf) {
         // do_wear.c:1820-1821. Blindf_off does its own off_msg.
         await Blindf_off(obj, state);
@@ -3980,6 +4128,7 @@ export async function destroy_arm(state = game, random = { rn2, rnl }) {
 
 export const _doWearInternals = Object.freeze({
     Amulet_on,
+    Amulet_off,
     Blindf_on,
     Armor_off,
     Armor_on,
@@ -4005,6 +4154,7 @@ export const _doWearInternals = Object.freeze({
     cancel_don,
     donning,
     doffing,
+    do_takeoff,
     off_msg,
     on_msg,
     reset_remarm,

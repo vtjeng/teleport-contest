@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A63 independent production witness for do_wear.c:Amulet_off through steal.c:steal -> steal.c:worn_item_removal -> steal.c:remove_worn_item and the animal branch of uhitm.c:mhitm_ad_sedu. The independently chosen Wizard setup (seed 63072120, fixed 20261001143000) wishes an uncursed ESP amulet and creates one hostile monkey; its two trailing spaces answer the source pager after the worn-item message and the theft result. C steal.c:421 selects the worn amulet with rn2(23)=19. After the A63 caller correction, C uhitm.c:mhitm_ad_sedu uses the returned name buffer to print the visible monkey's run-away line before monflee. This recipe was previously kept as pager-blocked while that JS line was missing; the finalized correction is verified by the matching strict fresh differential recorded in the A63 packet.",
+  "segments": [
+    {
+      "seed": 63072120,
+      "datetime": "20261001143000",
+      "nethackrc": "OPTIONS=name:A63AmuletTheft,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,menustyle:traditional,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": " #wizwish\nuncursed amulet of ESP\nPo#wizgenesis\n1 hostile monkey\n..  "
+    }
+  ]
+}
