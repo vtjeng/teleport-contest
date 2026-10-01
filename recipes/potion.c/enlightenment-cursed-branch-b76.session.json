@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cursed potion.c:peffect_enlightenment() witness. Seed 76100317 and the date/time were fixed before recording without scanning. A debug Wizard uses a cursed wish to enter the branch that increments potion_unkn, prints the uneasy-feeling message, and exercises Wisdom downward. The trailing space clears the source pager; Enter answers dopotion()’s source-ordered blank call-name prompt so the turn can finish.",
+  "segments": [
+    {
+      "seed": 76100317,
+      "datetime": "20370417142603",
+      "nethackrc": "OPTIONS=name:B76CursedEnl,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017cursed potion of enlightenment\nqo \n"
+    }
+  ]
+}

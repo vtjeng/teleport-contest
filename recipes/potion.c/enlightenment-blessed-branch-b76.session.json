@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent blessed potion.c:peffect_enlightenment() witness. Seed 76100341 and the date/time were fixed before recording without scanning. The C-first setup miss showed the wished smoky potion in slot g, so qg reaches the blessed helper path. A debug Rogue provides a role variation; two trailing spaces clear the potion message and the enlightenment status menu before the source trailing line and Wisdom exercise.",
+  "segments": [
+    {
+      "seed": 76100341,
+      "datetime": "20370418095827",
+      "nethackrc": "OPTIONS=name:B76BlessedEnl,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017blessed potion of enlightenment\nqg  "
+    }
+  ]
+}
