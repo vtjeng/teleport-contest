@@ -906,7 +906,6 @@ export function splitobj(obj, quantity, env = {}) {
         );
     }
     const splitLight = obj_sheds_light(obj);
-    if (obj.unpaid) requiredHook(normalized, 'splitBill', obj);
     if (obj.timed) requiredHook(normalized, 'splitObjectTimers', obj);
     if (splitLight) requiredHook(normalized, 'splitObjectLight', obj);
 
@@ -932,8 +931,15 @@ export function splitobj(obj, quantity, env = {}) {
     if (obj.where === OBJ_FLOOR) obj.nexthere = child;
     if (child.where === OBJ_LUAFREE) child.where = OBJ_FREE;
 
-    if (obj.unpaid)
-        normalized.hooks.splitBill(obj, child, normalized);
+    if (obj.unpaid) {
+        // C ref: mkobj.c splitobj() calls shk.c splitbill() here and discards
+        // its void result. Preserve an established implementation; otherwise
+        // record the exact source gap after the preceding split mutations.
+        if (typeof normalized.hooks.splitBill === 'function')
+            normalized.hooks.splitBill(obj, child, normalized);
+        else if (normalized.state === game)
+            note_unported('shk.c splitbill');
+    }
     copy_oextra(child, obj);
     // C: if (has_omid(otmp)) free_omid(otmp); /* only one association */
     if (child.oextra && child.oextra.omid)

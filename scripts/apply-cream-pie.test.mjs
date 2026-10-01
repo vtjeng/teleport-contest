@@ -1,15 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-    doapply,
-    UnsupportedApplyError,
-} from '../js/apply.js';
+import { doapply } from '../js/apply.js';
 import {
     BLINDED,
     ECMD_OK,
     HALLUC,
     OBJ_DELETED,
+    OBJ_INVENT,
     TIMEOUT,
     W_TOOL,
 } from '../js/const.js';
@@ -18,6 +16,7 @@ import { runSegment } from '../js/jsmain.js';
 import { can_blnd, haseyes } from '../js/mondata.js';
 import { AT_WEAP, M1_NOEYES } from '../js/monsters.js';
 import { CREAM_PIE } from '../js/objects.js';
+import { splitobj, weight } from '../js/obj.js';
 import { make_blinded } from '../js/potion.js';
 import { getRngLog } from '../js/rng.js';
 import {
@@ -114,60 +113,128 @@ test('doapply creams and blinds the hero before deleting one ordinary pie',
     assert.deepEqual(calls, ['rnd(25)', 'rn2(100)']);
 });
 
-test('doapply keeps cream-pie states outside this slice fail-closed',
+test('doapply splits a cream-pie stack and consumes only the returned child',
     async () => {
-    const cases = [
-        {
-            label: 'a stack',
-            // Two is the smallest quantity that enters C's splitobj branch.
-            setup: (pie) => { pie.quan = 2; },
-        },
-        {
-            label: 'hallucination',
-            // One is the smallest nonzero HALLUC timeout.
-            setup: () => { game.u.uprops[HALLUC].intrinsic = 1; },
-        },
-        {
-            label: 'existing blindness',
-            // One is the smallest nonzero BLINDED timeout.
-            setup: () => { game.u.uprops[BLINDED].intrinsic = 1; },
-        },
-        {
-            label: 'a blindfold',
-            setup: () => { game.u.uprops[BLINDED].extrinsic = W_TOOL; },
-        },
-        {
-            label: 'an unpaid pie',
-            setup: (pie) => { pie.unpaid = true; },
-        },
-    ];
+    const pie = await wishForPie();
+    pie.quan = 2;
+    pie.owt = weight(pie, { state: game });
+    const drawsBefore = getRngLog().length;
+    queue(' ', pie.invlet, ' ');
 
-    for (const { label, setup } of cases) {
-        const pie = await wishForPie();
-        setup(pie);
-        const before = {
-            draws: getRngLog().length,
-            intrinsic: game.u.uprops[BLINDED].intrinsic,
-            ucreamed: game.u.ucreamed,
-            quan: pie.quan,
-            where: pie.where,
-        };
-        // Direct entry into doapply() must first dismiss the wish line that
-        // moveloop_core() would clear before reading the apply command.
-        queue(' ', pie.invlet);
+    assert.equal(await doapply(game), ECMD_OK);
 
-        await assert.rejects(
-            doapply(game),
-            (error) => error instanceof UnsupportedApplyError
-                && /cream pie/u.test(error.branch),
-            label,
-        );
-        assert.deepEqual({
-            draws: getRngLog().length,
-            intrinsic: game.u.uprops[BLINDED].intrinsic,
-            ucreamed: game.u.ucreamed,
-            quan: pie.quan,
-            where: pie.where,
-        }, before, label);
+    // apply.c splits one object before describing it, then destroys the
+    // returned child. The remaining inventory object keeps its original id.
+    assert.equal(pie.quan, 1);
+    assert.equal(pie.where, OBJ_INVENT);
+    assert.equal(pie.nobj, null);
+    assert.equal(pie.owt, weight(pie, { state: game }));
+    assert.equal(game.u.ucreamed,
+        game.u.uprops[BLINDED].intrinsic & TIMEOUT);
+    assert.equal(game._pending_message,
+        "You can't see through all the sticky goop on your face.");
+
+    // splitobj -> nextoid's rnd(2), use_cream_pie's rnd(25), then delobj's
+    // obj_resists rn2(100), in the exact source order.
+    const calls = getRngLog().slice(drawsBefore).map(
+        (entry) => entry.slice(0, entry.indexOf('=')),
+    );
+    assert.deepEqual(calls, ['rnd(2)', 'rnd(25)', 'rn2(100)']);
+});
+
+test('splitobj preserves the returned child and names C splitbill as a void gap',
+    async () => {
+    const pie = await wishForPie();
+    pie.quan = 2;
+    pie.unpaid = true;
+    pie.owt = weight(pie, { state: game });
+
+    const child = splitobj(pie, 1, { state: game });
+
+    // mkobj.c splitobj returns the child after setting context IDs and placing
+    // it immediately after its parent. shk.c splitbill is void and absent, so
+    // the call is recorded as a gap rather than replaced with a fake bill.
+    assert.equal(pie.quan, 1);
+    assert.equal(child.quan, 1);
+    assert.equal(child.unpaid, true);
+    assert.equal(pie.nobj, child);
+    assert.equal(game.context.objsplit.parent_oid, pie.o_id);
+    assert.equal(game.context.objsplit.child_oid, child.o_id);
+    assert.ok(game.unported.has('shk.c splitbill'));
+});
+
+test('doapply follows the hallucinated cream-pie message branch', async () => {
+    const pie = await wishForPie();
+    game.u.uprops[HALLUC].intrinsic = 1;
+    const drawsBefore = getRngLog().length;
+    queue(' ', pie.invlet, ' ');
+    const toplineDescriptor = Object.getOwnPropertyDescriptor(
+        game, '_ttyToplines',
+    );
+    let toplines = game._ttyToplines ?? '';
+    const toplineWrites = [];
+    Object.defineProperty(game, '_ttyToplines', {
+        configurable: true,
+        enumerable: toplineDescriptor?.enumerable ?? true,
+        get: () => toplines,
+        set(value) {
+            toplines = value;
+            toplineWrites.push(value);
+        },
+    });
+    let result;
+    try {
+        result = await doapply(game);
+    } finally {
+        if (toplineDescriptor) {
+            Object.defineProperty(game, '_ttyToplines', {
+                ...toplineDescriptor,
+                value: toplines,
+            });
+        } else {
+            delete game._ttyToplines;
+            game._ttyToplines = toplines;
+        }
     }
+
+    assert.equal(result, ECMD_OK);
+    assert.equal(game._pending_message,
+        "You can't see through all the sticky goop on your face.");
+    assert.ok(toplineWrites.some((line) =>
+        line.includes('You give yourself a facial.')));
+    const calls = getRngLog().slice(drawsBefore).map(
+        (entry) => entry.slice(0, entry.indexOf('=')),
+    );
+    assert.deepEqual(calls, ['rnd(25)', 'rn2(100)']);
+});
+
+test('doapply keeps the source sticky-goop message when already blind',
+    async () => {
+    const pie = await wishForPie();
+    game.u.uprops[BLINDED].intrinsic = 1;
+    game.u.ucreamed = 1;
+    queue(' ', pie.invlet, ' ');
+
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(game._pending_message,
+        "There's more sticky goop all over your face.");
+    assert.equal(pie.where, OBJ_DELETED);
+});
+
+test('doapply still consumes a pie when can_blnd rejects the eyes', async () => {
+    const pie = await wishForPie();
+    game.u.uprops[BLINDED].extrinsic = W_TOOL;
+    const drawsBefore = getRngLog().length;
+    queue(' ', pie.invlet);
+
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(game.u.ucreamed, 0);
+    assert.equal(game.u.uprops[BLINDED].intrinsic & TIMEOUT, 0);
+    assert.equal(pie.where, OBJ_DELETED);
+    assert.equal(game._pending_message,
+        'You immerse your face in the cream pie.');
+    const calls = getRngLog().slice(drawsBefore).map(
+        (entry) => entry.slice(0, entry.indexOf('=')),
+    );
+    assert.deepEqual(calls, ['rn2(100)']);
 });
