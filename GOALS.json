@@ -128744,8 +128744,8 @@
           "name": "offer_negative_valued",
           "line": 1592,
           "endLine": 1601,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -129172,7 +129172,44 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "offer_negative_valued",
+            "implementation": "js/pray.js",
+            "symbol": "offer_negative_valued",
+            "sourceReview": "Complete source review of pray.c:offer_negative_valued (1592-1599). C tests altaralign != u.ualign.type && highaltar first; that branch calls desecrate_altar and discards its void result, so JS records note_unported('pray.c desecrate_altar') and skips invented effects. Otherwise C calls gods_upset(altaralign); JS awaits the existing gods_upset implementation, which owns u.ugangr and anger dialogue. C offer_corpse calls this helper at :2005 for a tame-corpse path and :2016 when eval_offering returns a negative value; JS awaits it at both corresponding branches. The matching negative-value recipe and admitted v15 case execute the selected same-alignment branch through #offer. Supporting caller correction: C pray.c:eval_offering's aligned-unicorn insult calls adjattrib(A_WIS,-1,TRUE), suppressing the attribute message before returning -1; JS now uses message mode 1 at that exact branch, preserving the subsequent helper dialogue order. This evidence does not claim whole eval_offering or offer_corpse completion. C offer_fake_amulet calls this helper at :1625, but the JS dosacrifice route remains explicitly unported there and is outside this task's runtime coverage.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "offer_corpse",
+                "source": "C pray.c:offer_corpse calls offer_negative_valued at :2005 for a tame corpse and :2016 after eval_offering returns a negative value. JS awaits the same helper at both sites. The independent recipe exercises the negative-value call through #offer -> dosacrifice -> offer_corpse; the admitted v15 case also reaches that call."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/offer-negative-valued-lawful-priest-offer-b71.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "lawful-aligned-unicorn-insults-at-lawful-altar",
+                "segment": 0,
+                "fromStep": 125,
+                "throughStep": 127,
+                "source": "cmd.c #offer -> pray.c:dosacrifice -> pray.c:offer_corpse -> pray.c:eval_offering returns -1 -> pray.c:offer_negative_valued -> pray.c:gods_upset. This post-fix range fully matches through the recorded terminal continuation."
+              }
+            ],
+            "checkedAt": "281d1ab0b14c5012d083cd45a37c0e9932daf681"
+          }
+        ],
+        "entryPointReview": "This selected range contains the helper pray.c:offer_negative_valued, not a user command, so entryPoints is intentionally empty. Its production caller is pray.c:offer_corpse at two source sites, both wired in JS; the fresh independent Priest recipe and admitted v15 Archeologist case match through the negative-value helper route. The supporting eval_offering change only corrects the aligned-unicorn insult's adjattrib message mode and is not whole-function completion evidence. C's additional pray.c:offer_fake_amulet call at :1625 is behind the still-unported JS dosacrifice branch and receives no runtime or completion claim.",
+        "entryPoints": []
+      }
     }
   ]
 }
