@@ -124060,15 +124060,15 @@
           "name": "pick_familiar_pm",
           "line": 104,
           "endLine": 137,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "make_familiar",
           "line": 138,
           "endLine": 218,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -124241,7 +124241,139 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "pick_familiar_pm",
+            "implementation": "js/dog.js",
+            "symbol": "pick_familiar_pm",
+            "sourceReview": "Read the complete dog.c:pick_familiar_pm definition (104-135). An object supplies its figurine species and checks extinction against the two special birth-limited monster classes; a null object selects a usual pet with rn2(3) == 0 or calls rndmonst_adj over 3 * P_SKILL(create familiar). Quiet checks control only the source messages. Keep object and spell selection in the same function and preserve random selection order.",
+            "callers": [
+              {
+                "path": "js/dog.js",
+                "symbol": "make_familiar",
+                "source": "dog.c:make_familiar calls pick_familiar_pm(otmp, quietly) on every retry"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_figurine",
+                "source": "apply.c:use_figurine -> dog.c:make_familiar(figurine, x, y, FALSE)"
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects SPE_CREATE_FAMILIAR -> dog.c:make_familiar(NULL, u.ux, u.uy, FALSE)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/figurine.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/create-familiar-wizcast-a61-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-applies-uncursed-figurine",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 43,
+                "source": "cmd.c:doapply -> apply.c:use_figurine -> dog.c:make_familiar -> dog.c:pick_familiar_pm"
+              }
+            ],
+            "checkedAt": "c948aefffdfc45cb2daaa812263220fabfb8a172"
+          },
+          {
+            "name": "make_familiar",
+            "implementation": "js/dog.js",
+            "symbol": "make_familiar",
+            "sourceReview": "Read the complete dog.c:make_familiar definition (138-215). Preserve the retry loop, MM_EDOG|MM_IGNOREWATER|NO_MINVENT|MM_NOMSG plus optional figurine gender flags, makemon return-pointer use, pool minliquid check, figurine rn2(10) attitude mapping and BUC override, naming, initedog, malign, redraw, and wield order. The void free_emin call is named with note_unported after C clears isminion. Supporting makemon work forwards MM_IGNOREWATER and recognizes only this exact familiar runtime call shape; it does not claim whole makemon.c:makemon completion.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_figurine",
+                "source": "apply.c:use_figurine:2574 calls make_familiar(obj, cc.x, cc.y, FALSE) and discards its result"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "fig_transform",
+                "source": "apply.c:fig_transform:2424 calls make_familiar(figurine, cc.x, cc.y, TRUE) and consumes its pointer; FIG_TRANSFORM callback is covered by two exact C/JS recordings through the callback message."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects:1569-1571 calls make_familiar(NULL, u.ux, u.uy, FALSE)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/figurine.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/create-familiar-wizcast-a61-independent.session.json",
+              "recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback.session.json",
+              "recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback-seed-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-applies-uncursed-figurine",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 43,
+                "source": "cmd.c:doapply -> apply.c:use_figurine -> dog.c:make_familiar"
+              }
+            ],
+            "checkedAt": "c948aefffdfc45cb2daaa812263220fabfb8a172"
+          }
+        ],
+        "entryPointReview": "C has three direct make_familiar callers: spell.c:spelleffects(SPE_CREATE_FAMILIAR), apply.c:use_figurine, and apply.c:fig_transform. The wizard spell entry matches at recordings/spell.c/create-familiar-wizcast-a61-independent.session.json (13 screens, 2,816 RNG calls). The uncursed inventory figurine entry is covered by admitted v14/wizard-applies-uncursed-figurine segment 0 through step 43. The FIG_TRANSFORM caller is now independently covered twice: recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback.session.json (seed 60293889, attachment draw rnd(9000)=1 at step 90, make_familiar at 294, callback message through step 295) and recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback-seed-variation.session.json (seed 65425610, draw 38 at step 90, make_familiar at 572, callback message through step 573). In both, zap.c:makewish supplies carry_obj_effects the dead_species and attach_fig_transform_timeout hooks; JS matches the full C output through timer expiry and the familiar callback.",
+        "entryPoints": [
+          {
+            "name": "Apply an uncursed figurine",
+            "functions": [
+              "make_familiar",
+              "pick_familiar_pm"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "wizard-applies-uncursed-figurine",
+                "segment": 0,
+                "fromStep": 40,
+                "throughStep": 43,
+                "source": "cmd.c:doapply -> apply.c:doapply -> apply.c:use_figurine -> dog.c:make_familiar"
+              }
+            ]
+          },
+          {
+            "name": "Cast create familiar",
+            "functions": [
+              "make_familiar",
+              "pick_familiar_pm"
+            ],
+            "recordings": [
+              "recordings/spell.c/create-familiar-wizcast-a61-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "FIG_TRANSFORM timer caller",
+            "functions": [
+              "make_familiar"
+            ],
+            "recordings": [
+              "recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback.session.json",
+              "recordings/apply.c/figurine-timeout-wizard-wish-a61-timer-callback-seed-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
