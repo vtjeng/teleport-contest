@@ -128435,7 +128435,7 @@
     {
       "id": "port-apply-use-bell-synthetic-v13-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete ordinary and charged bell application",
       "cFile": "apply.c",
       "sessions": [
@@ -128449,8 +128449,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "27f092e2378ab55317e8a99718e8b871914ffc30",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "use_bell",
@@ -128709,6 +128712,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "27f092e2378ab55317e8a99718e8b871914ffc30",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

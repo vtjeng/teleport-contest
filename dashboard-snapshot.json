@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T10:03:08.920Z",
+  "capturedAt": "2026-10-01T10:51:46.038Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -12726,12 +12726,132 @@
         "type": "accepted",
         "at": "2026-10-01T10:02:19.186Z",
         "task": "B70"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B70-published-411031fe",
+        "type": "published",
+        "at": "2026-10-01T10:03:25.083Z",
+        "task": "B70",
+        "commit": "411031fe2731a4c90b34f581b684d3ee1999a2c4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-03affb1476a2e8780b87efd58991e062fbc70993",
+        "type": "ready",
+        "at": "2026-10-01T10:05:33.656Z",
+        "task": "A65",
+        "delivery": "03affb1476a2e8780b87efd58991e062fbc70993"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A65-received-03affb14",
+        "type": "received",
+        "at": "2026-10-01T10:06:49.762Z",
+        "task": "A65",
+        "delivery": "03affb1476a2e8780b87efd58991e062fbc70993"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A65-source-correction-feedback-03affb14",
+        "type": "feedback",
+        "at": "2026-10-01T10:09:05.611Z",
+        "task": "A65",
+        "delivery": "03affb1476a2e8780b87efd58991e062fbc70993"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-9b6dc8dc59ebf929ea413507c353af91e3dce89d",
+        "type": "ready",
+        "at": "2026-10-01T10:14:35.117Z",
+        "task": "C56",
+        "delivery": "9b6dc8dc59ebf929ea413507c353af91e3dce89d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C56-received-9b6dc8dc",
+        "type": "received",
+        "at": "2026-10-01T10:16:26.857Z",
+        "task": "C56",
+        "delivery": "9b6dc8dc59ebf929ea413507c353af91e3dce89d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C56-source-evidence-correction-9b6dc8dc",
+        "type": "feedback",
+        "at": "2026-10-01T10:25:11.840Z",
+        "task": "C56",
+        "delivery": "9b6dc8dc59ebf929ea413507c353af91e3dce89d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A65-correction-20261001-a234",
+        "type": "resume",
+        "at": "2026-10-01T10:30:36.504Z",
+        "task": "A65"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-cabafbdb3f14363fcf73abc27de49733cc2eb56b",
+        "type": "ready",
+        "at": "2026-10-01T10:30:58.279Z",
+        "task": "A65",
+        "delivery": "cabafbdb3f14363fcf73abc27de49733cc2eb56b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A65-received-cabafbdb",
+        "type": "received",
+        "at": "2026-10-01T10:32:06.884Z",
+        "task": "A65",
+        "delivery": "cabafbdb3f14363fcf73abc27de49733cc2eb56b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A65-integrating-7d624be0",
+        "type": "integrating",
+        "at": "2026-10-01T10:33:40.016Z",
+        "task": "A65",
+        "integration": "7d624be0df848e18e964465d34c820e8d4bb074f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A65-integrating-27f092e2",
+        "type": "integrating",
+        "at": "2026-10-01T10:41:30.063Z",
+        "task": "A65",
+        "integration": "27f092e2378ab55317e8a99718e8b871914ffc30"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A65-validated-27f092e2",
+        "type": "validated",
+        "at": "2026-10-01T10:50:25.801Z",
+        "task": "A65",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A65-accepted-27f092e2",
+        "type": "accepted",
+        "at": "2026-10-01T10:50:26.167Z",
+        "task": "A65"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A66-vomiting-dialogue-20261001T1040Z",
+        "type": "assign",
+        "at": "2026-10-01T10:50:35.072Z",
+        "task": "A66",
+        "worker": "A2",
+        "goal": "port-timeout-vomiting-dialogue-synthetic-v15-20261001",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "a4a76c6c56ed18acd74399d0f904263ec8ffd83e",
-    "measuredAt": "2026-10-01T09:58:15.701Z",
+    "executionCommit": "27f092e2378ab55317e8a99718e8b871914ffc30",
+    "measuredAt": "2026-10-01T10:46:54.743Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
