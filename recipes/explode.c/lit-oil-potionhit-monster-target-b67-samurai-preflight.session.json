@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B67 retained setup preflight, not runtime evidence: it stops at the Samurai throw prompt after establishing the oil slot and adjacent target location. The C artifact is preserved under .cache/B67-logs/non-entry-c-matches; the follow-up target-miss recording separately reaches the breakobj floor explosion.",
+  "segments": [
+    {
+      "seed": 84630219,
+      "datetime": "20400103183142",
+      "nethackrc": "OPTIONS=name:SamuraiOil,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nlit potion of oil\n\u0007grid bug\nt"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B67 retained C target-selection miss. With corrected initial pager, oil slot o and northward direction, this input still did not reach potion.c:potionhit or explode.c:splatter_burning_oil; preserve the C artifact under .cache/B67-logs/non-entry-c-matches and do not count it as runtime evidence.",
+  "segments": [
+    {
+      "seed": 84630218,
+      "datetime": "20391202160731",
+      "nethackrc": "OPTIONS=name:OilBugHit,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nlit potion of oil\n\u0007grid bug\ntok"
+    }
+  ]
+}

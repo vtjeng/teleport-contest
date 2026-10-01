@@ -441,6 +441,7 @@ import { mpickobj, remove_worn_item } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { explode_oil } from './explode.js';
 import { align_gname } from './pray.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { in_out_region, m_in_out_region } from './region.js';
@@ -1632,7 +1633,12 @@ export async function breakobj(
     case POT_WATER:
         obj.in_use = 1;
         if (obj.otyp === POT_OIL && obj.lamplit) {
-            note_unported('potion.c explode_oil');
+            await explode_oil(obj, x, y, state, {
+                ...objectEnv,
+                random: { d, rn1, rn2, rnl, rnd, rne, ...random },
+                message,
+            });
+            if (state.program_state?.gameover) return 1;
         } else if (next2u(x, y, state)) {
             const species = state.youmonst?.data;
             const canBreatheVapors = !breathless(species) || haseyes(species);

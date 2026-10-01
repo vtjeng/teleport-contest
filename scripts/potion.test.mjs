@@ -1743,6 +1743,28 @@ test('potionhit preserves the C polymorph message and squared vapor distance',
         /case POT_POLYMORPH:\s*await message\([\s\S]*?Hallucination\(state\)[\s\S]*?if \(!\(state\.u\.uprops\[UNCHANGING\]/u);
 });
 
+test('potionhit wires lit oil through both C target arms', () => {
+    const source = potionSource();
+    const cStart = source.indexOf(
+        'potionhit(struct monst *mon, struct obj *obj, int how)',
+    );
+    const cEnd = source.indexOf('\n}\n\n/* vapors are inhaled', cStart);
+    assert.ok(cStart > 0 && cEnd > cStart);
+    const cBody = source.slice(cStart, cEnd);
+    assert.match(cBody,
+        /case POT_OIL:[\s\S]*?if \(obj->lamplit\)\s*explode_oil\(obj, u\.ux, u\.uy\);/u);
+    assert.match(cBody,
+        /case POT_OIL:[\s\S]*?if \(obj->lamplit\)\s*explode_oil\(obj, tx, ty\);/u);
+
+    const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const jsStart = js.indexOf('export async function potionhit(');
+    const jsEnd = js.indexOf('\n}\n\n// C ref: potion.c potionbreathe', jsStart);
+    assert.ok(jsStart > 0 && jsEnd > jsStart);
+    const jsBody = js.slice(jsStart, jsEnd);
+    assert.equal((jsBody.match(/await explode_oil\(obj, tx, ty, state, env\);/gu) ?? []).length, 2);
+    assert.equal(jsBody.includes("note_unported('potion.c explode_oil')"), false);
+});
+
 test('potionhit reports its source message before Unchanging suppresses polymorph',
     async () => {
         await startedGame(771028, 'PotionHeroPolymorphUnchanging');

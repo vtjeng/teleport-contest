@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B67 C-first role variation for breakobj. C misses the grid bug at thitmonst rnd(25)=19 with Samurai Dexterity 17, then breaks the lit oil potion on the floor; splatter_burning_oil executes with d(4,4)=11. This proves the breakobj -> explode_oil -> splatter_burning_oil route, not potionhit. The separate dexterity-hit Wizard recipe reaches potionhit monster-target POT_OIL.",
+  "segments": [
+    {
+      "seed": 84630219,
+      "datetime": "20400103183142",
+      "nethackrc": "OPTIONS=name:SamuraiOil,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nlit potion of oil\n\u0007grid bug\nt*fn"
+    }
+  ]
+}

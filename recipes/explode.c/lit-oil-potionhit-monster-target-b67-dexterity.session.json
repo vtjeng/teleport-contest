@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B67 retained setup preflight, not runtime evidence: the Samurai reaches the throw prompt after wished +7 gauntlets raise source ACURR(A_DEX) 18 to 25. The preserved C artifact ends before the throw; the following independently recorded case reaches the source rnd(25) gate.",
+  "segments": [
+    {
+      "seed": 84630220,
+      "datetime": "20400112174253",
+      "nethackrc": "OPTIONS=name:SamuraiDexOil,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\n+7 gauntlets of dexterity\nWf#wizwish\nlit potion of oil\n\u0007grid bug\nt"
+    }
+  ]
+}
