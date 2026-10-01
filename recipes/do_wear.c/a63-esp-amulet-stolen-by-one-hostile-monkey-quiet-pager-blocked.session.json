@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked A63 C-first quiet-messages variation for the active ESP theft caller. C do_wear.c:off_msg prints only when flags.verbose; turning verbosity off skips that message while preserving the slot-clear and see_monsters effects. The single hostile monkey and seed 63072120 retain the source-observed steal.c:421 amulet selection (rn2(23)=19); the option variation is chosen from the C condition, not from JavaScript output. C's final frame shows the theft result after its preface pager. Strict diff matches the C screens/cursors until that response, but JS logs the next monster attack (uhitm.c:mhitm_knockback, monmove.c:distfleeck, mhitu.c:mattacku) one pager response earlier than win/tty/topl.c:more; this is the independent tty_message.js:ttyPlineCore blocker. Its C bytes are preserved in .cache/A63-logs.",
+  "segments": [
+    {
+      "seed": 63072120,
+      "datetime": "20261001143000",
+      "nethackrc": "OPTIONS=name:A63AmuletTheft,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!verbose,!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,menustyle:traditional,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": " #wizwish\nuncursed amulet of ESP\nPo#wizgenesis\n1 hostile monkey\n.. "
+    }
+  ]
+}

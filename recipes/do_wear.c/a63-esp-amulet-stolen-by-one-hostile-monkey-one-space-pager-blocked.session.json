@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked A63 C-first one-space production probe for steal.c:steal -> steal.c:worn_item_removal -> steal.c:remove_worn_item -> do_wear.c:Amulet_off. This is the exact one-space prefix of the two-space recipe with the same seed, date, role, object, and one-monkey inventory setup; the single space answers the first More emitted by do_wear.c:off_msg, and the captured C frame remains at the off message before the later theft-result pager. The preserved C recording is .cache/A63-logs/callback-boundary/one-monkey-amulet-one-space.recording.json (sha256 26e59571164748229a8a0a688a42f3e033fb101c8da33aef1915793c9a192307); it is an observation, not a matching corpus recording. The full two-space recipe records the following C theft-result frame. Strict JS parity remains blocked by the saved next-turn RNG/pager mismatch documented in A63 task context; no tty or monster source is expanded here.",
+  "segments": [
+    {
+      "seed": 63072120,
+      "datetime": "20261001143000",
+      "nethackrc": "OPTIONS=name:A63AmuletTheft,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,menustyle:traditional,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": " #wizwish\nuncursed amulet of ESP\nPo#wizgenesis\n1 hostile monkey\n.. "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A63 independent C-first theft route. The first recording showed that this Wizard's wished ESP amulet is inventory letter o, so this corrected input selects o before creating a hostile water nymph. ESP exercises C's remove-slot-before-see_monsters arm if steal.c:steal selects it; the earlier wrong-letter attempt and recording remain under .cache/A63-logs/c-first-attempts. No JavaScript comparison has been used to choose inputs.",
+  "segments": [
+    {
+      "seed": 63072119,
+      "datetime": "20261001132900",
+      "nethackrc": "OPTIONS=name:A63AmuletTheft,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": " #wizwish\nuncursed amulet of ESP\nPo#wizgenesis\nwater nymph\n......"
+    }
+  ]
+}

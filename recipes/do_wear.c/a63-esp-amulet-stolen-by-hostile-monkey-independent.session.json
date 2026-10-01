@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked A63 setup attempt for the intended steal.c:steal -> steal.c:worn_item_removal -> do_wear.c:Amulet_off witness. The C D/drop-types prompt can remove eligible inventory before the hostile monkey turn, but js/do.js:drop is still unported, so strict JavaScript replay stops at that command before the theft entry. The C-only artifact is retained in .cache/A63-logs/callback-boundary; it is not a matching recording and is not part of the regression recordings corpus. The separate five-monkey recipe avoids this setup dependency.",
+  "segments": [
+    {
+      "seed": 63072119,
+      "datetime": "20261001143000",
+      "nethackrc": "OPTIONS=name:A63AmuletTheft,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,menustyle:traditional,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": " #wizwish\nuncursed amulet of ESP\nPoTbD)[/=!?+(\na             kk#wizgenesis\nhostile monkey\n.....  "
+    }
+  ]
+}
