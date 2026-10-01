@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first setup miss for B79. This input put the variety before \"tin of \", so objnam.c:readobjnam() did not call tin_variety_txt() on \"french fried\"; C fell back to a random tin variety (index 7) and placed the tin in slot p. The recorded e/n selection then hit \"You cannot eat that!\" and never reached eat.c:consume_tin(). Keep this attempt as a named setup limitation; use the corrected source order in the independent recipe.",
+  "segments": [
+    {
+      "seed": 47392081,
+      "datetime": "20261001113000",
+      "nethackrc": "OPTIONS=name:B79GreasyTin,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017french fried tin of kobold meat\nen  y"
+    }
+  ]
+}

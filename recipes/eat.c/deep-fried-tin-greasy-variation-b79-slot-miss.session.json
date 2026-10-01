@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first recipe setup miss for the B79 cheap variation. C wished the tin into inventory slot o, but this input selected p, so eat.c:doeat() rejected the nonexistent slot before reaching consume_tin(). Keep the exact C result in B79 scratch; the corrected variation selects o.",
+  "segments": [
+    {
+      "seed": 48732019,
+      "datetime": "20261001121500",
+      "nethackrc": "OPTIONS=name:B79DeepTin,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017tin of deep fried kobold meat\nep  y "
+    }
+  ]
+}

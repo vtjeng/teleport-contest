@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B79 production route for eat.c:consume_tin through a greasy tintxts row. The fresh Wizard debug character uses the source wish grammar \"tin of french fried kobold meat\"; objnam.c:readobjnam() strips \"tin of \" before eat.c:tin_variety_txt(), selecting row 3 (nutrition 40, fodder false, greasy true). The input then eats the wished tin from its recorded inventory slot. The seed and date differ from the v17 cases. Keep the C recording only after a strict JavaScript replay matches through the greasy make_glib/message branch.",
+  "segments": [
+    {
+      "seed": 47392081,
+      "datetime": "20261001113000",
+      "nethackrc": "OPTIONS=name:B79GreasyTin,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017tin of french fried kobold meat\nep  y "
+    }
+  ]
+}
