@@ -10,12 +10,13 @@ import { failClosedCommandRefusals } from '../js/cmd.js';
 import { setuhpmax } from '../js/attrib.js';
 
 import {
-    A_CON, A_DEX, A_MAX, A_STR, A_WIS, ACID_RES, BLINDED, CONFUSION, DEAF,
+    A_CON, A_DEX, A_MAX, A_STR, A_WIS, ACID_RES, BLINDED, BURN_OBJECT,
+    CONFUSION, DEAF,
     DETECT_MONSTERS, FAST, FREE_ACTION,
-    FAINTED, FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
+    FAINTED, FIRE_RES, FIXED_ABIL, FROMOUTSIDE, GLIB, HALLUC,
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
-    POTHIT_MONST_THROW, SEE_INVIS,
+    OBJ_DELETED, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SICK, SLEEP_RES, WEAK,
     KILLED_BY, STONED, TELEPAT, TIMEOUT, UNCHANGING, VOMITING,
     WOUNDED_LEGS, W_RINGL,
@@ -27,9 +28,11 @@ import { game } from '../js/gstate.js';
 import { PM_GRID_BUG } from '../js/monsters.js';
 import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
+import { addinv } from '../js/invent.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { mksobj } from '../js/obj.js';
 import { dist2 } from '../js/hacklib.js';
+import { begin_burn, peek_timer } from '../js/timeout.js';
 import {
     POT_ACID,
     POT_BLINDNESS,
@@ -77,6 +80,7 @@ import {
     make_glib,
     make_stoned,
     make_vomiting,
+    dopotion,
     peffects,
     potionbreathe,
     potionhit,
@@ -2667,6 +2671,108 @@ test('peffects POT_OIL no longer throws UnsupportedQuaffError', async () => {
     await potionbreathe(obj, game);
     assert.equal(toplines(), '');
 });
+
+test('dopotion supplies source-ordered lifecycle hooks for lit oil cleanup',
+    async () => {
+        const potionC = potionSource();
+        const cDopotion = potionC.indexOf('dopotion(struct obj *otmp)');
+        const cDopotionEnd = potionC.indexOf('\n}', cDopotion);
+        assert.ok(cDopotion >= 0 && cDopotionEnd > cDopotion);
+        assert.match(potionC.slice(cDopotion, cDopotionEnd),
+            /useup\(otmp\);\s*return ECMD_TIME;/u);
+        const cOil = potionC.indexOf('peffect_oil(struct obj *otmp)');
+        const cOilEnd = potionC.indexOf('\n}', cOil);
+        assert.ok(cOil >= 0 && cOilEnd > cOil);
+        assert.match(potionC.slice(cOil, cOilEnd),
+            /exercise\(A_WIS, good_for_you\);/u);
+
+        const oInitC = readFileSync(
+            new URL('../nethack-c/upstream/src/o_init.c', import.meta.url),
+            'utf8',
+        );
+        const cDiscover = oInitC.indexOf('discover_object(\n    int oindx');
+        const cDiscoverEnd = oInitC.indexOf('\n}', cDiscover);
+        assert.ok(cDiscover >= 0 && cDiscoverEnd > cDiscover);
+        assert.match(oInitC.slice(cDiscover, cDiscoverEnd),
+            /if \(credit_hero\)\s*exercise\(A_WIS, TRUE\);/u);
+
+        const mkobjC = readFileSync(
+            new URL('../nethack-c/upstream/src/mkobj.c', import.meta.url),
+            'utf8',
+        );
+        const cDealloc = mkobjC.indexOf('dealloc_obj(struct obj *obj)');
+        const cDeallocEnd = mkobjC.indexOf('\n}', cDealloc);
+        assert.ok(cDealloc >= 0 && cDeallocEnd > cDealloc);
+        const deallocBody = mkobjC.slice(cDealloc, cDeallocEnd);
+        assert.ok(deallocBody.indexOf('obj_stop_timers(obj)')
+            < deallocBody.indexOf('if (obj_sheds_light(obj))'));
+        assert.ok(deallocBody.indexOf('if (obj_sheds_light(obj))')
+            < deallocBody.indexOf('del_light_source(LS_OBJECT, obj_to_any(obj))'));
+
+        const potionJs = readFileSync(
+            new URL('../js/potion.js', import.meta.url), 'utf8',
+        );
+        const jsDopotion = potionJs.indexOf(
+            'export async function dopotion(otmp, state = game, env = {})',
+        );
+        const jsDopotionEnd = potionJs.indexOf('\n}', jsDopotion);
+        assert.ok(jsDopotion >= 0 && jsDopotionEnd > jsDopotion);
+        const jsBody = potionJs.slice(jsDopotion, jsDopotionEnd);
+        assert.match(jsBody,
+            /\.\.\.\(env\.hooks \?\? \{\}\)/u);
+        assert.match(jsBody,
+            /stopObjectTimers:\s*env\.hooks\?\.stopObjectTimers\s*\?\?[\s\S]*?obj_stop_timers/u);
+        assert.match(jsBody,
+            /deleteObjectLightSource:\s*env\.hooks\?\.deleteObjectLightSource\s*\?\?[\s\S]*?del_light_source/u);
+        assert.match(jsBody,
+            /useup\(otmp,\s*\{\s*\.\.\.env,\s*state,\s*hooks\s*\}\)/u);
+
+        // This fixed seed only supplies a reproducible game shell; the test
+        // pins source behavior, not a seed-specific outcome. A fire-resistant
+        // Wizard makes C use d(2,4), whose maximum of 8 is below the explicit
+        // 100 HP survival margin used to reach dealloc_obj().
+        await startedGame(8460701, 'DopotionBurningOilCleanup', 'Wizard');
+        game.u.uprops[FIRE_RES].intrinsic = FROMOUTSIDE;
+        assert.equal(game.program_state.in_moveloop, 1,
+            'C discover_object credits this identification during the move loop');
+        assert.equal(game.objects[POT_OIL].oc_name_known, 0,
+            'C makeknown reaches discover_object with an unknown oil type');
+        game.u.aexe[A_WIS] = 0;
+        game.u.uhp = 100;
+        game.u.uhpmax = 100;
+        game.u.uhppeak = 100;
+        const oil = vaporPotion(POT_OIL);
+        // Fuel 100 gives begin_burn() the source's 100-turn POT_OIL timer.
+        oil.age = 100;
+        addinv(oil, { state: game });
+        begin_burn(oil, false, { state: game });
+        assert.equal(oil.lamplit, true);
+        assert.equal(oil.timed, 1);
+        assert.notEqual(peek_timer(BURN_OBJECT, oil, game), 0);
+
+        clearTopline();
+        enableRngLog();
+        await dopotion(oil, game);
+
+        const draws = getRngLog();
+        // C peffect_oil uses d(2,4) because Fire_resistance reduces the
+        // burning-oil damage dice to two. It then exercises Wisdom downward
+        // with rn2(2). dopotion identifies the previously unknown type with
+        // makeknown(), whose discover_object(..., TRUE) credits upward Wisdom
+        // exercise via rn2(19) while the move loop is active.
+        assert.deepEqual(draws,
+            ['d(2,4)=6', 'rn2(2)=1', 'rn2(19)=15'],
+            `lit, fire-resistant oil RNG calls: ${draws.join(', ')}`);
+        assert.equal(game.objects[POT_OIL].oc_name_known, 1);
+        assert.equal(oil.where, OBJ_DELETED);
+        assert.equal(oil.timed, 0);
+        assert.equal(oil.lamplit, false);
+        assert.equal(peek_timer(BURN_OBJECT, oil, game), 0);
+        assert.equal(game.gl.light_base, null,
+            'cleanup_burn() removes the oil light before deallocation ends');
+        assert.equal(oil.age, 100,
+            'cleanup_burn() restores unused fuel from its absolute expiry');
+    });
 
 // C ref: potion.c peffect_invisibility() (811-840). This impure source
 // function owns BInvis's potion_nothing branch, blessed permanence's rn2
