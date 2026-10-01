@@ -27,6 +27,7 @@ import {
     NUM_ATTRS,
     STRANGLED,
     TIMEOUT,
+    VOMITING,
 } from '../js/const.js';
 import { acurr } from '../js/attrib.js';
 import { morehungry } from '../js/eat.js';
@@ -206,14 +207,23 @@ test('healup sets disp.botl unconditionally', async () => {
     assert.equal(state.disp.botl, true);
 });
 
-test('healup records missing void sickness helpers in source order', async () => {
-    const state = { u: { uhp: 10, uhpmax: 15, uhppeak: 15 }, disp: {} };
+test('healup cures vomiting before recording the make_sick gap', async () => {
+    const state = {
+        u: {
+            uhp: 10,
+            uhpmax: 15,
+            uhppeak: 15,
+            // The initialized VOMITING property is clear, as on a healthy hero.
+            uprops: { [VOMITING]: { intrinsic: 0, extrinsic: 0, blocked: 0 } },
+        },
+        disp: {},
+    };
     const previous = game.unported;
     game.unported = new Set();
     try {
         await healup(0, 0, true, false, state);
         assert.deepEqual([...game.unported], [
-            'potion.c make_vomiting', 'potion.c make_sick',
+            'potion.c make_sick',
         ]);
         assert.equal(state.disp.botl, true);
     } finally {

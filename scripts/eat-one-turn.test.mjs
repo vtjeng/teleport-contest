@@ -1058,12 +1058,11 @@ test('the FOOD rows carry three materials, one of them metallic', () => {
     assert.equal(isMetallic({ otyp: TIN }, current), true);
 });
 
-test('fpostfx reads Sick and Vomiting as the bare intrinsic', async () => {
-    // youprop.h:108 and :111 define Sick and Vomiting as
-    // u.uprops[...].intrinsic with no extrinsic term, so an extrinsic-only
-    // malady must leave fpostfx()'s eucalyptus arm alone. Nothing in C writes
-    // uprops[SICK].extrinsic, so no recorded case can tell the two reads
-    // apart and this is the only check on which field the arm reads.
+test('fpostfx keeps the source order for sickness and vomiting cures', async () => {
+    // youprop.h:108 and :111 define Sick and Vomiting from the intrinsic only.
+    // A worn-source bit alone must not reach either C call. Sick's void
+    // make_sick() is still a named gap, after which C proceeds to the selected
+    // make_vomiting() cure when both intrinsic values are present.
     //
     // No role starts with a eucalyptus leaf and no ported command picks one
     // up, so the leaf goes into the pack by hand. The Priest's sprig of
@@ -1081,10 +1080,8 @@ test('fpostfx reads Sick and Vomiting as the bare intrinsic', async () => {
         return doeat(game);
     };
 
-    // Both operands of the arm's `||` are driven, each with the other left
-    // clear, so each one decides the answer on its own row. Running only SICK
-    // would leave the VOMITING read unpinned: the intrinsic case makes the
-    // left operand true, so the right one never decides anything.
+    // Drive each intrinsic separately, then both together. The hard-coded 1
+    // models an active condition; the C function tests presence, not duration.
     for (const [name, index] of [['Sick', SICK], ['Vomiting', VOMITING]]) {
         // W_TOOL stands for a worn source, the shape an extrinsic takes
         // elsewhere.
@@ -1093,13 +1090,37 @@ test('fpostfx reads Sick and Vomiting as the bare intrinsic', async () => {
             ECMD_TIME,
             `an extrinsic-only ${name} must leave the arm alone`,
         );
-        // The intrinsic is the term the macro does have, so it still stops.
-        await assert.rejects(
-            eatLeaf(index, (malady) => { malady.intrinsic = 1; }),
-            /make_sick\(\) and make_vomiting\(\)/u,
-            `an intrinsic ${name} must stop`,
+        const result = await eatLeaf(
+            index, (malady) => { malady.intrinsic = 1; },
         );
+        assert.equal(result, ECMD_TIME,
+            `an intrinsic ${name} follows its C void effect`);
+        if (name === 'Sick') {
+            assert.equal(game.unported.has('potion.c make_sick'), true,
+                'the earlier unported make_sick void call remains named');
+        } else {
+            assert.equal(game.u.uprops[VOMITING].intrinsic, 0,
+                'make_vomiting clears the active timeout');
+            assert.equal(
+                topLine().includes('You feel much less nauseated now.'),
+                true,
+                'C queues the cure line after this test meal\'s finish line',
+            );
+        }
     }
+
+    await eatLeaf(SICK, (malady) => {
+        malady.intrinsic = 1;
+        game.u.uprops[VOMITING].intrinsic = 1;
+    });
+    assert.equal(game.unported.has('potion.c make_sick'), true);
+    assert.equal(game.u.uprops[VOMITING].intrinsic, 0,
+        'C reaches the vomiting cure after the preceding make_sick call');
+    assert.equal(
+        topLine().includes('You feel much less nauseated now.'),
+        true,
+        'C queues the cure line after this test meal\'s finish line',
+    );
 });
 
 test('the option variations reach the same meal', async () => {

@@ -149,6 +149,7 @@ import {
 } from './invent.js';
 import { dropx, dropy, trycall } from './do.js';
 import { makeplural } from './fruit.js';
+import { staleEgg } from './dogfood.js';
 import { iter_mons_safe, mon_offmap, rescham } from './mon.js';
 import {
     acidic,
@@ -179,7 +180,9 @@ import {
     breathless,
     perceives,
 } from './mondata.js';
-import { AD_ACID, AD_DISE, AT_BREA, PM_KNIGHT } from './monsters.js';
+import {
+    AD_ACID, AD_DISE, AT_BREA, PM_KNIGHT, PM_PYROLISK,
+} from './monsters.js';
 import { hcolor, Mgender, pmname, rndmonnam } from './do_name.js';
 import { monflee } from './monmove.js';
 import {
@@ -274,7 +277,7 @@ import {
 import { change_luck } from './moveloop_preamble.js';
 import {
     dopotion, incr_itimeout, make_blinded, make_confused, make_deaf,
-    make_glib, make_hallucinated, make_stoned, self_invis_message,
+    make_glib, make_hallucinated, make_stoned, make_vomiting, self_invis_message,
     set_itimeout,
 } from './potion.js';
 import {
@@ -1154,9 +1157,7 @@ async function consume_tin(mesg, state = game, env = {}) {
         if (!context.tin) return;
 
         if (TIN_VARIETIES[variety].nutrition < 0) {
-            // C evaluates rn1() before calling the still-unported void effect.
-            random.rn1(15, 10);
-            note_unported('potion.c make_vomiting');
+            await make_vomiting(random.rn1(15, 10), false, state, eatEnv);
         } else {
             let nutrition = TIN_VARIETIES[variety].nutrition;
             if (variety === HOMEMADE_TIN
@@ -2972,12 +2973,14 @@ async function fpostfx(otmp, state, env) {
         // A petrifying egg reaches make_stoned() through flesh_petrifies().
         throw new UnsupportedEatError("fpostfx()'s petrifying egg arm");
     case EUCALYPTUS_LEAF:
-        // youprop.h:108 and :111 define Sick and Vomiting as the bare
-        // intrinsic, as doeat()'s Strangled read below does for :110.
-        if ((hungerProperty(state, SICK).intrinsic
-                || hungerProperty(state, VOMITING).intrinsic)
-            && !otmp.cursed) {
-            throw new UnsupportedEatError('make_sick() and make_vomiting()');
+        if (!otmp.cursed) {
+            if (hungerProperty(state, SICK).intrinsic && state === game) {
+                // C calls the still-unported void make_sick() first, then
+                // continues to the selected make_vomiting() call below.
+                note_unported('potion.c make_sick');
+            }
+            if (hungerProperty(state, VOMITING).intrinsic)
+                await make_vomiting(0, true, state, env);
         }
         break;
     case APPLE:
@@ -3009,13 +3012,27 @@ async function garlic_breath(monster, state) {
 // C ref: eat.c fprefx() (2091-2213), the message on the first bite of a
 // non-corpse, non-tin food. Answers false when eating must not proceed.
 //
-// The food ration arm, the CLOVE_OF_GARLIC arm (non-undead hero), and the
-// default arm are ported. Every other arm needs an unported effect.
-async function fprefx(otmp, state) {
+// The stale-egg vomiting and undead-garlic arms are wired here. The tripe
+// ration arm remains refused at its preceding experience helpers; other
+// unported food arms retain their existing refusals.
+async function fprefx(otmp, state, env = {}) {
     switch (otmp.otyp) {
     case EGG:
-        // A pyrolisk egg explodes; a stale one calls make_vomiting().
-        throw new UnsupportedEatError("fprefx()'s egg arms");
+        if (otmp.corpsenm === PM_PYROLISK) {
+            throw new UnsupportedEatError("fprefx()'s pyrolisk egg explosion");
+        }
+        if (staleEgg(otmp, state)) {
+            await (env.message ?? ttyPline)('Ugh.  Rotten egg.', state);
+            await make_vomiting(
+                (hungerProperty(state, VOMITING).intrinsic & TIMEOUT)
+                    + d(10, 4),
+                true,
+                state,
+                env,
+            );
+            break;
+        }
+        throw new UnsupportedEatError("fprefx()'s fresh egg feedback");
     case FOOD_RATION: /* nutrition 800 */
         /* 200+800 remains below 1000+1, the satiation threshold */
         if (state.u.uhunger <= 200) {
@@ -3057,10 +3074,10 @@ async function fprefx(otmp, state) {
         throw new UnsupportedEatError("fprefx()'s meat arms");
     case CLOVE_OF_GARLIC:
         if (is_undead(state.youmonst.data)) {
-            // C calls make_vomiting(rn1(reqtime, 5), FALSE), which is unported.
-            throw new UnsupportedEatError(
-                "fprefx()'s garlic undead-hero vomiting",
+            await make_vomiting(
+                rn1(state.context.victual.reqtime, 5), false, state,
             );
+            break;
         }
         await iter_mons_safe(
             (monster) => garlic_breath(monster, state),
@@ -4209,7 +4226,7 @@ export async function doeat(state = game, env = {}) {
             }
             consume_oeaten(otmp, 1, state); /* oeaten >>= 1 */
         } else if (!already_partly_eaten) {
-            if (!await fprefx(otmp, state)) {
+            if (!await fprefx(otmp, state, eatEnv)) {
                 throw new UnsupportedEatError('do_reset_eat() after fprefx()');
             }
         } else {

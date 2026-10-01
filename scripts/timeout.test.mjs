@@ -54,6 +54,7 @@ import {
     TIMER_OBJECT,
     LEVITATION,
     UNCHANGING,
+    VOMITING,
     WARN_OF_MON,
     WWALKING,
     WOUNDED_LEGS,
@@ -232,6 +233,26 @@ test('timeout.c releases delayed killers when STONED or fatal SICK expires', asy
     assert.equal(state.killer.name, 'cockatrice');
     assert.equal(state.killer.format, 7);
     assert.equal(state.killer.next, null);
+});
+
+test('VOMITING expiry clears the clock through potion.c make_vomiting', async () => {
+    assert.match(C_TIMEOUT,
+        /case VOMITING:\s*make_vomiting\(0L, TRUE\);/u);
+    assert.match(JS_TIMEOUT,
+        /case VOMITING:\s*await make_vomiting\(0, true, state, env\);/u);
+
+    const state = propertyTimeoutState();
+    // C decrements this one-turn timeout to zero before invoking the helper.
+    state.u.uprops[VOMITING].intrinsic = 1;
+    const messages = [];
+    await nh_timeout(state, {
+        planning: true,
+        message: async (line) => messages.push(line),
+    });
+    assert.equal(state.u.uprops[VOMITING].intrinsic, 0);
+    assert.equal(state.disp.botl, true);
+    assert.deepEqual(messages, [],
+        'the helper observes old == 0 after the caller decrements expiry');
 });
 
 test('confusion expiry tests the intrinsic after clearing and interrupts only then', async () => {
