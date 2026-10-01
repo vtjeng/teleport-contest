@@ -133612,8 +133612,8 @@
           "name": "charm_monsters",
           "line": 196,
           "endLine": 220,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -133893,7 +133893,44 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "charm_monsters",
+            "implementation": "js/music.js",
+            "symbol": "charm_monsters",
+            "sourceReview": "Compared the complete static definition nethack-c/upstream/src/music.c:194-217. C sets distance=0 when u.uswallow, walks fmon while saving mtmp->nmon before effects, skips DEADMONSTER, and gates on mdistu(mtmp)<=distance. mdistu expands to distu then squared dist2 from u.ux/u.uy. In range, C calls resist(mtmp, TOOL_CLASS, 0, NOTELL) and uses its Boolean; a failed resistance or shopkeeper calls tamedog(mtmp, NULL, TRUE), whose result is discarded. JS keeps this order, uses the existing resist/tamedog/dist2 implementations, passes the existing game RNG/message/state, and awaits effects before continuing to saved next. The MAGIC_HARP caller consumes the charge and emits the source message before charm_monsters, then exercises Dexterity after it returns. Hero_playnotes is an empty macro in the reference TTY build. No placeholder/refusal remains at this source call. Existing downstream tamedog gaps for shk.c:make_happy_shk, mhitu.c:expels, and worm.c:redraw_worm remain owned by those source tasks.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation MAGIC_HARP case (659-670) calls charm_monsters after consume_obj_charge, the music message, and Hero_playnotes, before exercise(A_DEX, TRUE). Production path is apply.c:doapply MAGIC_HARP -> music.c:do_play_instrument -> music.c:do_improvisation."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [
+              "recordings/music.c/magic-harp-charms-jackal-seed-63801724.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "magic-harp-charms-hostile-pager-safe",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 44,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(MAGIC_HARP) -> music.c:charm_monsters -> zap.c:resist -> dog.c:tamedog"
+              }
+            ],
+            "checkedAt": "a783336db4c0d245e73a25cde40060f7da44685b"
+          }
+        ],
+        "entryPointReview": "This is a helper-only range. charm_monsters is static and its sole direct C caller is music.c:do_improvisation(MAGIC_HARP). That caller is already reached by apply.c:doapply -> music.c:do_play_instrument in the reference build. The selected v17 recording reaches the in-range hostile orc and the resistance/taming path; the independent recording reaches the in-range hostile jackal, resistance, and tamedog output through the same dispatcher. There are no additional direct helper callers in the selected range. `entryPoints` is empty under the helper-only evidence rule; this does not claim do_improvisation or do_play_instrument as complete source units.",
+        "entryPoints": []
+      }
     }
   ]
 }
