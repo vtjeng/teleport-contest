@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 593804217,
+      "datetime": "20470819091500",
+      "nethackrc": "OPTIONS=name:CatchLitWall,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizintrinsic\n>hi\n  #wizwish\nuncursed pick-axe\n#wizwish\nwall of lava\n hao l"
+    }
+  ],
+  "comment": "Final C-first route correction based on exact C screens/map from prior attempts: set water walking plus fire resistance, wish the pick-axe (observed slot o) and underfoot wall, dismiss its More, move west into the observed open room (east was blocked by the room wall), open apply/select o, dismiss the wield message, then target east into the wished lava wall. Expected source path: dig.c:use_pick_axe2() -> fire_damage(uwep,FALSE,rx,ry) -> apply.c:catch_lit() false non-ignitable guard. Inputs are frozen before JavaScript comparison."
+}

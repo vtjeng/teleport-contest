@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 593804217,
+      "datetime": "20470819091500",
+      "nethackrc": "OPTIONS=name:CatchLitMattock,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizintrinsic\n>hi\n  #wizwish\nuncursed dwarvish mattock\n#wizwish\nwall of lava\n hao l"
+    }
+  ],
+  "comment": "Independently frozen cheap C variation of the LAVAWALL fire_damage witness: replace the pick-axe with an uncursed dwarvish mattock while retaining source-backed water walking/fire resistance and the observed wall/apply/pager route. dig.c:is_pick() classifies a dwarvish mattock as a pick, so the aimed west/east direction still reaches the LAVAWALL arm and fire_damage(FALSE). The exact item slot, messages, and branch are verified from this C recording before any JavaScript comparison."
+}
