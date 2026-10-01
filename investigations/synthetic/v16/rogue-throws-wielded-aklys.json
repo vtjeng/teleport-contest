@@ -1,0 +1,120 @@
+{
+  "session": "synthetic/v16/rogue-throws-wielded-aklys",
+  "corpus": "synthetic",
+  "batch": "v16",
+  "caseId": "rogue-throws-wielded-aklys",
+  "manifestPath": "challenges/manifests/v16.json",
+  "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+  "recordingPath": "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+  "recordingSha256": "10995334024af1d28a1c9c522cee774cece26ecb24411cbfe5aaf4b67b58e0ed",
+  "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+  "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+  "remainingScreens": 4,
+  "recordedSteps": 31,
+  "status": "complete",
+  "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v16",
+    "caseId": "rogue-throws-wielded-aklys",
+    "session": "synthetic/v16/rogue-throws-wielded-aklys",
+    "manifestPath": "challenges/manifests/v16.json",
+    "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+    "recording": "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+    "recordingPath": "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+    "recordingSha256": "10995334024af1d28a1c9c522cee774cece26ecb24411cbfe5aaf4b67b58e0ed",
+    "recipe": "challenges/cases/v16/rogue-throws-wielded-aklys.recipe.session.json",
+    "recipeSha256": "32ae62cd0cd782724cd31a0676b752ddf35569f50e6345bd79f9a7f1c3cd5e78",
+    "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+    "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+    "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+    "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+    "evaluationUtc": "2026-10-01T12:57:41.763Z",
+    "remainingScreens": 4,
+    "recordedSteps": 31,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 27,
+        "total": 31
+      },
+      "rng": {
+        "matched": 2390,
+        "total": 2402
+      },
+      "cursors": {
+        "matched": 27,
+        "total": 31
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: tethered weapon suffix",
+      "step": 27
+    },
+    "step": 27,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: tethered weapon suffix",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first stop at segment 0 step 27 is the deliberate refusal for naming a wielded AKLYS. Port the complete objnam.c doname_base() source function through its existing JS donameFreshInternal()/wornSuffix() path, including the tethered-to hand suffix and removal of the AKLYS preflight refusal. The subsequent wielded-AKLYS throw-and-return path is already implemented in dothrow.js; preserve its non-tethered sho_obj_return_to_u gap.",
+  "source": {
+    "file": "objnam.c",
+    "branch": "In doname_base(), after class-specific naming, when W_WEP is set and gm.mrg_to_wielded is false, the singleton primary AKLYS takes the hand-form suffix branch (the recorded hero is not dual-wielding): choose \"tethered to\" in place of \"weapon in\" and append the hand name. Preserve the ordinary wielded, stack/ammo, twoweapon, and merge guards around this suffix.",
+    "functions": [
+      "doname_base"
+    ],
+    "callers": [
+      "wield.c ready_weapon() temporarily sets W_WEP on the selected object and calls invent.c prinv(); invent.c prinv() routes through xprname() to objnam.c doname(), whose ordinary wrapper calls doname_base(obj, 0).",
+      "Production JS path: js/cmd.js dispatches the wield key to dowield(); js/wield.js ready_weapon() temporarily sets W_WEP and calls js/invent.js prinv(); js/invent.js xprname() calls js/objnam.js donameFresh(), which reaches donameFreshInternal(), preflightDoname(), and wornSuffix(). failClosedCommand() converts the current preflight refusal to the saved stop boundary.",
+      "After the wield screen, dothrow.c dothrow()/throw_ok()/throw_obj()/throwit() is reached by recorded keys t, h, l (segment 0 steps 28-30); js/cmd.js dispatches to js/dothrow.js dothrow(), throw_obj(), and throwit(). This is downstream context, not an additional missing owner for the current first mismatch."
+    ],
+    "dependencies": [
+      "doname_base() first obtains its base through objnam.c xname(); the current JS donameFreshInternal() already calls xnameFresh() before appending suffixes.",
+      "The suffix order and hand wording depend on is_weptool(), is_ammo(), is_missile(), bimanual(), makeplural(), and body_part(HAND), plus object quantity, primary-slot identity, dual-wield state, and handedness. Existing JS equivalents are present; retain their C branch order and do not add a second copy of this game state.",
+      "gm.mrg_to_wielded is a separate source guard set around pickup.c merged-stack naming. Keep it so the tether suffix is omitted while a stack is being named as merged into the wielded slot."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20261001125731-v16.json, tied to evaluation commit 452fff60d85992524c72a8282fbae13a5e32a906, reports 27/31 screens, 27/31 cursors, 2390/2402 RNG calls, and four remaining screens. Its first mismatch is a stop at step 27 with \"unsupported hero command: an unported branch of this command: unsupported object name branch: tethered weapon suffix\".",
+    "The immutable challenges/cases/v16/rogue-throws-wielded-aklys.session.json shows step 27 (key h) as \"You secure the tether. h - a thonged club (tethered to right hand).\" It then records the throw prompt at step 28, direction prompt at step 29, and \"The thonged club returns to your hand!\" at step 30.",
+    "Upstream nethack-c/upstream/src/objnam.c defines doname_base() as the core of doname() at lines 1221-1225. Lines 1561-1595 gate the wield suffix on W_WEP and !gm.mrg_to_wielded, distinguish the ordinary alternate-name path, and select \"tethered to\" for AKLYS; doname() delegates to doname_base(obj, 0) at lines 1753-1756.",
+    "Upstream nethack-c/upstream/src/wield.c ready_weapon() at lines 221-227 temporarily ORs W_WEP, emits \"You secure the tether.\", calls prinv(), then restores the old mask. invent.c prinv() uses xprname(), which calls doname() when no explicit text is supplied (invent.c:2875-2925).",
+    "The checked patch directory has no matching objnam.c, doname_base, dothrow.c, or tethered entries; the relevant naming rule is the upstream source rule. The recorder patches do not replace this suffix behavior.",
+    "Current js/objnam.js preflightDoname() at lines 424-431 rejects exactly (obj.owornmask & W_WEP) && obj.otyp === AKLYS. wornSuffix() formats the already-ported hand suffix at lines 1214-1238 but does not yet choose \"tethered to\"; donameFreshInternal() reaches the preflight before the formatter and calls wornSuffix() at line 1728.",
+    "The later recorded throw is not blocked by the separate dothrow gap: upstream dothrow.c throwit() lines 1711-1718 uses tethered_weapon to take tmp_at(DISP_END, BACKTRACK), bypassing sho_obj_return_to_u(), then checks the return roll and emits the return message. js/dothrow.js has the same tethered guard around its existing note_unported(\"dothrow.c sho_obj_return_to_u\"). Preserve that gap for the non-tethered branch; this case does not require that helper."
+  ],
+  "entryPointReview": {
+    "active": [
+      "The #wield entry point reaches ready_weapon() and invent.c prinv() for the single AKLYS at segment 0 step 27; the source screen proves the tethered name branch is executed.",
+      "The #throw entry point accepts and throws the primary AKLYS at segment 0 steps 28-30; C recording and dothrow.c source establish the tethered return path."
+    ],
+    "blocked": [
+      "JS does not advance past step 27 until the doname_base() AKLYS suffix is implemented, so the saved evaluation cannot yet verify the JS throw screens. The source trace identifies no additional missing owner on the aklys-specific return path."
+    ]
+  },
+  "plannedWholeFunctionScope": {
+    "primary": {
+      "file": "objnam.c",
+      "functions": [
+        "doname_base"
+      ]
+    },
+    "callerWiring": [
+      "Keep the production route wield.c ready_weapon() -> invent.c prinv()/xprname() -> objnam.c doname() -> doname_base() reachable through js/cmd.js -> js/wield.js -> js/invent.js -> js/objnam.js.",
+      "Keep the existing js/cmd.js -> js/dothrow.js route intact so the same replay reaches its throw entry point after the wield label formats."
+    ],
+    "returnValuedDependencies": [],
+    "downstreamUnresolvedGaps": [
+      "dothrow.c sho_obj_return_to_u() remains explicitly skipped by note_unported() for non-tethered returning missiles. Its void result is discarded, and the tethered-aklys branch bypasses the call; do not broaden this objnam.c port to implement that helper."
+    ]
+  }
+}

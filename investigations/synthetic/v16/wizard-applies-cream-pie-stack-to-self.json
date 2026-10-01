@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v16/wizard-applies-cream-pie-stack-to-self",
+  "corpus": "synthetic",
+  "batch": "v16",
+  "caseId": "wizard-applies-cream-pie-stack-to-self",
+  "manifestPath": "challenges/manifests/v16.json",
+  "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+  "recordingSha256": "13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1",
+  "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+  "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+  "remainingScreens": 3,
+  "recordedSteps": 30,
+  "status": "complete",
+  "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v16",
+    "caseId": "wizard-applies-cream-pie-stack-to-self",
+    "session": "synthetic/v16/wizard-applies-cream-pie-stack-to-self",
+    "manifestPath": "challenges/manifests/v16.json",
+    "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+    "recording": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.session.json",
+    "recordingPath": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.session.json",
+    "recordingSha256": "13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1",
+    "recipe": "challenges/cases/v16/wizard-applies-cream-pie-stack-to-self.recipe.session.json",
+    "recipeSha256": "95ba184352effd65f6c96789bf5d438ac5b71c5556e7fdc82d3935b92716e0c8",
+    "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+    "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+    "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+    "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+    "evaluationUtc": "2026-10-01T12:57:41.763Z",
+    "remainingScreens": 3,
+    "recordedSteps": 30,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 27,
+        "total": 30
+      },
+      "rng": {
+        "matched": 2655,
+        "total": 2658
+      },
+      "cursors": {
+        "matched": 27,
+        "total": 30
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: applying a tool requires a cream pie stack",
+      "step": 27
+    },
+    "step": 27,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero command: an unported branch of this command: applying a tool requires a cream pie stack",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The saved v16 evaluation matches 27 of 30 screens, then stops at step 27 because js/apply.js preflightCreamPie() rejects a stack with quan greater than one. Upstream apply.c:use_cream_pie() instead calls splitobj(obj, 1), applies the face-blinding effect, then removes that child through the object lifecycle. The C recording leaves one pie and shows all three calls after the matched prefix: splitobj/next_ident rnd(2), use_cream_pie rnd(25), and delobj/obj_resists rn2(100). The actionable scope is the whole apply.c:use_cream_pie() function and its already wired doapply() caller; keep other doapply arms and their unresolved gaps out of this task.",
+  "source": {
+    "file": "apply.c",
+    "branch": "For an ordinary human Wizard with a paid two-pie inventory stack, no existing blindness or goop, no eyewear protection, and can_blnd() true, apply.c:doapply() dispatches CREAM_PIE to use_cream_pie(). The function splits one child, names the consumed pie as one of the stack, adds rnd(25) to u.ucreamed, applies blindness, emits the resulting message, then performs the COST_SPLAT and object deletion path. The full source function also includes Hallucination and can_blnd() false branches.",
+    "functions": [
+      "use_cream_pie"
+    ],
+    "callers": [
+      "C: apply.c:doapply() selects case CREAM_PIE at 4258-4261, calls use_cream_pie(obj), and clears its selected-object pointer after the call.",
+      "JavaScript production route: cmd.js dispatches doapply to runApplyCommand(), which calls apply.js:doapply(); its CREAM_PIE arm at 4780-4781 calls use_cream_pie()."
+    ],
+    "dependencies": [
+      "mkobj.c:splitobj() (457-508) returns the child consumed by use_cream_pie(); for this inventory stack it reduces the original quantity from two to one. js/obj.js:splitobj() and nextoid()/next_ident() already exist, and the recording shows the split consumes rnd(2). GOALS.json contains a splitobj declaration but no source-completion evidence entry, so review or cite that existing helper when establishing completion; do not replace its call with a quantity-only shortcut.",
+      "mondata.c:can_blnd() (305-398) controls whether use_cream_pie() draws rnd(25) and changes u.ucreamed/BLINDED. Its returned Boolean is consumed; js/mondata.js already provides the corresponding helper.",
+      "potion.c:make_blinded() is called with a discarded return but performs the blindness timeout, visibility, and message effects; js/potion.js already provides the corresponding helper.",
+      "mkobj.c:costly_alteration(obj, COST_SPLAT) is a void call whose billing/message effects precede object extraction; keep its source order and do not silently suppress relevant shop effects.",
+      "mkobj.c:obj_extract_self() then invent.c:delobj() perform object removal. delobj() calls zap.c:obj_resists(obj, 0, 0); for an ordinary cream pie that still consumes rn2(100), matching the third draw after the prior prefix. js/invent.js and js/bury.js contain these helpers.",
+      "The selected scope is apply.c:use_cream_pie(), not the rest of apply.c:doapply(). Preserve its unrelated named-arm refusals and other unported dispatcher paths."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved first baseline evaluation challenges/evaluations/20261001125731-v16.json reports this case at 27/30 screens, 2655/2658 RNG calls, and 27/30 cursors. Its case row cites step 27 and bucket cream-pie-stack-split; challenges/manifests/v16.json says the C-first behavior is apply.c:use_cream_pie -> mkobj.c:splitobj for a wished stack of two. Recording SHA-256 is 13ce79c03579cad5b3f3026df8f6d632c0279769dd454410d6e666d0aabf84a1; recipe SHA-256 is 95ba184352effd65f6c96789bf5d438ac5b71c5556e7fdc82d3935b92716e0c8.",
+    "At nethack-c/upstream/src/apply.c:3568-3603, use_cream_pie() snapshots Blind/u.ucreamed, splits one object when quan > 1, selects Hallucination or face-immersion wording, calls can_blnd(), draws rnd(25) and calls make_blinded() when allowed, then calls setnotworn(), costly_alteration(COST_SPLAT), obj_extract_self(), and delobj() in that order. apply.c:doapply() wires the CREAM_PIE case at 4258-4261.",
+    "The actual JavaScript refusal is js/apply.js:1688-1689 in preflightCreamPie(): it throws UnsupportedApplyError when obj.quan !== 1 before use_cream_pie() emits a message or draws RNG. The existing JS caller is already wired from apply.js:doapply() case CREAM_PIE at 4780-4781; the broader runtime route is cmd.js:runApplyCommand() at 3302-3304 and dispatch case doapply at 5150-5151.",
+    "The recorded segment step 27 displays “You immerse your face in one of the cream pies.” and logs rnd(2)=1 at next_ident(mkobj.c:521), then rnd(25)=25 at use_cream_pie(apply.c:3585). Step 28 displays the sticky-goop blindness message and logs rn2(100)=57 at obj_resists(zap.c:1469), reached from delobj(); step 29 inventory displays one remaining cream pie. Those outputs establish why preserving the child split, RNG order, blindness update, and deletion matters.",
+    "Existing dependencies align with that trace: js/obj.js:897-946 implements splitobj(); js/bury.js:95-119 implements obj_resists() including its unconditional rn2(100) for ordinary objects at 0% odds; js/invent.js:3438-3448 wires delobj() through delobj_core(). GOALS.json declares splitobj in the mkobj.c function list but has no source-completion evidence record for splitobj, so its existing helper needs review or supporting evidence before anyone claims that source unit verified.",
+    "Ran `rg -n -i 'cream pie|ucreamed|apply\\.c' nethack-c/patches`; it returned no matches. The cream-pie behavior comes from upstream C and has no behavior-specific change in the recorder patches."
+  ]
+}
