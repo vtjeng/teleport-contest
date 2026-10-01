@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "B71 preserved C-first startup miss for pray.c:offer_negative_valued. At this frozen date, the initial wizard greeting showed --More-- and the first input `.` did not clear it. C then displayed the new-moon message at step 10; the terrain-wish input was consumed as ordinary commands and no lawful altar was created. The later #offer ended at “You are not on an altar.” Keep this exact input and C artifact as a startup-pager miss.",
+  "segments": [
+    {
+      "seed": 40275931,
+      "datetime": "20580623111500",
+      "nethackrc": "OPTIONS=name:B71Offer2,role:Priest,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".#wizwish\nlawful altar\n#wizwish\nwhite unicorn corpse\n #offer\ny  ",
+      "recorderIsDst": true
+    }
+  ]
+}

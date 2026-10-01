@@ -139,6 +139,9 @@ const SEED = 4410003;
 const PRAY_C = readFileSync(
     new URL('../nethack-c/upstream/src/pray.c', import.meta.url), 'utf8',
 );
+const PRAY_JS = readFileSync(
+    new URL('../js/pray.js', import.meta.url), 'utf8',
+);
 
 test('altar_wrath follows pray.c alignment, speech, and luck branches',
     async () => {
@@ -238,6 +241,72 @@ test('dosacrifice reaches offer_corpse through the canned selector',
         game.invent = previousInventory;
         game.unported = previousUnported;
     }
+});
+
+// pray.c:1592-1599 has one helper with two offer_corpse callers at :2005
+// and :2016. The count pins both distinct C arms to awaited JS wiring.
+test('offer_negative_valued keeps its source branch and both caller arms', () => {
+    const cHelper = PRAY_C.match(
+        /staticfn void\s+offer_negative_valued\(boolean highaltar, aligntyp altaralign\)\s*\{([\s\S]*?)^\}/mu,
+    );
+    assert.ok(cHelper);
+    assert.match(
+        cHelper[1],
+        /if \(altaralign != u\.ualign\.type && highaltar\)\s*\{\s*desecrate_altar\(highaltar, altaralign\);\s*\} else \{\s*gods_upset\(altaralign\);/u,
+    );
+
+    const jsHelper = PRAY_JS.match(
+        /async function offer_negative_valued\(highaltar, altaralign, state\) \{([\s\S]*?)^\}/mu,
+    );
+    assert.ok(jsHelper);
+    assert.match(
+        jsHelper[1],
+        /if \(altaralign !== u\.ualign\.type && highaltar\)\s*\{\s*note_unported\('pray\.c desecrate_altar'\);\s*\} else \{\s*await gods_upset\(altaralign, state\);/u,
+    );
+
+    const cOfferStart = PRAY_C.indexOf('staticfn void\noffer_corpse(');
+    const cOfferEnd = PRAY_C.indexOf('\nboolean\ncan_pray', cOfferStart);
+    assert.ok(cOfferStart >= 0 && cOfferEnd > cOfferStart);
+    const cOffer = PRAY_C.slice(cOfferStart, cOfferEnd);
+    const jsOfferStart = PRAY_JS.indexOf('async function offer_corpse(');
+    const jsOfferEnd = PRAY_JS.indexOf('\n// C ref:', jsOfferStart);
+    assert.ok(jsOfferStart >= 0 && jsOfferEnd > jsOfferStart);
+    const jsOffer = PRAY_JS.slice(jsOfferStart, jsOfferEnd);
+    assert.equal(
+        [...cOffer.matchAll(/offer_negative_valued\(highaltar, altaralign\);/gu)].length,
+        2,
+    );
+    assert.equal(
+        [...jsOffer.matchAll(/await offer_negative_valued\(highaltar, altaralign, state\);/gu)].length,
+        2,
+    );
+    assert.doesNotMatch(jsOffer, /note_unported\('pray\.c offer_negative_valued'\)/u);
+});
+
+// C pray.c:eval_offering suppresses the attribute change message after an
+// aligned-unicorn insult, allowing offer_negative_valued's anger dialogue to
+// follow the insult directly. TRUE maps to adjattrib's suppress-all mode.
+test('aligned unicorn insult suppresses the intermediate wisdom message', () => {
+    const cEvalStart = PRAY_C.indexOf('staticfn int\neval_offering(');
+    const cEvalEnd = PRAY_C.indexOf('\nstaticfn void\noffer_corpse(', cEvalStart);
+    assert.ok(cEvalStart >= 0 && cEvalEnd > cEvalStart);
+    const cEval = PRAY_C.slice(cEvalStart, cEvalEnd);
+    assert.match(
+        cEval,
+        /pline\("Such an action is an insult to %s!"[\s\S]*?\(void\) adjattrib\(A_WIS, -1, TRUE\);\s*return -1;/u,
+    );
+
+    const jsStart = PRAY_JS.indexOf('async function eval_offering(');
+    const jsEnd = PRAY_JS.indexOf('\n// C ref:', jsStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsEval = PRAY_JS.slice(jsStart, jsEnd);
+    assert.ok(jsEval.includes(
+        'await ttyPline(`Such an action is an insult to ${insult}!`, state);',
+    ));
+    assert.match(
+        jsEval,
+        /await adjattrib\(A_WIS, -1, 1, state, \{ message: ttyPline \}\);\s*return -1;/u,
+    );
 });
 
 test('own-race sacrifice summons the source-selected altar demon', async () => {

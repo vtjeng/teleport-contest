@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "B71 preserved C-first pager/setup miss for pray.c:offer_negative_valued. The source-supported lawful altar and white unicorn corpse were created at the starting square, but the corpse wish left “--More--”. The next #offer characters were consumed by that pager; at step 60 C printed “A white unicorn corpse lands on the altar” and no sacrifice ran. Keep this exact input and C artifact as a pager miss.",
+  "segments": [
+    {
+      "seed": 24019736,
+      "datetime": "20610215133000",
+      "nethackrc": "OPTIONS=name:B71Offering,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": ".#wizwish\nlawful altar\n#wizwish\nwhite unicorn corpse\n#offer\ny ",
+      "recorderIsDst": true
+    }
+  ]
+}
