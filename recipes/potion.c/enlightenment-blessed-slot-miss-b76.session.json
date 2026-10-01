@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked setup miss for independent B76 blessed potion recording. The C run places the wished smoky potion in inventory slot g at step 34, while this frozen recipe selects o at step 36; it does not reach potion.c:peffect_enlightenment(). Keep the exact C artifact in .cache/B76-scratch and do not count this attempt as runtime evidence.",
+  "segments": [
+    {
+      "seed": 76100341,
+      "datetime": "20370418095827",
+      "nethackrc": "OPTIONS=name:B76BlessedEnl,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017blessed potion of enlightenment\nqo"
+    }
+  ]
+}
