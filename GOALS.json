@@ -131966,7 +131966,7 @@
     {
       "id": "port-potionhit-polymorph-synthetic-v16-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete polymorph potion impact effects",
       "cFile": "potion.c",
       "sessions": [
@@ -131980,8 +131980,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "439db53cc0cbf1dba3ee57185181f9ac924aaea8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "potionhit",
@@ -132362,6 +132365,12 @@
         ],
         "entryPointReview": "This is one helper-only source range, so entryPoints is empty. The source has seven direct potionhit call sites across dothrow.c, mthrowu.c and uhitm.c; their existing JS counterparts are listed in callers and already route to potionhit(). The selected admitted v16 session exercises the normal throw command: cmd.js dispatches t to js/dothrow.js:dothrow(), then the existing throw path reaches thitmonst() -> potionhit() -> bhitm() -> resist()/newcham(). The full recording matches through segment 0 step 67, including the polymorph message and common potionhit tail. The session does not claim to exercise the separate hero-hit, steed-hit, monster-projectile, or melee caller branches. This task changes no outer caller. The only remaining potionhit callee gaps are the discarded void sounds.c:Soundeffect calls and discarded void mon.c:mcureblindness call; those do not block the selected POT_POLYMORPH path.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "439db53cc0cbf1dba3ee57185181f9ac924aaea8",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
