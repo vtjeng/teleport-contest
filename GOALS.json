@@ -124387,7 +124387,7 @@
     {
       "id": "port-sit-attrcurse-synthetic-v14-20260930",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port intrinsic removal and its throne, eating, prayer and attack callers",
       "cFile": "sit.c",
       "sessions": [
@@ -124402,8 +124402,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3451c1b95570396666069f24277e25d2bf6e109e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "attrcurse",
@@ -124967,6 +124970,12 @@
         ],
         "entryPointReview": "attrcurse is a helper-only selected sit.c range, so entryPoints is empty. All four direct callers are source-enumerated and matching evidence exists: Vlad’s Tower throne_sit_effect -> special_throne_effect case 7 in recordings/sit.c/vlad-tower-special-throne-attrcurse-candidate-8-b64.session.json (run-3j0cK0, segment 0, steps 0–23); angry-gods cases 4–5 in recordings/pray.c/angrygods-prayer-too-soon-attrcurse-prefix-b64.session.json (run-wQP11x, segment 0, steps 0–22); cpostfx PM_DISENCHANTER in admitted v14 eat-disenchanter-corpse-strips-intrinsic (run-zyPMv1, segment 0, steps 0–27); and monster-to-hero mhitm_ad_curs -> attrcurse -> mon_give_prop in recordings/uhitm.c/mhitm-ad-curs-gremlin-monster-hero-independent.session.json (run-lJruMn, segment 0, steps 0–229). Ordinary throne_sit_effect case 7 remains the separate court branch. Supporting whole uhitm.c:mhitm_ad_curs has three active arms: polymorphed hero-to-monster and monster-to-hero strictly match run-xoNunJ and run-lJruMn; monster-to-monster has no matching JS evidence because the independent C-first Conflict/paper-golem recipe stops at C step 66 in the unported dogmove.c:dog_move -> mhitm.c:mattackm path (66/223 screens and 2733/5072 RNG matched). Keep that recipe blocked outside recordings and do not claim that supporting branch complete. The supporting hero-defender knockback path has a matching single-mummy recording (run-wbNSRV, 3216 RNG, 138/138 screens/cursors and 25 frames). The optional four-mummy variation is blocked at segment 0 step 120 after matching rn2(4)=0, rnd(21)=14 and d(3,4)=7: C calls discarded-void potion.c:make_stunned(knockdistance+1, TRUE) at uhitm.c:5397, printing “You stagger...” and setting HStun; JS records note_unported('potion.c make_stunned'), producing the first screen/cursor mismatch at boundary 121. Keep this recipe outside recordings, name the exact gap and make no broad stun/knockback completion claim. Other support runtime evidence and the explicit planner/object-pile/outer-command gaps are recorded in .cache/B64-context.json.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3451c1b95570396666069f24277e25d2bf6e109e",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
