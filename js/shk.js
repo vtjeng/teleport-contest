@@ -80,7 +80,9 @@ import { assign_level, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { getpos } from './getpos.js';
 import { intrinsic_possible } from './eat.js';
-import { dist2, online2, sgn, s_suffix, strncmpi } from './hacklib.js';
+import {
+    dist2, encodeUtf8ByteString, online2, sgn, s_suffix, strncmpi,
+} from './hacklib.js';
 import { inv_cnt, nh_delay_output } from './hack.js';
 import {
     add_to_minv,
@@ -983,7 +985,10 @@ export function append_price_quote(buf, otyp, state = game) {
         buf2 += `${sep}sell ${type.oc_sell_minseen}`;
 
     buf2 += '}';
-    return buf2.length < BUFSZ - buf.length - 1 ? buf2 : '';
+    // C shk.c measures both pointers as bytes. A multibyte remembered name
+    // therefore leaves less room than JavaScript's UTF-16 String.length.
+    return encodeUtf8ByteString(buf2).length
+        < BUFSZ - encodeUtf8ByteString(buf).length - 1 ? buf2 : '';
 }
 
 // C ref: shk.c record_price_quote(). The object catalog owns the four quote
@@ -1205,13 +1210,15 @@ export function get_cost_of_shop_item(
     // C's entire shop applicability predicate precedes get_cost() and the
     // contents walk. Non-shop objects therefore return the -1 `nochrg`
     // representation without evaluating object-specific pricing.
-    if (!obj) return noShopPrice();
-    const position = get_obj_location(obj, CONTAINED_TOO, state);
     const currentShop = firstRoom(state.u?.ushops);
-    if (!currentShop || obj.oclass === COIN_CLASS
-        || obj === state.uball || obj === state.uchain || !position) {
+    // shk.c tests the active shop and excludes coins/the punishment chain
+    // before calling get_obj_location(). Preserve that short-circuit order.
+    if (!obj || !currentShop || obj.oclass === COIN_CLASS
+        || obj === state.uball || obj === state.uchain) {
         return noShopPrice();
     }
+    const position = get_obj_location(obj, CONTAINED_TOO, state);
+    if (!position) return noShopPrice();
     const rooms = in_rooms(position.x, position.y, SHOPBASE, state);
     if (rooms[0] !== currentShop) return noShopPrice();
     const roomno = inside_shop(position.x, position.y, state);
@@ -1238,7 +1245,6 @@ export function get_cost_of_shop_item(
     let objectCost = 0;
     let pricingUnitCost = 0;
     if (needsPrice) {
-        const units = get_pricing_units(obj, state);
         // xname() observes a nearby object before doname_base() appends its price.
         // Movement admission cannot mutate discovery state, so project that one
         // source-ordered write for its arithmetic preflight.
@@ -1246,6 +1252,7 @@ export function get_cost_of_shop_item(
             ? { ...obj, dknown: true }
             : obj;
         pricingUnitCost = get_cost(pricedObject, shopkeeper, state);
+        const units = get_pricing_units(obj, state);
         objectCost = units * pricingUnitCost;
     }
     // C adds contained_cost() after the outer-object price predicate, even when
