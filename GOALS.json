@@ -134718,7 +134718,7 @@
     {
       "id": "port-mhitu-summonmu-synthetic-v17-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete monster were summoning",
       "cFile": "mhitu.c",
       "sessions": [
@@ -134732,8 +134732,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "summonmu",
@@ -134950,6 +134953,166 @@
         ],
         "entryPointReview": "The helper has one source call site, in mhitu.c:mattacku at 733, under the active uncancelled, non-shapechanged demon-or-were gate. The demon branch runs the rn2(Inhell?10:16) gate before the were branch enters the form-change and helper-summon logic. Both are branches of the same monster-turn production entry: js/mhitu.js:mattacku. The independent B81 recording reaches the were branch through this caller at segment 0 step 77 and matches the complete 78-screen/4,677-RNG replay. The existing minion recording reaches the demon branch through the same caller at segment 0 steps 46 and 103 and matches its complete 104-screen/3,419-RNG replay. Source search of mhitu.c finds only the declaration, this caller, and the definition; no other active summonmu caller is omitted. The selected v17 case also reaches the source helper, but its full replay remains unmatched later in combat and is not cited. Supporting makemon helper-creation tests directly exercise the C-selected species and creation tail; they are not production entry-point evidence. This range has no command entry point, so entryPoints is empty as required for helper-only evidence.",
         "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+          "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+          "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+          "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+          "replayInputSha256": "0d1c104fbf79536e6932d034b987fff44ca65f6b3d9cbccfcbbc40abd9de1894",
+          "evaluationPath": "challenges/evaluations/20261001233847-v17.json",
+          "evaluationCommit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+          "evaluationArtifact": "challenges/evaluations/20261001233847-v17.json",
+          "evaluationUtc": "2026-10-01T23:39:46.336Z",
+          "remainingScreens": 37,
+          "recordedSteps": 109,
+          "previousScreensMatched": 72,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 72,
+              "total": 109
+            },
+            "rng": {
+              "matched": 2229,
+              "total": 2338
+            },
+            "cursors": {
+              "matched": 72,
+              "total": 109
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_were()",
+            "step": 72
+          },
+          "step": 72,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_were",
+          "message": "simple monster action requires uhitm.c mhitm_ad_were()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests.json",
+            "result": {
+              "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+              "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+              "recipePath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+              "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 37,
+              "recordedSteps": 109,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+                "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+                "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+                "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+                "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+                "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 37,
+                "recordedSteps": 109,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 72,
+                    "total": 109
+                  },
+                  "rng": {
+                    "matched": 2229,
+                    "total": 2338
+                  },
+                  "cursors": {
+                    "matched": 72,
+                    "total": 109
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a were creature summoning critters",
+                  "step": 72
+                },
+                "step": 72,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a were creature summoning critters",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first missing behavior is the were branch of mhitu.c::summonmu, reached from mattacku for this uncancelled, non-shapechanged adjacent werejackal. C step 72 takes the rn2(30)=23 no-transformation path, then rn2(10)=0 and creates a visible jackal in were_summon; JavaScript stops at its explicit unsupported branch before those gates. This is a partial whole-function port, so the actionable scope is file-port mhitu.c::summonmu. The dependent JS were_summon currently draws from global rng wrappers instead of mattacku’s planner-injected clone RNG, which must be threaded for the newly reachable path to remain plan-safe. The case title’s later bite/infection is downstream. Existing new_were also retains a conditional note_unported for weapon.c::possibly_unwield; this trace does not take the rn2(30)==0 transformation path.",
+              "source": {
+                "file": "mhitu.c",
+                "functions": [
+                  "summonmu"
+                ],
+                "branch": "mattacku calls summonmu only for an uncancelled monster whose cham is NON_PM, when it is not in range2 and its current data is demon or were. The were arm may transform form, refreshes mdat, then independently rolls rn2(10) to summon compatible helpers; the assigned trace is an animal-form werejackal with no transformation and a successful summon roll.",
+                "callers": [
+                  "C: nethack-c/upstream/src/mhitu.c::mattacku calls summonmu; JS: js/mhitu.js::mattacku contains the inline summonmu branch and current were-arm refusal"
+                ],
+                "dependencies": [
+                  "were.c::were_summon (already ported in js/were.js; summonmu consumes its total, visible count, and generic species noun to choose messages)",
+                  "were.c::new_were (already ported in js/mon.js; summonmu calls it for the conditional were-form transition and discards its result)",
+                  "minion.c::msummon (already ported in js/minion.js for the demon arm; summonmu discards its result)",
+                  "RNG integration: pass mattacku rawEnv.random to were_summon; js/were.js currently imports global rn2/rnd, while the simple-turn planner supplies a cloned core RNG to mattacku",
+                  "Conditional downstream gap: js/mon.js::new_were records note_unported('weapon.c possibly_unwield') when the transforming monster has a weapon; not reached by this recording"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/mhitu.c:729-740 is the production caller: mattacku requires cham == NON_PM, !mcan, !range2, and is_demon(mdat) || is_were(mdat), calls summonmu, then refreshes mdat after a possible transformation. The assigned C recording reaches this call at step 72.",
+                "nethack-c/upstream/src/mhitu.c:974-996 defines the first missing were behavior. An animal-form were creature calls new_were only when Protection_from_shape_changers is active or rn2(30) is zero; independently, rn2(10)==0 initializes the help message state and calls were_summon. The C recording step 72 has rn2(30)=23, rn2(10)=0, rnd(5)=5, rn2(7)=2, then shows “The werejackal summons help! A jackal suddenly appears next to you!--More--” with cursor [76,0,1].",
+                "The saved evaluation challenges/evaluations/20261001190602-v17.json records stop at step 72 with “simple monster action requires a were creature summoning critters”; the immutable recording is challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json. Thus the first mismatch is the summoned-help branch, not the later werejackal bite/infection implied by the title.",
+                "js/mhitu.js:968-984 already ports the caller’s shared demon/were gate and demon arm, but its were arm throws unsupported('a were creature summoning critters') before either C were roll. This makes mhitu.c::summonmu the actionable owner and a file-port of that whole C function, not a defect in a behaviorally implemented branch.",
+                "The consumed-return dependency already exists: nethack-c/upstream/src/were.c:142-188 returns total while writing visible/genbuf, and mhitu.c:996-1018 uses those values for the visible/no-helper message branches; js/were.js:41-64 contains the corresponding helper. But js/were.js:27,48-60 imports and calls module-global rn2/rnd. js/mhitu.js:855 receives a caller-owned random object, and js/unported_monster_actions.js:370-373 clones state.coreCtx for planning before supplying it to the simple monster action. The new summon path must pass that clone-local random source through were_summon to avoid advancing live RNG during planning.",
+                "were.c::new_were is already present at js/mon.js:3562-3583 and accepts caller state/random/display operations. Its existing conditional weapon.c::possibly_unwield gap is recorded with note_unported when monster.mw is set; C source were.c:126-137 includes equipment and fear side effects. This C step’s rn2(30)=23 skips new_were, so the trace does not establish those transformation outcomes.",
+                "The source owner was verified against the current C recording and upstream sources; no matching patch hunk for summonmu or were_summon was found under nethack-c/patches. Queue identity is unchanged: 37 remaining screens, 109 recorded steps, recording digest matches the file, and manifest corpus digest matches the queued digest."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
