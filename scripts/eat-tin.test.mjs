@@ -21,6 +21,7 @@ import {
 } from '../js/const.js';
 import {
     Popeye,
+    TIN_VARIETIES,
     set_tin_variety,
     tin_details,
     tinopen_ok,
@@ -103,6 +104,25 @@ test('tinopen_ok is the source getobj filter for tins', () => {
     assert.equal(tinopen_ok(null), GETOBJ_EXCLUDE);
     assert.equal(tinopen_ok({ otyp: TIN }), GETOBJ_SUGGEST);
     assert.equal(tinopen_ok({ otyp: TIN + 1 }), GETOBJ_EXCLUDE);
+});
+
+test('tin variety metadata matches every selectable C tintxts row', () => {
+    const table = EAT_C.match(
+        /\}\s+tintxts\[\]\s*=\s*\{([\s\S]*?)\n\s*\};/u,
+    );
+    assert.ok(table, 'eat.c defines the source tintxts table');
+    const sourceRows = [...table[1].matchAll(
+        /\{\s*"([^"]*)"\s*,\s*(-?\d+)\s*,\s*([01])\s*,\s*([01])\s*\}/gu,
+    )].map(([, name, nutrition, fodder, greasy]) => ({
+        name,
+        nutrition: Number(nutrition),
+        healthFood: fodder === '1',
+        greasy: greasy === '1',
+    }));
+
+    // C's last empty row is a sentinel; only the preceding TTSZ - 1 rows are selectable.
+    assert.equal(sourceRows.at(-1).name, '');
+    assert.deepEqual(TIN_VARIETIES, sourceRows.slice(0, -1));
 });
 
 test('tin_details keeps source placement for known and hidden tin varieties', () => {

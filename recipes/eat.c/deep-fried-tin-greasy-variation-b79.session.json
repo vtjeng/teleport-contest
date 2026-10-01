@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first independent cheap variation for B79 using the deep-fried greasy tintxts row (row 8), a distinct seed/date, and the source wish grammar. Selecting the actual recorded inventory slot matters: preserve the earlier p-slot setup miss separately; this corrected input selects slot o. Keep only after complete JavaScript replay parity.",
+  "segments": [
+    {
+      "seed": 48732019,
+      "datetime": "20261001121500",
+      "nethackrc": "OPTIONS=name:B79DeepTin,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017tin of deep fried kobold meat\neo  y "
+    }
+  ]
+}

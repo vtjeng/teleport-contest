@@ -431,21 +431,21 @@ export const hu_stat = Object.freeze([
 // C ref: eat.c tintxts[]. obj.spe stores the index (negated and offset), so
 // table order is part of the object representation.
 export const TIN_VARIETIES = Object.freeze([
-    Object.freeze({ name: 'rotten', healthFood: false }),
-    Object.freeze({ name: 'homemade', healthFood: true }),
-    Object.freeze({ name: 'soup made from', healthFood: true }),
-    Object.freeze({ name: 'french fried', healthFood: false }),
-    Object.freeze({ name: 'pickled', healthFood: true }),
-    Object.freeze({ name: 'boiled', healthFood: true }),
-    Object.freeze({ name: 'smoked', healthFood: true }),
-    Object.freeze({ name: 'dried', healthFood: true }),
-    Object.freeze({ name: 'deep fried', healthFood: false }),
-    Object.freeze({ name: 'szechuan', healthFood: true }),
-    Object.freeze({ name: 'broiled', healthFood: false }),
-    Object.freeze({ name: 'stir fried', healthFood: false }),
-    Object.freeze({ name: 'sauteed', healthFood: false }),
-    Object.freeze({ name: 'candied', healthFood: true }),
-    Object.freeze({ name: 'pureed', healthFood: true }),
+    Object.freeze({ name: 'rotten', nutrition: -50, healthFood: false, greasy: false }),
+    Object.freeze({ name: 'homemade', nutrition: 50, healthFood: true, greasy: false }),
+    Object.freeze({ name: 'soup made from', nutrition: 20, healthFood: true, greasy: false }),
+    Object.freeze({ name: 'french fried', nutrition: 40, healthFood: false, greasy: true }),
+    Object.freeze({ name: 'pickled', nutrition: 40, healthFood: true, greasy: false }),
+    Object.freeze({ name: 'boiled', nutrition: 50, healthFood: true, greasy: false }),
+    Object.freeze({ name: 'smoked', nutrition: 50, healthFood: true, greasy: false }),
+    Object.freeze({ name: 'dried', nutrition: 55, healthFood: true, greasy: false }),
+    Object.freeze({ name: 'deep fried', nutrition: 60, healthFood: false, greasy: true }),
+    Object.freeze({ name: 'szechuan', nutrition: 70, healthFood: true, greasy: false }),
+    Object.freeze({ name: 'broiled', nutrition: 80, healthFood: false, greasy: false }),
+    Object.freeze({ name: 'stir fried', nutrition: 80, healthFood: false, greasy: true }),
+    Object.freeze({ name: 'sauteed', nutrition: 95, healthFood: false, greasy: false }),
+    Object.freeze({ name: 'candied', nutrition: 100, healthFood: true, greasy: false }),
+    Object.freeze({ name: 'pureed', nutrition: 500, healthFood: true, greasy: false }),
 ]);
 const TIN_VARIETY_COUNT = TIN_VARIETIES.length;
 
