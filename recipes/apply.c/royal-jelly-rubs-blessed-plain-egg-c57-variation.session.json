@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 20261017,
+      "datetime": "20571115112233",
+      "nethackrc": "OPTIONS=name:C57RubVar,role:Wizard,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " \u0017blessed lump of royal jelly\n \u0017uncursed egg\n#rub\nop",
+      "comment": "Independent female lawful-Wizard cheap variation for apply.c:dorub -> use_royal_jelly. Blessing differs from the uncursed plain-egg route and source sets spe=2 only for an egg with spe==0; the admitted v16 case covers the separate killer-bee/timer path. The o/p selector inputs are frozen before C and retained even if C reports a selector miss."
+    }
+  ]
+}
