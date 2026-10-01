@@ -130893,15 +130893,15 @@
           "name": "jelly_ok",
           "line": 3607,
           "endLine": 3615,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "use_royal_jelly",
           "line": 3616,
           "endLine": 3685,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -131078,7 +131078,100 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "jelly_ok",
+            "implementation": "js/apply.js",
+            "symbol": "jelly_ok",
+            "sourceReview": "Read apply.c:3607-3614 completely. The pure selector suggests only a non-null EGG and otherwise excludes the object; it makes no random call, output, or state change. The JavaScript selector uses the same GETOBJ_SUGGEST/GETOBJ_EXCLUDE outcomes.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_royal_jelly",
+                "source": "apply.c:use_royal_jelly passes jelly_ok to getobj(\"rub the royal jelly on\", ..., GETOBJ_PROMPT)."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/apply-royal-jelly.test.mjs"
+            ],
+            "recordings": [],
+            "checkedAt": "ca2099973d1b005ce0fcb889f696e1e979331f9b"
+          },
+          {
+            "name": "use_royal_jelly",
+            "implementation": "js/apply.js",
+            "symbol": "use_royal_jelly",
+            "sourceReview": "Read apply.c:3616-3682 completely. Preserves stack split/freeinv before target selection, cancellation rollback, message order, killer-bee to queen conversion before cursed handling, timed egg attachment and blessed parent marker order for species eggs, no-effect outcomes for plain eggs, then worn-state cleanup, deallocation and pointer nulling. The cursed branch calls kill_egg as a discarded void result; JavaScript records note_unported(\"timeout.c kill_egg\") and skips it. No return value from note_unported is used. Removed the obsolete LUMP_OF_ROYAL_JELLY refusal in doapply and dorub.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply case LUMP_OF_ROYAL_JELLY calls use_royal_jelly(&obj)."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "dorub",
+                "source": "apply.c:dorub FOOD_CLASS branch calls use_royal_jelly(&obj) for royal jelly."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-royal-jelly.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/royal-jelly-rubs-plain-egg-c57-independent.session.json",
+              "recordings/apply.c/royal-jelly-rubs-blessed-plain-egg-c57-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+                "segment": 0,
+                "fromStep": 64,
+                "throughStep": 65,
+                "source": "apply.c:doapply LUMP_OF_ROYAL_JELLY -> use_royal_jelly -> getobj(jelly_ok); the second boundary selects the killer-bee egg and completes the blessed timed-egg path."
+              }
+            ],
+            "checkedAt": "ca2099973d1b005ce0fcb889f696e1e979331f9b"
+          }
+        ],
+        "entryPointReview": "The selected range has two active production entry points: doapply dispatches an inventory royal-jelly lump to use_royal_jelly, and dorub dispatches the food-class royal-jelly branch to the same helper. The helper uses jelly_ok through getobj in both routes. The admitted v16 case exercises doapply, killer-bee conversion, blessed species-egg marker and timeout behavior. The two independent #rub recordings exercise dorub on plain eggs; the blessed plain-egg variation records the actual C no-effect path because corpsenm is NON_PM, so it does not evidence the parent-marker branch. The cursed kill_egg callee remains an explicit discarded-void gap.",
+        "entryPoints": [
+          {
+            "name": "doapply royal-jelly application",
+            "functions": [
+              "jelly_ok",
+              "use_royal_jelly"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-smears-blessed-royal-jelly-on-bee-egg",
+                "segment": 0,
+                "fromStep": 64,
+                "throughStep": 65,
+                "source": "apply.c:doapply case LUMP_OF_ROYAL_JELLY calls use_royal_jelly; target prompt uses jelly_ok; selecting the killer-bee egg reaches the blessed egg effects and cleanup."
+              }
+            ]
+          },
+          {
+            "name": "#rub royal-jelly application",
+            "functions": [
+              "jelly_ok",
+              "use_royal_jelly"
+            ],
+            "recordings": [
+              "recordings/apply.c/royal-jelly-rubs-plain-egg-c57-independent.session.json",
+              "recordings/apply.c/royal-jelly-rubs-blessed-plain-egg-c57-variation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
