@@ -26,6 +26,7 @@ import {
     FROMOUTSIDE,
     NUM_ATTRS,
     STRANGLED,
+    SICK,
     TIMEOUT,
     VOMITING,
 } from '../js/const.js';
@@ -207,14 +208,17 @@ test('healup sets disp.botl unconditionally', async () => {
     assert.equal(state.disp.botl, true);
 });
 
-test('healup cures vomiting before recording the make_sick gap', async () => {
+test('healup cures vomiting and sickness through the source helper', async () => {
     const state = {
         u: {
             uhp: 10,
             uhpmax: 15,
             uhppeak: 15,
-            // The initialized VOMITING property is clear, as on a healthy hero.
-            uprops: { [VOMITING]: { intrinsic: 0, extrinsic: 0, blocked: 0 } },
+            // Both initialized conditions are clear, as on a healthy hero.
+            uprops: {
+                [SICK]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+                [VOMITING]: { intrinsic: 0, extrinsic: 0, blocked: 0 },
+            },
         },
         disp: {},
     };
@@ -222,9 +226,7 @@ test('healup cures vomiting before recording the make_sick gap', async () => {
     game.unported = new Set();
     try {
         await healup(0, 0, true, false, state);
-        assert.deepEqual([...game.unported], [
-            'potion.c make_sick',
-        ]);
+        assert.deepEqual([...game.unported], []);
         assert.equal(state.disp.botl, true);
     } finally {
         game.unported = previous;

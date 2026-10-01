@@ -102,6 +102,7 @@ import { do_mapping, findit } from './detect.js';
 import { print_dungeon } from './dungeon.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
+    make_sick,
     make_stoned, make_vomiting,
 } from './potion.js';
 import { rn2 } from './rng.js';
@@ -365,7 +366,11 @@ function wizardIntrinsicMenuSpec(state) {
 // C ref: wizcmds.c wiz_intrinsic() (949-1098). The property menu keeps
 // property_by_index() order, and each selected value follows its source arm;
 // potion.c make_stoned() owns the delayed-killer state for STONED.
-export async function wiz_intrinsic(state = game) {
+export async function wiz_intrinsic(state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { rn2 };
+    const message = rawEnv.message ?? ttyPline;
+    const encumberMessage = rawEnv.encumberMessage
+        ?? ((subject) => encumber_msg(subject, { message }));
     if (!state.wizard) {
         await ttyPline("Unavailable command 'wizintrinsic'.", state);
         return ECMD_OK;
@@ -411,11 +416,12 @@ export async function wiz_intrinsic(state = game) {
                 state,
             );
         } else if (property === SICK) {
-            // C chooses the sickness kind before the void make_sick() call;
-            // preserve its RNG draw while naming the unported state owner.
-            const sicknessType = rn2(2) ? SICK_NONVOMITABLE : SICK_VOMITABLE;
-            void sicknessType;
-            if (state === game) note_unported('potion.c make_sick');
+            const sicknessType = random.rn2(2)
+                ? SICK_NONVOMITABLE : SICK_VOMITABLE;
+            await make_sick(
+                newTimeout, '#wizintrinsic', true, sicknessType, state,
+                { ...rawEnv, random, message, encumberMessage },
+            );
         } else if (property === SLIMED) {
             const message = `You are${oldTimeout ? ' still' : ''} `
                 + 'turning into slime.';

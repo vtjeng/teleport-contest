@@ -68,6 +68,7 @@ import {
     SHRINK_GLOB,
     SLIMED,
     SICK,
+    SICK_ALL,
     SICK_NONVOMITABLE,
     SLEEP_RES,
     SLEEPY,
@@ -111,7 +112,7 @@ import { game } from './gstate.js';
 import { inv_weight, You_can_move_again, nomul, spoteffects } from './hack.js';
 import {
     incr_itimeout, make_blinded, make_confused, make_deaf, make_glib,
-    make_hallucinated, make_vomiting, set_itimeout,
+    make_hallucinated, make_sick, make_vomiting, set_itimeout,
 } from './potion.js';
 import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
@@ -831,7 +832,9 @@ async function decrement_property_timeouts(state, env) {
             if (!(u.usick_type & SICK_NONVOMITABLE)
                 && random.rn2(100) < acurr(state, A_CON)) {
                 await message('You have recovered from your illness.', state);
-                if (!env.planning) note_unported('potion.c make_sick');
+                await make_sick(0, null, false, SICK_ALL, state, {
+                    ...env, random, message, encumberMessage,
+                });
                 await exercise(A_CON, false, state, random, { encumberMessage });
                 await adjattrib(A_CON, -1, 1, state, { ...env, encumberMessage });
                 break;

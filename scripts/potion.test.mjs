@@ -953,7 +953,8 @@ test('healing potion preserves beatitude dice before Constitution exercise',
         assert.equal(game.u.uhpmax, 100);
         assert.equal(game.u.uhppeak, 100);
         assert.equal(toplines(), 'You feel better.');
-        assert.equal(game.unported.has('potion.c make_sick'), sign > 0);
+        assert.equal(game.unported.has('potion.c make_sick'), false,
+            'healup now calls the implemented sickness cure');
     }
 });
 

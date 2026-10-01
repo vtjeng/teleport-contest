@@ -18,6 +18,7 @@
 // matrix, which needs the C recorder and so runs outside `npm test`.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -30,6 +31,8 @@ import {
     KILLED_BY,
     LUCKMIN,
     POISON_RES,
+    SICK,
+    SICK_VOMITABLE,
     STONED,
     STONE_RES,
     TIMEOUT,
@@ -48,6 +51,7 @@ import {
     vegan,
     your_race,
 } from '../js/mondata.js';
+import { were_beastie } from '../js/were.js';
 import {
     PM_ACID_BLOB,
     PM_BROWN_PUDDING,
@@ -63,11 +67,18 @@ import {
     PM_LIZARD,
     PM_MONK,
     PM_NEWT,
+    PM_WOLF,
+    PM_WEREWOLF,
 } from '../js/monsters.js';
 import { weight } from '../js/obj.js';
 import { CORPSE } from '../js/objects.js';
 import { make_stoned } from '../js/potion.js';
 import { CORPSE_CASES, loadEatCorpseRecipe } from './run-eat-corpse.mjs';
+
+const EAT_C = readFileSync(
+    new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
+);
+const EAT_JS = readFileSync(new URL('../js/eat.js', import.meta.url), 'utf8');
 
 // Two matrix cases, each replayed only as far as its pickup: the human
 // Barbarian's goblin, and the orcish Rogue's, which is that hero's own race.
@@ -107,6 +118,7 @@ async function eatRetypedCorpse(label, prepare) {
     await prepare(corpse);
     corpse.owt = weight(corpse, { state: game });
     const before = { uluck: game.u.uluck, uhp: game.u.uhp };
+    const timedBefore = corpse.timed;
     const drawsBefore = replay.getRngLog().length;
     // The letter answers getobj(); the spaces dismiss any --More-- the meal's
     // own lines raise, because doeat() reads them through the same queue.
@@ -122,6 +134,8 @@ async function eatRetypedCorpse(label, prepare) {
     return {
         before,
         draws: replay.getRngLog().length - drawsBefore,
+        corpse,
+        timedBefore,
         stopped,
         topLine: game._pending_message ?? '',
     };
@@ -214,6 +228,24 @@ test('eating your own race costs luck and aggravates monsters', async () => {
     assert.equal(before.uluck, 0);
     assert.ok(game.u.uluck >= -5 && game.u.uluck <= -2, `${game.u.uluck}`);
     assert.ok(game.u.uluck > LUCKMIN, 'the penalty is nowhere near the floor');
+});
+
+test('maybe_cannibal compares the current lycanthrope beastie from were.c', () => {
+    const cStart = EAT_C.indexOf('maybe_cannibal(int pm, boolean allowmsg)');
+    const cEnd = EAT_C.indexOf('\n}\n', cStart) + 2;
+    const cBody = EAT_C.slice(cStart, cEnd).replace(/\s+/gu, ' ');
+    const jsStart = EAT_JS.indexOf('async function maybe_cannibal(');
+    const jsEnd = EAT_JS.indexOf('// C ref: eat.c cprefx()', jsStart);
+    const jsBody = EAT_JS.slice(jsStart, jsEnd).replace(/\s+/gu, ' ');
+
+    // C's third non-cannibal disjunct compares were_beastie(pm) with the
+    // hero's active lycanthrope monster number.
+    assert.match(cBody,
+        /ismnum\(u\.ulycn\) && were_beastie\(pm\) == u\.ulycn/u);
+    assert.match(jsBody,
+        /ismnum\(u\.ulycn\) && were_beastie\(pm\) === u\.ulycn/u);
+    assert.equal(were_beastie(PM_WOLF), PM_WEREWOLF,
+        'monsters.h makes PM_WOLF the wolf-beastie returned by were.c');
 });
 
 test('an orcish hero eats an orc without penalty', async () => {
@@ -413,15 +445,52 @@ test('rottenfood prints and applies the three-arm cascade', async () => {
         'rottenfood() no longer throws');
 });
 
-test('the tainted-corpse arm still stops', async () => {
+test('the tainted-corpse arm applies food poisoning and consumes the corpse', async () => {
     // eat.c:1887 divides the elapsed turns by 10 + rn2(20), so an age 400
     // turns back leaves `rotted` above 5 whatever that draw is.
     const tainted = await eatRetypedCorpse(BARBARIAN, (corpse) => {
         corpse.age = game.moves - 400;
     });
-    assert.equal(tainted.draws, 1);
-    assert.equal(tainted.stopped?.message,
-        'eating requires make_sick() for a tainted corpse');
+    assert.equal(tainted.stopped, null, `${tainted.stopped?.message}`);
+    // C first draws rn2(20) for rot, then rn1(10,10) for illness duration,
+    // then exercise(A_CON,FALSE)'s rn2(2); the fresh hero is not yet sick.
+    assert.equal(tainted.draws, 3);
+    assert.ok((game.u.uprops[SICK].intrinsic & TIMEOUT) >= 10);
+    assert.equal(game.u.usick_type, SICK_VOMITABLE);
+    assert.equal(tainted.topLine,
+        '(It must have died too long ago to be safe to eat.)');
+    assert.ok(find_delayed_killer(SICK, game));
+    assert.ok(tainted.timedBefore,
+        'C pickup left the corpse ROT_CORPSE timer active');
+    assert.equal(tainted.corpse.timed, 0,
+        'C useup stops the corpse timer before deallocation');
+});
+
+test('tainted werebeast uses the C lycanthrope cannibal comparison', async () => {
+    const tainted = await eatRetypedCorpse(BARBARIAN, (corpse) => {
+        corpse.corpsenm = PM_WOLF;
+        corpse.age = game.moves - 400;
+        // A human Barbarian is neither the wolf's race nor in wolf form; C's
+        // third maybe_cannibal disjunct compares this lycanthrope selector.
+        game.u.ulycn = PM_WEREWOLF;
+    });
+    assert.equal(tainted.stopped, null, `${tainted.stopped?.message}`);
+    // The four C draws are rot rn2(20), luck rn1(4,2), illness rn1(10,10),
+    // and exercise(A_CON,FALSE)'s rn2(2), in that order.
+    assert.equal(tainted.draws, 4);
+    assert.equal(game.u.uluck >= -5 && game.u.uluck <= -2, true);
+    assert.equal(
+        game.u.uprops[AGGRAVATE_MONSTER].intrinsic & FROMOUTSIDE,
+        FROMOUTSIDE,
+    );
+    assert.ok((game.u.uprops[SICK].intrinsic & TIMEOUT) >= 10);
+    assert.equal(game.u.usick_type, SICK_VOMITABLE);
+    assert.equal(tainted.topLine,
+        '(It must have died too long ago to be safe to eat.)');
+    assert.ok(tainted.timedBefore,
+        'C pickup left the corpse ROT_CORPSE timer active');
+    assert.equal(tainted.corpse.timed, 0,
+        'C useup stops the corpse timer before deallocation');
 });
 
 test('corpse_intrinsic draws once per candidate and once more for strength',

@@ -12,8 +12,8 @@
 // calculation, the Save bones? prompt, and ordinary final-game display.
 //
 // savelife() (end.c:704-756) restores the hero to a viable state after the
-// death is declined in wizard or explore mode or after the amulet fires. Its
-// two unported calls are explicit discarded-result gaps. The debug-fuzzer
+// death is declined in wizard or explore mode or after the amulet fires. The
+// engulfed-hero expels() call is an explicit discarded-result gap. The debug-fuzzer
 // helper fuzzer_savelife() (end.c:945-1016) is also source-ordered here; its
 // discarded potion effects and wizard map rebuild remain named gaps.
 // endmultishot(FALSE) is now ported.
@@ -85,6 +85,7 @@ import {
     QUIT,
     OBJ_FREE,
     SICK,
+    SICK_ALL,
     SORTLOOT_LOOT,
     SORTLOOT_PACK,
     STARVING,
@@ -206,7 +207,7 @@ import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
 import { setwornEnv } from './do_wear.js';
 import { setnotworn } from './worn.js';
-import { set_itimeout } from './potion.js';
+import { make_sick, set_itimeout } from './potion.js';
 import { rn2 } from './rng.js';
 import { d } from './rng.js';
 import { timet_delta } from './allmain.js';
@@ -274,10 +275,7 @@ function ParanoidDie(state) {
 // after being killed, when wizard or explore mode lets the player decline
 // death or when the amulet of life saving fires.
 //
-// Two calls remain explicit discarded-result gaps because their source
-// functions are not ported on those branches:
-//   expels()             -- only when u.uswallow (hero is engulfed)
-//   make_sick(0L, ...)   -- only when (Sick & TIMEOUT) == 1L (one-turn sick)
+// expels() remains an explicit discarded-result gap when the hero is engulfed.
 // endmultishot(FALSE) is now ported: it stops a multi-shot volley in progress
 // when the hero dies on their own turn (context.mon_moving is false).
 //
@@ -307,9 +305,7 @@ async function savelife(how, state = game) {
     // cure impending doom of sickness hero won't have time to fix
     // C ref: Sick is u.uprops[SICK].intrinsic; TIMEOUT is 0x00FFFFFF.
     if (((u.uprops?.[SICK]?.intrinsic ?? 0) & TIMEOUT) === 1) {
-        // C discards make_sick()'s result. Its cure effects remain an explicit
-        // boundary until potion.c ports that function.
-        note_unported('potion.c make_sick');
+        await make_sick(0, null, false, SICK_ALL, state);
     }
 
     state.nomovemsg = 'You survived that attempt on your life.';

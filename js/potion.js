@@ -110,7 +110,10 @@ import {
     PROT_FROM_SHAPE_CHANGERS,
     SEE_INVIS,
     M_SEEN_SLEEP,
+    SICK,
+    SICK_ALL,
     SLEEP_RES,
+    SICK_RES,
     STONED,
     STRANGLED,
     TELEPAT,
@@ -162,7 +165,7 @@ import { makemon_runtime } from './makemon_create.js';
 import {
     breathless, dmgtype, has_head, haseyes, is_human, is_silent,
     is_vampshifter, is_were, likes_fire, mon_hates_blessings,
-    monster_resists_element,
+    defended, monster_resists_element,
 } from './mondata.js';
 import {
     AD_ACID, AD_DISE, AD_PEST,
@@ -507,6 +510,67 @@ export async function make_vomiting(xtime, talk, state = game, env = {}) {
         await (env.message ?? ttyPline)(
             'You feel much less nauseated now.', state,
         );
+    }
+}
+
+// C ref: potion.c make_sick() (143-191). Sickness duration is the SICK
+// intrinsic timeout and food-poisoning/illness kinds share u.usick_type.
+// The delayed SICK killer remains owned by end.c's existing killer chain.
+export async function make_sick(
+    xtime, cause, talk, type, state = game, env = {},
+) {
+    const u = state.u;
+    const sick = u?.uprops?.[SICK];
+    if (!sick)
+        throw new Error('make_sick requires initialized SICK state');
+    const old = sick.intrinsic;
+    const message = env.message ?? ttyPline;
+    const random = env.random ?? { rn2 };
+    const encumberMessage = env.encumberMessage ?? encumber_msg;
+
+    if (xtime > 0) {
+        const resistance = u.uprops[SICK_RES];
+        if (resistance.intrinsic || resistance.extrinsic
+            || defended(state.youmonst, AD_DISE, state)) {
+            return;
+        }
+        if (!old) {
+            await message('You feel deathly sick.', state);
+        } else if (talk) {
+            await message(
+                `You feel ${xtime <= old / 2 ? 'much' : 'even'} worse.`,
+                state,
+            );
+        }
+        set_itimeout(sick, xtime);
+        u.usick_type = (u.usick_type ?? 0) | type;
+        state.disp ??= {};
+        state.disp.botl = true;
+    } else if (old && (type & (u.usick_type ?? 0))) {
+        u.usick_type &= ~type;
+        if (u.usick_type) {
+            if (talk) await message('You feel somewhat better.', state);
+            // potion.c approximates the remaining illness with twice its old
+            // timeout after one sickness type has been cured.
+            set_itimeout(sick, old * 2);
+        } else {
+            if (talk) await message('You feel cured.  What a relief!', state);
+            // C assigns Sick directly to zero rather than preserving flags.
+            sick.intrinsic = 0;
+        }
+        state.disp ??= {};
+        state.disp.botl = true;
+    }
+
+    const killer = find_delayed_killer(SICK, state);
+    if (sick.intrinsic) {
+        await exercise(A_CON, false, state, random, { encumberMessage });
+        if (xtime || !old || !killer) {
+            const format = cause === '#wizintrinsic' ? KILLED_BY : KILLED_BY_AN;
+            delayed_killer(SICK, format, cause, state);
+        }
+    } else {
+        dealloc_killer(killer, state);
     }
 }
 
@@ -885,10 +949,8 @@ async function peffect_hallucination(otmp, state = game, rawEnv = {}) {
     }
 }
 
-// C ref: potion.c peffect_water() (717-767). Calls to make_sick() and the
-// were.c lycanthropy mutators are void in C, so those unported callees are
-// explicitly recorded and skipped; no placeholder state mutation stands in
-// for them.
+// C ref: potion.c peffect_water() (717-767). The lycanthropy mutators remain
+// named void gaps where their source calls are still unported.
 async function peffect_water(otmp, state = game, rawEnv = {}) {
     state.gp ??= {};
     state.gp.potion_nothing ??= 0;
@@ -945,7 +1007,9 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
         }
     } else if (otmp.blessed) {
         await message('You feel full of awe.', state);
-        note_unported('potion.c make_sick');
+        await make_sick(0, null, true, SICK_ALL, state, {
+            ...rawEnv, message, random, encumberMessage,
+        });
         await exercise(A_WIS, true, state, random, { encumberMessage });
         await exercise(A_CON, true, state, random, { encumberMessage });
         if (ismnum(u.ulycn))
@@ -2769,7 +2833,9 @@ export async function potionbreathe(obj, state = game, env = {}) {
 // optionally cures sickness and blindness. nhp is the hit-point gain, nxtra
 // is an extra max-HP boost when healing exceeds maximum HP, curesick and
 // cureblind gate make_sick(0) and make_blinded(0) respectively.
-export async function healup(nhp, nxtra, curesick, cureblind, state = game) {
+export async function healup(
+    nhp, nxtra, curesick, cureblind, state = game, env = {},
+) {
     const u = state.u;
     if (nhp) {
         if (Upolyd(u)) {
@@ -2791,8 +2857,8 @@ export async function healup(nhp, nxtra, curesick, cureblind, state = game) {
         await make_deaf(0, true, state);
     }
     if (curesick) {
-        await make_vomiting(0, true, state);
-        note_unported('potion.c make_sick');
+        await make_vomiting(0, true, state, env);
+        await make_sick(0, null, true, SICK_ALL, state, env);
     }
     state.disp = state.disp || {};
     state.disp.botl = true;
