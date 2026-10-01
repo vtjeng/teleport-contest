@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Matching C function-entry evidence for dokick.c:kick_dumb, run-GTNsEG (SHA-256 ac38ac0437d9bbc4c4a0edd8baea618508708910a7066f61cb781b62427d06f3), strict fresh run-9Qa3ck passes (3560 RNG, 38 screens/cursors, 0 frames). The three-step map is `|@..<|`; wall behind satisfies the levitation brace guard, then kick_dumb prints “You kick at empty space.” C rn2(2)=0 skips its optional hurtle call. This is not hurtle-branch evidence.",
+  "segments": [
+    {
+      "seed": 60381247,
+      "datetime": "20380917104500",
+      "nethackrc": "OPTIONS=name:LevitateKickB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqohhh\u0004l"
+    }
+  ]
+}

@@ -5,6 +5,7 @@
 // of.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -35,6 +36,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { is_undead } from '../js/mondata.js';
 import { CHEST } from '../js/objects.js';
+import { mksobj, place_object } from '../js/obj.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     AT_BITE,
@@ -46,10 +48,12 @@ import {
     AD_PHYS,
     PM_ACID_BLOB,
     PM_BROWN_MOLD,
+    PM_CAVE_SPIDER,
     PM_HILL_ORC,
     PM_ELF,
     PM_KNIGHT,
     PM_GNOME_ZOMBIE,
+    PM_GREMLIN,
     PM_LEPRECHAUN,
     PM_LICHEN,
     PM_SAMURAI,
@@ -74,6 +78,12 @@ import { can_twoweapon } from '../js/wield.js';
 import { weapon_hit_bonus } from '../js/weapon.js';
 
 const DATETIME = '20260214031500';
+const UHITM_C = readFileSync(
+    new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
+);
+const FLAG_H = readFileSync(
+    new URL('../nethack-c/upstream/include/flag.h', import.meta.url), 'utf8',
+);
 
 function rc({ role, gender, align, race, options }) {
     return [
@@ -211,11 +221,45 @@ test('attack_checks consumes a declined peaceful confirmation', async () => {
         },
     }), true);
     assert.equal(prompts.length, 1);
-    assert.equal(prompts[0][0], PARANOID_HIT);
+    assert.equal(prompts[0][0], false);
     assert.equal(prompts[0][1], 'Really attack the lichen?');
     assert.equal(prompts[0][2], game);
     assert.equal(game.context.move, 0);
 });
+
+test('attack_checks passes C ParanoidHit Boolean membership to the query',
+    async () => {
+        assert.match(UHITM_C,
+            /paranoid_query\(ParanoidHit, qbuf\)/u);
+        assert.match(FLAG_H,
+            /#define ParanoidHit \(\(flags\.paranoia_bits & PARANOID_HIT\) != 0\)/u);
+
+        await hero();
+        game.flags.confirm = true;
+        game.flags.paranoia_bits &= ~PARANOID_HIT;
+        const observed = [];
+        const unmasked = target(PM_LICHEN, { mpeaceful: 1 });
+        await attack_checks(unmasked, game.uwep, game, {
+            paranoidQuery: async (isParanoid) => {
+                observed.push(isParanoid);
+                return false;
+            },
+        });
+        assert.equal(observed[0], false,
+            'the absent option supplies the one-key C query mode');
+
+        game.flags.paranoia_bits |= PARANOID_HIT;
+        game.context.move = 1;
+        const masked = target(PM_LICHEN, { mpeaceful: 1 });
+        await attack_checks(masked, game.uwep, game, {
+            paranoidQuery: async (isParanoid) => {
+                observed.push(isParanoid);
+                return false;
+            },
+        });
+        assert.deepEqual(observed, [false, true],
+            'the source bit membership becomes true only when enabled');
+    });
 
 // uhitm.c:230-252. An unseen target on an ordinary glyph is announced,
 // remembered as an invisible monster, and woken before the attempted attack
@@ -250,6 +294,37 @@ test('attack_checks marks and wakes an unseen target', async () => {
         GLYPH_INVISIBLE,
     );
     assert.equal(glyph_is_invisible(glyph_at(x, y, game)), true);
+});
+
+test('attack_checks sends the hidden-under-object source message', async () => {
+    const start = UHITM_C.indexOf('attack_checks(\n    struct monst *mtmp');
+    const end = UHITM_C.indexOf('/* it is unchivalrous for a knight', start);
+    const cFunction = UHITM_C.slice(start, end);
+    assert.match(cFunction,
+        /else if \(\(obj = svl\.level\.objects\[mtmp->mx\]\[mtmp->my\]\) != 0\)\s*pline\("Wait!  There's %s hiding under %s!",/u);
+
+    await hero();
+    const x = game.u.ux + 1;
+    const y = game.u.uy;
+    const spider = target(PM_CAVE_SPIDER, {
+        mx: x,
+        my: y,
+        mundetected: 1,
+        msleeping: 1,
+    });
+    place_monster(spider, x, y, game);
+    const chest = mksobj(CHEST, true, false, { state: game });
+    place_object(chest, x, y, { state: game });
+    (game.gb ??= {}).bhitpos = { x, y };
+    const messages = [];
+
+    assert.equal(await attack_checks(spider, game.uwep, game, {
+        message: async (line) => { messages.push(line); },
+    }), true);
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /^Wait!  There's a cave spider hiding under .*chest!$/u);
+    assert.equal(spider.mundetected, 0);
+    assert.equal(spider.msleeping, 0);
 });
 
 // uhitm.c:201-214 returns FALSE above every arm below it, and that position is
@@ -483,6 +558,27 @@ test('check_caitiff applies only the two role alignment penalties',
         );
     });
 
+test('check_caitiff uses the source live pline when no message is injected',
+    async () => {
+        const start = UHITM_C.indexOf('check_caitiff(struct monst *mtmp)');
+        const end = UHITM_C.indexOf('/* maybe unparalyze monster */', start);
+        const cFunction = UHITM_C.slice(start, end);
+        assert.ok(start >= 0 && end > start);
+        assert.match(cFunction,
+            /You\("dishonorably attack the innocent!"\);\s*adjalign\(-1\);/u);
+
+        await hero({ role: 'Samurai', gender: 'male', align: 'lawful' });
+        game.u.ualign.record = 0;
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await check_caitiff(
+            target(PM_LICHEN, { mpeaceful: 1 }),
+            game,
+        );
+        assert.equal(game.nhDisplay.topMessage,
+            'You dishonorably attack the innocent!');
+        assert.equal(game.u.ualign.record, -1);
+    });
+
 test('mon_maybe_unparalyze draws only for a frozen target', async () => {
     await hero();
     const draws = [];
@@ -548,6 +644,41 @@ test('find_roll_to_hit adds every adjustment its source names', async () => {
     );
 });
 
+test('find_roll_to_hit selects maybe_polyd level and elf values from the form', async () => {
+    await hero();
+    const counters = () => ({ attknum: 0, role_roll_penalty: 0 });
+    const roll = async (monster) => find_roll_to_hit(
+        monster, AT_WEAP, game.uwep, counters(), game, REFUSING,
+    );
+    const targetLichen = target(PM_LICHEN);
+    const unpolymorphedLevel = game.u.ulevel;
+    const humanRoll = await roll(targetLichen);
+
+    // The independent B64 recipe attacks in Gremlin form; C maybe_polyd at
+    // uhitm.c:378 uses the form's monster level instead of the hero's level.
+    game.u.umonnum = PM_GREMLIN;
+    game.youmonst.data = game.mons[PM_GREMLIN];
+    game.youmonst.mnum = PM_GREMLIN;
+    assert.equal(
+        await roll(targetLichen),
+        humanRoll + game.mons[PM_GREMLIN].mlevel - unpolymorphedLevel,
+    );
+
+    // C maybe_polyd at uhitm.c:404 checks the Elf form while polymorphed; an
+    // orc target makes the one-point source bonus observable.
+    await hero();
+    const humanVsOrc = await roll(target(PM_HILL_ORC));
+    const heroLevel = game.u.ulevel;
+    const elfLevel = game.mons[PM_ELF].mlevel;
+    game.u.umonnum = PM_ELF;
+    game.youmonst.data = game.mons[PM_ELF];
+    game.youmonst.mnum = PM_ELF;
+    assert.equal(
+        await roll(target(PM_HILL_ORC)),
+        humanVsOrc + elfLevel - heroLevel + 1,
+    );
+});
+
 test('find_roll_to_hit reads the Monk arms and martial kick bonus', async () => {
     await hero({ role: 'Monk', gender: 'male' });
     const counters = () => ({ attknum: 0, role_roll_penalty: 0 });
@@ -598,6 +729,27 @@ test('find_roll_to_hit reads the Monk arms and martial kick bonus', async () => 
     );
     assert.equal(
         ordinaryKick, ordinaryClaw - weapon_hit_bonus(null, game),
+    );
+});
+
+test('find_roll_to_hit skips the Monk role bonus while polymorphed', async () => {
+    await hero({ role: 'Monk', gender: 'male' });
+    const counters = () => ({ attknum: 0, role_roll_penalty: 0 });
+    const attack = (monster) => find_roll_to_hit(
+        monster, AT_CLAW, null, counters(), game, REFUSING,
+    );
+    const heroLevel = game.u.ulevel;
+    const humanRoll = await attack(target());
+
+    // C uhitm.c:397-401 gates the Monk bare-hand bonus with !Upolyd; Gremlin
+    // form also selects its C monster level through maybe_polyd at line 378.
+    game.u.umonnum = PM_GREMLIN;
+    game.youmonst.data = game.mons[PM_GREMLIN];
+    game.youmonst.mnum = PM_GREMLIN;
+    assert.equal(
+        await attack(target()),
+        humanRoll + game.mons[PM_GREMLIN].mlevel - heroLevel
+            - (Math.trunc(heroLevel / 3) + 2),
     );
 });
 

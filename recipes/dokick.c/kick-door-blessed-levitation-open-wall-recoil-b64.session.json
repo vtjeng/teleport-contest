@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first B64 route variation for dokick.c:kick_door Levitation -> kick_ouch -> hurtle. The preceding Healer recordings showed the wished plain Levitation potion was cursed for this seed, so it expired during the door setup; potion.c:peffect_levitation gives a blessed potion an explicit 250+ turn timeout. This frozen input preserves the source-observed adjacent west door, wishes a blessed potion, drinks the recorded inventory letter m, retries source-ordinary opens and closes against random resistance, then kicks east from the west side. C eventually opens the door but all five close attempts resist, so the kick only exercises the open-door path; strict run-ynAuvj passes this setup-miss recording.",
+  "segments": [
+    {
+      "seed": 8410357,
+      "datetime": "20320418111535",
+      "nethackrc": "OPTIONS=name:KickDoorBlessedRecoilB64,role:Healer,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\nblessed potion of levitation\nqmohohohohohhhclclclclcl\u0004l"
+    }
+  ]
+}

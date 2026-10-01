@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first B64 dokick.c:kick_ouch hurtle caller. On this source-identified seed map, the Wizard starts on an up stair `<`; after quaffing a wished levitation potion, one east step stands between the stair and the closed door `+`. Ctrl-D west kicks the up stair while the door behind satisfies dokick’s levitation brace guard; kick_nondoor’s upward-stair arm calls kick_ouch, and C confirms kick_ouch calls hurtle east. The strict fresh differential matches the levitating up-stair recoil. Preserve the actual C map and source call result.",
+  "segments": [
+    {
+      "seed": 60381248,
+      "datetime": "20380917104500",
+      "nethackrc": "OPTIONS=name:LevitateOuchB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqol\u0004h"
+    }
+  ]
+}

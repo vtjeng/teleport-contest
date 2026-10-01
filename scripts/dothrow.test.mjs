@@ -5,10 +5,10 @@
 // objects.c skills and materials the arms select on are asserted first, so a
 // wrong table entry fails as itself rather than as a wrong bonus.
 //
-// The three command functions are driven on a state this file builds rather
-// than on a replayed session, so nothing here imports js/jsmain.js.
-// scripts/fire-command.test.mjs covers the same command the other way round,
-// over recorded recipes.
+// Most command helpers below use a small source-shaped arena. The recoil
+// caller test uses one initialized global game because hurtle_step() redraws
+// through C's process-wide display state. scripts/fire-command.test.mjs also
+// covers the firing command over recorded recipes.
 //
 // Two kinds of assertion carry most of the weight:
 //
@@ -58,6 +58,7 @@ import {
     ROOM,
     STONE_RES,
     STUNNED,
+    TT_WEB,
     TIMER_OBJECT,
     TRAPDOOR,
     WT_SPLASH_THRESHOLD,
@@ -73,6 +74,7 @@ import {
     find_launcher,
     hitfloor,
     impact_disturbs_zombies,
+    hurtle,
     mhurtle,
     multishot_class_bonus,
     should_mulch_missile,
@@ -82,7 +84,9 @@ import {
     walk_path,
 } from '../js/dothrow.js';
 import { GameMap } from '../js/game.js';
-import { resetGame } from '../js/gstate.js';
+import { game, resetGame } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { vision_reset } from '../js/vision.js';
 import { isThrowingWeapon } from '../js/invent.js';
 import {
     PM_CAVE_DWELLER,
@@ -171,6 +175,9 @@ import { PM_SHOPKEEPER } from '../js/monsters.js';
 
 const DOTHROW_C = readFileSync(
     new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url), 'utf8',
+);
+const DOTHROW_JS = readFileSync(
+    new URL('../js/dothrow.js', import.meta.url), 'utf8',
 );
 
 function makeState() {
@@ -510,6 +517,77 @@ test('walk_path() follows the source Bresenham cells and rewinds on failure', as
         { x: 5, y: 3 },
     ]);
     assert.deepEqual(destination, { x: 4, y: 3 });
+});
+
+test('hurtle() installs source multi state and walks normalized recoil', async () => {
+    const start = DOTHROW_C.indexOf('\nhurtle(int dx, int dy, int range, boolean verbose)');
+    const end = DOTHROW_C.indexOf('/* Move a monster through the air', start);
+    const cFunction = DOTHROW_C.slice(start, end);
+    assert.match(cFunction,
+        /if \(Punished && !carried\(uball\)\)[\s\S]*?nomul\(0\);[\s\S]*?else if \(u\.utrap\)[\s\S]*?nomul\(0\);/u);
+    assert.match(cFunction,
+        /dx = sgn\(dx\);[\s\S]*?dy = sgn\(dy\);[\s\S]*?if \(!range \|\| \(!dx && !dy\) \|\| u\.ustuck\)/u);
+    assert.match(cFunction,
+        /nomul\(-range\);[\s\S]*?gm\.multi_reason = "moving through the air";[\s\S]*?gn\.nomovemsg = "";/u);
+    assert.match(cFunction,
+        /endmultishot\(TRUE\);[\s\S]*?uc\.x = u\.ux;[\s\S]*?cc\.x = u\.ux \+ \(dx \* range\);[\s\S]*?walk_path\(&uc, &cc, hurtle_step,[\s\S]*?&range\)/u);
+    assert.match(DOTHROW_JS,
+        /export async function hurtle\([\s\S]*?isolateVision = null/u);
+    assert.match(DOTHROW_JS,
+        /if \(planning\) \{\s*if \(typeof arg\?\.isolateVision !== 'function'\)[\s\S]*?arg\.isolateVision\(state\);\s*\}\s*vision_recalc\(1, \{ state, redraw \}\);/u);
+
+    // This fixed startup input reaches the first command boundary and gives
+    // hurtle_step() the initialized global display that its C redraw uses.
+    resetGame();
+    await runSegment({
+        seed: ARENA_SEED,
+        datetime: '20320415101723',
+        nethackrc: 'OPTIONS=name:Hurtle,role:Valkyrie,race:human,gender:female,align:lawful\n'
+            + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n',
+        moves: '',
+    });
+    const state = game;
+    const startX = state.u.ux;
+    const startY = state.u.uy;
+    // Two adjacent room cells make the normalized one-step recoil path clear.
+    state.level.at(startX, startY).typ = ROOM;
+    state.level.at(startX + 1, startY).typ = ROOM;
+    state.level.regions ??= [];
+    vision_reset(state);
+    // C's range of 1 selects “float”; dx=3 proves sgn() normalizes direction.
+    state.m_shot = { i: 1, n: 1, s: false };
+    // Keep the source volley already complete so this test checks hurtle's
+    // own output without creating endmultishot()'s separate stop message.
+    state.iflags.cbreak = true;
+    // The MSGTYPE_STOP float line waits for one ordinary space response.
+    state.nhDisplay.pushKey(32);
+    await hurtle(3, 0, 1, true, state);
+    assert.deepEqual([state.u.ux, state.u.uy], [startX + 1, startY]);
+    assert.equal(state.multi, -1);
+    assert.equal(state.multi_reason, 'moving through the air');
+    assert.equal(state.nomovemsg, '');
+    assert.equal(state.m_shot.n, 1);
+    assert.match(state._ttyToplines, /You float in the opposite direction\./u);
+
+    // A detached punished ball and the web branch both stop before moving.
+    const punished = arena();
+    punished.uball = { where: OBJ_FREE };
+    // A positive multi value lets C nomul(0) clear the ongoing count; the
+    // source guard preserves negative counts as the documented bug fix.
+    punished.multi = 1;
+    await hurtle(1, 0, 1, false, punished);
+    assert.deepEqual([punished.u.ux, punished.u.uy], [1, 4]);
+    assert.equal(punished.multi, 0);
+    assert.equal(punished.multi_reason, null);
+    assert.match(punished._ttyToplines, /tug from the iron ball/u);
+
+    const webbed = arena();
+    webbed.u.utrap = 1;
+    webbed.u.utraptype = TT_WEB;
+    await hurtle(1, 0, 1, false, webbed);
+    assert.deepEqual([webbed.u.ux, webbed.u.uy], [1, 4]);
+    assert.equal(webbed.multi, 0);
+    assert.match(webbed._ttyToplines, /anchored by the web/u);
 });
 
 test('mhurtle() moves a monster through the source callback and floor tail',
@@ -940,15 +1018,26 @@ test('boomhit() applies the source self-hit and ends its volley', async () => {
     assert.match(state._ttyToplines, /You stop firing after the 1st shot\./u);
 });
 
-test('throwit() applies the recoil of a weightless throw', async () => {
+test('throwit() reaches hurtle after a weightless throw', async () => {
     // dothrow.c:1650-1657, `Is_airlevel(&u.uz) || Levitation`. Neither holds
-    // for a hero standing on an ordinary floor, and either alone is enough.
+    // for an ordinary floor; this levitating hero takes that arm. The web
+    // pins hurtle at its source trap exit so this arena tests caller wiring,
+    // while the live-game hurtle test above covers movement and redraw.
     const state = arena();
     state.u.uprops[LEVITATION].extrinsic = 1;
+    state.u.utrap = 1;
+    state.u.utraptype = TT_WEB;
+    state.multi = 1;
+    state.iflags.cbreak = true;
+    // bhit and the anchored recoil message may reach an ordinary --More--.
+    for (let i = 0; i < 8; ++i) state.nhDisplay.pushKey(32);
     const dagger = item(state, DAGGER);
     await throwit(dagger, 0, false, null, state);
+    assert.deepEqual([state.u.ux, state.u.uy], [1, 4]);
     assert.ok(state.gb.bhitpos.x > state.u.ux);
     assert.equal(state.gt.thrownobj, null);
+    assert.equal(state.multi, 0);
+    assert.match(state._ttyToplines, /anchored by the web/u);
     assert.deepEqual(draws(), ['rn2(100)']);
 });
 

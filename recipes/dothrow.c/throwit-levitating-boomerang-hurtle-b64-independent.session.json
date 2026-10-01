@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup miss, run-MVeA90: wish assigned the levitation potion letter o and boomerang letter p, but frozen inputs selected n for each. The potion was not quaffed and throwit did not reach the levitating-boomerang hurtle branch. Preserve this exact input and artifact as a setup miss.",
+  "segments": [
+    {
+      "seed": 318240517,
+      "datetime": "20380221113000",
+      "nethackrc": "OPTIONS=name:ThrowHurtleB64,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqn#wizwish\nboomerang\ntnl"
+    }
+  ]
+}

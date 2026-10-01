@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first B64 retry for the distinct dokick.c:kick_door Levitation arm -> kick_ouch -> hurtle caller. The prior frozen C-first route reached this Healer's west doorway but the randomly resisted open/close attempts prevented entry to the caller. This independently frozen input drinks the known letter-m Levitation potion, makes five source-ordered open attempts before crossing west, and makes five close attempts from the other side before kicking east. Repeated opens after success and closes after success are harmless no-op commands; their purpose is to cover the observed random resistance without changing state by script. Preserve the earlier precise setup misses and compare this complete new recording before retaining it. The exact C artifact is preserved at /tmp/B64-blocked-recordings/dokick.c/kick-door-levitating-open-wall-recoil-b64-retries.session.json; strict run-9nPKFT failed at boundary 45 when C rendered a Y monster absent from JS, though all 2897 PRNG values, cursors and 57 screen boundaries matched otherwise. This does not establish kick_door/hurtle runtime coverage.",
+  "segments": [
+    {
+      "seed": 8410357,
+      "datetime": "20320417110723",
+      "nethackrc": "OPTIONS=name:KickDoorRetryB64,role:Healer,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqmohohohohohhhclclclclcl\u0004l"
+    }
+  ]
+}

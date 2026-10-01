@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 88311073,
+      "datetime": "20360930151721",
+      "nethackrc": "OPTIONS=name:TrapCorpseWizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!safe_wait\n",
+      "moves": " \u00165\n                              s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s ",
+      "comment": "Independent C-first variation: a male Wizard with a new seed and clock uses the debug D:5 numeric teleport and the established wait sequence. It tests whether the trapped-door blast reaches mon.c:mondied and its corpse_chance-to-make_corpse continuation."
+    }
+  ],
+  "comment": "Independent input variation for mon.c:make_corpse through the monmove.c:mb_trapped -> mon.c:mondied caller path. Seed 88311073, 2036-09-30 15:17:21 clock, Wizard, male, neutral, and default acoustics differ from the existing Valkyrie trapped-door witness; the command sequence retains only the source setup needed to reach the trapped door."
+}

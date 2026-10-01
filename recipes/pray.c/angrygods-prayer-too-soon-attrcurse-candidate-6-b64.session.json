@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first caller attempt. Two valid too-soon prayers reach pray.c:angrygods case 2 (rn2(4)=2) and case 0 (rn2(8)=0); neither reaches cases 4-5 or calls attrcurse. Preserve outside recordings/ as exact non-target outcomes.",
+  "segments": [
+    {
+      "seed": 69421031,
+      "datetime": "20260817152200",
+      "nethackrc": "OPTIONS=name:AngerProbeF,role:Monk,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#pray\ny n  #pray\ny n  "
+    }
+  ]
+}

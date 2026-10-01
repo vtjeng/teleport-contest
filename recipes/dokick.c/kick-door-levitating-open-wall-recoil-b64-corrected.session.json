@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first B64 caller attempt for dokick.c:kick_door's distinct Levitation arm (922) -> kick_ouch (905) -> hurtle (906). It reuses the already observed Healer layout only to isolate the route correction after the earlier target-position misses: the hero starts beside the west door on the up stair, drinks the wished Levitation potion (which C assigned to m; frozen qk is deliberately preserved as the first corrected-recipe input miss), opens west, walks through, closes the door from its west side, then kicks east. The intended brace square is west/out of bounds, so dokick should admit the target; the C trace determines whether the outside square and door state actually permit this route. The earlier C-only misses remain separate history. This recipe was frozen before recording/comparison.",
+  "segments": [
+    {
+      "seed": 8410357,
+      "datetime": "20320417110723",
+      "nethackrc": "OPTIONS=name:KickDoorWallRecoilB64,role:Healer,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqkohhhcl\u0004l"
+    }
+  ]
+}

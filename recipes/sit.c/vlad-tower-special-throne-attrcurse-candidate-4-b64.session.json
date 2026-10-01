@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen independent C-first candidate 4. This reached the wished tower1 throne but C throne_sit_effect(sit.c:45) drew rnd(6)=3, so its >4 gate blocked the special throne effect; it is intentionally outside recordings/ and does not establish attrcurse runtime evidence.",
+  "segments": [
+    {
+      "seed": 73129415,
+      "datetime": "20260828113200",
+      "nethackrc": "OPTIONS=name:B64VladB,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0016?\n>Gk\u0017throne\n#sit\n 7\n"
+    }
+  ]
+}

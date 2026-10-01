@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first B64 follow-up for the distinct dokick.c:kick_door Levitation arm -> kick_ouch -> hurtle caller. The previous frozen setup-miss run confirmed this Healer map and doorway but exposed a source-ordered opening miss: potion letter m is correct, yet the explicit open attempt and the two movement-open retries all hit C resistance. This input drinks m, alternates explicit open and movement attempts, and then preserves the unchanged later close/kick sequence. C still never opened the door; strict run-2W2LbQ passes the resulting setup-miss recording.",
+  "segments": [
+    {
+      "seed": 8410357,
+      "datetime": "20320417110723",
+      "nethackrc": "OPTIONS=name:KickDoorWallRecoilB64,role:Healer,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqmohhohhclcl\u0004l"
+    }
+  ]
+}

@@ -38,7 +38,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import {
-    eatfood, eating_dangerous_corpse, gethungry, is_fainted, offer_ok,
+    eatfood, eating_dangerous_corpse, Finish_digestion, gethungry, is_fainted, offer_ok,
     set_tin_variety, temp_resist, tin_ok,
 } from '../js/eat.js';
 import {
@@ -74,6 +74,7 @@ import {
     PM_ACID_BLOB,
     PM_COCKATRICE,
     PM_ELF,
+    PM_DEATH,
     PM_GHOST,
     PM_HEALER,
     PM_HUMAN,
@@ -94,6 +95,23 @@ function state() {
     monst_globals_init(result);
     return result;
 }
+
+test('Finish_digestion runs pending corpse effects and clears C state', async () => {
+    const start = EAT_C.indexOf('Finish_digestion(void)');
+    const end = EAT_C.indexOf('/*eat.c*/', start);
+    const cFunction = EAT_C.slice(start, end);
+    assert.match(cFunction,
+        /if \(gc\.corpsenm_digested != NON_PM\)[\s\S]*?cpostfx\(gc\.corpsenm_digested\);[\s\S]*?gc\.corpsenm_digested = NON_PM;[\s\S]*?return 0;/u);
+
+    const current = state();
+    current.gc = { corpsenm_digested: PM_DEATH };
+    assert.equal(await Finish_digestion(current), 0);
+    assert.equal(current.gc.corpsenm_digested, NON_PM);
+
+    current.gc.corpsenm_digested = NON_PM;
+    assert.equal(await Finish_digestion(current), 0);
+    assert.equal(current.gc.corpsenm_digested, NON_PM);
+});
 
 test('is_fainted follows eat.c hunger-status equality', () => {
     assert.match(EAT_C,

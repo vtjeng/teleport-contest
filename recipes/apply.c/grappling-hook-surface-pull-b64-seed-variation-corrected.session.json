@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first corrected continuation for run-xkiT9A: C assigned the hook inventory letter o, so select o and target the adjacent ordinary floor tile. Record the actual use_grapple branch and preserve any non-surface roll as a target miss.",
+  "segments": [
+    {
+      "seed": 148026741,
+      "datetime": "20380221113000",
+      "nethackrc": "OPTIONS=name:HookSeedB64,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\ngrappling hook\nao $l."
+    }
+  ]
+}

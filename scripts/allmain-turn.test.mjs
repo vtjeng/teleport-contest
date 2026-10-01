@@ -2135,9 +2135,12 @@ test('movement glyph notices precede later first-turn region messages',
             'o',
         );
         assert.equal(targetLocation.disp_ch, 'i');
+        // C ref: display.c show_glyph() reaches pline_xy(), then topl.c
+        // update_topl()/addtopl() leaves the cursor after the 50-byte
+        // same-line notice, not at the map cursor used by pline_xy().
         assert.deepEqual(
             [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
-            [game.u.ux - 1, game.u.uy + 1],
+            [50, 0],
         );
 
         // C ref: allmain.c moveloop_core() runs region expiry after movement

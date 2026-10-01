@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923219,
+      "datetime": "20320214232000",
+      "nethackrc": "OPTIONS=name:CursGolem,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile clay golem\nl l l l l l l l l l "
+    }
+  ],
+  "comment": "Independent C-first uhitm.c do_attack -> hmonas -> damageum -> mhitm_ad_curs hero-to-monster variation. This frozen eastward setup attempt missed: C placed the clay golem south of the hero, while the final inputs moved east and never reached hmonas. Preserve this C-only setup outcome; do not treat it as passing runtime evidence."
+}

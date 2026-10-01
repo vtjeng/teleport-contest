@@ -29,6 +29,7 @@ import {
     A_WIS,
     ALTAR,
     AM_CHAOTIC,
+    ANTIMAGIC,
     AM_SANCTUM,
     AM_SHRINE,
     AM_MASK,
@@ -2023,9 +2024,10 @@ function Hallucination(state) {
 //
 // Cases 0 and 1 merely report displeasure. Cases 2 and 3 are also live for a
 // level-1 hero: godvoice(), the two verbal messages, Wisdom loss, and losexp()
-// all run before the shared prayer timer. The remaining cases reach
-// rndcurse(), attrcurse(), punish(), summon_minion(), or god_zaps_you() and
-// still stop by name below.
+// all run before the shared prayer timer. Cases 4 and 5 now call the ported
+// attrcurse() when C selects that arm; their other arm records the discarded
+// sit.c rndcurse() gap. Case 6's punishment fallthrough, cases 7 and 8's
+// summon_minion(), and the default god_zaps_you() remain named boundaries.
 const GOD_VOICES = ['booms out', 'thunders', 'rings out', 'booms'];
 
 // C ref: pray.c godvoice() (1414-1426). `words == NULL` leaves a trailing
@@ -2129,7 +2131,25 @@ export async function angrygods(resp_god, state = game) {
         throw new UnsupportedPrayerError("angrygods()'s punishment");
     case 4:
     case 5:
-        throw new UnsupportedPrayerError("angrygods()'s curses");
+        await godvoice(resp_god, 'Thou hast angered me.', state);
+        {
+            const antimagic = u.uprops?.[ANTIMAGIC];
+            if (!heroIsBlind(state)
+                && !(antimagic?.intrinsic || antimagic?.extrinsic)) {
+                const aura = an(hcolor('black', state));
+                await ttyPline(
+                    `${aura[0].toUpperCase()}${aura.slice(1)} glow surrounds you.`,
+                    state,
+                );
+            }
+        }
+        if (rn2(2)) {
+            note_unported('sit.c rndcurse');
+        } else {
+            const { attrcurse } = await import('./sit.js');
+            if (!(await attrcurse(state))) note_unported('sit.c rndcurse');
+        }
+        break;
     case 7:
     case 8:
         throw new UnsupportedPrayerError("angrygods()'s summoned minion");

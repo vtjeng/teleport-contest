@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923117,
+      "datetime": "20320214231800",
+      "nethackrc": "OPTIONS=name:CursEntry,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile troll\nh          "
+    }
+  ],
+  "comment": "Independent C-first uhitm.c do_attack -> hmonas -> damageum -> mhitm_ad_curs hero-to-monster AD_CURS attempt. The prior frozen C setup placed its hostile Troll west while `n` went southeast; this variation changes only the final approach to `h` and preserves that recorded C setup. The 23:18 clock places Gremlin form in its source night condition. Record the outcome before comparing JavaScript; a target miss remains a setup miss, not branch evidence."
+}

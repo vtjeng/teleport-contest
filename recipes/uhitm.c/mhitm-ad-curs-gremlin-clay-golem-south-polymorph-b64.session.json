@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923219,
+      "datetime": "20320214232000",
+      "nethackrc": "OPTIONS=name:CursGolem,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdj#polyself\ngremlin\n #wizgenesis\nhostile clay golem\nj j j j j j j j j j "
+    }
+  ],
+  "comment": "Independent C-first hmonas setup witness. Correcting the inventory slot successfully turned the Wizard into a Gremlin and created the adjacent hostile clay golem, but C step 79 shows the golem immediately west of the hero. The frozen j inputs moved south away from it, so they never reached hmonas. Preserve this C-only direction miss."
+}

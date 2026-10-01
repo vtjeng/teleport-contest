@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923207,
+      "datetime": "20320214231900",
+      "nethackrc": "OPTIONS=name:CursPager,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile troll\nl          "
+    }
+  ],
+  "comment": "Independent C-first uhitm.c do_attack -> hmonas -> damageum -> mhitm_ad_curs hero-to-monster AD_CURS attempt. Seed and night clock are frozen from the C-observed eastward placement; `l` attacks the Troll, and the following spaces dismiss hmonas's C `--More--` prompts so the later source attack slots can run. Preserve the complete C call trace before comparing JavaScript; the intended curse effect is the Gremlin's fourth attack."
+}

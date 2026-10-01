@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first nighttime source probe. C run-aALYBm creates the hostile Gremlin and three hostile paper golems with separate newline-terminated prompts. Source execution: step 97 enters monster-to-hero uhitm.c:mhitm_ad_curs and draws rn2(10)=2 (no cancellation); step 133 enters monster-to-monster uhitm.c:mhitm_ad_curs and draws rn2(10)=3 (no cancellation). The 23:00 clock satisfies the Gremlin night gate; the 24 waits stay within the C default 30-turn Conflict/invulnerability timeouts. Seed 49813079 is a single deterministic input, not tuned against JavaScript. Source path: monmove.c:movemon_singlemon → mhitm.c:fightm → mhitm.c:mattackm → uhitm.c:mhitm_ad_curs. The separate C artifact is /tmp/B64-mhitm-ad-curs-conflict-gremlin-paper-golems-night-independent-c.session.json. Keep outside recordings unless strict replay matches through the required evidence range.",
+  "segments": [
+    {
+      "seed": 49813079,
+      "datetime": "20260830230000",
+      "nethackrc": "OPTIONS=name:ConflictCurseB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na>>h\n  #wizgenesis\nhostile gremlin\n #wizgenesis\n3 hostile paper golem\n .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . "
+    }
+  ]
+}

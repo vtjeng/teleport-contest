@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent object-class variation for the second source hurtle call in dothrow.c:throwit. Wish and throw a dagger while Levitation is active on the existing source-traced goblin route; C's ordinary thrown-object arm calls hurtle only after bhit(), unlike the boomerang arm which calls it before boomhit(). C run-ELEpsV confirms the ordinary branch emits the recoil after the throw result; strict fresh run-or8yLa matches 2393 RNG, 52 screens/cursors, and 1 frame. The recipe distinguishes this post-bhit call site from the boomerang arm.",
+  "segments": [
+    {
+      "seed": 318240517,
+      "datetime": "20380221113000",
+      "nethackrc": "OPTIONS=name:ThrowDaggerHurtleB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqo#wizwish\ndagger\ntpl"
+    }
+  ]
+}

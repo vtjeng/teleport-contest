@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "FROZEN C target-direction miss from run-QgxZhj. C created one umber hulk northeast of the hero (`U` at screen row 0, column 2 while the hero was row 1, column 1), but the input forced west (`Fh`), producing “You attack thin air.” No hmonas/AT_ENGL/gulpum branch ran. Preserve the exact target miss outside recordings; the corrected C-first variation uses the observed northeast direction `Fu`.",
+  "segments": [
+    {
+      "seed": 86142958,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:GulpumProbeB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " Tw-#wizintrinsic\na\n  #wizgenesis\nhostile umber hulk\n #polyself\npurple worm\n Fh......"
+    }
+  ]
+}

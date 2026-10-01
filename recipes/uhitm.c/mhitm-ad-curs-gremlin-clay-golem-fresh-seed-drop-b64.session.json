@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923220,
+      "datetime": "20320214232000",
+      "nethackrc": "OPTIONS=name:CursGolem,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdidjdkdldm#polyself\ngremlin\n #wizgenesis\nhostile clay golem\nhhhhhhhhhh          "
+    }
+  ],
+  "comment": "Independent fresh-seed C-first hmonas setup witness. The full inventory drop and Gremlin polymorph succeeded, but the C step-77 map places the wizard-created clay golem north of the hero and a lichen west. The frozen h inputs attacked and killed the lichen instead of reaching the golem; preserve as a C-only target miss."
+}

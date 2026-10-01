@@ -1156,6 +1156,121 @@ function earthSenseState(typ, buriedAt) {
     return state;
 }
 
+test('u_on_newpos keeps its live redraw default and lets planned recoil stay silent', () => {
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/dungeon.c', import.meta.url),
+        'utf8',
+    );
+    const cStart = cSource.indexOf('\nu_on_newpos(coordxy x, coordxy y)');
+    const cEnd = cSource.indexOf('\n/* place you on a random location', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart,
+        'the complete upstream u_on_newpos definition is present');
+    const cFunction = cSource.slice(cStart, cEnd);
+    assert.match(cFunction,
+        /if \(!Blind && !Hallucination && !u\.uswallow\)\s+see_nearby_objects\(\);/u);
+
+    const dungeonSource = readFileSync(
+        new URL('../js/dungeon.js', import.meta.url),
+        'utf8',
+    );
+    const dothrowSource = readFileSync(
+        new URL('../js/dothrow.js', import.meta.url),
+        'utf8',
+    );
+    const cDothrowSource = readFileSync(
+        new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url),
+        'utf8',
+    );
+    const uhitmSource = readFileSync(
+        new URL('../js/uhitm.js', import.meta.url),
+        'utf8',
+    );
+    assert.match(dungeonSource,
+        /seeNearbyObjects = see_nearby_objects/u);
+    assert.match(dungeonSource,
+        /seeNearbyObjectsOptions = undefined/u);
+    assert.match(dungeonSource,
+        /seeNearbyObjects\(state, seeNearbyObjectsOptions\);/u);
+    assert.match(dothrowSource,
+        /seeNearbyObjectsOptions: planning \? \{\s*redraw: \(\) => note_unported\('display\.c newsym_force planning'\),\s*\} : undefined/u);
+    const displaySource = readFileSync(
+        new URL('../js/display.js', import.meta.url),
+        'utf8',
+    );
+    assert.match(displaySource,
+        /export function see_nearby_objects\(state = game, \{ redraw = null \} = \{\}\)/u);
+    assert.match(displaySource,
+        /observe_object\(object, state\);\s*\/\/ operate on remembered glyph rather than current one\s*if \(glyph_is_generic_object\([\s\S]*?\)\) redrawCell\(ix, iy, state\);/u);
+    assert.match(displaySource,
+        /if \(state !== game && typeof redraw !== 'function'\)\s*\{\s*throw new TypeError/u);
+    assert.match(uhitmSource,
+        /planning: Boolean\(env\?\.planning\)/u);
+
+    const cHurtleStart = cDothrowSource.indexOf(
+        'hurtle_step(genericptr_t arg, coordxy x, coordxy y)',
+    );
+    const cHurtleEnd = cDothrowSource.indexOf(
+        '\n/* used by mhurtle_step()', cHurtleStart,
+    );
+    assert.ok(cHurtleStart >= 0 && cHurtleEnd > cHurtleStart,
+        'the complete upstream hurtle_step definition is present');
+    const cHurtle = cDothrowSource.slice(cHurtleStart, cHurtleEnd);
+    assert.match(cHurtle,
+        /u_on_newpos\(x, y\);[\s\S]*?newsym\(ox, oy\);[\s\S]*?vision_recalc\(1\);[\s\S]*?flush_screen\(1\);[\s\S]*?switch_terrain\(\);[\s\S]*?check_special_room\(FALSE\);[\s\S]*?\(void\) drown\(\);\s*return FALSE;/u);
+
+    const jsHurtleStart = dothrowSource.indexOf(
+        'export async function hurtle_step(arg, x, y)',
+    );
+    const jsHurtleEnd = dothrowSource.indexOf(
+        '\n// C ref: dothrow.c should_mulch_missile()', jsHurtleStart,
+    );
+    assert.ok(jsHurtleStart >= 0 && jsHurtleEnd > jsHurtleStart);
+    const jsHurtle = dothrowSource.slice(jsHurtleStart, jsHurtleEnd);
+    const jsOrder = [
+        'u_on_newpos(x, y, state,',
+        'redraw(oldX, oldY);',
+        'arg.isolateVision(state);',
+        'vision_recalc(1, { state, redraw });',
+        'await flush(1);',
+        'await switch_terrain(state, { planning, message });',
+        'await check_special_room(false, state,',
+        'if (is_pool(x, y, state)',
+        'const trap = t_at(x, y, state);',
+    ].map((source) => jsHurtle.indexOf(source));
+    assert.ok(jsOrder.every((position) => position >= 0));
+    assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
+    assert.match(jsHurtle,
+        /if \(planning\) \{\s*\/\/ C discards drown\(\)'s boolean[\s\S]*?note_unported\('trap\.c drown planning'\);\s*\} else \{\s*await drown\(state\);\s*\}\s*return false;/u);
+
+    const live = resetGame();
+    live.u = {
+        ux: 4,
+        uy: 4,
+        uz: { dnum: 0, dlevel: 1 },
+        uz0: { dnum: 0, dlevel: 1 },
+        uprops: [],
+        umonnum: 1,
+        umonster: 1,
+    };
+    live.urace = { mnum: PM_GNOME };
+    live.level = new GameMap();
+    assert.equal(u_on_newpos(5, 4, live), undefined);
+    assert.deepEqual([live.u.ux, live.u.uy], [5, 4]);
+
+    const planned = earthSenseState(STONE, null);
+    planned.u.uz = { dnum: 0, dlevel: 1 };
+    planned.u.uz0 = { dnum: 0, dlevel: 1 };
+    let redrawCalls = 0;
+    assert.equal(u_on_newpos(5, 4, planned, {
+        seeNearbyObjects: (target) => {
+            assert.equal(target, planned);
+            redrawCalls++;
+        },
+    }), undefined);
+    assert.equal(redrawCalls, 1);
+    assert.deepEqual([planned.u.ux, planned.u.uy], [5, 4]);
+});
+
 test('earth_sense refuses only the state its notice would speak for', () => {
     // ROOM and CORR are the two types the terrain gate admits, and each has to
     // reach the buried list on its own.

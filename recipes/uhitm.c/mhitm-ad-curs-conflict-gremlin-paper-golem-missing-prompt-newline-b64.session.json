@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "SETUP MISS retained from C bounded run-h4t7w0 (/tmp/B64-mhitm-ad-curs-conflict-gremlin-paper-golem-probe.session.json). The create_particular prompt consumes the input through its terminating newline; this input omitted the newline after “hostile gremlin”, so the later wizard command and paper-golem text were consumed at the species prompt. C created one Gremlin, then it attacked the hero. No second monster or monmove.c:movemon_singlemon → mhitm.c:fightm → mhitm.c:mattackm → uhitm.c:mhitm_ad_curs path ran. Not a passing recording.",
+  "segments": [
+    {
+      "seed": 49813077,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ConflictCurseB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\n>>h\n  #wizgenesis\nhostile gremlin  #wizgenesis\nhostile paper golem   .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . "
+    }
+  ]
+}

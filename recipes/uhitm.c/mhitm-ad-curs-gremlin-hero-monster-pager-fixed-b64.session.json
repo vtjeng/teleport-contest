@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7642391,
+      "datetime": "20321124231800",
+      "nethackrc": "OPTIONS=name:CurseProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile troll\nllb          "
+    }
+  ],
+  "comment": "Independent C-first uhitm.c do_attack -> hmonas -> mhitm_ad_curs hero-to-monster probe. The Wizard drops the cloak and starting inventory with existing one-item commands before taking the small gremlin form; the explicit space after dropping the confuse-monster scroll dismisses its C pager before later keys. The hostile troll is created by the existing debug command; the 23:18 clock exercises the gremlin night branch. Seed, role, time and sequence derive from the prior source-traced setup miss."
+}

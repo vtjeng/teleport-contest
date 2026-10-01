@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked C-first run-KhNwyf for mhitu.c:mattacku -> uhitm.c:mhitm_knockback's hero-defender arm -> dothrow.c:hurtle. `wand of digging` opens the east wall, and the capture shows `|M@..|`, so the source `test_move` push square is now passable. The repeated calls all miss the helper's source `rn2(6)` chance gate; none returns TRUE or reaches hurtle. Keep the C artifact in scratch evidence, not recordings/. A separately frozen multiple-attacker variation supplies more independent chance draws.",
+  "segments": [
+    {
+      "seed": 73918422,
+      "datetime": "20370615110700",
+      "nethackrc": "OPTIONS=name:RecoilCorridorB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\na\n\u0017wand of digging\nzol#wizgenesis\nhostile giant mummy\n . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

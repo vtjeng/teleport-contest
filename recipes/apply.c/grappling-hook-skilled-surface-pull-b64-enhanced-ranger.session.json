@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first menu-continuation miss, run-gGVuwS: Ranger #enhance with y correctly advanced P_FLAIL from Unskilled to Basic and then to its maximum Skilled using menu key i. ESC immediately after the second “--More--” dismissed only that message; the speedy skill menu remained open and consumed the subsequent wish/apply bytes. Preserve this exact input and artifact; no use_grapple call.",
+  "segments": [
+    {
+      "seed": 48733129,
+      "datetime": "20350807093000",
+      "nethackrc": "OPTIONS=name:HookRangerB64,role:Ranger,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#enhance\nyi i\u001b#wizwish\ngrappling hook\nag $l.c"
+    }
+  ]
+}

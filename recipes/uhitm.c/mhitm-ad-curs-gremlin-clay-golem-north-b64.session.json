@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923220,
+      "datetime": "20320214232000",
+      "nethackrc": "OPTIONS=name:CursGolem,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdidjdkdldm#polyself\ngremlin\n #wizgenesis\nhostile clay golem\nkkkkkkkkkk          "
+    }
+  ],
+  "comment": "Independent fresh-seed C-first position witness. The map puts the clay golem northwest of the Gremlin. The frozen k inputs moved north once into the square east of it, then tried to continue into a wall; hmonas was not reached. Preserve this C-only direction miss."
+}

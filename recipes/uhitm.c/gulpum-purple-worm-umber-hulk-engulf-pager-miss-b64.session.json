@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "FROZEN C pager miss from run-3fck1k. The northeast `Fu` input reached uhitm.c:gulpum, but `start_engulf` then executes two `nh_delay_output` calls. The recipe supplied periods, which did not dismiss the `--More--` prompts; C never reached the kill, delayed digestion or Finish_digestion callback. Preserve this source wait miss outside recordings. The corrected C-first input clears those pages with spaces before waiting.",
+  "segments": [
+    {
+      "seed": 86142958,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:GulpumProbeB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " Tw-#wizintrinsic\na\n  #wizgenesis\nhostile umber hulk\n #polyself\npurple worm\n Fu......"
+    }
+  ]
+}

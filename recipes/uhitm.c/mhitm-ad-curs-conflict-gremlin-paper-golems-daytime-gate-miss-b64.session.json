@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "DAYTIME SOURCE-GATE MISS, retained from bounded C run-MpQg63 (/tmp/B64-mhitm-ad-curs-conflict-gremlin-paper-golems-independent-c.session.json). The corrected input creates a hostile Gremlin and three hostile paper golems with separate newline-terminated create-particular prompts. C reaches monmove.c:movemon_singlemon → mhitm.c:fightm → mhitm.c:mattackm, and the monsters attack each other. However, this 12:00 game is daytime, so uhitm.c:mhitm_ad_curs returns before the curse effect for a Gremlin. It does not establish the selected helper entry; keep outside recordings.",
+  "segments": [
+    {
+      "seed": 49813078,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ConflictCurseB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na>>h\n  #wizgenesis\nhostile gremlin\n #wizgenesis\n3 hostile paper golem\n .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first caller attempt. This source-valid Wizard/Orc reaches angrygods case 4 (rn2(6)=4), but C then draws rn2(2)=1 and runs unported sit.c:rndcurse without calling attrcurse; its second prayer reaches case 3. Preserve the exact trace outside recordings/ and do not count it as attrcurse or matching caller evidence.",
+  "segments": [
+    {
+      "seed": 19183471,
+      "datetime": "20260821152200",
+      "nethackrc": "OPTIONS=name:AngerProbeG,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#pray\ny n  #pray\ny n  "
+    }
+  ]
+}

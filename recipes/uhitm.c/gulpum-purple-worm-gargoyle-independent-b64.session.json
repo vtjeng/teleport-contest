@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent B64 gulpum/Finish_digestion variation. The opening space clears welcome; T removes Wizard cloak and w- unarms staff before polymon. Create one hostile gargoyle, then change the hero to purple worm. The frozen C map places the gargoyle southwest (hero row 1/column 2, gargoyle row 2/column 1), so `Fb` selects the adjacent target. Source monsters.h gives gargoyle SIZ(1000,200), so AD_DGST adds (200+1)/2 = 100 nutrition and schedules 1+(1000>>8)=4 digest turns, below the unported hunger-status threshold seen with the heavier umber hulk. Eight spaces clear the two start_engulf delays and following message pages; nine periods exceed the source delay. Seed 23801924 and date 20260715093000 were independently chosen.",
+  "segments": [
+    {
+      "seed": 23801924,
+      "datetime": "20260715093000",
+      "nethackrc": "OPTIONS=name:GargoyleDigestionB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " Tw-#wizintrinsic\na\n  #wizgenesis\nhostile gargoyle\n #polyself\npurple worm\n Fb        ........."
+    }
+  ]
+}

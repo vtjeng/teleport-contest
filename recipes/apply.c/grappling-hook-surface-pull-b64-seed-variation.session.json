@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup miss, run-xkiT9A: this seed assigned the wished hook inventory letter o, while the frozen input selected n and opened a write-on prompt. Preserve this exact input and artifact as a setup miss; it did not reach use_grapple.",
+  "segments": [
+    {
+      "seed": 148026741,
+      "datetime": "20380221113000",
+      "nethackrc": "OPTIONS=name:HookSeedB64,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\ngrappling hook\nan $l."
+    }
+  ]
+}

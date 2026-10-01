@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved C-first B64 setup miss. This independently chosen seed/date wished a grappling hook, but C assigned it inventory letter `n`; the frozen `o` selection failed at the inventory menu, so use_grapple and its source rn2(5) draw never ran. Keep the exact C artifact in scratch evidence and use a separately named corrected recipe for the same chosen inputs. This miss does not establish the surface-pull path.",
+  "segments": [
+    {
+      "seed": 80261033,
+      "datetime": "20361208112700",
+      "nethackrc": "OPTIONS=name:HookPullB64,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " #wizwish\ngrappling hook\nao $l."
+    }
+  ]
+}

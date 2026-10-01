@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first setup miss for pray.c:angrygods. In debug mode the first `n` answers C’s ParanoidPray confirmation and declines the command; `prayer_done` and `angrygods` never run. Preserve outside recordings/ as an audited input miss, not runtime evidence.",
+  "segments": [
+    {
+      "seed": 52291703,
+      "datetime": "20260818140900",
+      "nethackrc": "OPTIONS=name:AngerProbeA,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " #pray\nn   #pray\nn   "
+    }
+  ]
+}

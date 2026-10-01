@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first three-prayer caller attempt. C first reaches case 1, then case 4 with rn2(8)=4, rn2(2)=0 and attrcurse(sit.c:648), rnd(11)=5 removing Rogue Stealth (`You feel clumsy.`). The third prayer reaches angrygods default case 9 and the unported pray.c:god_zaps_you gap; this complete recipe is not a matching recording. C artifact: /tmp/B64-angrygods-prayer-candidate-9-c.session.json; bounded run-fZXZrC.",
+  "segments": [
+    {
+      "seed": 38092617,
+      "datetime": "20260823100000",
+      "nethackrc": "OPTIONS=name:AngerProbeI,role:Rogue,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#pray\ny n  #pray\ny n  #pray\ny n  "
+    }
+  ]
+}

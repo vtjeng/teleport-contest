@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved C-first setup miss, not entry-point evidence. Ctrl-V, ?, >, G reaches Vlad's Tower/tower1, and Ctrl-W changes the arrival terrain to a throne. However, tower1.lua puts a chest at the arrival square. sit.c:dosit checks the object pile before IS_THRONE, so #sit reports sitting on the chest and never reaches throne_sit_effect or special_throne_effect. The C artifact is retained in /tmp/B64-vlad-tower-chest-blocked-b64-c.session.json, outside recordings/.",
+  "segments": [
+    {
+      "seed": 77921023,
+      "datetime": "20260915101100",
+      "nethackrc": "OPTIONS=name:B64VladWitness,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0016?\n>G\u0017throne\n#sit\n 7\n "
+    }
+  ]
+}

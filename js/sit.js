@@ -4,6 +4,7 @@
 // unported are named and skipped.
 
 import {
+    AGGRAVATE_MONSTER,
     A_CON,
     A_MAX,
     A_STR,
@@ -18,6 +19,7 @@ import {
     EYE,
     FOOT,
     FIRE_RES,
+    FAST,
     FROMOUTSIDE,
     FOUNTAIN,
     HALF_PHDAM,
@@ -25,6 +27,7 @@ import {
     HALLUC_RES,
     HEAD,
     INTRINSIC,
+    INVIS,
     IS_ALTAR,
     IS_GRAVE,
     IS_SINK,
@@ -34,6 +37,8 @@ import {
     LADDER,
     LEVITATION,
     ROOM,
+    POISON_RES,
+    PROTECTION,
     SEE_INVIS,
     SHOCK_RES,
     SLIMED,
@@ -46,6 +51,9 @@ import {
     TT_PIT,
     TT_WEB,
     TIMEOUT,
+    TELEPAT,
+    TELEPORT,
+    STEALTH,
     Upolyd,
 } from './const.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
@@ -193,10 +201,19 @@ async function sit_exercise(index, state, random) {
     await exercise(index, false, state, random, options);
 }
 
-// C ref: sit.c special_throne_effect() case 10. Vlad's Tower's special
-// throne applies seffect_remove_curse() to a blessed fake spellbook while
-// HConfusion is temporarily forced on.
+// C ref: sit.c special_throne_effect() cases 7 and 10. Case 7 loses an
+// intrinsic and prints the amusement line; case 10 applies
+// seffect_remove_curse() to a blessed fake spellbook while HConfusion is
+// temporarily forced on.
 async function special_throne_effect(effect, state, rawEnv = {}) {
+    if (effect === 7) {
+        const random = sit_water_random(rawEnv);
+        const message = rawEnv.message
+            ?? (await import('./tty_message.js')).ttyPline;
+        await attrcurse(state, { ...rawEnv, random, message });
+        await message('The throne somehow seems to be amused.', state);
+        return;
+    }
     if (effect !== 10) {
         note_unported('sit.c special_throne_effect');
         return;
@@ -818,4 +835,65 @@ export async function dosit(state = game, rawEnv = {}) {
         );
     }
     return ECMD_TIME;
+}
+
+// C ref: sit.c attrcurse() (644-762). The property is stored once in
+// u.uprops[index].intrinsic; C clears only its role/race/outside source bits,
+// leaving timeouts and any equipment sources untouched. The returned value is
+// the property enum consumed by pray.c and uhitm.c callers.
+export async function attrcurse(state = game, rawEnv = {}) {
+    const random = rawEnv.random ?? { rnd };
+    const message = rawEnv.message
+        ?? (await import('./tty_message.js')).ttyPline;
+    const u = state.u;
+    const start = random.rnd(11);
+    const effects = [
+        [FIRE_RES, 'You feel warmer.'],
+        [TELEPORT, 'You feel less jumpy.'],
+        [POISON_RES, 'You feel a little sick!'],
+        [TELEPAT, 'Your senses fail!'],
+        [COLD_RES, 'You feel cooler.'],
+        [INVIS, 'You feel paranoid.'],
+        [SEE_INVIS, null],
+        [FAST, 'You feel slower.'],
+        [STEALTH, 'You feel clumsy.'],
+        [PROTECTION, 'You feel vulnerable.'],
+        [AGGRAVATE_MONSTER, 'You feel less attractive.'],
+    ];
+
+    for (let index = start - 1; index < effects.length; ++index) {
+        const [propertyId, feedback] = effects[index];
+        const property = u.uprops?.[propertyId];
+        if (!((property?.intrinsic ?? 0) & INTRINSIC)) continue;
+
+        property.intrinsic &= ~INTRINSIC;
+        if (propertyId === TELEPAT) {
+            const telepathy = u.uprops[TELEPAT];
+            const blindTelepathy = Boolean(
+                telepathy?.intrinsic || telepathy?.extrinsic,
+            );
+            if (heroIsBlind(state) && !blindTelepathy) {
+                const { see_monsters } = await import('./display.js');
+                see_monsters(state);
+            }
+            await message('Your senses fail!', state);
+        } else if (propertyId === SEE_INVIS) {
+            const seeInvisible = u.uprops[SEE_INVIS];
+            if (!(seeInvisible?.intrinsic || seeInvisible?.extrinsic)) {
+                // display.c set_mimic_blocking() is a discarded-void helper;
+                // its mimic detection side effects remain a named source gap.
+                note_unported('display.c set_mimic_blocking');
+                const { newsym, see_monsters } = await import('./display.js');
+                see_monsters(state);
+                newsym(u.ux, u.uy, state);
+            }
+            await message(`You ${Hallucination(state)
+                ? 'tawt you taw a puttie tat' : 'thought you saw something'}!`, state);
+        } else {
+            await message(feedback, state);
+        }
+        return propertyId;
+    }
+
+    return 0;
 }

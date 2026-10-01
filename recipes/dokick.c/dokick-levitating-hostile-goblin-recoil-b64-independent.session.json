@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first recipe for dokick.c:dokick's direct floating-hero recoil call after kick_monster. Wizard-mode #wizgenesis creates one hostile goblin through the existing source/JS helper; the following Ctrl-D/h input tests whether C places it west-adjacent, The first frozen attempt (run-ihpApN) placed it southeast while h pointed west, so dokick.c:dokick stopped at its brace guard before targeting. Preserve that exact C-only setup miss; the corrected recipe moves to a map corner before generating the monster.",
+  "segments": [
+    {
+      "seed": 4726918,
+      "datetime": "20330621140500",
+      "nethackrc": "OPTIONS=name:DokickRecoilB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqo#wizgenesis\nhostile goblin\n\u0004h"
+    }
+  ]
+}

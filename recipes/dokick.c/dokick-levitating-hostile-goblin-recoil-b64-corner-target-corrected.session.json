@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-observed target correction for the corner recoil route. run-5aWlz5 shows the hero at (1,1) and the wizard-created hostile goblin southeast at (2,2). Ctrl-D/n kicks that goblin southeast; dokick.c source computes the behind square northwest as (0,0), for which isok is false, so the Levitation brace guard allows the target. C should then execute kick_monster and the direct weight-derived hurtle call in dokick.c:dokick.",
+  "segments": [
+    {
+      "seed": 4726918,
+      "datetime": "20330621140500",
+      "nethackrc": "OPTIONS=name:DokickCornerRecoilB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "hhhkk#wizwish\npotion of levitation\nqo#wizgenesis\nhostile goblin\n\u0004n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first candidate 8 reaches the actual Vlad Tower caller: `>G` enters tower1, `k` leaves the chest, Ctrl-W wishes a throne on open floor, and `#sit` reaches the wizard effect prompt. C throne_sit_effect(sit.c:45) draws rnd(6)=5; choosing 7 calls special_throne_effect(sit.c:238), which calls attrcurse(sit.c:648), drawing rnd(11)=1 and removing stealth. Strict C/JavaScript differential run-OzC7hP matched all 5,058 RNG calls, 24 screens, 24 cursors, and 0 frames.",
+  "segments": [
+    {
+      "seed": 36874261,
+      "datetime": "20260820115400",
+      "nethackrc": "OPTIONS=name:B64VladF,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0016?\n>Gk\u0017throne\n#sit\n 7\n"
+    }
+  ]
+}
