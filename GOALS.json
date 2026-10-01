@@ -128230,6 +128230,198 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-lit-oil-quaff-deallocation-lifecycle-synthetic-v15-20261001",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Supply timer and light cleanup when consuming a potion",
+      "cFile": "mkobj.c",
+      "sessions": [],
+      "selectionReason": "Admitted synthetic/v15/wizard-quaffs-lit-oil-resist, investigation identifies final timed lit potion consumption at step 66. C dopotion calls useup/useupall/obfree/dealloc_obj. The JS gameplay deallocation branch already implements source-ordered timer and light cleanup, but dopotion omitted its required operations. Supply them at that caller boundary while preserving caller overrides and the supplied state. The save teardown and other whole-deallocator gaps remain outside this targeted divergence fix; no whole-source completion credit. Root verified the immutable two-commit delivery and four preserved check logs.",
+      "detail": "Segment 0, step 66: final lit POT_OIL consumption reaches potion.c:dopotion -> invent.c:useup/useupall -> shk.c:obfree -> mkobj.c:dealloc_obj. JS dopotion omitted stopObjectTimers and deleteObjectLightSource from its useup environment. Default to existing timeout.obj_stop_timers and light.del_light_source, retain supplied hooks and state, and preserve timer cleanup before checking remaining light. Whole-deallocator save teardown remains incomplete and has a source-named blocked recipe.",
+      "openedAt": "086487a89a7cba2f778259c8f8046031229a0f78",
+      "openStanding": {
+        "sha": "2323e454ebe23e6369342fef435a8461267b8371",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "dealloc_obj",
+      "session": "synthetic/v15/wizard-quaffs-lit-oil-resist",
+      "step": 66,
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-quaffs-lit-oil-resist": {
+          "session": "synthetic/v15/wizard-quaffs-lit-oil-resist",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-quaffs-lit-oil-resist",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-quaffs-lit-oil-resist.session.json",
+          "recordingSha256": "652da6669e87a9d3502a5fcc5575e26e9e12befa007a255f827922e7f0d7aac1",
+          "evaluationPath": "challenges/evaluations/20261001093939-v15.json",
+          "evaluationCommit": "2323e454ebe23e6369342fef435a8461267b8371"
+        }
+      },
+      "activeStanding": {
+        "sha": "2323e454ebe23e6369342fef435a8461267b8371",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-quaffs-lit-oil-resist",
+          "session": "synthetic/v15/wizard-quaffs-lit-oil-resist",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-quaffs-lit-oil-resist.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-quaffs-lit-oil-resist.session.json",
+          "recordingSha256": "652da6669e87a9d3502a5fcc5575e26e9e12befa007a255f827922e7f0d7aac1",
+          "recipe": "challenges/cases/v15/wizard-quaffs-lit-oil-resist.recipe.session.json",
+          "recipeSha256": "36372270a556664dbf256635ac36ca0d53fc764d007791e24b02fc16f19490b0",
+          "replayInputSha256": "76d1966eee55dbdbb1d5a20612bccfa2b586306df1a021b750a6a008c5067b6d",
+          "evaluationPath": "challenges/evaluations/20261001093939-v15.json",
+          "evaluationCommit": "2323e454ebe23e6369342fef435a8461267b8371",
+          "evaluationArtifact": "challenges/evaluations/20261001093939-v15.json",
+          "evaluationUtc": "2026-10-01T09:40:27.731Z",
+          "remainingScreens": 2,
+          "recordedSteps": 68,
+          "previousScreensMatched": 66,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 66,
+              "total": 68
+            },
+            "rng": {
+              "matched": 2948,
+              "total": 2956
+            },
+            "cursors": {
+              "matched": 66,
+              "total": 68
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: stopObjectTimers is not available for otyp 321",
+            "step": 66
+          },
+          "step": 66,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: stopObjectTimers is not available for otyp 321",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-quaffs-lit-oil-resist.json",
+            "result": {
+              "session": "synthetic/v15/wizard-quaffs-lit-oil-resist",
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-quaffs-lit-oil-resist",
+              "remainingScreens": 2,
+              "recordedSteps": 68,
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "652da6669e87a9d3502a5fcc5575e26e9e12befa007a255f827922e7f0d7aac1",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-quaffs-lit-oil-resist",
+                "session": "synthetic/v15/wizard-quaffs-lit-oil-resist",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-quaffs-lit-oil-resist.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-quaffs-lit-oil-resist.session.json",
+                "recordingSha256": "652da6669e87a9d3502a5fcc5575e26e9e12befa007a255f827922e7f0d7aac1",
+                "recipe": "challenges/cases/v15/wizard-quaffs-lit-oil-resist.recipe.session.json",
+                "recipeSha256": "36372270a556664dbf256635ac36ca0d53fc764d007791e24b02fc16f19490b0",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 2,
+                "recordedSteps": 68,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 66,
+                    "total": 68
+                  },
+                  "rng": {
+                    "matched": 2948,
+                    "total": 2956
+                  },
+                  "cursors": {
+                    "matched": 66,
+                    "total": 68
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: stopObjectTimers is not available for otyp 321",
+                  "step": 66
+                },
+                "step": 66,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: stopObjectTimers is not available for otyp 321",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Quaffing the final lit potion of oil reaches the C peffect_oil effect before the potion is consumed. The refusal occurs at generic object deallocation: mkobj.c dealloc_obj() must stop the object's BURN_OBJECT timer, whose cleanup_burn() removes its light source and clears lamplit. The JavaScript quaff path currently reaches inventory preflight without the stopObjectTimers lifecycle hook; preflight also requires deleteObjectLightSource for a lit object. Keep this source scope on the whole dealloc_obj() cleanup branch and its caller wiring, separate from peffect_oil() and the later input boundary.",
+              "source": {
+                "file": "mkobj.c",
+                "branch": "When the final lit POT_OIL item is deallocated with obj->timed nonzero, dealloc_obj() calls obj_stop_timers() before its separate obj_sheds_light() cleanup; the BURN_OBJECT cleanup removes the light and clears lamplit.",
+                "functions": [
+                  "dealloc_obj"
+                ],
+                "callers": [
+                  "shk.c obfree() directly calls mkobj.c dealloc_obj() after billing and worn-object handling.",
+                  "cmd.c command q dispatches to potion.c dodrink(); dodrink() calls potion.c dopotion(), which calls invent.c useup()/useupall(), then shk.c obfree() reaches mkobj.c dealloc_obj()."
+                ],
+                "dependencies": [
+                  "invent.c useup() and useupall() consume the selected potion.",
+                  "shk.c obfree() performs ordinary object cleanup and calls dealloc_obj().",
+                  "timeout.c obj_stop_timers() removes the object timers and invokes their cleanup callbacks.",
+                  "timeout.c timeout_funcs[BURN_OBJECT] selects cleanup_burn().",
+                  "light.c del_light_source() removes the object light; cleanup_burn() also restores unused oil age, clears lamplit, and updates carried inventory."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The assigned diagnostic artifact `.cache/synthetic-scans/v15/wizard-quaffs-lit-oil-resist.json` records a stop at step 66 with `stopObjectTimers is not available for otyp 321`; the assigned queue entry records exactly 2 remaining screens of 68. The source owner is not supplied by the queue (sourceFile is null), so the source trace below attributes the refusal.",
+                "The assigned C recording `challenges/cases/v15/wizard-quaffs-lit-oil-resist.session.json`, segment 0, steps 65-67, shows `q` opening the drink prompt, `p` quaffing the lit oil, and C step 66 recording `d(2,4)=4 @ peffect_oil(potion.c:1277)` with the message “You burn your face.” Step 67 is the separate following space input, reported by C as `Unknown command`. The effect runs before the consumption cleanup; the later input boundary is not the timer owner.",
+                "In `nethack-c/upstream/src/potion.c:617-640`, dodrink() calls dopotion(); dopotion() calls peffects(), then after a negative result reaches useup(). `potion.c:1411-1413` dispatches POT_OIL to peffect_oil(), and `potion.c:1262-1293` handles the lit branch (damage, slime cleanup, Wisdom exercise) without deleting the potion or stopping its timer. This separates the recorded effect RNG from the subsequent refusal.",
+                "In `nethack-c/upstream/src/invent.c:1310-1332`, useup() routes a one-item stack through useupall(), which calls shk.c obfree() at `invent.c:1316`. `shk.c:1187-1274` finishes ordinary object cleanup by calling dealloc_obj().",
+                "The complete C owner is `nethack-c/upstream/src/mkobj.c:2745-2795`, dealloc_obj(): after validating a detached object, it calls obj_stop_timers() when obj->timed is nonzero (`2765-2767`), then handles any remaining light source (`2777-2780`) before releasing the object. This is the whole-function scope for the source-owned cleanup branch.",
+                "`nethack-c/upstream/src/timeout.c:1727-1789` gives POT_OIL a BURN_OBJECT timer when lit. The timeout table maps BURN_OBJECT to cleanup_burn() at `1984`; obj_stop_timers() walks matching object timers, invokes each registered cleanup, then sets obj->timed to zero (`2373-2397`). cleanup_burn() removes the light, restores the unused fuel time, clears lamplit, and refreshes carried inventory (`1824-1844`).",
+                "At the examined JavaScript commit, `js/potion.js:1805-1830` ends dopotion() with useup(otmp) without lifecycle hooks. `js/invent.js:3675-3685` preflights stopObjectTimers first and deleteObjectLightSource for a lit object; `js/obj.js:1143-1162` consumes those same hooks in dealloc_obj(). `js/timeout.js:1187-1220` already implements obj_stop_timers() and the BURN_OBJECT cleanup, so the first refusal is missing lifecycle wiring into the existing timer cleanup, not missing peffect_oil() behavior."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
