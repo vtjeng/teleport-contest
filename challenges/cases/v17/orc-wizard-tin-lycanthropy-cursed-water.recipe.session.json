@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first v17 route to the human-wererat tin effect without the human-race cannibal branch. C source sequence: consume_tin -> cprefx/maybe_cannibal (expected no-op for an Orc) -> cpostfx -> were.c:set_ulycn; then cursed water makes the new u.ulycn observable through peffect_water/you_were. Freeze this recipe before C and JavaScript comparison; preserve any target miss or earlier first behavior.",
+  "segments": [
+    {
+      "seed": 61294387,
+      "datetime": "21870514110500",
+      "nethackrc": "OPTIONS=name:C56LycanTin,role:Wizard,race:orc,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017blessed homemade tin of human wererat meat\nen  y \u0017cursed potion of water\nqn"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v17 read.c:seffect_create_monster mission. Independently chosen seed/date and Valkyrie setup; wish an uncursed create-monster scroll, then read it from the planned letter e (the read command and letter are consecutive keys) and allow bounded pager continuation. The C observation must confirm the actual inventory letter and created-monster result; a slot miss stays as provenance.",
+  "segments": [
+    {
+      "seed": 91820371,
+      "datetime": "21120322124500",
+      "nethackrc": "OPTIONS=name:C56ScrollCritter,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed scroll of create monster\nre      "
+    }
+  ]
+}

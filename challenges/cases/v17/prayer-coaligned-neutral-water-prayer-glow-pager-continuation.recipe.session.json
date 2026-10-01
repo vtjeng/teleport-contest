@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pager continuation of the force-yes neutral-altar water-prayer case. The previous frozen C recipe reaches p_type-3 prayer completion and ends on `You are surrounded by a shimmering light. You finish your prayer.--More--`. This recipe preserves the same seed/date/setup/actions and adds one space to advance that C-observed final More, so the water_prayer output and resulting water state can be observed. It does not count as a separate first-mismatch behavior from its parent case.",
+  "segments": [
+    {
+      "seed": 91346725,
+      "datetime": "21180322135500",
+      "nethackrc": "OPTIONS=name:C56PrayerNeutral,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017neutral altar\n\u0017uncursed potion of water\nde#pray\ny y "
+    }
+  ]
+}

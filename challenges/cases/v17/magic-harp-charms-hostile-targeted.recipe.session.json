@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first confirmation for music.c:do_improvisation(MAGIC_HARP) -> charm_monsters after the first recipe selected the starting lamp. The seed, clock, name, female Barbarian setup, two-charge wish and corrected C-observed inventory letter are frozen before JavaScript comparison. C must reach the magic-harp arm and report the adjacent hostile orc state after charm_monsters; a resistance outcome remains a valid target miss.",
+  "segments": [
+    {
+      "seed": 52308771,
+      "datetime": "20620208142000",
+      "nethackrc": "OPTIONS=name:C56HarpTwo,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017uncursed magic harp (0:2)\n\u0007hostile orc\nafy"
+    }
+  ]
+}

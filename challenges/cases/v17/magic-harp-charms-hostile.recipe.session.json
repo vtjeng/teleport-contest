@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v17 mission for music.c:do_improvisation MAGIC_HARP -> charm_monsters. The independently selected debug Barbarian creates a nearby hostile orc, wishes a three-charge magic harp, then applies it and chooses improvisation. C reachability requires the harp arm to call charm_monsters and records the resulting monster state; a resistance outcome remains a valid target miss.",
+  "segments": [
+    {
+      "seed": 41078521,
+      "datetime": "20510422161500",
+      "nethackrc": "OPTIONS=name:C56Harp,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017uncursed magic harp (0:3)\n\u0007hostile orc\naey"
+    }
+  ]
+}

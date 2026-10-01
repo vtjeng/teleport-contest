@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first correction frozen solely from the preceding C menu. The earlier frozen case had solid ice underfoot and moved east; C then showed zap choices [c o], with the wished ebony wand in slot o, and rejected e as “That is a silly thing to zap.” This recipe changes only that C-observed selection to o, then aims west at the ice tile. No JavaScript result was consulted.",
+  "segments": [
+    {
+      "seed": 83521961,
+      "datetime": "21640322114300",
+      "nethackrc": "OPTIONS=name:C56FireIce,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017ice\nl\u0017uncursed wand of fire\nzoh"
+    }
+  ]
+}

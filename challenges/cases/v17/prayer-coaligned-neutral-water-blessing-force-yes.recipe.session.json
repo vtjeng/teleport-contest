@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first final correction for the frozen neutral-Barbarian prayer setup. The preceding C recording showed that the yes to Are you sure starts prayer and a More frame blocks the following character; a space dismisses that frame and exposes Force the gods to be pleased? This recipe answers those observed prompts in order (y, space, y) so the debug force-success branch can reach the co-aligned water prayer. The recipe is frozen from C output, before new recording and JS comparison.",
+  "segments": [
+    {
+      "seed": 91346725,
+      "datetime": "21180322135500",
+      "nethackrc": "OPTIONS=name:C56PrayerNeutral,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017neutral altar\n\u0017uncursed potion of water\nde#pray\ny y"
+    }
+  ]
+}

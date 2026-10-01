@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source mission for music.c:do_improvisation(MAGIC_HARP) -> charm_monsters. The preceding independent recipes recorded a wrong item selection and a startup --More-- page that consumed Ctrl-W. This recipe begins with a space to clear any startup page, wishes a two-charge harp, creates a hostile orc, and applies the harp in the C-observed f slot before choosing improvisation. The C monster state and charm outcome establish whether the target branch is reached; resistance remains a valid target miss.",
+  "segments": [
+    {
+      "seed": 80921743,
+      "datetime": "20641023110500",
+      "nethackrc": "OPTIONS=name:C56HarpThree,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed magic harp (0:2)\n\u0007hostile orc\nafy"
+    }
+  ]
+}
