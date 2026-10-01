@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v17 continuation, frozen before a new C recording and before JavaScript comparison. It uses the already C-observed sleeping-orc cursed-invisibility route and exact C-observed potion slot e, then dismisses the invisibility More and issues four wait turns to expose wizard.c:aggravate clearing the sleeping/wait state. The prior short C source-hit prefix is preserved unchanged.",
+  "segments": [
+    {
+      "seed": 73184629,
+      "datetime": "20850410112700",
+      "nethackrc": "OPTIONS=name:C56CurseInvisF,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017cursed potion of invisibility\u0007sleeping orc\nqe ....."
+    }
+  ]
+}

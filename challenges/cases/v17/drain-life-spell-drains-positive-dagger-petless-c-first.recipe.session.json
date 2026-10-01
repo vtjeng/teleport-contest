@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first setup frozen before recording and before any JavaScript comparison. A C-observed pet moved onto and then picked up the dropped dagger; set the documented `pettype:none` option to preserve the floor target. Then select the observed dagger slot o, move south once, and cast Drain Life (n) north (k) through the dagger left on the original tile. C source: options.c:optfn_pettype sets preferred_pet to no-pet; dog.c:makedog returns without creating a companion. Behavior route: spell.c:dowizcast -> spelleffects(SPE_DRAIN_LIFE) -> zap.c:weffects -> zap.c:bhito -> drain_item. C must verify the changed inventory slot under this option and actual ray/object result; a setup miss remains valid evidence.",
+  "segments": [
+    {
+      "seed": 39108247,
+      "datetime": "21280923132700",
+      "nethackrc": "OPTIONS=name:C56Drain,role:Wizard,race:human,gender=male,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " .#levelchange\n20\n                   \u0017+1 dagger\ndo j#wizcast\nnk"
+    }
+  ]
+}

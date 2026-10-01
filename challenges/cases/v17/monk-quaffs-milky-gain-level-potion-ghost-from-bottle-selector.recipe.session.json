@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source probe frozen before recording and JavaScript comparison. potion.c:dodrink checks the milky descriptor, live PM_GHOST status, then rn2(POTION_OCCUPANT_CHANCE(born)); preserve whether this independent C roll takes the ghost branch or the ordinary gain-level effect.",
+  "segments": [
+    {
+      "seed": 67381249,
+      "datetime": "21091213140700",
+      "nethackrc": "OPTIONS=name:C56Ghost,role:Monk,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed potion of gain level\n q"
+    }
+  ]
+}
