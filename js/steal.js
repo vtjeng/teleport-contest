@@ -132,6 +132,7 @@ import { stop_occupation } from './allmain.js';
 import { mwepgone } from './weapon.js';
 import { rloc, tele_restrict } from './teleport.js';
 import { note_unported } from './unported.js';
+import { unpunish } from './read.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -350,7 +351,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
 
         if (obj.owornmask & (W_BALL | W_CHAIN)) {
             if (unchain_ball)
-                note_unported('ball.c unpunish');
+                unpunish(state, env);
         } else if (obj.owornmask) {
             setnotworn(obj, { state });
         }
@@ -547,7 +548,6 @@ export async function steal(
     const icnt = inv_cnt(false, state);
     const nothingToSteal = async () => {
         // C's attached chain is removed without giving an object to the thief.
-        // remove_worn_item() records the still-unported void unpunish() call.
         if (state.uball && !monkey_business && random(4)) {
             await worn_item_removal(mtmp, state.uchain, state, {
                 ...env, message,

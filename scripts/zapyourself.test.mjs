@@ -21,12 +21,15 @@ import {
     WAN_MAKE_INVISIBLE,
     WAN_OPENING,
     WAN_SLOW_MONSTER,
+    HEAVY_IRON_BALL,
+    IRON_CHAIN,
     SPBOOK_CLASS,
     SPE_DETECT_UNSEEN,
 } from '../js/objects.js';
 import {
     ANIMATE_NORMAL, ANIMATE_SHATTER, ANIMATE_SPELL, FAST, FROMFORM,
     CORPSTAT_HISTORIC, INVIS, OBJ_DELETED, OBJ_INVENT,
+    W_BALL, W_CHAIN,
 } from '../js/const.js';
 import { PM_NEWT } from '../js/monsters.js';
 import { animate_statue } from '../js/trap.js';
@@ -217,13 +220,21 @@ test('self opening reads the canonical punishment ball', async () => {
         moves: '.',
     }, {});
     const wand = mksobj(WAN_OPENING, false, false, { state: game });
-    game.uball = {};
+    const ball = mksobj(HEAVY_IRON_BALL, false, false, { state: game });
+    const chain = mksobj(IRON_CHAIN, false, false, { state: game });
+    ball.owornmask = W_BALL;
+    chain.owornmask = W_CHAIN;
+    game.uball = ball;
+    game.uchain = chain;
     assert.equal(game.u.uball, undefined);
     game.unported = new Set();
     await zapyourself(wand, true, game);
-    // read.c unpunish is a declared void-call gap. Reaching it and learning
-    // the wand still depend on the same canonical Punished value as C.
-    assert.ok(game.unported.has('read.c unpunish'));
+    assert.equal(game.uball, null);
+    assert.equal(game.uchain, null);
+    assert.equal(ball.owornmask, 0);
+    assert.equal(chain.owornmask, 0);
+    assert.equal(chain.where, OBJ_DELETED);
+    assert.equal(game.unported.has('read.c unpunish'), false);
     assert.equal(game.objects[WAN_OPENING].oc_name_known, 1);
 });
 

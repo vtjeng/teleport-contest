@@ -322,6 +322,7 @@ import {
 } from './tty_message.js';
 import { stumble_onto_mimic } from './uhitm.js';
 import { note_unported } from './unported.js';
+import { unpunish } from './read.js';
 import {
     unblock_point, recalc_block_point, vision_recalc, cansee, canseemon,
 } from './vision.js';
@@ -3526,7 +3527,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                 if ((uchain && uchain.ox === ox && uchain.oy === oy)
                     || (uball && uball.where === 1 /* OBJ_FLOOR */
                         && uball.ox === ox && uball.oy === oy)) {
-                    note_unported('ball.c unpunish');
+                    unpunish(state);
                 }
             }
 

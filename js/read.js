@@ -172,7 +172,7 @@ import {
     notice_mon_on,
 } from './hack.js';
 import {
-    getobj, identify_pack, obfree, stackobj, update_inventory, useup,
+    delobj, getobj, identify_pack, obfree, stackobj, update_inventory, useup,
 } from './invent.js';
 import { getlin } from './windows.js';
 import {
@@ -336,6 +336,7 @@ import {
     objectType,
     uslinging,
     place_object,
+    remove_object,
     weight,
 } from './obj.js';
 import { adjalign, exercise } from './attrib.js';
@@ -1917,6 +1918,31 @@ export async function seffect_destroy_armor(
     return false;
 }
 
+// C ref: read.c unpunish() (3066-3077). W_CHAIN must be cleared before delobj
+// frees the saved chain, and W_BALL is cleared only after that deletion. The
+// deletion retains delobj_core()'s source-owned obj_resists RNG and floor work;
+// mkobj.c:remove_object is the default floor extractor behind obj_extract_self.
+export function unpunish(state = game, rawEnv = {}) {
+    const savechain = state.uchain;
+    const random = { rn1, rn2, rnd, rne, ...(rawEnv.random ?? {}) };
+    const defaults = setwornEnv(state);
+    const env = {
+        ...rawEnv,
+        state,
+        random,
+        redraw: rawEnv.redraw ?? rawEnv.hooks?.newsym,
+        hooks: {
+            ...defaults.hooks,
+            extractExternalObject: remove_object,
+            ...(rawEnv.hooks ?? {}),
+        },
+    };
+
+    setworn(null, W_CHAIN, env);
+    delobj(savechain, env);
+    setworn(null, W_BALL, env);
+}
+
 // C ref: read.c seffect_remove_curse() (1489-1605). Inventory traversal saves
 // each next pointer before changing BUC because curse() can drop the active
 // secondary weapon from that chain. Source uses HConfusion and Hallucination
@@ -2026,11 +2052,8 @@ export async function seffect_remove_curse(scroll, state = game, env = {}) {
         }
     }
 
-    // These C callees have void results; their separate object/chain teardown
-    // source remains unported, so keep the gap and continue following C's
-    // unconditional later message and final inventory refresh.
     if (Boolean(state.uball) && !confused)
-        note_unported('read.c unpunish');
+        unpunish(state, { ...env, random });
     if (state.u?.utrap && state.u.utraptype === TT_BURIEDBALL) {
         note_unported('dig.c buried_ball_to_freedom');
         await ttyPline(

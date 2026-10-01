@@ -332,6 +332,7 @@ import { ILLOBJ_CLASS, LENSES, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
+import { unpunish } from './read.js';
 import { record_achievement } from './insight.js';
 import { setuqwep } from './worn.js';
 import {
@@ -3420,7 +3421,10 @@ export function delallobj(x, y, env = {}) {
     let obj = state.level?.objects?.[x]?.[y] ?? null;
     while (obj) {
         if (obj === state.uball) {
-            requiredHook(normalized, 'unpunish', obj)(normalized);
+            if (typeof normalized.hooks.unpunish === 'function')
+                normalized.hooks.unpunish(normalized);
+            else
+                unpunish(state, normalized);
         }
         const next = obj.nexthere;
         if (obj !== state.uchain)

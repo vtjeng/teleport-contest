@@ -149,6 +149,7 @@ import {
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import {
+    amorphous,
     attacktype,
     attacktype_fordmg,
     breakarm,
@@ -185,6 +186,7 @@ import {
     monster_resists_element,
     nohands,
     nonliving,
+    unsolid,
     passes_walls,
     perceives,
     pm_invisible,
@@ -305,6 +307,7 @@ import {
 } from './mon.js';
 import { were_beastie, were_summon } from './were.js';
 import { note_unported } from './unported.js';
+import { unpunish } from './read.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
 // failClosedCommand() in cmd.js converts this to an
@@ -1208,6 +1211,20 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     find_ac(state);
     // pool/lava check
     // Passes_walls trap check — not exercised for gnome
+
+    // C ref: polyself.c:991-999. A new amorphous, whirly, or unsolid form
+    // slips free of punishment; the separate buried-ball cleanup remains in
+    // dig.c and is deliberately recorded as an unported void call.
+    const newForm = state.youmonst.data;
+    if (amorphous(newForm) || is_whirly(newForm) || unsolid(newForm)) {
+        if (state.uball) {
+            await message('You slip out of the iron chain.', state, env);
+            unpunish(state, env);
+        } else if (u.utrap && u.utraptype === TT_BURIEDBALL) {
+            await message('You slip free of the buried ball and chain.', state, env);
+            note_unported('dig.c buried_ball_to_freedom');
+        }
+    }
 
     await check_strangling(true, state, env); // maybe start strangling
 
@@ -2213,8 +2230,8 @@ export async function dospit(state = game) {
 
 // ---------- doremove ----------------------------------------------------
 // C ref: polyself.c doremove() (1481-1494). The poly'd nymph slips out of a
-// ball and chain. youprop.h:77 Punished is `uball != 0`. read.c unpunish()
-// is unported and C discards its result, so that call records a gap.
+// ball and chain. youprop.h:77 Punished is `uball != 0`; read.c unpunish()
+// owns the shared worn slots and chain deletion.
 export async function doremove(state = game) {
     const u = state.u;
     if (!state.uball) {
@@ -2229,7 +2246,7 @@ export async function doremove(state = game) {
         await ttyPline('You are not chained to anything!', state);
         return ECMD_OK;
     }
-    note_unported('read.c unpunish');
+    unpunish(state);
     return ECMD_TIME;
 }
 

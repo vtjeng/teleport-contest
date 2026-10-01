@@ -125,6 +125,7 @@ import { newsym, see_monsters } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
 import { note_unported } from './unported.js';
+import { unpunish } from './read.js';
 import { livelog_printf } from './pline.js';
 import {
     check_capacity, endRunning, inv_cnt, losehp, nomul, rounddiv,
@@ -3920,9 +3921,9 @@ async function eatspecial(state, env) {
         uswapwepgone({ state });
 
     if (otmp === state.uball)
-        note_unported('ball.c unpunish');
+        unpunish(state, { ...env, random });
     if (otmp === state.uchain) {
-        note_unported('ball.c unpunish');
+        unpunish(state, { ...env, random });
     } else if (carried(otmp)) {
         useup(otmp, env);
     } else {

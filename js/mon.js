@@ -691,6 +691,7 @@ import {
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { unpunish } from './read.js';
 import { mon_has_amulet, mon_has_special, pick_nasty } from './wizard.js';
 import { getlin } from './windows.js';
 import { tt_doppel } from './topten.js';
@@ -1438,8 +1439,9 @@ export async function meatbox(mon, obj, rawEnv = {}) {
 }
 
 // C ref: mon.c m_consume_obj() (1392-1453), the tame-monster branch for a
-// corpse.  dogmove.c dog_eat() is its live caller.  The uball/uchain and
-// Has_contents arms are gated before entry.  After delobj, corpses that
+// corpse. dogmove.c dog_eat() is its live caller. Its uball/uchain arms use
+// read.c:unpunish before the ball deletion or chain-free return. After delobj,
+// corpses that
 // trigger polyfood, mlevelgain, mhealup, mstoning, sliming, or pyrolisk
 // explosion remain explicit fail-closed gaps; mon_givit is ported below. The
 // source's pre-consumption healing is shared by every non-pet object eater.
@@ -1459,10 +1461,18 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         healmon(mtmp, weight, 0);
     }
 
-    if (otmp === state.uball || otmp === state.uchain)
-        stop('an unpunished object');
     if (otmp?.cobj)
         await meatbox(mtmp, otmp, { ...rawEnv, state });
+    if (otmp === state.uball) {
+        const objectEnv = objectGenerationEnv({ ...rawEnv, state });
+        unpunish(state, objectEnv);
+        delobj(otmp, objectEnv);
+        return;
+    }
+    if (otmp === state.uchain) {
+        unpunish(state, objectGenerationEnv({ ...rawEnv, state }));
+        return;
+    }
 
     // C line 1410: corpsenm is NON_PM for non-CORPSE objects.
     const corpsenm = otmp.otyp === CORPSE ? otmp.corpsenm : NON_PM;
