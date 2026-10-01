@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Retained C-first setup miss for B65. C read.c:doread reached invent.c:getobj and showed the wished scroll in slot i; the frozen input selected o and C reported “You don't have that object.” No JavaScript comparison was run. The exact C artifact is preserved in .cache/B65-scratch/mail-wish-knight-spe1-getobj-target-miss-b65.session.json; the successor recipe changes only the observed selection letter to i.",
+  "segments": [
+    {
+      "seed": 8230151,
+      "datetime": "20430817111213",
+      "nethackrc": "OPTIONS=name:MailKnightB65,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017uncursed scroll of mail\nro "
+    }
+  ]
+}

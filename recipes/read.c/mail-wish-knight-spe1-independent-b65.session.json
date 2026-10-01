@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first read.c:seffect_mail recipe. A debug Knight wishes an uncursed mail scroll and reads it through the ordinary read command. This role, seed, timestamp, options, and setup are independent of synthetic/v15/wizard-reads-uncursed-mail-scroll. The prior frozen attempt showed the wished scroll in slot i, so this successor selects i. Retain a recording only after strict C/JavaScript replay matches.",
+  "segments": [
+    {
+      "seed": 8230151,
+      "datetime": "20430817111213",
+      "nethackrc": "OPTIONS=name:MailKnightB65,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017uncursed scroll of mail\nri "
+    }
+  ]
+}

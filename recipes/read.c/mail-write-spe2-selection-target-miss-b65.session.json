@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved C-first setup miss for the independent read.c:seffect_mail spe==2 attempt. The first wished mail scroll was read successfully; then the frozen sequence opened the apply inventory pager with '?' and sent the remaining selectors before dismissing it, so the marker was never applied to blank paper. C did not enter write.c:dowrite or seffect_mail spe==2. The exact C artifact is retained in .cache/B65-scratch; this is not a passing recording.",
+  "segments": [
+    {
+      "seed": 71232025,
+      "datetime": "20590101103000",
+      "nethackrc": "OPTIONS=name:B65StampMail,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed scroll of mail\nro #wizwish\nscroll of blank paper\n#wizwish\nmagic marker\na?p?o mail\nro "
+    }
+  ]
+}

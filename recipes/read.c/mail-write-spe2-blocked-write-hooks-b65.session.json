@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked spe==2 variation. The C recording reaches read.c:seffect_mail at segment 0 step 101 and shows the stamped-scroll message. Strict JS replay run-uxShiY stops after the new scroll is written: js/write.js:dowrite calls invent.js:hold_another_object without the required hooks.encumberMessage, and the diagnostic says `encumberMessage is not available for otyp 364` at invent.js:4880. This existing write.c:dowrite caller boundary prevents matching the recording, so the C artifact stays in .cache/B65-scratch and not recordings/. The spe==1 read entry remains the selected source runtime evidence.",
+  "segments": [
+    {
+      "seed": 71232025,
+      "datetime": "20590101103000",
+      "nethackrc": "OPTIONS=name:B65StampMail,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": " #wizwish\nuncursed scroll of mail\nro #wizwish\nscroll of blank paper\n#wizwish\nmagic marker\naqpmail\nrr "
+    }
+  ]
+}

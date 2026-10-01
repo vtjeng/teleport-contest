@@ -125256,6 +125256,376 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-read-seffect-mail-synthetic-v15-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port mail-scroll effects and their reading caller",
+      "cFile": "read.c",
+      "sessions": [
+        "synthetic/v15/wizard-reads-uncursed-mail-scroll"
+      ],
+      "selectionReason": "Select synthetic/v15/wizard-reads-uncursed-mail-scroll from the current complete fifteen-batch evaluations and its completed investigation. The missing message and discovery flag come from whole read.c:seffect_mail, reached by doread through seffects SCR_MAIL. The raw attrib.c queue annotation identifies a later random draw, not the omitted effect helper; the C branch and investigation establish read.c as owner. Independent odd-id Knight mail and admitted even-id Wizard mail both match. Only seffect_mail receives primary completion credit; the stamped-scroll variation remains blocked in the separate writer hold_another_object hook. Fixed44 scan is clean, B64/A62 are accepted, and no other worker reserves this source unit.",
+      "detail": "Whole read.c:seffect_mail2157–2188 preserves object parity, gk.known before switch, exact spe1/spe2 labels, and the source-named discarded-void readmail gap. Wire sole seffects SCR_MAIL caller without changing its pre-switch exercise or outer doread learning/consumption. Root verified immutable logs, source, and corrected zero-RNG test assertion; blocked writer recipes give no runtime credit.",
+      "openedAt": "98483effe886cc41de50bf3ff43ad83da8fc729d",
+      "openStanding": {
+        "sha": "c914412c437b5acf638e49c2381c6e8c2268be3c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "d23e5f2d8fa377e5ff69d9cf62e4b7ad85cdb698",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "seffect_mail",
+          "line": 2157,
+          "endLine": 2193,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2157,
+        "to": 2193
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-reads-uncursed-mail-scroll": {
+          "session": "synthetic/v15/wizard-reads-uncursed-mail-scroll",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-reads-uncursed-mail-scroll",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-reads-uncursed-mail-scroll.session.json",
+          "recordingSha256": "3644d685bb2e319babba256201e679d43cd5e611a2a25aea95316e1bf028007e",
+          "evaluationPath": "challenges/evaluations/20261001045104-v15.json",
+          "evaluationCommit": "c914412c437b5acf638e49c2381c6e8c2268be3c"
+        }
+      },
+      "activeStanding": {
+        "sha": "c914412c437b5acf638e49c2381c6e8c2268be3c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-reads-uncursed-mail-scroll",
+          "session": "synthetic/v15/wizard-reads-uncursed-mail-scroll",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-reads-uncursed-mail-scroll.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-reads-uncursed-mail-scroll.session.json",
+          "recordingSha256": "3644d685bb2e319babba256201e679d43cd5e611a2a25aea95316e1bf028007e",
+          "recipe": "challenges/cases/v15/wizard-reads-uncursed-mail-scroll.recipe.session.json",
+          "recipeSha256": "47d5ea62abca5148c2d352069ec4abaf244f6b41c34ba73f607210533ac43a1e",
+          "replayInputSha256": "498e31fa07c051ead4159bf3a648f2acbf3559bcecc831799828a3db3f537cc1",
+          "evaluationPath": "challenges/evaluations/20261001045104-v15.json",
+          "evaluationCommit": "c914412c437b5acf638e49c2381c6e8c2268be3c",
+          "evaluationArtifact": "challenges/evaluations/20261001045104-v15.json",
+          "evaluationUtc": "2026-10-01T04:51:35.428Z",
+          "remainingScreens": 1,
+          "recordedSteps": 38,
+          "previousScreensMatched": 37,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 37,
+              "total": 38
+            },
+            "rng": {
+              "matched": 3162,
+              "total": 3169
+            },
+            "cursors": {
+              "matched": 37,
+              "total": 38
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 37,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "C",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3162,
+              "cEntry": "rn2(19)=10",
+              "cCaller": "exercise(attrib.c:509)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": " "
+              },
+              "stepIndex": 37
+            },
+            "cursor": {
+              "index": 37,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 37,
+                "key": " "
+              },
+              "cCursor": [
+                34,
+                19,
+                1
+              ],
+              "jsCursor": [
+                23,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 37,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-reads-uncursed-mail-scroll.json",
+            "result": {
+              "session": "synthetic/v15/wizard-reads-uncursed-mail-scroll",
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-reads-uncursed-mail-scroll",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "3644d685bb2e319babba256201e679d43cd5e611a2a25aea95316e1bf028007e",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "remainingScreens": 1,
+              "recordedSteps": 38,
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-reads-uncursed-mail-scroll",
+                "session": "synthetic/v15/wizard-reads-uncursed-mail-scroll",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-reads-uncursed-mail-scroll.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-reads-uncursed-mail-scroll.session.json",
+                "recordingSha256": "3644d685bb2e319babba256201e679d43cd5e611a2a25aea95316e1bf028007e",
+                "recipe": "challenges/cases/v15/wizard-reads-uncursed-mail-scroll.recipe.session.json",
+                "recipeSha256": "47d5ea62abca5148c2d352069ec4abaf244f6b41c34ba73f607210533ac43a1e",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 1,
+                "recordedSteps": 38,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 37,
+                    "total": 38
+                  },
+                  "rng": {
+                    "matched": 3162,
+                    "total": 3169
+                  },
+                  "cursors": {
+                    "matched": 37,
+                    "total": 38
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 37,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "C",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3162,
+                    "cEntry": "rn2(19)=10",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": " "
+                    },
+                    "stepIndex": 37
+                  },
+                  "cursor": {
+                    "index": 37,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 37,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      34,
+                      19,
+                      1
+                    ],
+                    "jsCursor": [
+                      23,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 37,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "Reading the wished uncursed mail scroll reaches the currently unported read.c seffect_mail branch. That function owns the missing junk-mail message and sets gk.known. The exercise(attrib.c:509) RNG annotation is the pre-switch Wisdom exercise in seffects, not the owner of the screen mismatch. The actionable scope is the complete seffect_mail function, including its stamped-scroll and default mail-reader branches.",
+              "source": {
+                "file": "read.c",
+                "branch": "With MAIL_STRUCTURES enabled, seffects dispatches SCR_MAIL to seffect_mail. In this recording, #wizwish creates a mail scroll with spe == 1; its even o_id selects the junk-mail text. The whole function also handles spe == 2 and the default spe branch.",
+                "functions": [
+                  "seffect_mail"
+                ],
+                "callers": [
+                  "read.c::seffects: sole direct caller; case SCR_MAIL calls seffect_mail(&sobj) at read.c:2203-2206.",
+                  "read.c::doread: the real scroll-reading path calls seffects(scroll) at read.c:635."
+                ],
+                "dependencies": [
+                  "struct obj.spe: selects stamped-scroll (2), wished/bones mail (1), or the default branch.",
+                  "struct obj.o_id: odd/even parity selects each spe == 1 or spe == 2 message variant.",
+                  "gk.known: set to TRUE before the function handles any spe branch.",
+                  "pline: emits the spe == 1 and spe == 2 messages and the MAIL-disabled fallback.",
+                  "readmail(sobj): void external mail-reading call for the default spe branch when MAIL is defined; the function consumes no return value."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Frozen C source at 6d2c675aad59f170ec44980d6afce47f08ae7423: nethack-c/upstream/src/read.c:2155-2189 contains the complete MAIL_STRUCTURES-guarded seffect_mail body. It reads sobj->spe and sobj->o_id, sets gk.known, then prints the spe == 1 or spe == 2 variant through pline; the default branch calls readmail(sobj) under MAIL or prints its fallback.",
+                "Frozen nethack-c/upstream/src/read.c:2194-2206 places exercise(A_WIS, TRUE) before the switch at lines 2199-2200, then dispatches SCR_MAIL to seffect_mail. read.c:635 shows doread passing the real scroll to seffects. Thus exercise owns the RNG annotation, while seffect_mail owns the missing message; the scoped port is the whole seffect_mail function.",
+                "The saved C recording challenges/cases/v15/wizard-reads-uncursed-mail-scroll.session.json has moves \" #wizwish\\nuncursed scroll of mail\\nro \"; its segment 0, step 37 screen says \"This seems to be junk mail addressed to the finder of the Eye of Larn.\" This is seffect_mail's spe == 1, even-o_id branch (the source comment identifies spe == 1 mail as obtained by bones or wishing).",
+                "The saved diagnostic .cache/synthetic-scans/v15/wizard-reads-uncursed-mail-scroll.json records the step-37 screen mismatch (C cell T, JavaScript cell C) and records \"read.c seffect_mail\" as unported. Its exercise(attrib.c:509) RNG call is not the screen's owner. The function's direct consumed dependencies are the object spe/o_id fields, gk.known, pline, and the default-only readmail(sobj) call."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "seffect_mail",
+            "implementation": "js/read.js",
+            "symbol": "seffect_mail",
+            "sourceReview": "Whole read.c:seffect_mail definition, lines 2157–2188 at upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4. Read spe and o_id, derive odd exactly from `(o_id % 2) == 1`, set gk.known before dispatch, and preserve the spe==2 stamped-scroll labels and spe==1 ordinary-mail labels for both parities. The default branch calls mail.c:readmail when MAIL is built; JS records note_unported('mail.c readmail') and skips this discarded void result. Caller-only wiring replaces the SCR_MAIL refusal in read.c:seffects lines 2203–2206 with an awaited helper call; the existing pre-switch Wisdom exercise and post-effect learn/discovery/cleanup ordering are unchanged. This function is impure. Source-pinned tests call seffects and assert all four spe/parity labels and gk.known; production runtime evidence covers spe==1 through doread. A C-first marker recipe reaches spe==2 but cannot be strict-replayed because existing js/write.js:dowrite -> invent.js:hold_another_object lacks the SCR_MAIL encumberMessage hook; it is explicitly blocked outside B65 and gives no runtime credit.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffects",
+                "source": "read.c:seffects SCR_MAIL case calls seffect_mail(&sobj) at lines 2203–2206; js/read.js:seffects now awaits the corresponding helper."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "doread",
+                "source": "read.c:doread calls seffects(scroll) at line 635; the existing JS doread -> seffects production command path is exercised by the matching recording and v15 replay."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-command.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/mail-wish-knight-spe1-independent-b65.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-reads-uncursed-mail-scroll",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "read.c:doread -> read.c:seffects SCR_MAIL -> read.c:seffect_mail (spe==1, even o_id), exact replay run-PAns8f matches through the final message boundary."
+              }
+            ],
+            "checkedAt": "7e02ab4c4bc6f19ed121af3e63ce0cd9ef5e728a"
+          }
+        ],
+        "entryPointReview": "The active selected entry is doread reading an SCR_MAIL through seffects to seffect_mail. The admitted v15 case executes the spe==1/even-o_id branch at segment 0 step 37 and replays exactly; the independent C recording executes spe==1/odd-o_id at segment 0 step 28 and strict-replays. The tests pin spe==1 and spe==2 labels for both parities. The C-only spe==2 writing recipe is blocked before JS reaches the final read because write.c:dowrite -> invent.c:hold_another_object requires the missing encumberMessage hook; do not cite it as runtime evidence. The spe==0/default mail-reader branch has the explicit discarded-void mail.c:readmail gap.",
+        "entryPoints": [
+          {
+            "name": "read SCR_MAIL through doread",
+            "functions": [
+              "seffect_mail"
+            ],
+            "recordings": [
+              "recordings/read.c/mail-wish-knight-spe1-independent-b65.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-reads-uncursed-mail-scroll",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 37,
+                "source": "read.c:doread -> read.c:seffects SCR_MAIL -> read.c:seffect_mail (spe==1, even o_id), exact replay run-PAns8f matches through the final message boundary."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "d23e5f2d8fa377e5ff69d9cf62e4b7ad85cdb698",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
