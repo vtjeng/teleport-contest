@@ -132292,7 +132292,77 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "potionhit",
+            "implementation": "js/potion.js",
+            "symbol": "potionhit",
+            "sourceReview": "Compared the complete upstream nethack-c/upstream/src/potion.c:potionhit() definition at 1625-1928 with js/potion.js:potionhit(). The source performs bottlename() first, determines hero versus monster target, checks the monster saddle in C short-circuit/RNG order, reports the crash and evaporation, then selects hero, saddle, or non-saddle monster effect branches. The monster switch preserves healing and Pestilence fallthrough, sickness resistance, confusion/booze resistance, invisibility visibility updates, sleep/paralysis/speed/blindness effects, blessed/cursed water, lit oil, acid damage and killer ownership, and polymorph. It wakes the surviving monster or clears msleeping, then performs the hero-distance vapor test or optional trycall, shop disposition, and final obfree in source order. The selected C POT_POLYMORPH arm calls (void) bhitm(mon, obj); JS now awaits the existing zap.js:bhitm(mon, obj, state, random, env) before the common target/vapor tail and discards its result. Because dothrow.js:thitmonst passes only rn1/rn2/rnd in its RNG object, potionhit merges all imported C process RNG methods before caller overrides; bhitm and its mon.js:wakeup/m_respond tail therefore receive the complete draw source while injected methods retain precedence. The module already imports zap.js helpers, and the new bhitm binding is exercised by the production replay. The two sounds.c:Soundeffect notes and the mon.c:mcureblindness note remain exact C-discarded void-call gaps; no gap stands in for the selected polymorph effect. No other potionhit call return is used as replacement state, and no unsupported refusal remains on the selected branch.",
+            "callers": [
+              {
+                "path": "js/cmd.js",
+                "symbol": "rhack",
+                "source": "cmd.c:rhack() dispatches the throw command to dothrow.c:dothrow()"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "toss_up",
+                "source": "dothrow.c:toss_up() calls potionhit() at 1290"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit() calls potionhit() at 1594 for a potion hitting the steed"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "thitmonst",
+                "source": "dothrow.c:thitmonst() calls potionhit() at 2264"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thitu",
+                "source": "mthrowu.c:thitu() calls potionhit() at 137 for a potion hitting the hero"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "ohitmon",
+                "source": "mthrowu.c:ohitmon() calls potionhit() at 367 for a potion hitting another monster"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "m_throw",
+                "source": "mthrowu.c:m_throw() calls potionhit() at 699 for a potion hitting the hero"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmon_hitmon_potion",
+                "source": "uhitm.c:hmon_hitmon_potion() calls potionhit() at 1105"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potionhit-polymorph.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "rogue-throws-polymorph-potion-at-orc",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 67,
+                "source": "cmd.c:rhack throw dispatch -> dothrow.c:dothrow/throw_obj/throwit/thitmonst -> potion.c:potionhit -> zap.c:bhitm/resist/newcham"
+              }
+            ],
+            "checkedAt": "beb4cc58cdba7c103c733b0c67fd8003c1f1aa69"
+          }
+        ],
+        "entryPointReview": "This is one helper-only source range, so entryPoints is empty. The source has seven direct potionhit call sites across dothrow.c, mthrowu.c and uhitm.c; their existing JS counterparts are listed in callers and already route to potionhit(). The selected admitted v16 session exercises the normal throw command: cmd.js dispatches t to js/dothrow.js:dothrow(), then the existing throw path reaches thitmonst() -> potionhit() -> bhitm() -> resist()/newcham(). The full recording matches through segment 0 step 67, including the polymorph message and common potionhit tail. The session does not claim to exercise the separate hero-hit, steed-hit, monster-projectile, or melee caller branches. This task changes no outer caller. The only remaining potionhit callee gaps are the discarded void sounds.c:Soundeffect calls and discarded void mon.c:mcureblindness call; those do not block the selected POT_POLYMORPH path.",
+        "entryPoints": []
+      }
     }
   ]
 }
