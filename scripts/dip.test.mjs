@@ -304,8 +304,8 @@ test('polymorph_sink preserves the loot bit when the sink becomes a fountain',
 
 test('polymorph_sink stores altar alignment for pray and glyph readers',
     async () => {
-        // C ref: do.c:polymorph_sink stores Align2amask(rn2(3)-1) in
-        // struct rm.altarmask after clearing the former sink feature flags.
+        // C do.c:polymorph_sink writes rm.altarmask, which aliases flags in
+        // rm.h; JS keeps the mask in location.flags after clearing sink flags.
         await startedGame();
         const { ux, uy } = game.u;
         const location = game.level.at(ux, uy);
@@ -331,8 +331,8 @@ test('polymorph_sink stores altar alignment for pray and glyph readers',
 
         assert.equal(drawCount, draws.length);
         assert.equal(location.typ, ALTAR);
-        assert.equal(location.flags, 0);
-        assert.equal(location.altarmask, AM_LAWFUL);
+        assert.equal(location.flags, AM_LAWFUL);
+        assert.equal(Object.hasOwn(location, 'altarmask'), false);
         assert.equal(altarmask_at(ux, uy, game), AM_LAWFUL);
         assert.equal(
             back_to_glyph(ux, uy, game),

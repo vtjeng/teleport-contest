@@ -296,7 +296,8 @@ function on_altar(state) {
 
 // C ref: pray.c:107 `#define a_align(x, y)`.
 function a_align(x, y, state) {
-    return Amask2align(state.level.at(x, y).altarmask & AM_MASK);
+    // rm.altarmask aliases flags; this is a raw real-tile read, not mimic lookup.
+    return Amask2align(state.level.at(x, y).flags & AM_MASK);
 }
 
 // C ref: pray.c altarmask_at() (2490-2504).  The altar alignment helper is
@@ -310,7 +311,7 @@ export function altarmask_at(x, y, state = game) {
     }
     const location = state.level?.at(x, y);
     return IS_ALTAR(location?.typ)
-        ? location.altarmask ?? location.flags ?? 0
+        ? location.flags ?? 0
         : 0;
 }
 
@@ -334,7 +335,7 @@ export async function dosacrifice(state = game) {
         return ECMD_OK;
     }
     const altar = state.level.at(u.ux, u.uy);
-    const highaltar = Boolean(altar.altarmask & AM_SANCTUM);
+    const highaltar = Boolean(altar.flags & AM_SANCTUM);
     const otmp = await floorfood('sacrifice', 1, state);
     if (!otmp) return ECMD_OK;
 
@@ -557,7 +558,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
         await ttyPline(
             `The altar is stained with ${state.urace.adj} blood.`, state,
         );
-        state.level.at(u.ux, u.uy).altarmask = AM_CHAOTIC;
+        state.level.at(u.ux, u.uy).flags = AM_CHAOTIC;
         newsym(u.ux, u.uy, state);
         note_unported('priest.c angry_priest');
     } else {
@@ -569,7 +570,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
             );
             const altar = state.level.at(u.ux, u.uy);
             altar.typ = ROOM;
-            altar.altarmask = 0;
+            altar.flags = 0;
             newsym(u.ux, u.uy, state);
             note_unported('priest.c angry_priest');
             demonlessMessage = 'cloud dissipates';
@@ -1747,7 +1748,7 @@ export async function pleased(g_align, state = game) {
         action = rn1(
             prayer_luck + (on_altar(state)
                 ? 3 + Number(Boolean(
-                    state.level.at(u.ux, u.uy).altarmask & AM_SHRINE,
+                    state.level.at(u.ux, u.uy).flags & AM_SHRINE,
                 ))
                 : 2),
             1,

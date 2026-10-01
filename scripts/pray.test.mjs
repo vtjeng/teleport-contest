@@ -24,6 +24,7 @@ import {
     HALLUC_RES,
     HUNGRY,
     HVY_ENCUMBER,
+    M_AP_FURNITURE,
     PASSES_WALLS,
     ROOM,
     SDOOR,
@@ -46,6 +47,7 @@ import {
     voice_deity,
     isok,
 } from '../js/const.js';
+import { S_altar } from '../js/symbols.js';
 import { cmdq_add_key, paranoid_query } from '../js/cmd.js';
 import { bot } from '../js/display.js';
 import {
@@ -105,6 +107,7 @@ import {
     TROUBLE_WOUNDED_LEGS,
     UnsupportedPrayerError,
     altar_wrath,
+    altarmask_at,
     angrygods,
     can_pray,
     critically_low_hp,
@@ -148,14 +151,14 @@ test('altar_wrath follows pray.c alignment, speech, and luck branches',
     await startedGame();
     const altar = game.level.at(game.u.ux, game.u.uy);
     altar.typ = ALTAR;
-    altar.altarmask = Align2amask(game.u.ualign.type);
+    altar.flags = Align2amask(game.u.ualign.type);
     game.u.ualign.record = 5;
     game.nhDisplay.terminal._inputQueue.push(32, 32, 32);
     await altar_wrath(game.u.ux, game.u.uy, game);
     assert.equal(game.u.ualign.record, 4);
 
     clearTtyMessageWindow(game);
-    altar.altarmask = Align2amask(A_CHAOTIC);
+    altar.flags = Align2amask(A_CHAOTIC);
     game.u.uluck = -5;
     game.u.moreluck = 0;
     await altar_wrath(game.u.ux, game.u.uy, game);
@@ -203,12 +206,12 @@ test('dosacrifice reaches offer_corpse through the canned selector',
     await startedGame();
     const here = game.level.at(game.u.ux, game.u.uy);
     const previousType = here.typ;
-    const previousMask = here.altarmask;
+    const previousMask = here.flags;
     const previousInventory = game.invent;
     const previousUnported = new Set(game.unported ?? []);
     const previousConduct = game.u.uconduct.gnostic;
     here.typ = ALTAR;
-    here.altarmask = Align2amask(A_LAWFUL);
+    here.flags = Align2amask(A_LAWFUL);
     const corpse = {
         invlet: 'a',
         otyp: CORPSE,
@@ -231,7 +234,7 @@ test('dosacrifice reaches offer_corpse through the canned selector',
         assert.ok(getRngLog().length > before);
     } finally {
         here.typ = previousType;
-        here.altarmask = previousMask;
+        here.flags = previousMask;
         game.invent = previousInventory;
         game.unported = previousUnported;
     }
@@ -241,7 +244,7 @@ test('own-race sacrifice summons the source-selected altar demon', async () => {
     await startedGame();
     const altar = game.level.at(game.u.ux, game.u.uy);
     altar.typ = ALTAR;
-    altar.altarmask = Align2amask(A_CHAOTIC);
+    altar.flags = Align2amask(A_CHAOTIC);
     game.u.ualign.type = A_CHAOTIC;
     const priorAlignmentRecord = game.u.ualign.record;
     const priorLuck = game.u.uluck;
@@ -1208,9 +1211,9 @@ test('prayer_done() runs pleased() and refuses the remaining arms', async () => 
     // it, so all three combinations are here.
     const here = game.level.at(game.u.ux, game.u.uy);
     const wasTyp = here.typ;
-    const wasMask = here.altarmask;
+    const wasMask = here.flags;
     here.typ = ALTAR;
-    here.altarmask = Align2amask(A_CHAOTIC);
+    here.flags = Align2amask(A_CHAOTIC);
     game.gp = { p_type: 0, p_aligntyp: A_CHAOTIC };
     await assert.rejects(prayer_done(game), /water_prayer\(\)/u);
 
@@ -1233,7 +1236,7 @@ test('prayer_done() runs pleased() and refuses the remaining arms', async () => 
         }
     }
     here.typ = wasTyp;
-    here.altarmask = wasMask;
+    here.flags = wasMask;
 });
 
 test('#pray asks its confirmation with the response set and default C shows',
@@ -1396,10 +1399,28 @@ test('can_pray() prays to the altar it stands on', async () => {
     // pray.c:2158 asks whether the altar's god is the hero's own. On her own
     // altar it is, so the prayer is the ordinary p_type 3 rather than the
     // p_type 2 that praying on someone else's altar produces.
-    here.altarmask = Align2amask(A_LAWFUL);
+    here.flags = Align2amask(A_LAWFUL);
     assert.equal(await can_pray(true, game), true);
     assert.equal(game.gp.p_aligntyp, A_LAWFUL);
     assert.equal(game.gp.p_type, 3);
+});
+
+test('pray.c a_align reads real altar flags even under a furniture mimic', async () => {
+    // C pray.c:a_align reads levl[x][y] directly, while altarmask_at() may
+    // substitute a furniture mimic's apparent altar mask.
+    const u = (await startedGame()).u;
+    u.ublesscnt = 0;
+    u.ualign.record = 10;
+    const here = game.level.at(u.ux, u.uy);
+    here.typ = ALTAR;
+    here.flags = Align2amask(A_LAWFUL);
+    game.level.monsters[u.ux][u.uy] = {
+        m_ap_type: M_AP_FURNITURE,
+        mappearance: S_altar,
+    };
+    assert.equal(altarmask_at(u.ux, u.uy, game), 0);
+    assert.equal(await can_pray(true, game), true);
+    assert.equal(game.gp.p_aligntyp, A_LAWFUL);
 });
 
 test('can_pray() refuses a demon whose god is not neutral', async () => {

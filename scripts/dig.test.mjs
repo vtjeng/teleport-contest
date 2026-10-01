@@ -376,7 +376,7 @@ test('digactualhole preserves the old visible furniture label in its fall messag
     const cases = [
         {
             typ: GRAVE,
-            altarmask: undefined, // A grave has no altar alignment mask.
+            flags: 0, // A fresh grave tile has no altar alignment bits.
             furniture: 'headstone',
             // The first result names the grave surface from before pitTerrain.
             messages: [
@@ -386,7 +386,7 @@ test('digactualhole preserves the old visible furniture label in its fall messag
         },
         {
             typ: ALTAR,
-            altarmask: AM_LAWFUL,
+            flags: AM_LAWFUL,
             furniture: 'lawful altar',
             // The altar label must keep the alignment that C reads before maketrap.
             messages: [
@@ -408,8 +408,7 @@ test('digactualhole preserves the old visible furniture label in its fall messag
         };
         state.youmonst = {};
         state.level.at(X, Y).typ = row.typ;
-        if (row.altarmask !== undefined)
-            state.level.at(X, Y).altarmask = row.altarmask;
+        state.level.at(X, Y).flags = row.flags;
         state.viz_array = Array.from({ length: ROWNO }, () => []);
         state.viz_array[Y][X] = IN_SIGHT;
         const messages = [];

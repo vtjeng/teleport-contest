@@ -1077,9 +1077,8 @@ export async function polymorph_sink(state = game, rawEnv = {}) {
         symbol = S_altar;
         set_levltyp(x, y, ALTAR, { ...rawEnv, state });
         const alignment = random.rn2(3) - 1;
-        // GameMap retains `altarmask` for existing pray.c readers which
-        // access it directly; do not also store this mask in `flags`.
-        location.altarmask = In_hell(state.u.uz, state) && random.rn2(3)
+        // C altarmask aliases flags; keep the one JavaScript field there.
+        location.flags = In_hell(state.u.uz, state) && random.rn2(3)
             ? AM_NONE : Align2amask(alignment);
         break;
     }
