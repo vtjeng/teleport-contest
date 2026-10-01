@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T18:28:14.587Z",
+  "capturedAt": "2026-10-01T18:56:46.548Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -13565,12 +13565,87 @@
         "type": "accepted",
         "at": "2026-10-01T18:27:24.133Z",
         "task": "B75"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B75-published-fce402c2",
+        "type": "published",
+        "at": "2026-10-01T18:28:34.263Z",
+        "task": "B75",
+        "commit": "fce402c2fcaa25258ecaf95279ca4d88e8e0af98"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7da918bf55ed54d1e5d96efa5083cc787e39b421",
+        "type": "ready",
+        "at": "2026-10-01T18:32:46.913Z",
+        "task": "B77",
+        "delivery": "7da918bf55ed54d1e5d96efa5083cc787e39b421"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A68-integrating-7d2978e4",
+        "type": "integrating",
+        "at": "2026-10-01T18:32:57.778Z",
+        "task": "A68",
+        "integration": "7d2978e4247183a6f03d6912c8b4ed0c3c1dee64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-receive-B77-7da918bf",
+        "type": "received",
+        "at": "2026-10-01T18:34:39.192Z",
+        "task": "B77",
+        "delivery": "7da918bf55ed54d1e5d96efa5083cc787e39b421"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A68-integrating-6fedb475",
+        "type": "integrating",
+        "at": "2026-10-01T18:35:36.784Z",
+        "task": "A68",
+        "integration": "6fedb4755714bb3d432671489112598ab94756bc"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A69-doname-base-20261001T1840Z",
+        "type": "assign",
+        "at": "2026-10-01T18:36:45.940Z",
+        "task": "A69",
+        "worker": "A2",
+        "goal": "port-objnam-doname-base-shop-pricing-v16-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B78-cream-pie-stack-20261001T1925Z",
+        "type": "assign",
+        "at": "2026-10-01T18:50:53.707Z",
+        "task": "B78",
+        "worker": "B",
+        "goal": "port-apply-use-cream-pie-stack-synthetic-v16-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A68-validated-6fedb475",
+        "type": "validated",
+        "at": "2026-10-01T18:56:33.910Z",
+        "task": "A68",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A68-accepted-6fedb475",
+        "type": "accepted",
+        "at": "2026-10-01T18:56:34.331Z",
+        "task": "A68"
       }
     ]
   },
   "development": {
-    "executionCommit": "a6a28c74b6d6b6aec8fe0e72cd136406b351ed1b",
-    "measuredAt": "2026-10-01T18:21:23.958Z",
+    "executionCommit": "6fedb4755714bb3d432671489112598ab94756bc",
+    "measuredAt": "2026-10-01T18:50:54.081Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

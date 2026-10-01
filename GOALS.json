@@ -131388,7 +131388,7 @@
     {
       "id": "restore-c-defined-artifact-throw-rules-v16-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete throwing object rules and split cleanup",
       "cFile": "dothrow.c",
       "sessions": [
@@ -131402,8 +131402,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6fedb4755714bb3d432671489112598ab94756bc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "throw_obj",
@@ -131657,6 +131660,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6fedb4755714bb3d432671489112598ab94756bc",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
