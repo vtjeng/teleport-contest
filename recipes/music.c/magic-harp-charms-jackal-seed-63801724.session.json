@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first B80 independent candidate for music.c:charm_monsters through MAGIC_HARP. Source coverage requires the summoned hostile jackal to satisfy the complete C squared-distance predicate; a diagonal spawn is a preserved distance miss, not helper evidence.",
+  "segments": [
+    {
+      "seed": 63801724,
+      "datetime": "20261107131500",
+      "nethackrc": "OPTIONS=name:B80J1724,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed magic harp (0:2)\n\u0007hostile jackal\naey "
+    }
+  ]
+}

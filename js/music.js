@@ -18,6 +18,7 @@ import { consume_obj_charge } from './invent.js';
 import { can_blow, is_mercenary, mindless, unique_corpstat } from './mondata.js';
 import { monflee, monfleeMessage, onscary, youHear } from './monmove.js';
 import { Monnam } from './do_name.js';
+import { tamedog } from './dog.js';
 import { discover_object } from './o_init.js';
 import { an, the, thesimpleoname, Tobjnam, xnameFresh, yname, Yname2 } from './objnam.js';
 import {
@@ -118,6 +119,24 @@ export async function awaken_soldiers(bugler, state = game, env = {}) {
             if (distm < distance)
                 await awaken_scare(mon, distm < Math.trunc(distance / 3), state, env);
         }
+    }
+}
+
+// C ref: music.c charm_monsters() (194-217). Save nmon before taming because
+// tamedog() may change the live monster chain; C discards its return.
+export async function charm_monsters(distance, state = game, env = {}) {
+    const random = env.random ?? musicRandom;
+    if (state.u.uswallow) distance = 0;
+
+    for (let mon = state.level.monlist; mon;) {
+        const next = mon.nmon;
+        if (mon.mhp >= 1
+            && dist2(mon.mx, mon.my, state.u.ux, state.u.uy) <= distance
+            && (!await resist(mon, TOOL_CLASS, 0, false, state, random, env)
+                || mon.isshk)) {
+            await tamedog(mon, null, true, { ...env, state, random });
+        }
+        mon = next;
     }
 }
 
@@ -265,7 +284,9 @@ export async function do_improvisation(instr, state = game, env = {}) {
         await message(!Deaf(state)
             ? `${Tobjnam(instr, 'produce', state)} very attractive${same ? ' and familiar' : ''} music.`
             : 'You feel very soothing vibrations.', state);
-        note_unported('music.c charm_monsters');
+        await charm_monsters(Math.trunc((state.u.ulevel - 1) / 3) + 1, state, {
+            ...env, message, random,
+        });
         await exercise(A_DEX, true, state, random);
         break;
     case WOODEN_HARP:
