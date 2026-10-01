@@ -1,0 +1,389 @@
+{
+  "version": 1,
+  "batch": "v17",
+  "cases": [
+    {
+      "id": "cursed-invisibility-aggravates-monsters-c-observed-slot",
+      "title": "Cursed Invisibility Aggravates Monsters C Observed Slot",
+      "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-monsters-c-observed-slot.recipe.session.json",
+      "recipeSha256": "ddfc51d6fc61427ca379b0fc093ae7913f050ed717892cae06311f0c0dbe297e",
+      "recording": "challenges/cases/v17/cursed-invisibility-aggravates-monsters-c-observed-slot.session.json",
+      "recordingSha256": "db306ba330657854a1c82e87c18d928e7620768cdeaaea8e1f1fe00c6f279efe",
+      "reproducibility": "Independent patched-C replay run run-thOk0e exited 0; replay output SHA-256 db306ba330657854a1c82e87c18d928e7620768cdeaaea8e1f1fe00c6f279efe exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+      "title": "Cursed Invisibility Aggravates Sleeping Orc Mprefix Continuation",
+      "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+      "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+      "recording": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+      "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+      "reproducibility": "Independent patched-C replay run run-VDM6Cp exited 0; replay output SHA-256 9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger-petless-slot-n",
+      "title": "Drain Life Spell Drains Positive Dagger Petless Slot N",
+      "recipe": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-slot-n.recipe.session.json",
+      "recipeSha256": "58913b1e4fc40a0a612e60b548d62c3dda421012476a3b6da34dc601ab986c61",
+      "recording": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-slot-n.session.json",
+      "recordingSha256": "80e797c732b8ef9e457fd08864f5798525647dd7921e1680cf3de9fc15873145",
+      "reproducibility": "Independent patched-C replay run run-fyDKVO exited 0; replay output SHA-256 80e797c732b8ef9e457fd08864f5798525647dd7921e1680cf3de9fc15873145 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "earthquake-drum-opens-pits-pager-corrected",
+      "title": "Earthquake Drum Opens Pits Pager Corrected",
+      "recipe": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.recipe.session.json",
+      "recipeSha256": "bc923ee0a3e13351f9ced6cf427f9b626e7978e5ba0da0863752299615296a44",
+      "recording": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.session.json",
+      "recordingSha256": "b212e228ad360fa591d013f158fd73eab6cadcb6813cc5a2275614c1bda0f7fe",
+      "reproducibility": "Independent patched-C replay run run-JPRb5M exited 0; replay output SHA-256 b212e228ad360fa591d013f158fd73eab6cadcb6813cc5a2275614c1bda0f7fe exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "engrave-on-wished-undisturbed-grave-disturbs-it",
+      "title": "Engrave On Wished Undisturbed Grave Disturbs It",
+      "recipe": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json",
+      "recipeSha256": "16d1cf36d86545556db7efb37da6b036f5d12a2a0cc446127d4467057d01f3bf",
+      "recording": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+      "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+      "reproducibility": "Independent patched-C replay run run-ODXqEm exited 0; replay output SHA-256 48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "magic-harp-charms-hostile-pager-safe",
+      "title": "Magic Harp Charms Hostile Pager Safe",
+      "recipe": "challenges/cases/v17/magic-harp-charms-hostile-pager-safe.recipe.session.json",
+      "recipeSha256": "f27a3e3dd5b8d9f22cc9eb43deac600139efda31fd7d3c4bd1f75e460d3c1cba",
+      "recording": "challenges/cases/v17/magic-harp-charms-hostile-pager-safe.session.json",
+      "recordingSha256": "ecaa9913dc70721acee4df43fc48ad9f1259b4ead5448e56b937e777ff0961ac",
+      "reproducibility": "Independent patched-C replay run run-VuqEmq exited 0; replay output SHA-256 ecaa9913dc70721acee4df43fc48ad9f1259b4ead5448e56b937e777ff0961ac exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "magic-harp-charms-hostile-targeted",
+      "title": "Magic Harp Charms Hostile Targeted",
+      "recipe": "challenges/cases/v17/magic-harp-charms-hostile-targeted.recipe.session.json",
+      "recipeSha256": "5fbe42e687c4afb8d6e11d1c209d092da27211ccbba85338801707e99b3556d8",
+      "recording": "challenges/cases/v17/magic-harp-charms-hostile-targeted.session.json",
+      "recordingSha256": "5955a85ecdd957250d8dd6b3219a659535775af79b4f7b3594e3c0d05bd36a3d",
+      "reproducibility": "Independent patched-C replay run run-h1KiUf exited 0; replay output SHA-256 5955a85ecdd957250d8dd6b3219a659535775af79b4f7b3594e3c0d05bd36a3d exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "magic-harp-charms-hostile",
+      "title": "Magic Harp Charms Hostile",
+      "recipe": "challenges/cases/v17/magic-harp-charms-hostile.recipe.session.json",
+      "recipeSha256": "e67feff73190ca52d19e78343fa38052f4c8e9fc319787b2cbc23935ed4fd452",
+      "recording": "challenges/cases/v17/magic-harp-charms-hostile.session.json",
+      "recordingSha256": "6ebf5e5ce3a4fd8a45f671f5c67ddd9f7198a6f1080ddd6feda43041a9904e3d",
+      "reproducibility": "Independent patched-C replay run run-g1y5m0 exited 0; replay output SHA-256 6ebf5e5ce3a4fd8a45f671f5c67ddd9f7198a6f1080ddd6feda43041a9904e3d exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "monk-quaffs-milky-potion-ghost-from-bottle-corrected-slot-k",
+      "title": "Monk Quaffs Milky Potion Ghost From Bottle Corrected Slot K",
+      "recipe": "challenges/cases/v17/monk-quaffs-milky-potion-ghost-from-bottle-corrected-slot-k.recipe.session.json",
+      "recipeSha256": "60c40e019917ab46171d8f40ade466a442ea9556644fe8ad42a5bfd45acd4524",
+      "recording": "challenges/cases/v17/monk-quaffs-milky-potion-ghost-from-bottle-corrected-slot-k.session.json",
+      "recordingSha256": "a209a3b1ccca1ad9ddb8acd6f7b76eb1c81c8b4a11dcf2c77bcd24e794fc3310",
+      "reproducibility": "Independent patched-C replay run run-Lf7cjS exited 0; replay output SHA-256 a209a3b1ccca1ad9ddb8acd6f7b76eb1c81c8b4a11dcf2c77bcd24e794fc3310 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs",
+      "title": "Monk Quaffs Three Milky Potions Ghost From Bottle Three Quaffs",
+      "recipe": "challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.recipe.session.json",
+      "recipeSha256": "66c379deff30a26b03a80d4ffff0b0b8974a493c346305dad459b0aefff493e9",
+      "recording": "challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.session.json",
+      "recordingSha256": "b4b5aa967700a1400e75f754e25bf6a04956dfb5890e9f99357004a80fdb1016",
+      "reproducibility": "Independent patched-C replay run run-MbgwJQ exited 0; replay output SHA-256 b4b5aa967700a1400e75f754e25bf6a04956dfb5890e9f99357004a80fdb1016 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "orc-wizard-tin-lycanthropy-cursed-water-corrected-letters",
+      "title": "Orc Wizard Tin Lycanthropy Cursed Water Corrected Letters",
+      "recipe": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.recipe.session.json",
+      "recipeSha256": "b2ac2d535918bf55bf9cebcd14460c857b9455463d70e0fd1be37f2cf8093dcd",
+      "recording": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json",
+      "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
+      "reproducibility": "Independent patched-C replay run run-NBK62t exited 0; replay output SHA-256 70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "orc-wizard-tin-lycanthropy-cursed-water",
+      "title": "Orc Wizard Tin Lycanthropy Cursed Water",
+      "recipe": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water.recipe.session.json",
+      "recipeSha256": "320b952c2e93a7439bee93e5fe2f8ee41a8066283ad8581e3e1bf94779e3ad2c",
+      "recording": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water.session.json",
+      "recordingSha256": "d7f1e029d1874280373ea8490e8dd9f6bd93d75a2d09036ba8a70f885cc61cf2",
+      "reproducibility": "Independent patched-C replay run run-Wit6ju exited 0; replay output SHA-256 d7f1e029d1874280373ea8490e8dd9f6bd93d75a2d09036ba8a70f885cc61cf2 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "prayer-coaligned-altar-blesses-wished-water",
+      "title": "Prayer Coaligned Altar Blesses Wished Water",
+      "recipe": "challenges/cases/v17/prayer-coaligned-altar-blesses-wished-water.recipe.session.json",
+      "recipeSha256": "bb1c554e089a53edf9d5ff9645bd36074c97ec4c2770118d181761d347c042f3",
+      "recording": "challenges/cases/v17/prayer-coaligned-altar-blesses-wished-water.session.json",
+      "recordingSha256": "c641cfe14ac8a1ef06905015a882838343839ac578a6b79d543df193fa03b05b",
+      "reproducibility": "Independent patched-C replay run run-djNYYw exited 0; replay output SHA-256 c641cfe14ac8a1ef06905015a882838343839ac578a6b79d543df193fa03b05b exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "prayer-coaligned-neutral-altar-blesses-wished-water-corrected",
+      "title": "Prayer Coaligned Neutral Altar Blesses Wished Water Corrected",
+      "recipe": "challenges/cases/v17/prayer-coaligned-neutral-altar-blesses-wished-water-corrected.recipe.session.json",
+      "recipeSha256": "10c0a06867df115c54974ddbb96f4122b5ef35ae0bc667424bede106a80475b2",
+      "recording": "challenges/cases/v17/prayer-coaligned-neutral-altar-blesses-wished-water-corrected.session.json",
+      "recordingSha256": "4389ecc5eff325115811d6a87ef589a2937f8a829f94ec66bfb739b2138c202c",
+      "reproducibility": "Independent patched-C replay run run-VoZFI8 exited 0; replay output SHA-256 4389ecc5eff325115811d6a87ef589a2937f8a829f94ec66bfb739b2138c202c exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "prayer-coaligned-neutral-water-blessing-force-yes",
+      "title": "Prayer Coaligned Neutral Water Blessing Force Yes",
+      "recipe": "challenges/cases/v17/prayer-coaligned-neutral-water-blessing-force-yes.recipe.session.json",
+      "recipeSha256": "3bd11f8bd865300d2bdb1f90a5e7633d4fefd91374d7e1f818c6765ece15ca21",
+      "recording": "challenges/cases/v17/prayer-coaligned-neutral-water-blessing-force-yes.session.json",
+      "recordingSha256": "0027820cb720967b482871af6e47145e8d22886e2f3bb6b6c8311de4b5b10e6d",
+      "reproducibility": "Independent patched-C replay run run-u6nzSo exited 0; replay output SHA-256 0027820cb720967b482871af6e47145e8d22886e2f3bb6b6c8311de4b5b10e6d exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+      "title": "Prayer Coaligned Neutral Water Prayer Glow Pager Continuation",
+      "recipe": "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.recipe.session.json",
+      "recipeSha256": "ffc79a3d22cb0b63f726f16f506775fa55f2006c45be2d6c80516f030919f82a",
+      "recording": "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.session.json",
+      "recordingSha256": "69c64727010469c300a1284a33cd493fbd4cb08461d6af25e0c2dd17f2812b8f",
+      "reproducibility": "Independent patched-C replay run run-w17KQM exited 0; replay output SHA-256 69c64727010469c300a1284a33cd493fbd4cb08461d6af25e0c2dd17f2812b8f exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "read-create-monster-scroll-selects-orc-after-more",
+      "title": "Read Create Monster Scroll Selects Orc After More",
+      "recipe": "challenges/cases/v17/read-create-monster-scroll-selects-orc-after-more.recipe.session.json",
+      "recipeSha256": "796c4d7ad125b29dd284109d52b18d3bc985b2e7de5c2bc6095098bd4f7bcb67",
+      "recording": "challenges/cases/v17/read-create-monster-scroll-selects-orc-after-more.session.json",
+      "recordingSha256": "dee8c69d1416b02e6106f9df94eb6ece2a171ea0c1af0f7095f5a528fe9356f3",
+      "reproducibility": "Independent patched-C replay run run-BbLv3T exited 0; replay output SHA-256 dee8c69d1416b02e6106f9df94eb6ece2a171ea0c1af0f7095f5a528fe9356f3 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "read-create-monster-scroll",
+      "title": "Read Create Monster Scroll",
+      "recipe": "challenges/cases/v17/read-create-monster-scroll.recipe.session.json",
+      "recipeSha256": "e4af3e0eccd9afa177db4b22f975fbef50746594406b31a539fcead256d848cc",
+      "recording": "challenges/cases/v17/read-create-monster-scroll.session.json",
+      "recordingSha256": "470f207599fad5b33218b91792534526145487b3706333140d3644d3269f245f",
+      "reproducibility": "Independent patched-C replay run run-5Z8QKH exited 0; replay output SHA-256 470f207599fad5b33218b91792534526145487b3706333140d3644d3269f245f exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "see-invisible-potion-mimic-unblock-corridor",
+      "title": "See Invisible Potion Mimic Unblock Corridor",
+      "recipe": "challenges/cases/v17/see-invisible-potion-mimic-unblock-corridor.recipe.session.json",
+      "recipeSha256": "1e2aaed9712dac75bbbcddebdf64ba2a6bef6724c718ae367846246e0622647a",
+      "recording": "challenges/cases/v17/see-invisible-potion-mimic-unblock-corridor.session.json",
+      "recordingSha256": "3b932ee850e499d03a616d3d2987ecd8568973773ef29cbfc3edae9fe8e14c8f",
+      "reproducibility": "Independent patched-C replay run run-mUJzSK exited 0; replay output SHA-256 3b932ee850e499d03a616d3d2987ecd8568973773ef29cbfc3edae9fe8e14c8f exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "see-invisible-potion-mimic-unblock",
+      "title": "See Invisible Potion Mimic Unblock",
+      "recipe": "challenges/cases/v17/see-invisible-potion-mimic-unblock.recipe.session.json",
+      "recipeSha256": "ec8604469772be6e0df9d831701e272bc4164bf7e653115a6479df7779604a8d",
+      "recording": "challenges/cases/v17/see-invisible-potion-mimic-unblock.session.json",
+      "recordingSha256": "ba3b27803152aae8197439b30e62e71502b14e069885d2edeb65cc5d60dfffa3",
+      "reproducibility": "Independent patched-C replay run run-XQTgSD exited 0; replay output SHA-256 ba3b27803152aae8197439b30e62e71502b14e069885d2edeb65cc5d60dfffa3 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "tin-human-wererat-cpostfx-slot-n",
+      "title": "Tin Human Wererat Cpostfx Slot N",
+      "recipe": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.recipe.session.json",
+      "recipeSha256": "83d14defb71e451c8c58d8086465d28751945439e8c1e509ea961430d3b099d2",
+      "recording": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
+      "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
+      "reproducibility": "Independent patched-C replay run run-xNCz10 exited 0; replay output SHA-256 7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "tin-human-wererat-cpostfx",
+      "title": "Tin Human Wererat Cpostfx",
+      "recipe": "challenges/cases/v17/tin-human-wererat-cpostfx.recipe.session.json",
+      "recipeSha256": "2a2783542fa0e0e384e12cc82ce4434b6206ec0654c83045bf0d6d9c32c1dafe",
+      "recording": "challenges/cases/v17/tin-human-wererat-cpostfx.session.json",
+      "recordingSha256": "df52330fe1ed5c7475b3a2b9b39df81966871065dfbcc973df17e89f1e674f81",
+      "reproducibility": "Independent patched-C replay run run-RZAjxD exited 0; replay output SHA-256 df52330fe1ed5c7475b3a2b9b39df81966871065dfbcc973df17e89f1e674f81 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wand-teleportation-moves-hostile-monster-slot-e-southeast",
+      "title": "Wand Teleportation Moves Hostile Monster Slot E Southeast",
+      "recipe": "challenges/cases/v17/wand-teleportation-moves-hostile-monster-slot-e-southeast.recipe.session.json",
+      "recipeSha256": "5dace273d0531e6294f3d550abc9f05c8adb45729eb2b936adc77e769790f217",
+      "recording": "challenges/cases/v17/wand-teleportation-moves-hostile-monster-slot-e-southeast.session.json",
+      "recordingSha256": "e47d4362b6dc90982e3a39351787eb374131cfb027f343b0e68f295258a96a76",
+      "reproducibility": "Independent patched-C replay run run-h2wkeT exited 0; replay output SHA-256 e47d4362b6dc90982e3a39351787eb374131cfb027f343b0e68f295258a96a76 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wand-teleportation-moves-hostile-monster",
+      "title": "Wand Teleportation Moves Hostile Monster",
+      "recipe": "challenges/cases/v17/wand-teleportation-moves-hostile-monster.recipe.session.json",
+      "recipeSha256": "6ad59f9a0f9d7a128a844481c526459d2cc01f5bb30649da3abd1245f8017a43",
+      "recording": "challenges/cases/v17/wand-teleportation-moves-hostile-monster.session.json",
+      "recordingSha256": "5fbc625d867eb8ca87e476f01e5f0f1ef9514e80e48f411525f8cb8fb8e1f8b5",
+      "reproducibility": "Independent patched-C replay run run-xOekA2 exited 0; replay output SHA-256 5fbc625d867eb8ca87e476f01e5f0f1ef9514e80e48f411525f8cb8fb8e1f8b5 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "werejackal-infects-wizard-on-bite-forced-rests",
+      "title": "Werejackal Infects Wizard On Bite Forced Rests",
+      "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+      "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+      "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+      "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+      "reproducibility": "Independent patched-C replay run run-VD1vR0 exited 0; replay output SHA-256 4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wizard-eats-fresh-stalker-corpse-cpostfx-stun-pager-slot-o-finishes-occupation",
+      "title": "Wizard Eats Fresh Stalker Corpse Cpostfx Stun Pager Slot O Finishes Occupation",
+      "recipe": "challenges/cases/v17/wizard-eats-fresh-stalker-corpse-cpostfx-stun-pager-slot-o-finishes-occupation.recipe.session.json",
+      "recipeSha256": "0b94c8af806822b1880d41a07a29012893b84f824775258f9d39011ef8e7854a",
+      "recording": "challenges/cases/v17/wizard-eats-fresh-stalker-corpse-cpostfx-stun-pager-slot-o-finishes-occupation.session.json",
+      "recordingSha256": "443798c3f21fbd8648ff1b459a9f28c1b74f0effcffa1f05d4b24f8d68949925",
+      "reproducibility": "Independent patched-C replay run run-NUY17b exited 0; replay output SHA-256 443798c3f21fbd8648ff1b459a9f28c1b74f0effcffa1f05d4b24f8d68949925 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wizard-fire-ray-melts-wished-ice-slot-o",
+      "title": "Wizard Fire Ray Melts Wished Ice Slot O",
+      "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.recipe.session.json",
+      "recipeSha256": "cb19a5c4399b58fa89155e3cd6932e5863cbec4682a43d0d6c4c411d77077e45",
+      "recording": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+      "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+      "reproducibility": "Independent patched-C replay run run-weSGmx exited 0; replay output SHA-256 5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wizard-fire-ray-melts-wished-ice",
+      "title": "Wizard Fire Ray Melts Wished Ice",
+      "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.recipe.session.json",
+      "recipeSha256": "3782f41100eab2aed4da26bb169af15c337fe2ef0b13e96c9660b43120430c63",
+      "recording": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+      "recordingSha256": "2b8fb0e509576809c5aaf2a36c0b5a7c9dca4a3d1580cbec491b957e29e0861e",
+      "reproducibility": "Independent patched-C replay run run-hsI5Gq exited 0; replay output SHA-256 2b8fb0e509576809c5aaf2a36c0b5a7c9dca4a3d1580cbec491b957e29e0861e exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wizard-sits-throne-court-summons",
+      "title": "Wizard Sits Throne Court Summons",
+      "recipe": "challenges/cases/v17/wizard-sits-throne-court-summons.recipe.session.json",
+      "recipeSha256": "5fab96c9336b8abf04c3259e781df5680bd1d078a5e2f6503c4c5d5ca868e259",
+      "recording": "challenges/cases/v17/wizard-sits-throne-court-summons.session.json",
+      "recordingSha256": "3c93d338490da30a499c97ef6da1710cb0fc7f770986cd8dbf28857c287f8c59",
+      "reproducibility": "Independent patched-C replay run run-cAAYdL exited 0; replay output SHA-256 3c93d338490da30a499c97ef6da1710cb0fc7f770986cd8dbf28857c287f8c59 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wizard-sits-throne-electric-chair",
+      "title": "Wizard Sits Throne Electric Chair",
+      "recipe": "challenges/cases/v17/wizard-sits-throne-electric-chair.recipe.session.json",
+      "recipeSha256": "e76e349bf30942e9709dc7febda872c0171acdb6f128cfe005a766589d9a152d",
+      "recording": "challenges/cases/v17/wizard-sits-throne-electric-chair.session.json",
+      "recordingSha256": "1dae0376f81059c80c045bdcead91b011643d7b7937f3e30d04dfdeb01288ea6",
+      "reproducibility": "Independent patched-C replay run run-DRDcUY exited 0; replay output SHA-256 1dae0376f81059c80c045bdcead91b011643d7b7937f3e30d04dfdeb01288ea6 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+      "title": "Wooden Flute Charms Moving Snake Slot E More Continued",
+      "recipe": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.recipe.session.json",
+      "recipeSha256": "9a29ad4cad7cebc48919c7f088f187f08f59a3e268016fe7f706a7587b96a587",
+      "recording": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json",
+      "recordingSha256": "cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44",
+      "reproducibility": "Independent patched-C replay run run-REM0ML exited 0; replay output SHA-256 cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wooden-harp-calms-nymph-slot-e-corrected",
+      "title": "Wooden Harp Calms Nymph Slot E Corrected",
+      "recipe": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.recipe.session.json",
+      "recipeSha256": "ba131f4e253bb4e67ced735bff6f34b0271e9a274b566fca1fb5b6f252349b65",
+      "recording": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.session.json",
+      "recordingSha256": "25da9de703f27a56abf0009a5be89a61b6530d266cbb871cd2f762b1a975570d",
+      "reproducibility": "Independent patched-C replay run run-bWzihc exited 0; replay output SHA-256 25da9de703f27a56abf0009a5be89a61b6530d266cbb871cd2f762b1a975570d exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wooden-harp-calms-nymph-slot-e-more-continued",
+      "title": "Wooden Harp Calms Nymph Slot E More Continued",
+      "recipe": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.recipe.session.json",
+      "recipeSha256": "e469e34187c8c66996e62eb8dc35f1aee889705fe90806025759f359b9a05a6f",
+      "recording": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+      "recordingSha256": "67977a917cf1ae9da9793837e18cc1086bfeca4de1af9c0dc94728d04ea8b0b3",
+      "reproducibility": "Independent patched-C replay run run-64usB0 exited 0; replay output SHA-256 67977a917cf1ae9da9793837e18cc1086bfeca4de1af9c0dc94728d04ea8b0b3 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "wooden-harp-calms-nymph",
+      "title": "Wooden Harp Calms Nymph",
+      "recipe": "challenges/cases/v17/wooden-harp-calms-nymph.recipe.session.json",
+      "recipeSha256": "a4a0c5393b154eb607a2d6d49349fa843a2381f97e01b12e9565a499df4c861c",
+      "recording": "challenges/cases/v17/wooden-harp-calms-nymph.session.json",
+      "recordingSha256": "cd68c9b799e2ae5cf7031e2b3d6d12b435df3a621eafeab779e47e497b27a849",
+      "reproducibility": "Independent patched-C replay run run-gcoPGJ exited 0; replay output SHA-256 cd68c9b799e2ae5cf7031e2b3d6d12b435df3a621eafeab779e47e497b27a849 exactly matches this C recording. See exact command, receipt, and log hashes in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger-c-observed-route",
+      "title": "Drain Life Spell Drains Positive Dagger C Observed Route",
+      "recipe": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.recipe.session.json",
+      "recipeSha256": "12d049a519ec8f8b55cd59339b43da15003e8dc3d89ae802c3e8ef4541d190a0",
+      "recording": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.session.json",
+      "recordingSha256": "2223a8fd3a7d9db30185de9c86adbba999be92d6365be074aff1fa7a961183e8",
+      "reproducibility": "Independent patched-C replay run run-3amT9g exited 0; output SHA-256 2223a8fd3a7d9db30185de9c86adbba999be92d6365be074aff1fa7a961183e8 is byte-identical to this recording. Full exact command, receipt and log hashes are in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger-c-observed-route-offset",
+      "title": "Drain Life Spell Drains Positive Dagger C Observed Route Offset",
+      "recipe": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route-offset.recipe.session.json",
+      "recipeSha256": "a0062351d3b47a98889af40ab80910d8f7192005449b2391a409def73873f23e",
+      "recording": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route-offset.session.json",
+      "recordingSha256": "f76b63f864aaf632006fc1a4a69ff69755f5d8c9c5698751e18ce152ba519c1a",
+      "reproducibility": "Independent patched-C replay run run-dMaFar exited 0; output SHA-256 f76b63f864aaf632006fc1a4a69ff69755f5d8c9c5698751e18ce152ba519c1a is byte-identical to this recording. Full exact command, receipt and log hashes are in missionPlanEvidence.replayEvidence."
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger-petless-c-first",
+      "title": "Drain Life Petless C First",
+      "recipe": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-c-first.recipe.session.json",
+      "recipeSha256": "6b6349345f231fde41bf2641ce9cdf27ac8f6af45edcf0ac65d096fdfa8e136e",
+      "recording": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-c-first.session.json",
+      "recordingSha256": "5a64ecb03cb10a033ca00590d77f7dc0bc1bd0a79b32788d550f58709c3cc237",
+      "reproducibility": "Independent patched-C replay run-W7ydaS exited 0; replay output SHA-256 5a64ecb03cb10a033ca00590d77f7dc0bc1bd0a79b32788d550f58709c3cc237 exactly matches this C recording. Full bounded command, receipt, and log hashes are in missionPlanEvidence.replayEvidence and the independent replay index."
+    },
+    {
+      "id": "drain-life-spell-drains-positive-dagger",
+      "title": "Drain Life Wrong Ring Drop Target Miss",
+      "recipe": "challenges/cases/v17/drain-life-spell-drains-positive-dagger.recipe.session.json",
+      "recipeSha256": "f91676fe756857cbbd0c7f302c64a2c3ebac8a3bb44a5df035dff04d9a8ecf83",
+      "recording": "challenges/cases/v17/drain-life-spell-drains-positive-dagger.session.json",
+      "recordingSha256": "94be266d7db38896dfcda447619bb5dd61d90d0e296d14b25cafa29d024bce38",
+      "reproducibility": "Independent patched-C replay run-EUEZmJ exited 0; replay output SHA-256 94be266d7db38896dfcda447619bb5dd61d90d0e296d14b25cafa29d024bce38 exactly matches this C recording. Full bounded command, receipt, and log hashes are in missionPlanEvidence.replayEvidence and the independent replay index."
+    },
+    {
+      "id": "cursed-invisibility-aggravates-sleeping-orc-continuation",
+      "title": "Cursed Invisibility Aggravates Sleeping Orc Continuation",
+      "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-continuation.recipe.session.json",
+      "recipeSha256": "02e258b6e84ddaa55cc362a8f6a789c210aa39fb6aec8733584095229ed339fd",
+      "recording": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-continuation.session.json",
+      "recordingSha256": "1705a6e18b3e8cc96398350ffc78ee1a66aadc8774b07a0d23fefdfa49338680",
+      "reproducibility": "Independent bounded patched-C replay run-RrDiQ5 exited 0; output SHA-256 1705a6e18b3e8cc96398350ffc78ee1a66aadc8774b07a0d23fefdfa49338680 is byte-identical to this recording. Its 54-boundary, 2401-RNG C trace was then compared in a bounded JS-only run against exact B71 runtime 92516e2565c6da7e8c3ad6ecee60b958aa4a3260; it strictly matched. Receipts and logs are in missionPlanEvidence."
+    },
+    {
+      "id": "monk-quaffs-milky-gain-level-potion-ghost-from-bottle-selector",
+      "title": "Monk Quaffs Milky Gain Level Potion Ghost From Bottle Selector",
+      "recipe": "challenges/cases/v17/monk-quaffs-milky-gain-level-potion-ghost-from-bottle-selector.recipe.session.json",
+      "recipeSha256": "23ac908d2ed9ddb56c7d162282d2e5c91c00521bcce93336dca11fbbc3e130ea",
+      "recording": "challenges/cases/v17/monk-quaffs-milky-gain-level-potion-ghost-from-bottle-selector.session.json",
+      "recordingSha256": "e88528a999dbca78c0c59d3a52a9d2b09c148130de3edf5d523823391a9c73e9",
+      "reproducibility": "Independent bounded patched-C replay run-eYzhWV exited 0; output SHA-256 e88528a999dbca78c0c59d3a52a9d2b09c148130de3edf5d523823391a9c73e9 is byte-identical to this recording. Its 35-boundary, 2472-RNG C trace was then compared in a bounded JS-only run against exact B71 runtime 92516e2565c6da7e8c3ad6ecee60b958aa4a3260; it strictly matched. Receipts and logs are in missionPlanEvidence."
+    },
+    {
+      "id": "werejackal-infects-wizard-on-bite",
+      "title": "Werejackal Infects Wizard On Bite",
+      "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite.recipe.session.json",
+      "recipeSha256": "0dff2a8700a010cc1306e80d222cfa1c959a9ea1a1d41d7197600cb7a8ca344c",
+      "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite.session.json",
+      "recordingSha256": "9bd28e30daca52fc5293a857dd60d25b029fa790e05dc09e06836d9578a96232",
+      "reproducibility": "Independent bounded patched-C replay run-Vym6I5 exited 0; output SHA-256 9bd28e30daca52fc5293a857dd60d25b029fa790e05dc09e06836d9578a96232 is byte-identical to this recording. Its 70-boundary, 2130-RNG C trace was then compared in a bounded JS-only run against exact B71 runtime 92516e2565c6da7e8c3ad6ecee60b958aa4a3260; it strictly matched. Receipts and logs are in missionPlanEvidence."
+    }
+  ],
+  "admissionReview": {
+    "commit": "2573677f99c137623bc0d0fa92bc0f8123ffa7b0",
+    "acceptedEvidenceSha256": "53a525dcde10db0d8ceb6377cf55b5f75bd3c0e5be4115043daa1e8be396f952",
+    "precedingAdmittedBatch": "v16",
+    "precedingAdmittedCases": 38,
+    "unresolvedOlderCases": [
+      "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+      "synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe"
+    ],
+    "historicalComparisonUniverse": "The accepted C56 crosswalk covers all 38 v16 cases and eight older cases from B70. All currently unresolved older cases are in that preserved universe.",
+    "sourceDistinctions": "Rechecked each retained actual C behavior, relevant state and action history against all v16 cases and the unresolved older cases. Shared command/setup paths do not constitute overlap. No overlapping membership found.",
+    "metadataRefinement": "The wooden-flute/charm_snakes row’s closest Bell comparison mistakenly described wooden-harp/calm_nymphs. The actual flute route changes snake peaceful/avenging/wait state and produces its reaction after the flute-trill More page; Bell of Opening reaches use_bell/openit. This correction changes no input, hash, membership or independent C replay.",
+    "membershipMatchesAcceptedDelivery": true
+  }
+}
