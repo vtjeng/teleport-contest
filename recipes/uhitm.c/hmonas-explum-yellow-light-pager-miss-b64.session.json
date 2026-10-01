@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "PAGER SETUP MISS retained from C run-3aK6li (/tmp/B64-hmonas-explum-yellow-light-hero-attack-c.session.json). #polyself successfully transforms the hero into a yellow light, but the frozen input immediately sends Fh while the transformation message is waiting at --More--; those keys do not reach the attack command. No hmonas/explum call ran. Preserve this C outcome outside recordings.",
+  "segments": [
+    {
+      "seed": 86142958,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ExplumProbeB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n  #wizgenesis\n8 hostile newt\n #polyself\nyellow light\nFh"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved independent C-first setup miss. This changes the seed, date, character name, and gender, but C assigned the wished grappling hook letter `p`; the frozen `n` input selected a different item and opened its write-on prompt, so use_grapple never ran. Keep the exact C artifact in scratch evidence and use a separate corrected-input recipe. This does not establish the surface-pull path.",
+  "segments": [
+    {
+      "seed": 30651719,
+      "datetime": "20370321104500",
+      "nethackrc": "OPTIONS=name:HookPullVariationB64,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " #wizwish\ngrappling hook\nan $l."
+    }
+  ]
+}

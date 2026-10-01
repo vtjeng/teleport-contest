@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent B64 gulpum/Finish_digestion probe. The opening space dismisses welcome; T removes Wizard armor and w- unarms quarterstaff before polymon. One hostile umber hulk is northeast, so Fu targets it. C start_engulf calls nh_delay_output twice; eight spaces clear these and any following message pages, with surplus invalid-space inputs harmless. The umber hulk weighs 1200 (monsters.h); gulpum schedules 1+(1200>>8)=5 digest turns when a corpse is possible, so eight periods exceed that delay and should reach Finish_digestion. C source monsters.h gives purple worm AT_BITE/AD_PHYS then AT_ENGL/AD_DGST. Seed 86142958 retains the observed target placement.",
+  "segments": [
+    {
+      "seed": 86142958,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:GulpumProbeB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " Tw-#wizintrinsic\na\n  #wizgenesis\nhostile umber hulk\n #polyself\npurple worm\n Fu        ........"
+    }
+  ]
+}

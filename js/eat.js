@@ -2631,9 +2631,11 @@ async function cpostfx(pm, state, env = {}) {
         break;
     }
     case PM_DISENCHANTER:
-        // C discards attrcurse()'s boolean; sit.c owns that still-unported
-        // intrinsic-removal operation.
-        note_unported('sit.c attrcurse');
+        // C discards attrcurse()'s property enum after it strips an intrinsic.
+        {
+            const { attrcurse } = await import('./sit.js');
+            await attrcurse(state);
+        }
         break;
     case PM_DEATH:
     case PM_PESTILENCE:
@@ -2697,6 +2699,18 @@ async function cpostfx(pm, state, env = {}) {
         note_unported('were.c set_ulycn');
         note_unported('artifact.c retouch_equipment');
     }
+}
+
+// C ref: eat.c Finish_digestion() (3961-3969). This deferred callback runs
+// from hack.c:unmul after it clears ga.afternmv. Keep C's gc.corpsenm_digested
+// value in state.gc and reset it only after cpostfx has completed.
+export async function Finish_digestion(state = game, env = {}) {
+    const corpsenm = state.gc?.corpsenm_digested ?? NON_PM;
+    if (corpsenm !== NON_PM) {
+        await cpostfx(corpsenm, state, env);
+        state.gc.corpsenm_digested = NON_PM;
+    }
+    return 0;
 }
 
 // C ref: eat.c violated_vegetarian() (1375-1384). Both callers -- doeat()'s

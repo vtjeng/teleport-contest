@@ -28,7 +28,12 @@ import {
     OBJ_MINVENT,
     OBJ_DELETED,
     W_WEP,
+    W_AMUL,
+    INTRINSIC,
+    INVIS,
     LEVITATION,
+    M_ATTK_HIT,
+    M_ATTK_MISS,
     D_CLOSED,
     D_NODOOR,
     DOOR,
@@ -38,6 +43,12 @@ import {
     P_LANCE,
     P_SKILLED,
     ROWNO,
+    SEE_INVIS,
+    SICK,
+    SICK_RES,
+    SLOW_DIGESTION,
+    STONE_RES,
+    UNCHANGING,
 } from '../js/const.js';
 import {
     ART_EXCALIBUR,
@@ -46,7 +57,11 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
+import { mlifesaver } from '../js/mon.js';
 import {
+    AD_ACID,
+    AD_BLND,
+    AD_DGST,
     AD_PHYS,
     AT_CLAW,
     AT_ENGL,
@@ -62,16 +77,22 @@ import {
     PM_GRAY_OOZE,
     PM_GRID_BUG,
     PM_HUMAN_WEREWOLF,
+    PM_HUMAN,
+    PM_OCHRE_JELLY,
+    PM_PURPLE_WORM,
     PM_JACKAL,
     PM_LICHEN,
     PM_LITTLE_DOG,
     PM_NEWT,
     PM_QUIVERING_BLOB,
     PM_ROTHE,
+    PM_ROPE_GOLEM,
     PM_SEWER_RAT,
     PM_SHADE,
     PM_VAMPIRE,
+    LOW_PM,
     PM_VROCK,
+    PM_TRAPPER,
     PM_WATCH_CAPTAIN,
     PM_WATCHMAN,
     PM_XORN,
@@ -98,6 +119,7 @@ import {
     SILVER_SABER,
     SMALL_SHIELD,
     WORTHLESS_WHITE_GLASS,
+    AMULET_OF_LIFE_SAVING,
     LOADSTONE,
     POT_BLINDNESS,
 } from '../js/objects.js';
@@ -111,6 +133,18 @@ import { uwep_skill_type } from '../js/weapon.js';
 import {
     hmon,
     known_hitum,
+    digests,
+    enfolds,
+    heroHatesSilver,
+    heroInvisible,
+    heroSick,
+    heroSickResistance,
+    heroSlowDigestion,
+    heroStoneResistance,
+    heroUnchanging,
+    hugThrottles,
+    explum,
+    gulpum,
     mhitm_knockback,
     m_is_steadfast,
 } from '../js/uhitm.js';
@@ -119,6 +153,15 @@ import { will_hurtle } from '../js/dothrow.js';
 const UHITM_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
     'utf8',
+);
+const MON_SOURCE = readFileSync(
+    new URL('../nethack-c/upstream/src/mon.c', import.meta.url), 'utf8',
+);
+const MONDATA_HEADER = readFileSync(
+    new URL('../nethack-c/upstream/include/mondata.h', import.meta.url), 'utf8',
+);
+const YOU_PROP_HEADER = readFileSync(
+    new URL('../nethack-c/upstream/include/youprop.h', import.meta.url), 'utf8',
 );
 
 const DATETIME = '20260214031500';
@@ -1650,4 +1693,177 @@ test('a swap weapon splits a pudding only while two-weaponing', async () => {
         'a two-weapon swap scalpel should split the pudding');
     game.u.twoweap = 0;
     game.uswapwep = null;
+});
+
+test('hmonas source predicates follow their C macros', async () => {
+    assert.match(MONDATA_HEADER,
+        /#define hug_throttles\(ptr\) \(\(ptr\) == &mons\[PM_ROPE_GOLEM\]\)/u);
+    assert.match(MONDATA_HEADER,
+        /#define digests\(ptr\) \\\s*\(dmgtype_fromattack\(\(ptr\), AD_DGST, AT_ENGL\) != 0\)/u);
+    assert.match(MONDATA_HEADER,
+        /#define enfolds\(ptr\) \\\s*\(dmgtype_fromattack\(\(ptr\), AD_WRAP, AT_ENGL\) != 0\)/u);
+    assert.match(YOU_PROP_HEADER, /#define Sick u\.uprops\[SICK\]\.intrinsic/u);
+    assert.match(YOU_PROP_HEADER,
+        /#define Sick_resistance \(HSick_resistance \|\| ESick_resistance \\\s*\|\| defended\(&gy\.youmonst, AD_DISE\)\)/u);
+    assert.match(YOU_PROP_HEADER, /#define Invisible \(Invis && !See_invisible\)/u);
+    assert.match(YOU_PROP_HEADER,
+        /#define Slow_digestion \(HSlow_digestion \|\| ESlow_digestion\)/u);
+    assert.match(YOU_PROP_HEADER,
+        /#define Unchanging \(HUnchanging \|\| EUnchanging\)/u);
+
+    await hero();
+    assert.equal(digests(game.mons[PM_PURPLE_WORM]), true);
+    assert.equal(digests(game.mons[PM_GOBLIN]), false);
+    assert.equal(enfolds(game.mons[PM_TRAPPER]), true);
+    assert.equal(hugThrottles(game.mons[PM_ROPE_GOLEM], game), true);
+
+    game.u.uprops[SICK].intrinsic = INTRINSIC;
+    assert.equal(heroSick(game), true);
+    game.u.uprops[SICK].intrinsic = 0;
+    game.u.uprops[SICK].extrinsic = 1;
+    assert.equal(heroSick(game), false);
+    game.u.uprops[SICK_RES].extrinsic = 1;
+    assert.equal(heroSickResistance(game), true);
+    game.u.uprops[SICK_RES].extrinsic = 0;
+    game.u.uprops[STONE_RES].intrinsic = 1;
+    assert.equal(heroStoneResistance(game), true);
+    game.u.uprops[STONE_RES].intrinsic = 0;
+    game.u.uprops[SLOW_DIGESTION].extrinsic = 1;
+    assert.equal(heroSlowDigestion(game), true);
+    game.u.uprops[SLOW_DIGESTION].extrinsic = 0;
+    game.u.uprops[UNCHANGING].extrinsic = 1;
+    assert.equal(heroUnchanging(game), true);
+    game.u.uprops[UNCHANGING].extrinsic = 0;
+
+    game.u.uprops[INVIS].intrinsic = 1;
+    game.u.uprops[INVIS].blocked = 0;
+    game.u.uprops[SEE_INVIS].intrinsic = 0;
+    game.u.uprops[SEE_INVIS].extrinsic = 0;
+    assert.equal(heroInvisible(game), true);
+    game.u.uprops[SEE_INVIS].extrinsic = 1;
+    assert.equal(heroInvisible(game), false);
+    game.u.ulycn = LOW_PM;
+    assert.equal(heroHatesSilver(game), true);
+});
+
+test('mlifesaver follows the pure mon.c worn-amulet predicate', async () => {
+    const start = MON_SOURCE.indexOf('mlifesaver(struct monst *mon)');
+    const end = MON_SOURCE.indexOf('lifesaved_monster(struct monst *mtmp)', start);
+    const cFunction = MON_SOURCE.slice(start, end);
+    assert.match(cFunction,
+        /if \(!nonliving\(mon->data\) \|\| is_vampshifter\(mon\)\)[\s\S]*?which_armor\(mon, W_AMUL\)[\s\S]*?otmp->otyp == AMULET_OF_LIFE_SAVING[\s\S]*?return otmp;/u);
+    assert.match(cFunction, /return \(struct obj \*\) 0;/u);
+
+    await hero();
+    // C reads only a worn W_AMUL item; this living human reaches which_armor.
+    const amulet = { otyp: AMULET_OF_LIFE_SAVING, owornmask: W_AMUL };
+    const human = { data: game.mons[PM_HUMAN], cham: NON_PM, minvent: amulet };
+    assert.equal(mlifesaver(human, game), amulet);
+
+    // Nonliving monsters skip the slot lookup unless their cham is a vampire.
+    const golem = {
+        data: game.mons[PM_GHOST], cham: NON_PM, minvent: amulet,
+    };
+    assert.equal(mlifesaver(golem, game), null);
+    golem.cham = PM_VAMPIRE;
+    assert.equal(mlifesaver(golem, game), amulet);
+    const wrongItem = { otyp: CORPSE, owornmask: W_AMUL };
+    human.minvent = wrongItem;
+    assert.equal(mlifesaver(human, game), null);
+});
+
+test('explum keeps source blinding damage and M_ATTK_HIT result', async () => {
+    const start = UHITM_SOURCE.indexOf('explum(struct monst *mdef, struct attack *mattk)');
+    const end = UHITM_SOURCE.indexOf('start_engulf(struct monst *mdef)', start);
+    const cFunction = UHITM_SOURCE.slice(start, end);
+    assert.match(cFunction,
+        /case AD_BLND:[\s\S]*?mdef->mblinded = min\(\(int\) mdef->mblinded \+ tmp, 127\);[\s\S]*?mdef->mcansee = 0;/u);
+    assert.match(cFunction,
+        /wake_nearto\(u\.ux, u\.uy, 7 \* 7\);[\s\S]*?return M_ATTK_HIT;/u);
+
+    await hero();
+    // A 3 on the source d(1,4) leaves this goblin alive and visibly blinded.
+    const defender = target(PM_GOBLIN, { mblinded: 0, mcansee: 1 });
+    const env = hitEnv({ rolls: [3] });
+    assert.equal(await explum(defender, {
+        aatyp: AT_ENGL, adtyp: AD_BLND, damn: 1, damd: 4,
+    }, game, env), M_ATTK_HIT);
+    assert.equal(defender.mblinded, 3);
+    assert.equal(defender.mcansee, 0);
+    assert.deepEqual(env.bounds, ['d(1,4)']);
+});
+
+test('gulpum rejects an ineligible target before engulf output', async () => {
+    const start = UHITM_SOURCE.indexOf('gulpum(struct monst *mdef, struct attack *mattk)');
+    const end = UHITM_SOURCE.indexOf('\nvoid\nmissum', start);
+    const cFunction = UHITM_SOURCE.slice(start, end);
+    assert.match(cFunction,
+        /int dam = d\(\(int\) mattk->damn, \(int\) mattk->damd\);[\s\S]*?if \(!engulf_target\(&gy\.youmonst, mdef\)\)[\s\S]*?return M_ATTK_MISS;/u);
+
+    await hero();
+    // A trapped lichen fails the first source eligibility check after d(1,4).
+    const defender = target(PM_LICHEN, { mtrapped: 1 });
+    const env = hitEnv({ rolls: [2] });
+    assert.equal(await gulpum(defender, {
+        aatyp: AT_ENGL, adtyp: AD_DGST, damn: 1, damd: 4,
+    }, game, env), M_ATTK_MISS);
+    assert.deepEqual(env.bounds, ['d(1,4)']);
+    assert.equal(env.lines.length, 0);
+});
+
+test('gulpum uses mon_nam for an acid-resistant defender', async () => {
+    const start = UHITM_SOURCE.indexOf('gulpum(struct monst *mdef, struct attack *mattk)');
+    const end = UHITM_SOURCE.indexOf('\nvoid\nmissum', start);
+    const cFunction = UHITM_SOURCE.slice(start, end);
+    assert.match(cFunction,
+        /case AD_ACID:[\s\S]*?if \(resists_acid\(mdef\)\) \{\s*pline\("It seems harmless to %s\."\s*,\s*mon_nam\(mdef\)\);\s*dam = 0;/u);
+
+    await hero();
+    // Ochre jelly's source attack is AT_ENGL/AD_ACID; gray ooze resists acid.
+    game.u.umonnum = PM_OCHRE_JELLY;
+    game.youmonst.data = game.mons[PM_OCHRE_JELLY];
+    game.youmonst.mnum = PM_OCHRE_JELLY;
+    const defender = target(PM_GRAY_OOZE);
+    const env = hitEnv({ rolls: [2] });
+    await gulpum(defender, {
+        aatyp: AT_ENGL, adtyp: AD_ACID, damn: 3, damd: 6,
+    }, game, env);
+    assert.ok(env.lines.includes('It seems harmless to the gray ooze.'));
+    assert.equal(defender.mhp, 99);
+});
+
+test('gulpum preserves C green-slime nomovemsg buffer overwrite order', async () => {
+    const start = UHITM_SOURCE.indexOf('gulpum(struct monst *mdef, struct attack *mattk)');
+    const end = UHITM_SOURCE.indexOf('\nvoid\nmissum', start);
+    const cFunction = UHITM_SOURCE.slice(start, end);
+    assert.match(cFunction,
+        /Sprintf\(msgbuf, "You totally digest %s\."[\s\S]*?gn\.nomovemsg = msgbuf;[\s\S]*?if \(pd == &mons\[PM_GREEN_SLIME\]\) \{\s*Sprintf\(msgbuf, "%s isn't sitting well with you\."/u);
+    assert.match(cFunction,
+        /if \(tmp != 0\) \{[\s\S]*?gn\.nomovemsg = msgbuf;[\s\S]*?\} else\s*pline1\(msgbuf\);[\s\S]*?if \(pd == &mons\[PM_GREEN_SLIME\]\)/u);
+
+    const jsStart = readFileSync(
+        new URL('../js/uhitm.js', import.meta.url), 'utf8',
+    );
+    const gulpStart = jsStart.indexOf('export async function gulpum(');
+    const gulpEnd = jsStart.indexOf('// C ref: uhitm.c hmonas()', gulpStart);
+    const jsFunction = jsStart.slice(gulpStart, gulpEnd);
+    assert.match(jsFunction,
+        /state\.nomovemsg = totalMessage;[\s\S]*?if \(pd === state\.mons\?\.\[PM_GREEN_SLIME\]\)[\s\S]*?if \(turns !== 0\) state\.nomovemsg = slimeMessage;/u);
+    assert.doesNotMatch(jsFunction,
+        /if \(pd === state\.mons\?\.\[PM_GREEN_SLIME\]\)[\s\S]*?await message\(slimeMessage/u);
+});
+
+test('hmonas source keeps attack selection, results, passive, and knockback order', () => {
+    const start = UHITM_SOURCE.indexOf('hmonas(struct monst *mon)');
+    const end = UHITM_SOURCE.indexOf('/*      Special (passive)', start);
+    const cFunction = UHITM_SOURCE.slice(start, end);
+    assert.match(cFunction,
+        /for \(i = 0; i < NATTK; i\+\+\)[\s\S]*?getmattk\(&gy\.youmonst, mon, i, sum, &alt_attk\)/u);
+    assert.match(cFunction,
+        /weapon_used = TRUE;[\s\S]*?originalweapon = \(altwep && uswapwep\) \? &uswapwep : &uwep;[\s\S]*?known_hitum\(mon, weapon/u);
+    assert.match(cFunction,
+        /case AT_EXPL:[\s\S]*?sum\[i\] = explum\(mon, mattk\);[\s\S]*?case AT_ENGL:[\s\S]*?sum\[i\] = gulpum\(mon, mattk\);/u);
+    assert.match(cFunction,
+        /passive\(mon, weapon,[\s\S]*?mhitm_knockback\(&gy\.youmonst, mon, mattk, &sum\[i\], weapon_used\)/u);
+    assert.match(cFunction, /if \(DEADMONSTER\(mon\)\)\s+break;/u);
 });

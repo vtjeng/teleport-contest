@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923207,
+      "datetime": "20320214231900",
+      "nethackrc": "OPTIONS=name:CursRepeat,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile troll\nhhhhhhhh"
+    }
+  ],
+  "comment": "Blocked C-first attempt for uhitm.c do_attack -> hmonas -> damageum -> mhitm_ad_curs hero-to-monster AD_CURS. This new-seed C map put the hostile Troll east of the gremlin; frozen `h` moved west, away from it, so hmonas and the AD_CURS attack were not reached. Keep the C setup miss and use its observed direction for a separate frozen attempt."
+}

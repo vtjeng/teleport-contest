@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first controlled B64 explum variation. The leading space dismisses the welcome --More--; `T` directly removes the Wizard-started cloak (C auto-selects its only worn armor), then `w-` selects hands. This avoids polyself.c:polymon calling drop_weapon/break_armor into the unreachable-floor refusal without moving the hero. u_init.c:Wizard starts with a wielded quarterstaff and cloak. The same seed, invulnerability setup, eight hostile newts and yellow-light target retain the attack route; after the transformation pager, `Fh` attacks west. Target source path: do_attack → hmonas → explum; save to recordings only if the complete JS replay matches.",
+  "segments": [
+    {
+      "seed": 86142958,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ExplumNoDropB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " Tw-#wizintrinsic\na\n  #wizgenesis\n8 hostile newt\n #polyself\nyellow light\n Fh"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first hmonas/explum target recipe. This changes only the prior input after the C-observed transformation page: one space dismisses its --More-- before `Fh` force-attacks the west-adjacent newt. #polyself (cmd.c:1802) uses the controlled name prompt; timed invulnerability and eight hostile newts retain the source setup. The map from prior C run-URW9sA shows adjacent newts west and east of the hero. Seed 86142957 and noon remain the original independent source probe, not JS-tuned. Target: do_attack → hmonas → explum. C-first record and inspect before any JS comparison.",
+  "segments": [
+    {
+      "seed": 86142957,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ExplumProbeB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n  #wizgenesis\n8 hostile newt\n #polyself\ngas spore\n Fh"
+    }
+  ]
+}

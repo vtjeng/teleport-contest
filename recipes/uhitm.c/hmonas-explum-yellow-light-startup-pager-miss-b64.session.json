@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "FROZEN SETUP MISS: this input put T/b/w/- before the opening welcome --More-- dismissal. C run-d0Enag consumed those first four keys as pager input, then rested; the hero retained the worn cloak and wielded quarterstaff, as the later polymon.c trace confirms. C still reached explum, but JS stopped at polyself.c:polymon → drop_weapon → do.c:preflight_dropx on the unreachable floor. Keep the exact outcome outside recordings. The corrected independent variation begins with a space to dismiss the welcome pager before removing equipment.",
+  "segments": [
+    {
+      "seed": 86142958,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ExplumNoDropB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tbw- #wizintrinsic\na\n  #wizgenesis\n8 hostile newt\n #polyself\nyellow light\n Fh"
+    }
+  ]
+}

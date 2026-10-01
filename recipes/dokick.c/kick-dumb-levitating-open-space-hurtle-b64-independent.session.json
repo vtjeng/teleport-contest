@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup miss, run-LyzaFZ: after two west steps the actual map row was `|.@.<|`; the hero remained two tiles east of the west wall, leaving open floor behind. Levitation brace check therefore returned “You have nothing to brace yourself against” before kick_dumb. Preserve this input/artifact and use one more west step in a separately frozen corrected recipe.",
+  "segments": [
+    {
+      "seed": 60381247,
+      "datetime": "20380917104500",
+      "nethackrc": "OPTIONS=name:LevitateKickB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqohh\u0004l"
+    }
+  ]
+}

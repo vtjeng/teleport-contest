@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent matching skilled-menu C evidence, run-WRMFXF (SHA-256 721f619737eb32e8816edc88b32b71ff8b8b91af4609ffbd3a508b3ca7115536), strict fresh run-boYHn8 passes (2361 RNG, 47 screens/cursors, 0 frames). Two wizard-speedy Ranger #enhance selections set P_FLAIL to P_SKILLED. C use_grapple opens Aim for what?, `c` selects surface, but rn2(2)=0 rejects it and retained rn2(4)=2 is monster; empty floor yields Nothing happens. This covers the skilled menu branch but not the hurtle call.",
+  "segments": [
+    {
+      "seed": 48733129,
+      "datetime": "20350807093000",
+      "nethackrc": "OPTIONS=name:HookRangerB64,role:Ranger,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#enhance\nyi i \u001b#wizwish\ngrappling hook\nag $l.c"
+    }
+  ]
+}

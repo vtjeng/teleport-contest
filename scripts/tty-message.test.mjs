@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { GameDisplay } from '../js/game_display.js';
+import { NO_COLOR } from '../js/terminal.js';
 import {
     dismissPendingTtyMessage,
     TOPLINE_EMPTY,
@@ -50,6 +51,37 @@ test('ttyPline redraws a replacement after tty_nhgetch acknowledges More',
             'Your cap area suddenly aches very painfully!',
         );
         assert.equal(state._ttyToplines, state._pending_message);
+        assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
+    });
+
+test('same-line append paints new bytes at the source cursor and preserves skipped cells',
+    async () => {
+        // win/tty/topl.c:update_topl() adds two spaces to gt.toplines, advances
+        // curx by two, then addtopl() paints only the new bytes and cl_end()
+        // clears the remaining row. Recorder patch 006 ignores high-bit bytes
+        // but still advances the cursor, so those shadow cells stay intact.
+        const state = messageState('base', TOPLINE_NEED_MORE);
+        state._ttyMixedFirstCell = '─';
+        state.nhDisplay.setCell(0, 0, '─', NO_COLOR, 0);
+        state.nhDisplay.setCell(6, 0, 'L', 7, 4);
+        state.nhDisplay.setCell(7, 0, 'M', 6, 2);
+        state.nhDisplay.setCell(14, 0, 'Z', 3, 1);
+
+        await ttyPline('éX', state);
+
+        assert.equal(state._pending_message, `base  \0\0X`);
+        assert.equal(state._ttyToplines, `base  \0\0X`);
+        assert.equal(state.nhDisplay.grid[0][0].ch, '─');
+        assert.equal(state.nhDisplay.grid[0][6].ch, 'L');
+        assert.equal(state.nhDisplay.grid[0][6].color, 7);
+        assert.equal(state.nhDisplay.grid[0][6].attr, 4);
+        assert.equal(state.nhDisplay.grid[0][7].ch, 'M');
+        assert.equal(state.nhDisplay.grid[0][7].color, 6);
+        assert.equal(state.nhDisplay.grid[0][7].attr, 2);
+        assert.equal(state.nhDisplay.grid[0][8].ch, 'X');
+        assert.equal(state.nhDisplay.grid[0][14].ch, ' ');
+        assert.equal(state.nhDisplay.grid[0][14].attr, 0);
+        assert.equal(state.nhDisplay.cursorCol, 9);
         assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
     });
 

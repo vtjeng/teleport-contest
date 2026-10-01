@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923207,
+      "datetime": "20320214231900",
+      "nethackrc": "OPTIONS=name:CursEast,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile troll\nllllllll"
+    }
+  ],
+  "comment": "Blocked C-first uhitm.c do_attack -> hmonas -> damageum -> mhitm_ad_curs attempt. The C map placed the Troll east and `l` reached its first physical attack, but that message opened `--More--`; the remaining `l` keys were consumed by the pager, so the attack loop never reached its AD_CURS slot. Preserve this pager-boundary outcome, not as curse-branch evidence."
+}

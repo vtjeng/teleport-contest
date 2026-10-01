@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-derived correction to the B64 direct dokick recoil setup. On this C-observed seed the Wizard starts at (4,3) inside the 7x7 room; `hhhkk` moves three west then two north to the corner-adjacent floor cell (1,1). From there C’s dokick Levitation guard sees an out-of-bounds/wall square behind any inward kick. Wish/quaff Levitation, use existing #wizgenesis to create one hostile goblin, C run-5aWlz5 places the goblin southeast at (2,2) from hero (1,1); the frozen Ctrl-D/h targets west and the dokick.c:dokick brace guard returns. Preserve this setup/direction miss; corrected recipe targets southeast with Ctrl-D/n, whose opposite square is out of bounds.",
+  "segments": [
+    {
+      "seed": 4726918,
+      "datetime": "20330621140500",
+      "nethackrc": "OPTIONS=name:DokickCornerRecoilB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "hhhkk#wizwish\npotion of levitation\nqo#wizgenesis\nhostile goblin\n\u0004h"
+    }
+  ]
+}

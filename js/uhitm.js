@@ -26,8 +26,11 @@ import {
     ARTICLE_THE,
     ARTICLE_YOUR,
     BLINDED,
+    COLD_RES,
     CONFUSION,
     DEAF,
+    DISP_ALWAYS,
+    DISP_END,
     DISMOUNT_POLY,
     FACE,
     HALLUC,
@@ -37,6 +40,7 @@ import {
     HMON_MELEE,
     HMON_KICKED,
     HMON_THROWN,
+    INVIS,
     KILLED_BY,
     KILLED_BY_AN,
     LL_CONDUCT,
@@ -52,9 +56,12 @@ import {
     RLOC_NOMSG,
     M_SEEN_COLD,
     M_SEEN_ELEC,
+    MON_EXPLODE,
     NATTK,
     NOTELL,
     NEED_WEAPON,
+    NO_KILLER_PREFIX,
+    NO_NC_FLAGS,
     P_BARE_HANDED_COMBAT,
     P_BASIC,
     P_KNIFE,
@@ -82,19 +89,34 @@ import {
     M_AP_NOTHING,
     PROT_FROM_SHAPE_CHANGERS,
     SEE_INVIS,
+    SICK,
+    SICK_RES,
+    SLOW_DIGESTION,
+    STOMACH,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
+    SUPPRESS_INVISIBLE,
+    SUPPRESS_IT,
+    SUPPRESS_NAME,
     STONED,
     STUNNED,
     TIMEOUT,
+    FIRE_RES,
     TEST_MOVE,
     LEG,
+    LOW_PM,
     LEFT_SIDE,
     RIGHT_SIDE,
+    UNCHANGING,
+    W_ARM,
+    W_ARMC,
+    W_ARMF,
     W_ARMG,
+    W_ARMH,
     W_RINGL,
     W_RINGR,
     W_SADDLE,
+    W_ARMU,
     engulfing_u,
     helpless,
     isok,
@@ -111,6 +133,8 @@ import {
     CXN_ARTICLE,
     CXN_PFX_THE,
     XKILL_NOMSG,
+    XKILL_GIVEMSG,
+    XKILL_NOCORPSE,
     something,
     Upolyd,
 } from './const.js';
@@ -147,7 +171,10 @@ import {
     glyph_to_mon,
     glyph_to_obj,
     map_invisible,
+    map_location,
+    mon_to_glyph,
     newsym,
+    tmp_at,
     tp_sensemon,
 } from './display.js';
 import { u_wipe_engr } from './engrave.js';
@@ -156,7 +183,9 @@ import {
     check_capacity,
     doorless_door,
     end_running,
+    nh_delay_output,
     near_capacity,
+    nomul,
     overexertion,
     test_move,
 } from './hack.js';
@@ -166,23 +195,33 @@ import { paranoid_query } from './cmd.js';
 import { Punished } from './steed.js';
 import { dist2, ing_suffix, s_suffix, sgn } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
-import { mhurtle, will_hurtle } from './dothrow.js';
+import { hurtle, mhurtle, will_hurtle } from './dothrow.js';
 // js/mhitu.js imports mhitm_adtyping() and mhitm_knockback() from this file,
 // so this edge closes an import cycle, exactly as mhitu.c and uhitm.c call
 // into each other. Both bindings are hoisted function declarations, which an
 // ES module cycle initializes before either module body runs, and nothing here
 // reads them at module scope.
 import {
+    could_seduce,
+    getmattk,
     hitmsg,
     m_next2u,
     magic_negation,
     mpoisons_subj,
+    mtrapped_in_pit,
+    mdamageu,
 } from './mhitu.js';
 import { abuse_dog } from './dog.js';
 import {
     angry_guards,
     killed,
     m_carrying,
+    mlifesaver,
+    mon_give_prop,
+    mondied,
+    newcham,
+    corpse_chance,
+    golemeffects,
     seemimic,
     setmangry,
     set_ustuck,
@@ -192,25 +231,38 @@ import {
     monkilled,
     shieldeff_mon,
     xkilled,
+    were_change,
 } from './mon.js';
 import {
     amorphous,
+    amphibious,
     bigmonst,
+    breathless,
     attacktype,
     can_blnd,
+    can_be_strangled,
+    defended,
     dmgtype,
+    dmgtype_fromattack,
+    flaming,
     gender,
+    has_head,
     haseyes,
     hides_under,
     is_animal,
     is_demon,
+    is_elf,
     is_floater,
     is_flyer,
     is_orc,
     is_undead,
     is_vampshifter,
+    is_were,
+    is_rider,
     is_watch,
     is_whirly,
+    humanoid,
+    mindless,
     mon_hates_blessings,
     mon_hates_light,
     mon_hates_silver,
@@ -240,7 +292,10 @@ import {
     set_apparxy,
     youHear,
 } from './monmove.js';
-import { moveSimpleOrdinary } from './unported_monster_actions.js';
+import {
+    isolatePlannedVision,
+    moveSimpleOrdinary,
+} from './unported_monster_actions.js';
 import { m_at } from './monst.js';
 import {
     AD_ACID,
@@ -267,6 +322,7 @@ import {
     AD_HEAL,
     AD_LEGS,
     AD_PEST,
+    AD_SPEL,
     AD_PHYS,
     AD_PLYS,
     AD_POLY,
@@ -286,15 +342,24 @@ import {
     AD_WERE,
     AD_WRAP,
     AT_BUTT,
+    AT_BITE,
+    AT_BREA,
+    AT_BOOM,
     AT_CLAW,
     AT_ENGL,
+    AT_EXPL,
     AT_SPIT,
+    AT_GAZE,
     AT_HUGS,
     AT_KICK,
+    AT_MAGC,
     AT_NONE,
+    AT_STNG,
+    AT_TENT,
     AT_TUCH,
     AT_WEAP,
     G_UNIQ,
+    G_NOCORPSE,
     PM_BARBARIAN,
     PM_BLACK_PUDDING,
     PM_BROWN_PUDDING,
@@ -309,10 +374,15 @@ import {
     PM_AMOROUS_DEMON,
     PM_ARCHON,
     PM_BALROG,
+    PM_FOG_CLOUD,
+    PM_GREEN_SLIME,
+    PM_CLAY_GOLEM,
     PM_FLOATING_EYE,
     PM_IRON_GOLEM,
+    PM_MEDUSA,
     PM_PYROLISK,
     PM_PURPLE_WORM,
+    PM_ROPE_GOLEM,
     PM_ROGUE,
     PM_SAMURAI,
     PM_SHADE,
@@ -324,11 +394,19 @@ import {
     S_EEL,
     S_EYE,
     S_FUNGUS,
+    S_HUMAN,
     S_LEPRECHAUN,
     S_MIMIC,
     S_NYMPH,
     S_TROLL,
+    S_GNOME,
+    S_KOBOLD,
+    S_LICH,
+    S_MUMMY,
+    S_ORC,
+    S_ZOMBIE,
 } from './monsters.js';
+import { engulf_target, failed_grab } from './mhitm.js';
 import {
     carried,
     is_ammo,
@@ -411,6 +489,7 @@ import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import { make_blinded, potionhit } from './potion.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
+import { night } from './calendar.js';
 import {
     canSeeMonster,
     canSpotMonster,
@@ -450,15 +529,18 @@ import {
 } from './worn.js';
 import { steal } from './steal.js';
 import { rloc, tele_restrict } from './teleport.js';
-import { Flying, Levitation, is_pool } from './trap.js';
+import { Flying, Levitation, is_pool, unconscious } from './trap.js';
 import { mintrap } from './trap_effects.js';
 import { mselftouch } from './trap_effects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { Cold_resistance, exclam, hit, resist } from './zap.js';
+import { Finish_digestion, eating_conducts, is_fainted, newuhs } from './eat.js';
 import { note_unported } from './unported.js';
+import { m_useup } from './mthrowu.js';
+import { explode, adtyp_to_expltype } from './explode.js';
 import { cansee, canseemon } from './vision.js';
-import { body_part, mbodypart, polymon } from './polyself.js';
+import { body_part, mbodypart, polymon, rehumanize, uunstick } from './polyself.js';
 import { observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import { mhidden_description } from './pager.js';
@@ -907,19 +989,19 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
             const lmonbuf = l_monnam(mtmp, state);
             const notseen = lmonbuf === 'it';
             if (!heroIsBlind(state) && Hallucination(state)) {
-                await pline(`A ${mtmp.mtame ? 'tame' : 'wild'} `
+                await message(`A ${mtmp.mtame ? 'tame' : 'wild'} `
                     + `${notseen ? 'creature' : lmonbuf} `
                     + `${notseen ? 'is present' : 'appears'}!`, state);
             } else if (heroIsBlind(state)
                 || (is_pool(mtmp.mx, mtmp.my, state)
                     && !state.u.uinwater)) {
-                await pline("Wait!  There's a hidden monster there!", state);
+                await message("Wait!  There's a hidden monster there!", state);
             } else {
                 const obj = state.level?.objects?.[mtmp.mx]?.[mtmp.my];
                 if (obj) {
                     const name = notseen
                         ? something : an(lmonbuf);
-                    await pline(`Wait!  There's ${name} hiding under `
+                    await message(`Wait!  There's ${name} hiding under `
                         + `${donameFresh(obj, state)}!`, state);
                 }
             }
@@ -945,7 +1027,9 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
         if (canSpotMonster(mtmp, state)) {
             const prompt = `Really attack ${mon_nam(mtmp, state)}?`;
             if (!await (env.paranoidQuery ?? paranoid_query)(
-                PARANOID_HIT, prompt, state,
+                Boolean(state.flags?.paranoia_bits & PARANOID_HIT),
+                prompt,
+                state,
             )) {
                 state.context.move = 0;
                 return true;
@@ -966,15 +1050,14 @@ export async function check_caitiff(mtmp, state = game, env = {}) {
     const u = state.u;
     if (u.ualign.record <= -10) return;
 
+    const message = env.message ?? ttyPline;
     const role = state.urole?.mnum;
     if (role === PM_KNIGHT && u.ualign.type === A_LAWFUL
         && !is_undead(mtmp.data)
         && (helpless(mtmp) || (mtmp.mflee && !mtmp.mavenge))) {
-        const message = requireAttackOperation(env, 'message');
         await message('You caitiff!', state);
         adjalign(-1, state);
     } else if (role === PM_SAMURAI && mtmp.mpeaceful) {
-        const message = requireAttackOperation(env, 'message');
         await message('You dishonorably attack the innocent!', state);
         adjalign(-1, state);
     }
@@ -999,9 +1082,10 @@ export function mon_maybe_unparalyze(mtmp, random = { rn2 }) {
 // C writes *attk_count and *role_roll_penalty through pointers. `counters`
 // carries both: `attknum` in and out, `role_roll_penalty` out.
 //
-// Its two maybe_polyd() reads, at 383 and 400, take their unpolymorphed
-// halves, because polyself is unported and Upolyd() is constantly false;
-// js/regen.js:52 records the same fact.
+// Its maybe_polyd() reads at 378 and 404 select the current form while the
+// hero is polymorphed, and the ordinary level or race otherwise. The newly
+// wired hmonas() path consumes this result while the hero is polymorphed.
+// The Monk adjustment at 397 is likewise limited to the unpolymorphed hero.
 //
 // The AT_KICK arm at 424-425 contributes the martial-arts weapon-hit bonus.
 export async function find_roll_to_hit(
@@ -1019,7 +1103,7 @@ export async function find_roll_to_hit(
     const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
     let tmp = 1 + abon(state) + find_mac(mtmp, state) + u.uhitinc
         + (sgn(luck) * Math.trunc((Math.abs(luck) + 2) / 3))
-        + u.ulevel;
+        + (Upolyd(u) ? state.youmonst.data.mlevel : u.ulevel);
 
     /* some actions should occur only once during multiple attacks */
     if (!counters.attknum++) {
@@ -1034,7 +1118,7 @@ export async function find_roll_to_hit(
     if (!mtmp.mcanmove) tmp += 4;
 
     /* role/race adjustments */
-    if (state.urole?.mnum === PM_MONK) {
+    if (state.urole?.mnum === PM_MONK && !Upolyd(u)) {
         if (state.uarm) {
             counters.role_roll_penalty = state.urole.spelarmr;
             tmp -= counters.role_roll_penalty;
@@ -1042,7 +1126,11 @@ export async function find_roll_to_hit(
             tmp += Math.trunc(u.ulevel / 3) + 2;
         }
     }
-    if (is_orc(mtmp.data) && state.urace?.mnum === PM_ELF) tmp++;
+    if (is_orc(mtmp.data)
+        && (Upolyd(u) ? is_elf(state.youmonst.data)
+            : state.urace?.mnum === PM_ELF)) {
+        tmp++;
+    }
 
     /* encumbrance: with a lot of luggage, your agility diminishes */
     const tmp2 = requireAttackOperation(env, 'nearCapacity')(state);
@@ -1062,6 +1150,761 @@ export async function find_roll_to_hit(
     }
 
     return tmp;
+}
+
+export function heroSick(state) {
+    return Boolean(state.u?.uprops?.[SICK]?.intrinsic);
+}
+
+export function heroSickResistance(state) {
+    const property = state.u?.uprops?.[SICK_RES];
+    return Boolean(property?.intrinsic || property?.extrinsic
+        || defended(state.youmonst, AD_DISE, state));
+}
+
+export function heroStoneResistance(state) {
+    const property = state.u?.uprops?.[STONE_RES];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+export function heroInvisible(state) {
+    const invis = state.u?.uprops?.[INVIS];
+    const seeInvisible = state.u?.uprops?.[SEE_INVIS];
+    return Boolean((invis?.intrinsic || invis?.extrinsic) && !invis?.blocked
+        && !(seeInvisible?.intrinsic || seeInvisible?.extrinsic));
+}
+
+export function heroSlowDigestion(state) {
+    const property = state.u?.uprops?.[SLOW_DIGESTION];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+export function heroUnchanging(state) {
+    const property = state.u?.uprops?.[UNCHANGING];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+export function heroHatesSilver(state) {
+    return state.u?.ulycn >= LOW_PM || hates_silver(state.youmonst?.data);
+}
+
+export function digests(species) {
+    return Boolean(dmgtype_fromattack(species, AD_DGST, AT_ENGL));
+}
+
+export function enfolds(species) {
+    return Boolean(dmgtype_fromattack(species, AD_WRAP, AT_ENGL));
+}
+
+export function hugThrottles(species, state) {
+    return species === state.mons?.[PM_ROPE_GOLEM];
+}
+
+async function youFeel(line, state, env) {
+    const unaware = Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || is_fainted(state));
+    await requireAttackOperation(env, 'message')(
+        `${unaware ? 'You dream that you feel ' : 'You feel '}${line}`,
+        state,
+    );
+}
+
+// C ref: uhitm.c explum() (4891-4928). The return is consumed by hmonas().
+export async function explum(mdef, mattk, state = game, env = {}) {
+    const random = env.random ?? { d };
+    let damage = random.d(mattk.damn, mattk.damd);
+    const message = requireAttackOperation(env, 'message');
+
+    switch (mattk.adtyp) {
+    case AD_BLND:
+        if (mdef && !resists_blnd(mdef, state)) {
+            await message(
+                `${Monnam(mdef, state, env)} is blinded by your flash of light!`,
+                state,
+            );
+            mdef.mblinded = Math.min((mdef.mblinded ?? 0) + damage, 127);
+            mdef.mcansee = 0;
+        }
+        break;
+    case AD_HALU:
+        if (mdef && haseyes(mdef.data) && mdef.mcansee) {
+            await message(
+                `${Monnam(mdef, state, env)} is affected by your flash of light!`,
+                state,
+            );
+            mdef.mconf = 1;
+        }
+        break;
+    case AD_COLD:
+    case AD_FIRE:
+    case AD_ELEC:
+        await explode(
+            state.u.ux,
+            state.u.uy,
+            (mattk.adtyp - 1) + 20,
+            damage,
+            MON_EXPLODE,
+            adtyp_to_expltype(mattk.adtyp),
+            state,
+            { ...env, random },
+        );
+        if (mdef && mdef.mhp < 1)
+            return M_ATTK_DEF_DIED;
+        break;
+    default:
+        break;
+    }
+    await wake_nearto(state.u.ux, state.u.uy, 7 * 7, {
+        ...env, state, random,
+    });
+    return M_ATTK_HIT;
+}
+
+// C ref: uhitm.c start_engulf() (4931-4946), including its transient display
+// glyph and two source-ordered output delays.
+export async function start_engulf(mdef, state = game, env = {}) {
+    const message = requireAttackOperation(env, 'message');
+    const uDigest = digests(state.youmonst.data);
+    const uEnfold = enfolds(state.youmonst.data);
+    if (!heroInvisible(state)) {
+        map_location(state.u.ux, state.u.uy, true, state);
+        await tmp_at(
+            DISP_ALWAYS,
+            mon_to_glyph(state.youmonst, state),
+            state,
+        );
+        await tmp_at(mdef.mx, mdef.my, state);
+    }
+    const verb = uDigest ? 'swallow' : uEnfold ? 'enclose' : 'engulf';
+    await message(
+        `You ${verb} ${mon_nam(mdef, state, env)}${uDigest ? ' whole' : ''}!`,
+        state,
+    );
+    await nh_delay_output(state);
+    await nh_delay_output(state);
+}
+
+// C ref: uhitm.c end_engulf() (4949-4955).
+export async function end_engulf(state = game) {
+    if (!heroInvisible(state)) {
+        await tmp_at(DISP_END, 0, state);
+        await newsym(state.u.ux, state.u.uy, state);
+    }
+}
+
+// C ref: uhitm.c gulpum() (4958-5195). Its result is consumed by hmonas();
+// deferred corpse effects use eat.c:Finish_digestion through state.afternmv.
+export async function gulpum(mdef, mattk, state = game, env = {}) {
+    const random = env.random ?? { d, rn2, rnd };
+    const message = requireAttackOperation(env, 'message');
+    const uDigest = digests(state.youmonst.data);
+    const uEnfold = enfolds(state.youmonst.data);
+    const expelVerb = uDigest ? 'regurgitate' : uEnfold ? 'release' : 'expel';
+    const pd = mdef.data;
+    let damage = random.d(mattk.damn, mattk.damd);
+
+    if (!engulf_target(state.youmonst, mdef, state))
+        return M_ATTK_MISS;
+
+    if (!(uDigest && state.u.uhunger >= 1500) && !state.u.uswallow) {
+        if (!flaming(state.youmonst.data)) {
+            for (let obj = mdef.minvent; obj; obj = obj.nobj)
+                note_unported('apply.c snuff_lit');
+        }
+
+        if (is_vampshifter(mdef)
+            && await newcham(mdef, state.mons?.[mdef.cham], {
+                ...env, state, ncflags: NO_NC_FLAGS,
+            })) {
+            const verb = uDigest ? 'swallow' : uEnfold ? 'enclose' : 'engulf';
+            await message(
+                `You ${verb} it, then ${expelVerb} it.`,
+                state,
+            );
+            if (canSpotMonster(mdef, state)) {
+                await message(
+                    `It turns into ${x_monnam(
+                        mdef,
+                        ARTICLE_A,
+                        null,
+                        SUPPRESS_NAME | SUPPRESS_IT | SUPPRESS_INVISIBLE,
+                        false,
+                        state,
+                        env,
+                    )}.`,
+                    state,
+                );
+            } else {
+                map_invisible(mdef.mx, mdef.my, state);
+            }
+            return M_ATTK_HIT;
+        }
+
+        const fatalGulp = (touch_petrifies(pd) && !heroStoneResistance(state))
+            || (mattk.adtyp === AD_DGST
+                && (is_rider(pd)
+                    || (pd === state.mons?.[PM_MEDUSA]
+                        && !heroStoneResistance(state))));
+
+        if (mattk.adtyp === AD_DGST
+            && (!heroSlowDigestion(state) || fatalGulp)) {
+            await eating_conducts(pd, state);
+        }
+
+        if (fatalGulp && !is_rider(pd)) {
+            await message(
+                `You ${uDigest ? 'englut' : 'engulf'} ${mon_nam(mdef, state, env)}.`,
+                state,
+            );
+            // trap.c instapetrify() is a discarded void death transition.
+            note_unported('trap.c instapetrify');
+        } else {
+            await start_engulf(mdef, state, { ...env, random, message });
+            switch (mattk.adtyp) {
+            case AD_DGST:
+                if (is_rider(pd)) {
+                    await message(
+                        'Unfortunately, digesting any of it is fatal.', state,
+                    );
+                    await end_engulf(state);
+                    state.killer ??= {};
+                    state.killer.name = `unwisely tried to eat ${pmname(pd, Mgender(mdef, state))}`;
+                    state.killer.format = NO_KILLER_PREFIX;
+                    note_unported('end.c done');
+                    return M_ATTK_MISS;
+                }
+                if (heroSlowDigestion(state)) {
+                    damage = 0;
+                    break;
+                }
+                {
+                    const lifesaver = mlifesaver(mdef, state);
+                    if (lifesaver)
+                        await m_useup(mdef, lifesaver, { ...env, state });
+                }
+                await newuhs(false, state, env);
+                state.gm ??= {};
+                state.gm.mswallower = state.youmonst;
+                await xkilled(
+                    mdef,
+                    XKILL_GIVEMSG | XKILL_NOCORPSE,
+                    state,
+                    { ...env, random, message },
+                );
+                if (mdef.mhp >= 1) {
+                    await message(
+                        `You hurriedly regurgitate the sizzling in your ${body_part(STOMACH, state.youmonst)}.`,
+                        state,
+                    );
+                } else {
+                    let turns = 1 + (Math.trunc(pd.cwt) >> 8);
+                    const canLeaveCorpse = await corpse_chance(
+                        mdef, state.youmonst, true, state,
+                        { ...env, random, message },
+                    );
+                    if (canLeaveCorpse
+                        && !((state.mvitals?.[monsndx(pd)]?.mvflags ?? 0)
+                            & G_NOCORPSE)) {
+                        state.u.uhunger += Math.trunc((pd.cnutrit + 1) / 2);
+                    } else {
+                        turns = 0;
+                    }
+                    const totalMessage = `You totally digest ${mon_nam(mdef, state, env)}.`;
+                    if (turns !== 0) {
+                        await message(`You digest ${mon_nam(mdef, state, env)}.`, state);
+                        if (heroSlowDigestion(state)) turns *= 2;
+                        nomul(-turns, state);
+                        state.multi_reason = 'digesting something';
+                        state.nomovemsg = totalMessage;
+                        state.gc ??= {};
+                        state.gc.corpsenm_digested = monsndx(pd);
+                        state.afternmv = (callbackState = state) =>
+                            Finish_digestion(callbackState, env);
+                    } else {
+                        await message(totalMessage, state);
+                    }
+                    if (pd === state.mons?.[PM_GREEN_SLIME]) {
+                        const slimeMessage = `${The(pmname(pd, Mgender(mdef, state)))} isn't sitting well with you.`;
+                        // C rewrites its static msgbuf after assigning that same
+                        // buffer to nomovemsg, so an active delayed message sees
+                        // the new text. With no delay the overwritten buffer is
+                        // not displayed.
+                        if (turns !== 0) state.nomovemsg = slimeMessage;
+                        if (!heroUnchanging(state))
+                            note_unported('potion.c make_slimed');
+                    } else {
+                        await exercise(A_CON, true, state, random, env);
+                    }
+                }
+                state.gm.mswallower = null;
+                await end_engulf(state);
+                return M_ATTK_DEF_DIED;
+            case AD_PHYS:
+                if (state.youmonst.data === state.mons?.[PM_FOG_CLOUD]) {
+                    await message(`${Monnam(mdef, state, env)} is laden with your moisture.`, state);
+                    if ((breathless(pd) || amphibious(pd)) && !flaming(pd)) {
+                        damage = 0;
+                        await message(`${Monnam(mdef, state, env)} seems unharmed.`, state);
+                    }
+                } else {
+                    await message(
+                        `${Monnam(mdef, state, env)} is ${uEnfold ? 'being squashed' : 'pummeled with your debris'}!`,
+                        state,
+                    );
+                }
+                break;
+            case AD_ACID:
+                await message(`${Monnam(mdef, state, env)} is covered with your goo!`, state);
+                if (monster_resists_element(mdef, ACID_RES, state)) {
+                    await message(`It seems harmless to ${mon_nam(mdef, state, env)}.`, state);
+                    damage = 0;
+                }
+                break;
+            case AD_BLND:
+                if (can_blnd(state.youmonst, mdef, mattk.aatyp, null, state)) {
+                    if (mdef.mcansee)
+                        await message(`${Monnam(mdef, state, env)} can't see in there!`, state);
+                    mdef.mcansee = 0;
+                    damage = Math.min(damage + (mdef.mblinded ?? 0), 127);
+                    mdef.mblinded = damage;
+                }
+                damage = 0;
+                break;
+            case AD_ELEC:
+                if (random.rn2(2)) {
+                    await message(`The air around ${mon_nam(mdef, state, env)} crackles with electricity.`, state);
+                    if (monster_resists_element(mdef, SHOCK_RES, state)) {
+                        await message(`${Monnam(mdef, state, env)} seems unhurt.`, state);
+                        damage = 0;
+                    }
+                    await golemeffects(mdef, mattk.adtyp, damage, { ...env, state, random });
+                } else damage = 0;
+                break;
+            case AD_COLD:
+                if (random.rn2(2)) {
+                    if (monster_resists_element(mdef, COLD_RES, state)) {
+                        await message(`${Monnam(mdef, state, env)} seems mildly chilly.`, state);
+                        damage = 0;
+                    } else {
+                        await message(`${Monnam(mdef, state, env)} is freezing to death!`, state);
+                    }
+                    await golemeffects(mdef, mattk.adtyp, damage, { ...env, state, random });
+                } else damage = 0;
+                break;
+            case AD_FIRE:
+                if (random.rn2(2)) {
+                    if (monster_resists_element(mdef, FIRE_RES, state)) {
+                        await message(`${Monnam(mdef, state, env)} seems mildly hot.`, state);
+                        damage = 0;
+                    } else {
+                        await message(`${Monnam(mdef, state, env)} is burning to a crisp!`, state);
+                    }
+                    await golemeffects(mdef, mattk.adtyp, damage, { ...env, state, random });
+                } else damage = 0;
+                break;
+            case AD_DREN:
+                if (!random.rn2(4)) note_unported('mhitm.c xdrainenergym');
+                damage = 0;
+                break;
+            default:
+                break;
+            }
+            await end_engulf(state);
+            mdef.mhp -= damage;
+            if (mdef.mhp < 1) {
+                await killed(mdef, state, { ...env, random, message });
+                if (mdef.mhp < 1) return M_ATTK_DEF_DIED;
+            }
+            await message(`You ${expelVerb} ${mon_nam(mdef, state, env)}!`, state);
+            if ((heroSlowDigestion(state) || is_animal(state.youmonst.data))
+                && uDigest) {
+                await message(
+                    `Obviously, you didn't like ${s_suffix(mon_nam(mdef, state, env))} taste.`,
+                    state,
+                );
+            }
+        }
+    }
+    return M_ATTK_MISS;
+}
+
+// C ref: uhitm.c hmonas() (5424-5860). This is the source-ordered attack
+// loop for a polymorphed hero striking a monster. Its caller has already set
+// gb.bhitpos and gn.notonhead, just as do_attack() does before hitum().
+export async function hmonas(mon, state = game, env = {}) {
+    const random = env.random ?? { d, rn1, rn2, rne, rnd, rnz };
+    const attackEnv = { ...env, state, random };
+    const message = requireAttackOperation(attackEnv, 'message');
+    const sums = new Array(NATTK).fill(M_ATTK_MISS);
+    let altAttack = {};
+    let altWeapon = false;
+    let weaponUsed = false;
+    let oddClaw = true;
+    let dhit = 0;
+    let attackNumber = 0;
+    let multiClaw = 0;
+    let multiWeapon = 0;
+
+    state.gv ??= {};
+    state.gt ??= {};
+    state.gs ??= {};
+    state.gv.vis = canseemon(mon, state) || m_next2u(mon, state);
+
+    // Count weapon/claw attacks first: both rings apply to a single claw,
+    // while multiple claw-like attacks alternate which ring is checked.
+    for (let i = 0; i < NATTK; i++) {
+        const mattk = getmattk(state.youmonst, mon, i, sums, { state });
+        if (mattk.aatyp === AT_WEAP) multiWeapon++;
+        if (mattk.aatyp === AT_WEAP || mattk.aatyp === AT_CLAW
+            || mattk.aatyp === AT_TUCH) multiClaw++;
+    }
+    multiClaw = multiClaw > 1;
+    state.gt.twohits = 0;
+    state.gs.skipdrin = false;
+
+    for (let i = 0; i < NATTK; i++) {
+        if (i > 0
+            && (m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state) !== mon
+                || mon.mhp < 1)) {
+            continue;
+        }
+
+        let mattk = getmattk(state.youmonst, mon, i, sums, { state });
+        if (state.gs.skipdrin && mattk.aatyp === AT_TENT
+            && mattk.adtyp === AD_DRIN) {
+            continue;
+        }
+
+        let weapon = null;
+        let originalSlot = null;
+        let useWeapon = mattk.aatyp === AT_WEAP;
+        if (mattk.aatyp === AT_CLAW && state.uwep
+            && !cantwield(state.youmonst.data) && !weaponUsed) {
+            useWeapon = true;
+        }
+        if (mattk.aatyp === AT_TUCH && state.uwep
+            && state.youmonst.data.mlet === S_LICH && !weaponUsed) {
+            useWeapon = true;
+        }
+        if (mattk.aatyp === AT_KICK && mtrapped_in_pit(state.youmonst, state))
+            continue;
+        if (mattk.aatyp === AT_MAGC
+            && [S_KOBOLD, S_ORC, S_GNOME].includes(state.youmonst.data.mlet)
+            && !weaponUsed) {
+            useWeapon = true;
+        }
+
+        if (useWeapon) {
+            oddClaw = !oddClaw;
+            if (weaponUsed && sums[i - 1] > M_ATTK_MISS
+                && state.uwep && bimanual(state.uwep, state)) {
+                continue;
+            }
+            weaponUsed = true;
+            originalSlot = altWeapon && state.uswapwep ? 'uswapwep' : 'uwep';
+            if (state.uswapwep && state.uwep
+                && (state.uwep.oclass === WEAPON_CLASS
+                    || is_weptool(state.uwep, state))
+                && !bimanual(state.uwep, state)
+                && !state.uarms && !state.uswapwep.oartifact
+                && (state.uswapwep.oclass === WEAPON_CLASS
+                    || is_weptool(state.uswapwep, state))
+                && !is_launcher(state.uswapwep, state)
+                && !is_ammo(state.uswapwep, state)
+                && !is_missile(state.uswapwep, state)
+                && !bimanual(state.uswapwep, state)
+                && !(objectType(state.uswapwep, state).oc_material === SILVER
+                    && heroHatesSilver(state))) {
+                altWeapon = !altWeapon;
+            }
+            weapon = state[originalSlot];
+            if (!weapon) originalSlot = 'uarmg';
+
+            const counters = { attknum: attackNumber, role_roll_penalty: 0 };
+            const rollNeeded = await find_roll_to_hit(
+                mon, AT_WEAP, weapon, counters, state, attackEnv,
+            );
+            attackNumber = counters.attknum;
+            const armorPenalty = counters.role_roll_penalty;
+            mon_maybe_unparalyze(mon, random);
+            const dieRoll = random.rnd(20);
+            dhit = rollNeeded > dieRoll || state.u.uswallow;
+            if (multiWeapon) state.gt.twohits++;
+            const hit = { value: dhit };
+            const monsterSurvived = await known_hitum(
+                mon, weapon, hit, rollNeeded, armorPenalty, mattk, dieRoll,
+                state, attackEnv,
+            );
+            dhit = hit.value;
+            weapon = state[originalSlot];
+            if (!monsterSurvived) {
+                sums[i] = M_ATTK_DEF_DIED;
+            } else {
+                sums[i] = dhit ? M_ATTK_HIT : M_ATTK_MISS;
+            }
+            if (monsterSurvived
+                && m_at(state.u.ux + state.u.dx, state.u.uy + state.u.dy, state)
+                    !== mon) {
+                i = NATTK;
+            } else if (monsterSurvived && dhit
+                && mattk.adtyp !== AD_SPEL && mattk.adtyp !== AD_PHYS) {
+                sums[i] = await damageum(mon, mattk, 0, state, attackEnv);
+            }
+        } else {
+            switch (mattk.aatyp) {
+            case AT_CLAW:
+            case AT_TUCH:
+            case AT_KICK:
+            case AT_BITE:
+            case AT_STNG:
+            case AT_BUTT:
+            case AT_TENT: {
+                const counters = { attknum: attackNumber, role_roll_penalty: 0 };
+                const rollNeeded = await find_roll_to_hit(
+                    mon, mattk.aatyp, null, counters, state, attackEnv,
+                );
+                attackNumber = counters.attknum;
+                const armorPenalty = counters.role_roll_penalty;
+                mon_maybe_unparalyze(mon, random);
+                const dieRoll = random.rnd(20);
+                dhit = rollNeeded > dieRoll || state.u.uswallow;
+                if (dhit) {
+                    const compatibility = !state.u.uswallow
+                        ? could_seduce(state.youmonst, mon, mattk, attackEnv)
+                        : 0;
+                    if (compatibility) {
+                        await message(
+                            `${mon.mcansee && haseyes(mon.data) ? 'You smile at' : 'You talk to'} ${mon_nam(mon, state, env)} ${compatibility === 2 ? 'engagingly' : 'seductively'}.`,
+                            state,
+                        );
+                        sums[i] = await damageum(mon, mattk, 0, state, attackEnv);
+                        break;
+                    }
+                    await wakeup(mon, true, attackEnv);
+                    let specialDamage = 0;
+                    const silverHit = { silverhit: 0 };
+                    let verb;
+                    switch (mattk.aatyp) {
+                    case AT_CLAW:
+                    case AT_TUCH:
+                        verb = mattk.aatyp === AT_TUCH ? 'touch' : 'claws';
+                        oddClaw = !oddClaw;
+                        specialDamage = special_dmgval(
+                            state.youmonst,
+                            mon,
+                            W_ARMG
+                                | ((oddClaw || !multiClaw) ? W_RINGL : 0)
+                                | ((!oddClaw || !multiClaw) ? W_RINGR : 0),
+                            silverHit,
+                            state,
+                            attackEnv,
+                        );
+                        break;
+                    case AT_TENT: verb = 'tentacles'; break;
+                    case AT_KICK:
+                        verb = 'kick';
+                        specialDamage = special_dmgval(
+                            state.youmonst, mon, W_ARMF, silverHit, state, attackEnv,
+                        );
+                        break;
+                    case AT_BUTT:
+                        verb = 'head butt';
+                        specialDamage = special_dmgval(
+                            state.youmonst, mon, W_ARMH, silverHit, state, attackEnv,
+                        );
+                        break;
+                    case AT_BITE: verb = 'bite'; break;
+                    case AT_STNG: verb = 'sting'; break;
+                    default: verb = 'hit'; break;
+                    }
+                    if (mon.data === state.mons?.[PM_SHADE] && !specialDamage) {
+                        if (verb === 'hit'
+                            || (mattk.aatyp === AT_CLAW && humanoid(mon.data))) {
+                            verb = 'attack';
+                        }
+                        await message(
+                            `Your ${verb} ${vtense(verb, 'pass')} harmlessly through ${mon_nam(mon, state, env)}.`,
+                            state,
+                        );
+                    } else if (failed_grab(state.youmonst, mon, mattk, attackEnv)) {
+                        break;
+                    } else {
+                        if (mattk.aatyp === AT_TENT) {
+                            await message(`Your tentacles suck ${mon_nam(mon, state, env)}.`, state);
+                        } else {
+                            if (mattk.aatyp === AT_CLAW) verb = 'hit';
+                            await message(`You ${verb} ${mon_nam(mon, state, env)}.`, state);
+                            if (silverHit.silverhit && state.flags?.verbose)
+                                note_unported('weapon.c silver_sears');
+                        }
+                        sums[i] = await damageum(mon, mattk, specialDamage, state, attackEnv);
+                    }
+                } else {
+                    await missum(mon, mattk, rollNeeded + armorPenalty > dieRoll, state, attackEnv);
+                }
+                break;
+            }
+            case AT_HUGS: {
+                const byHand = hugThrottles(state.youmonst.data, state);
+                let unconcerned = byHand && !can_be_strangled(mon, state);
+                if (sticks(mon.data) || state.u.uswallow || state.gn?.notonhead
+                    || (byHand && (state.uwep || !has_head(mon.data)))) {
+                    if (byHand && state.uwep && state.u.ustuck
+                        && !(sticks(state.u.ustuck.data) || state.u.uswallow)) {
+                        await uunstick(state);
+                    }
+                    continue;
+                }
+                dhit = 1;
+                await wakeup(mon, true, attackEnv);
+                const silverHit = { silverhit: 0 };
+                const specialDamage = special_dmgval(
+                    state.youmonst,
+                    mon,
+                    byHand ? (W_ARMG | W_RINGL | W_RINGR)
+                        : (W_ARMC | W_ARM | W_ARMU),
+                    silverHit,
+                    state,
+                    attackEnv,
+                );
+                if (unconcerned) {
+                    if (mattk !== altAttack) {
+                        altAttack = { ...mattk };
+                        mattk = altAttack;
+                    }
+                    mattk.damn = 1;
+                    mattk.damd = 1;
+                    if (specialDamage || mindless(mon.data)
+                        || mon.mhp <= 1 + Math.max(state.u.udaminc ?? 0, 1)) {
+                        unconcerned = false;
+                    }
+                }
+                if (mon.data === state.mons?.[PM_SHADE]) {
+                    const verb = byHand ? 'grasp' : 'hug';
+                    if (specialDamage) {
+                        await message(
+                            `You ${verb} ${mon_nam(mon, state, env)}${exclam(specialDamage)}`,
+                            state,
+                        );
+                        if (silverHit.silverhit && state.flags?.verbose)
+                            note_unported('weapon.c silver_sears');
+                        sums[i] = await damageum(mon, mattk, specialDamage, state, attackEnv);
+                    } else {
+                        await message(`Your ${verb} passes harmlessly through ${mon_nam(mon, state, env)}.`, state);
+                    }
+                    break;
+                }
+                if (failed_grab(state.youmonst, mon, mattk, attackEnv)) break;
+                if (mon === state.u.ustuck) {
+                    await message(
+                        `${Monnam(mon, state, env)} is being ${byHand ? 'throttled' : 'crushed'}${unconcerned ? ' but doesn\'t seem concerned' : ''}.`,
+                        state,
+                    );
+                    if (silverHit.silverhit && state.flags?.verbose)
+                        note_unported('weapon.c silver_sears');
+                    sums[i] = await damageum(mon, mattk, specialDamage, state, attackEnv);
+                } else if (i >= 2 && sums[i - 1] > M_ATTK_MISS
+                    && sums[i - 2] > M_ATTK_MISS) {
+                    if (state.u.ustuck && state.u.ustuck !== mon)
+                        await uunstick(state);
+                    await message(`You grab ${mon_nam(mon, state, env)}!`, state);
+                    set_ustuck(mon, state);
+                    if (silverHit.silverhit && state.flags?.verbose)
+                        note_unported('weapon.c silver_sears');
+                    sums[i] = await damageum(mon, mattk, specialDamage, state, attackEnv);
+                }
+                break;
+            }
+            case AT_EXPL:
+                dhit = -1;
+                await wakeup(mon, true, attackEnv);
+                await message('You explode!', state);
+                sums[i] = await explum(mon, mattk, state, attackEnv);
+                break;
+            case AT_ENGL: {
+                const counters = { attknum: attackNumber, role_roll_penalty: 0 };
+                const rollNeeded = await find_roll_to_hit(
+                    mon, mattk.aatyp, null, counters, state, attackEnv,
+                );
+                attackNumber = counters.attknum;
+                mon_maybe_unparalyze(mon, random);
+                dhit = rollNeeded > random.rnd(20 + i);
+                if (dhit) {
+                    await wakeup(mon, true, attackEnv);
+                    if (mon.data === state.mons?.[PM_SHADE]) {
+                        await message(`Your attempt to surround ${mon_nam(mon, state, env)} is harmless.`, state);
+                    } else if (!failed_grab(state.youmonst, mon, mattk, attackEnv)) {
+                        sums[i] = await gulpum(mon, mattk, state, attackEnv);
+                        if (sums[i] === M_ATTK_DEF_DIED
+                            && [S_ZOMBIE, S_MUMMY].includes(mon.data.mlet)
+                            && random.rn2(5) && !heroSickResistance(state)) {
+                            await youFeel(
+                                `${heroSick(state) ? 'very ' : ''}sick.`,
+                                state,
+                                attackEnv,
+                            );
+                            await mdamageu(mon, random.rnd(8), state, attackEnv);
+                        }
+                    }
+                } else {
+                    await missum(mon, mattk, false, state, attackEnv);
+                }
+                break;
+            }
+            case AT_MAGC:
+            case AT_NONE:
+            case AT_BOOM:
+                continue;
+            case AT_BREA:
+            case AT_SPIT:
+            case AT_GAZE:
+                dhit = 0;
+                break;
+            default:
+                note_unported('pline.c impossible');
+                break;
+            }
+        }
+
+        if (dhit === -1) {
+            state.u.mh = -1;
+            await rehumanize(state, attackEnv);
+        }
+        if (sums[i] === M_ATTK_DEF_DIED) {
+            await passive(mon, weapon, 1, 0, mattk.aatyp, false, state, attackEnv);
+        } else {
+            await passive(
+                mon,
+                weapon,
+                sums[i] !== M_ATTK_MISS,
+                1,
+                mattk.aatyp,
+                false,
+                state,
+                attackEnv,
+            );
+        }
+        const hitflags = { value: sums[i] };
+        if (await mhitm_knockback(
+            state.youmonst, mon, mattk, hitflags, weaponUsed, state, attackEnv, random,
+        )) {
+            sums[i] = hitflags.value;
+            break;
+        }
+        sums[i] = hitflags.value;
+
+        if (state.uswapwep && weapon === state.uswapwep && weapon.cursed) {
+            note_unported('wield.c drop_uswapwep');
+            break;
+        }
+        if (mon.mhp < 1) break;
+        if (!Upolyd(state.u)) break;
+        if (state.multi < 0) break;
+    }
+
+    state.gv.vis = false;
+    state.gt.twohits = 0;
+    return mon.mhp >= 1;
 }
 
 // C ref: uhitm.c do_attack() (448-583). A step into a monster's square either
@@ -1216,9 +2059,7 @@ export async function do_attack(monster, state = game, env = {}) {
         }
 
         if (Upolyd(state.u)) {
-            // hmonas() is a static uhitm.c helper whose result is discarded.
-            // Its polymorph attack behavior remains a named source gap.
-            note_unported('uhitm.c hmonas');
+            await hmonas(monster, state, attackEnv);
         } else {
             await hitum(
                 monster, state.youmonst.data.mattk[0], state, attackEnv,
@@ -3722,6 +4563,151 @@ export async function mhitm_ad_legs(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_curs() (3015-3096). Preserve its three attack
+// directions because only monster-to-hero can call attrcurse(); the other two
+// still cancel targets or handle clay-golem writing and death state.
+export async function mhitm_ad_curs(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2, rnd };
+    const message = requireAttackOperation(env, 'message');
+    const pa = magr.data;
+    const pd = mdef.data;
+
+    if (magr === state.youmonst) {
+        // uhitm.c hero-polymorph arm: cancellation is attempted only at night.
+        if (night(state) && !random.rn2(10) && !mdef.mcan) {
+            if (pd === state.mons?.[PM_CLAY_GOLEM]) {
+                if (!heroIsBlind(state)) {
+                    await message(
+                        `Some writing vanishes from ${s_suffix(mon_nam(mdef, state, env))} head!`,
+                        state,
+                        env,
+                    );
+                }
+                await xkilled(mdef, XKILL_NOMSG, state, {
+                    ...env,
+                    random,
+                    message,
+                });
+                // Keep mhp below zero so the caller can still report the pet hit.
+            } else {
+                mdef.mcan = 1;
+                await message('You chuckle.', state, env);
+            }
+        }
+        mhm.damage = 0;
+    } else if (mdef === state.youmonst) {
+        // mhitu.c monster-to-hero arm: hitmsg precedes the daylight gremlin
+        // immunity, then cancellation and the 1-in-10 effect roll.
+        await hitmsg(magr, mattk, state, { ...env, random, message });
+        if (!night(state) && pa === state.mons?.[PM_GREMLIN]) return;
+        if (!magr.mcan && !random.rn2(10)) {
+            if (!Deaf(state)) {
+                // sound.h compiles Soundeffect() away in the reference tty build.
+                if (heroIsBlind(state)) {
+                    await message('You hear laughter.', state, env);
+                } else {
+                    await message(
+                        messageAt(
+                            `${Monnam(magr, state, env)} chuckles.`,
+                            magr.mx,
+                            magr.my,
+                            state,
+                        ),
+                        state,
+                        env,
+                    );
+                }
+            }
+            if (state.u.umonnum === PM_CLAY_GOLEM) {
+                await message('Some writing vanishes from your head!', state, env);
+                // uhitm.c: rehumanize() has no consumed result.
+                await rehumanize(state, env);
+                return;
+            }
+            const { attrcurse } = await import('./sit.js');
+            await mon_give_prop(
+                magr,
+                await attrcurse(state, { ...env, random, message }),
+                {
+                    ...env,
+                    state,
+                    random,
+                    message,
+                },
+            );
+        }
+    } else {
+        // mhitm.c monster-to-monster arm: preserve the source early return
+        // before its curse chance and every state update after the draw.
+        if (!night(state) && pa === state.mons?.[PM_GREMLIN]) return;
+        if (!magr.mcan && !random.rn2(10)) {
+            mdef.mcan = 1; // C cancels even when the defender has life saving.
+            mdef.mstrategy &= ~STRAT_WAITFORU;
+            if (is_were(pd) && pd.mlet !== S_HUMAN)
+                await were_change(mdef, { ...env, state, random, message });
+            if (pd === state.mons?.[PM_CLAY_GOLEM]) {
+                if (state.gv?.vis && canseemon(mdef, state)) {
+                    await message(
+                        `Some writing vanishes from ${s_suffix(mon_nam(mdef, state, env))} head!`,
+                        state,
+                        env,
+                    );
+                    await message(
+                        messageAt(
+                            `${Monnam(mdef, state, env)} is destroyed!`,
+                            mdef.mx,
+                            mdef.my,
+                            state,
+                        ),
+                        state,
+                        env,
+                    );
+                }
+                await mondied(mdef, state, { ...env, random, message });
+                if (mdef.mhp >= 1) {
+                    mhm.hitflags = M_ATTK_MISS;
+                    mhm.done = true;
+                    return;
+                } else if (mdef.mtame && !state.gv?.vis) {
+                    await message(
+                        'You have a strangely sad feeling for a moment, then it passes.',
+                        state,
+                        env,
+                    );
+                }
+                mhm.hitflags = M_ATTK_DEF_DIED
+                    | (grow_up(magr, mdef, { ...env, state })
+                        ? 0 : M_ATTK_AGR_DIED);
+                mhm.done = true;
+                return;
+            }
+            if (!Deaf(state)) {
+                if (!state.gv?.vis) {
+                    await message('You hear laughter.', state, env);
+                } else if (canseemon(magr, state)) {
+                    await message(
+                        messageAt(
+                            `${Monnam(magr, state, env)} chuckles.`,
+                            magr.mx,
+                            magr.my,
+                            state,
+                        ),
+                        state,
+                        env,
+                    );
+                }
+            }
+        }
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -3773,7 +4759,9 @@ export async function mhitm_adtyping(
     case AD_BLND:
         await mhitm_ad_blnd(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_CURS: unported('mhitm_ad_curs'); break;
+    case AD_CURS:
+        await mhitm_ad_curs(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_DRLI: unported('mhitm_ad_drli'); break;
     case AD_RUST: unported('mhitm_ad_rust'); break;
     case AD_CORR: unported('mhitm_ad_corr'); break;
@@ -4067,7 +5055,16 @@ export async function mhitm_knockback(
             state.u.dy = dy;
             note_unported('steed.c dismount_steed DISMOUNT_KNOCKED');
         } else {
-            note_unported('dothrow.c hurtle');
+            await hurtle(dx, dy, knockdistance, false, state, {
+                planning: Boolean(env?.planning),
+                random: rng,
+                planningDeath: env?.planning
+                    && typeof env.planningDeath === 'function'
+                    ? () => env.planningDeath(magr)
+                    : null,
+                isolateVision: env?.planning
+                    ? isolatePlannedVision : null,
+            });
             flags.value |= M_ATTK_HIT;
         }
         set_apparxy(magr, { ...env, state });

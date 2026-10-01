@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved C-first random-gate miss, not entry-point evidence. This independent female Rogue reaches Vlad's Tower/tower1, moves off the arrival chest, wishes a throne, and sits. C throne_sit_effect(sit.c:45) draws rnd(6)=4; its >4 gate is false, so no throne effect is selected and special_throne_effect/attrcurse are not called. The matching C/JS run is run-RaKCgA; its C artifact is retained at /tmp/B64-vlad-throne-random-gate-miss-b64-c.session.json.",
+  "segments": [
+    {
+      "seed": 45421189,
+      "datetime": "20260913123200",
+      "nethackrc": "OPTIONS=name:B64VladReach,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0016?\n>Gk\u0017throne\n#sit\n 7\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first correction to the run-82iEf7 setup miss: use the C-observed hook letter n, then target the adjacent empty floor tile. Record the actual use_grapple branch and keep any non-surface roll as a target miss.",
+  "segments": [
+    {
+      "seed": 148026739,
+      "datetime": "20380221113000",
+      "nethackrc": "OPTIONS=name:HookPackB64,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\ngrappling hook\nan $l."
+    }
+  ]
+}

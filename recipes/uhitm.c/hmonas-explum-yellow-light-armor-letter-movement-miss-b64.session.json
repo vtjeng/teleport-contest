@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "FROZEN SETUP MISS from C run-BwEH60. The initial space correctly dismissed the welcome pager, and `T` directly removed the only worn cloak. The extra `b` was consumed as a movement command, shifting the hero down-left; the subsequent west attack hit a wall, so the recipe did not blind a newt. C did reach explum without an unreachable-floor drop. Preserve the exact C outcome outside recordings; the corrected recipe omits the unnecessary armor-selection key.",
+  "segments": [
+    {
+      "seed": 86142958,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ExplumNoDropB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " Tbw-#wizintrinsic\na\n  #wizgenesis\n8 hostile newt\n #polyself\nyellow light\n Fh"
+    }
+  ]
+}

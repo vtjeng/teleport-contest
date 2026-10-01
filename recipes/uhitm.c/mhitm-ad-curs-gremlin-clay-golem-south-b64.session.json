@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923219,
+      "datetime": "20320214232000",
+      "nethackrc": "OPTIONS=name:CursGolem,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile clay golem\nj j j j j j j j j j "
+    }
+  ],
+  "comment": "Independent C-first uhitm.c setup correction attempt. C placed a clay golem south, but this seed left only inventory slot j after the copied drop sequence; the recipe typed n, so later polymorph and genesis input was consumed at the drop prompt. The player remained a human Wizard and died; hmonas was not reached. Preserve as a C-only setup miss."
+}

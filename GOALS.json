@@ -124383,6 +124383,600 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-sit-attrcurse-synthetic-v14-20260930",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port intrinsic removal and its throne, eating, prayer and attack callers",
+      "cFile": "sit.c",
+      "sessions": [
+        "synthetic/v14/eat-disenchanter-corpse-strips-intrinsic",
+        "synthetic/v15/samurai-polearm-hits-reach-target"
+      ],
+      "selectionReason": "Select synthetic/v14/eat-disenchanter-corpse-strips-intrinsic from current complete evaluations across all 15 admitted batches. The first mismatch at step27 is missing sit.c:attrcurse called by eat.c:cpostfx. Port whole attrcurse644–762 and its four direct caller families, including the consumed property result in uhitm.c:mhitm_ad_curs. The required supporting polymorphed combat and attack-check family also repairs synthetic/v15/samurai-polearm-hits-reach-target through the same reserved attack_checks/check_caitiff helpers. Only attrcurse receives source completion credit. Source-traced blocked supporting monster-to-monster and make_stunned paths remain explicit gaps. The fixed44 scan is clean and A62/C56 scopes remain independent.",
+      "detail": "Whole sit.c:attrcurse preserves the single rnd(11), C fallthrough, canonical intrinsic clearing, output and visibility order, and returned property enum. Matching evidence executes all four direct callers: Vlad throne, disenchanter corpse, angry prayer and gremlin attack. Supporting combat, corpse creation, hurtle and planner isolation stay attributed to their C source sites without additional whole-unit completion claims. The immutable package preserves all three owned patches and123 input files on an exact accepted-main baseline; original worker history remains preserved.",
+      "openedAt": "fa1a033d951eaf864aec7be2af9e68c4c60ffc10",
+      "openStanding": {
+        "sha": "d5c00e3012d390c9f058db52b3c440fb2841fff0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "3451c1b95570396666069f24277e25d2bf6e109e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "attrcurse",
+          "line": 644,
+          "endLine": 765,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 644,
+        "to": 765
+      },
+      "syntheticProvenance": {
+        "synthetic/v14/eat-disenchanter-corpse-strips-intrinsic": {
+          "session": "synthetic/v14/eat-disenchanter-corpse-strips-intrinsic",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "eat-disenchanter-corpse-strips-intrinsic",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/eat-disenchanter-corpse-strips-intrinsic.session.json",
+          "recordingSha256": "5b3066ebc5f144dbcf307cac10f953b071b5be666bde35006e6bf7f23717ae4f",
+          "evaluationPath": "challenges/evaluations/20261001032600-v14.json",
+          "evaluationCommit": "d5c00e3012d390c9f058db52b3c440fb2841fff0"
+        },
+        "synthetic/v15/samurai-polearm-hits-reach-target": {
+          "session": "synthetic/v15/samurai-polearm-hits-reach-target",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "samurai-polearm-hits-reach-target",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/samurai-polearm-hits-reach-target.session.json",
+          "recordingSha256": "1956a25a837eee2fc85638e120f1654972bb209e797969c68f38b6c2aea73439",
+          "evaluationPath": "challenges/evaluations/20261001032600-v15.json",
+          "evaluationCommit": "d5c00e3012d390c9f058db52b3c440fb2841fff0"
+        }
+      },
+      "activeStanding": {
+        "sha": "d5c00e3012d390c9f058db52b3c440fb2841fff0",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "samurai-polearm-hits-reach-target",
+          "session": "synthetic/v15/samurai-polearm-hits-reach-target",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/samurai-polearm-hits-reach-target.session.json",
+          "recordingPath": "challenges/cases/v15/samurai-polearm-hits-reach-target.session.json",
+          "recordingSha256": "1956a25a837eee2fc85638e120f1654972bb209e797969c68f38b6c2aea73439",
+          "recipe": "challenges/cases/v15/samurai-polearm-hits-reach-target.recipe.session.json",
+          "recipeSha256": "b0395289c4a4a5c556c82b877f192732b5f0e4d0c172fe1386ab93ec107aa57d",
+          "replayInputSha256": "fd8a14304d71b9166e58993bc234f8d7862b052e1f9f8fb59c90b54b148168c7",
+          "evaluationPath": "challenges/evaluations/20261001032600-v15.json",
+          "evaluationCommit": "d5c00e3012d390c9f058db52b3c440fb2841fff0",
+          "evaluationArtifact": "challenges/evaluations/20261001032600-v15.json",
+          "evaluationUtc": "2026-10-01T03:26:34.723Z",
+          "remainingScreens": 2,
+          "recordedSteps": 64,
+          "previousScreensMatched": 62,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 62,
+              "total": 64
+            },
+            "rng": {
+              "matched": 2881,
+              "total": 2884
+            },
+            "cursors": {
+              "matched": 62,
+              "total": 64
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 62,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 25,
+              "cCell": {
+                "ch": "n",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "e",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2881,
+              "cEntry": "rn2(20)=6",
+              "cCaller": "gethungry(eat.c:3191)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 63,
+                "key": "y"
+              },
+              "stepIndex": 63
+            },
+            "cursor": {
+              "index": 62,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 62,
+                "key": "."
+              },
+              "cCursor": [
+                32,
+                0,
+                1
+              ],
+              "jsCursor": [
+                35,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 62,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/samurai-polearm-hits-reach-target.json",
+            "result": {
+              "session": "synthetic/v15/samurai-polearm-hits-reach-target",
+              "remainingScreens": 2,
+              "recordedSteps": 64,
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "samurai-polearm-hits-reach-target",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingPath": "challenges/cases/v15/samurai-polearm-hits-reach-target.session.json",
+              "recordingSha256": "1956a25a837eee2fc85638e120f1654972bb209e797969c68f38b6c2aea73439",
+              "recipePath": "challenges/cases/v15/samurai-polearm-hits-reach-target.recipe.session.json",
+              "recipeSha256": "b0395289c4a4a5c556c82b877f192732b5f0e4d0c172fe1386ab93ec107aa57d",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "samurai-polearm-hits-reach-target",
+                "session": "synthetic/v15/samurai-polearm-hits-reach-target",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/samurai-polearm-hits-reach-target.session.json",
+                "recordingPath": "challenges/cases/v15/samurai-polearm-hits-reach-target.session.json",
+                "recordingSha256": "1956a25a837eee2fc85638e120f1654972bb209e797969c68f38b6c2aea73439",
+                "recipe": "challenges/cases/v15/samurai-polearm-hits-reach-target.recipe.session.json",
+                "recipeSha256": "b0395289c4a4a5c556c82b877f192732b5f0e4d0c172fe1386ab93ec107aa57d",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 2,
+                "recordedSteps": 64,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 62,
+                    "total": 64
+                  },
+                  "rng": {
+                    "matched": 2881,
+                    "total": 2884
+                  },
+                  "cursors": {
+                    "matched": 62,
+                    "total": 64
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 62,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 25,
+                    "cCell": {
+                      "ch": "n",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "e",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2881,
+                    "cEntry": "rn2(20)=6",
+                    "cCaller": "gethungry(eat.c:3191)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 63,
+                      "key": "y"
+                    },
+                    "stepIndex": 63
+                  },
+                  "cursor": {
+                    "index": 62,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 62,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      32,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      35,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 62,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "status": "complete",
+              "summary": "The applied-polearm reach path reaches uhitm.c:attack_checks() before hit resolution. C passes the current ParanoidHit Boolean, false for this session, so the recorded y confirms the peaceful target. JavaScript passes the PARANOID_HIT bit mask itself, making the query always require the word yes; y remains unconsumed and the attack never reaches thitmonst() or hmon(). The whole-function divergence scope is attack_checks() in uhitm.c; apply.c:use_pole() and the downstream hmon path are present in the examined snapshot.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "In attack_checks(), when flags.confirm is enabled and the spotted target is peaceful, while the hero is not confused, hallucinating, or stunned, the ParanoidHit Boolean controls whether paranoid_query() accepts the single key y or requires yes. The JavaScript caller currently supplies PARANOID_HIT, the nonzero mask, instead of testing the current paranoia_bits value.",
+                "functions": [
+                  "attack_checks"
+                ],
+                "callers": [
+                  "uhitm.c:do_attack():521",
+                  "apply.c:use_pole():3493 (reached through doapply():4407-4411)",
+                  "apply.c:use_grapple():3835,3845",
+                  "dokick.c:maybe_kick_monster():138"
+                ],
+                "dependencies": [
+                  "cmd.c:paranoid_query():5655-5657 and paranoid_ynq():5588-5650",
+                  "flag.h:ParanoidHit macro and flags.paranoia_bits (lines 82, 564)",
+                  "options.c:initoptions():7173; the default mask contains pray, swim, and trap, not hit",
+                  "do_name.c:mon_nam(), used to construct the peaceful-target prompt"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The assigned diagnostic .cache/synthetic-scans/v15/samurai-polearm-hits-reach-target.json reports the first screen mismatch at segment 0, step 62, key \".\": C cell column 25 is \"n\" and JavaScript is \"e\"; C cursor is column 32 and JavaScript column 35. The recorded C screen is \"Really attack the orc? [yn] (n)\". A one-case in-memory replay of the assigned recording at the examined commit shows JavaScript \"Really attack the orc? [yes|n] (n)\" at step 62 and the same prompt with a trailing \" y\" at step 63.",
+                "The C recording challenges/cases/v15/samurai-polearm-hits-reach-target.session.json has step 63 key \"y\" and emits \"You dishonorably attack the innocent! The naginata hits the orc.\" Its final-step RNG calls include gethungry(eat.c:3191), rnd(20) in thitmonst(dothrow.c:2152), and rnd(6) in dmgval(weapon.c:265). The one-case JavaScript replay remains at RNG count 2881 through step 63, confirming it never consumes that answer or enters hit resolution.",
+                "Upstream src/uhitm.c:308-323 passes ParanoidHit to paranoid_query() for the peaceful-target confirmation. Upstream include/flag.h:564 defines ParanoidHit as a Boolean membership test on flags.paranoia_bits; options.c:initoptions():7173 initializes defaults without PARANOID_HIT. In the pinned JavaScript, js/uhitm.js:945-949 passes PARANOID_HIT itself. Its nonzero value makes js/cmd.js:901-948 select the line-based \"yes\" prompt, which leaves the recorded single-key y in the input stream. The divergence is in the attack_checks() confirmation branch, so scope the correction to that existing whole source function.",
+                "The session reaches upstream src/apply.c:use_pole():3426-3557 through doapply():4407-4411; use_pole() calls attack_checks() at 3493 before thitmonst() at 3521. Upstream dothrow.c:2011-2209 sets HMON_APPLIED when the wielded polearm is used and calls hmon(); the pinned JavaScript wires the same route in js/apply.js:947-1057 and js/dothrow.js:2714-2917. js/uhitm.js:1539-1563 implements hmon(), so hmon support exists but is not reached while the confirmation input remains pending."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "eat-disenchanter-corpse-strips-intrinsic",
+          "session": "synthetic/v14/eat-disenchanter-corpse-strips-intrinsic",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/eat-disenchanter-corpse-strips-intrinsic.session.json",
+          "recordingPath": "challenges/cases/v14/eat-disenchanter-corpse-strips-intrinsic.session.json",
+          "recordingSha256": "5b3066ebc5f144dbcf307cac10f953b071b5be666bde35006e6bf7f23717ae4f",
+          "recipe": "challenges/cases/v14/eat-disenchanter-corpse-strips-intrinsic.recipe.session.json",
+          "recipeSha256": "a55f963dcbc1a48a291711dfee8b0ce93cfa36554e1968734ac2f1fcafb36ad3",
+          "replayInputSha256": "5ec7db79e6c63cd3393f4a2eed625a97be2552606ecbe25ae9f9d26c731ea30e",
+          "evaluationPath": "challenges/evaluations/20261001032600-v14.json",
+          "evaluationCommit": "d5c00e3012d390c9f058db52b3c440fb2841fff0",
+          "evaluationArtifact": "challenges/evaluations/20261001032600-v14.json",
+          "evaluationUtc": "2026-10-01T03:26:27.259Z",
+          "remainingScreens": 1,
+          "recordedSteps": 28,
+          "previousScreensMatched": 27,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 27,
+              "total": 28
+            },
+            "rng": {
+              "matched": 3168,
+              "total": 3181
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 28
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 27,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 27,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 44,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3164,
+              "cEntry": "rnd(11)=4",
+              "cCaller": "attrcurse(sit.c:648)",
+              "jsEntry": "rn2(5)=2",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 27,
+                "key": " "
+              },
+              "stepIndex": 27
+            },
+            "cursor": null
+          },
+          "step": 27,
+          "kind": "rng",
+          "sourceFile": "sit.c",
+          "function": "attrcurse",
+          "message": null,
+          "cFile": "sit.c",
+          "luaFile": null,
+          "line": 648,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/eat-disenchanter-corpse-strips-intrinsic.json",
+            "result": {
+              "session": "synthetic/v14/eat-disenchanter-corpse-strips-intrinsic",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "eat-disenchanter-corpse-strips-intrinsic",
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "5b3066ebc5f144dbcf307cac10f953b071b5be666bde35006e6bf7f23717ae4f",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "remainingScreens": 1,
+              "recordedSteps": 28,
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "eat-disenchanter-corpse-strips-intrinsic",
+                "session": "synthetic/v14/eat-disenchanter-corpse-strips-intrinsic",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/eat-disenchanter-corpse-strips-intrinsic.session.json",
+                "recordingPath": "challenges/cases/v14/eat-disenchanter-corpse-strips-intrinsic.session.json",
+                "recordingSha256": "5b3066ebc5f144dbcf307cac10f953b071b5be666bde35006e6bf7f23717ae4f",
+                "recipe": "challenges/cases/v14/eat-disenchanter-corpse-strips-intrinsic.recipe.session.json",
+                "recipeSha256": "a55f963dcbc1a48a291711dfee8b0ce93cfa36554e1968734ac2f1fcafb36ad3",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 28,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 27,
+                    "total": 28
+                  },
+                  "rng": {
+                    "matched": 3168,
+                    "total": 3181
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 28
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 27,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 27,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 44,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3164,
+                    "cEntry": "rnd(11)=4",
+                    "cCaller": "attrcurse(sit.c:648)",
+                    "jsEntry": "rn2(5)=2",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 27,
+                      "key": " "
+                    },
+                    "stepIndex": 27
+                  },
+                  "cursor": null
+                },
+                "step": 27,
+                "kind": "rng",
+                "sourceFile": "sit.c",
+                "function": "attrcurse",
+                "message": null,
+                "cFile": "sit.c",
+                "luaFile": null,
+                "line": 648
+              },
+              "summary": "The last-step corpse post-effect reaches the missing whole sit.c:attrcurse function. Its rnd(11)=4 falls through to the Rogue’s intrinsic stealth at case 9, clearing only that intrinsic, printing “You feel clumsy.”, and returning STEALTH. The frozen JS cpostfx branch records note_unported(\"sit.c attrcurse\"), so it skips the draw and effect. Four C call sites share attrcurse; throne, angry-god, and monster-attack callers also need their source behavior wired.",
+              "source": {
+                "file": "sit.c",
+                "functions": [
+                  "attrcurse"
+                ],
+                "branch": "Port all of sit.c:attrcurse (640-762). It draws rnd(11), then visits cases 1 through 11 in order with source fallthrough, removing the first present intrinsic among fire resistance, teleportation, poison resistance, telepathy, cold resistance, invisibility, see invisible, speed, stealth, protection, or aggravate monster. It clears only the INTRINSIC bit, emits the case message, and returns the property enum; it returns 0 if no listed intrinsic can be removed. Telepathy and see-invisible removal include their source-specific visibility updates; see-invisible feedback also depends on hallucination. In this case rnd(11)=4 starts at telepathy and falls through to case 9 because the Rogue has no earlier removable intrinsic in that range and does have intrinsic stealth; it clears HStealth, emits “You feel clumsy.”, and returns STEALTH.",
+                "callers": [
+                  "C eat.c:cpostfx (1270-1275) calls attrcurse after a PM_DISENCHANTER corpse and discards its return. In frozen JS, eat.js:doeat reaches cpostfx (2466), whose PM_DISENCHANTER branch at 2634-2636 records note_unported(\"sit.c attrcurse\") instead of calling it; this is the assigned mismatch.",
+                  "C sit.c:throne_sit_effect (case 7, 281-285) calls attrcurse and then prints the throne-amusement message. Frozen JS reaches sit.js:throne_sit_effect through dosit at 808-810 but has no attrcurse call; its case 7 branch at 336-350 currently summons court, so this direct production caller is not wired to the C effect.",
+                  "C pray.c:angrygods (cases 4-5, 752-759) evaluates rn2(2) || !attrcurse(), then calls rndcurse when the left side is true or attrcurse returns 0. The return value and C short-circuit order matter. Frozen JS pray.js:angrygods (2081) throws UnsupportedPrayerError for cases 4-5 at 2130-2132 instead of making either call.",
+                  "C uhitm.c:mhitm_ad_curs (3057) passes attrcurse’s return to mon_give_prop during the gremlin curse attack against the hero. Frozen JS uhitm.js routes AD_CURS to unported(\"mhitm_ad_curs\") at 3766, so the caller is not wired."
+                ],
+                "dependencies": [
+                  "Use the game’s source-ordered rnd(11) draw and preserve its position relative to every caller’s other draws.",
+                  "Read and update the intrinsic property bits represented by HFire_resistance, HTeleportation, HPoison_resistance, HTelepat, HCold_resistance, HInvis, HSee_invisible, HFast, HStealth, HProtection, and HAggravate_monster; clear INTRINSIC only and return the matching property enum.",
+                  "Preserve the You_feel, You, and Your messages and the Blind, Blind_telepat, See_invisible, and Hallucination conditions.",
+                  "The telepathy branch calls see_monsters when the hero is blind and loses the only telepathy source. The see-invisible branch calls set_mimic_blocking, see_monsters, and newsym(u.ux,u.uy) when losing the final see-invisible source.",
+                  "Wire all four callers with their source return-value handling: eat.c and sit.c discard it; pray.c uses it in a short-circuit condition before rndcurse; uhitm.c passes it to mon_give_prop."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned queue entry in .cache/v14-baseline-work-queue.json fixes this result to one remaining screen and 28 recorded steps, manifest corpus SHA-256 a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0, recording SHA-256 5b3066ebc5f144dbcf307cac10f953b071b5be666bde35006e6bf7f23717ae4f, and evaluation challenges/evaluations/20260929225551-v14.json at de8f73ddf16241bca4e484fef2ab099b3f133a2d. The saved evaluation reports 27/28 screens, 28/28 cursors and 3168/3181 RNG entries matched; the only screen divergence begins at step 27, while the first recorded RNG mismatch is C rnd(11)=4 from attrcurse(sit.c:648) against JS rn2(5)=2.",
+                "The assigned scan .cache/synthetic-scans/v14/eat-disenchanter-corpse-strips-intrinsic.json reports no refusal, the missing sit.c attrcurse source gap, and the same final-step screen/RNG divergence. Its manifest sourceTraceEvidence records rnd(11)=4 at attrcurse(sit.c:648); the manifest reachedBehavior states that the completed corpse meal removes the Rogue’s stealth intrinsic.",
+                "At the frozen examined JS commit 3212f9f07c3fdf3f00c5c204885f51834f0b6448, js/eat.js:cpostfx lines 2634-2636 records note_unported(\"sit.c attrcurse\") for PM_DISENCHANTER. The authoritative C body at nethack-c/upstream/src/sit.c:640-762 draws rnd(11), walks the ordered fallthrough cases, and clears HStealth at case 9 after the assigned draw of 4; the direct C call in eat.c:cpostfx is at 1274.",
+                "A source search finds four direct production calls: sit.c:283, eat.c:1274, pray.c:757, and uhitm.c:3057. Their C owners and frozen JS wiring states are listed in source.callers, including the callers that consume attrcurse’s returned property."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "attrcurse",
+            "implementation": "js/sit.js",
+            "symbol": "attrcurse",
+            "sourceReview": "Whole sit.c:attrcurse at upstream gitlink 16ff59115315917b93185d026aeefea06db9b0f4, definition lines 644–762. Draw rnd(11) once, then preserve C fallthrough through cases 1–11, clearing only INTRINSIC from the first present property; retain exact message, return property enum, and return 0 when nothing is removable. Keep Blind && !Blind_telepat see_monsters refresh when losing the sole telepathy source. Losing See_invisible refreshes only when See_invisible becomes false, with the source set_mimic_blocking, see_monsters, newsym, hallucination-sensitive message order; set_mimic_blocking remains the exact discarded-void display.c gap. This is impure. Tests pin mapping, fallthrough, intrinsic-only clearing, output, RNG, return values and visibility behavior. All four direct production callers are source-traced: Vlad's Tower special_throne_effect case 7, eat.c:cpostfx PM_DISENCHANTER, pray.c:angrygods cases 4–5, and uhitm.c:mhitm_ad_curs monster-to-hero arm. Ordinary throne_sit_effect case 7 is separate court behavior. Supporting uhitm callers and their incomplete branches are documented in entryPointReview; they are not additional sit.c roadmap units.",
+            "callers": [
+              {
+                "path": "js/sit.js",
+                "symbol": "special_throne_effect",
+                "source": "sit.c:special_throne_effect case 7 calls attrcurse, then prints the amusement message; throne_sit_effect selects this path only for the Vlad's Tower special throne."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "cpostfx",
+                "source": "eat.c:cpostfx PM_DISENCHANTER arm calls attrcurse and discards its return."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "angrygods",
+                "source": "pray.c:angrygods cases 4–5 preserve gods_angry, optional glow, the rn2(2) short circuit and invoke attrcurse only on the source branch."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_curs",
+                "source": "uhitm.c:mhitm_ad_curs monster-to-hero arm passes attrcurse's returned property to mon_give_prop; its monster-to-monster sibling is separately documented as blocked before the source helper by dogmove.c:dog_move -> mhitm.c:mattackm."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/attrcurse.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/vlad-tower-special-throne-attrcurse-candidate-8-b64.session.json",
+              "recordings/pray.c/angrygods-prayer-too-soon-attrcurse-prefix-b64.session.json",
+              "recordings/uhitm.c/mhitm-ad-curs-gremlin-monster-hero-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v14",
+                "caseId": "eat-disenchanter-corpse-strips-intrinsic",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "eat.c:cpostfx PM_DISENCHANTER -> sit.c:attrcurse; exact admitted replay run-zyPMv1 matches through the cited final step."
+              }
+            ],
+            "checkedAt": "abf4d670a317b855c789596fa323ccced363410e"
+          }
+        ],
+        "entryPointReview": "attrcurse is a helper-only selected sit.c range, so entryPoints is empty. All four direct callers are source-enumerated and matching evidence exists: Vlad’s Tower throne_sit_effect -> special_throne_effect case 7 in recordings/sit.c/vlad-tower-special-throne-attrcurse-candidate-8-b64.session.json (run-3j0cK0, segment 0, steps 0–23); angry-gods cases 4–5 in recordings/pray.c/angrygods-prayer-too-soon-attrcurse-prefix-b64.session.json (run-wQP11x, segment 0, steps 0–22); cpostfx PM_DISENCHANTER in admitted v14 eat-disenchanter-corpse-strips-intrinsic (run-zyPMv1, segment 0, steps 0–27); and monster-to-hero mhitm_ad_curs -> attrcurse -> mon_give_prop in recordings/uhitm.c/mhitm-ad-curs-gremlin-monster-hero-independent.session.json (run-lJruMn, segment 0, steps 0–229). Ordinary throne_sit_effect case 7 remains the separate court branch. Supporting whole uhitm.c:mhitm_ad_curs has three active arms: polymorphed hero-to-monster and monster-to-hero strictly match run-xoNunJ and run-lJruMn; monster-to-monster has no matching JS evidence because the independent C-first Conflict/paper-golem recipe stops at C step 66 in the unported dogmove.c:dog_move -> mhitm.c:mattackm path (66/223 screens and 2733/5072 RNG matched). Keep that recipe blocked outside recordings and do not claim that supporting branch complete. The supporting hero-defender knockback path has a matching single-mummy recording (run-wbNSRV, 3216 RNG, 138/138 screens/cursors and 25 frames). The optional four-mummy variation is blocked at segment 0 step 120 after matching rn2(4)=0, rnd(21)=14 and d(3,4)=7: C calls discarded-void potion.c:make_stunned(knockdistance+1, TRUE) at uhitm.c:5397, printing “You stagger...” and setting HStun; JS records note_unported('potion.c make_stunned'), producing the first screen/cursor mismatch at boundary 121. Keep this recipe outside recordings, name the exact gap and make no broad stun/knockback completion claim. Other support runtime evidence and the explicit planner/object-pile/outer-command gaps are recorded in .cache/B64-context.json.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3451c1b95570396666069f24277e25d2bf6e109e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

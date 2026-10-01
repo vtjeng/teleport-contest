@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first strict-matching B64 witness for dokick.c:kick_door Levitation arm -> kick_ouch -> hurtle. The source-observed Healer layout has a west closed door and a blocked west brace square once crossed. The wished item resolves to a pair of fencing gloves; C says the hero is already wearing gloves, so no strength change is claimed. A blessed Levitation potion is consumed at inventory letter n. Two ordinary open commands lead to the C successful rnl(20)=7 at doopen_indir, two west moves cross the doorway, and doclose succeeds on rn2(25)=6; the second close reports already closed. Ctrl-D/l then reaches kick_ouch (rn2(2)=1) and hurtle_step (rnd(7)=4). Strict run-9PKp43 passes: 2839 RNG values, 91 screens/cursors, and one animation frame. This recipe was frozen before C recording and comparison.",
+  "segments": [
+    {
+      "seed": 8410357,
+      "datetime": "20320420110911",
+      "nethackrc": "OPTIONS=name:KickDoorNaturalCloseB64,role:Healer,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\nblessed gauntlets of power\nWm#wizwish\nblessed potion of levitation\nqnohohhhclcl\u0004l"
+    }
+  ]
+}

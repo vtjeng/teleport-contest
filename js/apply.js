@@ -234,7 +234,7 @@ import {
     overexertion,
     spoteffects,
 } from './hack.js';
-import { dist2, highc, isqrt, s_suffix, strstri, truncateByteString, upstart } from './hacklib.js';
+import { dist2, highc, isqrt, sgn, s_suffix, strstri, truncateByteString, upstart } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import { gulp_blnd_check } from './mhitu.js';
 import { litroom } from './read.js';
@@ -552,7 +552,7 @@ import {
     set_wounded_legs,
 } from './do.js';
 import { floorfood, morehungry, set_tin_variety } from './eat.js';
-import { digests, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
+import { digests, hurtle, hurtle_jump, thitmonst, walk_path } from './dothrow.js';
 import { makeplural } from './fruit.js';
 import { change_luck } from './moveloop_preamble.js';
 import { getpos } from './getpos.js';
@@ -1392,9 +1392,13 @@ export async function use_grapple(obj, state = game, env = {}) {
             await message(`The hook slices through the ${surface(cc.x, cc.y, state)}.`, state);
         } else {
             await message(`You are yanked toward the ${surface(cc.x, cc.y, state)}!`, state);
-            // dothrow.c:hurtle() is still an unported void callee. Preserve
-            // the call site without inventing its movement or screen effects.
-            note_unported('dothrow.c hurtle');
+            await hurtle(
+                sgn(cc.x - state.u.ux),
+                sgn(cc.y - state.u.uy),
+                1,
+                false,
+                state,
+            );
             await spoteffects(true, state, { ...env, random });
         }
         return ECMD_TIME;

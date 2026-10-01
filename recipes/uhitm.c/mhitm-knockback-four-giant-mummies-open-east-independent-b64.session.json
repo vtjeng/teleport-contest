@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked setup recording run-byy3QT for the planned mhitu.c:mattacku -> uhitm.c:mhitm_knockback hero-defender route. C accepted `#wizintrinsic` and the `a` selection, then printed `Timeout for invulnerable set to 30.--More--`. The next Ctrl-W and wish text were supplied before dismissing that page, so `win/tty/topl.c:more()` consumed input instead of entering `wiz_wish` or `wiz_genesis`; no four mummies were created and no knockback call ran. Preserve this exact setup-miss recipe and C artifact at `/tmp/B64-mhitm-knockback-four-giant-mummies-open-east-C.session.json`; the corrected one-space pager dismissal is a separate recipe.",
+  "segments": [
+    {
+      "seed": 73918423,
+      "datetime": "20370616110900",
+      "nethackrc": "OPTIONS=name:RecoilMummiesB64,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\na\n\u0017wand of digging\nzol#wizgenesis\n4 hostile giant mummy\n . . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

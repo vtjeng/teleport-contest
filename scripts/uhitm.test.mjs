@@ -1,14 +1,18 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { moveloop_core } from '../js/allmain.js';
 import {
     ALTAR,
+    BLINDED,
     DETECT_MONSTERS,
+    FIRE_RES,
     FOUNTAIN,
     GRAVE,
     ICE,
+    INTRINSIC,
     LADDER,
     DOOR,
     OBJ_INVENT,
@@ -17,6 +21,7 @@ import {
     SINK,
     STAIRS,
     STRAT_WAITMASK,
+    STRAT_WAITFORU,
     M_ATTK_HIT,
     THRONE,
     STONE_RES,
@@ -31,9 +36,12 @@ import { runSegment } from '../js/jsmain.js';
 import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';
 import {
+    AD_CURS,
     AD_STON,
     AD_DRST,
+    AT_CLAW,
     AT_WEAP,
+    PM_GREMLIN,
     PM_COCKATRICE,
     PM_DWARF_LEADER,
     PM_HUMAN,
@@ -67,6 +75,7 @@ import {
     mhitm_ad_phys,
     mhitm_ad_drst,
     mhitm_ad_ston,
+    mhitm_adtyping,
     mhitm_mgc_atk_negated,
     mhitm_really_poison,
     shade_miss,
@@ -78,6 +87,9 @@ import {
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
 const DATETIME = '20300102030405';
+const UHITM_C = readFileSync(
+    new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
+);
 function petRc({
     role = 'Tourist',
     gender = 'male',
@@ -685,6 +697,137 @@ test('shade_miss waits for deferred feedback before cleanup', async () => {
     assert.equal(await pending, true);
     assert.equal(shade.msleeping, 0);
     assert.deepEqual(events, ['message-start', 'message-resolved']);
+});
+
+test('mhitm_ad_curs follows all three uhitm.c direction arms', async () => {
+    assert.match(UHITM_C, /magr == &gy\.youmonst\)\s*\{\s*\/\* uhitm \*\//u);
+    assert.match(UHITM_C, /mdef == &gy\.youmonst\)\s*\{\s*\/\* mhitu \*\//u);
+    assert.match(UHITM_C, /\/\* mhitm \*\/\s*if\s*\(!night\(\)/u);
+    assert.match(UHITM_C, /case AD_CURS: mhitm_ad_curs\(magr, mattk, mdef, mhm\); break;/u);
+
+    await runSegment({
+        seed: 8806401, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    // This is the polymorphed-hero caller identity from uhitm.c. The direct
+    // AD_CURS argument represents the gremlin claw's fourth attack slot.
+    game.u.umonnum = PM_GREMLIN;
+    game.youmonst.data = game.mons[PM_GREMLIN];
+    const defender = {
+        data: game.mons[PM_RAVEN],
+        mcan: false,
+        m_id: 93001,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    const heroDraws = [];
+    const heroMessages = [];
+    const heroHit = { damage: 7, hitflags: 0, done: false };
+    await mhitm_adtyping(
+        game.youmonst,
+        { aatyp: AT_CLAW, adtyp: AD_CURS },
+        defender,
+        heroHit,
+        game,
+        {
+            random: { rn2: (bound) => {
+                heroDraws.push(`rn2(${bound})`);
+                return 0;
+            } },
+            message: async (line) => { heroMessages.push(line); },
+            unsupported: (reason) => assert.fail(reason),
+        },
+    );
+    assert.deepEqual(heroDraws, ['rn2(10)']);
+    assert.equal(defender.mcan, 1);
+    assert.equal(heroHit.damage, 0);
+    assert.deepEqual(heroMessages, ['You chuckle.']);
+
+    await runSegment({
+        seed: 8806402, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.u.uprops[BLINDED] = { intrinsic: TIMEOUT, extrinsic: 0 };
+    game.u.uprops[FIRE_RES] = { intrinsic: INTRINSIC, extrinsic: 0 };
+    const gremlin = {
+        data: game.mons[PM_GREMLIN],
+        female: false,
+        m_id: 93002,
+        mcan: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    const curseAttack = gremlin.data.mattk.find(({ adtyp }) => adtyp === AD_CURS);
+    assert.ok(curseAttack, 'the gremlin has the source AD_CURS attack');
+    const monsterDraws = [];
+    const monsterMessages = [];
+    const heroHitByGremlin = { damage: 3, hitflags: 0, done: false };
+    await mhitm_adtyping(
+        gremlin,
+        curseAttack,
+        game.youmonst,
+        heroHitByGremlin,
+        game,
+        {
+            random: {
+                rn2: (bound) => {
+                    monsterDraws.push(`rn2(${bound})`);
+                    return 0;
+                },
+                rnd: (bound) => {
+                    monsterDraws.push(`rnd(${bound})`);
+                    return 1;
+                },
+            },
+            message: async (line) => { monsterMessages.push(line); },
+            unsupported: (reason) => assert.fail(reason),
+        },
+    );
+    assert.deepEqual(monsterDraws, ['rn2(10)', 'rnd(11)']);
+    assert.equal(game.u.uprops[FIRE_RES].intrinsic, 0);
+    assert.ok(gremlin.mintrinsics, 'attrcurse transfers the property to attacker');
+    assert.ok(monsterMessages.some((line) => line.includes('gremlin hits')));
+    assert.ok(monsterMessages.includes('You hear laughter.'));
+
+    await runSegment({
+        seed: 8806403, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.gv.vis = false;
+    const attacker = {
+        data: game.mons[PM_GREMLIN],
+        m_id: 93003,
+        mcan: false,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+    };
+    const otherDefender = {
+        data: game.mons[PM_RAVEN],
+        m_id: 93004,
+        mcan: false,
+        mstrategy: STRAT_WAITMASK,
+        mx: game.u.ux - 1,
+        my: game.u.uy,
+    };
+    const otherDraws = [];
+    const otherMessages = [];
+    const monsterHit = { damage: 5, hitflags: 0, done: false };
+    await mhitm_adtyping(
+        attacker,
+        attacker.data.mattk.find(({ adtyp }) => adtyp === AD_CURS),
+        otherDefender,
+        monsterHit,
+        game,
+        {
+            random: { rn2: (bound) => {
+                otherDraws.push(`rn2(${bound})`);
+                return 0;
+            } },
+            message: async (line) => { otherMessages.push(line); },
+            unsupported: (reason) => assert.fail(reason),
+        },
+    );
+    assert.deepEqual(otherDraws, ['rn2(10)']);
+    assert.equal(otherDefender.mcan, 1);
+    assert.equal(otherDefender.mstrategy & STRAT_WAITFORU, 0);
+    assert.ok(otherMessages.includes('You hear laughter.'));
 });
 
 test('mhitm_ad_drst preserves the poison guard and resistance arm',

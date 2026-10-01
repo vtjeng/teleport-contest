@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923207,
+      "datetime": "20320214231900",
+      "nethackrc": "OPTIONS=name:CursRepeat,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile troll\nl l l l l l l l l l "
+    }
+  ],
+  "comment": "Independent C-first uhitm.c do_attack -> hmonas -> damageum -> mhitm_ad_curs hero-to-monster AD_CURS attempt. It reuses the source-observed east Troll placement and exact night setup; each `l` issues another adjacent attack and its following space dismisses the C attack message pager. Repeated attempts cover the Gremlin's fourth attack and one-in-ten cancellation; inspect the C trace before any JavaScript comparison."
+}

@@ -412,20 +412,21 @@ function requireTrapOperation(env, name) {
 const a_your = Object.freeze(['a', 'your']);
 const A_Your = Object.freeze(['A', 'Your']);
 
-// The hero's dotrap() runs in the live game, never in the planning clone that
-// mintrap() serves, so its env binds the real owners rather than dry-run
-// seams. `unsupported` raises the movement boundary because every hero call
-// site -- hack.c spoteffects() and, through it, domove() and teleds() -- sits
-// under js/jsmain.js's movement catch.
-function heroTrapEnv(state) {
+// Live dotrap() uses its ordinary owners. The planned hurtle caller can pass
+// clone-local RNG, message and redraw operations without changing other trap
+// callers; `unsupported` keeps the same movement-catch boundary.
+function heroTrapEnv(state, rawEnv = {}) {
     return {
+        ...rawEnv,
         state,
-        random: { d, rn1, rn2, rnd, rne, rnl },
-        message: (line, target) => ttyPline(line, target ?? state),
-        redraw: (x, y) => newsym(x, y),
-        unsupported: (reason) => {
-            throw new UnsupportedHeroMoveBoundaryError(reason);
-        },
+        random: { d, rn1, rn2, rnd, rne, rnl, ...(rawEnv.random ?? {}) },
+        message: rawEnv.message
+            ?? ((line, target) => ttyPline(line, target ?? state)),
+        redraw: rawEnv.redraw ?? ((x, y) => newsym(x, y)),
+        unsupported: rawEnv.unsupported
+            ?? ((reason) => {
+                throw new UnsupportedHeroMoveBoundaryError(reason);
+            }),
     };
 }
 
@@ -3908,7 +3909,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
 // hack.c spoteffects() calls it for the trap under the hero's feet. Its
 // ROCKTRAP dispatch reaches trapeffect_rocktrap() after the source's escape
 // check, including for already-seen rock traps.
-export async function dotrap(trap, trflags, state = game) {
+export async function dotrap(trap, trflags, state = game, rawEnv = {}) {
     // First, and before nomul(0): a refusal has to precede the state change,
     // not follow it.
     preflight_dotrap(trap, state, trflags);
@@ -3924,7 +3925,7 @@ export async function dotrap(trap, trflags, state = game) {
         state,
     );
     const adjPit = adj_nonconjoined_pit(trap, state);
-    const env = heroTrapEnv(state);
+    const env = heroTrapEnv(state, rawEnv);
     let flags = trflags;
     let forcetrap = (flags & FORCETRAP) !== 0 || (flags & FAILEDUNTRAP) !== 0;
 

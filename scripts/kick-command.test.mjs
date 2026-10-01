@@ -76,6 +76,15 @@ function segmentFor(label) {
     return segment;
 }
 
+// The seed, Wizard setup commands, and northeast monster target are the
+// independent C-first route recorded in this recipe. At (1,1), the goblin is
+// southeast and the northwest brace square is outside the map, so the source
+// recoil reaches its first hurtle_step draw.
+const DOKICK_RECOIL = JSON.parse(readFileSync(new URL(
+    '../recipes/dokick.c/dokick-levitating-hostile-goblin-recoil-b64-corner-target-corrected.session.json',
+    import.meta.url,
+), 'utf8')).segments[0];
+
 // Replay one matrix segment, or a prefix of one, and report what the port
 // stopped on. A refused arm ends the segment through onBoundary rather than
 // throwing, which is the same contract the scorer sees.
@@ -284,6 +293,29 @@ test('kicking a monster spends the turn and reports the kick', async () => {
     assert.equal(kicked.boundary, null);
     assert.equal(kicked.toplines, 'You kick the grid bug.');
     assert.equal(kicked.turns, base.turns + 1);
+});
+
+test('a levitating monster kick uses dokick() recoil', async () => {
+    // dokick.c:1428-1440 saves the target form, then derives a positive recoil
+    // range from that form's cwt and calls hurtle(). This C-first recipe puts
+    // a goblin southeast of the Wizard at (1,1), with the northwest brace
+    // square off-map; its recorded hurtle_step starts with rnd(3)=1.
+    assert.equal(
+        lineOf(DOKICK_C, 1428),
+        'if ((Is_airlevel(&u.uz) || Levitation) && svc.context.move) {',
+    );
+    assert.equal(
+        lineOf(DOKICK_C, 1439),
+        'hurtle(-u.dx, -u.dy, range, TRUE);',
+    );
+    const base = await replay(DOKICK_RECOIL, '');
+    const kicked = await replay(DOKICK_RECOIL, DOKICK_RECOIL.moves);
+    assert.equal(kicked.boundary, null);
+    assert.match(kicked.toplines, /You float in the opposite direction/u);
+    assert.ok(
+        kicked.rngLog.slice(base.draws).includes('rnd(3)=1'),
+        'the C-selected first hurtle_step roll follows kick_monster',
+    );
 });
 
 test('kicking a wall hurts and spends the turn', async () => {

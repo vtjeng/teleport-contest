@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved C-first Ranger inventory-letter correction. C run-VXE1BG did reach use_grapple with hook g, but Ranger P_FLAIL was not currently skilled despite its maximum being P_SKILLED, so no Aim for what? menu opened; this route stopped on an empty-floor object roll. Keep as a matching setup/target-prefix witness only, not skilled-menu evidence.",
+  "segments": [
+    {
+      "seed": 48733129,
+      "datetime": "20350807093000",
+      "nethackrc": "OPTIONS=name:HookRangerB64,role:Ranger,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " #wizwish\ngrappling hook\nag $l.c"
+    }
+  ]
+}

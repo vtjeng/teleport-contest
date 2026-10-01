@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first map/setup miss, run-4RNbhu: this seed’s row after three west steps was `|...@..<=+`, leaving three more floor cells west before the wall. The levitation brace guard returned before kick_dumb. Preserve this exact input/artifact and use six west steps in a separately frozen corrected recipe.",
+  "segments": [
+    {
+      "seed": 60381248,
+      "datetime": "20380917104500",
+      "nethackrc": "OPTIONS=name:LevitateKickVarB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqohhh\u0004l"
+    }
+  ]
+}

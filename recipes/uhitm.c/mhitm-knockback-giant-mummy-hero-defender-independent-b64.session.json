@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked C-first setup attempt, run-UW2HM0. The source attack repeatedly reaches uhitm.c:mhitm_knockback, but the captured row is `|.M@|`: after the giant mummy hits from the west, hero-defender direction dx=1 points into the east wall. The C test_move(defx, defy, dx, dy, TEST_MOVE) guard therefore returns before the hurtle branch. Keep the exact C artifact in scratch evidence, not recordings/. The opened-corridor variation is a separate recipe.",
+  "segments": [
+    {
+      "seed": 73918421,
+      "datetime": "20370614110500",
+      "nethackrc": "OPTIONS=name:RecoilWitnessB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n  #wizgenesis\nhostile giant mummy\n . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

@@ -90,6 +90,23 @@ function writeRecorderTtyLine(display, row, value) {
     return column;
 }
 
+// C ref: win/tty/topl.c update_topl()'s same-line append arm advances the
+// message cursor over its two-space separator, then addtopl() writes only the
+// new bytes and calls cl_end(). Keep the already-rendered prefix intact:
+// putsyms() ignores recorder-shadow high-bit bytes while still advancing the
+// source cursor, and cl_end() clears only after the appended text.
+function appendRecorderTtyLine(display, startColumn, row, value) {
+    let column = startColumn;
+    for (const ch of String(value)) {
+        if (column >= display.cols) break;
+        if (ch !== '\0')
+            display.setCell(column, row, ch, NO_COLOR, 0);
+        ++column;
+    }
+    display.setCursor(column, row);
+    display.clearToEol();
+}
+
 function snapshotRows(display, rowCount) {
     return display.grid.slice(0, rowCount).map(
         (row) => row.map((cell) => ({ ...cell })),
@@ -512,14 +529,24 @@ async function ttyPlineCore(message, state, pflags, mixedFirstCell = null) {
     if (current
         && !deathMessage
         && fitsOnTtyTopline(current, next, columns)) {
-        // C addtopl() appends after the existing bytes and does not repaint
-        // their cells. Preserve tty_putmixed()'s rendered DEC first cell
-        // while extending the pending raw-byte message.
+        // topl.c update_topl() appends two spaces to the source buffer, moves
+        // cw->curx past them, then addtopl() paints the new bytes and clears
+        // the remainder. Do not redraw the prefix: its first cell may be a
+        // tty_putmixed() DEC glyph, and ignored high-bit cells retain their
+        // existing shadow-grid attributes.
         rememberPendingMessage(
             state,
             `${current}  ${next}`,
             state._ttyMixedFirstCell ?? null,
         );
+        if (!stoppedAtEntry && state.nhDisplay) {
+            appendRecorderTtyLine(
+                state.nhDisplay,
+                current.length + 2,
+                0,
+                next,
+            );
+        }
         state._ttyPreviousMessage = normalizedMessage;
         if (msgtype === MSGTYP_STOP)
             await displayPendingTtyMessageWindow(state);

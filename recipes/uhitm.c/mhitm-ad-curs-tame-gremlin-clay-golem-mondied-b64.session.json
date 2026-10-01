@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 87392301,
+      "datetime": "20381112231500",
+      "nethackrc": "OPTIONS=name:NightCursWitness,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\ntame gremlin\n #wizgenesis\nhostile clay golem\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . ",
+      "comment": "Blocked source recipe. C creates the tame Gremlin and hostile clay golem, but dogmove.c:dog_move (1119-1122) skips the pet attack when target m_lev >= m_lev + (5*mhp/mhpmax) - 2 at full HP; the clay golem attacks the hero instead. This does not exercise monster-to-monster AD_CURS or mondied -> make_corpse. The recorded C artifact’s JS replay first diverges at step 61 in mhitu.c:mattacku/hitmu; retain that source limitation and keep the C artifact outside recordings/."
+    }
+  ],
+  "comment": "Blocked source recipe for uhitm.c:mhitm_ad_curs monster-to-monster coverage and mon.c:mondied -> make_corpse. The full-health clay golem exceeds dogmove.c:dog_move’s pet balk threshold, so the tame Gremlin does not attack it; C only records clay-golem attacks against the hero. The current JS replay also diverges at the first hero attack in mhitu.c:mattacku, before the target branch. Keep this input as a blocked recipe, not a passing recording."
+}

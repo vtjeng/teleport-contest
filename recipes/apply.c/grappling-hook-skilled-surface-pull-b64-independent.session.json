@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Preserved independent C-first Ranger setup miss. C u_init.c confirms Ranger P_FLAIL is skilled, but the wished grappling hook was assigned inventory letter `g`; frozen input selected `p`, so use_grapple and its source Aim for what? menu never ran. Keep the exact C artifact in scratch evidence and use a separately named corrected recipe.",
+  "segments": [
+    {
+      "seed": 48733129,
+      "datetime": "20350807093000",
+      "nethackrc": "OPTIONS=name:HookRangerB64,role:Ranger,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " #wizwish\ngrappling hook\nap $l.c"
+    }
+  ]
+}

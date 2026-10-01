@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923220,
+      "datetime": "20320214232000",
+      "nethackrc": "OPTIONS=name:CursGolem,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tda#polyself\ngremlin\n #wizgenesis\nhostile clay golem\nhhhhhhhhhh          "
+    }
+  ],
+  "comment": "Independent fresh-seed C-first setup miss. After dropping only the starting quarterstaff, C transformed the Wizard into a Gremlin but rejected movement with `You can’t even move a handspan with this load!`; remaining genesis/attack keys were consumed while overloaded. The later movement refusal comes from hack.c:test_move. Preserve as C-only blocked setup, not passing evidence."
+}

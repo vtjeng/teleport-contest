@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first B64 route for dokick.c:kick_door's distinct Levitation arm -> kick_ouch -> hurtle caller. The recorded seed places the Healer beside a west door and gave this route a source-appropriate wall/out-of-bounds brace after crossing west. Ordinary close attempts repeatedly failed by their C rn2(25) roll, so this frozen debug recipe uses the supported objnam.c:wizterrainwish `closed door` state setter while standing on the already-open doorway. A blessed potion keeps Levitation active during the setup. C must still show the closed target and execute the dokick -> kick_door -> kick_ouch -> hurtle source sequence; this setup helper is not completion evidence for objnam.c.",
+  "segments": [
+    {
+      "seed": 8410357,
+      "datetime": "20320418111707",
+      "nethackrc": "OPTIONS=name:KickDoorWishedClosedB64,role:Healer,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\nblessed potion of levitation\nqmohohohohohh#wizwish\nclosed door\nh\u0004l"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first corrected B64 use_grapple variation. The prior frozen variation showed C placed the wished grappling hook at inventory letter `p`; this recipe changes only the observed selection key from `n` to `p` before targeting the nearby floor. This is a menu-input correction, not a seed search. Inspect the source tohit draw and outcome before JS comparison.",
+  "segments": [
+    {
+      "seed": 30651719,
+      "datetime": "20370321104500",
+      "nethackrc": "OPTIONS=name:HookPullVariationB64,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " #wizwish\ngrappling hook\nap $l."
+    }
+  ]
+}

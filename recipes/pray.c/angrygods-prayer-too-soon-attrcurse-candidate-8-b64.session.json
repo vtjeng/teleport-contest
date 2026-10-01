@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first caller attempt. This source-valid Rogue/Orc produces angrygods case 3 on the first too-soon prayer (rn2(4)=3) and case 0 on the second (rn2(8)=0); neither calls attrcurse. Preserve outside recordings/ as exact non-target outcomes.",
+  "segments": [
+    {
+      "seed": 60258137,
+      "datetime": "20260821141600",
+      "nethackrc": "OPTIONS=name:AngerProbeH,role:Rogue,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#pray\ny n  #pray\ny n  "
+    }
+  ]
+}
