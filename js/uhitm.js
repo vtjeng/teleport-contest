@@ -516,6 +516,7 @@ import {
 import {
     can_twoweapon,
     cantwield,
+    drop_uswapwep,
     untwoweapon,
     uwepgone,
 } from './wield.js';
@@ -1895,7 +1896,7 @@ export async function hmonas(mon, state = game, env = {}) {
         sums[i] = hitflags.value;
 
         if (state.uswapwep && weapon === state.uswapwep && weapon.cursed) {
-            note_unported('wield.c drop_uswapwep');
+            await drop_uswapwep(state, attackEnv);
             break;
         }
         if (mon.mhp < 1) break;
@@ -2012,7 +2013,8 @@ export async function do_attack(monster, state = game, env = {}) {
     }
 
     if (swing) {
-        if (state.u.twoweap && !(await can_twoweapon(state)))
+        if (state.u.twoweap
+            && !(await can_twoweapon(state, attackEnv)))
             await untwoweapon(state);
 
         if (state.unweapon) {

@@ -1458,7 +1458,10 @@ test('curse applies its BUC transition to monster-owned items of either class', 
         blessed: true,
         cursed: false,
     };
-    curse(armor, { state });
+    const armorCurse = curse(armor, { state });
+    assert.equal(armorCurse, armor);
+    assert.equal(typeof armorCurse?.then, 'undefined',
+        'a monster-owned ordinary curse completes synchronously');
     assert.equal(armor.blessed, false);
     assert.equal(armor.cursed, true);
 
@@ -1470,7 +1473,10 @@ test('curse applies its BUC transition to monster-owned items of either class', 
         blessed: true,
         cursed: false,
     };
-    curse(weapon, { state });
+    const weaponCurse = curse(weapon, { state });
+    assert.equal(weaponCurse, weapon);
+    assert.equal(typeof weaponCurse?.then, 'undefined',
+        'an ordinary monster-owned weapon curse stays synchronous');
     assert.equal(weapon.blessed, false);
     assert.equal(weapon.cursed, true);
 });

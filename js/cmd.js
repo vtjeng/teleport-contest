@@ -383,7 +383,6 @@ import {
     dotwoweapon,
     dowieldquiver,
     dowield,
-    UnsupportedTwoWeaponError,
     UnsupportedWieldError,
     cantwield,
 } from './wield.js';
@@ -2875,10 +2874,6 @@ export function failClosedCommandRefusals() {
         // completes normally, so only selected objects reach this refusal.
         UnsupportedReadError,
         UnsupportedSteedError,
-        // wield.c can_twoweapon()'s artifact and slippery-or-cursed arms,
-        // both of which stop before the command prints anything or draws its
-        // rnd(20).
-        UnsupportedTwoWeaponError,
         // The `f` command's three files. dothrow.c collects every branch of
         // the throw itself, wield.c the ones ready_weapon() reaches when the
         // swap-and-retry arm puts a launcher in the hero's hand, zap.c the

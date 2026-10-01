@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 47109321,
+      "datetime": "20420317112233",
+      "nethackrc": "OPTIONS=name:CurseSwapA67,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": " #twoweapon\n #wizintrinsic\ng\n \u0017uncursed scroll of remove curse\nrg   \u001b"
+    }
+  ],
+  "_comment": "C-first blocked support-caller probe: an eligible Samurai starts with both weapons, #twoweapon activates the alternate slot, #wizintrinsic g applies Confusion, and an uncursed remove-curse scroll reaches read.c:seffect_remove_curse's confused inventory loop. C does not print a secondary-drop message in this recording, so it does not establish mkobj.c:curse -> wield.c:drop_uswapwep runtime coverage. The first frozen attempt used q after the wish; C's recorded wish result put the scroll at slot g, so this independent input corrects the source-observed item selection before any JavaScript comparison. Seed/time were selected before the first C attempt; no JavaScript result informed them."
+}

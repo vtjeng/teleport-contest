@@ -6,17 +6,21 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { failClosedCommandRefusals } from '../js/cmd.js';
 import {
     A_DEX,
     ECMD_OK,
     ECMD_TIME,
     GLIB,
+    OBJ_FLOOR,
     OBJ_INVENT,
+    W_QUIVER,
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
+import { ART_STORMBRINGER, init_artifacts } from '../js/artifacts.js';
 import { weapon_status } from '../js/display.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import { could_twoweap } from '../js/mondata.js';
 import {
     AT_WEAP,
@@ -24,7 +28,9 @@ import {
     PM_SAMURAI,
     monst_globals_init,
 } from '../js/monsters.js';
-import { UnsupportedObjectOperationError, newObject } from '../js/obj.js';
+import {
+    UnsupportedObjectOperationError, curse, newObject,
+} from '../js/obj.js';
 import {
     ARROW,
     BOW,
@@ -32,6 +38,7 @@ import {
     KATANA,
     OIL_LAMP,
     PICK_AXE,
+    RUNESWORD,
     SHORT_SWORD,
     TWO_HANDED_SWORD,
     objects_globals_init,
@@ -39,11 +46,7 @@ import {
 import { init_objects } from '../js/o_init.js';
 import { enableRngLog, getRngLog, initRng, rnd } from '../js/rng.js';
 import { roles } from '../js/roles.js';
-import {
-    UnsupportedTwoWeaponError,
-    can_twoweapon,
-    dotwoweapon,
-} from '../js/wield.js';
+import { can_twoweapon, dotwoweapon } from '../js/wield.js';
 
 // roles.js keeps the role records in role.c's order, so these are the indices
 // role.c:113 (Caveman), :275 (Priest) and :533 (Wizard) sit at.
@@ -116,16 +119,30 @@ async function refusal(state) {
     return state._pending_message;
 }
 
-async function stoppedRefusal(state) {
-    let caught = null;
-    await assert.rejects(() => can_twoweapon(state), (error) => {
-        caught = error;
-        return error instanceof UnsupportedTwoWeaponError;
+async function messageRefusal(state) {
+    const messages = [];
+    const result = await can_twoweapon(state, {
+        message: async (text) => { messages.push(text); },
     });
-    // A stopped arm must print nothing, because js/cmd.js retries the whole
-    // command from this boundary.
-    assert.equal(state._pending_message, undefined);
-    return caught.message;
+    return { messages, result };
+}
+
+// A real Samurai start supplies wield.c's u_init.c primary katana and
+// secondary short sword, plus the level and inventory chains that do.c:dropx()
+// needs. The fixed seed and date only make this setup repeatable.
+async function startLiveSamurai() {
+    await runSegment({
+        seed: 7700376,
+        datetime: '20260214031500',
+        nethackrc: [
+            'OPTIONS=name:Melee,role:Samurai,race:human,gender:male,align:lawful',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=pettype:none,!acoustics',
+            '',
+        ].join('\n'),
+        moves: '',
+    });
+    return game;
 }
 
 // mondata.h:129-132 sums three equality tests over mattk[0..2] and asks for a
@@ -278,25 +295,133 @@ test('can_twoweapon refuses a worn shield', async () => {
         "You can't use two weapons while wearing a shield.");
 });
 
-test('can_twoweapon stops on an artifact in the secondary slot', async () => {
-    // wield.c:791-793, which tests uswapwep only. Yobjnam2() needs yname()'s
-    // artifact branch, which is unported, so the arm stops with no output.
-    const state = armHero(makeState());
-    state.uswapwep.oartifact = 1;
-    assert.match(await stoppedRefusal(state), /artifact/u);
+test('can_twoweapon reports an artifact held second to another weapon', async () => {
+    // wield.c:791-793 tests the secondary artifact after the shield arm and
+    // before the unreachable corpse and Glib/cursed drop arms.
+    const state = await startLiveSamurai();
+    init_artifacts(state);
+    // Artifact.c starts every artifact absent. Model an existing Stormbringer
+    // carried as the Samurai's secondary so Yobjnam2 follows the real named
+    // artifact path while the test isolates wield.c:791-793.
+    state.artiexist[ART_STORMBRINGER].exists = 1;
+    state.uswapwep = object(state, RUNESWORD, {
+        oartifact: ART_STORMBRINGER,
+        owornmask: W_SWAPWEP,
+    });
+    const messages = [];
+    assert.equal(await can_twoweapon(state, {
+        message: async (text) => { messages.push(text); },
+    }), false);
+    assert.equal(messages.length, 1);
+    assert.match(messages[0], /being held second to another weapon!/u);
 });
 
-test('can_twoweapon stops on slippery fingers and a cursed secondary', async () => {
-    // wield.c:797-801. Glib (youprop.h:112) and uswapwep->cursed refuse
-    // separately; each drops the secondary weapon through drop_uswapwep(),
-    // which do.c's dropx() does not admit yet.
-    const cursed = armHero(makeState());
-    cursed.uswapwep.cursed = 1;
-    assert.match(await stoppedRefusal(cursed), /slippery-or-cursed/u);
+test('Glib refuses two-weapon combat by dropping the secondary without RNG',
+    async () => {
+        const state = await startLiveSamurai();
+        const secondary = state.uswapwep;
+        assert.ok(secondary);
+        // youprop.h:112 defines Glib from this intrinsic field. C's
+        // wield.c:797-801 drop path itself consumes no random value.
+        state.u.uprops[GLIB] = { intrinsic: 1 };
+        const messages = [];
+        enableRngLog();
+        const before = getRngLog().length;
 
-    const glib = armHero(makeState());
-    glib.u.uprops[GLIB] = { intrinsic: 1 };
-    assert.match(await stoppedRefusal(glib), /slippery-or-cursed/u);
+        assert.equal(await can_twoweapon(state, {
+            message: async (text) => { messages.push(text); },
+        }), false);
+
+        assert.deepEqual(messages, [
+            // objects.c calls the Samurai's short-sword appearance a
+            // wakizashi; role-specific object naming is active in this game.
+            'Your wakizashi slips from your left hand!',
+        ]);
+        assert.equal(state.uswapwep, null);
+        assert.equal(secondary.owornmask, 0);
+        assert.equal(secondary.where, OBJ_FLOOR);
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], secondary);
+        assert.deepEqual(getRngLog().slice(before), []);
+    });
+
+test('dropping a secondary that is also quivered clears both C slots',
+    async () => {
+        const state = await startLiveSamurai();
+        const secondary = state.uswapwep;
+        // worn.c:91-94 permits W_SWAPWEP|W_QUIVER on one object; do.c:811-818
+        // then calls setuqwep(NULL) and setuswapwep(NULL) for that object.
+        secondary.owornmask |= W_QUIVER;
+        state.uquiver = secondary;
+        state.u.uprops[GLIB] = { intrinsic: 1 };
+        const messages = [];
+
+        assert.equal(await can_twoweapon(state, {
+            message: async (text) => { messages.push(text); },
+        }), false);
+
+        assert.deepEqual(messages, [
+            'Your wakizashi slips from your left hand!',
+        ]);
+        assert.equal(state.uswapwep, null);
+        assert.equal(state.uquiver, null);
+        assert.equal(secondary.owornmask, 0);
+        assert.equal(secondary.where, OBJ_FLOOR);
+    });
+
+test('a cursed secondary drops with the non-two-weapon message', async () => {
+    const state = await startLiveSamurai();
+    const secondary = state.uswapwep;
+    // This fixture isolates can_twoweapon's cursed arm while u.twoweap is off.
+    secondary.cursed = true;
+    const messages = [];
+
+    assert.equal(await can_twoweapon(state, {
+        message: async (text) => { messages.push(text); },
+    }), false);
+
+    assert.match(messages[0], /evades your grasp and drops from your left hand!/u);
+    assert.equal(state.uswapwep, null);
+    assert.equal(secondary.where, OBJ_FLOOR);
+});
+
+test('curse waits for the active secondary drop before returning', async () => {
+    const state = await startLiveSamurai();
+    const secondary = state.uswapwep;
+    state.u.twoweap = true;
+    const messages = [];
+    let releaseMessage;
+    let startMessage;
+    const messageGate = new Promise((resolve) => {
+        releaseMessage = resolve;
+    });
+    const messageStarted = new Promise((resolve) => {
+        startMessage = resolve;
+    });
+
+    const pending = curse(secondary, {
+        state,
+        message: async (text) => {
+            messages.push(text);
+            startMessage();
+            await messageGate;
+        },
+    });
+    assert.equal(typeof pending?.then, 'function');
+    // C sets BUC before drop_uswapwep(); the equipped slot remains until the
+    // branch's first message finishes and the awaited drop reaches do.c:dropz.
+    assert.equal(secondary.cursed, true);
+    await messageStarted;
+    assert.equal(state.uswapwep, secondary);
+    releaseMessage();
+    assert.equal(await pending, secondary);
+
+    assert.deepEqual(messages, [
+        // Yobjnam() likewise uses the role-specific wakizashi appearance.
+        'Your left hand spasms and drops your wakizashi!',
+    ]);
+    assert.equal(state.uswapwep, null);
+    assert.equal(secondary.owornmask, 0);
+    assert.equal(secondary.where, OBJ_FLOOR);
 });
 
 // Drive dotwoweapon() with the core RNG positioned so that the single
@@ -351,13 +476,6 @@ test('dotwoweapon redraws the status line when weaponstatus is on', async () => 
     // and only a lance held on a steed turns it into "Dual+joust". This is
     // the field the redraw above exists to repaint.
     assert.equal(weapon_status(state), 'Dual-weps');
-});
-
-test('a stopped can_twoweapon() arm ends the command, not the run', () => {
-    // js/allmain.js tests this list to turn the two stopped arms into a
-    // retryable command boundary rather than a failed segment. Neither arm is
-    // reachable from a recorded input, so nothing else can pin the entry.
-    assert.ok(failClosedCommandRefusals().includes(UnsupportedTwoWeaponError));
 });
 
 // invent.c update_inventory() repaints the persistent-inventory window.

@@ -1865,5 +1865,14 @@ test('hmonas source keeps attack selection, results, passive, and knockback orde
         /case AT_EXPL:[\s\S]*?sum\[i\] = explum\(mon, mattk\);[\s\S]*?case AT_ENGL:[\s\S]*?sum\[i\] = gulpum\(mon, mattk\);/u);
     assert.match(cFunction,
         /passive\(mon, weapon,[\s\S]*?mhitm_knockback\(&gy\.youmonst, mon, mattk, &sum\[i\], weapon_used\)/u);
+    assert.match(cFunction,
+        /mhitm_knockback\(&gy\.youmonst, mon, mattk, &sum\[i\], weapon_used\)\)\s*break;[\s\S]*?if \(uswapwep && weapon == uswapwep && weapon->cursed\) \{\s*drop_uswapwep\(\);\s*break;/u);
     assert.match(cFunction, /if \(DEADMONSTER\(mon\)\)\s+break;/u);
+
+    const jsSource = readFileSync(new URL('../js/uhitm.js', import.meta.url), 'utf8');
+    const jsStart = jsSource.indexOf('export async function hmonas(');
+    const jsEnd = jsSource.indexOf('// C ref: uhitm.c hitum()', jsStart);
+    const jsFunction = jsSource.slice(jsStart, jsEnd);
+    assert.match(jsFunction,
+        /await mhitm_knockback\([\s\S]*?break;\s*\}\s*sums\[i\] = hitflags\.value;\s*if \(state\.uswapwep && weapon === state\.uswapwep && weapon\.cursed\) \{\s*await drop_uswapwep\(state, attackEnv\);\s*break;/u);
 });
