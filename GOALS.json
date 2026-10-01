@@ -123838,7 +123838,7 @@
     {
       "id": "fix-do-dropx-hallucination-v14-20260930",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Permit source-ordered ordinary drops under Hallucination",
       "cFile": "do.c",
       "sessions": [],
@@ -123850,8 +123850,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dropx",
       "session": "synthetic/v14/archeologist-drops-item-while-hallucinating",
       "step": 40,
@@ -124025,7 +124028,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
