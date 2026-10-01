@@ -129856,6 +129856,757 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wield-can-twoweapon-drop-uswapwep-synthetic-v13-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete two-weapon eligibility and secondary-weapon drop",
+      "cFile": "wield.c",
+      "sessions": [
+        "synthetic/v13/glib-refuses-dual-wield-and-drops-secondary"
+      ],
+      "selectionReason": "Continue from the saved B71 actionable queue. The complete v13 case synthetic/v13/glib-refuses-dual-wield-and-drops-secondary has 90/91 matching screens and cursors and 2291/2291 matching RNG calls; its first stop is segment 0 step 90 at wield.c:can_twoweapon, where a Glib hero attempts #twoweapon with an eligible secondary short sword. C prints the slip message, drops that weapon, clears uswapwep in do.c:dropz and returns FALSE without the success-only rnd(20). Implement both whole wield.c functions and the exact required source drop/cursed-secondary caller wiring. Preserve the saved case’s batch, manifest and recording identity rather than specializing behavior to its seed or item. Root verified the current saved batch measurements and the complete source definitions. Only the wield.c pair receives whole-function credit; supporting caller and drop-path changes remain limited to their source branches.",
+      "detail": "Preserve every can_twoweapon refusal and the success return, then implement all three drop_uswapwep messages and its source-ordered dropx/dropz placement. Wire the consumed eligibility and discarded drop callers, propagate awaited messages and secondary-drop completion before later curse effects, and clear combined secondary/quiver slots in C order. Matching production evidence is the admitted v13 dotwoweapon route; other caller coverage limits remain explicit.",
+      "openedAt": "638cbe5897e3f7f2f965dbb31350a02ef5c6ccab",
+      "openStanding": {
+        "sha": "6e468194555b6d0697955a74168f223c60b25067",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "can_twoweapon",
+          "line": 761,
+          "endLine": 808,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "drop_uswapwep",
+          "line": 809,
+          "endLine": 833,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 761,
+        "to": 833
+      },
+      "syntheticProvenance": {
+        "synthetic/v13/glib-refuses-dual-wield-and-drops-secondary": {
+          "session": "synthetic/v13/glib-refuses-dual-wield-and-drops-secondary",
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recordingPath": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json",
+          "recordingSha256": "cb3edc91389f03c70595f030b6f94c4ef8c4ab688ba28a5001a01621182b8f04",
+          "evaluationPath": "challenges/evaluations/20261001122704-v13.json",
+          "evaluationCommit": "d6d6658adfb072006581fa2ac0dcbc3605f93f34"
+        }
+      },
+      "activeStanding": {
+        "sha": "6e468194555b6d0697955a74168f223c60b25067",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v13",
+          "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+          "session": "synthetic/v13/glib-refuses-dual-wield-and-drops-secondary",
+          "manifestPath": "challenges/manifests/v13.json",
+          "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+          "recording": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json",
+          "recordingPath": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json",
+          "recordingSha256": "cb3edc91389f03c70595f030b6f94c4ef8c4ab688ba28a5001a01621182b8f04",
+          "recipe": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.recipe.session.json",
+          "recipeSha256": "4095fb9e6eee8487a7c1a58ff81d1c65f6186d042919a4123d02e1e70cf17036",
+          "replayInputSha256": "39166fe8ca1bd7a0257f347bc7523360803c25dd1ac5871db0f6a26b9001f326",
+          "evaluationPath": "challenges/evaluations/20261001122704-v13.json",
+          "evaluationCommit": "d6d6658adfb072006581fa2ac0dcbc3605f93f34",
+          "evaluationArtifact": "challenges/evaluations/20261001122704-v13.json",
+          "evaluationUtc": "2026-10-01T12:27:23.891Z",
+          "remainingScreens": 1,
+          "recordedSteps": 91,
+          "previousScreensMatched": 90,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 90,
+              "total": 91
+            },
+            "rng": {
+              "matched": 2291,
+              "total": 2291
+            },
+            "cursors": {
+              "matched": 90,
+              "total": 91
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: can_twoweapon()'s slippery-or-cursed refusal (wield.c:797-801)",
+            "step": 90
+          },
+          "step": 90,
+          "kind": "stop",
+          "sourceFile": "wield.c",
+          "function": "can_twoweapon",
+          "message": "unsupported hero command: an unported branch of this command: can_twoweapon()'s slippery-or-cursed refusal (wield.c:797-801)",
+          "cFile": "wield.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v13/glib-refuses-dual-wield-and-drops-secondary.json",
+            "result": {
+              "session": "synthetic/v13/glib-refuses-dual-wield-and-drops-secondary",
+              "corpus": "synthetic",
+              "batch": "v13",
+              "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+              "manifestPath": "challenges/manifests/v13.json",
+              "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+              "recordingSha256": "cb3edc91389f03c70595f030b6f94c4ef8c4ab688ba28a5001a01621182b8f04",
+              "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+              "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "remainingScreens": 1,
+              "recordedSteps": 91,
+              "status": "complete",
+              "commit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v13",
+                "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+                "session": "synthetic/v13/glib-refuses-dual-wield-and-drops-secondary",
+                "manifestPath": "challenges/manifests/v13.json",
+                "manifestSha256": "ab0f55127b1439f208185e1f8aeda099fa55032ba6cb1c31e5ce1b2cce508f2d",
+                "recording": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json",
+                "recordingPath": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json",
+                "recordingSha256": "cb3edc91389f03c70595f030b6f94c4ef8c4ab688ba28a5001a01621182b8f04",
+                "recipe": "challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.recipe.session.json",
+                "recipeSha256": "4095fb9e6eee8487a7c1a58ff81d1c65f6186d042919a4123d02e1e70cf17036",
+                "replayInputSha256": "48dc6cd9b164e30064aa671a578eedf2d157e301a0d3b756f5b8438d827f50c1",
+                "evaluationPath": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationCommit": "35deeae3b45298577e919836bfad5c2da681ab6b",
+                "evaluationArtifact": "challenges/evaluations/20260929141337-v13.json",
+                "evaluationUtc": "2026-09-29T14:13:52.803Z",
+                "remainingScreens": 1,
+                "recordedSteps": 91,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 90,
+                    "total": 91
+                  },
+                  "rng": {
+                    "matched": 2291,
+                    "total": 2291
+                  },
+                  "cursors": {
+                    "matched": 90,
+                    "total": 91
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: can_twoweapon()'s slippery-or-cursed refusal (wield.c:797-801)",
+                  "step": 90
+                },
+                "step": 90,
+                "kind": "stop",
+                "sourceFile": "wield.c",
+                "function": "can_twoweapon",
+                "message": "unsupported hero command: an unported branch of this command: can_twoweapon()'s slippery-or-cursed refusal (wield.c:797-801)",
+                "cFile": "wield.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "A glib hero with two eligible weapons attempts #twoweapon. C can_twoweapon takes its Glib/cursed-secondary arm and drop_uswapwep prints the slip message, clears the secondary slot through do.c:dropz, and drops that weapon. JavaScript refuses at can_twoweapon; the source helper and the worn-slot drop path are both needed.",
+              "source": {
+                "file": "wield.c",
+                "branch": "After earlier form, hand, weapon, bimanual, shield, artifact, and corpse tests pass, can_twoweapon sees Glib or a cursed uswapwep. With Glib it skips set_bknown, calls drop_uswapwep, returns FALSE, and dotwoweapon returns ECMD_OK without a time-consuming draw. drop_uswapwep selects one of three messages from cursed and u.twoweap state, then calls do.c:dropx while the object is still uswapwep; do.c:dropz clears that slot before placing the object.",
+                "functions": [
+                  "can_twoweapon",
+                  "drop_uswapwep"
+                ],
+                "callers": [
+                  "wield.c:dotwoweapon consumes can_twoweapon’s Boolean result before its success-only rnd(20); js/wield.js:dotwoweapon uses the same result.",
+                  "mkobj.c:curse calls drop_uswapwep when a secondary weapon becomes cursed during active dual wielding; uhitm.c attack processing calls it when the secondary weapon is cursed after an attack. The helper must support these callers as well as can_twoweapon."
+                ],
+                "dependencies": [
+                  "objnam.c:Yobjnam2 and yobjnam, plus otense and body_part, determine the three complete source messages; implement or wire the consumed naming results rather than hardcoding the selected short sword.",
+                  "do.c:dropx/freeinv/dropz and worn setters must permit an inventory object currently in uswapwep, clear that slot at dropz’s source position, then place it and update encumbrance. js/do.js:preflight_dropx currently rejects worn or attached objects and its admitted ordinary tail calls dropzAdmitted without slot clearing.",
+                  "A cursed secondary weapon calls set_bknown before dropping when Glib is false; preserve object-knowledge update and all three message branches.",
+                  "The selected C step has no RNG; dotwoweapon must return without the success-only rnd(20) draw and preserve earlier wield behavior."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved v13 evaluation at 35deeae3b45298577e919836bfad5c2da681ab6b reports 90/91 screens and cursors, 2291/2291 RNG calls, and first stop at zero-based segment 0 step 90: can_twoweapon’s slippery-or-cursed refusal. The immutable recording is challenges/cases/v13/glib-refuses-dual-wield-and-drops-secondary.session.json, SHA256 cb3edc91389f03c70595f030b6f94c4ef8c4ab688ba28a5001a01621182b8f04.",
+                "At C segment 0 step 90, the newline accepting #twoweapon displays “Your short sword slips from your left hand!” with no RNG draw. The independent recipe reaches Glib with an eligible secondary short sword, then attempts the extended command; this verifies the Glib message branch but does not by itself verify the later floor and slot state.",
+                "Upstream nethack-c/upstream/src/wield.c:760-831 defines can_twoweapon and drop_uswapwep in order. Lines 797-801 set knowledge conditionally and call drop_uswapwep; lines 808-831 choose one of three messages and call dropx. Upstream do.c:785-842 shows dropx/freeinv and dropz, including setuswapwep(NULL) before floor placement. wield.c:843-864 calls can_twoweapon and skips rnd(20) on false. mkobj.c:1801 and uhitm.c:5843 are other drop_uswapwep call sites.",
+                "JavaScript js/wield.js:can_twoweapon around lines 260-270 throws for Glib/cursed secondary and has no drop_uswapwep. Its comment around lines 195-203 still claims Glib cannot arise, contradicted by this C-first v13 case. js/do.js:preflight_dropx around lines 1513-1555 rejects the attached slot and dropx’s admitted path reaches dropzAdmitted without clearing it; align that shared source path while preserving all existing drops."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "can_twoweapon",
+            "implementation": "js/wield.js",
+            "symbol": "can_twoweapon",
+            "sourceReview": "Read and compared the full C definition wield.c:761-804, including source branch order and return behavior. The implementation preserves could_twoweap, empty hands, TWOWEAPOK, bimanual, shield, artifact resistance, the intentionally unreachable CORPSE test, and the final Glib/cursed branch. It uses source-ordered object naming/messages, marks only a cursed non-Glib secondary known, awaits drop_uswapwep, then returns FALSE. No successful-only rnd(20) occurs on this refusal. The existing UnsupportedTwoWeaponError refusal and command fail-closed registration were removed. The saved v13 production range exercises the Glib refusal through #twoweapon.",
+            "callers": [
+              {
+                "path": "js/wield.js",
+                "symbol": "dotwoweapon",
+                "source": "wield.c:dotwoweapon, call to can_twoweapon at line 856"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "doswapweapon",
+                "source": "wield.c:doswapweapon, call to can_twoweapon at line 497"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "do_attack",
+                "source": "uhitm.c:do_attack, call to can_twoweapon at line 536"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/twoweapon.test.mjs",
+              "scripts/uhitm-to-hit.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 90,
+                "source": "The #twoweapon command reaches wield.c:dotwoweapon -> can_twoweapon; the Glib arm calls drop_uswapwep and the source drop path clears the secondary weapon."
+              }
+            ],
+            "checkedAt": "087168239651f55fe368799e31d5a568ab12737c"
+          },
+          {
+            "name": "drop_uswapwep",
+            "implementation": "js/wield.js",
+            "symbol": "drop_uswapwep",
+            "sourceReview": "Read and compared the full C definition wield.c:809-831. The JS port retains C order across all three message branches (uncursed slipping, cursed while not two-weapon wielding, and cursed while actively two-weapon wielding), then calls do.c:dropx with the object still equipped. The supporting admitted dropx/dropz branch performs ship and altar handling before clearing uwep, uquiver, and uswapwep in C order, then continues into the already admitted floor-effects path. The saved v13 range exercises the uncursed Glib branch, its #twoweapon caller, and the completed drop.",
+            "callers": [
+              {
+                "path": "js/wield.js",
+                "symbol": "can_twoweapon",
+                "source": "wield.c:can_twoweapon, call to drop_uswapwep at line 800"
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "curse",
+                "source": "mkobj.c:curse, call to drop_uswapwep at line 1801"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas, call to drop_uswapwep at line 5843"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/twoweapon.test.mjs",
+              "scripts/uhitm-to-hit.test.mjs",
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 90,
+                "source": "wield.c:dotwoweapon -> can_twoweapon -> drop_uswapwep -> do.c:dropx/dropz; the recorded Glib path drops the short sword and clears the secondary slot without a drop-specific RNG call."
+              }
+            ],
+            "checkedAt": "087168239651f55fe368799e31d5a568ab12737c"
+          }
+        ],
+        "entryPointReview": "The selected functions have active callers at wield.c:dotwoweapon:856, wield.c:doswapweapon:497, and uhitm.c:do_attack:536 for can_twoweapon; drop_uswapwep is called by wield.c:can_twoweapon:800, mkobj.c:curse:1801, and uhitm.c:hmonas:5843. The matching production evidence in this task is specifically the admitted v13 #twoweapon/dotwoweapon route through can_twoweapon and drop_uswapwep, segment 0 steps 0-90. It does not execute doswapweapon, do_attack, mkobj.c:curse, or hmonas. Source-pinned tests cover do_attack await-before-untwoweapon and the hmonas knockback -> awaited drop_uswapwep -> break order; they do not establish production runtime for those callers. The two confused-scroll C-only probes reach read.c:seffect_remove_curse but emit no secondary-drop message, so they are blocked probes and not evidence for the curse caller. The JavaScript curse continuation returns a Promise only when its source active-secondary branch drops the secondary; ordinary callers remain synchronous. Direct hero-item callers audited: read.c:seffect_remove_curse routes through awaited blessorcurse, read.c:seffect_enchant_armor curses only an armor selected by some_armor and awaits it, and fountain.c:dipfountain awaits curse and can target a carried item. read.c:seffect_remove_curse was reserved by B72 during A67 implementation and was not edited. B72 is accepted in the combined candidate. Other direct calls operate on objects that cannot alias the hero secondary. Supporting callers receive no whole-function completion credit. Do not infer runtime coverage beyond the recorded #twoweapon branch. Exact C-only probe provenance: run-w67OXT output .cache/A67-scratch/curse-secondary-confused-scroll-a67-recording.session.json (SHA-256 12de3d2ad57cef73e58de2a2cd44b45ced21665ff34be81edebc52d94ad1de94) and run-EOCMVx output .cache/A67-scratch/curse-secondary-confused-scroll-a67-variation-recording.session.json (SHA-256 19b49d21fc7139eab0358237ad08ffbaf8a64732d7b1e03c83bb2f06cd7d0577) both stop after the confused remove-curse effect without a secondary-drop message; the former used recipe SHA 3968535b0ebe5d920239da0626453109b3d648097d0feac2b6d1d9d5082b1005 and the variation used 13ad6f1db11bb79f89b731205a24a7fae1b4746ef352b9baaa1f4561e3234bd8. They are retained as C-only attempts, not JS comparisons or runtime proof.",
+        "entryPoints": [
+          {
+            "name": "#twoweapon via dotwoweapon",
+            "functions": [
+              "can_twoweapon",
+              "drop_uswapwep"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 90,
+                "source": "The #twoweapon command dispatches dotwoweapon, then the Glib refusal drops the secondary through drop_uswapwep and the source drop tail."
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-potion-make-sick-synthetic-v15-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete sickness timeout, cure, and delayed killer behavior",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v15/wizard-sets-sick-intrinsic-confirmed"
+      ],
+      "selectionReason": "The saved A66 queue has a complete investigation for synthetic/v15/wizard-sets-sick-intrinsic-confirmed. Its confirmed #wizintrinsic SICK selection reaches wizcmds.c:wiz_intrinsic -> potion.c:make_sick with no prior Sick timeout; C prints the new-illness message and then calls exercise(A_CON, FALSE), while JS currently stops at note_unported('potion.c make_sick'). The first differing draw is attrib.c:exercise rn2(2) at segment 0, step 17. This is an independently assignable source family; the other current queue owners are objnam.c:doname_base and A67's reserved wield.c dual-wield path. B72 delivery 84d9663b is now accepted and present in the merged base; B73 preserves its history while wiring the two previously reserved make_sick caller arms. Root verified the current saved batch measurements and the complete source definitions. Only potion.c:make_sick receives whole-function credit; supporting callers retain their explicit source and runtime limits.",
+      "detail": "Port the whole make_sick function in C order: resistance, illness messages, timeout and type masks, Constitution exercise and delayed-killer lifecycle. Wire every existing active JavaScript caller and preserve the named unported outer callers. Matching production evidence is the admitted v15 wiz_intrinsic route; the helper-only source range has no new command entry point.",
+      "openedAt": "07b9be1ce4e8941187ea3459c5534e6ce32b21f4",
+      "openStanding": {
+        "sha": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "52349747fb821e9310ad8d9ab9f9d294c28c1dd8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "make_sick",
+          "line": 137,
+          "endLine": 194,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 137,
+        "to": 194
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-sets-sick-intrinsic-confirmed": {
+          "session": "synthetic/v15/wizard-sets-sick-intrinsic-confirmed",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-sets-sick-intrinsic-confirmed",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+          "recordingSha256": "94ad10956f25f54f383bba6acb2529e39ad15c5e9e953174c00cd641e86bd583",
+          "evaluationPath": "challenges/evaluations/20261001134630-v15.json",
+          "evaluationCommit": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81"
+        }
+      },
+      "activeStanding": {
+        "sha": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-sets-sick-intrinsic-confirmed",
+          "session": "synthetic/v15/wizard-sets-sick-intrinsic-confirmed",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+          "recordingSha256": "94ad10956f25f54f383bba6acb2529e39ad15c5e9e953174c00cd641e86bd583",
+          "recipe": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.recipe.session.json",
+          "recipeSha256": "a47020709fdf4128e8516b2eda95dc72e442344344df582f07dcca322ad5f942",
+          "replayInputSha256": "021faee022e9bbe61e225a14cb0e11b9a57e777f58256094974eb52f033269fd",
+          "evaluationPath": "challenges/evaluations/20261001134630-v15.json",
+          "evaluationCommit": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+          "evaluationArtifact": "challenges/evaluations/20261001134630-v15.json",
+          "evaluationUtc": "2026-10-01T13:47:00.861Z",
+          "remainingScreens": 1,
+          "recordedSteps": 18,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 18
+            },
+            "rng": {
+              "matched": 2493,
+              "total": 2494
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 18
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2493,
+              "cEntry": "rn2(2)=1",
+              "cCaller": "exercise(attrib.c:509)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "stepIndex": 17
+            },
+            "cursor": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "cCursor": [
+                30,
+                0,
+                1
+              ],
+              "jsCursor": [
+                18,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 17,
+          "kind": "rng",
+          "sourceFile": "attrib.c",
+          "function": "exercise",
+          "message": null,
+          "cFile": "attrib.c",
+          "luaFile": null,
+          "line": 509,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-sets-sick-intrinsic-confirmed.json",
+            "result": {
+              "session": "synthetic/v15/wizard-sets-sick-intrinsic-confirmed",
+              "remainingScreens": 1,
+              "recordedSteps": 18,
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-sets-sick-intrinsic-confirmed",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "94ad10956f25f54f383bba6acb2529e39ad15c5e9e953174c00cd641e86bd583",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-sets-sick-intrinsic-confirmed",
+                "session": "synthetic/v15/wizard-sets-sick-intrinsic-confirmed",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json",
+                "recordingSha256": "94ad10956f25f54f383bba6acb2529e39ad15c5e9e953174c00cd641e86bd583",
+                "recipe": "challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.recipe.session.json",
+                "recipeSha256": "a47020709fdf4128e8516b2eda95dc72e442344344df582f07dcca322ad5f942",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 1,
+                "recordedSteps": 18,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 18
+                  },
+                  "rng": {
+                    "matched": 2493,
+                    "total": 2494
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 18
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2493,
+                    "cEntry": "rn2(2)=1",
+                    "cCaller": "exercise(attrib.c:509)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "stepIndex": 17
+                  },
+                  "cursor": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      30,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      18,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 17,
+                "kind": "rng",
+                "sourceFile": "attrib.c",
+                "function": "exercise",
+                "message": null,
+                "cFile": "attrib.c",
+                "luaFile": null,
+                "line": 509
+              },
+              "summary": "The remaining screen is owned by the unported whole function potion.c:make_sick, called by the SICK arm of wizcmds.c:wiz_intrinsic after the menu selection is confirmed. With no prior Sick timeout, wiz_intrinsic supplies 30; the recorded rn2(2)=1 selects SICK_NONVOMITABLE. make_sick sets the timed Sick intrinsic and type, prints “You feel deathly sick.”, calls exercise(A_CON, FALSE) for the missing rn2(2) draw, and stores #wizintrinsic with KILLED_BY delayed attribution. At expiry, timeout.c:nh_timeout decrements the property, skips recovery for nonvomitable sickness, transfers the saved delayed killer to game-over state, and ends with done_timeout(POISONING, SICK).",
+              "source": {
+                "file": "potion.c",
+                "branch": "The wizard-mode #wizintrinsic SICK arm is reached after a confirmed menu pick; Sick_resistance is false, the prior Sick timeout is zero, and the positive timeout is 30. The call passes the selected sickness type and cause string #wizintrinsic.",
+                "functions": [
+                  "make_sick"
+                ],
+                "callers": [
+                  "apply.c:use_unicorn_horn (2271, 2351)",
+                  "artifact.c:invoke_healing (1808)",
+                  "eat.c:eatcorpse (1913)",
+                  "eat.c:fpostfx (2578)",
+                  "eat.c:vomit (3746)",
+                  "end.c:savelife (725)",
+                  "mhitu.c:diseasemu (1039)",
+                  "polyself.c:newman (416)",
+                  "polyself.c:polymon (839)",
+                  "potion.c:peffect_water (750)",
+                  "potion.c:healup (1454)",
+                  "pray.c:fix_worst_trouble (415)",
+                  "sit.c:throne_sit_effect (98)",
+                  "timeout.c:nh_timeout (698)",
+                  "uhitm.c:mhitm_ad_heal (4353)",
+                  "wizcmds.c:wiz_intrinsic (1037)"
+                ],
+                "dependencies": [
+                  "potion.c:set_itimeout: void state update; writes the timeout field of u.uprops[SICK].intrinsic through itimeout().",
+                  "attrib.c:exercise: void state/RNG side effect; exercise(A_CON, FALSE) is called while Sick remains and consumes rn2(2) at attrib.c:509 when |AEXE(A_CON)| < AVAL.",
+                  "end.c:find_delayed_killer: returned struct kinfo pointer is consumed as kptr to decide whether to replace the pending SICK cause and whether to deallocate it on cure.",
+                  "end.c:delayed_killer: void state update; stores the SICK delayed-killer cause and its prefix.",
+                  "end.c:dealloc_killer: void state update; removes the saved SICK cause when the property clears.",
+                  "strcmp: return is consumed to use KILLED_BY for cause #wizintrinsic and KILLED_BY_AN for other causes."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The supplied C recording challenges/cases/v15/wizard-sets-sick-intrinsic-confirmed.session.json, segment 0 steps 15–17, shows the “Which intrinsics?” menu, the e selection marker on “fatally sick”, then Enter confirming it; step 17 emits “You feel deathly sick.” and records rn2(2)=1 at wizcmds.c:1036 followed by rn2(2)=1 at exercise(attrib.c:509). The supplied diagnostic .cache/synthetic-scans/v15/wizard-sets-sick-intrinsic-confirmed.json reports that exact step-17 first mismatch, 17/18 screens matched, and unported potion.c make_sick.",
+                "At wizcmds.c:973–997, properties are listed and PICK_ANY is presented; lines 1000–1017 convert the confirmed pick to a property and derive/clamp its timeout. With this property initially unset and the default count, newtimeout is 30. Lines 1035–1037 choose SICK_NONVOMITABLE for the recorded rn2(2)=1 and call make_sick(newtimeout, \"#wizintrinsic\", TRUE, typ).",
+                "The complete source owner is potion.c:137–191. For positive timeout and no Sick_resistance, make_sick emits the newly-sick message when Sick was zero, stores the timed intrinsic with set_itimeout, ORs the sickness kind into u.usick_type, and marks disp.botl. It then finds the SICK delayed-killer record and, while Sick remains, calls exercise(A_CON, FALSE).",
+                "attrib.c:488–518 defines exercise; line 509 applies -rn2(2) for a decrement when the attribute exercise value is below AVAL. This is the second recorded draw missing after the JS wizcmds.js:402–407 branch currently draws the type and only calls note_unported(\"potion.c make_sick\").",
+                "The timer and cause are consumed later by timeout.c:671–723: nh_timeout decrements every timed intrinsic, handles SICK expiry, permits recovery only when SICK_NONVOMITABLE is absent, transfers the delayed killer into svk.killer, calls done_timeout(POISONING, SICK), and clears u.usick_type. In potion.c:184–188, #wizintrinsic selects KILLED_BY and is stored with delayed_killer; end.c:1707–1734 defines that record and its lookup, while timeout.c:571–585 sends the final cause through done()."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "make_sick",
+            "implementation": "js/potion.js",
+            "symbol": "make_sick",
+            "sourceReview": "Read the whole potion.c:make_sick() definition (137-192). Its disabled #if 0 Unaware block has no runtime effect. For xtime > 0, Sick_resistance returns before output, state writes, or exercise; otherwise C distinguishes the newly-sick message from the optional already-sick message, sets only the SICK timeout, ORs the supplied usick_type, and dirties botl. For a cure, C clears only the selected usick_type bits, doubles the remaining timeout when another sickness kind remains, or clears Sick directly when none remains; it dirties botl after either transition. It then finds the delayed SICK killer. While Sick remains it calls exercise(A_CON,FALSE), then replaces the killer only when xtime || !old || !kptr, using KILLED_BY only for #wizintrinsic; when Sick is clear it deallocates the existing killer. js/potion.js preserves that evaluation/state order, awaits the async exercise call with the existing caller RNG and encumbrance seam, and reuses set_itimeout/find_delayed_killer/delayed_killer/dealloc_killer rather than creating another state owner. The positive-duration and partial/full cure tests pin each branch and the mocked rn2 bound/count. The supporting eat.c:maybe_cannibal() expansion completes its consumed were.c:were_beastie(pm) === u.ulycn disjunct using the existing helper; it receives no additional source-unit credit in this potion.c goal. The polymon caller also preserves polyself.c:838-841: after installing the new form, C tests Sick_resistance (youprop.h:69-70, form SICK_RES or defended(AD_DISE)); JS includes the defense check before curing all sickness types and printing the recovery message. scripts/polyself.test.mjs pins this macro and call order.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_unicorn_horn",
+                "source": "apply.c:use_unicorn_horn:2271 (cursed sickness) and 2351 (SICK cure)"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_healing",
+                "source": "artifact.c:invoke_healing:1808"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eatcorpse",
+                "source": "eat.c:eatcorpse:1913"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "fpostfx",
+                "source": "eat.c:fpostfx:2578"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "vomit",
+                "source": "eat.c:vomit:3746"
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "savelife",
+                "source": "end.c:savelife:725"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c:newman:416"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon:839"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_water",
+                "source": "potion.c:peffect_water:750"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "healup",
+                "source": "potion.c:healup:1454"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c:fix_worst_trouble:415"
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "throne_sit_effect",
+                "source": "sit.c:throne_sit_effect:98"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout:698"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c:wiz_intrinsic:1037"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion-make-sick.test.mjs",
+              "scripts/eat-corpse.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/wizcmds.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-sets-sick-intrinsic-confirmed",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 17,
+                "source": "wizcmds.c:wiz_intrinsic:1035-1037 -> potion.c:make_sick:137-192 -> attrib.c:exercise:488-518"
+              }
+            ],
+            "checkedAt": "3a8be436462202bf5fbfd6a7d1dcec40333dea55"
+          }
+        ],
+        "entryPointReview": "Helper-only source range: entryPoints is empty under .agents/validation.md. The C direct caller inventory is apply.c:use_unicorn_horn:2271,2351; artifact.c:invoke_healing:1808; eat.c:eatcorpse:1913, fpostfx:2578, and vomit:3746; end.c:savelife:725; polyself.c:newman:416 and polymon:839; potion.c:peffect_water:750 and healup:1454; pray.c:fix_worst_trouble:415; sit.c:throne_sit_effect:98; timeout.c:nh_timeout:698; and wizcmds.c:wiz_intrinsic:1037. Each has its matching JS caller listed on make_sick and the former source note/refusal has been removed at those paths. The admitted v15 synthetic citation executes the helper through the #wizintrinsic SICK menu entry, including the selected sickness-kind RNG draw and make_sick’s exercise(A_CON,FALSE) call, and matches all 18 screens/cells/cursors and 2494 RNG calls. The separate C callers mhitu.c:diseasemu:1039 and uhitm.c:mhitm_ad_heal:4353 remain outside this range because their outer functions are unported; js/uhitm.js retains the exact mhitm_ad_heal boundary. They do not receive runtime coverage or source completion credit here. The B73 eatcorpse caller also forwards its existing eatOperations environment to C’s source-ordered useup/useupf cleanup, so the carried corpse’s active ROT_CORPSE timer is removed by the existing timeout.c:obj_stop_timers owner; this is supporting caller plumbing only, not a separate eat.c completion claim.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "52349747fb821e9310ad8d9ab9f9d294c28c1dd8",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

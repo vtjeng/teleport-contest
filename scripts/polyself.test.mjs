@@ -99,6 +99,16 @@ test('were_beastie maps every C were.c family member and rejects others', () => 
     assert.equal(were_beastie(PM_HUMAN_WEREJACKAL), NON_PM);
 });
 
+test('polymon cures sickness after the new form grants resistance', () => {
+    // polyself.c:838-841 runs after set_uasmon() installs FROMFORM
+    // resistances. youprop.h:69-70 also includes defended(AD_DISE), whose
+    // green-scale suit arm is easy to omit when translating the macro.
+    assert.match(C_POLYMON_FUNCTION,
+        /if \(Sick_resistance && Sick\) \{\s*make_sick\(0L, \(char \*\) 0, FALSE, SICK_ALL\);\s*You\("no longer feel sick\."\);/u);
+    assert.match(JS_POLYMON_FUNCTION,
+        /const sicknessResistance = u\.uprops\[SICK_RES\];\s*const sickResistant = Boolean\(\s*sicknessResistance\.intrinsic \|\| sicknessResistance\.extrinsic\s*\|\| defended\(state\.youmonst, M\.AD_DISE, state\),\s*\);\s*if \(sickResistant && u\.uprops\[SICK\]\.intrinsic\) \{\s*await make_sick\(0, null, false, SICK_ALL, state, env\);\s*await message\('You no longer feel sick\.', state, env\);/u);
+});
+
 test('armor_to_dragon maps source scale armor and non-dragon defaults', () => {
     assert.equal(armor_to_dragon(GRAY_DRAGON_SCALE_MAIL), PM_GRAY_DRAGON);
     assert.equal(armor_to_dragon(GREEN_DRAGON_SCALES), PM_GREEN_DRAGON);

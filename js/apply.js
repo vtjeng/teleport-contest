@@ -144,6 +144,8 @@ import {
     ROOM,
     SHOPBASE,
     SICK,
+    SICK_ALL,
+    SICK_NONVOMITABLE,
     SLIMED,
     SEE_INVIS,
     MONSEEN_INFRAVIS,
@@ -493,6 +495,7 @@ import {
     make_deaf,
     make_glib,
     make_hallucinated,
+    make_sick,
     make_vomiting,
     set_itimeout,
 } from './potion.js';
@@ -3364,14 +3367,14 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
         switch (Math.trunc(rn2(13) / 2)) {
         case 0: {
             const sickTimeout = intrinsic(SICK) & TIMEOUT;
-            // C evaluates the timeout (and its conditional RNG) before xname,
-            // even though potion.c:make_sick() is still unported here.
+            // C evaluates the timeout (and its conditional RNG) before xname.
             const sicknessDuration = sickTimeout
                 ? Math.trunc(sickTimeout / 3) + 1
                 : rn1(acurr(A_CON, state), 20);
-            xnameFresh(obj, state);
-            recordGap('potion.c make_sick');
-            void sicknessDuration;
+            const cause = xnameFresh(obj, state);
+            await make_sick(
+                sicknessDuration, cause, true, SICK_NONVOMITABLE, state, env,
+            );
             break;
         }
         case 1:
@@ -3459,7 +3462,7 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
     for (let value = 0; value < valLimit; value++) {
         switch (troubles[value]) {
         case SICK:
-            recordGap('potion.c make_sick');
+            await make_sick(0, null, true, SICK_ALL, state, env);
             didProp++;
             break;
         case BLINDED:

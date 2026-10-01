@@ -75,6 +75,7 @@ import {
     SCORR,
     SDOOR,
     SICK,
+    SICK_ALL,
     SLIMED,
     STRAT_APPEARMSG,
     STONED,
@@ -197,6 +198,7 @@ import {
     make_deaf,
     make_glib,
     make_hallucinated,
+    make_sick,
     set_itimeout,
 } from './potion.js';
 import { region_danger } from './region.js';
@@ -1131,7 +1133,7 @@ export async function fix_worst_trouble(trouble, state = game) {
         break;
     case TROUBLE_SICK:
         await ttyPline('You feel better.', state);
-        note_unported('potion.c make_sick');
+        await make_sick(0, null, false, SICK_ALL, state);
         break;
     case TROUBLE_REGION:
         note_unported('region.c region_safety');
