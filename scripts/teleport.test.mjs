@@ -62,6 +62,7 @@ import {
     rloc,
     rloc_to,
     rloc_to_flag,
+    scrolltele,
     u_teleport_mon,
 } from '../js/teleport.js';
 import { resetGame } from '../js/gstate.js';
@@ -69,6 +70,7 @@ import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { BOULDER, SCR_SCARE_MONSTER } from '../js/objects.js';
 import { newObject, place_object } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 
 const C_TELEPORT_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/teleport.c', import.meta.url), 'utf8',
@@ -182,6 +184,36 @@ test('scrolltele keeps C discovery and control decisions in source order', () =>
     assert.ok(jsControlledLearn < jsGetpos);
     assert.ok(jsGetpos < jsScrolltele.lastIndexOf('learnscroll(scroll, state)'));
 });
+
+test('wizard can decline scrolltele disorientation after the C rn2(3) gate',
+    async () => {
+        // Seed 1 makes the next ISAAC draw rn2(3)=0, selecting teleport.c's
+        // Amulet disorientation branch. The queued n declines Override? and
+        // checks that scrolltele returns before getpos or movement.
+        await runSegment({
+            seed: 1,
+            datetime: '20420101090000',
+            nethackrc: 'OPTIONS=name:OverrideCheck,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n',
+            moves: '',
+            storage: new InMemoryStorage(),
+        });
+        game.wizard = true;
+        game.u.uhave.amulet = true;
+        clearTtyMessageWindow(game);
+        const start = { x: game.u.ux, y: game.u.uy };
+        initRng(1);
+        enableRngLog();
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        // The first key dismisses the disorientation message page; the next
+        // key declines C's Override? prompt.
+        game.nhDisplay.pushKey('n'.charCodeAt(0));
+
+        await scrolltele(null, game);
+
+        assert.deepEqual(getRngLog(), ['rn2(3)=0']);
+        assert.match(game._ttyToplines, /Override\? \[yn\] \(n\) n/u);
+        assert.deepEqual({ x: game.u.ux, y: game.u.uy }, start);
+    });
 
 test('collect_coords shuffles every complete interior ring in source order', () => {
     const state = positionState();

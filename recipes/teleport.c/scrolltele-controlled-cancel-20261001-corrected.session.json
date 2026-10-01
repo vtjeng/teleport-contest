@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 24681357,
+      "datetime": "20420512104500",
+      "nethackrc": "OPTIONS=name:SideRoute,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,time\n",
+      "moves": ".\u0017uncursed scroll of teleportation\nre  \u001b\u001bs",
+      "comment": "The preserved setup miss established that the independent wish places the scroll in slot e. This corrected C-first input selects it and dismisses the read and controlled-location pages. The first Escape closes getpos's farlooking tip; the second cancels getpos. The trailing s command proves doread/scrolltele returned to gameplay. The changed seed/date/role independently vary the existing controlled-scroll recipe."
+    }
+  ],
+  "comment": "Independent production route: read.c:doread -> seffect_teleportation -> teleport.c:scrolltele. One Escape closes the getpos farlooking tip and the next cancels the destination query; the trailing search verifies return to gameplay after the complete helper call."
+}
