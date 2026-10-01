@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-led C-first replacement for the unachievable plan to set u.ulycn through #wizintrinsic. C defines mhitm_ad_were in uhitm.c; the hostile werejackal’s AT_BITE/AD_WERE attack can set the hero’s lycanthropy on rn2(4)==0 when no protection/defense applies. A debug Wizard at level 20 waits in place for the generated werejackal to attack. C must show the actual attack/infection branch and set_ulycn transition; no JavaScript comparison preceded the freeze.",
+  "segments": [
+    {
+      "seed": 73190427,
+      "datetime": "21150716143300",
+      "nethackrc": "OPTIONS=name:C56Lycan,role:Wizard,race:human,gender=male,align=neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " .#levelchange\n20\n#wizgenesis\nhostile werejackal\n...................."
+    }
+  ]
+}
