@@ -81,6 +81,9 @@ const DATETIME = '20260214031500';
 const UHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
 );
+const FLAG_H = readFileSync(
+    new URL('../nethack-c/upstream/include/flag.h', import.meta.url), 'utf8',
+);
 
 function rc({ role, gender, align, race, options }) {
     return [
@@ -218,11 +221,45 @@ test('attack_checks consumes a declined peaceful confirmation', async () => {
         },
     }), true);
     assert.equal(prompts.length, 1);
-    assert.equal(prompts[0][0], PARANOID_HIT);
+    assert.equal(prompts[0][0], false);
     assert.equal(prompts[0][1], 'Really attack the lichen?');
     assert.equal(prompts[0][2], game);
     assert.equal(game.context.move, 0);
 });
+
+test('attack_checks passes C ParanoidHit Boolean membership to the query',
+    async () => {
+        assert.match(UHITM_C,
+            /paranoid_query\(ParanoidHit, qbuf\)/u);
+        assert.match(FLAG_H,
+            /#define ParanoidHit \(\(flags\.paranoia_bits & PARANOID_HIT\) != 0\)/u);
+
+        await hero();
+        game.flags.confirm = true;
+        game.flags.paranoia_bits &= ~PARANOID_HIT;
+        const observed = [];
+        const unmasked = target(PM_LICHEN, { mpeaceful: 1 });
+        await attack_checks(unmasked, game.uwep, game, {
+            paranoidQuery: async (isParanoid) => {
+                observed.push(isParanoid);
+                return false;
+            },
+        });
+        assert.equal(observed[0], false,
+            'the absent option supplies the one-key C query mode');
+
+        game.flags.paranoia_bits |= PARANOID_HIT;
+        game.context.move = 1;
+        const masked = target(PM_LICHEN, { mpeaceful: 1 });
+        await attack_checks(masked, game.uwep, game, {
+            paranoidQuery: async (isParanoid) => {
+                observed.push(isParanoid);
+                return false;
+            },
+        });
+        assert.deepEqual(observed, [false, true],
+            'the source bit membership becomes true only when enabled');
+    });
 
 // uhitm.c:230-252. An unseen target on an ordinary glyph is announced,
 // remembered as an invisible monster, and woken before the attempted attack
@@ -519,6 +556,27 @@ test('check_caitiff applies only the two role alignment penalties',
         await check_caitiff(
             target(PM_LICHEN, { msleeping: 1 }), game, REFUSING,
         );
+    });
+
+test('check_caitiff uses the source live pline when no message is injected',
+    async () => {
+        const start = UHITM_C.indexOf('check_caitiff(struct monst *mtmp)');
+        const end = UHITM_C.indexOf('/* maybe unparalyze monster */', start);
+        const cFunction = UHITM_C.slice(start, end);
+        assert.ok(start >= 0 && end > start);
+        assert.match(cFunction,
+            /You\("dishonorably attack the innocent!"\);\s*adjalign\(-1\);/u);
+
+        await hero({ role: 'Samurai', gender: 'male', align: 'lawful' });
+        game.u.ualign.record = 0;
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        await check_caitiff(
+            target(PM_LICHEN, { mpeaceful: 1 }),
+            game,
+        );
+        assert.equal(game.nhDisplay.topMessage,
+            'You dishonorably attack the innocent!');
+        assert.equal(game.u.ualign.record, -1);
     });
 
 test('mon_maybe_unparalyze draws only for a frozen target', async () => {

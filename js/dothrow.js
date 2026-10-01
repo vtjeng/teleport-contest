@@ -551,7 +551,15 @@ export async function walk_path(source, destination, checkProc, arg) {
 // C ref: dothrow.c hurtle() (1078-1126). The walk callback owns each step;
 // this function installs C's multi-turn state and lets walk_path() stop at
 // the first source-defined obstacle or trap.
-export async function hurtle(dx, dy, range, verbose, state = game) {
+export async function hurtle(
+    dx, dy, range, verbose, state = game,
+    {
+        planning = false,
+        random = null,
+        planningDeath = null,
+        isolateVision = null,
+    } = {},
+) {
     const u = state.u;
     if (Punished(state) && state.uball?.where !== OBJ_INVENT) {
         await ttyPline('You feel a tug from the iron ball.', state);
@@ -589,7 +597,10 @@ export async function hurtle(dx, dy, range, verbose, state = game) {
 
     const source = { x: u.ux, y: u.uy };
     const destination = { x: u.ux + dx * range, y: u.uy + dy * range };
-    const walkRange = { range, state };
+    const walkRange = {
+        range, state, planning: Boolean(planning), random, planningDeath,
+        isolateVision,
+    };
     await walk_path(source, destination, hurtle_step, walkRange);
 }
 
@@ -860,12 +871,18 @@ export async function mhurtle(monster, dx, dy, range, rawEnv = {}) {
 // range and nearby state in source order; its boolean controls walk_path().
 export async function hurtle_step(arg, x, y) {
     const state = arg?.state ?? game;
+    const planning = Boolean(arg?.planning);
+    const random = arg?.random ?? { d, rn1, rn2, rnd, rne, rnl };
+    const message = planning ? async () => {} : ttyPline;
+    const norepMessage = planning ? async () => {} : ttyNorep;
+    const redraw = planning ? () => {} : newsym;
+    const flush = planning ? async () => {} : flush_screen;
     const pointer = rangePointer(arg);
     const range = () => Math.trunc(pointer.range ?? 0);
     let mayPass = true;
 
     if (!isok(x, y)) {
-        await ttyPline('You feel the spirits holding you back.', state);
+        await message('You feel the spirits holding you back.', state);
         return false;
     }
     if (!await in_out_region(x, y, { state })) return false;
@@ -889,19 +906,19 @@ export async function hurtle_step(arg, x, y) {
                     : openDoorDiagonal ? 'bumping into a door frame'
                         : 'bumping into a closed door';
             if (openDoorDiagonal)
-                await ttyPline('You hit the door frame!', state);
-            await ttyPline('Ouch!', state);
+                await message('You hit the door frame!', state);
+            await message('Ouch!', state);
         } else if (ltyp === IRONBARS) {
             why = 'crashing into iron bars';
-            await ttyPline('You crash into some iron bars.  Ouch!', state);
+            await message('You crash into some iron bars.  Ouch!', state);
         } else {
             const obj = sobj_at(BOULDER, x, y, state);
             if (obj) {
                 why = 'bumping into a boulder';
-                await ttyPline(`You bump into a ${xnameFresh(obj, state)}.  Ouch!`, state);
+                await message(`You bump into a ${xnameFresh(obj, state)}.  Ouch!`, state);
             } else if (!mayPass) {
                 why = 'touching the edge of the universe';
-                await ttyPline('You smack into something!', state);
+                await message('You smack into something!', state);
             } else if (diagonal
                 && bad_rock(state.youmonst?.data, state.u.ux, y, state)
                 && bad_rock(state.youmonst?.data, x, state.u.uy, state)) {
@@ -910,7 +927,7 @@ export async function hurtle_step(arg, x, y) {
                         > WT_TOOMUCH_DIAGONAL);
                 if (bigmonst(state.youmonst?.data) || tooMuch) {
                     why = 'wedging into a narrow crevice';
-                    await ttyPline(
+                    await message(
                         `You ${tooMuch ? 'and all your belongings ' : ''}`
                         + 'get forcefully wedged into a crevice.', state,
                     );
@@ -919,12 +936,17 @@ export async function hurtle_step(arg, x, y) {
         }
         if (why) {
             await losehp(
-                heroHalfPhysicalDamage(rnd(2 + range()), state),
+                heroHalfPhysicalDamage(random.rnd(2 + range()), state),
                 why,
                 KILLED_BY,
                 state,
+                planning ? {
+                    planning: true,
+                    message,
+                    planningDeath: arg?.planningDeath,
+                } : {},
             );
-            await wake_nearto(x, y, 10, { state });
+            await wake_nearto(x, y, 10, { state, random, message });
             return false;
         }
     }
@@ -944,13 +966,13 @@ export async function hurtle_step(arg, x, y) {
         );
         if (!glyph_is_monster(glyph) && !glyph_is_invisible(glyph)) {
             const pronoun = noitMhim(mon, state);
-            await ttyPline(`You find ${mnam} by bumping into ${pronoun}.`, state);
+            await message(`You find ${mnam} by bumping into ${pronoun}.`, state);
         } else {
-            await ttyPline(`You bump into ${mnam}.`, state);
+            await message(`You bump into ${mnam}.`, state);
         }
-        await wakeup(mon, false, { state });
+        await wakeup(mon, false, { state, random, message });
         if (!canSpotMonster(mon, state)) map_invisible(mon.mx, mon.my, state);
-        await setmangry(mon, false, { state });
+        await setmangry(mon, false, { state, random, message });
         if (touch_petrifies(mon.data) && !state.uarmu && !state.uarm
             && !state.uarmc) {
             state.killer ??= {};
@@ -961,7 +983,7 @@ export async function hurtle_step(arg, x, y) {
             && !which_armor(mon, W_ARMU | W_ARM | W_ARMC, state)) {
             note_unported('trap.c minstapetrify');
         }
-        await wake_nearto(x, y, 10, { state });
+        await wake_nearto(x, y, 10, { state, random, message });
         return false;
     }
 
@@ -969,7 +991,7 @@ export async function hurtle_step(arg, x, y) {
         && bad_rock(state.youmonst?.data, state.u.ux, y, state)
         && bad_rock(state.youmonst?.data, x, state.u.uy, state)
         && state.level.flags?.sokoban_rules) {
-        await ttyPline('You come to an abrupt halt!', state);
+        await message('You come to an abrupt halt!', state);
         return false;
     }
 
@@ -991,29 +1013,54 @@ export async function hurtle_step(arg, x, y) {
 
     const oldX = state.u.ux;
     const oldY = state.u.uy;
-    u_on_newpos(x, y, state);
-    newsym(oldX, oldY);
-    vision_recalc(1, { state });
-    await flush_screen(1);
+    // dungeon.c:u_on_newpos() observes nearby objects before its generic-glyph
+    // redraw. Preserve those clone-owned discovery writes, and record only the
+    // still-unported newsym_force output at that exact discarded-void call.
+    u_on_newpos(x, y, state, {
+        seeNearbyObjectsOptions: planning ? {
+            redraw: () => note_unported('display.c newsym_force planning'),
+        } : undefined,
+    });
+    redraw(oldX, oldY);
+    if (planning) {
+        if (typeof arg?.isolateVision !== 'function') {
+            throw new TypeError(
+                'planned hurtle requires clone-owned vision buffers',
+            );
+        }
+        arg.isolateVision(state);
+    }
+    vision_recalc(1, { state, redraw });
+    await flush(1);
     if (ltyp !== state.level.at(oldX, oldY).typ)
-        await switch_terrain(state);
-    await check_special_room(false, state);
+        await switch_terrain(state, { planning, message });
+    await check_special_room(false, state, {
+        message,
+        random: random.rn2,
+    });
 
     if (is_pool(x, y, state) && !state.u.uinwater) {
         if (state.level.at(x, y).typ === WATER
             || !(Levitation(state) || Flying(state) || heroWwalking(state))) {
             state.multi = 0;
-            await drown(state);
+            if (planning) {
+                // C discards drown()'s boolean here and returns FALSE
+                // unconditionally. Its terminal/lifesaving/relocation chain
+                // is not safe to run on the planning clone yet.
+                note_unported('trap.c drown planning');
+            } else {
+                await drown(state);
+            }
             return false;
         }
         if (!Is_waterlevel(state.u.uz) && !stoppingShort) {
-            await ttyNorep(
+            await norepMessage(
                 `You move over ${an(isMoat(x, y, state) ? 'moat' : 'pool')}.`,
                 state,
             );
         }
     } else if (is_lava(x, y, state) && !stoppingShort) {
-        await ttyNorep('You move over some lava.', state);
+        await norepMessage('You move over some lava.', state);
     }
 
     const trap = t_at(x, y, state);
@@ -1022,26 +1069,40 @@ export async function hurtle_step(arg, x, y) {
             // Jumping's last step is performed by teleds(), which applies the
             // landing trap after this callback has stopped one square short.
         } else if (trap.ttyp === MAGIC_PORTAL) {
-            await dotrap(trap, NO_TRAP_FLAGS, state);
+            await dotrap(trap, NO_TRAP_FLAGS, state, {
+                planning, random, message, redraw,
+                planningDeath: arg?.planningDeath,
+            });
             return false;
         } else if (trap.ttyp === VIBRATING_SQUARE) {
-            await ttyPline('The ground vibrates as you pass it.', state);
-            await dotrap(trap, NO_TRAP_FLAGS, state);
+            await message('The ground vibrates as you pass it.', state);
+            await dotrap(trap, NO_TRAP_FLAGS, state, {
+                planning, random, message, redraw,
+                planningDeath: arg?.planningDeath,
+            });
         } else if (trap.ttyp === FIRE_TRAP) {
-            await dotrap(trap, NO_TRAP_FLAGS, state);
+            await dotrap(trap, NO_TRAP_FLAGS, state, {
+                planning, random, message, redraw,
+                planningDeath: arg?.planningDeath,
+            });
         } else if ((is_pit(trap.ttyp) || is_hole(trap.ttyp))
             && state.level.flags?.sokoban_rules) {
-            if (!viaJumping) await dotrap(trap, NO_TRAP_FLAGS, state);
+            if (!viaJumping)
+                await dotrap(trap, NO_TRAP_FLAGS, state, {
+                    planning, random, message, redraw,
+                    planningDeath: arg?.planningDeath,
+                });
             pointer.range = 0;
             return true;
         } else if (trap.tseen) {
-            await ttyPline(
+            await message(
                 `You pass right over ${an(trapname(trap.ttyp))}.`, state,
             );
         }
     }
     pointer.range = Math.max(0, range() - 1);
-    if (range() !== 0) await nh_delay_output(state);
+    if (range() !== 0)
+        await (planning ? async () => {} : nh_delay_output)(state);
     return true;
 }
 

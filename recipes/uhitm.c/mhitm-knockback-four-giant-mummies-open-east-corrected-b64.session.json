@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Corrected C-first setup after preserving run-byy3QT's wizard-menu paging miss. This fixed, source-traced input adds one space after `#wizintrinsic` returns its invulnerability `--More--`, allowing the next Ctrl-W to reach `wiz_wish`, then zaps the wished wand east before creating four hostile giant mummies. It exercises mhitu.c:mattacku -> uhitm.c:mhitm_knockback's hero-defender arm -> dothrow.c:hurtle if the source 1-in-6 chance and passable path occur. The quantity provides more ordinary independent attack opportunities and remains fixed before recording; do not tune it to observed RNG. Retain only after the complete JavaScript replay matches through actual hurtle execution.",
+  "segments": [
+    {
+      "seed": 73918423,
+      "datetime": "20370616110900",
+      "nethackrc": "OPTIONS=name:RecoilMummiesB64,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\na\n \u0017wand of digging\nzol#wizgenesis\n4 hostile giant mummy\n . . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

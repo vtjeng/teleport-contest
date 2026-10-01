@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only replay run-pAW9TD reaches do_attack → hmonas → explum, then the JS replay stops earlier in polyself.c:polymon while drop_weapon tries do.c:preflight_dropx on this one-square level. Keep this blocked input outside recordings; it demonstrates the reachable C explosion but not a matching JS runtime path. The independent equipment-cleared variation removes the Wizard-started cloak and quarterstaff before transforming, to avoid that source-owned floor-drop boundary without expanding this task into polymon/dropx.",
+  "segments": [
+    {
+      "seed": 86142958,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ExplumProbeB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n  #wizgenesis\n8 hostile newt\n #polyself\nyellow light\n Fh"
+    }
+  ]
+}

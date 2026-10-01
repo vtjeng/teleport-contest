@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent source-matched B64 dothrow.c:throwit hurtle entry. Run-lPhjQy C record (SHA-256 3523da2c3c22d4eb8ea6f6028b39b041bb42a23e3c4d5b922b51d27784af59f5) quaffs the levitation potion (o), throws the boomerang (p) west, and floats opposite before boomhit. Fresh differential run-THxlA5 matches: 2393 RNG, 55 screens/cursors, 2 frames. C calls hurtle before boomhit in the levitating-boomerang arm.",
+  "segments": [
+    {
+      "seed": 318240517,
+      "datetime": "20380221113000",
+      "nethackrc": "OPTIONS=name:ThrowHurtleB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqo#wizwish\nboomerang\ntpl"
+    }
+  ]
+}

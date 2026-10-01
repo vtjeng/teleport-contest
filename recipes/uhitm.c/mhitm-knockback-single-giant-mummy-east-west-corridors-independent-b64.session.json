@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first single-attacker variation for mhitu.c:mattacku -> uhitm.c:mhitm_knockback's hero-defender branch -> dothrow.c:hurtle. Two wished digging wands open east and west before one hostile MZ_HUGE giant mummy is created; the source `test_move` destination is therefore not a room wall for either aligned horizontal attack. The human Wizard uses the source 30-turn invulnerable timeout while the fixed wait string supplies ordinary attack opportunities. This is not a seed search; the one-monster quantity is frozen as a cheap variation. The source `potion.c:make_stunned` call remains an explicit unported void gap; retain only if C reaches hurtle and the full JS replay matches its actual non-stun branch.",
+  "segments": [
+    {
+      "seed": 73918425,
+      "datetime": "20370618111200",
+      "nethackrc": "OPTIONS=name:RecoilSoloB64,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\na\n \u0017wand of digging\nzol\u0017wand of digging\nzph#wizgenesis\nhostile giant mummy\n . . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

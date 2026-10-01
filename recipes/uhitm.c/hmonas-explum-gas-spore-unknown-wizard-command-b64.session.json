@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "SETUP MISS retained from bounded C run-WGRcgd (/tmp/B64-hmonas-explum-gas-spore-hero-attack-c.session.json). This input used #wizpoly, but C cmd.c registers the wizard-controlled polyself command as #polyself at line 1802. C reports “unknown extended command”; the Wizard stayed human and no hmonas/explum path ran. Not a passing recording.",
+  "segments": [
+    {
+      "seed": 73915428,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ExplumProbeB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n  #wizgenesis\n8 hostile newt\n #wizpoly\ngas spore\nFh"
+    }
+  ]
+}

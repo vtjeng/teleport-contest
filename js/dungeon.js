@@ -1146,7 +1146,12 @@ export function u_on_newpos(
     x,
     y,
     state = game,
-    { earthSenseMessage = null, preflightPosition = null } = {},
+    {
+        earthSenseMessage = null,
+        preflightPosition = null,
+        seeNearbyObjects = see_nearby_objects,
+        seeNearbyObjectsOptions = undefined,
+    } = {},
 ) {
     if (!isok(x, y))
         throw new RangeError(
@@ -1188,7 +1193,7 @@ export function u_on_newpos(
         && !hero.uswallow) {
         // still on same level; might have come close enough to
         // generic object(s) to redisplay them as specific objects
-        see_nearby_objects(state);
+        seeNearbyObjects(state, seeNearbyObjectsOptions);
     }
     earth_sense(state, { message: earthSenseMessage });
 }

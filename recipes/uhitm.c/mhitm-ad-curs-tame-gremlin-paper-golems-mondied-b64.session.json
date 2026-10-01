@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 72904113,
+      "datetime": "20390327223000",
+      "nethackrc": "OPTIONS=name:PaperGolemWitness,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\ntame gremlin\n #wizgenesis\n3 peaceful paper golems\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .",
+      "comment": "BLOCKED independent nighttime C-first monster-combat recipe. The Gremlin is level 5 and paper golems are level 3, so dogmove.c:dog_move’s full-health balk threshold permits the pet to attack; its peaceful-target skip applies only below one-quarter HP or to leaders/guardians. Three targets and 80 waits give the pet repeated attack sequences so the C trace can observe its fourth AD_CURS attack and subsequent ordinary kills. C run-g5VG6f reached mhitm_ad_curs at step 67 (rn2(10)=0) and make_corpse at steps 93, 123 and 152. The JS replay run-n8OgBF first diverges at C step 66, when C enters dogmove.c:dog_move -> mhitm.c:mattackm, and matches only 66/223 screens and 2733/5072 RNG calls. Keep /tmp/B64-mhitm-ad-curs-tame-gremlin-paper-golems-mondied-b64-C-only.session.json as the C-only artifact; do not add it under recordings/. The paper-golem recording does not cover the clay-golem-specific curse death arm. Seed 72904113 and clock 2039-03-27 22:30 were chosen independently to exercise nighttime AD_CURS."
+    }
+  ],
+  "comment": "C-only witness for monster-to-monster AD_CURS and ordinary monster death. The C trace reaches both behaviors, but the full JavaScript replay diverges at the first pet-attack boundary in dogmove.c:dog_move -> mhitm.c:mattackm; retain this recipe as a source-named blocker, not a passing recording."
+}

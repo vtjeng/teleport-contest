@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923219,
+      "datetime": "20320214232000",
+      "nethackrc": "OPTIONS=name:CursGolem,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdj#polyself\ngremlin\n #wizgenesis\nhostile clay golem\nhhhhhhhhhh          "
+    }
+  ],
+  "comment": "Independent C-first uhitm.c do_attack -> hmonas -> damageum -> mhitm_ad_curs hero-to-monster variation. It retains the source-corrected inventory selection and Gremlin polymorph; C step 79 places the hostile clay golem immediately west of the hero, so the final h inputs attack that adjacent target. Freeze and inspect the full C result before JavaScript comparison."
+}

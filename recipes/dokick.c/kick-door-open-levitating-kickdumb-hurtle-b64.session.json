@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first B64 evidence for the distinct dokick.c:kick_door open-door caller at :914-918 -> kick_dumb -> hurtle. On the source-observed Healer map, the hero starts on the upstairs adjacent to a west closed door; a blessed Levitation potion keeps the hero floating, five ordinary open attempts account for observed random resistance, two west steps place the hero beyond the open door, and Ctrl-D/l kicks that open door east while a wall/out-of-bounds square braces the hero. C confirms an open-door target at the kick boundary and calls kick_dumb (rn2(3)=1), then its Levitation gate calls hurtle (rn2(2)=1; hurtle_step rnd(3)=1). Strict run-D7JQ1s passes: 2844 RNG, 55 screens/cursors, zero frames. It does not claim the separate kick_door Levitation -> kick_ouch caller.",
+  "segments": [
+    {
+      "seed": 8410357,
+      "datetime": "20320419110911",
+      "nethackrc": "OPTIONS=name:KickDoorOpenRecoilB64,role:Healer,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\nblessed potion of levitation\nqmohohohohohhh\u0004l"
+    }
+  ]
+}

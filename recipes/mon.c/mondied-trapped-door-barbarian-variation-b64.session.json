@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6201035,
+      "datetime": "20350715112234",
+      "nethackrc": "OPTIONS=name:TrapCorpseBarbarian,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!safe_wait,!acoustics\n",
+      "moves": " \u00165\n                              s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s s ",
+      "comment": "Independent character-choice variation of the established trapped-door route: a male chaotic human Barbarian keeps the source setup inputs and disabled acoustics, while class and starting gear change the startup stream before a monster triggers mb_trapped. The C recording will determine whether the fatal mondied path passes corpse_chance and creates an object."
+    }
+  ],
+  "comment": "Recipe variation for mon.c:make_corpse through monmove.c:mb_trapped -> mon.c:mondied. It preserves seed 6201035, the 2035-07-15 11:22:34 clock and D:5 numeric debug teleport because that layout reached mb_trapped; independently changes role, gender, alignment and character name to alter the game setup before the corpse chance branch."
+}

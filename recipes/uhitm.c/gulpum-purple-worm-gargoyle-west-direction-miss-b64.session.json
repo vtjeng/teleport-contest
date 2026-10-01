@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "FROZEN C direction miss from run-Gcrsu2. After hostile gargoyle creation, C screen shows hero at row 1/column 2 and gargoyle at row 2/column 1, so it is southwest; the frozen `Fh` forced west and C reported “You attack thin air.” The gargoyle then attacked, and no hmonas/AT_ENGL/gulpum branch ran. Preserve this exact outcome outside recordings. Correct the force direction to southwest (`Fb`) while retaining the independent seed, target and lower-nutrition setup.",
+  "segments": [
+    {
+      "seed": 23801924,
+      "datetime": "20260715093000",
+      "nethackrc": "OPTIONS=name:GargoyleDigestionB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " Tw-#wizintrinsic\na\n  #wizgenesis\nhostile gargoyle\n #polyself\npurple worm\n Fh        ........."
+    }
+  ]
+}

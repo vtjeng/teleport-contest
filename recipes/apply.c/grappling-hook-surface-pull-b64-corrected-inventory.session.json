@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first corrected B64 use_grapple surface-pull attempt. The prior frozen recipe preserved that this same Wizard setup assigned the wished hook letter `n`, not `o`. Selecting `n` now actually wields it, then the cursor selects the nearby floor with `$l`. This is a correction to the observed menu input, not a seed search; record C before checking whether the source rn2(5) draw chooses the surface-pull arm.",
+  "segments": [
+    {
+      "seed": 80261033,
+      "datetime": "20361208112700",
+      "nethackrc": "OPTIONS=name:HookPullB64,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " #wizwish\ngrappling hook\nan $l."
+    }
+  ]
+}

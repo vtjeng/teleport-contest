@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent strict-matching `dokick.c:kick_dumb` hurtle caller, run-t4jhF1 C SHA-256 cb5eae17252982442d4a8b408d57620089199ac9499514af5f9f6f5c97527321; fresh differential run-vSEr5L passes (2367 RNG, 41 screens/cursors, 0 frames). Six west steps put the wall behind; C `rn2(3)=1` and Levitation `rn2(2)=1` enter hurtle, then `rnd(3)=3` in hurtle_step moves into the wall, producing “You kick at empty space. You float in the opposite direction. Ouch!”",
+  "segments": [
+    {
+      "seed": 60381248,
+      "datetime": "20380917104500",
+      "nethackrc": "OPTIONS=name:LevitateKickVarB64,role:Wizard,race:human,gender=female,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqohhhhhh\u0004l"
+    }
+  ]
+}

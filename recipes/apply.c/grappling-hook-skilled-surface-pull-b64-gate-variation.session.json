@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent strict-matching C witness for apply.c:use_grapple skilled surface/hurtle. Run-LSmp6n C record (SHA-256 209d402ca57fc460c43753abde2a0486950f0904325e0a65ff772fc2acae9b3f) uses Ranger #enhance speedy twice to reach P_SKILLED, selects surface c, and C rn2(2)=1 honors it; C prints “You are yanked toward the floor!” and executes hurtle. Fresh differential run-zPgkSM passes: 3295 RNG, 47 screens/cursors, 0 frames.",
+  "segments": [
+    {
+      "seed": 682741913,
+      "datetime": "20350807093000",
+      "nethackrc": "OPTIONS=name:HookRangerGateB64,role:Ranger,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#enhance\nyi i \u001b#wizwish\ngrappling hook\nag $l.c"
+    }
+  ]
+}

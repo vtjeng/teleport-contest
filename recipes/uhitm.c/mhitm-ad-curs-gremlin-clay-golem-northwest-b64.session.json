@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923220,
+      "datetime": "20320214232000",
+      "nethackrc": "OPTIONS=name:CursGolem,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdidjdkdldm#polyself\ngremlin\n #wizgenesis\nhostile clay golem\nkhhhhhhhhhh          "
+    }
+  ],
+  "comment": "Independent fresh-seed C-first uhitm.c do_attack -> hmonas -> damageum -> mhitm_ad_curs variation. The C map placed the hostile clay golem northwest of the Gremlin. The initial k moves north into the open square east of the golem, then the h sequence attacks west into the golem. Inspect the source-ordered fourth Gremlin attack and preserve its C result before JavaScript comparison."
+}

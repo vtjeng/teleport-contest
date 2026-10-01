@@ -123,6 +123,38 @@ test('loot, disarm, and tip preserve their discarded-result chest_trap calls', (
     assert.match(JS_PICKUP, /await chest_trap\(box, HAND, false, state\);/u);
 });
 
+test('dotrap forwards planner owners and keeps C-discarded selector return', () => {
+    const cDotrap = cFunction(
+        C_TRAP,
+        'dotrap(struct trap *trap, unsigned trflags)',
+        '\nstaticfn char *\ntrapnote',
+    );
+    assert.match(cDotrap,
+        /\(void\) trapeffect_selector\(&gy\.youmonst, trap, trflags\);/u);
+
+    const heroEnvStart = JS_TRAP_EFFECTS.indexOf(
+        'function heroTrapEnv(state, rawEnv = {})',
+    );
+    const heroEnvEnd = JS_TRAP_EFFECTS.indexOf(
+        '\n}\n\n// C ref: trap.c wearing_iron_shoes()', heroEnvStart,
+    );
+    assert.ok(heroEnvStart >= 0 && heroEnvEnd > heroEnvStart);
+    const heroEnv = JS_TRAP_EFFECTS.slice(heroEnvStart, heroEnvEnd);
+    assert.match(heroEnv,
+        /random: \{ d, rn1, rn2, rnd, rne, rnl, \.\.\.\(rawEnv\.random \?\? \{\}\) \}/u);
+    assert.match(heroEnv,
+        /message: rawEnv\.message\s*\?\?\s*\(\(line, target\) => ttyPline\(line, target \?\? state\)\)/u);
+    assert.match(heroEnv,
+        /redraw: rawEnv\.redraw \?\? \(\(x, y\) => newsym\(x, y\)\)/u);
+
+    assert.match(JS_TRAP_EFFECTS,
+        /export async function dotrap\(trap, trflags, state = game, rawEnv = \{\}\)/u);
+    assert.match(JS_TRAP_EFFECTS,
+        /const env = heroTrapEnv\(state, rawEnv\);/u);
+    assert.match(JS_TRAP_EFFECTS,
+        /await trapeffect_selector\(state\.youmonst, trap, flags, env\);/u);
+});
+
 test('trapeffect_hole reads tail count from the supplied planning state',
     async () => {
         const savedLevel = game.level;

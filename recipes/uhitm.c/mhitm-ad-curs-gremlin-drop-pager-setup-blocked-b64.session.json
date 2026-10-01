@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7642391,
+      "datetime": "20321124231800",
+      "nethackrc": "OPTIONS=name:CurseProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdidjdkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile troll\nllb          "
+    }
+  ],
+  "comment": "Matching setup miss for the B64 polymorphed-hero attack attempt. `display.c:more` pauses after the Wizard drops the scroll at input step 19; the remaining drop letters and #polyself command are consumed while that pager is open, so the recording never reaches do_attack or hmonas. The source trace is retained, but this is not hmonas evidence."
+}

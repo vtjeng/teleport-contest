@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "FROZEN C target miss from run-hxr0LD. The source-derived purple-worm form attacked the adjacent newt, but its first AT_BITE/AD_PHYS killed the low-HP target before hmonas reached the following AT_ENGL/AD_DGST slot. No gulpum or deferred Finish_digestion branch ran. Preserve the C observation outside recordings. The sturdy umber-hulk variation keeps the no-drop setup and attack direction while giving the first bite a target likely to survive.",
+  "segments": [
+    {
+      "seed": 86142958,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:GulpumProbeB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " Tw-#wizintrinsic\na\n  #wizgenesis\n8 hostile newt\n #polyself\npurple worm\n Fh"
+    }
+  ]
+}

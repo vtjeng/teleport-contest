@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first setup miss for pray.c:angrygods attrcurse. At this datetime C emitted the new-moon warning after command input began; the warning consumed the first confirmation keys. Only the later prayer actually started and it reached angrygods case 0 (rn2(4)=0), with no second too-soon attempt or attrcurse call. Preserve the exact observed route outside recordings/.",
+  "segments": [
+    {
+      "seed": 102831071,
+      "datetime": "20260815110200",
+      "nethackrc": "OPTIONS=name:AngerProbeD,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#pray\ny n  #pray\ny n  "
+    }
+  ]
+}

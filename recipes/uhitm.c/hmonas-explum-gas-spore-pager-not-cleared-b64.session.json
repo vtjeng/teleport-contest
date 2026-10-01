@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "SOURCE-BLOCKED hero attack, retained from C run-qp2UN9 (/tmp/B64-hmonas-explum-gas-spore-hero-attack-pager-cleared-c.session.json). The message-pager input was corrected and the hero became a gas spore, but uhitm.c:do_attack rejects it before hmonas because the species has only AT_BOOM, which mondata.c:noattacks explicitly ignores as a passive death explosion. C printed “You have no way to attack monsters physically”; no explum call ran. Not a passing recording.",
+  "segments": [
+    {
+      "seed": 86142957,
+      "datetime": "20260830120000",
+      "nethackrc": "OPTIONS=name:ExplumProbeB64,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n  #wizgenesis\n8 hostile newt\n #polyself\ngas spore\nFh"
+    }
+  ]
+}

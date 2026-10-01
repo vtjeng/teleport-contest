@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen exact two-prayer prefix of candidate 9. C first reaches angrygods case 1, then case 4 with rn2(8)=4 and rn2(2)=0; attrcurse(sit.c:648) draws rnd(11)=5, removes Rogue Stealth, and caller cleanup completes with “You feel clumsy.” The full three-prayer overshoot remains in angry...overshoot-b64.session.json: its third prayer reaches the unported pray.c:god_zaps_you gap. C prefix comes from /tmp/B64-angrygods-prayer-candidate-9-c.session.json, bounded run-fZXZrC; only the later third-prayer suffix is omitted.",
+  "segments": [
+    {
+      "seed": 38092617,
+      "datetime": "20260823100000",
+      "nethackrc": "OPTIONS=name:AngerProbeI,role:Rogue,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#pray\ny n  #pray\ny n  "
+    }
+  ]
+}

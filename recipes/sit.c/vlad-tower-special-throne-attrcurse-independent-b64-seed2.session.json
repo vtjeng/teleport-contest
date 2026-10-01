@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first attempt at the Vlad Tower special-throne caller, with a changed seed and date after the previous recipe hit sit.c:throne_sit_effect's false rnd(6)>4 gate. The female Rogue's source-granted stealth is an attrcurse candidate. Ctrl-V, ?, >, G enters Vlad's Tower/tower1; k leaves the arrival chest, Ctrl-W wishes a throne on open floor, and #sit requests effect 7.",
+  "segments": [
+    {
+      "seed": 182447309,
+      "datetime": "20260910142000",
+      "nethackrc": "OPTIONS=name:B64VladGate,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0016?\n>Gk\u0017throne\n#sit\n 7\n"
+    }
+  ]
+}

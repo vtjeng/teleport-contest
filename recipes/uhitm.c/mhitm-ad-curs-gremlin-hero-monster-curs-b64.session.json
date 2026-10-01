@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9923117,
+      "datetime": "20320214231800",
+      "nethackrc": "OPTIONS=name:CursEntry,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "Tdadbdcdddedfdgdhdid dkdldmdn#polyself\ngremlin\n #wizgenesis\nhostile troll\nn          "
+    }
+  ],
+  "comment": "Blocked independent C-first attempt at uhitm.c hmonas -> damageum -> mhitm_ad_curs hero-to-monster AD_CURS. C placed the hostile Troll west of the Wizard, while frozen `n` moves southeast, so the setup missed and hmonas never ran. Retain this C outcome as a target-selection miss; it is not passing branch evidence."
+}

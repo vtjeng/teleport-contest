@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first live-caller attempt. It reaches pray.c:angrygods case 4 with rn2(6)=4, but its rn2(2)=1 branch calls the still-unported sit.c:rndcurse; a later repeated prayer reaches case 1. Keep this exact observed path outside recordings/ and do not count it as matching attrcurse evidence.",
+  "segments": [
+    {
+      "seed": 54819377,
+      "datetime": "20260817125000",
+      "nethackrc": "OPTIONS=name:AngerProbeB,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#pray\ny n   #pray\ny n   "
+    }
+  ]
+}

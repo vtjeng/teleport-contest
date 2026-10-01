@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen independent C-first production caller case for pray.c:angrygods. The female Rogue starts a debug prayer, confirms it, declines force-success, and the source prayer_done p_type 0 route invokes gods_upset then angrygods case 2 (rn2(4)=2). C does not call attrcurse in this outcome; strict C/JavaScript run-mRLnYi matched 2,790 RNG calls, 12 screens, 12 cursors, and 0 frames. This is live angrygods entry evidence only, not evidence for its cases 4-5 attrcurse arm.",
+  "segments": [
+    {
+      "seed": 72463119,
+      "datetime": "20260816101500",
+      "nethackrc": "OPTIONS=name:AngerProbeC,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#pray\ny n  "
+    }
+  ]
+}

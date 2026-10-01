@@ -292,7 +292,10 @@ import {
     set_apparxy,
     youHear,
 } from './monmove.js';
-import { moveSimpleOrdinary } from './unported_monster_actions.js';
+import {
+    isolatePlannedVision,
+    moveSimpleOrdinary,
+} from './unported_monster_actions.js';
 import { m_at } from './monst.js';
 import {
     AD_ACID,
@@ -1024,7 +1027,9 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
         if (canSpotMonster(mtmp, state)) {
             const prompt = `Really attack ${mon_nam(mtmp, state)}?`;
             if (!await (env.paranoidQuery ?? paranoid_query)(
-                PARANOID_HIT, prompt, state,
+                Boolean(state.flags?.paranoia_bits & PARANOID_HIT),
+                prompt,
+                state,
             )) {
                 state.context.move = 0;
                 return true;
@@ -1045,15 +1050,14 @@ export async function check_caitiff(mtmp, state = game, env = {}) {
     const u = state.u;
     if (u.ualign.record <= -10) return;
 
+    const message = env.message ?? ttyPline;
     const role = state.urole?.mnum;
     if (role === PM_KNIGHT && u.ualign.type === A_LAWFUL
         && !is_undead(mtmp.data)
         && (helpless(mtmp) || (mtmp.mflee && !mtmp.mavenge))) {
-        const message = requireAttackOperation(env, 'message');
         await message('You caitiff!', state);
         adjalign(-1, state);
     } else if (role === PM_SAMURAI && mtmp.mpeaceful) {
-        const message = requireAttackOperation(env, 'message');
         await message('You dishonorably attack the innocent!', state);
         adjalign(-1, state);
     }
@@ -5051,7 +5055,16 @@ export async function mhitm_knockback(
             state.u.dy = dy;
             note_unported('steed.c dismount_steed DISMOUNT_KNOCKED');
         } else {
-            await hurtle(dx, dy, knockdistance, false, state);
+            await hurtle(dx, dy, knockdistance, false, state, {
+                planning: Boolean(env?.planning),
+                random: rng,
+                planningDeath: env?.planning
+                    && typeof env.planningDeath === 'function'
+                    ? () => env.planningDeath(magr)
+                    : null,
+                isolateVision: env?.planning
+                    ? isolatePlannedVision : null,
+            });
             flags.value |= M_ATTK_HIT;
         }
         set_apparxy(magr, { ...env, state });

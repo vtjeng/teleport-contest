@@ -176,6 +176,9 @@ import { PM_SHOPKEEPER } from '../js/monsters.js';
 const DOTHROW_C = readFileSync(
     new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url), 'utf8',
 );
+const DOTHROW_JS = readFileSync(
+    new URL('../js/dothrow.js', import.meta.url), 'utf8',
+);
 
 function makeState() {
     const state = {};
@@ -528,6 +531,10 @@ test('hurtle() installs source multi state and walks normalized recoil', async (
         /nomul\(-range\);[\s\S]*?gm\.multi_reason = "moving through the air";[\s\S]*?gn\.nomovemsg = "";/u);
     assert.match(cFunction,
         /endmultishot\(TRUE\);[\s\S]*?uc\.x = u\.ux;[\s\S]*?cc\.x = u\.ux \+ \(dx \* range\);[\s\S]*?walk_path\(&uc, &cc, hurtle_step,[\s\S]*?&range\)/u);
+    assert.match(DOTHROW_JS,
+        /export async function hurtle\([\s\S]*?isolateVision = null/u);
+    assert.match(DOTHROW_JS,
+        /if \(planning\) \{\s*if \(typeof arg\?\.isolateVision !== 'function'\)[\s\S]*?arg\.isolateVision\(state\);\s*\}\s*vision_recalc\(1, \{ state, redraw \}\);/u);
 
     // This fixed startup input reaches the first command boundary and gives
     // hurtle_step() the initialized global display that its C redraw uses.

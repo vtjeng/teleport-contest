@@ -864,7 +864,7 @@ function opensClosedDoor(monster, location, doorMask) {
 // rebuilds it from the live map before returning. Nothing else reads it in
 // between, and either rebuild derives the whole index from the map it is given,
 // so the live game gets back exactly the index it had.
-function isolatePlannedVision(state) {
+export function isolatePlannedVision(state) {
     if (state._visionBuffers) return;
     if (!state._plannedMapMemory) {
         state.level.locations = cloneLocationGrid(state.level.locations);

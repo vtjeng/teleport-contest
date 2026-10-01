@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Corrected C-first B64 kick_door setup after run-1pv0Fw showed Healer #wizwish assigns the levitation potion to k. run-24Hrgp showed this debug-Healer layout instead has a non-door surface west and open floor east behind; qk also failed to drink the wished potion assigned to m; south moves onto the adjacent starting square before Ctrl-D/west. dokick should pass its Levitation brace, enter kick_door, call kick_ouch, then hurtle east into the wall.",
+  "segments": [
+    {
+      "seed": 8410357,
+      "datetime": "20320415101723",
+      "nethackrc": "OPTIONS=name:KickDoorHurtleB64,role:Healer,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqkj\u0004h"
+    }
+  ]
+}

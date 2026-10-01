@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first Levitation-gated kick_door attempt for dokick.c. The source route requires a closed-door target with a wall or door immediately behind the hero so dokick's brace guard passes; kick_door's Levitation arm then calls kick_ouch, which calls hurtle. This Healer debug-role seed/input variation wished and quaffs Levitation, moves south once, then kicks west at the source-mapped door target. C run-1pv0Fw exposes the first setup miss: the wished potion is letter k, not o, so the input never moves south or reaches dokick. Preserve this exact outcome outside recordings.",
+  "segments": [
+    {
+      "seed": 8410361,
+      "datetime": "20320416102140",
+      "nethackrc": "OPTIONS=name:KickDoorHurtleB64,role:Healer,race:human,gender=male,align=neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": "#wizwish\npotion of levitation\nqoj\u0004h"
+    }
+  ]
+}

@@ -3587,18 +3587,20 @@ export function unmap_object(x, y, state = game) {
  *
  * C's newsym_force() is newsym() plus the glyph buffer's dirty bookkeeping.
  * js/display.js flush_screen() repaints from game.level rather than from a
- * dirty range, so newsym() alone carries the whole effect here.
+ * dirty range, so newsym() alone carries the whole live effect here. A
+ * planned clone can supply a redraw callback; its current callback records
+ * newsym_force as a named gap while this helper still observes the object.
  *
- * The redraw below is newsym(), which takes no state and reads the
- * module-global `game`, so a caller threading some other state would observe
- * objects on that state while repainting cells of the live map. Every caller
- * passes the live state; this refuses anything else rather than splitting the
- * two halves silently.
+ * The default redraw below is newsym(), which takes no state and reads the
+ * module-global `game`. Keep the foreign-state guard unless a caller supplies
+ * an explicit redraw operation for that other state.
  */
-export function see_nearby_objects(state = game) {
-    if (state !== game) {
+export function see_nearby_objects(state = game, { redraw = null } = {}) {
+    if (state !== game && typeof redraw !== 'function') {
         throw new TypeError('see_nearby_objects() redraws the global game');
     }
+    const redrawCell = typeof redraw === 'function'
+        ? redraw : (x, y) => newsym(x, y);
     const x = state.u?.ux ?? 0;
     const y = state.u?.uy ?? 0;
     // these 'r' and 'neardist' calculations match distant_name(objnam.c)
@@ -3621,7 +3623,7 @@ export function see_nearby_objects(state = game) {
             // operate on remembered glyph rather than current one
             if (glyph_is_generic_object(
                 state.level.at(ix, iy).remembered_glyph?.glyph,
-            )) newsym(ix, iy);
+            )) redrawCell(ix, iy, state);
         }
     }
 }

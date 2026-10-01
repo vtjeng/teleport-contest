@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first hero-defender recoil setup for mhitu.c:mattacku -> uhitm.c:mhitm_knockback -> dothrow.c:hurtle. It wishes and zaps digging wands east and west before creating four hostile giant mummies, so the source `test_move` square is open on either side when their physical claws hit from adjacent cells. monsters.h makes the giant mummy MZ_HUGE with two physical claws; the human Wizard receives the source 30-turn invulnerable timeout, though the exact target still requires C to pass the source 1-in-6 chance and movement gates. The fixed quantity gives several ordinary chances without changing the helper. This remains a blocked variation: at segment 0 step 120 C and JS draw the same rn2(4)=0, rnd(21)=14 and d(3,4)=7, then C calls potion.c:make_stunned(knockdistance+1, TRUE) from uhitm.c:mhitm_knockback and prints 'You stagger...' while JS records note_unported('potion.c make_stunned'); the first screen/cursor mismatch is boundary 121. Keep its C artifact out of recordings/ until that separate void helper is ported.",
+  "segments": [
+    {
+      "seed": 73918424,
+      "datetime": "20370617111000",
+      "nethackrc": "OPTIONS=name:RecoilCrossB64,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\na\n \u0017wand of digging\nzol\u0017wand of digging\nzph#wizgenesis\n4 hostile giant mummy\n . . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

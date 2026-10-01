@@ -2026,7 +2026,7 @@ function Hallucination(state) {
 // level-1 hero: godvoice(), the two verbal messages, Wisdom loss, and losexp()
 // all run before the shared prayer timer. Cases 4 and 5 now call the ported
 // attrcurse() when C selects that arm; their other arm records the discarded
-// pray.c rndcurse() gap. Case 6's punishment fallthrough, cases 7 and 8's
+// sit.c rndcurse() gap. Case 6's punishment fallthrough, cases 7 and 8's
 // summon_minion(), and the default god_zaps_you() remain named boundaries.
 const GOD_VOICES = ['booms out', 'thunders', 'rings out', 'booms'];
 

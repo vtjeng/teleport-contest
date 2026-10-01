@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first empty-pack setup miss, run-82iEf7: D opened “Drop what type of items?” and * did not select a type, so the starting pack remained. C wished a grappling hook into inventory letter n; the frozen input selected a and did not call use_grapple. Keep this exact input and artifact as a setup miss.",
+  "segments": [
+    {
+      "seed": 148026739,
+      "datetime": "20380221113000",
+      "nethackrc": "OPTIONS=name:HookPackB64,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!tips\n",
+      "moves": " D* #wizwish\ngrappling hook\naa $l."
+    }
+  ]
+}
