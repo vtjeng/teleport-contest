@@ -128234,7 +128234,7 @@
     {
       "id": "fix-lit-oil-quaff-deallocation-lifecycle-synthetic-v15-20261001",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Supply timer and light cleanup when consuming a potion",
       "cFile": "mkobj.c",
       "sessions": [],
@@ -128246,8 +128246,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "a4a76c6c56ed18acd74399d0f904263ec8ffd83e",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dealloc_obj",
       "session": "synthetic/v15/wizard-quaffs-lit-oil-resist",
       "step": 66,
@@ -128421,7 +128424,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "a4a76c6c56ed18acd74399d0f904263ec8ffd83e",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
