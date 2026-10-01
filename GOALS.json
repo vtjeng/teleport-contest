@@ -132376,7 +132376,7 @@
     {
       "id": "port-apply-use-cream-pie-stack-synthetic-v16-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete cream pie application",
       "cFile": "apply.c",
       "sessions": [
@@ -132390,8 +132390,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "use_cream_pie",
@@ -132633,6 +132636,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "f7cb0fa0d1e9396635dddfb247062c2a356e9919",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
