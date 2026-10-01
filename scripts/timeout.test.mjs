@@ -43,6 +43,7 @@ import {
     ROT_ORGANIC,
     ROOM,
     SHRINK_GLOB,
+    STUNNED,
     STONED,
     STONE_RES,
     STRANGLED,
@@ -116,7 +117,9 @@ import {
 } from '../js/timeout.js';
 
 const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
+const C_ALLMAIN = readFileSync('nethack-c/upstream/src/allmain.c', 'utf8');
 const JS_TIMEOUT = readFileSync('js/timeout.js', 'utf8');
+const JS_ALLMAIN = readFileSync('js/allmain.js', 'utf8');
 
 function timerState(moves = 10) {
     const state = { moves, gt: { other: true }, svt: { other: true } };
@@ -201,10 +204,17 @@ test('timeout planning hands live-only expiries off before touching their state'
     state.u.uprops[STRANGLED].intrinsic = 6;
     assert.equal(nh_timeout_requires_live_state(state), true,
         'active strangling runs the whole dialogue/exercise call live');
+    // timeout.c calls vomiting_dialogue on every active countdown, not only
+    // when the property is one turn from expiry. Seven selects the d(2,4)
+    // fallthrough plus unconditional CON exercise on this source path.
+    state.u.uprops[VOMITING].intrinsic = 7;
+    assert.equal(nh_timeout_requires_live_state(state), true,
+        'any active vomiting dialogue and its RNG run on the live state');
     state.u.uinvulnerable = true;
     assert.equal(nh_timeout_requires_live_state(state), false,
         'invulnerability still returns before the timeout handoff');
     state.u.uinvulnerable = false;
+    state.u.uprops[VOMITING].intrinsic = 0;
     // Clear the active countdown so the unrelated confusion checks below are
     // isolated from the strangling branch.
     state.u.uprops[STRANGLED].intrinsic = 0;
@@ -214,6 +224,157 @@ test('timeout planning hands live-only expiries off before touching their state'
     assert.equal(nh_timeout_requires_live_state(state), true, 'form expiry is live');
     state.u.uprops[UNCHANGING].extrinsic = 1;
     assert.equal(nh_timeout_requires_live_state(state), false, 'extension uses supplied RNG');
+});
+
+function vomitingRandom() {
+    const bounds = [];
+    return {
+        bounds,
+        random: {
+            rn2(bound) {
+                bounds.push(bound);
+                return 0;
+            },
+            d(number, sides) {
+                let total = 0;
+                for (let die = 0; die < number; ++die)
+                    total += this.rn2(sides) + 1;
+                return total;
+            },
+            rnd(bound) {
+                assert.fail(`vomiting_dialogue unexpectedly called rnd(${bound})`);
+            },
+        },
+    };
+}
+
+function vomitingTimeoutState(countdown) {
+    const state = propertyTimeoutState();
+    // Disable the unrelated Fumbling expiry inherited from the shared timeout
+    // fixture; this test is isolating timeout.c's vomiting dialogue.
+    state.u.uprops[FUMBLING].intrinsic = 0;
+    state.u.uprops[FUMBLING].extrinsic = 0;
+    state.u.uprops[VOMITING].intrinsic = countdown;
+    // Keep morehungry(20) in the same NOT_HUNGRY band for the case-zero test.
+    state.u.uhunger = 900;
+    state.u.uhs = NOT_HUNGRY;
+    state.moves = 0;
+    return state;
+}
+
+test('timeout.c vomiting_dialogue preserves its countdown text rows and final CON draw',
+    async () => {
+        assert.match(C_TIMEOUT,
+            /vomiting_texts\[\][\s\S]*?"are feeling mildly nauseated\."[\s\S]*?"feel slightly confused\."[\s\S]*?"can't seem to think straight\."[\s\S]*?"feel incredibly sick\."[\s\S]*?"are about to vomit\."/u);
+        assert.match(C_TIMEOUT,
+            /switch \(\(int\) \(v - 1L\)\)[\s\S]*?case 14:[\s\S]*?case 11:[\s\S]*?case 6:[\s\S]*?case 9:[\s\S]*?case 8:[\s\S]*?case 5:[\s\S]*?case 2:[\s\S]*?case 0:[\s\S]*?exercise\(A_CON, FALSE\);/u);
+        assert.match(JS_TIMEOUT,
+            /async function vomiting_dialogue\(state, env = \{\}\)[\s\S]*?switch \(timeout - 1\)[\s\S]*?case 14:[\s\S]*?case 11:[\s\S]*?case 6:[\s\S]*?case 9:[\s\S]*?case 8:[\s\S]*?case 5:[\s\S]*?case 2:[\s\S]*?case 0:[\s\S]*?exercise\(A_CON, false, state, random/u);
+
+        // Each timeout value is the C intrinsic count before the current
+        // dialogue; subtracting one selects the numbered case in timeout.c.
+        const textCases = [
+            [15, 'You are feeling mildly nauseated.'],
+            [12, 'You feel slightly confused.'],
+            [9, "You can't seem to think straight."],
+            [6, 'You feel incredibly sick.'],
+            [3, 'You are about to vomit.'],
+        ];
+        for (const [countdown, text] of textCases) {
+            const state = vomitingTimeoutState(countdown);
+            const random = vomitingRandom();
+            const messages = [];
+            await nh_timeout(state, {
+                random: random.random,
+                message: async (line) => messages.push(line),
+            });
+            assert.deepEqual(messages, [text], `Vomiting=${countdown}`);
+            assert.deepEqual(random.bounds, [2],
+                'every text row reaches the trailing exercise(A_CON, FALSE) draw');
+        }
+
+        // FROMOUTSIDE makes each property truthy to C without an expiry in
+        // nh_timeout's later timed-property pass; these values pin the two
+        // source wording substitutions independently.
+        const moreConfused = vomitingTimeoutState(12);
+        moreConfused.u.uprops[CONFUSION].intrinsic = FROMOUTSIDE;
+        const confusedMessages = [];
+        await nh_timeout(moreConfused, {
+            random: vomitingRandom().random,
+            message: async (line) => confusedMessages.push(line),
+        });
+        assert.deepEqual(confusedMessages,
+            ['You feel slightly more confused.']);
+
+        const lessStunned = vomitingTimeoutState(9);
+        lessStunned.u.uprops[STUNNED].intrinsic = FROMOUTSIDE;
+        const stunnedMessages = [];
+        await nh_timeout(lessStunned, {
+            random: vomitingRandom().random,
+            message: async (line) => stunnedMessages.push(line),
+        });
+        assert.deepEqual(stunnedMessages, ["You can't think straight."]);
+    });
+
+test('vomiting_dialogue preserves case-six and case-zero call order', async () => {
+    // Vomiting=7 selects C case 6; its d(2,4) precedes the discarded stun
+    // helper, another d(2,4) feeds case 9, and exercise makes the final rn2(2).
+    const stunned = vomitingTimeoutState(7);
+    stunned.multi = 2;
+    const waiting = () => 1;
+    stunned.go = { occupation: waiting, occtxt: 'waiting' };
+    const stunnedCalls = vomitingRandom();
+    const stunnedMessages = [];
+    await nh_timeout(stunned, {
+        random: stunnedCalls.random,
+        message: async (line) => stunnedMessages.push(line),
+    });
+    assert.deepEqual(stunnedCalls.bounds, [4, 4, 4, 4, 2]);
+    assert.deepEqual(stunnedMessages, ['You stop waiting.']);
+    assert.equal(stunned.go.occupation, null,
+        'Popeye is false when the active occupation is not eat.c:opentin');
+    assert.equal(stunned.multi, 0,
+        'case 9 calls nomul(0) after make_confused when multi is positive');
+
+    // Vomiting=1 selects C case 0. Hunger stays in its source status band so
+    // the only line is You("%s!", "vomit"); timeout.c decrements the
+    // property before make_vomiting(0, TRUE), so that helper sees old=0.
+    const final = vomitingTimeoutState(1);
+    const finalCalls = vomitingRandom();
+    const finalMessages = [];
+    await nh_timeout(final, {
+        random: finalCalls.random,
+        message: async (line) => finalMessages.push(line),
+    });
+    assert.deepEqual(finalCalls.bounds, [2],
+        'case 0 still reaches the helper’s unconditional CON exercise');
+    assert.deepEqual(finalMessages, ['You vomit!']);
+    assert.equal(final.u.uhunger, 880,
+        'case 0 calls morehungry(20) before its discarded eat.c:vomit gap');
+    assert.equal(final.u.uprops[VOMITING].intrinsic, 0,
+        'nh_timeout expires Vomiting only after the dialogue and exercise');
+});
+
+test('nh_timeout calls vomiting_dialogue before decrement and hands active values live', () => {
+    assert.match(C_TIMEOUT,
+        /if \(Vomiting\)\s+vomiting_dialogue\(\);[\s\S]*?for \(upp = u\.uprops; upp < u\.uprops \+ SIZE\(u\.uprops\);/u);
+    assert.match(JS_TIMEOUT,
+        /if \(u\.uprops\?\.\[VOMITING\]\?\.intrinsic && !env\.planning\)\s+await vomiting_dialogue\(state, \{ \.\.\.env, random, message \}\);/u);
+    assert.match(C_ALLMAIN,
+        /nh_timeout\(\);\s*run_regions\(\);/u);
+    assert.match(JS_ALLMAIN,
+        /const liveTimeout = nh_timeout_requires_live_state\(state\);\s+if \(planning && liveTimeout\) return \{ beforeTimeout: true \};/u);
+
+    for (const countdown of [1, 7]) {
+        // One exercises C's final countdown and the other its case-six
+        // fallthrough while still active; both call the helper in timeout.c.
+        const state = vomitingTimeoutState(countdown);
+        assert.equal(nh_timeout_requires_live_state(state), true,
+            `Vomiting=${countdown} cannot be advanced on a planner clone`);
+        state.u.uinvulnerable = true;
+        assert.equal(nh_timeout_requires_live_state(state), false,
+            'nh_timeout returns before its dialogue while invulnerable');
+    }
 });
 
 test('timeout.c releases delayed killers when STONED or fatal SICK expires', async () => {
