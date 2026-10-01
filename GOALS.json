@@ -129537,7 +129537,7 @@
           "line": 3066,
           "endLine": 3081,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -129736,7 +129736,117 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "unpunish",
+            "implementation": "js/read.js",
+            "symbol": "unpunish",
+            "sourceReview": "Read the whole read.c:unpunish definition (3066-3077): save uchain to savechain; setworn(NULL, W_CHAIN) clears the worn mask and uchain pointer; delobj(savechain) performs the source chain deletion, including obj_resists(0,0), extraction, redraw and obfree; then setworn(NULL, W_BALL) clears the surviving ball slot. js/read.js preserves this exact order and uses the existing setwornEnv and delobj owners. Its merged RNG defaults retain rn2 for delobj; extractExternalObject defaults to mkobj.c:remove_object while explicit caller hooks remain authoritative. Caller wiring replaces the selected notes, hook fallbacks and bury.js duplicate; it does not claim completion of their surrounding C functions.",
+            "callers": [
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_remove_curse",
+                "source": "read.c:1599"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_bell",
+                "source": "apply.c:1280"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "eatspecial",
+                "source": "eat.c:2479 and 2481"
+              },
+              {
+                "path": "js/bury.js",
+                "symbol": "bury_an_obj",
+                "source": "dig.c:1993"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c:2186"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:2939"
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c:524"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "doremove",
+                "source": "polyself.c:1492"
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:994"
+              },
+              {
+                "path": "js/steal.js",
+                "symbol": "remove_worn_item",
+                "source": "steal.c:281"
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "chest_trap",
+                "source": "trap.c:6382"
+              },
+              {
+                "path": "js/invent.js",
+                "symbol": "delallobj",
+                "source": "invent.c:1419"
+              },
+              {
+                "path": "js/explode.js",
+                "symbol": "scatter",
+                "source": "explode.c:756"
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_consume_obj",
+                "source": "mon.c:1403 and 1406"
+              },
+              {
+                "path": "js/bones.js",
+                "symbol": "savebones",
+                "source": "bones.c:440"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/read-unpunish.test.mjs",
+              "scripts/read-remove-curse.test.mjs",
+              "scripts/polyself.test.mjs",
+              "scripts/zapyourself.test.mjs",
+              "scripts/bury.test.mjs",
+              "scripts/dogmove-quickmimic.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-blessed-remove-curse-unpunishes-hero",
+                "segment": 0,
+                "fromStep": 81,
+                "throughStep": 86,
+                "source": "read.c:seffect_remove_curse (call at 1599) -> read.c:unpunish -> invent.c:delobj -> zap.c:obj_resists"
+              }
+            ],
+            "checkedAt": "f71789b08d712877abde4089ca6ad766bc9cc490"
+          }
+        ],
+        "entryPointReview": "Helper-only range: entryPoints is empty under .agents/validation.md. Source call-site inventory is complete for the actual direct C calls: read.c:seffect_remove_curse:1599; apply.c:use_bell:1280; eat.c:eatspecial:2479,2481; dig.c:bury_an_obj:1993; zap.c:bhito:2186 and zapyourself:2939; pray.c:fix_worst_trouble:524; polyself.c:polymon:994 and doremove:1492; steal.c:remove_worn_item:281; trap.c:chest_trap:6382; invent.c:delallobj:1419; explode.c:scatter:756; mon.c:m_consume_obj:1403,1406; and bones.c:savebones:440. The old zap.c:bhitm and explode.c:explode_objects reservation labels were planning mistakes; C rg confirms the actual sites are zapyourself and scatter. The two other raw rg matches are comments in restore.c and display.c, not calls. Existing JS callers now use unpunish at their source sites; delallobj keeps its injected override and scatter keeps its callback override with the canonical helper as fallback. polyself.c:polymon now wires the source amorphous/whirly/unsolid slip branch and preserves the separate discarded dig.c:buried_ball_to_freedom call as a named gap; this is supporting caller wiring, not whole polymon evidence. The matching v15 synthetic citation executes the helper through read.c:seffect_remove_curse. The refreshed blessed-bell recording verifies use_bell remains matched but does not enter its newly wired unpunish conditional. The existing polyself-raven recording verifies an ordinary transformation path but does not exercise the punished slippery-form arm. B72 refreshes the existing apply.c:use_bell caller evidence with recordings/apply.c/bell-opening-blessed-a65-independent.session.json: all 40 screens/cursors and 2669 RNG calls match the changed caller. The former read.c:unpunish gap is now implemented; other use_bell void gaps retain their source owners. This refresh preserves the prior use_bell completion credit and does not claim that this recording executes the punishment conditional. recordings/polyself.c/polyself-raven-independent.session.json also matches all 18 screens/cursors and 3586 RNG calls after supporting polymon wiring; it does not execute the new punishment arm.",
+        "entryPoints": []
+      }
     }
   ]
 }
