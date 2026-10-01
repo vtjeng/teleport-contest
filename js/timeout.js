@@ -30,6 +30,7 @@ import {
     FUMBLING,
     FAST,
     FAINTED,
+    FAINTING,
     HATCH_EGG,
     HALLUC,
     HALLUC_RES,
@@ -98,7 +99,9 @@ import { acurr, adjattrib, exercise, stone_luck } from './attrib.js';
 import { newsym, see_monsters } from './display.js';
 import { hcolor, Monnam } from './do_name.js';
 import { toggle_displacement } from './do_wear.js';
-import { eating_dangerous_corpse } from './eat.js';
+import {
+    Popeye, eating_dangerous_corpse, morehungry,
+} from './eat.js';
 import { dealloc_killer, find_delayed_killer } from './end.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
 import { heal_legs } from './do.js';
@@ -122,8 +125,8 @@ import {
     new_light_source,
 } from './light.js';
 import {
-    breathless, is_flyer, is_rider, is_were, name_to_mon, type_is_pname,
-    zombie_form,
+    breathless, cantvomit, is_flyer, is_rider, is_were, name_to_mon,
+    type_is_pname, zombie_form,
 } from './mondata.js';
 import { body_part, rehumanize } from './polyself.js';
 import { restartcham, wake_nearby } from './mon.js';
@@ -156,7 +159,7 @@ import {
     remove_object, shrink_glob, unportedShrinkGlobReason,
 } from './obj.js';
 import {
-    createCoreRandom, rn1, rn2, rn2_on_display_rng, rnd, rnz,
+    createCoreRandom, d, rn1, rn2, rn2_on_display_rng, rnd, rnz,
 } from './rng.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 
@@ -666,6 +669,95 @@ async function choke_dialogue(state, env = {}) {
     await exercise(A_STR, false, state, random, { encumberMessage });
 }
 
+// C ref: timeout.c vomiting_texts[] and vomiting_dialogue() (188-265). The
+// timeout is read before nh_timeout() decrements it, and case 6 intentionally
+// falls through to case 9 after its discarded stun call.
+const vomitingTexts = Object.freeze([
+    'are feeling mildly nauseated.',
+    'feel slightly confused.',
+    "can't seem to think straight.",
+    'feel incredibly sick.',
+    'are about to vomit.',
+]);
+
+async function vomiting_dialogue(state, env = {}) {
+    const random = env.random ?? { d, rn2, rnd };
+    const message = env.message ?? ttyPline;
+    const encumberMessage = (subject) => encumber_msg(subject, { message });
+    const timeout = Math.trunc(
+        state.u.uprops?.[VOMITING]?.intrinsic ?? 0,
+    ) & TIMEOUT;
+    let text = null;
+
+    switch (timeout - 1) {
+    case 14:
+        text = vomitingTexts[0];
+        break;
+    case 11:
+        text = vomitingTexts[1];
+        if (state.u.uprops?.[CONFUSION]?.intrinsic)
+            text = text.replace(' confused', ' more confused');
+        break;
+    case 6: {
+        // C computes (HStun & TIMEOUT) before drawing d(2,4), then discards
+        // make_stunned's void result. Preserve the draw and name that gap.
+        const stunTimeout = ((state.u.uprops?.[STUNNED]?.intrinsic ?? 0)
+            & TIMEOUT) + random.d(2, 4);
+        void stunTimeout;
+        note_unported('potion.c make_stunned');
+        if (!Popeye(VOMITING, state))
+            await stop_occupation(state, { ...env, message });
+        // C falls through to case 9 after the discarded make_stunned call.
+    }
+    // FALLTHROUGH
+    case 9: {
+        const confusionTimeout = (state.u.uprops?.[CONFUSION]?.intrinsic ?? 0)
+            & TIMEOUT;
+        await make_confused(
+            confusionTimeout + random.d(2, 4), false, state, env,
+        );
+        if (state.multi > 0) nomul(0, state);
+        break;
+    }
+    case 8:
+        text = vomitingTexts[2];
+        if ((state.u.uprops?.[STUNNED]?.intrinsic ?? 0)
+            && text.includes(' think')) {
+            text = text.replace("can't seem to ", "can't ");
+        }
+        break;
+    case 5:
+        text = vomitingTexts[3];
+        break;
+    case 2:
+        text = vomitingTexts[4];
+        if (cantvomit(state.youmonst.data)) {
+            text = 'gag uncontrollably.';
+        } else if (hallucinating(state)) {
+            text = 'are about to hurl!';
+        }
+        break;
+    case 0:
+        await stop_occupation(state, { ...env, message });
+        if (!cantvomit(state.youmonst.data)) {
+            await morehungry(20, state, env);
+            if (state.u.uhs < FAINTING) {
+                await message(
+                    `You ${hallucinating(state) ? 'hurl chunks' : 'vomit'}!`,
+                    state,
+                );
+            }
+        }
+        note_unported('eat.c vomit');
+        break;
+    default:
+        break;
+    }
+
+    if (text) await message(`You ${text}`, state);
+    await exercise(A_CON, false, state, random, { encumberMessage });
+}
+
 // youprop.h: source-only properties do not consult their blocked field.
 function propertySource(state, index) {
     const property = state.u?.uprops?.[index];
@@ -682,8 +774,9 @@ function Flying(state) {
 // callbacks. The elapsed-turn planner stops before ordinary expiry handlers
 // reach one, runs them live, then validates the remaining allocation from the
 // resulting state. timeout.c calls choke_dialogue() for every nonzero
-// Strangled value, and choke_dialogue() always exercises Strength, so any
-// active strangling value must use the same live handoff before nh_timeout().
+// Strangled value and vomiting_dialogue() for every nonzero Vomiting value;
+// each helper exercises an attribute, so either active value must use the
+// same live handoff before nh_timeout().
 // This is an execution handoff, not a refused source path.
 export function nh_timeout_requires_live_state(state = game) {
     const u = state.u;
@@ -691,6 +784,7 @@ export function nh_timeout_requires_live_state(state = game) {
     if (u.mtimedone === 1 && !propertySource(state, UNCHANGING)
         && !is_were(state.youmonst.data)) return true;
     if (u.uprops?.[STRANGLED]?.intrinsic) return true;
+    if (u.uprops?.[VOMITING]?.intrinsic) return true;
     for (const index of [
         STONED, SICK, BLINDED, INVIS, SEE_INVIS, HALLUC, LEVITATION,
         FLYING, DETECT_MONSTERS, DISPLACED, GLIB,
@@ -705,7 +799,7 @@ export function nh_timeout_requires_live_state(state = game) {
 // decrement and delayed-killer lookup, including properties with no case.
 async function decrement_property_timeouts(state, env) {
     const u = state.u;
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? { d, rn2, rnd };
     const message = env.message ?? ttyPline;
     const wasFlying = Flying(state);
     const encumberMessage = (subject) => encumber_msg(subject, { message });
@@ -965,7 +1059,7 @@ async function decrement_property_timeouts(state, env) {
 // Each skipped discarded-return call records its source owner; no invented
 // state or random draw stands in for those unported callees.
 export async function nh_timeout(state = game, env = {}) {
-    const random = env.random ?? { rn2, rnd };
+    const random = env.random ?? { d, rn2, rnd };
     const message = env.message ?? ttyPline;
     const u = state.u;
     const displayEnv = {
@@ -981,7 +1075,7 @@ export async function nh_timeout(state = game, env = {}) {
     if (u.uprops?.[SLIMED]?.intrinsic && !env.planning)
         note_unported('timeout.c slime_dialogue');
     if (u.uprops?.[VOMITING]?.intrinsic && !env.planning)
-        note_unported('timeout.c vomiting_dialogue');
+        await vomiting_dialogue(state, { ...env, random, message });
     if (u.uprops?.[STRANGLED]?.intrinsic && !env.planning)
         await choke_dialogue(state, { ...displayEnv, random, message });
     if (u.uprops?.[SICK]?.intrinsic && !env.planning)

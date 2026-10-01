@@ -7,13 +7,20 @@ import {
     ECMD_TIME,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    HUNGER,
     HOMEMADE_TIN,
     NON_PM,
     OBJ_INVENT,
+    OBJ_FLOOR,
     ROTTEN_TIN,
     RANDOM_TIN,
+    SICK,
+    SLIMED,
+    STONED,
+    VOMITING,
 } from '../js/const.js';
 import {
+    Popeye,
     set_tin_variety,
     tin_details,
     tinopen_ok,
@@ -21,10 +28,14 @@ import {
 } from '../js/eat.js';
 import {
     PM_HUMAN,
+    PM_ACID_BLOB,
+    PM_CHAMELEON,
+    PM_GENETIC_ENGINEER,
     PM_KOBOLD,
     PM_LIZARD,
     monst_globals_init,
 } from '../js/monsters.js';
+import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { newObject } from '../js/obj.js';
@@ -32,6 +43,9 @@ import { objects_globals_init, AXE, DAGGER, TIN, TIN_OPENER } from '../js/object
 
 const EAT_C = readFileSync(
     new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
+);
+const OBJ_H = readFileSync(
+    new URL('../nethack-c/upstream/include/obj.h', import.meta.url), 'utf8',
 );
 
 function initializedState() {
@@ -144,13 +158,15 @@ test('start_tin names carried openers with eat.c yobjnam wording', async () => {
         });
         assert.equal(result, ECMD_TIME);
         assert.equal(state.go.occtxt, 'opening the tin');
-        return { messages, randomBounds };
+        return { state, messages, randomBounds };
     }
 
     const tinOpener = await useOpener(TIN_OPENER);
     assert.deepEqual(tinOpener.messages,
         ['Using your tin opener you try to open the tin.']);
     assert.deepEqual(tinOpener.randomBounds, [2]);
+    assert.equal(tinOpener.state.go.occupation.cSourceFunction, 'eat.c:opentin',
+        'the existing callback carries C opentin pointer identity for Popeye');
 
     // The same source arm covers ordinary opener weapons without adding an
     // RNG call; yobjnam supplies their carried-item possessive as well.
@@ -163,4 +179,95 @@ test('start_tin names carried openers with eat.c yobjnam wording', async () => {
     assert.deepEqual(axe.messages,
         ['Using your axe you try to open the tin.']);
     assert.deepEqual(axe.randomBounds, []);
+});
+
+function popeyeState({
+    corpsenm = NON_PM,
+    known = true,
+    otyp = TIN,
+    spe = 0,
+    where = OBJ_INVENT,
+} = {}) {
+    const { state, opener } = tinOpenerState(TIN_OPENER);
+    const tin = opener.nobj;
+    Object.assign(tin, { corpsenm, known, otyp, spe, where });
+    state.context.tin = { tin };
+    state.u.ux = 10;
+    state.u.uy = 10;
+    state.go.occupation = Object.assign(() => 1, {
+        cSourceFunction: 'eat.c:opentin',
+    });
+    state.level = new GameMap();
+    if (where === OBJ_FLOOR) {
+        // The only floor candidate is the source tin at the hero's square.
+        tin.ox = 10;
+        tin.oy = 10;
+        state.level.objects[10][10] = tin;
+    }
+    return { state, tin };
+}
+
+test('Popeye matches eat.c pointer, access, known-food and threat tests', () => {
+    assert.match(EAT_C,
+        /boolean\s+Popeye\(int threat\)[\s\S]*?go\.occupation != opentin[\s\S]*?carried\(otin\)[\s\S]*?obj_here\(otin, u\.ux, u\.uy\)[\s\S]*?can_reach_floor\(TRUE\)[\s\S]*?if \(!otin->known\)[\s\S]*?switch \(threat\)[\s\S]*?case HUNGER:[\s\S]*?case STONED:[\s\S]*?case SLIMED:[\s\S]*?case SICK:[\s\S]*?case VOMITING:/u);
+    assert.ok(OBJ_H.includes(
+        '#define polyfood(obj) ' + '\\' + '\n'
+            + '    (ofood(obj) && (obj)->corpsenm >= LOW_PM',
+    ));
+    assert.ok(OBJ_H.includes('pm_to_cham((obj)->corpsenm) != NON_PM'));
+    assert.ok(OBJ_H.includes('dmgtype(&mons[(obj)->corpsenm], AD_POLY)'));
+
+    const unrelatedOccupation = popeyeState({ known: false });
+    unrelatedOccupation.state.go.occupation = () => 1;
+    assert.equal(Popeye(VOMITING, unrelatedOccupation.state), false,
+        'C compares the current occupation function before reading its tin');
+
+    const unknown = popeyeState({ known: false });
+    assert.equal(Popeye(SICK, unknown.state), true,
+        'C treats an unknown accessible tin as helpful before switching threats');
+
+    const carried = popeyeState({ known: true, corpsenm: PM_KOBOLD });
+    assert.equal(Popeye(HUNGER, carried.state), true,
+        'a known tin with any corpse species is helpful for hunger');
+    const spinach = popeyeState({ known: true, spe: 1 });
+    assert.equal(Popeye(HUNGER, spinach.state), true,
+        'C accepts the spinach sentinel even when corpsenm is NON_PM');
+    const empty = popeyeState({ known: true });
+    assert.equal(Popeye(HUNGER, empty.state), false,
+        'an empty known tin without the spinach sentinel is not helpful');
+
+    for (const corpsenm of [PM_LIZARD, PM_ACID_BLOB]) {
+        const food = popeyeState({ known: true, corpsenm });
+        assert.equal(Popeye(STONED, food.state), true,
+            'lizard flesh and acidic species stop the source petrification threat');
+    }
+    const kobold = popeyeState({ known: true, corpsenm: PM_KOBOLD });
+    assert.equal(Popeye(STONED, kobold.state), false,
+        'ordinary kobold flesh does not stop petrification');
+
+    for (const corpsenm of [PM_CHAMELEON, PM_GENETIC_ENGINEER]) {
+        const food = popeyeState({ known: true, corpsenm });
+        assert.equal(Popeye(SLIMED, food.state), true,
+            'C polyfood accepts a shapeshifter or an AD_POLY species');
+    }
+    const plainFood = popeyeState({ known: true, corpsenm: PM_KOBOLD });
+    assert.equal(Popeye(SLIMED, plainFood.state), false,
+        'ordinary food is not the source polyfood predicate');
+    const wrongObject = popeyeState({
+        known: true, corpsenm: PM_CHAMELEON, otyp: TIN_OPENER,
+    });
+    assert.equal(Popeye(SLIMED, wrongObject.state), false,
+        'polyfood first requires C ofood: corpse, egg or tin');
+    assert.equal(Popeye(VOMITING, spinach.state), false,
+        'C has no known-tin cure for Vomiting');
+
+    const floorTin = popeyeState({ known: false, where: OBJ_FLOOR });
+    assert.equal(Popeye(VOMITING, floorTin.state), true,
+        'a reachable same-square floor tin passes obj_here and can_reach_floor');
+    floorTin.tin.ox = 11;
+    floorTin.tin.oy = 10;
+    floorTin.state.level.objects[10][10] = null;
+    floorTin.state.level.objects[11][10] = floorTin.tin;
+    assert.equal(Popeye(VOMITING, floorTin.state), false,
+        'a floor tin outside the hero square is inaccessible');
 });
