@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked B70 source path: this independent #save input reaches save.c:dosave -> dosave0 -> saveobjchn, where release_data sets program_state.freeingdata and saveobjchn calls mkobj.c:dealloc_obj for each saved object. The JavaScript save.js:dosave0 serializes the object graph and does not release it through dealloc_obj, so this recipe is retained as an unverified whole-deallocator entry rather than a passing runtime recording.",
+  "segments": [
+    {
+      "seed": 8460715,
+      "datetime": "20541027101400",
+      "nethackrc": "OPTIONS=name:B70SaveBranch,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #save\ny"
+    }
+  ]
+}
