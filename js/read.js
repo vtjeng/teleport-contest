@@ -1,6 +1,7 @@
 // read.js -- reading scrolls and spellbooks, plus monster-creation helpers.
 // C refs: src/read.c text helpers, read_ok(), doread(), seffects(),
-// cant_revive(), create_particular_parse(), create_particular_creation(),
+// seffect_mail(), cant_revive(), create_particular_parse(),
+// create_particular_creation(),
 // and create_particular(). doread() keeps the source-ordered readable-object
 // dispatch, literacy handling, spellbook early return, and scroll in_use /
 // effect / consumption sequence. Effect helpers still marked with
@@ -3316,6 +3317,40 @@ async function seffect_create_monster(scroll, state = game,
     }
 }
 
+// C ref: read.c:seffect_mail() (2157-2188). This static helper sets gk.known,
+// the effect's discovery flag, then chooses its exact message from spe and
+// the object's identifier parity. doread() later discovers the scroll type
+// through learnscroll(); this helper does not set oc_name_known. The external
+// readmail() result is discarded by C, so its default MAIL branch remains an
+// explicit void-call gap.
+async function seffect_mail(scroll, state = game, env = {}) {
+    const odd = Math.trunc(scroll.o_id ?? 0) % 2 === 1;
+    const message = env.message ?? ttyPline;
+    state.gk.known = true;
+
+    switch (scroll.spe) {
+    case 2:
+        await message(
+            `This scroll is marked "${odd ? 'Postage Due' : 'Return to Sender'}".`,
+            state,
+        );
+        break;
+    case 1:
+        await message(
+            'This seems to be '
+                + (odd
+                    ? 'a chain letter threatening your luck'
+                    : 'junk mail addressed to the finder of the Eye of Larn')
+                + '.',
+            state,
+        );
+        break;
+    default:
+        note_unported('mail.c readmail');
+        break;
+    }
+}
+
 export async function seffects(scroll, state = game, env = {}) {
     state.gk ??= {};
     const random = env.random ?? { rn1, rn2, rnd, rnl };
@@ -3325,7 +3360,7 @@ export async function seffects(scroll, state = game, env = {}) {
     const confused = propertyActive(CONFUSION, state);
     switch (scroll.otyp) {
     case SCR_MAIL:
-        note_unported('read.c seffect_mail');
+        await seffect_mail(scroll, state, env);
         break;
     case SCR_ENCHANT_ARMOR:
         if (await seffect_enchant_armor(scroll, state, { ...env, random }))

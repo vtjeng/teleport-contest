@@ -4,7 +4,14 @@ import test from 'node:test';
 import {
     CHEST, DAGGER, LARGE_BOX, WEAPON_CLASS,
 } from '../js/objects.js';
-import { ECMD_CANCEL, ECMD_OK, ECMD_TIME, OBJ_CONTAINED } from '../js/const.js';
+import {
+    ECMD_CANCEL,
+    ECMD_OK,
+    ECMD_TIME,
+    LEVITATION,
+    OBJ_CONTAINED,
+} from '../js/const.js';
+import { surface } from '../js/dungeon.js';
 import { dotip } from '../js/pickup.js';
 import { count_contents } from '../js/invent.js';
 import { game } from '../js/gstate.js';
@@ -77,6 +84,25 @@ function placeFloorObjects(state, specs) {
 }
 
 // -- dotip single-container quit tests --
+
+test('dotip routes an unreachable floor through cant_reach_floor',
+    async () => {
+        const state = await heroOnCleanSquare();
+        const { ux, uy } = state.u;
+        placeFloorObjects(state, [{ otyp: LARGE_BOX }]);
+        state.u.uprops[LEVITATION] = { intrinsic: 1 };
+        clearTtyMessageWindow(state);
+        state.nhDisplay.pushKey(' '.charCodeAt(0)); // dismiss More
+        state.nhDisplay.pushKey(27); // cancel the subsequent inventory menu
+
+        // pickup.c:3594 reaches the same helper with looting=FALSE. Its
+        // false return follows C into the inventory-selection fallback only
+        // after the helper message; Escape cancels that fallback.
+        assert.equal(await dotip(state), ECMD_CANCEL);
+        assert.equal(state.nhDisplay?.toplines, 'Never mind.');
+        assert.equal(state.unported.has('engrave.c cant_reach_floor'), false);
+        assert.equal(surface(ux, uy, state), 'stairs');
+    });
 
 test('dotip with a single container prompts ynq and quit returns ECMD_OK',
     async () => {

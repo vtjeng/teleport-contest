@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup miss retained outside recordings: C confirmed the corrected potion key and levitation effect, but the wished box was inventory letter o after consuming the potion, not n. The failed drop leaves the hero levitating without a floor container, so #loot does not enter able_to_loot. Exact C artifact and run-dmkDij receipt are in .cache/B66-logs. No JavaScript comparison was run.",
+  "segments": [
+    {
+      "seed": 66021001,
+      "datetime": "20420217141200",
+      "nethackrc": "OPTIONS=name:B66LootCeiling,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizwish\npotion of levitation\nqn#wizwish\nlarge box\ndn#loot\n"
+    }
+  ]
+}

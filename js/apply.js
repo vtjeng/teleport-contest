@@ -25,9 +25,8 @@
 // explicit note_unported gaps. Other named arms still stop at a refusal
 // naming the C function they need; spellbooks and coins call their helpers.
 // use_stethoscope() covers the whole source function. Its mounted and
-// swallowed arms await insight.c mstatusline(); the upward engrave.c
-// cant_reach_floor() call remains a named gap, while the downward
-// reachability branch uses its already-ported helper.
+// swallowed arms await insight.c mstatusline(); both reachability branches
+// call the corresponding engrave.c cant_reach_floor() helper.
 
 import {
     ACCESSIBLE,
@@ -2387,10 +2386,10 @@ export async function its_dead(rx, ry, state = game, response = null) {
 // listen cost anything.
 //
 // Mounted and swallowed branches await insight.c mstatusline() in the same
-// source order as their preceding interference message. The upward
-// engrave.c cant_reach_floor() call remains a named gap; its downward call is
-// implemented in js/engrave.js. Soundeffect() expands to an empty macro in
-// this tty build, while You_hear() remains visible through youHear().
+// source order as their preceding interference message. Both directions call
+// engrave.c cant_reach_floor() from js/engrave.js. Soundeffect() expands to an
+// empty macro in this tty build, while You_hear() remains visible through
+// youHear().
 async function use_stethoscope(obj, state = game) {
     const u = state.u;
     // apply.c:324-325. The source initializer draws before every guard when a
@@ -2452,7 +2451,9 @@ async function use_stethoscope(obj, state = game) {
             const heard = youHear('faint splashing.', state);
             if (heard) await ttyPline(heard, state);
         } else if (u.dz < 0) {
-            note_unported('engrave.c cant_reach_floor');
+            await cant_reach_floor(
+                u.ux, u.uy, true, true, false, state, { pline: ttyPline },
+            );
         } else if (!can_reach_floor(true, state)) {
             await cant_reach_floor(
                 u.ux, u.uy, false, true, false, state, { pline: ttyPline },

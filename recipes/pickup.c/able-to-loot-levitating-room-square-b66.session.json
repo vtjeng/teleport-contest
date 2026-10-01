@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first #loot witness for pickup.c:able_to_loot. A debug Wizard wishes and drinks levitation, takes one eastward room step off the starting stairs, wishes a large box, drops the C-confirmed inventory item o on the room square, and uses #loot while levitating. Frozen after C showed the stairs collision in the prior attempt; intended source path is pickup.c:doloot -> able_to_loot -> engrave.c:cant_reach_floor.",
+  "segments": [
+    {
+      "seed": 66021001,
+      "datetime": "20420217141200",
+      "nethackrc": "OPTIONS=name:B66LootCeiling,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizwish\npotion of levitation\nqnl#wizwish\nlarge box\ndo#loot\n"
+    }
+  ]
+}

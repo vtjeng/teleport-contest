@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first #tip witness for pickup.c:able_to_loot's second active outer caller. C showed the levitation potion is letter o and the large box letter p at this cheap role/seed/date variation; drink o, step off the stairs, wish and drop p, then enter #tip. This should reach dotip -> able_to_loot -> cant_reach_floor before its floor-container prompt.",
+  "segments": [
+    {
+      "seed": 66021002,
+      "datetime": "20420218141200",
+      "nethackrc": "OPTIONS=name:B66TipCeiling,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizwish\npotion of levitation\nqol#wizwish\nlarge box\ndp#tip\n"
+    }
+  ]
+}
