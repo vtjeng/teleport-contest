@@ -123834,6 +123834,207 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-do-dropx-hallucination-v14-20260930",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Permit source-ordered ordinary drops under Hallucination",
+      "cFile": "do.c",
+      "sessions": [],
+      "selectionReason": "Select synthetic/v14/archeologist-drops-item-while-hallucinating from complete current A60 evidence challenges/evaluations/20260930140230-v14.json at 90fc2c65. Step40 stops at the Hallucination refusal in preflight_dropx, matching40/41 screens and2614/2624 RNG. C do.c:dropx has no such condition; its ordinary floor tail is implemented. Remove that refusal and the obsolete apply.c:flip_coin caller skip while retaining independent unsupported branches. Runtime includes the selected case, independent ordinary drop and Hallucination/Blind/Glib lost-coin caller. This divergence carries no new whole-source completion credit.",
+      "detail": "Segment0 step40: do.c:dropx785–797 frees inventory, checks ship_object, performs doaltarobj and calls dropy/dropz without Hallucination guard. JS preflight_dropx refuses before the existing placement/display path. apply.c:flip_coin4527–4556 splits one coin and unconditionally calls dropx on lose_coin, which the stale JS Hallucination skip prevented. Independent visible-Hallucination probe remains blocked before drop in display.c:map_object/obj_to_glyph; its comment-only correction preserves input bytes.",
+      "openedAt": "d623a33c12c50f8033999ee7844bd9ae37a623f9",
+      "openStanding": {
+        "sha": "90fc2c65ea42e2e51cf0989ec113c0d64288aa94",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dropx",
+      "session": "synthetic/v14/archeologist-drops-item-while-hallucinating",
+      "step": 40,
+      "syntheticProvenance": {
+        "synthetic/v14/archeologist-drops-item-while-hallucinating": {
+          "session": "synthetic/v14/archeologist-drops-item-while-hallucinating",
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "archeologist-drops-item-while-hallucinating",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recordingPath": "challenges/cases/v14/archeologist-drops-item-while-hallucinating.session.json",
+          "recordingSha256": "01b74c9d355d844b56a6b7cda5cef3b542d774e6f243d176d586ee15ab977c28",
+          "evaluationPath": "challenges/evaluations/20260930140230-v14.json",
+          "evaluationCommit": "90fc2c65ea42e2e51cf0989ec113c0d64288aa94"
+        }
+      },
+      "activeStanding": {
+        "sha": "90fc2c65ea42e2e51cf0989ec113c0d64288aa94",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v14",
+          "caseId": "archeologist-drops-item-while-hallucinating",
+          "session": "synthetic/v14/archeologist-drops-item-while-hallucinating",
+          "manifestPath": "challenges/manifests/v14.json",
+          "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+          "recording": "challenges/cases/v14/archeologist-drops-item-while-hallucinating.session.json",
+          "recordingPath": "challenges/cases/v14/archeologist-drops-item-while-hallucinating.session.json",
+          "recordingSha256": "01b74c9d355d844b56a6b7cda5cef3b542d774e6f243d176d586ee15ab977c28",
+          "recipe": "challenges/cases/v14/archeologist-drops-item-while-hallucinating.recipe.session.json",
+          "recipeSha256": "702aca233433bcb8ce1cf0d2566749f5c011aac8414457e16cef38b3af74e21d",
+          "replayInputSha256": "15aba12db5ae1209025ebd59f6ace80f30db6ba9e349069dae6da3aad2207814",
+          "evaluationPath": "challenges/evaluations/20260930140230-v14.json",
+          "evaluationCommit": "90fc2c65ea42e2e51cf0989ec113c0d64288aa94",
+          "evaluationArtifact": "challenges/evaluations/20260930140230-v14.json",
+          "evaluationUtc": "2026-09-30T14:02:53.648Z",
+          "remainingScreens": 1,
+          "recordedSteps": 41,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2614,
+              "total": 2624
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported drop: hallucinated display",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported drop: hallucinated display",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v14/archeologist-drops-item-while-hallucinating.json",
+            "result": {
+              "session": "synthetic/v14/archeologist-drops-item-while-hallucinating",
+              "corpus": "synthetic",
+              "batch": "v14",
+              "caseId": "archeologist-drops-item-while-hallucinating",
+              "remainingScreens": 1,
+              "recordedSteps": 41,
+              "manifestPath": "challenges/manifests/v14.json",
+              "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+              "recordingSha256": "01b74c9d355d844b56a6b7cda5cef3b542d774e6f243d176d586ee15ab977c28",
+              "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+              "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+              "status": "complete",
+              "commit": "3212f9f07c3fdf3f00c5c204885f51834f0b6448",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v14",
+                "caseId": "archeologist-drops-item-while-hallucinating",
+                "session": "synthetic/v14/archeologist-drops-item-while-hallucinating",
+                "manifestPath": "challenges/manifests/v14.json",
+                "manifestSha256": "a2a371fd7e9049f3f852a5af862930b3302d2facde5019077d00a04e860807e0",
+                "recording": "challenges/cases/v14/archeologist-drops-item-while-hallucinating.session.json",
+                "recordingPath": "challenges/cases/v14/archeologist-drops-item-while-hallucinating.session.json",
+                "recordingSha256": "01b74c9d355d844b56a6b7cda5cef3b542d774e6f243d176d586ee15ab977c28",
+                "recipe": "challenges/cases/v14/archeologist-drops-item-while-hallucinating.recipe.session.json",
+                "recipeSha256": "702aca233433bcb8ce1cf0d2566749f5c011aac8414457e16cef38b3af74e21d",
+                "replayInputSha256": "98a68643f2091b7383db8227261445fd90429a39564325dd4da557117d0af90d",
+                "evaluationPath": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationCommit": "de8f73ddf16241bca4e484fef2ab099b3f133a2d",
+                "evaluationArtifact": "challenges/evaluations/20260929225551-v14.json",
+                "evaluationUtc": "2026-09-29T22:55:51.622Z",
+                "remainingScreens": 1,
+                "recordedSteps": 41,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2614,
+                    "total": 2624
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported drop: hallucinated display",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported drop: hallucinated display",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first mismatch is the unsupported stop at the drop command after the normal pre-drop name message. Frozen JS preflight_dropx() rejects every active Hallucination state as unsupported display, while C do.c:drop has no such condition: it prints doname(obj), then calls dropx(), which continues through dropy() and dropz(). The assigned item is a stack of food rations; C's ordinary dropz() floor path places and stacks it, then newsym() maps the hero's square. Under Hallucination, display.h:obj_to_glyph() uses random_obj_to_glyph() for a non-statue object; frozen JS display.js already has the corresponding hallucinated obj_to_glyph(), map_object(), and newsym() path. This points to the overbroad JS preflight refusal at do.c:dropx's caller seam, not a hallucination-specific doname() branch: the normal 'You drop 3 uncursed food rations.' message is emitted before the refusal, and the source name formatter has no direct Hallucination branch. The selected path overlaps C50's do.c:dropy ownership through the required dropx -> dropy -> dropz call chain; B61's objnam.c:doname is a caller dependency for the preceding message, not the first-mismatch owner. The later C distfleeck observation is downstream of the JS refusal and is outside this first mismatch.",
+              "source": {
+                "file": "do.c",
+                "functions": [
+                  "dropx"
+                ],
+                "branch": "A non-swallowed hero with Hallucination active drops an ordinary inventory food-ration stack on a reachable, ordinary floor square; C has no Hallucination refusal in dropx and continues through dropy/dropz to the display update.",
+                "callers": [
+                  "do.c:dodrop -> static do.c:drop -> do.c:dropx (the assigned command path)",
+                  "do.c:dropx -> do.c:dropy -> do.c:dropz (required continuation; dropy is owned by C50)",
+                  "Other active dropx callers include do.c:dosinkring, invent.c:hold_another_object, and object-transfer paths in eat.c, pickup.c, do_wear.c, dig.c, artifact.c, wield.c, trap.c, polyself.c, apply.c, and write.c; dothrow.c:hitfloor calls dropz with impact."
+                ],
+                "dependencies": [
+                  "do.c:freeinv, ship_object, doaltarobj, dropy, dropz, flooreffects, place_object, stackobj, impact_disturbs_zombies, and encumber_msg along the ordinary drop chain",
+                  "display.c:newsym -> _map_location/map_object; display.h:obj_to_glyph and random_obj_to_glyph select the Hallucination glyph for a non-statue item through newsym_rn2",
+                  "objnam.c:doname formats the pre-drop message in do.c:drop; it runs before dropx and is not the first-mismatch owner (B61 owns doname)",
+                  "JS display.js already supplies obj_to_glyph, random_object_glyph_info, mappedObjectGlyphInfo, map_object, and newsym behavior for the Hallucination display path"
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "nethack-c/upstream/src/do.c:713-779: do.c:drop checks normal drop eligibility, prints You(\"drop %s.\", doname(obj)) when verbose, records LOST_DROPPED, and calls dropx; no Hallucination guard occurs in this caller path.",
+                "nethack-c/upstream/src/do.c:785-843: dropx frees inventory, attempts shipping/altar handling, then calls dropy; dropy delegates to dropz; the ordinary dropz tail calls flooreffects, place_object, stackobj, newsym(u.ux,u.uy), and encumber_msg.",
+                "nethack-c/upstream/include/display.h:950-968 and nethack-c/upstream/src/display.c:333-365, 1001-1010: Hallucination changes object glyph selection; for non-statues obj_to_glyph uses random_obj_to_glyph, and newsym maps the hero square through _map_location/map_object.",
+                "Frozen examined JS at 3212f9f07c3fdf3f00c5c204885f51834f0b6448: js/do.js:1513-1544 preflight_dropx throws UnsupportedDropError(\"hallucinated display\") for any hallucinating hero; js/do.js:1707-1729 wires dropx/dropy; js/display.js:2529-2553, 3277-3292, 3643-3810 implements the relevant Hallucination glyph and redraw path.",
+                "Saved assigned scan .cache/synthetic-scans/v14/archeologist-drops-item-while-hallucinating.json: screensEmitted=40, recordedSteps=41, stop at segment 0 step 40 on key d with unsupported drop: hallucinated display; the preceding JS message is \"You drop 3 uncursed food rations.\" The scan reports no earlier screen/RNG mismatch.",
+                "Saved assigned evaluation challenges/evaluations/20260929225551-v14.json: the first mismatch is step 40, kind stop, owner do.c:dropx hallucinated drop branch; its summary states the later distfleeck call is downstream of the JS preflight refusal. This remains the assigned case’s only unmatched screen.",
+                "Ownership overlap: the route must continue through do.c:dropy, which C50 owns; objnam.c:doname is used only for the already emitted pre-drop message and is owned by B61. Source search `rg -n \"Hallucination|rndmonnam\" nethack-c/upstream/src/objnam.c` returned no matches, consistent with the source call order placing the name before dropx."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "41ae3a38af1d8129e70cf79ef7f4a4dbe151dc82",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
