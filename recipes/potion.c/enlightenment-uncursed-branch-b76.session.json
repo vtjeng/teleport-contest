@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent uncursed potion.c:peffect_enlightenment() witness. Seed 76100352 and the date/time were fixed before recording without scanning. The C-first setup miss showed the wished potion in inventory slot p, so qp reaches the uncursed branch. The two trailing spaces clear the potion pager and enlightenment menu so the shared effect and potion tail finish without blessed adjustments.",
+  "segments": [
+    {
+      "seed": 76100352,
+      "datetime": "20370420073000",
+      "nethackrc": "OPTIONS=name:B76UncursedEnl,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017uncursed potion of enlightenment\nqp  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked setup miss for independent B76 uncursed potion recording. The C wish produced a potion in inventory slot p at step 35, while the frozen recipe selected o at step 37 and got “That is a silly thing to drink.” The run did not reach potion.c:peffect_enlightenment(); keep its exact C artifact in .cache/B76-scratch.",
+  "segments": [
+    {
+      "seed": 76100352,
+      "datetime": "20370420073000",
+      "nethackrc": "OPTIONS=name:B76UncursedEnl,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " \u0017uncursed potion of enlightenment\nqo  "
+    }
+  ]
+}

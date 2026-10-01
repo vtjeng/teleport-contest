@@ -1,0 +1,148 @@
+{
+  "session": "synthetic/v17/magic-harp-charms-hostile-pager-safe",
+  "corpus": "synthetic",
+  "batch": "v17",
+  "caseId": "magic-harp-charms-hostile-pager-safe",
+  "manifestPath": "challenges/manifests/v17.json",
+  "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+  "recordingSha256": "ecaa9913dc70721acee4df43fc48ad9f1259b4ead5448e56b937e777ff0961ac",
+  "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+  "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+  "remainingScreens": 1,
+  "recordedSteps": 45,
+  "status": "complete",
+  "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v17",
+    "caseId": "magic-harp-charms-hostile-pager-safe",
+    "session": "synthetic/v17/magic-harp-charms-hostile-pager-safe",
+    "manifestPath": "challenges/manifests/v17.json",
+    "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+    "recording": "challenges/cases/v17/magic-harp-charms-hostile-pager-safe.session.json",
+    "recordingPath": "challenges/cases/v17/magic-harp-charms-hostile-pager-safe.session.json",
+    "recordingSha256": "ecaa9913dc70721acee4df43fc48ad9f1259b4ead5448e56b937e777ff0961ac",
+    "recipe": "challenges/cases/v17/magic-harp-charms-hostile-pager-safe.recipe.session.json",
+    "recipeSha256": "f27a3e3dd5b8d9f22cc9eb43deac600139efda31fd7d3c4bd1f75e460d3c1cba",
+    "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+    "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+    "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationUtc": "2026-10-01T19:06:03.082Z",
+    "remainingScreens": 1,
+    "recordedSteps": 45,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 44,
+        "total": 45
+      },
+      "rng": {
+        "matched": 2500,
+        "total": 2501
+      },
+      "cursors": {
+        "matched": 44,
+        "total": 45
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 44,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 44,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 70,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2500,
+        "cEntry": "rn2(109)=89",
+        "cCaller": "resist(zap.c:6141)",
+        "jsEntry": "rn2(19)=17",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 44,
+          "key": "y"
+        },
+        "stepIndex": 44
+      },
+      "cursor": {
+        "index": 44,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 44,
+          "key": "y"
+        },
+        "cCursor": [
+          78,
+          0,
+          1
+        ],
+        "jsCursor": [
+          72,
+          8,
+          1
+        ]
+      }
+    },
+    "step": 44,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "resist",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 6141
+  },
+  "summary": "The one remaining screen is the C --More-- prompt after the magic harp reaches music.c:charm_monsters. Its first in-range monster is the adjacent level-1 orc: charm_monsters calls resist(TOOL_CLASS, 0, NOTELL), then (because the orc has zero MR) calls tamedog. tamedog’s visible “seems more amiable” message is too long to share the existing harp line, so topl.c:update_topl() calls more() before replacing it. JS skips charm_monsters at note_unported and moves to exercise instead; the first RNG mismatch is C resist rn2(109)=89 versus JS exercise rn2(19)=17. The recording ends at the pager, before the post-pager taming state is visible.",
+  "source": {
+    "file": "music.c",
+    "branch": "music.c:do_improvisation(MAGIC_HARP) passes distance (u.ulevel - 1) / 3 + 1 to charm_monsters() after consuming a charge and printing the harp message. charm_monsters() sets distance to zero if u.uswallow, preserving only a collocated engulfer; it traverses fmon while saving mtmp->nmon before each effect, skips dead monsters, and considers monsters with mdistu(mtmp) <= distance. For each in range it calls resist(mtmp, TOOL_CLASS, 0, NOTELL); if the consumed Boolean result is false, or the monster is a shopkeeper, it calls tamedog(mtmp, NULL, TRUE) and discards that return. In this recording, the level-1 hero’s magic harp gives distance 1 and the adjacent orc is at squared distance 1. The orc has m_lev 1 and MR 0, so C’s logged rn2(109)=89 makes resist false and enters tamedog.",
+    "functions": [
+      "charm_monsters"
+    ],
+    "callers": [
+      "C: apply.c:doapply() sends MAGIC_HARP through music.c:do_play_instrument(); js/apply.js:doapply() routes the same inventory arm to js/music.js:do_play_instrument().",
+      "C: music.c:do_play_instrument() accepts the recorded “y” answer to Improvise? and calls do_improvisation(); js/music.js:do_play_instrument() sends the yes/default answer to do_improvisation().",
+      "C: music.c:do_improvisation(MAGIC_HARP) consumes the charge, prints the music message, calls charm_monsters((u.ulevel - 1) / 3 + 1), then exercises Dexterity; js/music.js has the same arm but replaces the helper call with note_unported(\"music.c charm_monsters\") before exercise().",
+      "C: charm_monsters() calls zap.c:resist() and, when its result is false or the monster is a shopkeeper, dog.c:tamedog(); the latter call’s Boolean result is explicitly discarded. The visible tamedog() pline reaches win/tty/topl.c:update_topl()/more()."
+    ],
+    "dependencies": [
+      "hack.h:mdistu(mon) expands to distu()/hacklib.c:dist2(); JS hacklib.js:dist2() already implements the squared-Euclidean distance used by the inclusive <= distance gate.",
+      "zap.c:resist() returns a Boolean consumed by charm_monsters(); js/zap.js:resist() already ports the formula and accepts the existing musicRandom.rn2 source.",
+      "dog.c:tamedog(mon, NULL, TRUE) is a side-effect call whose Boolean result C discards; js/dog.js:tamedog() already implements it and must be awaited for its messages and state changes without consuming its return.",
+      "tamedog() has separate named gaps outside the ordinary orc path: shk.c:make_happy_shk for a shopkeeper, mhitu.c:expels when the charmed monster is u.ustuck while swallowed unless the expels hook is supplied, and worm.c:redraw_worm for a worm. Preserve these downstream gaps; the saved recording stops at the More prompt before the ordinary orc’s post-pager taming tail.",
+      "pline.c:pline_mon() routes tamedog’s visible message to win/tty/topl.c:update_topl()/more(); js/tty_message.js already models the same message-page boundary."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v17 queue and challenges/evaluations/20261001190602-v17.json identify exactly 1 remaining screen in 45 steps: 44/45 screens, 2500/2501 RNG calls, and 44/45 cursors matched. At segment 0, step 44 on “y”, C row 0 column 70 has the first dash of --More-- and cursor [78,0,1]; JS has a space and cursor [72,8,1]. The immutable recording SHA is ecaa9913dc70721acee4df43fc48ad9f1259b4ead5448e56b937e777ff0961ac.",
+    "Upstream nethack-c/upstream/src/music.c:194-217 defines the whole missing charm_monsters() helper, including its swallowed-distance override, cached next-monster traversal, dead-monster skip, inclusive range check, resistance gate, and shopkeeper exception. music.c:659-670 is the production MAGIC_HARP caller; the instrument plays its music message and then calls charm_monsters before exercise(A_DEX, TRUE).",
+    "The production route is apply.c:doapply() lines 4373-4384 -> music.c:do_play_instrument() lines 776-784 -> music.c:do_improvisation(MAGIC_HARP) lines 659-670 -> charm_monsters(). The matching JS route is js/apply.js:5008-5019 -> js/music.js:313-334 -> js/music.js:263-270. The named note_unported(\"music.c charm_monsters\") at js/music.js:268 is the earliest missing operation; zap.c:resist is already implemented and is skipped only because this helper call is missing.",
+    "The immutable C recording’s step 41 map shows the red orc immediately south of the hero, with no intervening square; the status line is level 1. Step 44 records the harp output followed by --More-- and the RNG entry rn2(109)=89 @ resist(zap.c:6141). The source formula uses alev 10 for TOOL_CLASS and dlev 1 for this orc, hence rn2(109); monsters.h:743-748 gives the ordinary orc level 1 and magic-resistance value 0. Thus resist returns false and the helper enters its tamedog arm.",
+    "The first differing screen is caused by the helper’s next visible effect: dog.c:tamedog() lines 1168-1172 prints “The orc seems more amiable.” before it changes mpeaceful; the visible adjacent orc satisfies canspotmon(). win/tty/topl.c:update_topl() lines 259-279 permits joining only when there is room reserved for --More--; otherwise it calls more() before copying the new line. The existing harp line is already too long for the tamedog message, so the saved step-44 frame is the More prompt and the C recording ends there; it does not show the message after dismissal or establish the eventual pet/taming state.",
+    "C’s first differing RNG entry is the resist draw inside the missing charm_monsters() helper, while JS’s entry at the same index is rn2(19)=17 from exercise(A_DEX) after note_unported. This is direct source-order evidence for the missing helper, not an attribution based only on the identity of the next random caller. The existing js/zap.js:resist() matches zap.c:resist() and should be called; the tamedog result is discarded by C and must not be used as data.",
+    "The matching retainedCases row in .cache/C56-accepted-preparation-evidence.json names apply.c -> do_play_instrument -> do_improvisation(MAGIC_HARP) -> charm_monsters, and the direct source owner and saved first mismatch agree. Its phrase “before the later resistance/monster-turn draw” is imprecise for this exact artifact: the C recording’s rn2(109) resist call is the first RNG mismatch at index 2500, opposed by JS exercise. The recipe note permits a resistance target miss in general, but this recorded ordinary orc has MR 0 and is not resisted. Its input stops at the pager, so post-pager taming remains unobserved.",
+    "The preparation evidence records independent patched-C replay run-VuqEmq as byte-identical to the immutable 45-step recording. No fresh replay is needed: the source helper, call order, saved C trace, and explicit JS gap establish the actionable scope. The current JS tamedog branch documents distinct downstream gaps for shopkeeper happiness, swallowed expulsion without a supplied hook, and worm redraw; those do not change the ordinary-orc root cause."
+  ]
+}

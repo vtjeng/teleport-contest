@@ -1,0 +1,136 @@
+{
+  "session": "synthetic/v17/wooden-flute-charms-moving-snake-slot-e-more-continued",
+  "corpus": "synthetic",
+  "batch": "v17",
+  "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+  "manifestPath": "challenges/manifests/v17.json",
+  "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+  "recordingSha256": "cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44",
+  "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+  "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+  "remainingScreens": 2,
+  "recordedSteps": 80,
+  "status": "complete",
+  "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v17",
+    "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+    "session": "synthetic/v17/wooden-flute-charms-moving-snake-slot-e-more-continued",
+    "manifestPath": "challenges/manifests/v17.json",
+    "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+    "recording": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json",
+    "recordingPath": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json",
+    "recordingSha256": "cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44",
+    "recipe": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.recipe.session.json",
+    "recipeSha256": "9a29ad4cad7cebc48919c7f088f187f08f59a3e268016fe7f706a7587b96a587",
+    "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+    "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+    "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationUtc": "2026-10-01T19:06:03.082Z",
+    "remainingScreens": 2,
+    "recordedSteps": 80,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 78,
+        "total": 80
+      },
+      "rng": {
+        "matched": 2843,
+        "total": 2843
+      },
+      "cursors": {
+        "matched": 79,
+        "total": 80
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 78,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 78,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 48,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 78,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 78,
+          "key": "y"
+        },
+        "cCursor": [
+          56,
+          0,
+          1
+        ],
+        "jsCursor": [
+          34,
+          7,
+          1
+        ]
+      }
+    },
+    "step": 78,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The two remaining screens come from the missing music.c:charm_snakes() call after a successful wooden-flute gate. Its visible snake reaction is the next message after the flute line; topl.c:update_topl() therefore inserts the step-78 --More-- prompt before replacing that line. JS still records note_unported(\"music.c charm_snakes\") and skips both the snake state changes and message. Port and wire the whole charm_snakes helper in js/music.js; the existing pager implementation is not the source defect.",
+  "source": {
+    "file": "music.c",
+    "branch": "In do_improvisation(WOODEN_FLUTE), when the hero is not stunned or confused and rn2(ACURR(A_DEX)) + u.ulevel > 25, C calls charm_snakes(u.ulevel * 3). charm_snakes traverses fmon and affects each living S_SNAKE that can move and has mdistu(mon) strictly less than that distance. It saves prior visibility and peacefulness, sets peaceful, clears mavenge and STRAT_WAITMASK, clears mundetected, redraws with newsym, then emits a message only if the snake is visible after the redraw: “You notice ... swaying with the music” when it was not visible before, otherwise “... freezes, then sways with the music” with “, and now seems quieter” only when previously hostile. The helper does not tame snakes or draw RNG. The recorded level-20 flute passes with rn2(15)=14; the adjacent visible hostile moving snake is inside distance 60.",
+    "functions": [
+      "charm_snakes"
+    ],
+    "callers": [
+      "C: apply.c:doapply() dispatches WOODEN_FLUTE to music.c:do_play_instrument(obj); js/apply.js:doapply() has the same instrument dispatch to js/music.js:do_play_instrument().",
+      "C: music.c:do_play_instrument() accepts the recorded “y” for Improvise? and calls do_improvisation(); js/music.js:do_play_instrument() sends the yes/default branch to do_improvisation().",
+      "C: music.c:do_improvisation() completes its flute message and Hero_playnotes() call, then calls charm_snakes(u.ulevel * 3) when do_spec is true; js/music.js:do_improvisation() currently replaces this call with note_unported(\"music.c charm_snakes\") and proceeds to exercise().",
+      "C message path: charm_snakes() emits its visible-monster pline after the flute messages; win/tty/topl.c:update_topl()/more() provides the pager boundary before replacing the full top line. JS already has the matching ttyPline/dismissPendingTtyMessage path in js/tty_message.js."
+    ],
+    "dependencies": [
+      "hack.h:mdistu(mon) expands to distu()/hacklib.c:dist2(); the strict squared-Euclidean range predicate is implemented by js/hacklib.js:dist2().",
+      "display.c:canseemon() supplies the before/after visibility predicates consumed by the message branches; js/vision.js:canseemon() is already present.",
+      "display.c:newsym() is a side-effect-only redraw after mundetected is cleared; js/display.js:newsym() is already present.",
+      "do_name.c:a_monnam() and Monnam() provide the two message names; js/do_name.js already implements both.",
+      "pline.c You()/pline() route through win/tty/topl.c update_topl()/more(); js/tty_message.js already models the pager. Hero_playnotes() is an empty macro in this recorder build (include/sndprocs.h:272-273), so no sound call or RNG should be invented."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The current saved queue and baseline challenges/evaluations/20261001190602-v17.json identify 2 remaining screens in 80 steps: 78/80 screens, 2843/2843 RNG calls, and 79/80 cursors matched. At segment 0, step 78 on “y”, C row 0 column 48 is the first dash of --More-- and C cursor is [56,0,1]; JS has a space and cursor [34,7,1]. The immutable recording hash is cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44.",
+    "Upstream nethack-c/upstream/src/music.c:104-132 defines the complete missing charm_snakes() helper: living movable snakes strictly inside range become peaceful, stop avenging, clear their wait strategy and undetected state, redraw, then report only if visible. It retains the prior peaceful/visibility values for exact message selection. music.c:599-609 calls it after the WOODEN_FLUTE gate at line 600 and before exercise; the recorded rn2(15)=14 plus level 20 passes the gate.",
+    "The production C route is apply.c:doapply() lines 4373-4384 -> music.c:do_play_instrument() lines 776-784 -> music.c:do_improvisation(WOODEN_FLUTE) lines 599-609 -> charm_snakes(). The parallel JS route is js/apply.js:5008-5019 -> js/music.js:313-334 -> js/music.js:217-224. The JS branch currently has note_unported(\"music.c charm_snakes\") at line 222; this is the earliest missing source behavior, not a pager defect.",
+    "The C recording challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json shows step 78 after input “y”: “You start playing your flute.  The flute trills.--More--”. After input space at step 79, it shows “The snake freezes, then sways with the music, and now seems quieter.” The C random log begins that step with exercise(attrib.c:509), after the helper’s no-RNG state/message work.",
+    "Pager order is confirmed by nethack-c/upstream/win/tty/topl.c:update_topl() lines 259-279: a message joins the existing line only if it fits with room reserved for --More--; otherwise TOPLINE_NEED_MORE calls more() before the new line is copied/rendered. Here the snake reaction is the third message, so the prompt visible at step 78 is raised by charm_snakes()’s pline before its text replaces the flute line. space at step 79 resumes the same ordered path. This explains both remaining screens without changing the correct existing pager port.",
+    "The retained-case crosswalk in .cache/C56-accepted-preparation-evidence.json names this target’s sourcePointers as doapply -> do_play_instrument -> do_improvisation(WOODEN_FLUTE) -> charm_snakes -> topl.more, and its reachedSource/cOutcome and exact step-78 mismatch agree with the source and recording. One closestCausalComparisons note on this flute row incorrectly describes a wooden-harp/calm_nymphs path. The admission correctionAudit separately identifies wooden-harp-calms-nymph-slot-e-more-continued as the harp/nymph More continuation and corrects its closest Bell comparison to v13/ordinary-bell-rings; that distinct harp path does not apply here. The target row’s own v13 Bell comparison also correctly distinguishes use_bell/wake_nearby from flute charm_snakes.",
+    "include/sndprocs.h:272-273 expands Hero_playnotes() to an empty macro in the recorder build. The helper’s behavior and the missing pager boundary therefore come from charm_snakes() state/message handling, with no hidden sound callback or random draw dependency."
+  ]
+}

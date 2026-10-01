@@ -1,0 +1,133 @@
+{
+  "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-more-continued",
+  "corpus": "synthetic",
+  "batch": "v17",
+  "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+  "manifestPath": "challenges/manifests/v17.json",
+  "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+  "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+  "recordingSha256": "67977a917cf1ae9da9793837e18cc1086bfeca4de1af9c0dc94728d04ea8b0b3",
+  "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+  "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+  "remainingScreens": 2,
+  "recordedSteps": 87,
+  "status": "complete",
+  "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v17",
+    "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+    "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-more-continued",
+    "manifestPath": "challenges/manifests/v17.json",
+    "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+    "recording": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+    "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+    "recordingSha256": "67977a917cf1ae9da9793837e18cc1086bfeca4de1af9c0dc94728d04ea8b0b3",
+    "recipe": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.recipe.session.json",
+    "recipeSha256": "e469e34187c8c66996e62eb8dc35f1aee889705fe90806025759f359b9a05a6f",
+    "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+    "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+    "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationUtc": "2026-10-01T19:06:03.082Z",
+    "remainingScreens": 2,
+    "recordedSteps": 87,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 85,
+        "total": 87
+      },
+      "rng": {
+        "matched": 3096,
+        "total": 3096
+      },
+      "cursors": {
+        "matched": 86,
+        "total": 87
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 85,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 85,
+          "key": "y"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 66,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 85,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 85,
+          "key": "y"
+        },
+        "cCursor": [
+          74,
+          0,
+          1
+        ],
+        "jsCursor": [
+          56,
+          19,
+          1
+        ]
+      }
+    },
+    "step": 85,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The two remaining screens come from the unported music.c:calm_nymphs helper on the wooden-harp success path. At step 85, do_improvisation has already passed the harp gate and emitted the melody; it calls calm_nymphs before exercise(A_DEX). C changes the nearby mobile nymph to peaceful and clears sleep, avenge, and wait-strategy state, then its visible-nymph pline reaches a More boundary. Space at step 86 dismisses that boundary, shows the nymph response, and only then lets the helper return so exercise consumes rn2(19)=6. JS currently records note_unported(\"music.c calm_nymphs\") and skips both those state changes and the awaited message. The existing TTY message path owns the pager behavior; this case does not identify a separate topl.c:more defect. The source-traced task is a file-port of the whole calm_nymphs function in music.c, wired at the existing wooden-harp call site in js/music.js.",
+  "source": {
+    "file": "music.c",
+    "branch": "do_improvisation(WOODEN_HARP) reaches do_spec=true after rn2(ACURR(A_DEX)) + u.ulevel > 25, then calls calm_nymphs(u.ulevel * 3) before exercising Dexterity. For each non-dead monster, calm_nymphs selects S_NYMPH monsters that can move and whose mdistu is below that distance; it clears sleeping, makes them peaceful, clears avenge and STRAT_WAITMASK, and prints the response only when canseemon is true. The recorded level-30 case passes the gate with rn2(18)=12 and invokes the helper with distance 90.",
+    "functions": [
+      "calm_nymphs"
+    ],
+    "callers": [
+      "C apply.c:doapply (4373-4383) routes WOODEN_HARP to music.c:do_play_instrument; JS cmd.js rhack (5145-5146) routes doapply through runApplyCommand to apply.js:doapply, whose instrument arm (5008-5019) calls music.js:do_play_instrument.",
+      "C music.c:do_play_instrument (776-784) asks Improvise? and, for a non-n key, calls music.c:do_improvisation while consuming its ECMD_TIME/ECMD_OK return. JS music.js:do_play_instrument (327-334) mirrors this and consumes the do_improvisation result.",
+      "C music.c:do_improvisation wooden-harp arm (672-686) calls calm_nymphs when do_spec is true, before exercise(A_DEX, TRUE). JS music.js:do_improvisation (271-279) has the same gate and message order, but the call site currently invokes note_unported(\"music.c calm_nymphs\") instead of the helper."
+    ],
+    "dependencies": [
+      "The helper consumes hack.h:mdistu(mon), a distance-squared return; the JS music module already imports dist2 from hacklib.js, which can represent the macro as dist2(mon.mx, mon.my, state.u.ux, state.u.uy). It also filters DEADMONSTER, S_NYMPH, and mcanmove and mutates msleeping, mpeaceful, mavenge, and mstrategy on the selected monster.",
+      "canseemon(mon) gates the visible response and Monnam(mon) supplies its name; js/music.js already imports canseemon from vision.js and Monnam from do_name.js. Their returned values are consumed by the source branch.",
+      "C pline is void but its awaited TTY effect may block on More. The JS caller must await the response message before returning to do_improvisation, preserving the source order before exercise(A_DEX). do_play_instrument separately consumes the existing do_improvisation command-time result; preserve that caller contract."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved challenges/evaluations/20261001190602-v17.json, measured at 518d4526ccba82c89752a8babb892ba9bc48bc60, reports 85/87 screens, 3096/3096 RNG calls, and 86/87 cursors. The first mismatch is step 85, key y: C has a hyphen at row 0 column 66 and cursor [74,0,1], while JS has a space and cursor [56,19,1]. The queue records exactly two remaining screens across 87 steps.",
+    "Immutable challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json step 85 records the harp gate draw rn2(18)=12 at music.c:673 after improvised_notes; its screen ends with the melody and --More--. Step 86 is space; the C screen then shows “The wood nymph listens cheerfully to the music, then seems quieter.” and its first RNG is rn2(19)=6 at exercise(attrib.c:509), followed by ordinary monster and end-turn draws. This locates the pager inside the calm_nymphs response pline, before exercise.",
+    "Upstream nethack-c/upstream/src/music.c:139-158 confirms calm_nymphs iterates fmon, skips dead monsters, selects mobile nymphs within mdistu(mon) < distance, changes their sleep/peaceful/avenge/wait-strategy state, and calls pline only for visible nymphs. The wooden-harp caller at music.c:672-686 calls it with u.ulevel * 3 before exercise. No calm_nymphs or do_improvisation changes are present under nethack-c/patches (search returned no matches).",
+    "Current js/music.js:271-279 mirrors the wooden-harp gate and melody but replaces the special path with note_unported(\"music.c calm_nymphs\") before exercise. Current js/music.js imports dist2, canseemon, and Monnam; js/tty_message.js:449-582 implements ttyPline’s pending-message overflow, More dismissal, and continuation. Therefore the missing owner is the C helper and its existing call site, not a pager rewrite.",
+    "The matching historical C56 row is .cache/C56-accepted-preparation-evidence.json missionPlanEvidence.fullSourceActionCrosswalk.retainedCases[32]. It independently identifies the step-85 calm_nymphs visible-nymph More continuation and calls this recording a strict-prefix continuation of the corrected slot-e harp case, not a new mismatch bucket; those claims are confirmed by the C source and saved recording.",
+    "Canonical v17 corpus identity: readChallengeBatches() and challengeState() both report 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada, matching the saved work-queue and evaluation identity."
+  ]
+}

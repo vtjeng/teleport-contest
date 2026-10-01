@@ -391,6 +391,68 @@ function potionSource() {
     );
 }
 
+test('peffect_enlightenment follows the complete C branch and dispatch order', async () => {
+    const c = potionSource();
+    const cSignature = c.indexOf('peffect_enlightenment(struct obj *otmp)');
+    const cEnd = c.indexOf('\n}', cSignature);
+    assert.ok(cSignature > 0 && cEnd > cSignature);
+    const cBody = c.slice(cSignature, cEnd);
+    const cursed = cBody.indexOf('if (otmp->cursed)');
+    const unknown = cBody.indexOf('gp.potion_unkn++', cursed);
+    const uneasy = cBody.indexOf('You("have an uneasy feeling...")', cursed);
+    const cursedExercise = cBody.indexOf('exercise(A_WIS, FALSE)', cursed);
+    const blessed = cBody.indexOf('if (otmp->blessed)', unknown);
+    const intGain = cBody.indexOf('adjattrib(A_INT, 1, FALSE)', blessed);
+    const wisGain = cBody.indexOf('adjattrib(A_WIS, 1, FALSE)', intGain);
+    const sharedEffect = cBody.indexOf('do_enlightenment_effect()', wisGain);
+    assert.ok(cursed < unknown && unknown < uneasy && uneasy < cursedExercise);
+    assert.ok(blessed < intGain && intGain < wisGain && wisGain < sharedEffect);
+
+    const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const jsSignature = js.indexOf('async function peffect_enlightenment(');
+    const jsEnd = js.indexOf('\n}', jsSignature);
+    assert.ok(jsSignature > 0 && jsEnd > jsSignature);
+    const jsBody = js.slice(jsSignature, jsEnd);
+    assert.match(jsBody, /state\.gp\.potion_unkn\+\+;[\s\S]*message\('You have an uneasy feeling\.\.\.', state\);[\s\S]*exercise\(A_WIS, false/u);
+    assert.match(jsBody, /adjattrib\(A_INT, 1, false[\s\S]*adjattrib\(A_WIS, 1, false[\s\S]*do_enlightenment_effect\(state, random\)/u);
+    const dispatchStart = js.indexOf('export async function peffects(');
+    const dispatchEnd = js.indexOf('\n// C ref: potion.c dopotion', dispatchStart);
+    const dispatch = js.slice(dispatchStart, dispatchEnd);
+    assert.match(dispatch, /case POT_ENLIGHTENMENT:\s+await peffect_enlightenment\(/u);
+});
+
+test('cursed enlightenment increments the unknown count and exercises Wisdom',
+    async () => {
+        // This fixed start gives the source exercise helper an empty Wisdom
+        // exercise accumulator before the cursed branch runs.
+        await startedGame(76100409, 'CursedEnlightenmentBranch', 'Wizard');
+        game.gp.potion_unkn = 4;
+        game.u.aexe[A_WIS] = 0;
+        const messages = [];
+        const bounds = [];
+        const potion = vaporPotion(POT_ENLIGHTENMENT);
+        potion.cursed = true;
+        potion.blessed = false;
+
+        const result = await peffects(potion, game, {
+            message: async (line) => messages.push(line),
+            random: {
+                rn2: (bound) => {
+                    bounds.push(bound);
+                    // C calls rn2(2) and subtracts the chosen result for
+                    // exercise(A_WIS, FALSE); one proves the negative update.
+                    return 1;
+                },
+            },
+        });
+
+        assert.equal(result, -1);
+        assert.equal(game.gp.potion_unkn, 5);
+        assert.deepEqual(messages, ['You have an uneasy feeling...']);
+        assert.deepEqual(bounds, [2]);
+        assert.equal(game.u.aexe[A_WIS], -1);
+    });
+
 test('make_vomiting follows the C timeout, status and message order', async () => {
     const source = potionSource();
     const signature = source.indexOf('make_vomiting(long xtime, boolean talk)');

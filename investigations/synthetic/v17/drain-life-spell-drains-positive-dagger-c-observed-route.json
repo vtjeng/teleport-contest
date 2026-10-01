@@ -1,0 +1,116 @@
+{
+  "session": "synthetic/v17/drain-life-spell-drains-positive-dagger-c-observed-route",
+  "corpus": "synthetic",
+  "batch": "v17",
+  "caseId": "drain-life-spell-drains-positive-dagger-c-observed-route",
+  "remainingScreens": 0,
+  "recordedSteps": 64,
+  "manifestPath": "challenges/manifests/v17.json",
+  "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+  "recording": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.session.json",
+  "recordingPath": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.session.json",
+  "recordingSha256": "2223a8fd3a7d9db30185de9c86adbba999be92d6365be074aff1fa7a961183e8",
+  "recipe": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.recipe.session.json",
+  "recipeSha256": "12d049a519ec8f8b55cd59339b43da15003e8dc3d89ae802c3e8ef4541d190a0",
+  "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+  "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+  "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+  "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+  "evaluationUtc": "2026-10-01T19:06:03.082Z",
+  "status": "complete",
+  "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v17",
+    "caseId": "drain-life-spell-drains-positive-dagger-c-observed-route",
+    "session": "synthetic/v17/drain-life-spell-drains-positive-dagger-c-observed-route",
+    "manifestPath": "challenges/manifests/v17.json",
+    "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+    "recording": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.session.json",
+    "recordingPath": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.session.json",
+    "recordingSha256": "2223a8fd3a7d9db30185de9c86adbba999be92d6365be074aff1fa7a961183e8",
+    "recipe": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.recipe.session.json",
+    "recipeSha256": "12d049a519ec8f8b55cd59339b43da15003e8dc3d89ae802c3e8ef4541d190a0",
+    "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+    "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+    "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationUtc": "2026-10-01T19:06:03.082Z",
+    "remainingScreens": 0,
+    "recordedSteps": 64,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 64,
+        "total": 64
+      },
+      "rng": {
+        "matched": 2728,
+        "total": 2740
+      },
+      "cursors": {
+        "matched": 64,
+        "total": 64
+      }
+    },
+    "firstMismatch": {
+      "screen": null,
+      "rng": {
+        "index": 2724,
+        "cEntry": "rn2(100)=61",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "jsEntry": "rn2(5)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 63,
+          "key": "k"
+        },
+        "stepIndex": 63
+      },
+      "cursor": null
+    },
+    "step": 63,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "obj_resists",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 1469
+  },
+  "summary": "The evaluation has 0 unmatched screens, but the case is not passing: it records 64/64 screens and cursors while only 2728/2740 RNG calls match. The first RNG divergence is caused by the unported zap.c:drain_item() call in bhito’s SPE_DRAIN_LIFE branch. C kills the tame kitten, then continues to the floor pile and processes the dropped +1 ordinary dagger. drain_item() reaches obj_resists(obj,10,90), where C draws rn2(100)=61; the dagger does not resist, so C decrements its enchantment. JavaScript records note_unported() at the bhito branch and skips that source behavior. obj_resists() itself is already correctly implemented in JS; it is a nested call, not the missing owner.",
+  "source": {
+    "file": "zap.c",
+    "functions": [
+      "drain_item"
+    ],
+    "branch": "For a non-null object in an eligible charged/enchanted class with spe > 0, when neither AD_DRLI defense check nor obj_resists(obj,10,90) blocks it, C optionally charges alteration cost for by_you, decrements spe, updates worn-item attributes/status and carried inventory as applicable, then returns TRUE. In this recording the floor object is an ordinary +1 dagger; C’s ordinary-object resistance roll is 61 against a 10% chance, so the dagger is drained.",
+    "callers": [
+      "zap.c:bhito (2119-2427), SPE_DRAIN_LIFE arm at 2318-2320, calls drain_item(obj,TRUE) and discards its boolean. Actual case path: spell.c:dowizcast -> spelleffects(SPE_DRAIN_LIFE) -> zap.c:weffects -> bhit -> bhitpile -> bhito. C processes the monster callback first, then the floor pile; JS js/zap.js:3566-3568 currently records note_unported(\"zap.c drain_item\").",
+      "mhitm.c:mattackm, AD_ENCH branch at 1350-1355, calls drain_item(mwep,FALSE) and discards its result. JS js/mhitm.js:1171-1173 refuses the non-null mwep branch; its comment says that branch is unreachable in the currently admitted mattackm paths.",
+      "mhitu.c:hitmu, AD_ENCH branch at 2508-2515, calls drain_item(mon_currwep,TRUE) and discards its result. JS js/mhitu.js:1890 keeps this as note_unported(\"zap.c drain_item\").",
+      "uhitm.c:mhitm_ad_ench at 3603-3649 calls drain_item(obj,FALSE) at 3641 and consumes TRUE to print the less-effective message. JS js/uhitm.js:4793 still leaves the AD_ENCH arm as unported.",
+      "uhitm.c:passive_obj at 6127-6194 calls drain_item(obj,TRUE) at 6181 and consumes TRUE with carried/known checks before printing. JS js/uhitm.js:5155-5180 supports only the ordinary AD_PHYS path and refuses non-AD_PHYS passive object damage."
+    ],
+    "dependencies": [
+      "artifact.c:defends(AD_DRLI,obj) and defends_when_carried(AD_DRLI,obj) return booleans consumed in left-to-right short-circuit order before obj_resists; JS js/artifacts.js:1460-1492 provides these helpers.",
+      "zap.c:obj_resists(obj,10,90) returns the resistance decision consumed by drain_item. JS js/bury.js:97-112 already draws rn2(100) for ordinary objects and compares against ordinaryChance; do not assign this existing helper as the owner of the missing call.",
+      "mkobj.c:costly_alteration(obj,COST_DRAIN) is void and its result is discarded, but shop billing effects must remain in source order before spe is decremented. JS js/obj.js:2821-2829 only supports unbilled OBJ_FREE/OBJ_INVENT fast paths and otherwise requires a costlyAlteration hook; retain the C costly_spot/billable fast path or an explicit note_unported(\"mkobj.c costly_alteration\") for any still-unported billable branch.",
+      "drain_item() returns a boolean. zap.c:bhito, mhitm.c:mattackm and mhitu.c:hitmu discard it; uhitm.c:mhitm_ad_ench and passive_obj consume it to conditionally message. Preserve the boolean across all wired callers."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v17 evaluation challenges/evaluations/20261001190602-v17.json reports passed=false: 64/64 screens and 64/64 cursors match, but RNG is 2728/2740. Its first mismatch is segment 0, step 63, key k: C rn2(100)=61 at obj_resists(zap.c:1469) versus JS rn2(5)=1. Zero remaining screens is therefore not a pass.",
+    "The immutable C recording challenges/cases/v17/drain-life-spell-drains-positive-dagger-c-observed-route.session.json records at step 63 the sequence rn2(6)=2 and rn2(2)=1 in xkilled, followed by rn2(100)=61 in obj_resists; the screen says “You kill the poor kitten!” and shows the floor dagger glyph. The object’s enchantment value is not displayed, so its drain can leave all screen and cursor boundaries identical.",
+    "The matching retainedCases row in .cache/C56-accepted-preparation-evidence.json records sourcePointers spell.c:dowizcast, spell.c:spelleffects, zap.c:weffects, zap.c:bhitm, mon.c:xkilled, zap.c:bhito, zap.c:drain_item and zap.c:obj_resists. Its reachedSource states that C first kills the tame kitten through bhitm/xkilled and then continues to the floor-pile drain; direct source inspection confirms that path.",
+    "Upstream spell.c:dowizcast (787-814) calls spelleffects(); its SPE_DRAIN_LIFE directional branch calls weffects() at 1477-1514. Upstream zap.c:weffects uses bhit(..., bhitm, bhito, ...) for immediate effects at 3440-3449. zap.c:bhit calls the monster callback and, when it does not stop the ray, processes the floor pile through bhitpile at 4030-4047.",
+    "Upstream zap.c:bhito (2119-2427) handles SPE_DRAIN_LIFE at 2318-2320 by calling drain_item(obj,TRUE) and discarding the boolean. The complete drain_item() function at zap.c:1381-1455 checks object class and positive spe, then defends(AD_DRLI), defends_when_carried(AD_DRLI), and obj_resists(obj,10,90) in that order. For this ordinary +1 dagger, C’s rn2(100)=61 is not below 10, so the helper decrements spe and returns TRUE.",
+    "Current JS js/zap.js:3566-3568 substitutes note_unported(\"zap.c drain_item\") for the SPE_DRAIN_LIFE floor-object effect. In contrast, js/bury.js:95-112 correctly implements obj_resists() with rn2(100). The first JS entry rn2(5)=1 is aligned with the next C stream draw, distfleeck(monmove.c:538), showing that JS has advanced past the omitted resistance roll.",
+    "Direct source search `rg -n \"drain_item\\(\" nethack-c/upstream/src` finds zap.c:bhito, mhitm.c:mattackm, mhitu.c:hitmu, uhitm.c:mhitm_ad_ench and uhitm.c:passive_obj. The JS paths retain the named note, refusal or unported branches cited in source.callers; the two uhitm callers also consume the boolean result. A search for drain_item in nethack-c/patches returns no matches, so upstream C owns this behavior.",
+    "mkobj.c:costly_alteration (752-820) returns before billing for a floor object outside a costly spot and otherwise bills the relevant shop. JS js/obj.js:2821-2829 does not implement the floor/shop calculation and requires a hook outside its unbilled free/inventory fast path; this is a named void dependency for a complete drain_item port, not the source of the recorded RNG mismatch."
+  ]
+}

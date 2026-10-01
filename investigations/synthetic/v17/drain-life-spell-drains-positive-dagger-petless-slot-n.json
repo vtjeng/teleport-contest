@@ -1,0 +1,108 @@
+{
+  "session": "synthetic/v17/drain-life-spell-drains-positive-dagger-petless-slot-n",
+  "corpus": "synthetic",
+  "batch": "v17",
+  "caseId": "drain-life-spell-drains-positive-dagger-petless-slot-n",
+  "manifestPath": "challenges/manifests/v17.json",
+  "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+  "recordingPath": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-slot-n.session.json",
+  "recordingSha256": "80e797c732b8ef9e457fd08864f5798525647dd7921e1680cf3de9fc15873145",
+  "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+  "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+  "remainingScreens": 0,
+  "recordedSteps": 63,
+  "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+  "status": "complete",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v17",
+    "caseId": "drain-life-spell-drains-positive-dagger-petless-slot-n",
+    "session": "synthetic/v17/drain-life-spell-drains-positive-dagger-petless-slot-n",
+    "manifestPath": "challenges/manifests/v17.json",
+    "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+    "recording": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-slot-n.session.json",
+    "recordingPath": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-slot-n.session.json",
+    "recordingSha256": "80e797c732b8ef9e457fd08864f5798525647dd7921e1680cf3de9fc15873145",
+    "recipe": "challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-slot-n.recipe.session.json",
+    "recipeSha256": "58913b1e4fc40a0a612e60b548d62c3dda421012476a3b6da34dc601ab986c61",
+    "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+    "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+    "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationUtc": "2026-10-01T19:06:03.082Z",
+    "remainingScreens": 0,
+    "recordedSteps": 63,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 63,
+        "total": 63
+      },
+      "rng": {
+        "matched": 2662,
+        "total": 2674
+      },
+      "cursors": {
+        "matched": 63,
+        "total": 63
+      }
+    },
+    "firstMismatch": {
+      "screen": null,
+      "rng": {
+        "index": 2658,
+        "cEntry": "rn2(100)=26",
+        "cCaller": "obj_resists(zap.c:1469)",
+        "jsEntry": "rn2(5)=1",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 62,
+          "key": "k"
+        },
+        "stepIndex": 62
+      },
+      "cursor": null
+    },
+    "step": 62,
+    "kind": "rng",
+    "sourceFile": "zap.c",
+    "function": "obj_resists",
+    "message": null,
+    "cFile": "zap.c",
+    "luaFile": null,
+    "line": 1469
+  },
+  "summary": "This replay has 0 unmatched screens but is not passing: all 63 screens and cursors match, while RNG matches only 2662/2674. At step 62, the C spell ray hits the dropped positive-enchantment dagger and bhito() calls zap.c drain_item(obj, TRUE). Its guards reach obj_resists(obj, 10, 90), whose rn2(100)=26 draw is the first missing C event; the current JS bhito() branch only calls note_unported('zap.c drain_item'), so it also skips the successful obj->spe decrement. Port the whole zap.c:drain_item() function and account for its callers and dependencies. The target screen count alone does not certify the case.",
+  "source": {
+    "file": "zap.c",
+    "branch": "SPE_DRAIN_LIFE hits an existing object with positive spe; the object is not protected by defends(AD_DRLI), defends_when_carried(AD_DRLI), or the ordinary-object resistance roll (here rn2(100)=26, which is not below 10). On success, drain_item() applies COST_DRAIN when by_you is true, decrements spe, updates worn-ring effects/status as applicable, refreshes carried inventory, and returns TRUE.",
+    "functions": [
+      "drain_item"
+    ],
+    "callers": [
+      "zap.c:2119 bhito(), SPE_DRAIN_LIFE arm at 2318-2320: calls drain_item(obj, TRUE); result discarded. This is the reached caller for this replay.",
+      "mhitu.c:2435 passiveum(), call at 2512: calls drain_item(mon_currwep, TRUE); result discarded.",
+      "mhitm.c:1304 passivemm(), call at 1352: calls drain_item(mwep, FALSE); result discarded.",
+      "uhitm.c:3603 mhitm_ad_ench(), call at 3641: calls drain_item(obj, FALSE) and consumes the boolean to decide whether to print the less-effective message.",
+      "uhitm.c:6127 passive_obj(), call at 6181: calls drain_item(obj, TRUE) and consumes the boolean together with carried/known/armor guards to decide whether to print the message."
+    ],
+    "dependencies": [
+      "artifact.c defends(AD_DRLI, obj) and defends_when_carried(AD_DRLI, obj): their boolean results short-circuit the drain; JS equivalents are in js/artifacts.js.",
+      "zap.c obj_resists(obj, 10, 90): its boolean result short-circuits the drain and its ordinary-object branch consumes rn2(100); the JS implementation is in js/bury.js and already matches the C roll contract. The queue attribution to obj_resists identifies the RNG call site, not the missing owner.",
+      "mkobj.c costly_alteration(obj, COST_DRAIN): called for by_you; its C return is void. The current js/obj.js implementation handles only the unbilled free/inventory fast path directly and requires a costlyAlteration hook otherwise, so shop billing remains a downstream dependency to preserve.",
+      "The chargeability and positive-spe guards, is_weptool(), the obj->spe decrement, worn ring/armor stat effects and bot() refresh, and carried(obj)/update_inventory() are part of the whole drain_item() behavior."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved baseline challenges/evaluations/20261001190602-v17.json identifies this as passed=false with remainingScreens=0, recordedSteps=63, screens 63/63, cursors 63/63, and RNG 2662/2674. Its first mismatch is step 62, RNG index 2658: C rn2(100)=26 at obj_resists(zap.c:1469), against JS rn2(5)=1. Thus zero unmatched screens is not a pass, and this saved evaluation has no cursor mismatch.",
+    "The immutable C recording challenges/cases/v17/drain-life-spell-drains-positive-dagger-petless-slot-n.session.json shows step 60 selecting n - drain life, step 61 accepting the direction prompt, and step 62 key k. Step 62 starts with rn2(19)=0 at exercise(attrib.c:509), rn2(8)=6 at weffects(zap.c:3448), then rn2(100)=26 at obj_resists(zap.c:1469); the screen before the cast shows the dropped dagger north of the player.",
+    "Upstream spell.c:1477-1514 routes directional SPE_DRAIN_LIFE to weffects(); zap.c:3431-3450 sends an IMMEDIATE effect through bhit() and bhito(). In zap.c:2318-2320, bhito() calls drain_item(obj, TRUE) for SPE_DRAIN_LIFE and discards the return.",
+    "Upstream zap.c:1382-1453 defines the whole owner. A positive-enchantment weapon passes its initial guards; defends and defends_when_carried return false for this ordinary dagger; obj_resists calls rn2(100) and returns chance < 10, so roll 26 permits the drain. The success path decrements obj->spe and returns TRUE. The subsequent random events in this step are downstream of the missing call and should not be attributed independently from this saved trace.",
+    "Current js/zap.js:3566-3568 leaves the SPE_DRAIN_LIFE bhito arm as note_unported('zap.c drain_item') with no RNG or object mutation. Current js/bury.js:95-113 implements obj_resists with the same protected-object and rn2(100) behavior; fixing that function would not wire the skipped drain_item call. Current js/mhitu.js:1890 also records the drain_item gap in passiveum; js/mhitm.js:1166 documents its guarded disenchanter path. The other C callers and their distinct return-value use are listed in source.callers.",
+    "No matching drain_item, obj_resists, or SPE_DRAIN_LIFE changes were found under nethack-c/patches, so the relevant branch follows upstream C. Additional source call sites are mhitu.c:2512, mhitm.c:1352, uhitm.c:3641, and uhitm.c:6181; the latter two consume drain_item()'s boolean and must retain that behavior when callers are wired."
+  ]
+}
