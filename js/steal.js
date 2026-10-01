@@ -511,9 +511,14 @@ async function worn_item_removal(mon, obj, state = game, env = {}) {
 }
 
 // C ref: steal.c steal() (342-614). Returns 1 when something was stolen,
-// -1 if the monster died, 0 otherwise. `objnambuf` is filled with the name
-// of the stolen item for use by the caller's message.
-export async function steal(mtmp, state = game, env = {}) {
+// -1 if the monster died, 0 otherwise. C's `objnambuf` output parameter is a
+// caller-owned mutable string holder; it does not replace the numeric result.
+export async function steal(
+    mtmp,
+    state = game,
+    env = {},
+    objnambuf = null,
+) {
     // C's worn_item_removal() uses ordinary pline(), while the final theft
     // line uses urgent_pline(). Keep the two display operations separate so
     // callers can silence both during planning without changing live message
@@ -522,11 +527,13 @@ export async function steal(mtmp, state = game, env = {}) {
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;
     const random = env.random?.rn2 ?? rn2;
 
+    // C clears the caller's char buffer at entry, including unsuccessful
+    // calls that return before choosing an object.
+    if (objnambuf) objnambuf.value = '';
+
     const monkey_business = is_animal(mtmp.data);
     const seen = canSpotMonster(mtmp, state);
     const was_punished = Boolean(state.uball);
-
-    let objnambuf = '';
 
     // The following is true if successful on first of two attacks.
     if (!monnear(mtmp, state.u.ux, state.u.uy, state)) return 0;
@@ -783,7 +790,9 @@ export async function steal(mtmp, state = game, env = {}) {
     }
 
     // do this before removing it from inventory
-    objnambuf = yname(otmp, state);
+    // C fills the caller's char buffer here, before freeing the object from
+    // hero inventory; mhitm_ad_sedu() uses the same text after steal returns.
+    if (objnambuf) objnambuf.value = yname(otmp, state);
 
     // set mavenge so knights won't suffer alignment penalty
     const conflict = state.u.uprops?.[CONFLICT];

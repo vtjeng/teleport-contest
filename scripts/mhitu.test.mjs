@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -132,6 +133,7 @@ import {
     PM_SHADE,
     PM_LITTLE_DOG,
     PM_LICHEN,
+    PM_MONKEY,
     PM_OWLBEAR,
     PM_PONY,
     PM_PESTILENCE,
@@ -178,6 +180,10 @@ import {
     UnsupportedSimpleMonsterActionError,
 } from '../js/unported_monster_actions.js';
 import { tp_sensemon } from '../js/display.js';
+
+const UHITM_C = readFileSync(
+    new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
+);
 
 // mhitu.c magic_negation() reads the invent chain, the objects[] catalog,
 // u.uprops[PROTECTION], u.ublessed, u.uspellprot and youmonst.data. Nothing
@@ -667,6 +673,81 @@ test('mattacku reports a blocked nymph teleport after theft', async () => {
     );
     assert.equal(state.uwep, null);
     assert.equal(nymph.minvent, weapon);
+});
+
+test('animal theft names the item before monflee using caller visibility',
+    async () => {
+    // uhitm.c:4683-4689 gates the escape line on animal, nonempty steal buf,
+    // and canseemon(), then emits it before monflee(). This regex pins the C
+    // order; the two runtime cases give the attack a supplied visibility grid
+    // opposite the singleton grid so either accidental owner is observable.
+    assert.match(UHITM_C,
+        /if \(is_animal\(magr->data\) && \*buf\) \{\s*if \(canseemon\(magr\)\)\s*pline_mon\(magr, "%s tries to %s away with %s\."[\s\S]*?locomotion\(magr->data, "run"\), buf\);\s*\}\s*monflee\(magr, 0, FALSE, FALSE\);/u);
+
+    async function attackWithSuppliedVisibility(suppliedSeesMonkey) {
+        const state = await meleeHero();
+        // (1, 0) is the orthogonally adjacent square required by mattacku's
+        // source range gate; rnd(20)=1 from the scripted draw lands the hit.
+        const monkey = meleeAttacker(state, PM_MONKEY, 1, 0);
+        const visibleGrid = state.viz_array.map(row => Array.from(row));
+        const hiddenGrid = visibleGrid.map(row => row.map(() => 0));
+        const callerState = {
+            ...state,
+            viz_array: suppliedSeesMonkey ? visibleGrid : hiddenGrid,
+        };
+        const singletonGrid = game.viz_array;
+        // The attack must consult the caller's state: the singleton gets the
+        // opposite grid for each run, while both grids use the adjacent cell.
+        game.viz_array = suppliedSeesMonkey ? hiddenGrid : visibleGrid;
+
+        const actual = meleeEnv(state, [1], {
+            // rn2(bound) uses a valid deterministic value: one for bounds
+            // above one, and zero for the single-choice case.
+            rn2: bound => bound > 1 ? 1 : 0,
+        });
+        const urgent = [];
+        actual.env.urgentMessage = async text => urgent.push(text);
+        const fleeStateAtMessage = [];
+        const emit = actual.env.message;
+        actual.env.message = async text => {
+            if (text.startsWith('The monkey tries to '))
+                fleeStateAtMessage.push(monkey.mflee ?? false);
+            await emit(text);
+        };
+
+        try {
+            await mattacku(monkey, { ...actual.env, state: callerState });
+        } finally {
+            game.viz_array = singletonGrid;
+        }
+        // One monkey AD_SITM hit uses these source-ordered bounds: to-hit,
+        // steal.c's inventory choice, then the two knockback decisions.
+        assert.deepEqual(actual.bounds, [
+            'rnd(20)', 'd(0,0)', 'rn2(9)', 'rn2(3)', 'rn2(6)',
+        ]);
+
+        return { actual, callerState, monkey, fleeStateAtMessage };
+    }
+
+    const visible = await attackWithSuppliedVisibility(true);
+    const stolen = visible.monkey.minvent;
+    assert.ok(stolen);
+    assert.deepEqual(
+        visible.actual.lines.filter(line => line.startsWith('The monkey tries to ')),
+        // steal.c:587 calls yname() before freeinv(), so this worn dagger
+        // keeps the hero-relative phrase "your dagger" in the C output buf.
+        ['The monkey tries to run away with your dagger.'],
+    );
+    assert.deepEqual(visible.fleeStateAtMessage, [false]);
+    assert.equal(visible.monkey.mflee, true);
+
+    const hidden = await attackWithSuppliedVisibility(false);
+    assert.ok(hidden.monkey.minvent);
+    assert.deepEqual(
+        hidden.actual.lines.filter(line => line.startsWith('The monkey tries to ')),
+        [],
+    );
+    assert.deepEqual(hidden.fleeStateAtMessage, []);
 });
 
 test('mattacku prints the miss its to-hit test loses and the hit it wins',
