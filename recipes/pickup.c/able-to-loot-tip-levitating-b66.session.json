@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup miss retained outside recordings: this seed assigned the wished levitation potion to inventory letter o (not n) and the large box to p; the frozen sequence attempts n and drops o, so C reaches an inventory-tip prompt rather than floor pickup.c:able_to_loot. Exact C artifact and run-Ymm5LD receipt are in .cache/B66-logs. Corrected keys are frozen in the next tip recipe; no JavaScript comparison was run.",
+  "segments": [
+    {
+      "seed": 66021002,
+      "datetime": "20420218141200",
+      "nethackrc": "OPTIONS=name:B66TipCeiling,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizwish\npotion of levitation\nqnl#wizwish\nlarge box\ndo#tip\n"
+    }
+  ]
+}

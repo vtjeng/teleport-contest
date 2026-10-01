@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup miss retained outside recordings: the initial two spaces are unknown commands in this recording profile, the potion received inventory letter n rather than o, and the later drop selection therefore never reaches pickup.c:able_to_loot. Exact C artifact and run-kyE0xi receipt are in .cache/B66-logs. No JavaScript comparison was run.",
+  "segments": [
+    {
+      "seed": 66021001,
+      "datetime": "20420217141200",
+      "nethackrc": "OPTIONS=name:B66LootCeiling,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "  #wizwish\npotion of levitation\nqo#wizwish\nlarge box\ndp#loot\n"
+    }
+  ]
+}
