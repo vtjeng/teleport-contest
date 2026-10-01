@@ -131181,6 +131181,200 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-counted-pickup-command-admission-synthetic-v16-20261001",
+      "kind": "divergence-fix",
+      "status": "open",
+      "summary": "Allow counted pickup to reach its count-consuming handler",
+      "cFile": "cmd.c",
+      "sessions": [
+        "synthetic/v16/wizard-picks-up-five-dropped-daggers"
+      ],
+      "selectionReason": "The saved A67 work queue selects synthetic/v16/wizard-picks-up-five-dropped-daggers with one unmatched screen at step 26. The exact clean worker base after merging accepted A67 publication 07b9be1 is 9969ead6bdbfdac3e744f351be0f2d0c3a4162ee; bounded replay run-GGSbz1 reproduces 26/27 screens and cursors, 2251/2267 RNG calls, and stops before pickup dispatch. The investigation traces the C comma row through rhack() to dopickup(), where command_count is consumed and multi is cleared. This source correction is independent of A68 and C57; B74 remains a pending ancestor delivery dependency but owns only potion.c:peffects and related paths. Root verified the canonical investigation and current saved evaluation: implemented counted pickup is blocked by an overbroad rhack admission guard.",
+      "detail": "Segment 0 step 26 stops before comma dispatch. C parse supplies command_count=5 and multi=4; rhack calls dopickup, which clears multi before pickup_checks and pickup(-count). Exempt pickup in the JavaScript positive-multi gate and retain other unsupported repeated-command refusals. Only rhack behavior changes; hack.js receives a corrected comment. This divergence repair receives no whole-function completion credit. Keep the independent counted-inventory recipe blocked outside the passing corpus.",
+      "openedAt": "62cb562fe50173ad87f58209f6048f1336da3930",
+      "openStanding": {
+        "sha": "dd87ead60375beb18f1176fd6d77b911212b603d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "function": "rhack",
+      "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+      "step": 26,
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-picks-up-five-dropped-daggers": {
+          "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-picks-up-five-dropped-daggers",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+          "recordingSha256": "ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb",
+          "evaluationPath": "challenges/evaluations/20261001180419-v16.json",
+          "evaluationCommit": "dd87ead60375beb18f1176fd6d77b911212b603d"
+        }
+      },
+      "activeStanding": {
+        "sha": "dd87ead60375beb18f1176fd6d77b911212b603d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-picks-up-five-dropped-daggers",
+          "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+          "recordingSha256": "ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb",
+          "recipe": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.recipe.session.json",
+          "recipeSha256": "0a09274f8f3f58135a4d6d5d759a56ddf49ebc7d94d3d726f04836d36e6cd3bf",
+          "replayInputSha256": "07ee3ff346008d882d45378708de74d2b84e21f8d54a50592ebd27e2d0d9a87d",
+          "evaluationPath": "challenges/evaluations/20261001180419-v16.json",
+          "evaluationCommit": "dd87ead60375beb18f1176fd6d77b911212b603d",
+          "evaluationArtifact": "challenges/evaluations/20261001180419-v16.json",
+          "evaluationUtc": "2026-10-01T18:04:56.556Z",
+          "remainingScreens": 1,
+          "recordedSteps": 27,
+          "previousScreensMatched": 26,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 26,
+              "total": 27
+            },
+            "rng": {
+              "matched": 2251,
+              "total": 2267
+            },
+            "cursors": {
+              "matched": 26,
+              "total": 27
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+            "step": 26
+          },
+          "step": 26,
+          "kind": "stop",
+          "sourceFile": "cmd.c",
+          "function": "parse",
+          "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+          "cFile": "cmd.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-picks-up-five-dropped-daggers.json",
+            "result": {
+              "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-picks-up-five-dropped-daggers",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 1,
+              "recordedSteps": 27,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-picks-up-five-dropped-daggers",
+                "session": "synthetic/v16/wizard-picks-up-five-dropped-daggers",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json",
+                "recordingSha256": "ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb",
+                "recipe": "challenges/cases/v16/wizard-picks-up-five-dropped-daggers.recipe.session.json",
+                "recipeSha256": "0a09274f8f3f58135a4d6d5d759a56ddf49ebc7d94d3d726f04836d36e6cd3bf",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 1,
+                "recordedSteps": 27,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 26,
+                    "total": 27
+                  },
+                  "rng": {
+                    "matched": 2251,
+                    "total": 2267
+                  },
+                  "cursors": {
+                    "matched": 26,
+                    "total": 27
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+                  "step": 26
+                },
+                "step": 26,
+                "kind": "stop",
+                "sourceFile": "cmd.c",
+                "function": "parse",
+                "message": "unsupported hero command: cmd.c parse() committed a count leaving gm.multi above 0 before a nonmovement row this port will not repeat, which allmain.c moveloop_core():515-531 turns into a repeat of the command; that nonmovement command path remains unsupported",
+                "cFile": "cmd.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The remaining screen is blocked by js/cmd.js rhack() rejecting a count-prefixed nonmovement command before it dispatches the already implemented pickup path. C parse() sets command_count=5 and gm.multi=4, but the comma binding reaches hack.c:dopickup(), which copies command_count and immediately sets gm.multi=0 before calling pickup(-count). This is one counted pickup, not an automatic repeat. The actionable scope is a divergence fix to the cmd.c:rhack() count gate; the saved queue annotation naming parse()/moveloop_core() as the refusal owner is too broad.",
+              "source": {
+                "file": "cmd.c",
+                "branch": "For a count-prefixed comma command on a reachable floor square with one five-dagger stack, cmd.c:parse() leaves gc.command_count=5 and gm.multi=4. The comma row at cmd.c:1799 binds to dopickup; cmd.c:rhack() calls the bound function without a count-specific refusal. hack.c:dopickup() copies gc.command_count, sets gm.multi=0, and calls pickup(-count), so this handler consumes the count as the requested item quantity and prevents moveloop_core() from repeating it. In js/cmd.js, the generic state.multi > 0 nonmovement guard rejects the command before runPickupCommand() reaches js/hack.js:dopickup() and js/pickup.js:pickup(). The mismatch is an overbroad refusal in an implemented command path, not a missing pickup selection function.",
+                "functions": [
+                  "rhack"
+                ],
+                "callers": [
+                  "allmain.c:moveloop_core() calls rhack(0) for a fresh command and rhack(gc.cmd_key) for a pending positive count (515-531); js/allmain.js:moveloop_core() maps these to rhack(0) and rhack(g.cmdKey) (1701-1706).",
+                  "cmd.c:rhack() calls parse() on a fresh command, then resolves the comma binding and invokes its function pointer (3652-3654, 3679-3685, 3724-3748); js/cmd.js:rhack() calls parseCommand(), maps the comma key to pickup, and currently refuses at the counted-command guard before dispatch (5373-5381, 5503-5527, 5858-5878).",
+                  "cmd.c:1799 binds comma to dopickup; hack.c:dopickup() calls pickup_checks() and pickup(-count) (3876-3891); js/cmd.js:runPickupCommand() dispatches js/hack.js:dopickup(), which calls pickup_checks() and js/pickup.js:pickup() (js/cmd.js:3435-3441, 5873-5878; js/hack.js:4344-4362)."
+                ],
+                "dependencies": [
+                  "cmd.c:parse() (5096-5149) reads the command count, stores it in gc.command_count, assigns gm.multi, and decrements gm.multi once. js/cmd.js:parse() already maps these values to state.commandCount and state.multi.",
+                  "hack.c:dopickup() (3876-3891) consumes gc.command_count and clears gm.multi before calling pickup(-count); js/hack.js:dopickup() already preserves both transitions, although its comment says counts above one cannot arrive because of the guard.",
+                  "pickup.c:pickup() (693-696, 759-772, 809-817, 894-910) consumes a negative quantity and returns whether an item was tried. js/pickup.js:pickup() already has the counted menu path and the single-floor-stack path; pickup_object() and capacity preflight remain runtime dependencies for the selected stack.",
+                  "hack.c:pickup_checks() (3788-3871) has the ordinary reachable floor-pile result required here. Its swallowed/loot_mon, pool, lava, and cannot-reach-floor paths remain unsupported in js/hack.js, but the recipe uses a reachable floor pile with an object and does not enter those arms.",
+                  "pickup.c:pickup() conditionally calls mon.c:hideunder() in its floor tail (894-897). js/pickup.js retains note_unported('mon.c hideunder') only when hides_under() is true; the recipe uses a human Valkyrie, so this gap is not active for this case."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The saved baseline challenges/evaluations/20261001125731-v16.json records the same input recipe SHA-256 0a09274f8f3f58135a4d6d5d759a56ddf49ebc7d94d3d726f04836d36e6cd3bf and recording SHA-256 ee7bcb39d33542a91a57da34fd5f4bfe33f549ace7c066e8b9ca5aa0b2353ecb. Its first mismatch is a stop at segment 0, step 26 (comma): 26/27 screens and cursors match; C has 2267 RNG calls versus JS 2251. The message is the generic counted nonmovement refusal from js/cmd.js; no pickup function has run yet.",
+                "The admitted v16 manifest case wizard-picks-up-five-dropped-daggers identifies the reached C behavior as pickup.c:pickup: one count-prefixed command collects the floor stack and spends a turn. The input-only recipe is challenges/cases/v16/wizard-picks-up-five-dropped-daggers.recipe.session.json; the immutable C recording is challenges/cases/v16/wizard-picks-up-five-dropped-daggers.session.json. The saved evaluation records an independent C replay as byte-identical to that recording.",
+                "Upstream cmd.c:parse() at 5096-5149 sets gc.command_count from the 5 prefix and then sets gm.multi to 4. Upstream cmd.c:rhack() at 3627-3843 resolves the comma binding and calls its function at 3724-3748 without rejecting a positive gm.multi. The command table at 1799 binds comma to dopickup.",
+                "Upstream hack.c:dopickup() at 3876-3891 copies gc.command_count to count, immediately clears gm.multi, then calls pickup(-count) after pickup_checks() succeeds. Thus this input never reaches allmain.c:moveloop_core() repeat handling for positive multi. Upstream pickup.c:pickup() at 693-696 interprets the negative argument as an item count and at 809-817 picks min(stack quantity, count) for a single traditional floor object; the menu path sets the requested count at 763-772.",
+                "At examined commit fa7aad456f8e2071d96ec4f804c9ecdae6a898d2, js/cmd.js:rhack() has the generic refusal at 5503-5527 before the pickup dispatch at 5858-5878. js/hack.js:dopickup() at 4347-4362 already copies state.commandCount, clears state.multi, and calls js/pickup.js:pickup(-count). The code comment at js/hack.js:4351-4352 documents why the guard currently blocks larger counts.",
+                "The source patch series is limited to deterministic runtime, stable sorting, RNG logging, and terminal capture according to nethack-c/patches/README.md; searching nethack-c/patches for cmd.c, hack.c, pickup.c, and allmain.c finds no edits to these gameplay functions. The actionable difference therefore lies in JavaScript command admission, not recorder patch behavior."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
