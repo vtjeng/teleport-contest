@@ -2625,9 +2625,9 @@ export function back_to_glyph(x, y, state = game) {
         break;
     case ALTAR:
         idx = S_altar; /* not really used */
-        // struct rm aliases altarmask and flags; new level generation writes
-        // flags and older callers filled altarmask.
-        bypass_glyph = altar_to_glyph(ptr.altarmask ?? ptr.flags ?? 0);
+        // struct rm aliases altarmask and flags; location.flags stores the
+        // single altar mask in JavaScript.
+        bypass_glyph = altar_to_glyph(ptr.flags ?? 0);
         break;
     case GRAVE:
         idx = S_grave;

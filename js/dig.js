@@ -1204,13 +1204,13 @@ export async function digactualhole(
     const surfaceType = IS_FURNITURE(oldType)
         ? (IS_ROOM(oldType) && !Is_earthlevel(state.u.uz) ? 'floor' : 'ground')
         : surface(x, y, state);
-    // C captures this label before maketrap changes the square. The altar
-    // alignment comes from the old altarmask; surface() supplies the same
-    // furniture word used by the source's later fall message.
+    // C captures this label before maketrap changes the square. Its
+    // altarmask/flags alias is stored in JS location.flags; surface() supplies
+    // the same furniture word used by the source's later fall message.
     let furniture = '';
     if (IS_FURNITURE(oldType)) {
         if (IS_ALTAR(oldType)) {
-            const oldMask = location.altarmask ?? location.flags ?? 0;
+            const oldMask = location.flags ?? 0;
             const alignment = Amask2align(oldMask & AM_MASK);
             furniture = `${align_str(alignment)} `;
         }

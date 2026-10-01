@@ -695,7 +695,7 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         else if (strncmpiIsPrefix(bp, 'unaligned ')) alignment = A_NONE;
         else alignment = !random.rn2(6)
             ? A_NONE : random.rn2(A_LAWFUL + 2) - 1;
-        lev.altarmask = Align2amask(alignment);
+        lev.flags = Align2amask(alignment);
         const { align_str } = await import('./insight.js');
         const { an } = await import('./objnam.js');
         await message(upstart(an(align_str(alignment))) + ' altar.');

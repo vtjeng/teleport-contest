@@ -963,7 +963,7 @@ test('vomit reaches altar_wrath after installing its C delay', async () => {
     await startedGame();
     const altar = game.level.at(game.u.ux, game.u.uy);
     altar.typ = ALTAR;
-    altar.altarmask = Align2amask(game.u.ualign.type);
+    altar.flags = Align2amask(game.u.ualign.type);
     game.u.ualign.record = 5;
     game.nhDisplay.terminal._inputQueue.push(32, 32, 32);
 

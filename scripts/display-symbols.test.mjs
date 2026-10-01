@@ -884,7 +884,7 @@ test('altar presentation follows source alignment and sanctum categories', () =>
     const state = {};
     initialize_symbols_from_options({ flags: {} }, state);
 
-    for (const [altarmask, color] of [
+    for (const [mask, color] of [
         [0, CLR_RED], // Unaligned altar.
         [AM_CHAOTIC, NO_COLOR], // Default build uses gray for aligned altars.
         [AM_NEUTRAL, NO_COLOR],
@@ -892,9 +892,9 @@ test('altar presentation follows source alignment and sanctum categories', () =>
         [AM_SANCTUM | AM_LAWFUL, CLR_BRIGHT_MAGENTA], // Other/sanctum glyph.
     ]) {
         assert.deepEqual(
-            terrainGlyphAt({ typ: ALTAR, altarmask }, 7, 4, state),
+            terrainGlyphAt({ typ: ALTAR, flags: mask }, 7, 4, state),
             { ch: '_', color, dec: false },
-            `altar mask ${altarmask}`,
+            `altar mask ${mask}`,
         );
     }
 });
@@ -9796,14 +9796,13 @@ test('back_to_glyph fixes a wall\'s branch where the square is recorded', () => 
 
     // Its one bypass: an altar's alignment picks one of five numbers, which
     // no single cmap index can name. struct rm aliases altarmask with flags,
-    // and mkaltar() writes flags, so the live field takes the first case and
-    // the shim keeps the second.
+    // and JavaScript keeps the aliased value in the location's flags field.
     Object.assign(state.level.at(8, 4), { typ: ALTAR, flags: AM_CHAOTIC });
     assert.equal(
         back_to_glyph(8, 4, state), GLYPH_ALTAR_OFF + altar_chaotic,
     );
     Object.assign(
-        state.level.at(9, 4), { typ: ALTAR, altarmask: AM_SANCTUM | AM_LAWFUL },
+        state.level.at(9, 4), { typ: ALTAR, flags: AM_SANCTUM | AM_LAWFUL },
     );
     assert.equal(back_to_glyph(9, 4, state), GLYPH_ALTAR_OFF + altar_other);
 

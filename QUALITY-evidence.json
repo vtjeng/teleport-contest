@@ -17869,5 +17869,110 @@
       "scope": "preflight_dropx, dropx, flip_coin and changed tests; divergence only, no whole-source completion credit"
     },
     "recordedAt": "2026-10-01T02:20:24.060Z"
+  },
+  {
+    "kind": "review",
+    "head": "d3aa7fd4cf14d5f0c6acfaf5a2965d1c39a0da1d",
+    "auditedRange": "2dc0282fc4ddef5b7b5891b61f8ff786ab20e882..d3aa7fd4cf14d5f0c6acfaf5a2965d1c39a0da1d",
+    "level": "full",
+    "areas": [
+      "startup",
+      "hero",
+      "objects",
+      "generation",
+      "monsters",
+      "world-effects",
+      "commands",
+      "display"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 1 raw, 1 deduplicated, 1 confirmed, 1 applied, 0 deferred, 0 rejected, 0 unverified. The canonical altar mask and its lifecycle match the C alias. Source-pinned Gehennom tests now cover both mask outcomes and the extra conditional draw. The insult offering retains its separately named offer_negative_valued gap.",
+    "auditMetrics": {
+      "wallTimeSeconds": 653,
+      "counts": {
+        "raw": 1,
+        "deduplicated": 1,
+        "confirmed": 1,
+        "applied": 1,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 1,
+        "clarity": 0,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "Frozen range 2dc0282fc4ddef5b7b5891b61f8ff786ab20e882..45762d042f5a2d7f8dd43db2b5c856b8ee6bd39c, 14 touched production bodies and six changed test files. a_align/dosacrifice execute in full gray-unicorn replay and insult prefix through124; raw alignment and mimic split are source-pinned in pray tests. altarmask_at, back_to_glyph and polymorph_sink execute in dip/display tests. digactualhole altar capture is covered by dig tests. altarMask/priestini have temple tests. altarDescription has accessibility/display tests. sacrifice_your_race and pleased have existing caller tests but changed mask branches lack specific runtime evidence. dfeature_at has command description tests without a contrasting alias fixture. mktemple and apply_wizterrainwish have no B69-specific changed-branch execution citation. Formal review includes these unexecuted branches; no whole function or caller-family completion credit is claimed.",
+        "sourceReview": "Compared changed field accesses with rm.h altarmask/flags alias and upstream pray.c a_align, altarmask_at, dosacrifice, sacrifice_your_race, pleased; dig.c digactualhole; display.c back_to_glyph; do.c polymorph_sink; invent.c dfeature_at; mkroom.c mktemple; objnam.c readobjnam altar wish; priest.c shrine/initialization. startup_a11y altarDescription is JS accessibility based on the same source tile value. Migration changes the canonical field only; source conditions, RNG and output order are retained. Fresh tiles initialize flags without altarmask; existing planned-turn cell spreads, bones copies and level JSON save/restore preserve flags. Retained gaps are enumerated below; no Unsupported throw exists in these14 bodies.",
+        "completeness": "No note_unported in the reviewed scope provides a value consumed by C. The repair adds no gap or substitute. Existing prayer, digging and terrain-wish gaps denote discarded void side-effect calls; offer_too_soon/offer_real_amulet/offer_fake_amulet/gcrownu/give_spell are source-declared void. Source-required mask values remain real initialized flags values. The separate offer_corpse offer_negative_valued void gap stays outside touched scope and is explicitly incomplete.",
+        "remainingGaps": {
+          "digactualhole": [
+            "dig.c digactualhole non-hero and hole aftermath",
+            "dig.c digactualhole impossible fallback",
+            "pray.c desecrate_altar",
+            "shk.c add_damage"
+          ],
+          "apply_wizterrainwish": [
+            "trap.c fire_damage_chain",
+            "timeout.c start_melt_ice_timeout"
+          ],
+          "dosacrifice": [
+            "pray.c offer_too_soon",
+            "pray.c offer_real_amulet",
+            "pray.c offer_fake_amulet"
+          ],
+          "sacrifice_your_race": [
+            "pray.c desecrate_altar",
+            "priest.c angry_priest (two sites)",
+            "pray.c angrygods"
+          ],
+          "pleased": [
+            "pray.c SetVoice (two sites)",
+            "pray.c Soundeffect",
+            "pray.c You_hear",
+            "pray.c record_achievement",
+            "pray.c gcrownu",
+            "pray.c give_spell",
+            "pray.c impossible"
+          ]
+        },
+        "remainingRefusals": [],
+        "optionalFinders": {
+          "concurrency": "Enabled: canonical shared mutable altar state, mutation and persistence lifecycle.",
+          "performance": "Disabled: no additional work beyond the C field accesses."
+        }
+      },
+      "mode": "full",
+      "finders": [
+        "correctness",
+        "readability",
+        "tests",
+        "concurrency",
+        "variable-trace"
+      ],
+      "optionalFinders": {
+        "concurrency": "Enabled: canonical shared mutable altar state, mutation and persistence lifecycle.",
+        "performance": "Disabled: no additional work beyond the C field accesses."
+      },
+      "warnings": [],
+      "unverified": [],
+      "contextRoutingRecovery": "Correctness finder initially read common prompt; exact routed absolute prompt was then read and omitted checks completed before adjudication. All other finders confirmed exact routed prompt read.",
+      "validation": {
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/45762d042f5a2d7f8dd43db2b5c856b8ee6bd39c/run-bEITIa/summary.json",
+        "focused": ".cache/B69-combined-focused.log",
+        "auditFixFocused": ".cache/B69-audit-fix-focused.log",
+        "synthetic": ".cache/B69-combined-synthetic.log",
+        "initialEvaluations": ".cache/B69-initial-evaluation-paths.txt"
+      },
+      "scope": "14 touched altar-mask bodies and six test files; shared state divergence only, no whole-source completion credit"
+    },
+    "recordedAt": "2026-10-01T09:25:46.492Z"
   }
 ]

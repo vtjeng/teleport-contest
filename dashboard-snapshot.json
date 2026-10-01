@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T08:56:55.733Z",
+  "capturedAt": "2026-10-01T10:03:08.920Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -12620,12 +12620,118 @@
         "type": "accepted",
         "at": "2026-10-01T08:56:15.224Z",
         "task": "A64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A64-published-c50daab2",
+        "type": "published",
+        "at": "2026-10-01T08:57:07.284Z",
+        "task": "A64",
+        "commit": "c50daab2a092f2e136d93ee19c5e87a940cb94d4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B69-integrating-45762d04",
+        "type": "integrating",
+        "at": "2026-10-01T08:59:10.799Z",
+        "task": "B69",
+        "integration": "45762d042f5a2d7f8dd43db2b5c856b8ee6bd39c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B70-assign-lit-oil-20261001",
+        "type": "assign",
+        "at": "2026-10-01T09:13:06.807Z",
+        "task": "B70",
+        "worker": "B",
+        "goal": "fix-lit-oil-quaff-deallocation-lifecycle-synthetic-v15-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B69-integrating-2323e454",
+        "type": "integrating",
+        "at": "2026-10-01T09:25:59.610Z",
+        "task": "B69",
+        "integration": "2323e454ebe23e6369342fef435a8461267b8371"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B69-validated-2323e454",
+        "type": "validated",
+        "at": "2026-10-01T09:44:05.289Z",
+        "task": "B69",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B69-accepted-2323e454",
+        "type": "accepted",
+        "at": "2026-10-01T09:44:05.793Z",
+        "task": "B69"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B69-published-086487a8",
+        "type": "published",
+        "at": "2026-10-01T09:44:40.706Z",
+        "task": "B69",
+        "commit": "086487a89a7cba2f778259c8f8046031229a0f78"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-25764cccd2a2ee3d7d2867092406ebec58430e38",
+        "type": "ready",
+        "at": "2026-10-01T09:45:58.894Z",
+        "task": "B70",
+        "delivery": "25764cccd2a2ee3d7d2867092406ebec58430e38"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B70-received-25764ccc",
+        "type": "received",
+        "at": "2026-10-01T09:47:12.842Z",
+        "task": "B70",
+        "delivery": "25764cccd2a2ee3d7d2867092406ebec58430e38"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B70-integrating-a4a76c6c",
+        "type": "integrating",
+        "at": "2026-10-01T09:49:02.509Z",
+        "task": "B70",
+        "integration": "a4a76c6c56ed18acd74399d0f904263ec8ffd83e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B71-offer-negative-valued-20261001",
+        "type": "assign",
+        "at": "2026-10-01T09:56:10.715Z",
+        "task": "B71",
+        "worker": "B",
+        "goal": "port-pray-offer-negative-valued-synthetic-v15-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B70-validated-a4a76c6c",
+        "type": "validated",
+        "at": "2026-10-01T10:02:18.826Z",
+        "task": "B70",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B70-accepted-a4a76c6c",
+        "type": "accepted",
+        "at": "2026-10-01T10:02:19.186Z",
+        "task": "B70"
       }
     ]
   },
   "development": {
-    "executionCommit": "ea58b9a6de7091405270a0ab094cec750294ed5a",
-    "measuredAt": "2026-10-01T08:51:39.011Z",
+    "executionCommit": "a4a76c6c56ed18acd74399d0f904263ec8ffd83e",
+    "measuredAt": "2026-10-01T09:58:15.701Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
