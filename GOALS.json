@@ -125954,7 +125954,7 @@
     {
       "id": "port-burning-oil-explosion-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete burning-oil explosion helpers and wire their callers",
       "cFile": "explode.c",
       "sessions": [
@@ -125968,8 +125968,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "915af215ab65c97525220b606b9b4932c1de5017",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "splatter_burning_oil",
@@ -126232,7 +126235,7 @@
             "name": "splatter_burning_oil",
             "implementation": "js/explode.js",
             "symbol": "splatter_burning_oil",
-            "sourceReview": "Whole explode.c:splatter_burning_oil definition (962–970). It draws d(diluted_oil ? 3 : 4,4), passes that value to explode(x,y,11,damage,BURNING_OIL,EXPL_FIERY), and returns. JavaScript uses the caller RNG owner and awaits the existing explode implementation. The pure order/parameter source test asserts the diluted and normal mocked draw sequence [[3,4],[4,4]].",
+            "sourceReview": "Whole explode.c:splatter_burning_oil definition (962–970). It draws d(diluted_oil ? 3 : 4,4), passes that value to explode(x,y,11,damage,BURNING_OIL,EXPL_FIERY), and returns. JavaScript uses the caller RNG owner and awaits the existing explode implementation. The source-pinned order/parameter test asserts the diluted and normal mocked draw sequence [[3,4],[4,4]].",
             "callers": [
               {
                 "path": "js/explode.js",
@@ -126266,7 +126269,7 @@
             "name": "explode_oil",
             "implementation": "js/explode.js",
             "symbol": "explode_oil",
-            "sourceReview": "Whole explode.c:explode_oil definition (971–983). It captures obj->odiluted, diagnoses an invalid unlit object through the discarded void impossible() call, calls end_burn(obj,TRUE), sets obj->how_lost=LOST_EXPLODING, and then calls splatter_burning_oil. JavaScript keeps the diagnostic as note_unported at the same branch and follows the same end-burn/state/explosion order. end_burn’s return is discarded in C and its existing JS implementation is synchronous; explode’s void result is awaited only for JS output/state completion.",
+            "sourceReview": "Whole explode.c:explode_oil definition (971–983). It captures obj->odiluted, diagnoses an invalid unlit object through the discarded void impossible() call, calls end_burn(obj,TRUE), sets obj->how_lost=LOST_EXPLODING, and then calls splatter_burning_oil. JavaScript keeps the diagnostic as note_unported at the same branch and follows the same end-burn/state/explosion order. C end_burn is void and its existing JS implementation is synchronous; explode’s void result is awaited only for JS output/state completion.",
             "callers": [
               {
                 "path": "js/dothrow.js",
@@ -126309,6 +126312,12 @@
         ],
         "entryPointReview": "The assigned explode.c range is helper-only, so entryPoints is empty as .agents/validation.md specifies. Its production call graph is: dothrow.c:breakobj’s lit-oil branch invokes explode_oil and reaches it from throwit; potion.c:potionhit invokes explode_oil in distinct hero-target and monster-target POT_OIL arms; explode_oil invokes splatter_burning_oil. The admitted v15 Wizard range (segment 0, steps 0–31) exercises breakobj -> both explode helpers. The independent Samurai role variation misses the bug at dothrow.c:thitmonst rnd(25)=19 with Dexterity 17, then breaks its lit oil on the floor and independently exercises breakobj -> both helpers. The independent Samurai/Dexterity25 variation hits the grid bug and executes potion.c:potionhit’s monster-target arm (source line 1866), then both explode helpers. The potionhit hero-target arm at lines 1683–1688 is wired but lacks a matching B67 runtime route: its C production routes include dothrow.c:toss_up and mthrowu.c:thitmu, while the cited independent cases exercise floor impact or monster impact. Do not infer this branch inactive or claim its runtime coverage. C potionhit production callers include dothrow.c:toss_up/throwit, mthrowu.c:thitmu/thitm/m_throw, and uhitm.c:thitmonst; those outer callers are not ports in this task. The two selected explode.c helpers are the only credited units.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "915af215ab65c97525220b606b9b4932c1de5017",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

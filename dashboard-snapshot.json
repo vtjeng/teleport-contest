@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T06:16:44.434Z",
+  "capturedAt": "2026-10-01T07:19:11.591Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -12303,12 +12303,87 @@
         "type": "accepted",
         "at": "2026-10-01T06:15:53.485Z",
         "task": "B66"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B67-burning-oil-explosion-20261001",
+        "type": "assign",
+        "at": "2026-10-01T06:16:50.986Z",
+        "task": "B67",
+        "worker": "B",
+        "goal": "port-burning-oil-explosion-synthetic-v15-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B66-published-a5dcea22",
+        "type": "published",
+        "at": "2026-10-01T06:16:56.427Z",
+        "task": "B66",
+        "commit": "a5dcea2211cd54d011f894e9f5588b76b7d8d89b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-47e4531b7d0a15c72f2d3e026143d1d2c27980bd",
+        "type": "ready",
+        "at": "2026-10-01T07:00:05.606Z",
+        "task": "B67",
+        "delivery": "47e4531b7d0a15c72f2d3e026143d1d2c27980bd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B67-received-47e4531b",
+        "type": "received",
+        "at": "2026-10-01T07:02:21.529Z",
+        "task": "B67",
+        "delivery": "47e4531b7d0a15c72f2d3e026143d1d2c27980bd"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B67-integrating-67c2717e",
+        "type": "integrating",
+        "at": "2026-10-01T07:03:40.568Z",
+        "task": "B67",
+        "integration": "67c2717eaaa3a4e3d5b7d145f56c0f216bf228c0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B67-integrating-915af215",
+        "type": "integrating",
+        "at": "2026-10-01T07:05:55.682Z",
+        "task": "B67",
+        "integration": "915af215ab65c97525220b606b9b4932c1de5017"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B68-scrolltele-20261001",
+        "type": "assign",
+        "at": "2026-10-01T07:15:01.637Z",
+        "task": "B68",
+        "worker": "B",
+        "goal": "port-scrolltele-controlled-discovery-synthetic-v15-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B67-validated-915af215",
+        "type": "validated",
+        "at": "2026-10-01T07:17:54.121Z",
+        "task": "B67",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B67-accepted-915af215",
+        "type": "accepted",
+        "at": "2026-10-01T07:17:54.506Z",
+        "task": "B67"
       }
     ]
   },
   "development": {
-    "executionCommit": "090b04c8dae58144172a338f4665899b458416dc",
-    "measuredAt": "2026-10-01T06:07:58.518Z",
+    "executionCommit": "915af215ab65c97525220b606b9b4932c1de5017",
+    "measuredAt": "2026-10-01T07:12:49.217Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
