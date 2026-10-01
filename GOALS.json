@@ -129882,14 +129882,14 @@
           "line": 761,
           "endLine": 808,
           "declared": true,
-          "complete": false
+          "complete": true
         },
         {
           "name": "drop_uswapwep",
           "line": 809,
           "endLine": 833,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -130063,7 +130063,113 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "can_twoweapon",
+            "implementation": "js/wield.js",
+            "symbol": "can_twoweapon",
+            "sourceReview": "Read and compared the full C definition wield.c:761-804, including source branch order and return behavior. The implementation preserves could_twoweap, empty hands, TWOWEAPOK, bimanual, shield, artifact resistance, the intentionally unreachable CORPSE test, and the final Glib/cursed branch. It uses source-ordered object naming/messages, marks only a cursed non-Glib secondary known, awaits drop_uswapwep, then returns FALSE. No successful-only rnd(20) occurs on this refusal. The existing UnsupportedTwoWeaponError refusal and command fail-closed registration were removed. The saved v13 production range exercises the Glib refusal through #twoweapon.",
+            "callers": [
+              {
+                "path": "js/wield.js",
+                "symbol": "dotwoweapon",
+                "source": "wield.c:dotwoweapon, call to can_twoweapon at line 856"
+              },
+              {
+                "path": "js/wield.js",
+                "symbol": "doswapweapon",
+                "source": "wield.c:doswapweapon, call to can_twoweapon at line 497"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "do_attack",
+                "source": "uhitm.c:do_attack, call to can_twoweapon at line 536"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/twoweapon.test.mjs",
+              "scripts/uhitm-to-hit.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 90,
+                "source": "The #twoweapon command reaches wield.c:dotwoweapon -> can_twoweapon; the Glib arm calls drop_uswapwep and the source drop path clears the secondary weapon."
+              }
+            ],
+            "checkedAt": "087168239651f55fe368799e31d5a568ab12737c"
+          },
+          {
+            "name": "drop_uswapwep",
+            "implementation": "js/wield.js",
+            "symbol": "drop_uswapwep",
+            "sourceReview": "Read and compared the full C definition wield.c:809-831. The JS port retains C order across all three message branches (uncursed slipping, cursed while not two-weapon wielding, and cursed while actively two-weapon wielding), then calls do.c:dropx with the object still equipped. The supporting admitted dropx/dropz branch performs ship and altar handling before clearing uwep, uquiver, and uswapwep in C order, then continues into the already admitted floor-effects path. The saved v13 range exercises the uncursed Glib branch, its #twoweapon caller, and the completed drop.",
+            "callers": [
+              {
+                "path": "js/wield.js",
+                "symbol": "can_twoweapon",
+                "source": "wield.c:can_twoweapon, call to drop_uswapwep at line 800"
+              },
+              {
+                "path": "js/obj.js",
+                "symbol": "curse",
+                "source": "mkobj.c:curse, call to drop_uswapwep at line 1801"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "hmonas",
+                "source": "uhitm.c:hmonas, call to drop_uswapwep at line 5843"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/twoweapon.test.mjs",
+              "scripts/uhitm-to-hit.test.mjs",
+              "scripts/uhitm-hmon.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 90,
+                "source": "wield.c:dotwoweapon -> can_twoweapon -> drop_uswapwep -> do.c:dropx/dropz; the recorded Glib path drops the short sword and clears the secondary slot without a drop-specific RNG call."
+              }
+            ],
+            "checkedAt": "087168239651f55fe368799e31d5a568ab12737c"
+          }
+        ],
+        "entryPointReview": "The selected functions have active callers at wield.c:dotwoweapon:856, wield.c:doswapweapon:497, and uhitm.c:do_attack:536 for can_twoweapon; drop_uswapwep is called by wield.c:can_twoweapon:800, mkobj.c:curse:1801, and uhitm.c:hmonas:5843. The matching production evidence in this task is specifically the admitted v13 #twoweapon/dotwoweapon route through can_twoweapon and drop_uswapwep, segment 0 steps 0-90. It does not execute doswapweapon, do_attack, mkobj.c:curse, or hmonas. Source-pinned tests cover do_attack await-before-untwoweapon and the hmonas knockback -> awaited drop_uswapwep -> break order; they do not establish production runtime for those callers. The two confused-scroll C-only probes reach read.c:seffect_remove_curse but emit no secondary-drop message, so they are blocked probes and not evidence for the curse caller. The JavaScript curse continuation returns a Promise only when its source active-secondary branch drops the secondary; ordinary callers remain synchronous. Direct hero-item callers audited: read.c:seffect_remove_curse routes through awaited blessorcurse, read.c:seffect_enchant_armor curses only an armor selected by some_armor and awaits it, and fountain.c:dipfountain awaits curse and can target a carried item. read.c:seffect_remove_curse was reserved by B72 during A67 implementation and was not edited. B72 is accepted in the combined candidate. Other direct calls operate on objects that cannot alias the hero secondary. Supporting callers receive no whole-function completion credit. Do not infer runtime coverage beyond the recorded #twoweapon branch. Exact C-only probe provenance: run-w67OXT output .cache/A67-scratch/curse-secondary-confused-scroll-a67-recording.session.json (SHA-256 12de3d2ad57cef73e58de2a2cd44b45ced21665ff34be81edebc52d94ad1de94) and run-EOCMVx output .cache/A67-scratch/curse-secondary-confused-scroll-a67-variation-recording.session.json (SHA-256 19b49d21fc7139eab0358237ad08ffbaf8a64732d7b1e03c83bb2f06cd7d0577) both stop after the confused remove-curse effect without a secondary-drop message; the former used recipe SHA 3968535b0ebe5d920239da0626453109b3d648097d0feac2b6d1d9d5082b1005 and the variation used 13ad6f1db11bb79f89b731205a24a7fae1b4746ef352b9baaa1f4561e3234bd8. They are retained as C-only attempts, not JS comparisons or runtime proof.",
+        "entryPoints": [
+          {
+            "name": "#twoweapon via dotwoweapon",
+            "functions": [
+              "can_twoweapon",
+              "drop_uswapwep"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v13",
+                "caseId": "glib-refuses-dual-wield-and-drops-secondary",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 90,
+                "source": "The #twoweapon command dispatches dotwoweapon, then the Glib refusal drops the secondary through drop_uswapwep and the source drop tail."
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
