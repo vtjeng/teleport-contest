@@ -1,0 +1,100 @@
+{
+  "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice",
+  "corpus": "synthetic",
+  "batch": "v17",
+  "caseId": "wizard-fire-ray-melts-wished-ice",
+  "manifestPath": "challenges/manifests/v17.json",
+  "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+  "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+  "recordingSha256": "2b8fb0e509576809c5aaf2a36c0b5a7c9dca4a3d1580cbec491b957e29e0861e",
+  "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.recipe.session.json",
+  "recipeSha256": "3782f41100eab2aed4da26bb169af15c337fe2ef0b13e96c9660b43120430c63",
+  "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+  "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+  "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+  "remainingScreens": 1,
+  "recordedSteps": 34,
+  "status": "complete",
+  "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v17",
+    "caseId": "wizard-fire-ray-melts-wished-ice",
+    "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice",
+    "manifestPath": "challenges/manifests/v17.json",
+    "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+    "recording": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+    "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+    "recordingSha256": "2b8fb0e509576809c5aaf2a36c0b5a7c9dca4a3d1580cbec491b957e29e0861e",
+    "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.recipe.session.json",
+    "recipeSha256": "3782f41100eab2aed4da26bb169af15c337fe2ef0b13e96c9660b43120430c63",
+    "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+    "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+    "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationUtc": "2026-10-01T19:06:03.082Z",
+    "remainingScreens": 1,
+    "recordedSteps": 34,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 34
+      },
+      "rng": {
+        "matched": 2149,
+        "total": 2158
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 34
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: test_move() door or special terrain movement",
+      "step": 33
+    },
+    "step": 33,
+    "kind": "stop",
+    "sourceFile": "hack.c",
+    "function": "test_move",
+    "message": "unsupported hero move: test_move() door or special terrain movement",
+    "cFile": "hack.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The named fire-ray path is a valid target miss: after C offers zap slots c/o, the frozen recipe sends e and gets “That is a silly thing to zap.” No zap ray or melt_ice is reached. The one remaining mismatch is the later h move back onto the wished ICE tile. C test_move() accepts the ordinary orthogonal move; the JS command preflight rejects the tile because the whole hack.c:spoteffects() ICE-arrival path is still behind requireSimpleHeroDestination(). Scope the source work to the complete spoteffects() function and preserve the later zap.c ray/melt gap as separate, unproven work.",
+  "source": {
+    "file": "hack.c",
+    "branch": "In wizard debug mode, the earlier ^W ice wish changes the current ROOM square to ICE. After moving east, the recorded h command makes an ordinary orthogonal DO_MOVE back onto ICE. C test_move() falls through its obstacle and door checks and returns TRUE; domove_core() then moves and calls spoteffects(TRUE). The JS command preflight currently refuses ICE before setting movement intent because spoteffects() still omits its complete ice-arrival behavior.",
+    "functions": [
+      "spoteffects"
+    ],
+    "callers": [
+      "C: hack.c:domove_core() (2843-2856, 2873-2980) consumes test_move(..., DO_MOVE), moves onto the destination, then calls spoteffects(TRUE); this is the exact source path for the recorded h input.",
+      "C: teleport.c:teleds() (551-568) also reaches spoteffects(TRUE) after a changed hero position. Its JavaScript caller in js/teleport.js uses the same destination admission helper.",
+      "JS movement ingress: js/cmd.js:executeMovement() (2723-2733) calls preflightDomoveDestination() before set_move_cmd() and domove(); the ICE rejection happens here, so the recorded step never reaches the otherwise accepting test_move() implementation.",
+      "Other production entry paths remain wired through spoteffects() in trap.c, do_wear.c, polyself.c, potion.c, artifacts.c, timeout.c, ball.c, apply.c, mhitu.c, mon.c, dbridge.c, and dig.c; preserve each caller’s source-order pick flag and state."
+    ],
+    "dependencies": [
+      "pooleffects(TRUE) has a consumed boolean return that exits spoteffects() early; preserve that result and its source order.",
+      "float_down(I_SPECIAL | TIMEOUT, 0L) has a consumed return that decides whether the later trap and pickup run; verify its trap.c implementation before treating the path as complete.",
+      "ICE warnings use Warning, is_ice(), spot_time_left(..., MELT_ICE_AWAY), and the source thresholds at hack.c:3402-3415.",
+      "The function owns static recursion state inspoteffects, spotloc, spotterrain, spottrap, and spottraptyp; retain the same-spot recursion rule and allow transformed terrain/trap re-entry.",
+      "C discards results from switch_terrain(), check_special_room(), dosinkfall(), pickup(1), dotrap(), and mnexto(); preserve their effects or call note_unported() for an unported void dependency, never use a discarded result."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The immutable recording challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json has step 6 (^W ice wish) screen “Solid ice.” Upstream objnam.c:3552 and 3666-3684 shows wizard terrain-wish handling: the ice arm changes an eligible ROOM square to ICE and describes the resulting ice. Step 7 moves east and leaves the cyan ICE glyph behind; its RNG includes slippery_ice_fumbling(hack.c:2407), confirming the tile is live ICE.",
+    "At recording step 30 the wand wish reports “o - an ebony wand.”; step 31 offers “What do you want to zap? [co or ?*]”; step 32 input e returns “That is a silly thing to zap.” The immutable input recipe ends `zeh`, so its selector misses slot o. These C screens and keys establish no fire ray, zap_over_floor, or melt_ice in this case; the matching retainedCases row in .cache/C56-accepted-preparation-evidence.json agrees, and its claim is verified against the recording.",
+    "At step 33, input h moves the hero onto the previous cyan ICE tile in the C screen. Upstream hack.c:test_move() lines 1011-1152 only rejects the destination’s physical obstacles and doors; rm.h:119 and 121 define IS_OBSTRUCTED as typ < POOL and IS_DOOR as typ == DOOR. This orthogonal ICE destination reaches the common checks and hack.c:1253-1254 returns TRUE. hack.c:2843-2856 and 2873-2980 then move the hero and call spoteffects(TRUE).",
+    "The evaluation challenges/evaluations/20261001190602-v17.json records 33/34 screens and its sole missing screen is step 33; the preserved v17 queue identity is 1 remaining screen and 34 recorded steps. The failure label “test_move() door or special terrain movement” is emitted by the JS boundary helper at js/hack.js:1458-1461, not by the source test_move() result.",
+    "The earliest JS stop is cmd.js:executeMovement() calling preflightDomoveDestination() before movement intent at js/cmd.js:2723-2733. For an unoccupied, non-obstructed ICE destination, js/hack.js:1758-1759 calls requireSimpleHeroDestination(); its ordinaryDestination list at 1452-1457 omits ICE and throws. The owner’s comment at js/hack.js:5000-5011 explicitly says the spoteffects() caller gate excludes the ice-warning arm; upstream hack.c:3312-3462 is the whole source unit and includes that branch at 3402-3415 plus recursion state at 3314-3339. This makes hack.c:spoteffects() the actionable whole-function file-port scope, with existing domove_core and teleds callers preserved.",
+    "The later intended ray behavior remains a separate gap: the recording never selects the wished wand, so it is not evidence for zap.c:weffects() -> zap_over_floor() -> melt_ice(). Current js/zap.js:5162-5212 records that melt_ice() has no ported owner; do not infer that behavior from this case’s title."
+  ]
+}

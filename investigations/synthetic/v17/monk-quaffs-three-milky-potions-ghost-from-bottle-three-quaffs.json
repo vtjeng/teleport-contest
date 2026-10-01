@@ -1,0 +1,149 @@
+{
+  "session": "synthetic/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs",
+  "corpus": "synthetic",
+  "batch": "v17",
+  "caseId": "monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs",
+  "manifestPath": "challenges/manifests/v17.json",
+  "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+  "recordingPath": "challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.session.json",
+  "recordingSha256": "b4b5aa967700a1400e75f754e25bf6a04956dfb5890e9f99357004a80fdb1016",
+  "recipePath": "challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.recipe.session.json",
+  "recipeSha256": "66c379deff30a26b03a80d4ffff0b0b8974a493c346305dad459b0aefff493e9",
+  "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+  "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+  "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+  "evaluationUtc": "2026-10-01T19:06:03.082Z",
+  "remainingScreens": 1,
+  "recordedSteps": 35,
+  "status": "complete",
+  "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v17",
+    "caseId": "monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs",
+    "session": "synthetic/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs",
+    "manifestPath": "challenges/manifests/v17.json",
+    "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+    "recording": "challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.session.json",
+    "recordingPath": "challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.session.json",
+    "recordingSha256": "b4b5aa967700a1400e75f754e25bf6a04956dfb5890e9f99357004a80fdb1016",
+    "recipe": "challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.recipe.session.json",
+    "recipeSha256": "66c379deff30a26b03a80d4ffff0b0b8974a493c346305dad459b0aefff493e9",
+    "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+    "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+    "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+    "evaluationUtc": "2026-10-01T19:06:03.082Z",
+    "remainingScreens": 1,
+    "recordedSteps": 35,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 34,
+        "total": 35
+      },
+      "rng": {
+        "matched": 2506,
+        "total": 2557
+      },
+      "cursors": {
+        "matched": 34,
+        "total": 35
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 34,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 34,
+          "key": "k"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "A",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2504,
+        "cEntry": "rn2(8)=7",
+        "cCaller": "collect_coords(teleport.c:700)",
+        "jsEntry": "rn2(5)=2",
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 34,
+          "key": "k"
+        },
+        "stepIndex": 34
+      },
+      "cursor": {
+        "index": 34,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 34,
+          "key": "k"
+        },
+        "cCursor": [
+          58,
+          0,
+          1
+        ],
+        "jsCursor": [
+          60,
+          15,
+          1
+        ]
+      }
+    },
+    "step": 34,
+    "kind": "rng",
+    "sourceFile": "teleport.c",
+    "function": "collect_coords",
+    "message": null,
+    "cFile": "teleport.c",
+    "luaFile": null,
+    "line": 700
+  },
+  "summary": "The earliest missing behavior is potion.c::ghost_from_bottle, called by dodrink after the third milky-potion occupant roll succeeds. C creates a ghost at the hero coordinates; makemon relocates it through enexto_core/collect_coords, then ghost_from_bottle prints the emergence message and sets three forced-rest turns. JavaScript currently records note_unported(potion.c ghost_from_bottle), consumes the bottle, and returns without creating the ghost or setting the forced-rest state. The C collect_coords RNG annotation is downstream evidence of ghost placement, not an independent teleport.c defect.",
+  "source": {
+    "file": "potion.c",
+    "functions": [
+      "ghost_from_bottle"
+    ],
+    "branch": "dodrink enters the milky-bottle arm when the descriptor is milky and ghosts are not gone; a zero result from rn2(13 + 2 * ghosts-born) calls ghost_from_bottle before useup and returns ECMD_TIME. ghost_from_bottle creates PM_GHOST at the hero square with MM_NOMSG, reports an empty bottle if creation fails, otherwise selects blind/sighted and hallucination wording, optionally prints the verbose fear message, then calls nomul(-3) and sets the forced-rest reason and recovery message.",
+    "callers": [
+      "C: potion.c::dodrink calls ghost_from_bottle at potion.c:604; JS: js/potion.js::dodrink reaches note_unported('potion.c ghost_from_bottle') in the same milky/occupant gate at js/potion.js:2058-2064."
+    ],
+    "dependencies": [
+      "makemon.c::makemon (ghost_from_bottle consumes the returned monster pointer to distinguish an empty bottle; the JS runtime call must use makemon_runtime so the full runtime suffix runs)",
+      "teleport.c::enexto_core -> teleport.c::collect_coords (makemon consumes the selected adjacent coordinate; enexto_core consumes the candidate list; existing JavaScript source ports are in js/teleport.js)",
+      "do_name.c::rndghostname (makemon consumes the ghost name when MM_NONAME is absent; the JavaScript makemon path already calls the helper)",
+      "do_name.c::rndmonnam (ghost_from_bottle consumes this name only in the hallucinating branch; JavaScript helper exists in js/do_name.js)",
+      "hack.c::nomul (void turn-interruption side effect already implemented in js/hack.js; ghost_from_bottle must also set the C multi_reason and nomovemsg state)",
+      "pline.c::pline and You (void message effects; current JavaScript terminal message operation is ttyPline)"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The immutable C recording challenges/cases/v17/monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs.session.json step 34 is key k. Its RNG begins rn2(13)=0 @ dodrink(potion.c:603), then rn2(8)=7 @ collect_coords(teleport.c:700); the captured screen says “As you open the bottle, an enormous ghost emerges!--More--”. The previous two quaff screens are ordinary potion effects. The step therefore reaches the successful third-bottle occupant branch.",
+    "nethack-c/upstream/src/potion.c:601-606 places ghost_from_bottle before useup and ECMD_TIME. The entire helper at nethack-c/upstream/src/potion.c:481-499 consumes makemon(PM_GHOST, u.ux, u.uy, MM_NOMSG), distinguishes failure, selects blindness/hallucination message text, and on success calls nomul(-3), sets gm.multi_reason, and sets gn.nomovemsg.",
+    "The reported RNG caller is downstream: nethack-c/upstream/src/makemon.c:1179-1185 sees the hero-square coordinate and calls enexto_core; nethack-c/upstream/src/teleport.c:242-257 calls collect_coords for nearby and whole-map candidates, whose shuffle at 697-708 emits the recorded rn2(8). Therefore the observed teleport.c RNG caller does not identify a teleport defect; it is caused by ghost_from_bottle reaching makemon.",
+    "Current JavaScript has the exact missing branch at js/potion.js:2058-2064: on the same milky/ghost-vital gate it calls note_unported('potion.c ghost_from_bottle'), then useup, then returns ECMD_TIME. It never creates the monster, writes the C emergence/fear messages, or applies the forced-rest state. The saved evaluation challenges/evaluations/20261001190602-v17.json records 34/35 matching screens and first mismatch at step 34; C cell is A versus JS Y and cursors are [58,0,1] versus [60,15,1].",
+    "Required production wiring is local to the existing caller: js/potion.js already imports makemon_runtime at line 164, whose async adapter preserves the full makemon runtime suffix (js/makemon_create.js:3233-3257); its makemon constructor calls enexto_core when the requested square is the hero square (js/makemon_create.js:2895-2921). The current teleport helper remains source-wired and uses the passed random environment (js/teleport.js:1148-1164).",
+    "Consumed-return dependencies are makemon (null versus created ghost), rndmonnam on the hallucination path, and enexto_core/collect_coords during placement. The helper itself is void and dodrink ignores its return. Current direct named gap is only the dodrink note_unported for ghost_from_bottle; no independent teleport source defect is established. This recording exercises the successful sighted, non-hallucinating path; empty-bottle, blind, hallucination, and verbose wording branches remain part of the whole helper scope but are not evidenced here."
+  ]
+}
