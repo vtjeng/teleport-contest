@@ -125630,7 +125630,7 @@
     {
       "id": "port-engrave-cant-reach-floor-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete floor-reach messages and wire their callers",
       "cFile": "engrave.c",
       "sessions": [
@@ -125644,8 +125644,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "090b04c8dae58144172a338f4665899b458416dc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "cant_reach_floor",
@@ -125940,6 +125943,12 @@
         ],
         "entryPointReview": "The selected source range is the helper-only engrave.c:cant_reach_floor function. Its active direct production callers are apply.c:use_stethoscope, pickup.c:able_to_loot (through doloot and dotip), dig.c:use_pick_axe2, engrave.c:u_can_engrave/doengrave, and lock.c:forcelock. The existing downward dig/engrave/lock callers were already wired and remain unchanged. B66 wires the upward stethoscope branch and the unreachable-floor arm in able_to_loot. The admitted v15 Healer range exercises use_stethoscope -> cant_reach_floor(up=TRUE). The independent #loot recording executes doloot -> able_to_loot -> cant_reach_floor; the complete #tip recording executes dotip -> able_to_loot -> cant_reach_floor, then continues through C’s inventory-selection fallback and cancels it. Source-pinned tests cover ceiling, pit-bottom, surface, and wand wording. The unskilled-rider arm retains the exact discarded-void steed.c:rider_cant_reach gap and has no fabricated output. Failed setup/fixture attempts remain in .cache/B66-logs; only the two fully matching recordings are in recordings/. Per .agents/validation.md, this single selected helper uses the helper-only evidence form with entryPoints empty; its production call graph and all task-added runtime routes are explained above, while function-level synthetic and recording evidence proves the helper executes through real callers.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "090b04c8dae58144172a338f4665899b458416dc",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
