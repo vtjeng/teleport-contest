@@ -1575,8 +1575,8 @@ export async function unbless(obj, env = {}) {
 }
 
 // C ref: mkobj.c curse() (1783-1820). Keep its state changes and special-item
-// effects in source order. Only the two still-unported void callees are
-// recorded at their source branches; the C function discards both results.
+// effects in source order. Its ordinary branches return synchronously; a JS
+// Promise propagates only when an existing asynchronous source callee needs it.
 export function curse(obj, env = {}) {
     const state = env.state ?? game;
     if (obj.oclass === COIN_CLASS) return obj;
@@ -1590,46 +1590,55 @@ export function curse(obj, env = {}) {
     // A welded two-handed weapon changes the delayed armor-removal context.
     if (obj === state.uwep && bimanual(state.uwep, state))
         reset_remarm(state);
-    // wield.c drop_uswapwep() is still outside this task; C's result is void.
-    if (obj === state.uswapwep && state.u?.twoweap)
-        note_unported('wield.c drop_uswapwep');
-
-    if (carried(obj) && confers_luck(obj, state)) {
-        set_moreluck(state);
-    } else if (obj.otyp === BAG_OF_HOLDING) {
-        obj.owt = weight(obj, env);
-    } else if (obj.otyp === FIGURINE) {
-        if (obj.corpsenm !== NON_PM
-            && !dead_species(obj.corpsenm, true, { ...env, state })
-            && (carried(obj) || obj.where === OBJ_MINVENT)) {
-            attach_fig_transform_timeout(obj, { ...env, state });
+    const completeCurse = () => {
+        if (carried(obj) && confers_luck(obj, state)) {
+            set_moreluck(state);
+        } else if (obj.otyp === BAG_OF_HOLDING) {
+            obj.owt = weight(obj, env);
+        } else if (obj.otyp === FIGURINE) {
+            if (obj.corpsenm !== NON_PM
+                && !dead_species(obj.corpsenm, true, { ...env, state })
+                && (carried(obj) || obj.where === OBJ_MINVENT)) {
+                attach_fig_transform_timeout(obj, { ...env, state });
+            }
+        } else if (obj.oclass === SPBOOK_CLASS && !already_cursed) {
+            // The exact active-occupation guard lives in book_cursed(); its
+            // no-effect arms return synchronously, while an interrupted study
+            // preserves the C message, BUC-known, occupation-stop order.
+            const pending = book_cursed(obj, state, env);
+            if (pending) {
+                return pending.then(() => {
+                    if (obj.lamplit) {
+                        const new_light = arti_light_radius(obj, state);
+                        if (new_light !== old_light)
+                            return maybe_adjust_light(obj, old_light, env);
+                    }
+                    return obj;
+                });
+            }
         }
-    } else if (obj.oclass === SPBOOK_CLASS && !already_cursed) {
-        // The exact active-occupation guard lives in book_cursed(); its
-        // no-effect arms return synchronously, while an interrupted study
-        // preserves the C message, BUC-known, occupation-stop order.
-        const pending = book_cursed(obj, state, env);
-        if (pending) {
-            return pending.then(() => {
-                if (obj.lamplit) {
-                    const new_light = arti_light_radius(obj, state);
-                    if (new_light !== old_light)
-                        return maybe_adjust_light(obj, old_light, env);
-                }
-                return obj;
-            });
-        }
-    }
 
-    if (obj.lamplit) {
-        const new_light = arti_light_radius(obj, state);
-        // maybe_adjust_light() has no effects when the range is unchanged;
-        // preserve synchronous callers in that common case and return its
-        // Promise only when the source emits a brightness update.
-        if (new_light !== old_light)
-            return maybe_adjust_light(obj, old_light, env);
+        if (obj.lamplit) {
+            const new_light = arti_light_radius(obj, state);
+            // maybe_adjust_light() has no effects when the range is unchanged;
+            // preserve synchronous callers in that common case and return its
+            // Promise only when the source emits a brightness update.
+            if (new_light !== old_light)
+                return maybe_adjust_light(obj, old_light, env);
+        }
+        return obj;
+    };
+
+    // C mkobj.c calls drop_uswapwep() synchronously between resetting the
+    // primary weapon context and the later carried-item/light effects. Most
+    // curse() callers retain their synchronous return; only this equipped
+    // secondary branch propagates the JS drop's awaited message and placement.
+    if (obj === state.uswapwep && state.u?.twoweap) {
+        return import('./wield.js').then(({ drop_uswapwep }) =>
+            drop_uswapwep(state, { ...env, state })
+        ).then(completeCurse);
     }
-    return obj;
+    return completeCurse();
 }
 
 // C ref: mkobj.c curse() (1783-1820), narrowed to free objects. This covers

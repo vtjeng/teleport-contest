@@ -16,6 +16,7 @@ import {
     HALLUC,
     HALLUC_RES,
     HVY_ENCUMBER,
+    GLIB,
     MMOVE_DIED,
     M_AP_OBJECT,
     M_AP_TYPE,
@@ -25,6 +26,7 @@ import {
     STRAT_WAITFORU,
     STRAT_WAITMASK,
     STUNNED,
+    OBJ_FLOOR,
 } from '../js/const.js';
 import { l_monnam } from '../js/do_name.js';
 import {
@@ -1113,6 +1115,51 @@ test('do_attack lets a sustainable two-weapon pair swing twice', async () => {
     // uhitm.c:813 clears gt.twohits before returning.
     assert.equal(game.twohits, 0);
 });
+
+// uhitm.c:do_attack() checks can_twoweapon() before untwoweapon(). The
+// Glib intrinsic forces that check to call drop_uswapwep(); a held message
+// proves the caller does not clear the combat flag or slot before the C line
+// has completed.
+test('do_attack waits for the secondary drop message before untwoweapon',
+    async () => {
+        await samurai();
+        const secondary = game.uswapwep;
+        game.u.twoweap = true;
+        game.u.uprops[GLIB] = { intrinsic: 1 };
+        const env = meleeEnv({ dieroll: 20 });
+        let releaseMessage;
+        let startMessage;
+        const messageGate = new Promise((resolve) => {
+            releaseMessage = resolve;
+        });
+        const messageStarted = new Promise((resolve) => {
+            startMessage = resolve;
+        });
+        const ordinaryMessage = env.message;
+        env.message = async (text, state) => {
+            // The Samurai's short sword is named "wakizashi" in this role.
+            if (text === 'Your wakizashi slips from your left hand!') {
+                startMessage();
+                await messageGate;
+            }
+            await ordinaryMessage(text, state);
+        };
+
+        const mtmp = placedTarget();
+        const pendingAttack = do_attack(mtmp, game, env);
+        await messageStarted;
+        assert.equal(game.u.twoweap, true);
+        assert.equal(game.uswapwep, secondary);
+        releaseMessage();
+        await pendingAttack;
+
+        assert.equal(game.u.twoweap, false);
+        assert.equal(game.uswapwep, null);
+        assert.equal(secondary.where, OBJ_FLOOR);
+        assert.ok(env.lines.indexOf(
+            'Your wakizashi slips from your left hand!',
+        ) < env.lines.indexOf('You miss the lichen.'));
+    });
 
 // uhitm.c:776 sets gt.twohits from u.twoweap, and 797 opens the second attack
 // on it. With the pair switched off the same hero, the same target and the

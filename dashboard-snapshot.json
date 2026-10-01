@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T13:24:34.256Z",
+  "capturedAt": "2026-10-01T13:49:30.957Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -13142,12 +13142,97 @@
         "type": "accepted",
         "at": "2026-10-01T13:24:33.970Z",
         "task": "C56"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C56-published-638cbe58",
+        "type": "published",
+        "at": "2026-10-01T13:25:14.447Z",
+        "task": "C56",
+        "commit": "638cbe5897e3f7f2f965dbb31350a02ef5c6ccab"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A67-integrating-08716823",
+        "type": "integrating",
+        "at": "2026-10-01T13:31:15.435Z",
+        "task": "A67",
+        "integration": "087168239651f55fe368799e31d5a568ab12737c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-40b821eaadbd4a20b7036c1a80ca4f89d1e48976",
+        "type": "ready",
+        "at": "2026-10-01T13:31:46.943Z",
+        "task": "B73",
+        "delivery": "40b821eaadbd4a20b7036c1a80ca4f89d1e48976"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B73-received-40b821ea",
+        "type": "received",
+        "at": "2026-10-01T13:32:33.009Z",
+        "task": "B73",
+        "delivery": "40b821eaadbd4a20b7036c1a80ca4f89d1e48976"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A68-grimtooth-throw-20261001",
+        "type": "assign",
+        "at": "2026-10-01T13:33:01.362Z",
+        "task": "A68",
+        "worker": "A2",
+        "goal": "restore-c-defined-artifact-throw-rules-v16-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C57-assign-royal-jelly-20261001",
+        "type": "assign",
+        "at": "2026-10-01T13:33:35.826Z",
+        "task": "C57",
+        "worker": "C",
+        "goal": "port-apply-royal-jelly-synthetic-v16-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A67-integrating-bcdd24e1",
+        "type": "integrating",
+        "at": "2026-10-01T13:34:28.740Z",
+        "task": "A67",
+        "integration": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B74-assign-full-healing-20261001",
+        "type": "assign",
+        "at": "2026-10-01T13:41:43.751Z",
+        "task": "B74",
+        "worker": "B",
+        "goal": "port-potion-full-healing-synthetic-v16-20261001",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A67-validated-bcdd24e1",
+        "type": "validated",
+        "at": "2026-10-01T13:49:16.084Z",
+        "task": "A67",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A67-accepted-bcdd24e1",
+        "type": "accepted",
+        "at": "2026-10-01T13:49:16.474Z",
+        "task": "A67"
       }
     ]
   },
   "development": {
-    "executionCommit": "6e468194555b6d0697955a74168f223c60b25067",
-    "measuredAt": "2026-10-01T13:19:41.641Z",
+    "executionCommit": "bcdd24e1b9e6c994997c9cb9b4b1762ed67dbc81",
+    "measuredAt": "2026-10-01T13:40:09.620Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
