@@ -127025,8 +127025,8 @@
           "name": "make_vomiting",
           "line": 243,
           "endLine": 260,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -127271,7 +127271,70 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "make_vomiting",
+            "implementation": "js/potion.js",
+            "symbol": "make_vomiting",
+            "sourceReview": "Read all of potion.c:make_vomiting (243-255). It snapshots old Vomiting, disables talk when Unaware, calls set_itimeout(&Vomiting, xtime), unconditionally marks disp.botl, and emits the recovery message only for !xtime && old && talk. The helper has no RNG or return-valued callees; set_itimeout is an existing void state helper, and You_feel is output. JS uses the caller-supplied state and message environment. The related fprefx stale-egg branch uses the shared pure obj.h:stale_egg predicate through js/dogfood.js:staleEgg. The tripe make_vomiting call remains behind the existing more_experienced/newexplevel refusal; do not invent those effects. timeout.c:stoned_dialogue remains the named outer caller gap. Other make_sick and eat/timeout gaps are retained.",
+            "callers": [
+              {
+                "path": "js/apply.js",
+                "symbol": "use_unicorn_horn",
+                "source": "apply.c:use_unicorn_horn cursed-horn case 4 and VOMITING trouble arms"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "consume_tin",
+                "source": "eat.c:consume_tin negative-nutrition tin branch"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "fprefx",
+                "source": "eat.c:fprefx stale-egg and undead-garlic branches; tripe stays behind the named experience-helper refusal"
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "fpostfx",
+                "source": "eat.c:fpostfx uncursed eucalyptus-leaf branch after its preceding make_sick call"
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c:nh_timeout VOMITING expiry switch arm"
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "healup",
+                "source": "potion.c:healup curesick branch"
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c:wiz_intrinsic VOMITING wizard-property arm"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/dogfood.test.mjs",
+              "scripts/timeout.test.mjs",
+              "scripts/eat-one-turn.test.mjs",
+              "scripts/cast-healing.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/wizintrinsic-vomiting-priest-a64.session.json",
+              "recordings/potion.c/wizintrinsic-vomiting-valkyrie-a64.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "6cc9e3bb0fb5178b466ec9558653a8f864256429"
+          }
+        ],
+        "entryPointReview": "This is a helper-only selected source range, so entryPoints is empty. The active helper callers are apply.c:use_unicorn_horn, eat.c:consume_tin, eat.c:fprefx, eat.c:fpostfx, timeout.c:nh_timeout, potion.c:healup and wizcmds.c:wiz_intrinsic; their selected JS source-call branches are wired. Two independent recordings execute make_vomiting through wizcmds.c:wiz_intrinsic: a Priest and a cheap Valkyrie variation. Focused tests pin the helper's source conditions, the timeout expiry call, the eucalyptus cure call, healup, and the shared stale-egg predicate. The admitted v15 wizard-cursed-horn-confuses-then-uncursed-horn-cures recording is retained as the selected diagnostic, but is not cited because it diverges at step 62: after apply.c:use_unicorn_horn sets Vomiting, C nh_timeout calls timeout.c:vomiting_dialogue, which unconditionally exercises Constitution; JS keeps that whole dialogue as a named unported caller gap. Do not claim the later cure or any runtime path through apply.c:use_unicorn_horn from that mismatching record. timeout.c:stoned_dialogue also remains a named outer gap, and the tripe-ration caller remains behind its named experience-helper refusal. No whole caller completion credit is claimed.",
+        "entryPoints": []
+      }
     }
   ]
 }
