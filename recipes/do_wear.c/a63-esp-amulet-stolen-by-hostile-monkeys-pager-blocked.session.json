@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Blocked A63 C-first production probe for steal.c:steal -> steal.c:worn_item_removal -> steal.c:remove_worn_item -> do_wear.c:Amulet_off. The Wizard wishes and wears one uncursed ESP amulet. Five hostile monkeys are requested through read.c:create_particular_parse while retaining ordinary starting inventory and avoiding unported do.c:drop. C's steal.c:421 draw `rn2(23)=20` selects the worn amulet; the recorded final frame includes the completed Amulet_off off_msg/redraw path and the theft result. Strict diff matches all screens/cursors and all C RNG through the callback, but JS logs the next attack's mhitu.c:mattacku RNG on this pager response; C logs those `uhitm.c:mhitm_knockback`, `monmove.c:distfleeck`, and `mhitu.c:mattacku` draws only after the next input. This is the separate win/tty/topl.c:more versus js/tty_message.js:ttyPlineCore turn-boundary gap; no tty or monster source is expanded into A63. The earlier two-space full recording and exact one-space C output are preserved under .cache/A63-logs. No JavaScript output selected the target.",
+  "segments": [
+    {
+      "seed": 63072119,
+      "datetime": "20261001132900",
+      "nethackrc": "OPTIONS=name:A63AmuletTheft,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": " #wizwish\nuncursed amulet of ESP\nPo#wizgenesis\n5 hostile monkeys\n.. "
+    }
+  ]
+}
