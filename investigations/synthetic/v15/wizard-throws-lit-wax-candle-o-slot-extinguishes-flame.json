@@ -3,15 +3,15 @@
   "corpus": "synthetic",
   "batch": "v15",
   "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
-  "remainingScreens": 4,
+  "remainingScreens": 1,
   "recordedSteps": 29,
   "manifestPath": "challenges/manifests/v15.json",
   "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
   "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
-  "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
-  "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "evaluationPath": "challenges/evaluations/20261001230131-v15.json",
+  "evaluationCommit": "c842043c989d321c10404073a9cc57190a675d85",
   "status": "complete",
-  "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+  "commit": "c842043c989d321c10404073a9cc57190a675d85",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v15",
@@ -24,66 +24,89 @@
     "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
     "recipe": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.recipe.session.json",
     "recipeSha256": "b9e232c7707804772ab3d6aa557133292c7bf81bdc8b6cb0c319aac8ea329356",
-    "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
-    "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
-    "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
-    "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
-    "evaluationUtc": "2026-10-01T02:29:26.613Z",
-    "remainingScreens": 4,
+    "replayInputSha256": "37ba97a2f31c782d4f64bfe51539d7590cfbba3842de614467248d0a17487632",
+    "evaluationPath": "challenges/evaluations/20261001230131-v15.json",
+    "evaluationCommit": "c842043c989d321c10404073a9cc57190a675d85",
+    "evaluationArtifact": "challenges/evaluations/20261001230131-v15.json",
+    "evaluationUtc": "2026-10-01T23:02:06.693Z",
+    "remainingScreens": 1,
     "recordedSteps": 29,
-    "previousScreensMatched": null,
+    "previousScreensMatched": 25,
     "regression": false,
     "passed": false,
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 25,
+        "matched": 28,
         "total": 29
       },
       "rng": {
-        "matched": 2746,
+        "matched": 2757,
         "total": 2757
       },
       "cursors": {
-        "matched": 25,
+        "matched": 29,
         "total": 29
       }
     },
     "firstMismatch": {
-      "kind": "stop",
-      "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
-      "step": 25
+      "screen": {
+        "index": 28,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 28,
+          "key": "l"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "T",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
     },
-    "step": 25,
-    "kind": "stop",
+    "step": 28,
+    "kind": "screen",
     "sourceFile": null,
     "function": null,
-    "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+    "message": null,
     "cFile": null,
     "luaFile": null,
     "line": null
   },
-  "summary": "The first miss is objnam.c doname_base(): naming the newly wished-for lit candle needs its BURN_OBJECT timer adjustment. After that branch, the intended throw reaches a separate unported snuff_candle() call in dothrow.c throwit().",
+  "summary": "The only remaining mismatch is the missing extinguished-flame message at segment 0, zero-based step 28. A69 completes the earlier candle naming branch; dothrow.c:throwit then reaches apply.c:snuff_candle, which remains a named gap in JavaScript.",
   "source": {
-    "file": "objnam.c",
-    "branch": "For a lit wax or tallow candle in doname_base(), calculate remaining burn time from obj->age and, while lit, add peek_timer(BURN_OBJECT, &timer) - svm.moves before deciding whether to prefix “partly used”; append “(lit)” afterward.",
+    "file": "apply.c",
     "functions": [
-      "doname_base"
+      "snuff_candle"
     ],
+    "branch": "For a lit candle or candelabrum, obtain its source location, print the ownership-aware singular/plural extinguishing message under the monster-inventory/Blind visibility condition, call end_burn(otmp, TRUE), and return TRUE. Return FALSE for other or unlit objects.",
     "callers": [
-      "C: objnam.c doname() calls doname_base() (1754); zap.c makewish() calls doname(otmp) at 6388 before hold_another_object(), reached from wizcmds.c wiz_wish() at 38.",
-      "JavaScript: js/zap.js makewish() calls donameFresh() before object placement; js/wizcmds.js wiz_wish() calls makewish(). donameFresh() reaches donameFreshInternal() and preflightDoname() in js/objnam.js."
+      "C dothrow.c:throwit calls snuff_candle after object flight and before ship_object and final floor placement. JavaScript js/dothrow.js:throwit records note_unported('apply.c snuff_candle') at the corresponding landing site.",
+      "Other source callers in throwit_mon_hit, mthrowu.c:return_from_mtoss and apply.c:snuff_lit are part of the A70 caller audit, with no whole outer-function credit."
     ],
     "dependencies": [
-      "timeout.c peek_timer() (2324) looks up the absolute timeout for BURN_OBJECT and the same object; the candle branch subtracts svm.moves. JavaScript has the corresponding timer lookup in js/timeout.js peek_timer().",
-      "The full-burn threshold uses objects[obj->otyp].oc_cost; JavaScript objectType(obj).oc_cost is already available to the formatter."
+      "shk.c:Shk_Your supplies the ownership-aware message prefix.",
+      "get_obj_location determines the visibility coordinates without inventing a location.",
+      "timeout.c:end_burn stops the source object timer and light state."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The assigned scan artifact .cache/synthetic-scans/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.json records the first stop at step 25 as “unsupported object name branch: lit candle timer adjustment”. The supplied C recording challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json shows “o - a candle (lit).” at step 25 and, after the throw and direction inputs, “The candle’s flame is extinguished.” at step 28.",
-    "The first source owner is objnam.c doname_base(), defined at 1223; its candle suffix branch at 1458–1483 uses obj->age, objects[otyp].oc_cost, obj->lamplit, peek_timer(BURN_OBJECT), and svm.moves. The JavaScript whole-function counterpart is represented by donameFreshInternal() in js/objnam.js; its current candle modifier compares only obj.age and preflightDoname() refuses a lit candle at js/objnam.js:449. C zap.c makewish() calls doname(otmp) at 6388 before hold_another_object(), so this naming branch blocks the #wizwish setup before the throw begins.",
-    "The timer dependency is timeout.c peek_timer() at 2324, which returns the matching object timer’s absolute timeout or zero; this routine already has a JavaScript counterpart in js/timeout.js. The investigation scope is the complete objnam.c doname_base() function, not just the candle conditional, because the selection rules require whole-function ports.",
-    "A separate later gap is exposed by the target behavior: after landing, dothrow.c throwit() calls (void) snuff_candle(obj) at 1818. apply.c snuff_candle() at 1472 prints the extinguished-flame message and calls end_burn(otmp, TRUE). js/dothrow.js:2693 currently records note_unported('apply.c snuff_candle') in that landing path. This does not cause the first stop at step 25; it remains a separate source scope required to produce the step-28 extinguishing result after the naming miss is repaired."
+    "At c842043c989d321c10404073a9cc57190a675d85, challenges/evaluations/20261001230131-v15.json records 28/29 screens, all 29 cursors and all 2,757 RNG calls matched. The sole first screen mismatch is segment 0, zero-based step 28 (key l), row 0 column 0: C T versus a blank JavaScript cell.",
+    "The immutable C recording displays “The candle's flame is extinguished.” at this step. The source apply.c:snuff_candle (1472–1494) emits that line before end_burn; the corresponding js/dothrow.js landing call still records note_unported('apply.c snuff_candle'). This saved evaluation and source call establish the current cause without a new C recording.",
+    "Historical naming failure: evaluation 20261001022926-v15.json at 6d2c675aad59f170ec44980d6afce47f08ae7423 stopped at step 25 with 25/29 screens and 2,746/2,757 RNG matched because doname_base lacked lit-candle timer adjustment. A69 now completes that naming path; it does not claim candle snuffing.",
+    "A70 is independently assigned to whole apply.c:snuff_candle, its consumed Shk_Your helper and source callers. Its pending delivery and runtime validation will determine whether the final screen matches."
   ]
 }
