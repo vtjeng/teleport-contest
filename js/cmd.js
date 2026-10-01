@@ -353,7 +353,6 @@ import {
 import { nhgetch } from './input.js';
 import { doride, Punished, UnsupportedSteedError } from './steed.js';
 import { done2, UnsupportedEndOfGameError } from './end.js';
-import { UnsupportedItemIgnitionError } from './apply_catch_lit.js';
 import {
     acurr,
     exercise,
@@ -2889,14 +2888,7 @@ export function failClosedCommandRefusals() {
         // is preflighted before done() paints or mutates, an ordinary death
         // stops above really_done() after the forced status work, and a debug
         // or explore death can draw "Die?" before savelife() refuses.
-        // The third is not a killing blow's. apply_catch_lit.js raises it from
-        // zhitu()'s ignite_items() call at zap.c:4437, one guard above the
-        // killer block at 4561-4589, for an ignitable object in the hero's own
-        // pack. The hero may still be at full hit points there and the bolt
-        // may not kill at all, so the last screen a segment ending on it
-        // matched carries whatever the status line held before the ray.
         UnsupportedEndOfGameError,
-        UnsupportedItemIgnitionError,
         UnsupportedArtifactDisplayError,
         UnsupportedDropError,
         UnsupportedLevelChangeError,
