@@ -128719,6 +128719,460 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pray-offer-negative-valued-synthetic-v15-20261001",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete negative-valued offering anger",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar"
+      ],
+      "selectionReason": "The accepted B69 altar-mask repair leaves the admitted v15 aligned-unicorn offering mismatch at step 125. C pray.c:offer_corpse calls pray.c:offer_negative_valued for a negative corpse value and for a tame corpse; the JS caller records note_unported at both sites. Port the whole helper and wire both sites. Its aligned path calls existing gods_upset, which increments u.ugangr before angrygods. Its different-alignment high-altar path calls desecrate_altar, whose C return is discarded and remains a named void-call gap. offer_fake_amulet is another C caller, but JS dosacrifice still records that outer caller as unported, so this task does not claim that route. A source-verified caller mismatch in pray.c:eval_offering at 1929 calls adjattrib(A_WIS,-1,TRUE), while JS passed false and emitted an early wisdom-loss message. Correct only that branch’s message mode as supporting B71 scope; do not claim whole eval_offering completion. Root verified current A65 evaluations, complete helper against C, both caller arms, exact adjattrib TRUE support correction, six saved checks and independent runtime provenance. Only the selected helper receives whole-source credit.",
+      "detail": "Whole offer_negative_valued preserves the high-altar condition and gods_upset call. Wire both offer_corpse call sites and preserve the source eval_offering aligned-unicorn message mode. The differently aligned high-altar desecrate_altar void gap and unported offer_fake_amulet route remain explicit. Independent Priest and admitted Archeologist routes match through the selected helper.",
+      "openedAt": "1d321318f196e68d071a4915f705d3c28ac7d47d",
+      "openStanding": {
+        "sha": "27f092e2378ab55317e8a99718e8b871914ffc30",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "offer_negative_valued",
+          "line": 1592,
+          "endLine": 1601,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1592,
+        "to": 1601
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar": {
+          "session": "synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "lawful-aligned-unicorn-insults-at-lawful-altar",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.session.json",
+          "recordingSha256": "f3ba98bba2adc8f7de1f60b2420130273d71a39a9bbeda0ce935e981694f48d9",
+          "evaluationPath": "challenges/evaluations/20261001104722-v15.json",
+          "evaluationCommit": "27f092e2378ab55317e8a99718e8b871914ffc30"
+        }
+      },
+      "activeStanding": {
+        "sha": "27f092e2378ab55317e8a99718e8b871914ffc30",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "lawful-aligned-unicorn-insults-at-lawful-altar",
+          "session": "synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.session.json",
+          "recordingPath": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.session.json",
+          "recordingSha256": "f3ba98bba2adc8f7de1f60b2420130273d71a39a9bbeda0ce935e981694f48d9",
+          "recipe": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.recipe.session.json",
+          "recipeSha256": "9cba6672c9cf56f4c5bf5c7d390e4db742135e9d4d85a62712fbd2d04f16346f",
+          "replayInputSha256": "61fa934e97e93923e53c64f8a7434ea5eba370dccce71be50761f335eccfeffb",
+          "evaluationPath": "challenges/evaluations/20261001104722-v15.json",
+          "evaluationCommit": "27f092e2378ab55317e8a99718e8b871914ffc30",
+          "evaluationArtifact": "challenges/evaluations/20261001104722-v15.json",
+          "evaluationUtc": "2026-10-01T10:47:52.327Z",
+          "remainingScreens": 3,
+          "recordedSteps": 128,
+          "previousScreensMatched": 125,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 125,
+              "total": 128
+            },
+            "rng": {
+              "matched": 10727,
+              "total": 10821
+            },
+            "cursors": {
+              "matched": 126,
+              "total": 128
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 125,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 125,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 35,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 10718,
+              "cEntry": "rn2(3)=2",
+              "cCaller": "angrygods(pray.c:725)",
+              "jsEntry": "rn2(5)=3",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 125,
+                "key": "y"
+              },
+              "stepIndex": 125
+            },
+            "cursor": {
+              "index": 125,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 125,
+                "key": "y"
+              },
+              "cCursor": [
+                43,
+                0,
+                1
+              ],
+              "jsCursor": [
+                51,
+                7,
+                1
+              ]
+            }
+          },
+          "step": 125,
+          "kind": "rng",
+          "sourceFile": "pray.c",
+          "function": "angrygods",
+          "message": null,
+          "cFile": "pray.c",
+          "luaFile": null,
+          "line": 725,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar.json",
+            "result": {
+              "session": "synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar",
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "lawful-aligned-unicorn-insults-at-lawful-altar",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "f3ba98bba2adc8f7de1f60b2420130273d71a39a9bbeda0ce935e981694f48d9",
+              "evaluationPath": "challenges/evaluations/20261001093939-v15.json",
+              "evaluationCommit": "2323e454ebe23e6369342fef435a8461267b8371",
+              "remainingScreens": 3,
+              "recordedSteps": 128,
+              "status": "complete",
+              "commit": "2323e454ebe23e6369342fef435a8461267b8371",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "lawful-aligned-unicorn-insults-at-lawful-altar",
+                "session": "synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.session.json",
+                "recordingPath": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.session.json",
+                "recordingSha256": "f3ba98bba2adc8f7de1f60b2420130273d71a39a9bbeda0ce935e981694f48d9",
+                "recipe": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.recipe.session.json",
+                "recipeSha256": "9cba6672c9cf56f4c5bf5c7d390e4db742135e9d4d85a62712fbd2d04f16346f",
+                "replayInputSha256": "76d1966eee55dbdbb1d5a20612bccfa2b586306df1a021b750a6a008c5067b6d",
+                "evaluationPath": "challenges/evaluations/20261001093939-v15.json",
+                "evaluationCommit": "2323e454ebe23e6369342fef435a8461267b8371",
+                "evaluationArtifact": "challenges/evaluations/20261001093939-v15.json",
+                "evaluationUtc": "2026-10-01T09:40:27.731Z",
+                "remainingScreens": 3,
+                "recordedSteps": 128,
+                "previousScreensMatched": 125,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 125,
+                    "total": 128
+                  },
+                  "rng": {
+                    "matched": 10727,
+                    "total": 10821
+                  },
+                  "cursors": {
+                    "matched": 126,
+                    "total": 128
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 125,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 125,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 35,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 10718,
+                    "cEntry": "rn2(3)=2",
+                    "cCaller": "angrygods(pray.c:725)",
+                    "jsEntry": "rn2(5)=3",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 125,
+                      "key": "y"
+                    },
+                    "stepIndex": 125
+                  },
+                  "cursor": {
+                    "index": 125,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 125,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      43,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      51,
+                      7,
+                      1
+                    ]
+                  }
+                },
+                "step": 125,
+                "kind": "rng",
+                "sourceFile": "pray.c",
+                "function": "angrygods",
+                "message": null,
+                "cFile": "pray.c",
+                "luaFile": null,
+                "line": 725,
+                "investigation": {
+                  "status": "complete",
+                  "path": "investigations/synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar.json",
+                  "result": {
+                    "session": "synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar",
+                    "corpus": "synthetic",
+                    "batch": "v15",
+                    "caseId": "lawful-aligned-unicorn-insults-at-lawful-altar",
+                    "manifestPath": "challenges/manifests/v15.json",
+                    "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                    "recordingSha256": "f3ba98bba2adc8f7de1f60b2420130273d71a39a9bbeda0ce935e981694f48d9",
+                    "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                    "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                    "remainingScreens": 3,
+                    "recordedSteps": 128,
+                    "status": "complete",
+                    "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                    "mismatch": {
+                      "corpus": "synthetic",
+                      "batch": "v15",
+                      "caseId": "lawful-aligned-unicorn-insults-at-lawful-altar",
+                      "session": "synthetic/v15/lawful-aligned-unicorn-insults-at-lawful-altar",
+                      "manifestPath": "challenges/manifests/v15.json",
+                      "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                      "recording": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.session.json",
+                      "recordingPath": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.session.json",
+                      "recordingSha256": "f3ba98bba2adc8f7de1f60b2420130273d71a39a9bbeda0ce935e981694f48d9",
+                      "recipe": "challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.recipe.session.json",
+                      "recipeSha256": "9cba6672c9cf56f4c5bf5c7d390e4db742135e9d4d85a62712fbd2d04f16346f",
+                      "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                      "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                      "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                      "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                      "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                      "remainingScreens": 3,
+                      "recordedSteps": 128,
+                      "previousScreensMatched": null,
+                      "regression": false,
+                      "passed": false,
+                      "error": null,
+                      "metrics": {
+                        "screens": {
+                          "matched": 125,
+                          "total": 128
+                        },
+                        "rng": {
+                          "matched": 10727,
+                          "total": 10821
+                        },
+                        "cursors": {
+                          "matched": 126,
+                          "total": 128
+                        }
+                      },
+                      "firstMismatch": {
+                        "screen": {
+                          "index": 125,
+                          "location": {
+                            "segmentIndex": 0,
+                            "stepIndex": 125,
+                            "key": "y"
+                          },
+                          "kind": "ch",
+                          "row": 0,
+                          "column": 0,
+                          "cCell": {
+                            "ch": "S",
+                            "color": 8,
+                            "attr": 0,
+                            "decgfx": 0
+                          },
+                          "jsCell": {
+                            "ch": "T",
+                            "color": 8,
+                            "attr": 0,
+                            "decgfx": 0
+                          }
+                        },
+                        "rng": {
+                          "index": 10718,
+                          "cEntry": "rn2(3)=2",
+                          "cCaller": "angrygods(pray.c:725)",
+                          "jsEntry": "rn2(5)=3",
+                          "location": {
+                            "segmentIndex": 0,
+                            "stepIndex": 125,
+                            "key": "y"
+                          },
+                          "stepIndex": 125
+                        },
+                        "cursor": {
+                          "index": 125,
+                          "location": {
+                            "segmentIndex": 0,
+                            "stepIndex": 125,
+                            "key": "y"
+                          },
+                          "cCursor": [
+                            43,
+                            0,
+                            1
+                          ],
+                          "jsCursor": [
+                            51,
+                            7,
+                            1
+                          ]
+                        }
+                      },
+                      "step": 125,
+                      "kind": "rng",
+                      "sourceFile": "pray.c",
+                      "function": "angrygods",
+                      "message": null,
+                      "cFile": "pray.c",
+                      "luaFile": null,
+                      "line": 725
+                    },
+                    "summary": "The first C owner is pray.c:dosacrifice(): it reads the altar alignment through the a_align macro before selecting the corpse. C rm.h aliases altarmask to flags, while JS mklev.js:create_altar stores the mask in location.flags and js/pray.js:a_align reads only location.altarmask. The JS path therefore sees A_NONE instead of the lawful altar and takes a different-alignment offering branch. Correct the shared a_align helper while preserving the exact A_NONE/lawful/neutral/chaotic mapping. After that fix, the negative-offering path still reaches the separately unported pray.c:offer_negative_valued().",
+                    "source": {
+                      "file": "pray.c",
+                      "branch": "In dosacrifice(), before floorfood(\"sacrifice\", 1), a_align(u.ux, u.uy) must read the current altar mask and apply AM_MASK. For an altar mask AM_LAWFUL (0x04), Amask2align returns A_LAWFUL (1); with the white unicorn corpse, eval_offering sees sgn(maligntyp) == altaralign, prints the insult to law, and returns -1. The current JS helper reads only location.altarmask although special-level altar creation stores the shared C field in location.flags, so it converts zero to A_NONE and selects the cross-alignment path.",
+                      "functions": [
+                        "dosacrifice"
+                      ],
+                      "callers": [
+                        "cmd.c:1776 extended-command row maps #offer to dosacrifice(); JavaScript dispatches dosacrifice through js/cmd.js:5185-5189.",
+                        "cmd.c:4828-4830 queues dosacrifice() for MCMD_OFFER; JavaScript handles MCMD.OFFER in js/cmd.js:4728.",
+                        "iactions.c:200-201 queues dosacrifice() for IA_SACRIFICE."
+                      ],
+                      "dependencies": [
+                        "pray.c:107 a_align macro reads levl[x][y].altarmask & AM_MASK; rm.h:214 defines altarmask as an alias of flags.",
+                        "align.h:46-48 Amask2align preserves A_NONE, A_LAWFUL, A_NEUTRAL, and A_CHAOTIC as distinct aligntyp values.",
+                        "eat.c:floorfood() returns the selected offering used by dosacrifice().",
+                        "pray.c:offer_corpse() receives the corpse, highaltar flag, and resolved altaralign.",
+                        "pray.c:eval_offering() returns the negative value for a unicorn whose sign-alignment matches the altar.",
+                        "pray.c:offer_negative_valued() is the next void helper on this negative branch; its same-alignment path calls gods_upset(), then angrygods().",
+                        "dat/Arc-loca.lua:68-70 supplies the altar alignment; sp_lev.c:lspo_altar() and create_altar() store it in the C rm.altarmask/flags field."
+                      ]
+                    },
+                    "goalKind": "divergence-fix",
+                    "evidence": [
+                      "The supplied C recording challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.session.json reaches the #offer confirmation at segment 0 step 124. At step 125, after y, C prints “Such an action is an insult to law!” and records rn2(3)=2 at angrygods(pray.c:725), followed by rn2(4)=1 at godvoice(pray.c:1425). This is the source path eval_offering() returning -1, offer_corpse() calling offer_negative_valued(), and gods_upset() incrementing u.ugangr before angrygods().",
+                      "The saved diagnostic .cache/synthetic-scans/v15/lawful-aligned-unicorn-insults-at-lawful-altar.json identifies the first mismatch at segment 0, step 125 and records pray.c:offer_different_alignment_altar as the JS unported path. That path is consistent with the altar being read as A_NONE rather than lawful; the RNG annotation angrygods(pray.c:725) is downstream evidence, not the first owner.",
+                      "C source pray.c:1854-1896 computes altaralign with a_align(u.ux, u.uy) before floorfood() and passes it to offer_corpse(). The macro at pray.c:107 masks AM_MASK before Amask2align(). C source align.h:46-48 maps mask zero to A_NONE, AM_LAWFUL (0x04) to A_LAWFUL, AM_NEUTRAL (0x02) to A_NEUTRAL, and AM_CHAOTIC (0x01) to A_CHAOTIC; do not collapse unaligned and neutral or infer altar alignment from truthiness.",
+                      "C source dat/Arc-loca.lua:68-70 defines three altars from the shuffled align array. C sp_lev.c:lspo_altar() at :4283-4315 calls create_altar(), whose :2443-2471 path stores the altar mask in levl[x][y].altarmask. In rm.h:214, altarmask aliases flags. The corresponding JS mklev.js:create_altar() stores the mask in location.flags, while game.js:makeLocation() has a flags field and no separate altarmask alias.",
+                      "The defective JS reader is js/pray.js:a_align() at lines 296-298: it passes state.level.at(x, y).altarmask & AM_MASK to Amask2align(), with no flags fallback. By contrast, js/pray.js:altarmask_at() at lines 303-313 already reads location.altarmask ?? location.flags ?? 0. A source-backed divergence fix should make a_align() read that same single stored C field and apply AM_MASK before conversion; the shared helper also serves the other pray.c a_align macro call sites.",
+                      "The whole source function for the first owner is pray.c:dosacrifice() (1854-1896), reached by #offer and the listed sacrifice dispatchers. After correcting the alignment input, the C path continues into pray.c:offer_negative_valued() (1592-1599), which is still a separate note_unported gap in js/pray.js:678; keep that downstream behavior visible when measuring the corrected first mismatch."
+                    ]
+                  }
+                }
+              },
+              "summary": "The altar mask now uses the canonical location.flags field matching C rm.altarmask. The gray-unicorn offering matches completely; the aligned unicorn insult still reaches a missing whole pray.c:offer_negative_valued helper. Its same-alignment path calls the already implemented gods_upset, which increments divine anger before angrygods. JavaScript skips that helper, so the next prayer uses the wrong anger bound at step125. Port the whole negative-offering helper and wire its offer_corpse callers; no evidence beyond the matching prefix through124 is claimed.",
+              "source": {
+                "file": "pray.c",
+                "functions": [
+                  "offer_negative_valued"
+                ],
+                "branch": "C offer_negative_valued tests altaralign != u.ualign.type && highaltar: that branch calls desecrate_altar; otherwise it calls gods_upset(altaralign). In this aligned-unicorn offering the latter path is required. JS offer_corpse still records note_unported for both calls to this helper.",
+                "callers": [
+                  "pray.c:offer_corpse calls offer_negative_valued for a negative corpse value and the tame sacrifice path; js/pray.js:offer_corpse keeps those named gaps."
+                ],
+                "dependencies": [
+                  "pray.c:gods_upset is already implemented in JS: adjust u.ugangr according to god alignment, then call angrygods in source order. Do not re-port it or fabricate anger/RNG effects.",
+                  "pray.c:desecrate_altar is a discarded void call for a differently aligned high altar. Keep a named unported callee gap if still unimplemented.",
+                  "pray.c:offer_corpse and dosacrifice are supporting callers; no whole-caller completion credit is supplied by a helper port."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Historical B69 alias investigation: The supplied C recording challenges/cases/v15/lawful-aligned-unicorn-insults-at-lawful-altar.session.json reaches the #offer confirmation at segment 0 step 124. At step 125, after y, C prints “Such an action is an insult to law!” and records rn2(3)=2 at angrygods(pray.c:725), followed by rn2(4)=1 at godvoice(pray.c:1425). This is the source path eval_offering() returning -1, offer_corpse() calling offer_negative_valued(), and gods_upset() incrementing u.ugangr before angrygods().",
+                "Historical B69 alias investigation: The saved diagnostic .cache/synthetic-scans/v15/lawful-aligned-unicorn-insults-at-lawful-altar.json identifies the first mismatch at segment 0, step 125 and records pray.c:offer_different_alignment_altar as the JS unported path. That path is consistent with the altar being read as A_NONE rather than lawful; the RNG annotation angrygods(pray.c:725) is downstream evidence, not the first owner.",
+                "Historical B69 alias investigation: C source pray.c:1854-1896 computes altaralign with a_align(u.ux, u.uy) before floorfood() and passes it to offer_corpse(). The macro at pray.c:107 masks AM_MASK before Amask2align(). C source align.h:46-48 maps mask zero to A_NONE, AM_LAWFUL (0x04) to A_LAWFUL, AM_NEUTRAL (0x02) to A_NEUTRAL, and AM_CHAOTIC (0x01) to A_CHAOTIC; do not collapse unaligned and neutral or infer altar alignment from truthiness.",
+                "Historical B69 alias investigation: C source dat/Arc-loca.lua:68-70 defines three altars from the shuffled align array. C sp_lev.c:lspo_altar() at :4283-4315 calls create_altar(), whose :2443-2471 path stores the altar mask in levl[x][y].altarmask. In rm.h:214, altarmask aliases flags. The corresponding JS mklev.js:create_altar() stores the mask in location.flags, while game.js:makeLocation() has a flags field and no separate altarmask alias.",
+                "Historical B69 alias investigation: The defective JS reader is js/pray.js:a_align() at lines 296-298: it passes state.level.at(x, y).altarmask & AM_MASK to Amask2align(), with no flags fallback. By contrast, js/pray.js:altarmask_at() at lines 303-313 already reads location.altarmask ?? location.flags ?? 0. A source-backed divergence fix should make a_align() read that same single stored C field and apply AM_MASK before conversion; the shared helper also serves the other pray.c a_align macro call sites.",
+                "Historical B69 alias investigation: The whole source function for the first owner is pray.c:dosacrifice() (1854-1896), reached by #offer and the listed sacrifice dispatchers. After correcting the alignment input, the C path continues into pray.c:offer_negative_valued() (1592-1599), which is still a separate note_unported gap in js/pray.js:678; keep that downstream behavior visible when measuring the corrected first mismatch.",
+                "B69 migrates real altar-mask reads and writes to location.flags, preserving the C raw a_align read and separate furniture-mimic altarmask_at semantics. The gray-unicorn v15 case fully matches127 screens and10816 RNG calls; the insult prefix matches through step124.",
+                "The insult replay remains125/128 screens,10727/10821 RNG calls and126/128 cursors. Its first remaining mismatch is step125: C rn2(3)=2 in angrygods versus JS rn2(5)=3 after JS skips offer_negative_valued. This unchanged aggregate count does not preserve the old source diagnosis.",
+                "Whole pray.c:offer_negative_valued has two source arms: differently aligned highaltar desecration, else gods_upset. C gods_upset increments u.ugangr for the same god before angrygods; existing JS gods_upset already has that behavior, while offer_corpse has explicit note_unported helper calls."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
