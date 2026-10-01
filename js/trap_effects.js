@@ -275,7 +275,10 @@ import { m_at } from './monst.js';
 import { mpickobj } from './steal.js';
 import { ohitmon, thitu } from './mthrowu.js';
 import { sleep_monst } from './mhitm.js';
-import { splash_monster_light } from './apply_splash_lit.js';
+import {
+    snuff_candle,
+    splash_monster_light,
+} from './apply_splash_lit.js';
 import {
     dealloc_obj,
     carried,
@@ -3234,22 +3237,8 @@ async function splash_hero_light(obj, env) {
         return true;
     }
     const candle = isCandle(obj);
-    if (candle || obj.otyp === CANDELABRUM_OF_INVOCATION) {
-        const many = candle
-            ? Math.trunc(obj.quan ?? 1) > 1
-            : Math.trunc(obj.spe ?? 0) > 1;
-        if (!heroIsBlind(state)) {
-            const kind = candle ? 'candle' : "candelabrum's candle";
-            await requireTrapOperation(env, 'message')(
-                `Your ${kind}${many ? "s'" : "'s"} flame`
-                    + `${many ? 's are' : ' is'} extinguished.`,
-                state,
-                env,
-            );
-        }
-        end_burn(obj, true, objectGenerationEnv(env));
-        return true;
-    }
+    if (candle || obj.otyp === CANDELABRUM_OF_INVOCATION)
+        return snuff_candle(obj, env);
     return false;
 }
 

@@ -49,6 +49,7 @@ import {
     same_price,
     shop_debt,
     shop_keeper,
+    Shk_Your,
     shk_your,
 } from '../js/shk.js';
 import { hidden_gold } from '../js/vault.js';
@@ -684,6 +685,21 @@ test('shk_your prefixes what the hero holds and what she does not', () => {
     // where costly_spot() is true.
     assert.equal(
         shk_your(shopObject(OBJ_FLOOR, { no_charge: 1 }), state), 'the ',
+    );
+});
+
+test('Shk_Your capitalizes the source owner prefix', () => {
+    const state = shopState();
+    // shk.c:5877-5882 uppercases only shk_your()'s first output byte.
+    assert.equal(Shk_Your(shopObject(OBJ_INVENT), state), 'Your ');
+    // shk_your() already supplies a proper-name prefix for a shopkeeper.
+    assert.equal(
+        Shk_Your(shopObject(OBJ_INVENT, { unpaid: 1 }), state), "Ozzy's ",
+    );
+    // A floor object outside a shop falls back to C's capitalized "The ".
+    assert.equal(
+        Shk_Your(shopObject(OBJ_FLOOR), shopState({ has_shop: false })),
+        'The ',
     );
 });
 

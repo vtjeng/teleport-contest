@@ -12,26 +12,35 @@ import {
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
+    RUST_TRAP,
+    Trap_Effect_Finished,
     W_ARMH,
 } from '../js/const.js';
 import {
     CHEST,
     OILSKIN_SACK,
+    OIL_LAMP,
     POT_FRUIT_JUICE,
     POT_WATER,
     POTION_CLASS,
     SACK,
     SCR_BLANK_PAPER,
     SCROLL_CLASS,
+    TALLOW_CANDLE,
+    TOOL_CLASS,
 } from '../js/objects.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { mksobj } from '../js/obj.js';
 import {
     water_damage_chain,
     water_damage,
     water_damage_monster_equipment,
     fire_damage,
 } from '../js/trap_water_damage.js';
-import { OIL_LAMP, TOOL_CLASS } from '../js/objects.js';
+import { trapeffect_selector } from '../js/trap_effects.js';
 import { init_objects } from '../js/o_init.js';
+import { begin_burn } from '../js/timeout.js';
 
 // These valid coordinates route the carried object through the source
 // get_obj_location() case used by fire_damage() -> catch_lit().
@@ -39,6 +48,12 @@ const HERO_X = 2;
 const HERO_Y = 3;
 const FUELED_LAMP_AGE = 100;
 const SINGULAR_LAMP_QUANTITY = 1;
+const STARTUP_INPUT = {
+    seed: 12, // Use the same initialized human game shape as the rust-trap source tests.
+    datetime: '20260503045501', // Keep this fixture's startup deterministic.
+    nethackrc: 'OPTIONS=symset:DECgraphics\n',
+    moves: 'Dodeco\rn[l"m/hmy', // Complete character creation before the trap callback.
+};
 
 function wornObject(overrides = {}) {
     return {
@@ -133,6 +148,57 @@ test('an extinguished light reports damage and skips later branches',
         assert.equal(result, ER_DAMAGED);
         assert.deepEqual(events, ['splash']);
     });
+
+// C trap.c routes this default hero branch through splash_lit()->snuff_lit()
+// before inventory refresh; this checks that the production selector reaches
+// the same helper, rather than only testing snuff_candle() in isolation.
+test('rust-trap selector snuffs a lit hero-inventory candle', async () => {
+    await runSegment(STARTUP_INPUT);
+    const state = game;
+    const candle = mksobj(TALLOW_CANDLE, false, false, { state });
+    candle.age = 100; // C's age > 75 candle arm creates a burn timer to stop.
+    candle.where = OBJ_INVENT; // The trap walks this source-owned inventory list.
+    candle.nobj = state.invent;
+    state.invent = candle;
+    begin_burn(candle, false, { state });
+
+    const messages = [];
+    const draws = [];
+    // C trap.c needs a live unseen rust trap at the hero's tile: false `tseen`
+    // reaches its reveal; false `once` lets the trap retain normal behavior;
+    // zero note and player-made flag are the neutral freshly placed defaults.
+    const trap = {
+        ttyp: RUST_TRAP, // Selects the water/rust source function.
+        tseen: false,
+        once: false,
+        tx: state.u.ux, // Put the trap directly under the hero for the selector.
+        ty: state.u.uy,
+        tnote: 0,
+        madeby_u: false,
+    };
+    const result = await trapeffect_selector(state.youmonst, trap, 0, {
+        message: async (line) => messages.push(line),
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                assert.equal(bound, 5); // The hero trap selects among five arms.
+                return 4; // C's default arm splashes other carried light sources.
+            },
+        },
+        redraw: () => {},
+        state,
+        unsupported: (reason) => { throw new Error(reason); },
+    });
+
+    assert.equal(result, Trap_Effect_Finished);
+    assert.deepEqual(draws, [5]);
+    const splash = messages.indexOf('A gush of water hits you!');
+    const snuffed = messages.indexOf(
+        "Your candle's flame is extinguished.",
+    ); // Shk_Your plus one carried tallow candle matches apply.c's pline.
+    assert.ok(splash >= 0 && snuffed > splash);
+    assert.equal(candle.lamplit, false);
+});
 
 test('water can wash off grease without reaching erosion', async () => {
     const obj = wornObject({ greased: true });
