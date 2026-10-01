@@ -126323,7 +126323,7 @@
     {
       "id": "port-do-wear-amulet-off-synthetic-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete amulet removal and wire its callers",
       "cFile": "do_wear.c",
       "sessions": [
@@ -126337,8 +126337,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "387e6aeb870591b1ec2cb0011f3ff7af45fba253",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Amulet_off",
@@ -126635,6 +126638,12 @@
         ],
         "entryPointReview": "Amulet_off is a helper-only selected range; production R/theft commands are callers, not primary entry points in this range. The independent two-space recipe reaches a hostile monkey stealing a worn ESP amulet. Bounded strict differential run-vVvGIR matches the complete C recording: 2,581 RNG values, 69 screens and cursors, and no animation frames. C do_wear.c:Amulet_off is reached through steal.c:steal -> worn_item_removal -> remove_worn_item; uhitm.c:mhitm_ad_sedu then prints the visible animal/runaway line with the nullable stolen-name buffer before monflee. The exact source/entry path is in the recipe and recording listed above. The admitted v15 wizard-removes-reflection-amulet-p-slot range independently covers the active R-removal caller through segment 0 step 43 (verified by bounded run-r2muXI). The active R-removal and hostile-animal theft entry points have matching evidence. C do_wear.c:do_takeoff reaches Amulet_off through the WORN_AMUL branch, but JS take_off remains unported; pray.c:offer_real_amulet is another named unported outer route. These limitations are not represented as inactive branches or whole-caller completion. Historical one-space, multi-monkey, nymph, and drop-blocked attempts remain in recipes/do_wear.c; the one-space recording still stops at the earlier pager, while the final two-space matching recipe is an independent complete witness. This task does not port all uhitm.c:mhitm_ad_sedu or steal.c:steal behavior. The ESP branch's supplied message/redraw path is source-pinned by planning-clone tests; the magical-breathing branch calls trap.js:drown(state) without env and uses global RNG/tty, so planning safety is not claimed for every Amulet_off branch. hack.c:spoteffects remains the explicit discarded-void gap, skipped with note_unported.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "387e6aeb870591b1ec2cb0011f3ff7af45fba253",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
