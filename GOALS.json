@@ -135114,6 +135114,357 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-apply-snuff-candle-lit-throw-v15-20261001",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete candle extinguishing and source callers",
+      "cFile": "apply.c",
+      "sessions": [
+        "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame"
+      ],
+      "selectionReason": "Continue the admitted v15 lit-wax-candle case after A69 repairs its earlier doname_base mismatch. The current accepted comparison reaches through boundary 27 and first diverges at step 28 when dothrow.c:throwit drops the lit candle and C calls apply.c:snuff_candle; the adjacent v15 magic-marker case is a non-candle control. Complete the selected helper and its consumed Shk_Your return helper, wire existing apply splash/snuff and direct throw callers at their C call sites, and retain the unported kick caller boundary. Root verified the whole helper, production callers, and independent candle extinguishing runtime evidence. Supporting callee plumbing receives no whole-function credit.",
+      "detail": "Root reviewed the exact submitted diff against complete apply.c:snuff_candle and shk.c:Shk_Your, C throw and splash callers, visibility and owner-prefix guards, message-before-end_burn order, and removal of the obsolete monster-candle adapter. Three independent fully matching C recordings plus the admitted floor-throw range execute all four active entry routes. The MINVENT witness has subsequent monster-turn RNG after the snuff message, establishing return and burn cleanup. Returning-weapon candles are excluded by the AKLYS-only source table; the unported kick caller remains an explicit out-of-scope gap. Supporting wrappers receive no additional whole-function credit.",
+      "openedAt": "8bf425f5b986ed156e1747d93bfd4135349772ef",
+      "openStanding": {
+        "sha": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "snuff_candle",
+          "line": 1472,
+          "endLine": 1496,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1472,
+        "to": 1496
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame": {
+          "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+          "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+          "evaluationPath": "challenges/evaluations/20261001233847-v15.json",
+          "evaluationCommit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1"
+        }
+      },
+      "activeStanding": {
+        "sha": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+          "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+          "recipe": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.recipe.session.json",
+          "recipeSha256": "b9e232c7707804772ab3d6aa557133292c7bf81bdc8b6cb0c319aac8ea329356",
+          "replayInputSha256": "ae6a3fc664f83e28bfbab96c0d5f36d45ca541ba26471344b6e2acec01052b36",
+          "evaluationPath": "challenges/evaluations/20261001233847-v15.json",
+          "evaluationCommit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+          "evaluationArtifact": "challenges/evaluations/20261001233847-v15.json",
+          "evaluationUtc": "2026-10-01T23:39:28.847Z",
+          "remainingScreens": 1,
+          "recordedSteps": 29,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2757,
+              "total": 2757
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 28,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.json",
+            "result": {
+              "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+              "remainingScreens": 1,
+              "recordedSteps": 29,
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+              "evaluationPath": "challenges/evaluations/20261001230131-v15.json",
+              "evaluationCommit": "c842043c989d321c10404073a9cc57190a675d85",
+              "status": "complete",
+              "commit": "c842043c989d321c10404073a9cc57190a675d85",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+                "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+                "recipe": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.recipe.session.json",
+                "recipeSha256": "b9e232c7707804772ab3d6aa557133292c7bf81bdc8b6cb0c319aac8ea329356",
+                "replayInputSha256": "37ba97a2f31c782d4f64bfe51539d7590cfbba3842de614467248d0a17487632",
+                "evaluationPath": "challenges/evaluations/20261001230131-v15.json",
+                "evaluationCommit": "c842043c989d321c10404073a9cc57190a675d85",
+                "evaluationArtifact": "challenges/evaluations/20261001230131-v15.json",
+                "evaluationUtc": "2026-10-01T23:02:06.693Z",
+                "remainingScreens": 1,
+                "recordedSteps": 29,
+                "previousScreensMatched": 25,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 2757,
+                    "total": 2757
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 28,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 28,
+                      "key": "l"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 28,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The only remaining mismatch is the missing extinguished-flame message at segment 0, zero-based step 28. A69 completes the earlier candle naming branch; dothrow.c:throwit then reaches apply.c:snuff_candle, which remains a named gap in JavaScript.",
+              "source": {
+                "file": "apply.c",
+                "functions": [
+                  "snuff_candle"
+                ],
+                "branch": "For a lit candle or candelabrum, obtain its source location, print the ownership-aware singular/plural extinguishing message under the monster-inventory/Blind visibility condition, call end_burn(otmp, TRUE), and return TRUE. Return FALSE for other or unlit objects.",
+                "callers": [
+                  "C dothrow.c:throwit calls snuff_candle after object flight and before ship_object and final floor placement. JavaScript js/dothrow.js:throwit records note_unported('apply.c snuff_candle') at the corresponding landing site.",
+                  "Other source callers in throwit_mon_hit, mthrowu.c:return_from_mtoss and apply.c:snuff_lit are part of the A70 caller audit, with no whole outer-function credit."
+                ],
+                "dependencies": [
+                  "shk.c:Shk_Your supplies the ownership-aware message prefix.",
+                  "get_obj_location determines the visibility coordinates without inventing a location.",
+                  "timeout.c:end_burn stops the source object timer and light state."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "At c842043c989d321c10404073a9cc57190a675d85, challenges/evaluations/20261001230131-v15.json records 28/29 screens, all 29 cursors and all 2,757 RNG calls matched. The sole first screen mismatch is segment 0, zero-based step 28 (key l), row 0 column 0: C T versus a blank JavaScript cell.",
+                "The immutable C recording displays “The candle's flame is extinguished.” at this step. The source apply.c:snuff_candle (1472–1494) emits that line before end_burn; the corresponding js/dothrow.js landing call still records note_unported('apply.c snuff_candle'). This saved evaluation and source call establish the current cause without a new C recording.",
+                "Historical naming failure: evaluation 20261001022926-v15.json at 6d2c675aad59f170ec44980d6afce47f08ae7423 stopped at step 25 with 25/29 screens and 2,746/2,757 RNG matched because doname_base lacked lit-candle timer adjustment. A69 now completes that naming path; it does not claim candle snuffing.",
+                "A70 is independently assigned to whole apply.c:snuff_candle, its consumed Shk_Your helper and source callers. Its pending delivery and runtime validation will determine whether the final screen matches."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "snuff_candle",
+            "implementation": "js/apply_splash_lit.js",
+            "symbol": "snuff_candle",
+            "sourceReview": "Read and ported the complete apply.c:snuff_candle definition, lines 1472-1494. Preserved the Is_candle/candelabrum plus lamplit guard; candle quan versus candelabrum spe plurality; discarded get_obj_location call before visibility; OBJ_MINVENT cansee(x,y) versus !Blind; capitalized Shk_Your prefix and exact two-part candle wording; visible message before end_burn; and TRUE/FALSE return order. Reused source-defined get_obj_location, cansee, heroIsBlind, end_burn, and shk_your. Implemented the consumed shk.c:Shk_Your wrapper over the existing shk_your instead of duplicating ownership text. Replaced the old candle refusal/adapter and routed source callers through this implementation. The parent trap splash adapter passes its caller environment to preserve message, visibility, redraw, and burn hooks.",
+            "callers": [
+              {
+                "path": "js/apply_splash_lit.js",
+                "symbol": "snuff_monster_light",
+                "source": "apply.c:snuff_lit calls snuff_candle for a lit non-lamp candle or candelabrum"
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "splash_hero_light",
+                "source": "apply.c:splash_lit -> apply.c:snuff_lit -> apply.c:snuff_candle; rust-trap default hero inventory splash is the JavaScript splash adapter"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit_mon_hit",
+                "source": "dothrow.c:throwit_mon_hit calls snuff_candle only after the non-null monster guard and shopkeeper-owned-object early return"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit calls snuff_candle before ship_object/place_object at the C source position"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "return_from_mtoss",
+                "source": "mthrowu.c:return_from_mtoss calls snuff_candle in the notcaught cleanup before ship_object and floor effects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-splash-lit.test.mjs",
+              "scripts/trap-water-damage.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/snuff-candle-throw-hit-a70-independent.session.json",
+              "recordings/apply.c/snuff-candle-rust-trap-water-a70-independent.session.json",
+              "recordings/apply.c/snuff-candle-monster-rust-trap-search-turn-a70-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "dothrow.c:throwit -> apply.c:snuff_candle; C displays the extinguished-flame line before the following source boundary"
+              }
+            ],
+            "checkedAt": "802df71e959ca9f3a802ba5776e04f5feadd49fa"
+          }
+        ],
+        "entryPointReview": "The selected impure helper has matching execution through four active routes. The current post-A69 selection evaluation is challenges/evaluations/20261001230131-v15.json at tested source c842043c989d321c10404073a9cc57190a675d85; it reports 28/29 screens with all RNG and cursors matched, and the selected replay range is verified through segment 0 step 28, where dothrow.c:throwit reaches the extinguishing message. This supersedes the historical 20261001022926-v15 evaluation at 6d2c675. The independent A70 C-first throw-target recording enters dothrow.c:throwit_mon_hit and calls snuff_candle before thitmonst/tmiss reports that the candle misses the gremlin. The independent A70 hero rust-trap recording enters trap.c:trapeffect_rust_trap default hero inventory arm -> apply.c:splash_lit -> snuff_lit -> snuff_candle with a lit hero-inventory candle; it matches completely. A separate canonical Mines-End recording enters trap.c:trapeffect_rust_trap’s default arm, iterates monster inventory, and reaches splash_lit -> snuff_lit -> snuff_candle for a lit gnome-held candle. Zero-based steps 44-45 show the default trap roll (rn2(5)=4), then after the observed More acknowledgement the exact “The gnome’s candle’s flame is extinguished.” owner-prefix message; subsequent monster-turn RNG confirms the C trap/snuff caller returned. Its 4213 RNG calls, 46 screens/attributes, and 46 cursors strictly match JavaScript. The source-confirmed wand probe that identified a partly used lit candle is preserved by its exact recipe/recording hashes in task-local diagnostics. The previously existing recordings/trap.c/rust-trap-hero-seed9400060.session.json reaches the same caller family but has no lit candle and is not cited as helper execution. The hero adapter is also checked through scripts/trap-water-damage.test.mjs. C's OBJ_MINVENT visibility branch is pinned by visible and hidden carrier fixtures in scripts/apply-splash-lit.test.mjs; the separate monster-inventory recipe now supplies C runtime evidence for the OBJ_MINVENT branch. mthrowu.c:return_from_mtoss is wired only in its notcaught returning-weapon arm. C reaches it from m_throw only when autoreturn_weapon selects a return-flight path; weapon.c:autoreturn_weapon's current complete table contains AKLYS only, so a candle cannot enter that call. Existing mthrowu recordings exercise other missiles but cannot evidence a candle snuff there; no whole return_from_mtoss completion is claimed. dokick.c:really_kick_object is a direct C caller whose outer JavaScript path is unported, so it remains an explicit gap outside A70. The v15 magic-marker case is a non-candle control. Completion credit is limited to selected snuff_candle; no whole caller is claimed.",
+        "entryPoints": [
+          {
+            "name": "Throw a lit candle to the floor",
+            "functions": [
+              "snuff_candle"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "dothrow.c:throwit -> apply.c:snuff_candle"
+              }
+            ]
+          },
+          {
+            "name": "Throw a lit candle toward a monster",
+            "functions": [
+              "snuff_candle"
+            ],
+            "recordings": [
+              "recordings/apply.c/snuff-candle-throw-hit-a70-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Rust-trap water splashes a lit hero-inventory candle",
+            "functions": [
+              "snuff_candle"
+            ],
+            "recordings": [
+              "recordings/apply.c/snuff-candle-rust-trap-water-a70-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Rust-trap water extinguishes a monster-inventory candle",
+            "functions": [
+              "snuff_candle"
+            ],
+            "recordings": [
+              "recordings/apply.c/snuff-candle-monster-rust-trap-search-turn-a70-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
