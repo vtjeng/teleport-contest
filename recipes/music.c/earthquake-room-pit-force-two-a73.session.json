@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A73 C-first entry witness for music.c:do_earthquake -> do_pit. The seed 91842073 and clock 20460515121900 are new inputs selected for this recording. #levelchange raises the hero to level 4, which makes C pass force 2 to do_earthquake; three west moves shift the hero from the east edge of the small Barbarian home room toward its ordinary floor. The wish requests one charged drum so the earthquake caller runs once. The five spaces dismiss level-up messages; the final spaces drain earthquake pages without adding another timed action.",
+  "segments": [
+    {
+      "seed": 91842073,
+      "datetime": "20460515121900",
+      "nethackrc": "OPTIONS=name:EarthquakePitProbe,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,playmode:debug\n",
+      "moves": ".#levelchange\n4\n     \u0017uncursed drum of earthquake (0:1)\nhhhae                                        "
+    }
+  ]
+}
