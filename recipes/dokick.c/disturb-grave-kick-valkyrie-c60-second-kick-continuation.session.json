@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C60 C-first continuation frozen after the prior route visibly created the grave, returned to an adjacent stair tile, and took the injury branch without a leg wound. Repeat the kick once while the grave is still undisturbed; stop immediately after that kick so the recording ends at the actual source gate outcome.",
+  "segments": [
+    {
+      "seed": 60210613,
+      "datetime": "20411011125438",
+      "nethackrc": "OPTIONS=name:GraveKickerC60South,role:Valkyrie,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " l\u0017grave\nh\u0004l\u0004l"
+    }
+  ]
+}

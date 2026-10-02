@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C60 wand-class variation frozen before C recording and JavaScript comparison. It reuses the independently selected room seed/date and command path that C confirmed can place a grave, while changing the writing tool from athame to wand of fire; the intended source hit is disturb_grave before wand-specific engraving effects.",
+  "segments": [
+    {
+      "seed": 60210331,
+      "datetime": "20411011121823",
+      "nethackrc": "OPTIONS=name:GraveWriterC60,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " l\u0017grave\n\u0017uncursed wand of fire\nEp x\n"
+    }
+  ]
+}

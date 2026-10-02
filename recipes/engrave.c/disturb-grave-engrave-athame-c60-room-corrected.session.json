@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C60 room-corrected engraving recipe, frozen after C showed that the Wizard starts on stairs: dismiss welcome, move east onto room floor, wish the grave and athame, then select the C-observed athame slot p. No JavaScript comparison has been made.",
+  "segments": [
+    {
+      "seed": 60210331,
+      "datetime": "20411011121823",
+      "nethackrc": "OPTIONS=name:GraveWriterC60,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": " l\u0017grave\n\u0017uncursed athame\nEp x\n"
+    }
+  ]
+}
