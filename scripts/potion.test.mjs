@@ -19,7 +19,7 @@ import {
     OBJ_DELETED, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SICK, SLEEP_RES, WEAK, STRAT_APPEARMSG, STRAT_WAITFORU,
     KILLED_BY, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, SLIMED, STONED,
-    TELEPAT, TIMEOUT, UNCHANGING, VOMITING,
+    STUNNED, TELEPAT, TIMEOUT, UNCHANGING, VOMITING,
     WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
@@ -84,6 +84,7 @@ import {
     make_hallucinated,
     make_glib,
     make_slimed,
+    make_stunned,
     make_stoned,
     make_vomiting,
     dopotion,
@@ -546,6 +547,14 @@ function potionSource() {
         new URL('../nethack-c/upstream/src/potion.c', import.meta.url),
         'utf8',
     );
+}
+
+function makeStunnedSource() {
+    const source = potionSource();
+    const start = source.indexOf('make_stunned(long xtime, boolean talk)');
+    const end = source.indexOf('\n}', start);
+    assert.ok(start > 0 && end > start, 'potion.c still defines make_stunned');
+    return source.slice(start, end);
 }
 
 test('peffect_enlightenment follows the complete C branch and dispatch order', async () => {
@@ -2506,6 +2515,81 @@ test('make_confused updates only status transitions and clears with feedback',
     assert.equal(toplines(), '');
     assert.equal(game.disp.botl, true);
 });
+
+test('make_stunned follows the complete packed-HStun source sequence',
+    async () => {
+        const body = makeStunnedSource();
+        const sourceOrder = [
+            'long old = HStun;',
+            'if (Unaware)\n        talk = FALSE;',
+            'if (!xtime && old)',
+            'if (xtime && !old)',
+            'if ((!xtime && old) || (xtime && !old))',
+            'set_itimeout(&HStun, xtime);',
+        ].map((text) => body.indexOf(text));
+        assert.ok(sourceOrder.every((offset) => offset >= 0));
+        assert.deepEqual(sourceOrder, [...sourceOrder].sort((a, b) => a - b),
+            'C captures full HStun, handles feedback, marks transitions, then sets timeout');
+        assert.match(body,
+            /Hallucination \? "less wobbly" : "a bit steadier"/u);
+        assert.match(body,
+            /if \(u\.usteed\)[\s\S]*?You\("wobble in the saddle\."\)[\s\S]*?stagger\(gy\.youmonst\.data, "stagger"\)/u);
+
+        // This fixed seed makes the standalone state-transition fixture
+        // reproducible; the assertions overwrite HStun and do not depend on
+        // any startup random result.
+        await startedGame(771007, 'StunnedTransitions');
+        const stun = game.u.uprops[STUNNED];
+        const messages = [];
+        const env = { message: async (line) => messages.push(line) };
+
+        // A newly active timeout reports the C stagger phrase and crosses
+        // the status-line boundary. The exact phrase comes from mondata.c.
+        stun.intrinsic = 0;
+        game.disp.botl = false;
+        await make_stunned(12, true, game, env);
+        assert.equal(stun.intrinsic & TIMEOUT, 12);
+        assert.equal(game.disp.botl, true);
+        assert.equal(messages.length, 1);
+        assert.match(messages[0], /^You .+\.\.\.$/u);
+
+        // An active-to-active update changes the timeout but neither emits
+        // transition text nor marks the status line.
+        messages.length = 0;
+        game.disp.botl = false;
+        await make_stunned(30, true, game, env);
+        assert.equal(stun.intrinsic & TIMEOUT, 30);
+        assert.equal(game.disp.botl, false);
+        assert.deepEqual(messages, []);
+
+        // FROMOUTSIDE is part of old HStun, so clearing a zero-timeout
+        // packed value still follows C's old-truthy cure branch. set_itimeout
+        // removes only TIMEOUT and retains that independent flag.
+        stun.intrinsic = FROMOUTSIDE;
+        game.disp.botl = false;
+        await make_stunned(0, true, game, env);
+        assert.equal(stun.intrinsic & TIMEOUT, 0);
+        assert.equal(stun.intrinsic & ~TIMEOUT, FROMOUTSIDE);
+        assert.equal(game.disp.botl, true);
+        assert.deepEqual(messages, ['You feel a bit steadier now.']);
+
+        // Hallucination selects the other literal. Unaware suppresses that
+        // message but still clears the packed timeout and marks the change.
+        messages.length = 0;
+        stun.intrinsic = TIMEOUT | 9;
+        game.u.uprops[HALLUC].intrinsic = 1;
+        await make_stunned(0, true, game, env);
+        assert.deepEqual(messages, ['You feel less wobbly now.']);
+        messages.length = 0;
+        stun.intrinsic = TIMEOUT | 4;
+        game.multi = -1;
+        game.nomovemsg = 'You awake.';
+        game.disp.botl = false;
+        await make_stunned(0, true, game, env);
+        assert.equal(stun.intrinsic & TIMEOUT, 0);
+        assert.equal(game.disp.botl, true);
+        assert.deepEqual(messages, []);
+    });
 
 // potion.c:771-792. Confusion uses the hunger status before nutrition is
 // added; dilution suppresses healing but not nutrition, and blessed booze

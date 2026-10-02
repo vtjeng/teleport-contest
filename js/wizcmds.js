@@ -102,13 +102,11 @@ import { do_mapping, findit } from './detect.js';
 import { print_dungeon } from './dungeon.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
-    make_sick, make_slimed,
+    make_sick, make_slimed, make_stunned,
     make_stoned, make_vomiting,
 } from './potion.js';
 import { rn2 } from './rng.js';
 import { PM_GRID_BUG } from './monsters.js';
-import { note_unported } from './unported.js';
-
 // C ref: wizcmds.c wiz_map() (176-198), the #wizmap command and its C('f')
 // binding. The temporary clearing of HConfusion and HHallucination keeps
 // detect.c do_mapping() in its ordinary, unconfused branch. The source walks
@@ -435,7 +433,9 @@ export async function wiz_intrinsic(state = game, rawEnv = {}) {
                 newTimeout, message, KILLED_BY, '#wizintrinsic', state,
             );
         } else if (property === STUNNED) {
-            if (state === game) note_unported('potion.c make_stunned');
+            await make_stunned(
+                newTimeout, true, state, { ...rawEnv, random, message },
+            );
         } else if (property === VOMITING) {
             const message = `You are${oldTimeout ? ' still' : ''} vomiting.`;
             await make_vomiting(newTimeout, false, state);

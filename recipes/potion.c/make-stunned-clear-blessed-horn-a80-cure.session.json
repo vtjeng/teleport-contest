@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 independent C-first cure recipe, frozen before recording: the debug Wizard command uses menu key f for STUNNED, the space dismisses the resulting C pager, then a blessed unicorn horn is wished and applied from inventory slot g. With one timed trouble, use_unicorn_horn's blessed d(2,4)/rn2 limit can reach make_stunned(0, TRUE) without a randomized trouble shuffle.",
+  "segments": [
+    {
+      "seed": 410830281,
+      "datetime": "20341105142600",
+      "nethackrc": "OPTIONS=name:A80CureBlessed2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017blessed unicorn horn\nag"
+    }
+  ]
+}

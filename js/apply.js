@@ -499,6 +499,7 @@ import {
     make_glib,
     make_hallucinated,
     make_sick,
+    make_stunned,
     make_vomiting,
     set_itimeout,
 } from './potion.js';
@@ -3384,8 +3385,10 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
             );
             break;
         case 3:
-            // make_stunned() returns void; preserve the source call as a gap.
-            recordGap('potion.c make_stunned');
+            await make_stunned(
+                (intrinsic(STUNNED) & TIMEOUT) + lcount,
+                true, state, env,
+            );
             break;
         case 4:
             if (intrinsic(VOMITING))
@@ -3466,7 +3469,7 @@ async function use_unicorn_horn(obj, state = game, env = {}) {
             didProp++;
             break;
         case STUNNED:
-            recordGap('potion.c make_stunned');
+            await make_stunned(0, true, state, env);
             didProp++;
             break;
         case DEAF:

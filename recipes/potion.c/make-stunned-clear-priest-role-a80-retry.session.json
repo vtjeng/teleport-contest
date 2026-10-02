@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 bounded source variation after the prior C record showed a valid blessed-horn attempt with rn2(5)=0 and 'Nothing seems to happen.' The same fresh Priest setup uses the C-observed horn slot i twice; the second command is one explicit source-valid retry, not a changed game rule or a JS-tuned input.",
+  "segments": [
+    {
+      "seed": 1376543129,
+      "datetime": "20341107142600",
+      "nethackrc": "OPTIONS=name:A80PriestCure,role:Priest,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017blessed unicorn horn\naiai"
+    }
+  ]
+}
