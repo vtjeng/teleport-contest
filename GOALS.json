@@ -139415,8 +139415,8 @@
           "name": "disturb_grave",
           "line": 1707,
           "endLine": 1723,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -139738,7 +139738,83 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "disturb_grave",
+            "implementation": "js/engrave.js",
+            "symbol": "disturb_grave",
+            "sourceReview": "Compared engrave.c:disturb_grave in full: diagnostic guards, message, disturbed bit, awaited existing makemon runtime effects, then Wisdom exercise. Exact doengrave call and kick_nondoor Levitation/rn2(4)/undisturbed/rn2(2) order agree with C; headstone destruction remains an outer refusal. Generic supporting makemon admission is based on explicit non-null species, valid nonrandom coordinates, NO_MM_FLAGS and runtime mode; direct nonhero placement omits goodpos as C does, occupied destinations return null before RNG, hero-square requests retain enexto relocation. Existing constructor/runtime suffix remains source-derived and receives no whole makemon credit. Athame, wand and kick C records reach helper at steps28,34,14 and independent replay hashes match. Original direct-command check logs are preserved separately from five verified bounded supplements. Recheck against accepted main after A76 measurement and publication; root combined validation remains required.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave, 1028; command dispatch cmd.c:doengrave table entry at 1715 -> js/cmd.js:runEngraveCommand -> js/engrave.js:doengrave"
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "kick_nondoor",
+                "source": "dokick.c:kick_nondoor, 1107; dokick.c:dokick dispatch at 1468 -> js/dokick.js:dokick -> kick_nondoor"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engrave-command.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/engrave.c/disturb-grave-engrave-athame-c60-room-corrected.session.json",
+              "recordings/engrave.c/disturb-grave-engrave-wand-variation-c60-same-room.session.json",
+              "recordings/dokick.c/disturb-grave-kick-valkyrie-c60-second-kick-continuation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c engrave command -> engrave.c:doengrave -> engrave.c:disturb_grave -> makemon.c:makemon"
+              }
+            ],
+            "checkedAt": "2374c264390df636e53edfd66cf20a297f7e59c6"
+          }
+        ],
+        "entryPointReview": "The range contains the active helper disturb_grave and two active production caller branches. The engrave command runs cmd.c table entry -> js/cmd.js:runEngraveCommand -> engrave.c/js doengrave; the independent athame and wand recordings exercise its hero-square makemon request, which C relocates with enexto_core. The kick command runs dokick.c:dokick -> kick_nondoor; the independent Valkyrie continuation records a non-hero grave coordinate, which C makemon uses directly after isok and occupied-monster checks, without goodpos or species-allowlist checks. Both callers strictly match through their complete recordings. The return from makemon is discarded in C, but its construction and runtime side effects are required before the following Wisdom exercise. This task makes only bounded makemon argument-shape admission supporting evidence and claims no whole makemon.c completion. Headstone destruction, levitating kicks, other kick_nondoor terrain arms, and invalid-input impossible diagnostics remain outside the completed entry points.",
+        "entryPoints": [
+          {
+            "name": "cmd.c engrave -> engrave.c:doengrave -> disturb_grave",
+            "functions": [
+              "disturb_grave"
+            ],
+            "recordings": [
+              "recordings/engrave.c/disturb-grave-engrave-athame-c60-room-corrected.session.json",
+              "recordings/engrave.c/disturb-grave-engrave-wand-variation-c60-same-room.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c engrave table entry -> engrave.c:doengrave -> engrave.c:disturb_grave -> makemon.c:makemon"
+              }
+            ]
+          },
+          {
+            "name": "dokick.c:dokick -> kick_nondoor -> disturb_grave",
+            "functions": [
+              "disturb_grave"
+            ],
+            "recordings": [
+              "recordings/dokick.c/disturb-grave-kick-valkyrie-c60-second-kick-continuation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
