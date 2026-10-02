@@ -1,0 +1,130 @@
+{
+  "session": "synthetic/v18/wizard-sets-slimed-intrinsic-five-turns-c59",
+  "corpus": "synthetic",
+  "batch": "v18",
+  "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+  "remainingScreens": 1,
+  "recordedSteps": 19,
+  "manifestPath": "challenges/manifests/v18.json",
+  "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+  "recordingSha256": "c47a4783649f4ad9ffb4b42459e9a26b63604b538a8ab078cf7c33887e257010",
+  "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+  "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+  "status": "complete",
+  "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v18",
+    "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+    "session": "synthetic/v18/wizard-sets-slimed-intrinsic-five-turns-c59",
+    "manifestPath": "challenges/manifests/v18.json",
+    "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+    "recording": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.session.json",
+    "recordingPath": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.session.json",
+    "recordingSha256": "c47a4783649f4ad9ffb4b42459e9a26b63604b538a8ab078cf7c33887e257010",
+    "recipe": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.recipe.session.json",
+    "recipeSha256": "62c63b3ff0a1134ad45fd8fc684a3bcbb882c0ab36083efed539caf98d13695a",
+    "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+    "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+    "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationUtc": "2026-10-02T06:59:12.293Z",
+    "remainingScreens": 1,
+    "recordedSteps": 19,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 18,
+        "total": 19
+      },
+      "rng": {
+        "matched": 2591,
+        "total": 2591
+      },
+      "cursors": {
+        "matched": 18,
+        "total": 19
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 18,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 18,
+          "key": "\n"
+        },
+        "cCursor": [
+          35,
+          0,
+          1
+        ],
+        "jsCursor": [
+          62,
+          5,
+          1
+        ]
+      }
+    },
+    "step": 18,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The explicit count prefix 5 selects a five-turn SLIMED timeout, but the existing js/wizcmds.js SLIMED arm still discards its message and does not call potion.c:make_slimed. C applies the timeout and prints “You are turning into slime.”; JavaScript leaves it unset, causing the sole mismatch at step 18. This case confirms the same whole-function make_slimed port and caller wiring as the default-duration case, with the requested duration fixed at 5 rather than the default 30. The command does not spend five game turns, so slime expiration is not reached here.",
+  "source": {
+    "file": "potion.c",
+    "branch": "For #wizintrinsic with a leading count prefix of 5 and the SLIMED menu choice, wiz_intrinsic() uses amt=5 instead of DEFAULT_TIMEOUT_INCR=30. This recording starts with oldtimeout=0, so C computes newtimeout=5 and calls make_slimed(5, \"You are turning into slime.\"). The whole make_slimed() function must set the requested timeout while preserving non-timeout intrinsic bits, update the status line and print a non-null message only when the active state changes, and on cure remove the delayed SLIMED killer and any fake green-slime monster appearance. The recipe ends after the command/menu selection; it does not spend five turns or reach timeout expiration.",
+    "functions": [
+      "make_slimed"
+    ],
+    "callers": [
+      "Selected production route: nethack-c/upstream/src/cmd.c:1965-1966 registers wizintrinsic -> nethack-c/upstream/src/wizcmds.c:wiz_intrinsic() (1039-1043) -> make_slimed(newtimeout, buf). The count prefix 5 changes newtimeout from this caller’s default 30 to exactly 5. JavaScript route is js/cmd.js:runIntrinsicCommand (3520-3523) -> js/wizcmds.js:wiz_intrinsic() (425-429); replace that branch’s discarded message and note_unported gap with the ported helper call."
+    ],
+    "dependencies": [
+      "potion.c:set_itimeout() is already implemented as js/potion.js:set_itimeout() (469-470); it overwrites only TIMEOUT bits.",
+      "The cure branch consumes end.c:find_delayed_killer(SLIMED) as end.c:dealloc_killer() input (potion.c:209-210); both are already implemented in js/end.js (1715-1721, 1746-1755). Preserve this return-valued dependency in the whole-function port.",
+      "The active transition calls pline() only when msg is non-null (potion.c:204-208); the existing JavaScript message path is ttyPline(). The selected caller supplies a message."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved evaluation challenges/evaluations/20261002065911-v18.json (evaluation commit d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d) records 18/19 screens, 2591/2591 RNG calls, and 18/19 cursors. The sole remaining screen is segment 0, step 18, key newline: C row 0 column 0 is “Y” and JavaScript is a space; C cursor is [35,0,1] versus JavaScript [62,5,1].",
+    "The recipe challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.recipe.session.json chooses Wizard debug mode and moves “ #wizintrinsic\\n5c\\n”: count prefix 5, then SLIMED selector c, then menu completion. Its recording has 19 steps; at step 18 C displays “You are turning into slime.--More--” and the status condition “Slime”. This is the five-turn timeout setup, not five elapsed turns.",
+    "The v18 manifest record for wizard-sets-slimed-intrinsic-five-turns-c59 names sourcePointers wizcmds.c:wiz_intrinsic and potion.c:make_slimed, assigns bucketId potion.c:make_slimed, and states that the count prefix requests duration five while the default-duration case uses the same helper. The two cases therefore preserve a distinct duration variation but share one source behavior bucket.",
+    "The immutable comparison detail at /tmp/teleport-loop-worker-c-20260925/.cache/C59-logs/b82-js-comparisons/wizard-sets-slimed-intrinsic-five-turns-c59.detail.json has SHA-256 76e36306e405082da3f875aa510d7b8f8ca43c4c3c16b99c5ced7d7d4472ab89; it records 19 screens, 2591 RNG calls with no RNG mismatch, and the same step-18 difference on older base c279bd556876e7c8494dbe37aea914412f8e75a3. The newer saved evaluation confirms the mismatch remains current.",
+    "Source: nethack-c/upstream/src/wizcmds.c:1003-1015 selects amt from the count prefix, computes newtimeout, and retains the existing-timeout cap; lines 1039-1043 format and call make_slimed(newtimeout, buf). nethack-c/upstream/src/potion.c:194-218 defines the whole helper, including timeout transition feedback and cure cleanup. In js/wizcmds.js:388-395 the current caller computes the explicit count and applies the same cap, while lines 425-429 build then discard the message and do not set SLIMED; js/potion.js has no make_slimed implementation. This is missing behavior, so use a whole-function file-port scope rather than a divergence fix.",
+    "Production dispatch is already wired: nethack-c/upstream/src/cmd.c:1965-1966 registers wizintrinsic; js/cmd.js:3520-3523 invokes js/wizcmds.js:wiz_intrinsic. That command returns without spending a turn. timeout.c:slimed_to_death remains a separate unresolved later path, noted at js/timeout.js:825-827, and is not exercised by this five-turn setup."
+  ]
+}

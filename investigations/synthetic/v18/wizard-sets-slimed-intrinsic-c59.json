@@ -1,0 +1,129 @@
+{
+  "session": "synthetic/v18/wizard-sets-slimed-intrinsic-c59",
+  "corpus": "synthetic",
+  "batch": "v18",
+  "caseId": "wizard-sets-slimed-intrinsic-c59",
+  "remainingScreens": 1,
+  "recordedSteps": 18,
+  "manifestPath": "challenges/manifests/v18.json",
+  "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+  "recordingSha256": "b3aa2e3021038d79bea1f6836e4e39c9980346f4106582250afefd013992ae1d",
+  "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+  "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+  "status": "complete",
+  "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v18",
+    "caseId": "wizard-sets-slimed-intrinsic-c59",
+    "session": "synthetic/v18/wizard-sets-slimed-intrinsic-c59",
+    "manifestPath": "challenges/manifests/v18.json",
+    "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+    "recording": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json",
+    "recordingPath": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json",
+    "recordingSha256": "b3aa2e3021038d79bea1f6836e4e39c9980346f4106582250afefd013992ae1d",
+    "recipe": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.recipe.session.json",
+    "recipeSha256": "f0500e5ea8ec620f242baf1767771d567d6b6df6478f5285dc3dec191918425d",
+    "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+    "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+    "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationUtc": "2026-10-02T06:59:12.293Z",
+    "remainingScreens": 1,
+    "recordedSteps": 18,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 17,
+        "total": 18
+      },
+      "rng": {
+        "matched": 2403,
+        "total": 2403
+      },
+      "cursors": {
+        "matched": 17,
+        "total": 18
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 17,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 17,
+          "key": "\n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 17,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 17,
+          "key": "\n"
+        },
+        "cCursor": [
+          35,
+          0,
+          1
+        ],
+        "jsCursor": [
+          67,
+          15,
+          1
+        ]
+      }
+    },
+    "step": 17,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The selected wizard intrinsic reaches a missing potion.c:make_slimed implementation. C sets the SLIMED timeout and prints “You are turning into slime.” on the zero-to-active transition; js/wizcmds.js currently constructs then discards that message and does not change the property. This accounts for the sole current mismatch at step 17. Port the whole make_slimed function and wire the existing wiz_intrinsic caller. The later timeout.c:slimed_to_death behavior remains a separate unresolved path.",
+  "source": {
+    "file": "potion.c",
+    "branch": "For the selected #wizintrinsic command, the menu selects SLIMED with a positive count. In this recording the old timeout is zero and the default count is 30, so wiz_intrinsic() calls make_slimed(30, \"You are turning into slime.\"). make_slimed() overwrites the timeout while preserving non-timeout intrinsic bits; when the truth value changes it marks the status line dirty and prints the supplied message. Port the whole function: when the timeout is cleared it also removes any delayed SLIMED killer and clears the hero’s fake green-slime monster appearance when present. wiz_intrinsic() separately caps an extension when a SLIMED timeout is already active.",
+    "functions": [
+      "make_slimed"
+    ],
+    "callers": [
+      "Selected production route: nethack-c/upstream/src/cmd.c:1965-1966 registers wizintrinsic -> nethack-c/upstream/src/wizcmds.c:wiz_intrinsic() (1039-1043) -> make_slimed(newtimeout, buf). JavaScript route is js/cmd.js:runIntrinsicCommand (3520-3523) -> js/wizcmds.js:wiz_intrinsic() (425-429); replace that branch’s discarded message and note_unported gap with the ported helper call."
+    ],
+    "dependencies": [
+      "potion.c:set_itimeout() is already implemented as js/potion.js:set_itimeout() (469-470); it overwrites only TIMEOUT bits.",
+      "The cure branch consumes end.c:find_delayed_killer(SLIMED) as end.c:dealloc_killer() input (potion.c:209-210); both are already implemented in js/end.js (1715-1721, 1746-1755). Preserve this return-valued dependency in the whole-function port.",
+      "The active transition calls pline() only when msg is non-null (potion.c:204-208); the existing JavaScript message path is ttyPline(). The selected caller supplies a message."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Saved evaluation challenges/evaluations/20261002065911-v18.json (evaluation commit d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d) records 17/18 screens, 2403/2403 RNG calls, and 17/18 cursors. Its sole remaining screen is segment 0, step 17, key newline: C row 0 column 0 is “Y” and JavaScript is a space; the cursor is [35,0,1] in C versus [67,15,1] in JavaScript.",
+    "The recorded step at challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json: segment 0 step 17 has the C message “You are turning into slime.--More--” and the status condition “Slime”. The preceding step is the “Which intrinsics?” menu with “c + becoming slime” selected. The recipe and saved evaluation identify one unmatched screen among 18 steps.",
+    "challenges/manifests/v18.json identifies the first mismatch owner as potion.c:make_slimed and the route as wizcmds.c:wiz_intrinsic plus potion.c:make_slimed. The immutable comparison detail at /tmp/teleport-loop-worker-c-20260925/.cache/C59-logs/b82-js-comparisons/wizard-sets-slimed-intrinsic-c59.detail.json has SHA-256 e67f3258e006cb524edc9ecda2c439ef245616769394f28fcd774ca9153a2272 and confirms the same step-17 observation on older base c279bd556876e7c8494dbe37aea914412f8e75a3; the newer saved evaluation confirms the mismatch remains current.",
+    "Source: nethack-c/upstream/src/wizcmds.c:1039-1043 constructs the transition message and calls make_slimed(newtimeout, buf). nethack-c/upstream/src/potion.c:194-218 defines the complete missing helper: set_itimeout, status-line update and optional message on a timeout transition, delayed-killer removal on cure, and removal of the disguised green-slime appearance. In js/wizcmds.js:425-429 the existing caller creates an equivalent message, discards it with void message, and does not set the property; js/potion.js has no make_slimed implementation. This is missing behavior, so the actionable unit is a whole-function file port, not a divergence fix.",
+    "The production dispatcher is present: nethack-c/upstream/src/cmd.c:1965-1966 registers wizintrinsic; js/cmd.js:3520-3523 invokes js/wizcmds.js:wiz_intrinsic. This debug command returns without spending a turn, so timeout.c:slimed_to_death (still noted unported at js/timeout.js:825-827) is a separate later defect and does not explain the current message/status mismatch. Other source call paths, including uhitm.c slime attacks, have separate behavior and are outside this assigned case."
+  ]
+}
