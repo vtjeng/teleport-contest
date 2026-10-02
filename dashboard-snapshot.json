@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T15:32:50.925Z",
+  "capturedAt": "2026-10-02T15:50:01.737Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -15721,6 +15721,14 @@
         "type": "accepted",
         "at": "2026-10-02T15:30:36.386Z",
         "task": "B88"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B88-published-239a521a",
+        "type": "published",
+        "at": "2026-10-02T15:33:04.594Z",
+        "task": "B88",
+        "commit": "239a521a71a7b303178861b23c55711d6ba8a483"
       }
     ]
   },
