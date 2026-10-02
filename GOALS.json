@@ -136713,8 +136713,8 @@
           "name": "ghost_from_bottle",
           "line": 481,
           "endLine": 504,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -136995,7 +136995,65 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "ghost_from_bottle",
+            "implementation": "js/potion.js",
+            "symbol": "ghost_from_bottle",
+            "sourceReview": "Read and ported the complete potion.c:ghost_from_bottle definition (481-500). It calls makemon(&mons[PM_GHOST], u.ux, u.uy, MM_NOMSG), consumes the nullable monster pointer, returns after the empty-bottle message on null, returns after the 'something emerges' message when Blind, otherwise chooses rndmonnam only under Hallucination, prints the visible emergence line, conditionally prints You(...) when flags.verbose, then calls nomul(-3), writes gm.multi_reason, and writes gn.nomovemsg in that order. The JavaScript awaits makemon_runtime before examining its nullable result and awaits each message before applying the forced-rest tail. Reused the existing rndmonnam, nomul, and ttyPline implementations; no callee gap was added. Replaced potion.c:dodrink's exact helper gap at the occupied milky-potion arm and retained C order before useup and ECMD_TIME.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "dodrink",
+                "source": "potion.c:dodrink (601-612) calls ghost_from_bottle after the milky description, G_GONE check, and successful POTION_OCCUPANT_CHANCE draw; useup and ECMD_TIME follow the completed helper."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "runQuaffCommand",
+                "source": "cmd.c quaff command dispatch reaches dodrink; runQuaffCommand forwards the command to dodrink in the same production path."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion-ghost-from-bottle.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "cmd.c quaff -> potion.c:dodrink occupied milky-potion arm -> potion.c:ghost_from_bottle -> makemon.c:makemon"
+              }
+            ],
+            "checkedAt": "6cfea91a3881d15aaf1fb6b0dc9cfa55aa9f1735"
+          }
+        ],
+        "entryPointReview": "The selected helper has one active direct C caller: the occupied milky-potion arm of potion.c:dodrink. The production command path is cmd.c quaff dispatch -> dodrink, mirrored by js/cmd.js:runQuaffCommand -> js/potion.js:dodrink. The v17 case monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs reaches the helper on its third quaff; its prior first mismatch was at segment 0, zero-based step 34, where C's ghost emergence and makemon RNG were absent from JS. The bounded replay run-KWQFxR now matches this source-ported path through segment 0 step 34. Focused source tests cover the nullable creation return, Blind early return, hallucinated naming draw order, verbose message, and forced-rest state. Other potion.c paths and the existing remove_worn_item gap in dodrink remain outside this task.",
+        "entryPoints": [
+          {
+            "name": "Quaff a milky potion whose occupant roll releases a ghost",
+            "functions": [
+              "ghost_from_bottle"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "monk-quaffs-three-milky-potions-ghost-from-bottle-three-quaffs",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 34,
+                "source": "cmd.c quaff -> potion.c:dodrink -> potion.c:ghost_from_bottle -> makemon.c:makemon"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
