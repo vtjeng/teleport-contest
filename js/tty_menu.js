@@ -820,8 +820,8 @@ export async function dismissTtyMenu(state = game, rendered) {
             rendered.snapshot,
         );
 
-        // C ref: wintty.c docorner() clears through its `ymax` row, then
-        // calls bot() when that repair reaches WIN_STATUS. The snapshot
+        // C ref: wintty.c docorner() clears rows up to but excluding `ymax`,
+        // then calls bot() when ymax reaches WIN_STATUS. The snapshot
         // restores the base map covered by the corner menu, but C does not
         // restore the status suffix that docorner() cleared. Keep the cells
         // left of the menu's repair column and let bot() redraw the status

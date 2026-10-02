@@ -570,6 +570,14 @@ test('gameplay corner dismissal keeps the C-cleared status suffix blank',
         state.nhDisplay.setCell(leftStatusColumn, statusRow, 'L', 2, 1);
         state.nhDisplay.setCell(staleStatusColumn, statusRow, 'S', 4, 2);
         state.nhDisplay.setCell(staleStatusColumn, secondStatusRow, 'T', 4, 2);
+        // C docorner() positions at xmin before cl_end(): the first repaired
+        // cell must clear, while its immediate left neighbor must survive.
+        // Nondefault colors and attributes distinguish clearing from a blank
+        // glyph that retains the old style on either repaired status row.
+        for (const row of [statusRow, secondStatusRow]) {
+            state.nhDisplay.setCell(layout.repairColumn - 1, row, 'B', 2, 1);
+            state.nhDisplay.setCell(layout.repairColumn, row, 'C', 4, 2);
+        }
         // This map-row marker sits behind the menu and must still be restored
         // from the pre-menu base frame after the status suffix is cleared.
         state.nhDisplay.setCell(60, 5, '@', 3, 1);
@@ -603,6 +611,12 @@ test('gameplay corner dismissal keeps the C-cleared status suffix blank',
             ],
             [' ', 7, 0],
         );
+        for (const row of [statusRow, secondStatusRow]) {
+            const before = state.nhDisplay.grid[row][layout.repairColumn - 1];
+            const first = state.nhDisplay.grid[row][layout.repairColumn];
+            assert.deepEqual([before.ch, before.color, before.attr], ['B', 2, 1]);
+            assert.deepEqual([first.ch, first.color, first.attr], [' ', 7, 0]);
+        }
         assert.equal(state.nhDisplay.grid[5][60].ch, '@');
         assert.equal(state.disp.botlx, true);
 
