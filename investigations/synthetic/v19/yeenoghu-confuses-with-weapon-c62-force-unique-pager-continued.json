@@ -1,0 +1,94 @@
+{
+  "session": "synthetic/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+  "corpus": "synthetic",
+  "batch": "v19",
+  "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+  "remainingScreens": 8,
+  "recordedSteps": 47,
+  "manifestPath": "challenges/manifests/v19.json",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "recordingSha256": "94dd3eba9eb357304d87278f5498c3f625c3240a0971bc36987b41515e474089",
+  "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "status": "complete",
+  "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v19",
+    "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+    "session": "synthetic/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+    "manifestPath": "challenges/manifests/v19.json",
+    "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+    "recording": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.session.json",
+    "recordingPath": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.session.json",
+    "recordingSha256": "94dd3eba9eb357304d87278f5498c3f625c3240a0971bc36987b41515e474089",
+    "recipe": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.recipe.session.json",
+    "recipeSha256": "74766c0776725a72ef70d51599d7f600d7d3279c9b8664a990e88bd4862fcac2",
+    "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+    "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+    "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationUtc": "2026-10-02T18:07:42.516Z",
+    "remainingScreens": 8,
+    "recordedSteps": 47,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 39,
+        "total": 47
+      },
+      "rng": {
+        "matched": 2370,
+        "total": 2429
+      },
+      "cursors": {
+        "matched": 39,
+        "total": 47
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_conf()",
+      "step": 39
+    },
+    "step": 39,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_conf",
+    "message": "simple monster action requires uhitm.c mhitm_ad_conf()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The current stop is the unported AD_CONF arm in uhitm.c:mhitm_ad_conf, reached through a hostile covetous Yeenoghu weapon attack on the hero. Port the complete helper and preserve its source order: hitmsg runs, confusion is gated by cancellation, rn2(4), and mspec_used, and mhm.damage is cleared. The recorded rn2(4)=1 outcome leaves hero confusion unchanged. The C62 first-missing-RNG report is censored because preflight stops at this helper before live execution; tactics and distfleeck are both earlier in the source-ordered dochug path.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "mhitm_adtyping receives AD_CONF after Yeenoghu lands its weapon blow on the hero, so magr is a monster and mdef is &youmonst. The complete helper also owns the hero-attacks-monster and monster-attacks-monster branches. In the hero-target branch hitmsg always runs; confusion changes only when the attacker is not cancelled, rn2(4) returns zero, and mspec_used is zero. The C62 trace records rn2(4)=1, so this case must leave hero confusion unchanged while still setting mhm.damage to zero.",
+    "functions": [
+      "mhitm_ad_conf"
+    ],
+    "callers": [
+      "uhitm.c:mhitm_adtyping() AD_CONF switch arm",
+      "mhitu.c:hitmu() -> uhitm.c:mhitm_adtyping()",
+      "mhitu.c:mattacku() -> mhitu.c:hitmu(); monmove.c:dochug() -> mhitu.c:mattacku()",
+      "js/uhitm.js:mhitm_adtyping() AD_CONF switch arm",
+      "js/mhitu.js:hitmu() -> js/uhitm.js:mhitm_adtyping(); js/mhitu.js:mattacku() -> hitmu()",
+      "js/unported_monster_actions.js:attackHeroWithMattacku() -> js/mhitu.js:mattacku(); js/monmove.js:dochug() -> attackHero"
+    ],
+    "dependencies": [
+      "mhitu.c:hitmsg() / js/mhitu.js:hitmsg()",
+      "rnd.c:rn2() / js/rng.js:rn2()",
+      "potion.c:make_confused() / js/potion.js:make_confused()"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved evaluation challenges/evaluations/20261002180737-v19.json identifies the first stop at step 39 as `simple monster action requires uhitm.c mhitm_ad_conf()`. The bounded replay of this recording at commit 8583a972f66a872a8ad73c888a24dd01075481f4 (`/tmp/teleport-validation-1000/run-YzXEnt/stdout.log`) reproduces the same boundary after 39 screens.",
+    "C source order is monmove.c:dochug() -> wizard.c:tactics() for is_covetous(mdat), then distfleeck(), then the standard-attack gate; js/monmove.js:dochug() has the corresponding tactics call before distanceAndFear() and attackHero. C62 stdout names tactics rn2(5) as the first absent JS RNG log at measured head 24ca0fa8414dbe0891e138b16ec077054a796d65. The current scanner boundary occurs in the simple-monster action preflight: allmain.js:advanceElapsedTurn() plans before live execution, and preflightSimpleMonsterActions() propagates the unsupported helper boundary, so the live RNG log for that turn is never emitted. distfleeck() itself unconditionally draws rn2(5) before attack on both sides; it is part of the censored turn and a comparator symptom, not a later independent cause.",
+    "C source uhitm.c:3690-3727 implements all three mhitm_ad_conf() target cases. For a monster hitting the hero it calls hitmsg(), conditionally draws rn2(4), on a zero result adds rn2(6) to mspec_used and calls make_confused(), then sets mhm.damage=0 regardless. The capsule C62 crosswalk records rn2(4)=1 for this Yeenoghu case, which prevents confusion and skips rn2(6).",
+    "C caller uhitm.c:mhitm_adtyping():4820 dispatches AD_CONF to mhitm_ad_conf(); JS js/uhitm.js:mhitm_adtyping():4978 currently calls unported(\"mhitm_ad_conf\"). Its production path is connected through mhitu.c:hitmu()/mattacku() and monmove.c:dochug(), with JS equivalents in js/mhitu.js, js/unported_monster_actions.js, and js/monmove.js. The complete source function and this existing AD_CONF dispatch form an actionable file-port scope."
+  ]
+}

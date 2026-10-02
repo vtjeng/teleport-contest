@@ -1,0 +1,139 @@
+{
+  "corpus": "synthetic",
+  "batch": "v19",
+  "caseId": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+  "session": "synthetic/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+  "manifestPath": "challenges/manifests/v19.json",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "recording": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+  "recordingPath": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+  "recordingSha256": "ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484",
+  "recipe": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.recipe.session.json",
+  "recipeSha256": "810a5260638d0f2f7837eaca80820ae44889402ec28e56480bef4dab87f49c1c",
+  "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+  "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationUtc": "2026-10-02T18:07:42.516Z",
+  "remainingScreens": 19,
+  "recordedSteps": 91,
+  "previousScreensMatched": null,
+  "regression": false,
+  "passed": false,
+  "error": null,
+  "metrics": {
+    "screens": {
+      "matched": 72,
+      "total": 91
+    },
+    "rng": {
+      "matched": 2646,
+      "total": 2999
+    },
+    "cursors": {
+      "matched": 72,
+      "total": 91
+    }
+  },
+  "firstMismatch": {
+    "kind": "stop",
+    "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+    "step": 72
+  },
+  "step": 72,
+  "kind": "stop",
+  "sourceFile": "uhitm.c",
+  "function": "mhitm_ad_dcay",
+  "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+  "cFile": "uhitm.c",
+  "luaFile": null,
+  "line": null,
+  "status": "complete",
+  "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "summary": "The v19 stop is caused by the unported AD_DCAY branch in uhitm.c:mhitm_adtyping, which refuses to dispatch to mhitm_ad_dcay during cloned elapsed-turn preflight. For this recorded non-cancelled brown-pudding hit on the human Wizard, mhitm_ad_dcay reaches erode_armor(ERODE_ROT) on worn leather armor. The actionable scope is the complete mhitm_ad_dcay and erode_armor helpers plus wiring the AD_DCAY dispatcher branch and existing shared-helper note sites. The comparator’s missing distfleeck call is a turn-boundary symptom: C calls it before the attack, and the JS preflight refusal prevents that turn from running live.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "The recorded path requires a landed monster-to-hero attack whose attack type is AD_DCAY, with a non-cancelled attacker and a hero form that does not trigger completelyrots; mhitm_ad_dcay then calls hitmsg and erode_armor(mdef, ERODE_ROT). Port the full helper, retaining its hero-attacker, hero-defender, and monster-vs-monster branches, including cancellation, completely-rots/golem, death, and mhitm result updates. erode_armor must preserve the rn2(5) armor-slot retry loop, its distinct retry conditions and grease/verbose flags, and ERODE_ROT effects.",
+    "functions": [
+      "erode_armor",
+      "mhitm_ad_dcay",
+      "mhitm_adtyping (AD_DCAY branch)"
+    ],
+    "callers": [
+      "mhitu.c:hitmu -> mhitm_adtyping for the recorded monster-to-hero attack",
+      "mhitm.c:mdamagem and uhitm.c:damageum -> mhitm_adtyping for other combat contexts",
+      "uhitm.c:mhitm_ad_dcay -> erode_armor(ERODE_ROT)",
+      "uhitm.c:mhitm_ad_rust, mhitm_ad_corr, mhitm_ad_acid, and passive -> erode_armor",
+      "mhitu.c:passiveum and mhitm.c:passivemm -> erode_armor",
+      "zap.c:zhitm and zhitu -> erode_armor"
+    ],
+    "dependencies": [
+      "trap.c:erode_obj is already ported in js/trap_erode_obj.js and owns ERODE_ROT item-state and message effects; it uses the already ported obj.c:is_rottable behavior.",
+      "worn.c:which_armor is already ported in js/worn.js and supplies the armor-slot lookups used by the retry loop.",
+      "The retry loop uses the injected environment RNG for rn2(5); keep its draw order and retry behavior source-equivalent.",
+      "The non-recorded branches of mhitm_ad_dcay depend on already ported completelyrots, hitmsg, rehumanize, mlifesaver, xkilled, monkilled, and grow_up behavior.",
+      "The existing shared-helper gaps at js/mhitu.js:2310 and js/zap.js:2277 name uhitm.c:erode_armor with note_unported; redirect those call sites when wiring the helper without expanding this diagnosis to their other unported behavior."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The current evaluation challenges/evaluations/20261002180737-v19.json at 8583a972f66a872a8ad73c888a24dd01075481f4 stops after 72/91 screens at zero-based input step 72 with “simple monster action requires uhitm.c mhitm_ad_dcay()”; its RNG and cursor counts stop at 2646/2999 and 72/91. The queue identity is bound to batch v19, case brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation, manifest digest ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007, recording digest ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484, and 91 recorded steps.",
+    "The immutable C62 packet in .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json identifies the causal crosswalk as uhitm.c:mhitm_adtyping(AD_DCAY) -> mhitm_ad_dcay -> erode_armor(ERODE_ROT), and confirms that the hostile pudding is created at step 66 and bites the Wizard at zero-based step 72. Its cited frozen C recording is challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json.",
+    "The C recording’s step-72 sequence is rn2(5)=2 in monmove.c:distfleeck before the attack, rnd(20)=16 in mhitu.c:mattacku, d(0,0)=0 in mhitu.c:hitmu, then erode_armor ERODE_ROT retry draws 3,3,3,1 in uhitm.c:erode_armor. The resulting message is “The brown pudding bites! Your leather armor rots!”; later pudding hits rot armor at steps 80 and 89. This is worn leather armor, not a carried-item route.",
+    "Upstream source confirms Brown pudding’s first attack is AT_BITE/AD_DCAY (include/monsters.h:2092-2102); mhitu.c:hitmu dispatches the landed hit through mhitm_adtyping (mhitu.c:1187-1193), and uhitm.c:mhitm_adtyping selects mhitm_ad_dcay at its AD_DCAY case (uhitm.c:4782-4832). The monster-vs-hero branch in uhitm.c:mhitm_ad_dcay emits the hit message, returns for cancellation or completely-rotting hero forms, and otherwise calls erode_armor with ERODE_ROT (uhitm.c:2363-2415).",
+    "The complete uhitm.c:erode_armor helper (lines 126-183) repeatedly chooses among head, cloak/body/shirt, shield, gloves, and boots via rn2(5); missing armor or ER_NOTHING results retry in cases 0, 2, 3, and 4, while the cloak/body/shirt case exits after its selected target attempt. Port this whole loop so the observed gloves-slot retries and worn-body-armor decay preserve C draw order, target selection, and effects.",
+    "At the examined commit, js/uhitm.js:mhitm_adtyping has AD_DCAY wired only to unported(\"mhitm_ad_dcay\") (line 4959), and no JS erode_armor or mhitm_ad_dcay implementation exists. js/allmain.js:planElapsedTurn invokes cloned-state preflight, whose simple-monster-action path raises the named refusal; this prevents the elapsed turn from reaching live execution. Thus distfleeck is the first missing live comparator RNG call only because C calls it before the attack and the JS turn boundary aborts; it is not the causal source owner.",
+    "The reused C62 bounded comparison is run-GTCVFa, measured at worker HEAD 3b30ca493456d7d79d49c1bf3ca79d9d32addf15 (accepted main 239a521a71a7b303178861b23c55711d6ba8a483), not the current evaluation commit. Its receipt /tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GTCVFa/receipt.json (SHA-256 a910d13af1f5ac45bfb339ed70f660f6967ee1e2848b4a9659789339a4a3cea9) records the focused command; stdout /tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GTCVFa/stdout.log (SHA-256 45a537cb6b88c17972005e8c58c26d02a60de24fa1c72ccafbe55566fc02d0df) shows C’s first unmatched live call as distfleeck at one-based step 73 / zero-based input step 72, with the screen and cursor absent in JS. The packet explicitly diagnoses this as the raw symptom of the earlier AD_DCAY preflight refusal."
+  ],
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v19",
+    "caseId": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+    "session": "synthetic/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+    "manifestPath": "challenges/manifests/v19.json",
+    "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+    "recording": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+    "recordingPath": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+    "recordingSha256": "ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484",
+    "recipe": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.recipe.session.json",
+    "recipeSha256": "810a5260638d0f2f7837eaca80820ae44889402ec28e56480bef4dab87f49c1c",
+    "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+    "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+    "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationUtc": "2026-10-02T18:07:42.516Z",
+    "remainingScreens": 19,
+    "recordedSteps": 91,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 72,
+        "total": 91
+      },
+      "rng": {
+        "matched": 2646,
+        "total": 2999
+      },
+      "cursors": {
+        "matched": 72,
+        "total": 91
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+      "step": 72
+    },
+    "step": 72,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_dcay",
+    "message": "simple monster action requires uhitm.c mhitm_ad_dcay()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  }
+}
