@@ -202,6 +202,7 @@ import {
 } from './priest.js';
 import { demon_talk } from './minion.js';
 import { rn1, rn2 } from './rng.js';
+import { aggravate } from './wizard.js';
 import { genders } from './roles.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { noisy_shop, shop_object, tended_shop } from './shk.js';
@@ -1196,7 +1197,7 @@ export async function domonnoise(mtmp, state = game) {
         break;
     case MS_SHRIEK:
         plineMsg = 'shrieks.';
-        note_unported('wizard.c aggravate');
+        aggravate(state, random);
         break;
     case MS_IMITATE:
         plineMsg = 'imitates you.';

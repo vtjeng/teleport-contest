@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-only prefix attempt for A74. It reaches the cursed potion effect and the first awakened-goblin turn, then stops at the C-observed 'The goblin wields an orcish dagger!--More--' pager after monmove.c:distfleeck. Its later scripted keys are not a complete normal input tail; the raw recording is retained under .cache/A74-logs/attempts and is not a passing runtime witness.",
+  "segments": [
+    {
+      "seed": 83927149,
+      "datetime": "20861002152000",
+      "nethackrc": "OPTIONS=name:A74InvisVariation,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017cursed potion of invisibility\n\u0007sleeping goblin\nqe m.m.m.m.m."
+    }
+  ]
+}

@@ -99,6 +99,7 @@ import {
 } from './objects.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2, rne, rnd } from './rng.js';
+import { aggravate } from './wizard.js';
 import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
 import { is_ice } from './terrain.js';
 import { Flying, is_lava, is_pool, t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
@@ -465,7 +466,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
             if (luck < 0) {
                 await message('You feel threatened.', state);
-                note_unported('wizard.c aggravate');
+                aggravate(state, random);
             } else {
                 await message('You feel a wrenching sensation.', state);
                 const { tele } = await import('./teleport.js');

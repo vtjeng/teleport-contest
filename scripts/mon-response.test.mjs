@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { STRAT_WAITFORU, STRAT_WAITMASK } from '../js/const.js';
+import {
+    STRAT_APPEARMSG,
+    STRAT_WAITFORU,
+    STRAT_WAITMASK,
+} from '../js/const.js';
 import { game } from '../js/gstate.js';
 import {
     m_respond,
@@ -60,6 +64,12 @@ test('m_respond_shrieker prints, then interrupts, in C order', async () => {
     await hero();
     const shrieker = monster(PM_SHRIEKER);
     prepend(shrieker);
+    // This mobile sleeper is in the same false tower region as the hero on
+    // the ordinary dungeon level; aggravate wakes it without another draw.
+    const sleeper = prepend(monster(PM_GNOME, {
+        msleeping: true,
+        mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG,
+    }));
     const events = [];
     const random = { rn2: (bound) => {
         assert.equal(bound, 10); // mon.c:4101's one-in-ten summon check.
@@ -74,7 +84,9 @@ test('m_respond_shrieker prints, then interrupts, in C order', async () => {
     });
 
     assert.deepEqual(events, ['message:The shrieker shrieks.', 'stop']);
-    assert.ok(game.unported.has('wizard.c aggravate'));
+    assert.equal(sleeper.msleeping, false);
+    assert.equal(sleeper.mstrategy, 0);
+    assert.ok(!game.unported.has('wizard.c aggravate'));
 });
 
 test('qst_guardians_respond angers visible role guardians', async () => {
