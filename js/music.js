@@ -2,37 +2,61 @@
 // Hero_playnotes/Soundeffect are empty macros in the reference tty build
 // (sndprocs.h:273); their arguments, including obj_to_instr, are not evaluated.
 import {
-    ACH_TUNE, A_DEX, A_WIS, BLINDED, COLNO, CONFUSION, DEAF, DRAWBRIDGE_DOWN,
-    ECMD_OK, ECMD_TIME, HALLUC, HALLUC_RES, IS_DRAWBRIDGE, KILLED_BY,
-    ROWNO, STRAT_WAITMASK, STUNNED, UNCHANGING, isok, plur,
+    ACH_TUNE, A_DEX, A_WIS, ALTAR, AM_MASK, AM_SANCTUM, Amask2align,
+    ARTICLE_THE,
+    BLINDED, COLNO, CONFUSION, D_NODOOR, DEAF, DOOR,
+    DRAWBRIDGE_DOWN, ECMD_OK, ECMD_TIME, FOUNTAIN, FUMBLING, GRAVE,
+    HALF_PHDAM, HALLUC, HALLUC_RES, IS_DRAWBRIDGE,
+    CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
+    PIT, ROWNO, ROOM, SCORR, SDOOR, SHOPBASE, SINK, STRAT_WAITMASK,
+    SUPPRESS_SADDLE, STUNNED, THRONE, TT_BURIEDBALL, TT_PIT,
+    UNCHANGING, has_mgivenname, is_pit, isok, plur, u_at,
 } from './const.js';
 import { acurr, exercise } from './attrib.js';
 import { getdir, yn_function } from './cmd.js';
 import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
+import { cvt_sdoor_to_door } from './detect.js';
 import { newsym } from './display.js';
+import { fillholetyp } from './dig.js';
 import { game } from './gstate.js';
 import { losehp } from './hack.js';
 import { dist2, highc, mungspaces } from './hacklib.js';
-import { record_achievement } from './insight.js';
-import { consume_obj_charge } from './invent.js';
-import { can_blow, is_mercenary, mindless, unique_corpstat } from './mondata.js';
+import { align_str, record_achievement } from './insight.js';
+import { consume_obj_charge, obj_extract_self, sobj_at } from './invent.js';
+import {
+    can_blow, ceiling_hider, humanoid, is_clinger, is_flyer,
+    is_mercenary, mindless, unique_corpstat,
+} from './mondata.js';
 import { monflee, monfleeMessage, onscary, youHear } from './monmove.js';
-import { a_monnam, Monnam } from './do_name.js';
+import { Amonnam, a_monnam, Monnam, mon_nam, x_monnam } from './do_name.js';
 import { tamedog } from './dog.js';
+import { m_at } from './monst.js';
+import { seemimic, wakeup } from './mon.js';
 import { discover_object } from './o_init.js';
 import { an, the, thesimpleoname, Tobjnam, xnameFresh, yname, Yname2 } from './objnam.js';
 import {
-    BUGLE, DRUM_OF_EARTHQUAKE, FIRE_HORN, FROST_HORN, LEATHER_DRUM,
-    MAGIC_FLUTE, MAGIC_HARP, TOOL_CLASS, TOOLED_HORN, WOODEN_FLUTE, WOODEN_HARP,
+    BOULDER, BUGLE, DRUM_OF_EARTHQUAKE, FIRE_HORN, FROST_HORN, LEATHER_DRUM,
+    MAGIC_FLUTE, MAGIC_HARP, TOOL_CLASS, TOOLED_HORN, WOODEN_FLUTE,
+    WOODEN_HARP,
 } from './objects.js';
-import { PM_GUARD, S_NYMPH, S_SNAKE } from './monsters.js';
+import { PM_ARCHEOLOGIST, PM_GUARD, S_NYMPH, S_SNAKE } from './monsters.js';
 import { incr_itimeout } from './potion.js';
 import { create_gas_cloud } from './region.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
+import { altarmask_at } from './pray.js';
+import { in_rooms } from './rooms.js';
+import { set_levltyp } from './terrain.js';
+import {
+    Flying, Levitation, maketrap, reset_utrap, set_utrap,
+    t_at,
+} from './trap.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { block_point, cansee, canseemon, does_block, unblock_point } from './vision.js';
+import {
+    block_point, cansee, canseemon, does_block, recalc_block_point,
+    unblock_point,
+} from './vision.js';
 import { getlin } from './windows.js';
 import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
 
@@ -221,6 +245,232 @@ export async function calm_nymphs(distance, state = game, env = {}) {
     }
 }
 
+// C refs: hack.h Maybe_Half_Phys() and youprop.h Half_physical_damage.
+export function musicMaybeHalfPhys(damage, state) {
+    return property(state, HALF_PHDAM)
+        ? Math.trunc((damage + 1) / 2) : damage;
+}
+
+// C ref: music.c do_pit() (221-338). This file owns the earthquake pit call
+// path; its discarded floor/liquid/touch/kill effects remain named gaps at
+// their C call sites until those source units are ported.
+export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? musicRandom;
+    const message = env.message ?? ttyPline;
+
+    const chasm = await maketrap(x, y, PIT, { ...env, random });
+    if (!chasm) return; // C maketrap() refuses a portal at this location.
+    chasm.tseen = 1;
+
+    const mtmp = m_at(x, y, state);
+    const boulder = sobj_at(BOULDER, x, y, state);
+    if (boulder) {
+        if (cansee(x, y, state)) {
+            await message(`KADOOM!  The boulder falls into a chasm${u_at(x, y, state)
+                ? ' below you' : ''}!`, state);
+        }
+        if (mtmp) mtmp.mtrapped = false;
+        obj_extract_self(boulder, { ...env, state });
+        // C discards flooreffects()'s return. The partial helper cannot stand
+        // in for its missing branch effects or RNG.
+        note_unported('do.c flooreffects');
+        return;
+    }
+
+    // Keep the source order: fill the hole, change its terrain, skip the
+    // discarded liquid-flow result, then re-read the possibly deleted trap.
+    const fillType = fillholetyp(x, y, false, state, random);
+    if (fillType !== ROOM) {
+        set_levltyp(x, y, fillType, { state });
+        note_unported('dig.c liquid_flow');
+        if (!t_at(x, y, state)) return;
+    }
+
+    if (mtmp) {
+        if (!is_flyer(mtmp.data) && !is_clinger(mtmp.data)) {
+            const alreadyTrapped = Boolean(mtmp.mtrapped);
+            mtmp.mtrapped = true;
+            if (!alreadyTrapped) {
+                if (cansee(x, y, state)) {
+                    await message(`${Monnam(mtmp, state, env)} falls into a chasm!`, state);
+                } else if (humanoid(mtmp.data)) {
+                    // Soundeffect(se_scream, 50) is compiled away by the
+                    // reference tty backend; You_hear still owns the line.
+                    const heard = youHear('a scream!', state);
+                    if (heard) await message(heard, state);
+                }
+            }
+            note_unported('trap.c mselftouch'); // C's void call; keep its point.
+            if (mtmp.mhp >= 1) {
+                mtmp.mhp -= random.rnd(alreadyTrapped ? 4 : 6);
+                if (mtmp.mhp < 1) {
+                    if (!cansee(x, y, state)) {
+                        await message('It is destroyed!', state);
+                    } else {
+                        const name = mtmp.mtame
+                            ? x_monnam(mtmp, ARTICLE_THE, 'poor',
+                                has_mgivenname(mtmp) ? SUPPRESS_SADDLE : 0,
+                                false, state, env)
+                            : mon_nam(mtmp, state, env);
+                        await message(`You destroy ${name}!`, state);
+                    }
+                    note_unported('mon.c xkilled');
+                }
+            }
+        }
+    } else if (u_at(x, y, state)) {
+        const u = state.u;
+        if (u.utrap && u.utraptype === TT_BURIEDBALL) {
+            await message('Your chain breaks!', state);
+            await reset_utrap(true, state);
+        }
+        if (Levitation(state) || Flying(state) || is_clinger(state.youmonst.data)) {
+            if (!tuPit) {
+                await message('A chasm opens up under you!', state);
+                await message("You don't fall in!", state);
+            }
+        } else if (!tuPit || !u.utrap || u.utraptype !== TT_PIT) {
+            await message('You fall into a chasm!', state);
+            set_utrap(random.rn1(6, 2), TT_PIT, state);
+            await losehp(musicMaybeHalfPhys(random.rnd(6), state),
+                'fell into a chasm', NO_KILLER_PREFIX, state, env);
+            note_unported('trap.c selftouch');
+        } else if (u.utrap && u.utraptype === TT_PIT) {
+            const fumbling = property(state, FUMBLING);
+            const keepFooting = (!fumbling || !random.rn2(5))
+                && (!random.rnl(state.urole?.mnum === PM_ARCHEOLOGIST ? 3 : 9)
+                    || (acurr(state, A_DEX) > 7 && random.rn2(5)));
+
+            await message('You are jostled around violently!', state);
+            set_utrap(random.rn1(6, 2), TT_PIT, state);
+            await losehp(musicMaybeHalfPhys(random.rnd(keepFooting ? 2 : 4), state),
+                'hurt in a chasm', NO_KILLER_PREFIX, state, env);
+            if (keepFooting) {
+                await exercise(A_DEX, true, state, random);
+            } else {
+                // C chooses the selftouch prefix from Upolyd/slithy/nolimbs
+                // here; those predicates have no effects and its callee is
+                // still a discarded source gap.
+                note_unported('trap.c selftouch');
+            }
+        }
+    } else {
+        newsym(x, y, state);
+    }
+}
+
+// C ref: music.c do_earthquake() (344-475). Coordinates scan x-major then
+// y-minor; every cell wakes/unhides its monster before the independent
+// rn2(14-force) terrain test.
+export async function do_earthquake(force, state = game, rawEnv = {}) {
+    const env = { ...rawEnv, state };
+    const random = env.random ?? musicRandom;
+    const message = env.message ?? ttyPline;
+    const trapAtU = t_at(state.u.ux, state.u.uy, state);
+    const tuPit = trapAtU ? Number(is_pit(trapAtU.ttyp)) : 0;
+    force = Math.trunc(force);
+    if (force > 13) force = 13;
+
+    const startX = Math.max(state.u.ux - force * 2, 1);
+    const startY = Math.max(state.u.uy - force * 2, 0);
+    const endX = Math.min(state.u.ux + force * 2, COLNO - 1);
+    const endY = Math.min(state.u.uy + force * 2, ROWNO - 1);
+    for (let x = startX; x <= endX; x++) {
+        for (let y = startY; y <= endY; y++) {
+            const mtmp = m_at(x, y, state);
+            if (mtmp) {
+                await wakeup(mtmp, true, { ...env, random });
+                if (mtmp.mundetected) {
+                    mtmp.mundetected = false;
+                    newsym(x, y, state);
+                    if (ceiling_hider(mtmp.data)) {
+                        if (cansee(x, y, state)) {
+                            await message(`${Amonnam(mtmp, { ...env, state })} is shaken loose from the ceiling!`, state);
+                        } else if (!is_flyer(mtmp.data)) {
+                            // Soundeffect(se_thump, 50) is a tty no-op.
+                            const heard = youHear('a thump.', state);
+                            if (heard) await message(heard, state);
+                        }
+                    }
+                }
+                const appearance = M_AP_TYPE(mtmp);
+                if (appearance !== M_AP_NOTHING && appearance !== M_AP_MONSTER) {
+                    seemimic(mtmp, state, {
+                        ...env,
+                        newsym: (mx, my) => newsym(mx, my, state),
+                        unblockPoint: (mx, my) => unblock_point(mx, my, state),
+                    });
+                }
+            }
+
+            if (random.rn2(14 - force)) continue;
+
+            const location = state.level.at(x, y);
+            switch (location.typ) {
+            case FOUNTAIN:
+                if (cansee(x, y, state))
+                    await message(`The fountain falls into a chasm.`, state);
+                await do_pit(x, y, tuPit, state, { ...env, random, message });
+                break;
+            case SINK:
+                if (cansee(x, y, state))
+                    await message(`The kitchen sink falls into a chasm.`, state);
+                await do_pit(x, y, tuPit, state, { ...env, random, message });
+                break;
+            case ALTAR: {
+                const altarMask = altarmask_at(x, y, state);
+                if (altarMask & AM_SANCTUM) break;
+                const alignment = Amask2align(altarMask & AM_MASK);
+                if (cansee(x, y, state)) {
+                    await message(`The ${align_str(alignment)} altar falls into a chasm.`, state);
+                }
+                note_unported('pray.c desecrate_altar');
+                await do_pit(x, y, tuPit, state, { ...env, random, message });
+                break;
+            }
+            case GRAVE:
+                if (cansee(x, y, state))
+                    await message('The headstone topples into a chasm.', state);
+                await do_pit(x, y, tuPit, state, { ...env, random, message });
+                break;
+            case THRONE:
+                if (cansee(x, y, state))
+                    await message('The throne falls into a chasm.', state);
+                await do_pit(x, y, tuPit, state, { ...env, random, message });
+                break;
+            case SCORR:
+                location.typ = CORR;
+                unblock_point(x, y, state);
+                if (cansee(x, y, state)) await message('A secret corridor is revealed.', state);
+                // FALLTHROUGH: newly revealed SCORR is processed as CORR.
+            case CORR:
+            case ROOM:
+                await do_pit(x, y, tuPit, state, { ...env, random, message });
+                break;
+            case SDOOR:
+                cvt_sdoor_to_door(location, state);
+                if (cansee(x, y, state)) await message('A secret door is revealed.', state);
+                // FALLTHROUGH: newly revealed SDOOR is processed as DOOR.
+            case DOOR:
+                if (location.doormask === D_NODOOR) {
+                    await do_pit(x, y, tuPit, state, { ...env, random, message });
+                    break;
+                }
+                location.doormask = D_NODOOR;
+                recalc_block_point(x, y, state);
+                newsym(x, y, state);
+                if (cansee(x, y, state)) await message('The door collapses.', state);
+                if (in_rooms(x, y, SHOPBASE, state).length)
+                    note_unported('shk.c add_damage');
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
+
 // C ref: music.c generic_lvl_desc() (478-492), using dungeon.h's exact
 // level comparisons. Supplying state keeps the pure predicate testable.
 export function generic_lvl_desc(state = game) {
@@ -366,7 +616,8 @@ export async function do_improvisation(instr, state = game, env = {}) {
         consume_obj_charge(instr, true, { state });
         await message('You produce a heavy, thunderous rolling!', state);
         await message(`The entire ${generic_lvl_desc(state)} is shaking around you!`, state);
-        note_unported('music.c do_earthquake');
+        await do_earthquake(Math.trunc((state.u.ulevel - 1) / 3) + 1,
+            state, { ...env, message, random });
         await awaken_monsters(ROWNO * COLNO, state, env);
         discover_object(DRUM_OF_EARTHQUAKE, true, true, true, state);
         break;

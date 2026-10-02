@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first force variation for the A73 do_earthquake -> do_pit runtime witness. The seed 37486119 and clock 20520210163400 were chosen before the first C run; that run showed six level-up pager screens, so this frozen variation adds the sixth required dismissal. #levelchange sets level 7, making the source pass force 3. Three west moves put the hero near ordinary room floor, and the charged drum reaches the same selected source caller.",
+  "segments": [
+    {
+      "seed": 37486119,
+      "datetime": "20520210163400",
+      "nethackrc": "OPTIONS=name:EarthquakePitForceThree,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,playmode:debug\n",
+      "moves": ".#levelchange\n7\n      \u0017uncursed drum of earthquake (0:1)\nhhhae                                        "
+    }
+  ]
+}

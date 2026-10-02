@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first attempt for the A73 force variation. The seed 37486119 and clock 20520210163400 were chosen independently. #levelchange to level 7 emitted six level-up pager screens; the five spaces in this attempt dismissed only the first five, so Ctrl-W was consumed by the sixth pager and the drum caller never ran. The matching C artifact is retained under .cache/A73-logs/ and is not a passing recording. The corrected variation uses six pager dismissals before the same source-selected wish and room approach.",
+  "segments": [
+    {
+      "seed": 37486119,
+      "datetime": "20520210163400",
+      "nethackrc": "OPTIONS=name:EarthquakePitForceThree,role:Barbarian,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,playmode:debug\n",
+      "moves": ".#levelchange\n7\n     \u0017uncursed drum of earthquake (0:1)\nhhhae                                        "
+    }
+  ]
+}

@@ -1,15 +1,18 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { ACH_TUNE, A_WIS, DB_EAST, DB_NORTH, DB_SOUTH, DB_WEST, DBWALL, DEAF,
-    DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, ROOM, SLEEP_RES, STRAT_WAITMASK,
-    TIMEOUT, UNCHANGING, OBJ_INVENT } from '../js/const.js';
+import { ACH_TUNE, A_WIS, COLNO, DB_EAST, DB_NORTH, DB_SOUTH, DB_WEST,
+    DBWALL, DEAF, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, HALF_PHDAM,
+    OBJ_INVENT, PIT, ROOM, ROWNO, SLEEP_RES, STONE, STRAT_WAITMASK,
+    TIMEOUT, UNCHANGING }
+from '../js/const.js';
 import { find_drawbridge, is_db_wall, is_drawbridge_wall } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { awaken_monsters, awaken_scare, awaken_soldiers, charm_monsters,
     charm_snakes, calm_nymphs, do_improvisation, do_play_instrument,
-    generic_lvl_desc, improvised_notes,
+    do_earthquake, do_pit, generic_lvl_desc, improvised_notes,
+    musicMaybeHalfPhys,
     put_monsters_to_sleep } from '../js/music.js';
 import { PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SNAKE, PM_SOLDIER,
     PM_WOOD_NYMPH } from '../js/monsters.js';
@@ -69,6 +72,106 @@ test('generic_lvl_desc follows source level precedence and branch names', () => 
         state.u.uz = { dnum, dlevel };
         assert.equal(generic_lvl_desc(state), expected);
     }
+});
+
+test('earthquake ports whole source scans and caps force at thirteen', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/music.c', import.meta.url), 'utf8');
+    const pit = source.match(/staticfn void\s+do_pit\(coordxy x, coordxy y, unsigned tu_pit\)\s*\{([\s\S]*?)^\}/mu)?.[1];
+    const quake = source.match(/staticfn void\s+do_earthquake\(int force\)\s*\{([\s\S]*?)^\}/mu)?.[1];
+    assert.ok(pit, 'C do_pit definition');
+    assert.ok(quake, 'C do_earthquake definition');
+    assert.match(pit, /chasm = maketrap\(x, y, PIT\);\s*if \(!chasm\)\s*return/u);
+    assert.match(pit, /filltype = fillholetyp\(x, y, FALSE\);[\s\S]*?set_levltyp\(x, y, filltype\);[\s\S]*?liquid_flow\(x, y, filltype, chasm, \(char \*\) 0\);[\s\S]*?chasm = t_at\(x, y\)/u);
+    assert.match(quake, /if \(force > 13\)[\s\S]*?force = 13;/u);
+    assert.match(quake, /for \(x = start_x; x <= end_x; x\+\+\)\s*for \(y = start_y; y <= end_y; y\+\+\)/u);
+    assert.match(quake, /wakeup\(mtmp, TRUE\);[\s\S]*?if \(rn2\(14 - force\)\)/u);
+    assert.match(quake, /case SCORR:[\s\S]*?FALLTHROUGH;[\s\S]*?case CORR:[\s\S]*?case ROOM:/u);
+
+    const js = readFileSync(new URL('../js/music.js', import.meta.url), 'utf8');
+    const jsPit = js.match(/export async function do_pit\([\s\S]*?^\}/mu)?.[0];
+    const jsQuake = js.match(/export async function do_earthquake\([\s\S]*?^\}/mu)?.[0];
+    assert.ok(jsPit, 'JavaScript do_pit definition');
+    assert.ok(jsQuake, 'JavaScript do_earthquake definition');
+    assert.match(jsPit, /await maketrap\(x, y, PIT[\s\S]*?note_unported\('dig\.c liquid_flow'\);\s*if \(!t_at\(x, y, state\)\) return;/u);
+    assert.match(jsPit, /note_unported\('trap\.c mselftouch'\);[\s\S]*?random\.rnd\(alreadyTrapped \? 4 : 6\)/u);
+    assert.match(jsQuake, /if \(force > 13\) force = 13;/u);
+    assert.match(jsQuake, /for \(let x = startX; x <= endX; x\+\+\)\s*\{\s*for \(let y = startY; y <= endY; y\+\+\)/u);
+    assert.match(jsQuake, /await wakeup\(mtmp, true[\s\S]*?if \(random\.rn2\(14 - force\)\) continue;/u);
+    assert.match(js, /await do_earthquake\(Math\.trunc\(\(state\.u\.ulevel - 1\) \/ 3\) \+ 1,[\s\S]*?state, \{ \.\.\.env, message, random \}\);/u);
+    assert.doesNotMatch(js, /note_unported\('music\.c do_earthquake'\)/u);
+
+    // The hero is at (1,0), so a force-13 square is clipped to x=1..27 and
+    // y=0..20: 567 source cells. Each bound is rn2(14-13), or one. Testing
+    // force14 outside the C safety cap must produce the same source scan.
+    async function cappedScan(force) {
+        const bounds = [];
+        const state = {
+            u: { ux: 1, uy: 0, uprops: [] },
+            level: {
+                traps: [],
+                monsters: Array.from({ length: COLNO }, () => Array(ROWNO).fill(null)),
+                at: () => ({ typ: STONE }),
+            },
+        };
+        await do_earthquake(force, state, {
+            random: { rn2(bound) { bounds.push(bound); return 0; } },
+            message: () => {},
+        });
+        return bounds;
+    }
+    const atCap = await cappedScan(13);
+    const outsideCap = await cappedScan(14);
+    assert.equal(atCap.length, 567);
+    assert.ok(atCap.every(bound => bound === 1));
+    assert.deepEqual(outsideCap, atCap);
+});
+
+test('do_pit marks its created trap seen and leaves an ordinary empty square', async () => {
+    const state = await startedGame();
+    let square = null;
+    for (let y = 1; y < ROWNO - 1 && !square; y++) { // Avoid the source map's boundary rows.
+        for (let x = 2; x < COLNO - 1; x++) { // Keep the selected square inside the level.
+            const location = state.level.at(x, y);
+            if (location?.typ === ROOM && !state.level.monsters[x]?.[y]
+                && !state.level.traps.some(trap => trap.tx === x && trap.ty === y)
+                && (x !== state.u.ux || y !== state.u.uy)) {
+                square = { x, y };
+                break;
+            }
+        }
+    }
+    assert.ok(square, 'source-valid ordinary room square for the pit helper');
+    const lines = [];
+    const draws = scripted([]); // Empty ROOM neighbors make fillholetyp() return ROOM without a draw.
+    // Zero means no pre-existing hero pit; the selected square is not the hero's cell.
+    await do_pit(square.x, square.y, 0, state, {
+        random: draws.random,
+        message: line => lines.push(line),
+    });
+    draws.finished(); // maketrap(PIT) and fillholetyp(ROOM) consume no randomness here.
+    const trap = state.level.traps.find(candidate => candidate.tx === square.x
+        && candidate.ty === square.y);
+    assert.equal(trap?.ttyp, PIT);
+    assert.equal(trap?.tseen, 1);
+    assert.deepEqual(lines, []);
+});
+
+test('Maybe_Half_Phys uses source intrinsic/extrinsic state and rounds odd damage up', () => {
+    const hack = readFileSync(new URL('../nethack-c/upstream/include/hack.h', import.meta.url), 'utf8');
+    const properties = readFileSync(new URL('../nethack-c/upstream/include/youprop.h', import.meta.url), 'utf8');
+    const macro = hack.match(/#define Maybe_Half_Phys\(dmg\)[^\n]*\n[^\n]*/u)?.[0];
+    assert.ok(macro?.includes('((Half_physical_damage) ? (((dmg) + 1) / 2) : (dmg))'));
+    assert.match(properties, /#define Half_physical_damage \(HHalf_physical_damage \|\| EHalf_physical_damage\)/u);
+    assert.match(properties, /#define HHalf_physical_damage u\.uprops\[HALF_PHDAM\]\.intrinsic\s*#define EHalf_physical_damage u\.uprops\[HALF_PHDAM\]\.extrinsic/u);
+
+    const state = { u: { uprops: [] } };
+    assert.equal(musicMaybeHalfPhys(5, state), 5); // Neither C property source is present.
+    state.u.uprops[HALF_PHDAM] = { intrinsic: 1, extrinsic: 0 };
+    assert.equal(musicMaybeHalfPhys(5, state), 3); // C uses (5 + 1) / 2.
+    state.u.uprops[HALF_PHDAM] = { intrinsic: 0, extrinsic: 1 };
+    assert.equal(musicMaybeHalfPhys(5, state), 3); // Extrinsic grants the same protection.
+    state.u.uprops[HALF_PHDAM] = { intrinsic: 0, extrinsic: 0 };
+    assert.equal(musicMaybeHalfPhys(4, state), 4);
 });
 
 test('improvised_notes draws one to five notes, then preserves the saved jingle when Unchanging', () => {
