@@ -1695,7 +1695,7 @@ export async function zapyourself(obj, ordinary, state = game) {
             damage = orig_dmg;
             monstunseesu(M_SEEN_FIRE, state);
         }
-        burn_away_slime(state);
+        await burn_away_slime(state, env);
         await burnarmor(state.youmonst, env);
         await destroy_items(state.youmonst, AD_FIRE, orig_dmg, env);
         await ignite_items(state.invent, env);
@@ -5107,7 +5107,7 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random, rawEnv = {}) {
         }
         dam = orig_dam;
         monstunseesu(M_SEEN_FIRE, state);
-        burn_away_slime(state);
+        await burn_away_slime(state, env);
         /* "body hit" */
         if (await burnarmor(state.youmonst, { ...env })) {
             if (!random.rn2(3))

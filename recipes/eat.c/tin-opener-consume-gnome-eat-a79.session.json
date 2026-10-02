@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 74126039,
+      "datetime": "20261002213500",
+      "nethackrc": "OPTIONS=name:TinCallerA79,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed tin opener\n\u0017blessed tin of homemade gnome\nap q y"
+    }
+  ],
+  "comment": "Corrected A79 C-first caller recipe after preserving the prefix that reached the smell message. C shows the tin-opener message/prompt, then `The tin opens like magic! It smells like gnomes.--More--` at the previous recipe end; this new frozen suffix adds one space to dismiss that C page, then y to accept `Eat it?`. The valid gnome tin reaches consume_tin -> cprefx; it does not claim make_slimed. The input is frozen before the C recording and any JavaScript comparison."
+}

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -27,6 +28,43 @@ const DROP_X = 12;
 const DROP_Y = 8;
 const AWAY_X = 30;
 const AWAY_Y = 3;
+
+const C_DO = readFileSync(
+    new URL('../nethack-c/upstream/src/do.c', import.meta.url), 'utf8',
+);
+const JS_DO = readFileSync(new URL('../js/do.js', import.meta.url), 'utf8');
+
+test('do.c boulder lava splash awaits burn_away_slime before damage', () => {
+    const cStart = C_DO.indexOf('boulder_hits_pool(\n    struct obj *otmp');
+    const cEnd = C_DO.indexOf(
+        '\n/* Used for objects which sometimes do special things when dropped',
+        cStart,
+    );
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cBoulder = C_DO.slice(cStart, cEnd);
+    const cOrder = [
+        'You("are hit by molten %s%c",',
+        'burn_away_slime();',
+        'dmg = d((Fire_resistance ? 1 : 3), 6);',
+        'losehp(Maybe_Half_Phys(dmg),',
+    ].map((text) => cBoulder.indexOf(text));
+    assert.ok(cOrder.every((index) => index >= 0));
+    assert.deepEqual(cOrder, [...cOrder].sort((a, b) => a - b));
+
+    const jsStart = JS_DO.indexOf('export async function boulder_hits_pool(');
+    const jsEnd = JS_DO.indexOf('\n}\n', jsStart) + 3;
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsBoulder = JS_DO.slice(jsStart, jsEnd);
+    const jsOrder = [
+        'await message(\n                `You are hit by molten',
+        'await burn_away_slime(state, rawEnv);',
+        'const damage = random.d',
+        'await losehp(',
+    ].map((text) => jsBoulder.indexOf(text));
+    assert.ok(jsOrder.every((index) => index >= 0));
+    assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
+    assert.doesNotMatch(jsBoulder, /note_unported\(['"]trap\.c burn_away_slime/u);
+});
 
 function fixture({
     typ = ROOM, temperature = 0, monMoving = false, seen = true,

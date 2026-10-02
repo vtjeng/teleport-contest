@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 65071429,
+      "datetime": "20261002175000",
+      "nethackrc": "OPTIONS=name:SlimeTinA79Boil,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\ng\n \u0017blessed tin opener\n\u0017blessed tin of boiled green slime meat\napqy"
+    }
+  ],
+  "comment": "Cheap source variation for A79: same independent wizard caller route with a boiled rather than homemade green-slime tin. Source tintxts therefore selects the boiled food description/nutrition row after the same cprefx infection call. This input is frozen before either C run."
+}

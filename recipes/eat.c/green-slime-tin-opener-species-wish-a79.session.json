@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 53147029,
+      "datetime": "20261002201500",
+      "nethackrc": "OPTIONS=name:SlimeTinA79Home2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed tin opener\n\u0017blessed tin of homemade green slime\nao py"
+    }
+  ],
+  "comment": "Source-corrected A79 C-first caller recipe. `objnam.c:4381-4389` parses the words after `tin of ` as a tin variety followed by a monster name; `eat.c:tin_variety_txt` recognizes `homemade `, and `name_to_mon` must receive `green slime` without the display-only “meat” suffix. The prior wish phrase had a C-observed NON_PM/empty tin and is preserved as a setup miss. C showed opener slot o and tin slot p; the frozen sequence applies/wields the opener, dismisses its message, selects the tin, and accepts the food prompt."
+}

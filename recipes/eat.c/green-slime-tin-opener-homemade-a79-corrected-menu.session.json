@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 53147029,
+      "datetime": "20261002201500",
+      "nethackrc": "OPTIONS=name:SlimeTinA79Home2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed tin opener\n\u0017blessed homemade tin of green slime meat\nao py"
+    }
+  ],
+  "comment": "Corrected A79 C-first input after preserving both prior wrong-slot and wrong-menu attempts. C showed opener slot o, then `use_tin_opener` wielded it; a space dismisses the C More and exposes the getobj prompt `[p or ?*]`, where the tin is p. The p selection starts the tin and y accepts its eat prompt. Frozen before another C run and before JavaScript comparison."
+}

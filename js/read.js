@@ -426,7 +426,7 @@ import { note_unported } from './unported.js';
 import { getpos } from './getpos.js';
 import { explode } from './explode.js';
 import { create_gas_cloud, valid_cloud_pos } from './region.js';
-import { end_burn } from './timeout.js';
+import { burn_away_slime, end_burn } from './timeout.js';
 import { encumber_msg } from './pickup.js';
 import { remove_worn_item } from './steal.js';
 
@@ -2804,9 +2804,7 @@ export async function seffect_fire(scroll, state = game) {
             await ttyPline('The scroll erupts in a tower of flame!', state);
             state.iflags ??= {};
             state.iflags.last_msg = PLNMSG_TOWER_OF_FLAME;
-            // timeout.c burn_away_slime() returns void and its JS port is
-            // incomplete for the active Slimed branch; retain the source gap.
-            note_unported('timeout.c burn_away_slime');
+            await burn_away_slime(state);
         }
     }
 

@@ -106,6 +106,7 @@ import { Flying, is_lava, is_pool, t_at, uescaped_shaft, uteetering_at_seen_pit 
 import { Monnam, hliquid, mon_nam } from './do_name.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
+import { burn_away_slime } from './timeout.js';
 
 // youprop.h:120 Hallucination: intrinsic only, unless resisted.
 function Hallucination(state) {
@@ -772,7 +773,7 @@ export async function dosit(state = game, rawEnv = {}) {
             } else if (u.utraptype === TT_LAVA) {
                 await message(`You sit in the ${hliquid('lava', { ...rawEnv, state })}!`, state);
                 if (u.uprops?.[SLIMED]?.intrinsic)
-                    note_unported('timeout.c burn_away_slime');
+                    await burn_away_slime(state, rawEnv);
                 u.utrap += random.rnd(4);
                 const { losehp } = await import('./hack.js');
                 await losehp(random.d(2, 10), 'sitting in lava', KILLED_BY,
@@ -813,7 +814,7 @@ export async function dosit(state = game, rawEnv = {}) {
         await message(sit_message(hliquid('lava', { ...rawEnv, state })), state);
         // Unlike the trapped-lava arm above, sit.c calls this unconditionally;
         // the helper itself decides whether any slime needs to burn away.
-        note_unported('timeout.c burn_away_slime');
+        await burn_away_slime(state, rawEnv);
         if (likes_lava(species)) {
             await message(`${The(hliquid('lava', { ...rawEnv, state }), state)} feels warm.`, state);
             return ECMD_TIME;

@@ -43,6 +43,8 @@ import {
     PICK_ONE,
     POISON_RES,
     SLEEP_RES,
+    SICK,
+    SLIMED,
     SPINE,
     STUNNED,
     TIMEOUT,
@@ -141,7 +143,9 @@ import {
     num_spells,
     spell_skilltype,
 } from './startup_skills.js';
-import { make_blinded, make_confused, peffects } from './potion.js';
+import {
+    healup, make_blinded, make_confused, make_slimed, peffects,
+} from './potion.js';
 import { discover_object, observe_object } from './o_init.js';
 import { use_skill } from './weapon.js';
 import { zapyourself, weffects } from './zap.js';
@@ -1367,6 +1371,20 @@ export async function spelleffects(spell_otyp, atme, force, state = game,
     const role_skill = P_SKILL(skill, state);
 
     switch (otyp) {
+    case SPE_CURE_SICKNESS: {
+        const wasSick = Boolean(state.u.uprops[SICK].intrinsic);
+        const wasSlimed = Boolean(state.u.uprops[SLIMED].intrinsic);
+        await healup(0, 0, true, false, state, env);
+        const message = env.message ?? ttyPline;
+        if (wasSick || !wasSlimed) {
+            await message(
+                `You are ${wasSick ? 'no longer' : 'not'} ill.`, state,
+            );
+        }
+        if (wasSlimed)
+            await make_slimed(0, 'The slime disappears!', state, env);
+        break;
+    }
     // Skilled fireball/cone-of-cold uses throwspell()/explode(), which are
     // not ported. Unskilled falls through to the wand-duplicate path.
     case SPE_FIREBALL:

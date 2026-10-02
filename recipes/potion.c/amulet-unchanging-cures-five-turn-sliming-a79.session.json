@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 64028019,
+      "datetime": "20261002140000",
+      "nethackrc": "OPTIONS=name:A79SlimeCure,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\n5c\n #wizwish\namulet of unchanging\nPp"
+    }
+  ],
+  "_comment": "Independent A79 cure witness through do_wear.c:Amulet_on -> potion.c:make_slimed(0, NULL). Seed 64028019 and the fixed clock were chosen before recording, without a seed search; debug Wizard mode exists only to set the source SLIMED property and wish an amulet. The 5 prefix exercises the explicit nondefault count branch of wizcmds.c; no other input changes. C's first wish object will be selected from the inventory letter shown by its own output; P then wears that amulet. The space before #wizwish dismisses the C-observed transition pager. Freeze this positive-to-clear input before C recording or JavaScript comparison."
+}
