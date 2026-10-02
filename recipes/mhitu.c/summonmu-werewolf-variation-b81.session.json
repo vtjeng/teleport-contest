@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only source variation for mhitu.c:summonmu -> were.c:were_summon: a hostile werewolf exercises the wolf helper table rather than the rat table. Its independently chosen seed/date and character gender exercise the second beast-family selector; C summons a wolf on the later rest, but the JavaScript replay diverges earlier at the unported uhitm.c:mhitm_ad_were behavior. Keep this recipe outside recordings.",
+  "segments": [
+    {
+      "seed": 8111173,
+      "datetime": "20270809160400",
+      "nethackrc": "OPTIONS=name:B81Wolf,role:Wizard,race:human,gender=female,align=lawful,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": " #levelchange\n20\n                     #wizgenesis\nhostile werewolf\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

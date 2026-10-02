@@ -133940,6 +133940,1180 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-objnam-doname-base-shop-pricing-v16-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete object naming and shop pricing",
+      "cFile": "objnam.c",
+      "sessions": [
+        "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+        "synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe",
+        "synthetic/v16/rogue-throws-wielded-aklys"
+      ],
+      "selectionReason": "Three complete saved investigations identify the same whole function, objnam.c:doname_base(). The two v15 wish cases stop at segment 0 step 25 because the lit-candle branch omits its BURN_OBJECT timer adjustment. The v16 wield case stops at segment 0 step 27 because a wielded AKLYS lacks C's tethered-to hand wording. Whole-function completion also reaches the source's live-price branch, whose return-valued get_cost_of_shop_item() helper and price cascade are currently partial, so those consumed C helpers are included. Root verified whole primary scope, production callers, current saved evaluation and packet evidence. Supporting helpers and dispatcher arms receive no additional whole-function credit.",
+      "detail": "Compared whole objnam.c:doname_base and supporting consumed-return price cascade against C, including identification ordering, quantity/articles/BUC/contents, every class arm, candle timer age, corpse/egg prefix separation, class worn text before wizard gender and weapon/quiver suffixes, unpaid/live/remembered pricing, sequential Concat versus ConcatF byte limits, poisoned/article pointer offsets, stale cached capacity across append_price_quote, wizard weight before strprepend and final menu bounds. Correction implements consumed xname_flags gameover shirt/apron/candy/Hawaiian text in C order and distant_name ID masking/restoration, removes obsolete naming preflight and no-op caller scaffolding. get_cost_of_shop_item short circuits and cost-before-unit order now match source; append_price_quote measures UTF-8 bytes. Existing discarded impossible diagnostic remains source-named; snuff_candle is outside this naming task. Admitted wish/wield prefixes, existing full shop records and two independent full gameover disclosure records establish runtime wiring. Supporting helpers receive no additional completion credit. Root verified all corrected edge fixtures, preserved failures and exact immutable correction inputs.",
+      "openedAt": "7e6638c482c84a82d3b0024cb0d22fccf41d4a92",
+      "openStanding": {
+        "sha": "773af83383d42a4cbec583a298a100c949c92392",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c842043c989d321c10404073a9cc57190a675d85",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "doname_base",
+          "line": 1223,
+          "endLine": 1753,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1223,
+        "to": 1753
+      },
+      "syntheticProvenance": {
+        "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame": {
+          "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+          "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+          "evaluationPath": "challenges/evaluations/20261001220923-v15.json",
+          "evaluationCommit": "773af83383d42a4cbec583a298a100c949c92392"
+        },
+        "synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe": {
+          "session": "synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe",
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recordingPath": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.session.json",
+          "recordingSha256": "f65498afb4ef4a6e990ab7af979d951edb2875f14fd434fa06de976e1b7d9893",
+          "evaluationPath": "challenges/evaluations/20261001220923-v15.json",
+          "evaluationCommit": "773af83383d42a4cbec583a298a100c949c92392"
+        },
+        "synthetic/v16/rogue-throws-wielded-aklys": {
+          "session": "synthetic/v16/rogue-throws-wielded-aklys",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "rogue-throws-wielded-aklys",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+          "recordingSha256": "10995334024af1d28a1c9c522cee774cece26ecb24411cbfe5aaf4b67b58e0ed",
+          "evaluationPath": "challenges/evaluations/20261001220923-v16.json",
+          "evaluationCommit": "773af83383d42a4cbec583a298a100c949c92392"
+        }
+      },
+      "activeStanding": {
+        "sha": "773af83383d42a4cbec583a298a100c949c92392",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+          "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+          "recipe": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.recipe.session.json",
+          "recipeSha256": "b9e232c7707804772ab3d6aa557133292c7bf81bdc8b6cb0c319aac8ea329356",
+          "replayInputSha256": "3e4ea9d3267f124b5cb63dd2b1a88034539baa4cb8c2888df21fef75f476aa66",
+          "evaluationPath": "challenges/evaluations/20261001220923-v15.json",
+          "evaluationCommit": "773af83383d42a4cbec583a298a100c949c92392",
+          "evaluationArtifact": "challenges/evaluations/20261001220923-v15.json",
+          "evaluationUtc": "2026-10-01T22:10:11.964Z",
+          "remainingScreens": 4,
+          "recordedSteps": 29,
+          "previousScreensMatched": 25,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 25,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2746,
+              "total": 2757
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+            "step": 25
+          },
+          "step": 25,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.json",
+            "result": {
+              "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+              "remainingScreens": 4,
+              "recordedSteps": 29,
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+                "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+                "recipe": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.recipe.session.json",
+                "recipeSha256": "b9e232c7707804772ab3d6aa557133292c7bf81bdc8b6cb0c319aac8ea329356",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 4,
+                "recordedSteps": 29,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 25,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 2746,
+                    "total": 2757
+                  },
+                  "cursors": {
+                    "matched": 25,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+                  "step": 25
+                },
+                "step": 25,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first miss is objnam.c doname_base(): naming the newly wished-for lit candle needs its BURN_OBJECT timer adjustment. After that branch, the intended throw reaches a separate unported snuff_candle() call in dothrow.c throwit().",
+              "source": {
+                "file": "objnam.c",
+                "branch": "For a lit wax or tallow candle in doname_base(), calculate remaining burn time from obj->age and, while lit, add peek_timer(BURN_OBJECT, &timer) - svm.moves before deciding whether to prefix “partly used”; append “(lit)” afterward.",
+                "functions": [
+                  "doname_base"
+                ],
+                "callers": [
+                  "C: objnam.c doname() calls doname_base() (1754); zap.c makewish() calls doname(otmp) at 6388 before hold_another_object(), reached from wizcmds.c wiz_wish() at 38.",
+                  "JavaScript: js/zap.js makewish() calls donameFresh() before object placement; js/wizcmds.js wiz_wish() calls makewish(). donameFresh() reaches donameFreshInternal() and preflightDoname() in js/objnam.js."
+                ],
+                "dependencies": [
+                  "timeout.c peek_timer() (2324) looks up the absolute timeout for BURN_OBJECT and the same object; the candle branch subtracts svm.moves. JavaScript has the corresponding timer lookup in js/timeout.js peek_timer().",
+                  "The full-burn threshold uses objects[obj->otyp].oc_cost; JavaScript objectType(obj).oc_cost is already available to the formatter."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned scan artifact .cache/synthetic-scans/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.json records the first stop at step 25 as “unsupported object name branch: lit candle timer adjustment”. The supplied C recording challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json shows “o - a candle (lit).” at step 25 and, after the throw and direction inputs, “The candle’s flame is extinguished.” at step 28.",
+                "The first source owner is objnam.c doname_base(), defined at 1223; its candle suffix branch at 1458–1483 uses obj->age, objects[otyp].oc_cost, obj->lamplit, peek_timer(BURN_OBJECT), and svm.moves. The JavaScript whole-function counterpart is represented by donameFreshInternal() in js/objnam.js; its current candle modifier compares only obj.age and preflightDoname() refuses a lit candle at js/objnam.js:449. C zap.c makewish() calls doname(otmp) at 6388 before hold_another_object(), so this naming branch blocks the #wizwish setup before the throw begins.",
+                "The timer dependency is timeout.c peek_timer() at 2324, which returns the matching object timer’s absolute timeout or zero; this routine already has a JavaScript counterpart in js/timeout.js. The investigation scope is the complete objnam.c doname_base() function, not just the candle conditional, because the selection rules require whole-function ports.",
+                "A separate later gap is exposed by the target behavior: after landing, dothrow.c throwit() calls (void) snuff_candle(obj) at 1818. apply.c snuff_candle() at 1472 prints the extinguished-flame message and calls end_burn(otmp, TRUE). js/dothrow.js:2693 currently records note_unported('apply.c snuff_candle') in that landing path. This does not cause the first stop at step 25; it remains a separate source scope required to produce the step-28 extinguishing result after the naming miss is repaired."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+          "session": "synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.session.json",
+          "recordingSha256": "f65498afb4ef4a6e990ab7af979d951edb2875f14fd434fa06de976e1b7d9893",
+          "recipe": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.recipe.session.json",
+          "recipeSha256": "5b7511c5d1fdeef05d0de74535836392587a69a29a9c134610cac323938a1f2a",
+          "replayInputSha256": "3e4ea9d3267f124b5cb63dd2b1a88034539baa4cb8c2888df21fef75f476aa66",
+          "evaluationPath": "challenges/evaluations/20261001220923-v15.json",
+          "evaluationCommit": "773af83383d42a4cbec583a298a100c949c92392",
+          "evaluationArtifact": "challenges/evaluations/20261001220923-v15.json",
+          "evaluationUtc": "2026-10-01T22:10:11.964Z",
+          "remainingScreens": 4,
+          "recordedSteps": 29,
+          "previousScreensMatched": 25,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 25,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2532,
+              "total": 2541
+            },
+            "cursors": {
+              "matched": 25,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+            "step": 25
+          },
+          "step": 25,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe.json",
+            "result": {
+              "session": "synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe",
+              "remainingScreens": 4,
+              "recordedSteps": 29,
+              "corpus": "synthetic",
+              "batch": "v15",
+              "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+              "manifestPath": "challenges/manifests/v15.json",
+              "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+              "recordingSha256": "f65498afb4ef4a6e990ab7af979d951edb2875f14fd434fa06de976e1b7d9893",
+              "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+              "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "status": "complete",
+              "commit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v15",
+                "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+                "session": "synthetic/v15/wizard-throws-magic-marker-during-lit-candle-probe",
+                "manifestPath": "challenges/manifests/v15.json",
+                "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+                "recording": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.session.json",
+                "recordingPath": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.session.json",
+                "recordingSha256": "f65498afb4ef4a6e990ab7af979d951edb2875f14fd434fa06de976e1b7d9893",
+                "recipe": "challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.recipe.session.json",
+                "recipeSha256": "5b7511c5d1fdeef05d0de74535836392587a69a29a9c134610cac323938a1f2a",
+                "replayInputSha256": "34042da147f5866889f5773e0b1bee5a51a653b5a38531f9103962cbdcf126a4",
+                "evaluationPath": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationCommit": "6d2c675aad59f170ec44980d6afce47f08ae7423",
+                "evaluationArtifact": "challenges/evaluations/20261001022926-v15.json",
+                "evaluationUtc": "2026-10-01T02:29:26.613Z",
+                "remainingScreens": 4,
+                "recordedSteps": 29,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 25,
+                    "total": 29
+                  },
+                  "rng": {
+                    "matched": 2532,
+                    "total": 2541
+                  },
+                  "cursors": {
+                    "matched": 25,
+                    "total": 29
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+                  "step": 25
+                },
+                "step": 25,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: lit candle timer adjustment",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first stop is the lit-candle branch of objnam.c:doname_base while zap.c:makewish formats the wish result. C then continues to throw the Wizard’s starting magic marker with input n; the candle is only the naming probe, so this recording does not exercise candle extinguishing. After the marker lands, JS records apply.c:snuff_candle as a later gap, but C returns false immediately for that non-candle.",
+              "source": {
+                "file": "objnam.c",
+                "branch": "In doname_base(), a wished object satisfies Is_candle(obj) and obj->lamplit while its BURN_OBJECT timer is active. The TOOL_CLASS naming branch adjusts obj->age by peek_timer(BURN_OBJECT, &timer) - svm.moves before comparing turns_left with 20 * objects[obj->otyp].oc_cost, then appends the lit suffix.",
+                "functions": [
+                  "doname_base"
+                ],
+                "callers": [
+                  "objnam.c:doname() (1753-1757) calls doname_base with ordinary flags. The observed route is cmd.c:extcmdlist[\"wizwish\"] -> wizcmds.c:wiz_wish() -> zap.c:makewish() -> doname(otmp) at zap.c:6388.",
+                  "objnam.c:doname_with_price(), doname_vague_quan(), and paydoname() are the other direct wrappers into doname_base (objnam.c:1761-1764, 1782, 2326); they are not reached by this recording.",
+                  "After the wish-result string, zap.c:makewish() may format the added object through invent.c:hold_another_object() -> prinv() -> xprname() -> doname(); that second render is later than the failing call."
+                ],
+                "dependencies": [
+                  "objnam.c:xname(obj) runs first in doname_base and can update discovery state; js/objnam.js:xnameFresh() is already implemented and its ordering must be preserved.",
+                  "timeout.c:peek_timer(BURN_OBJECT, &timer) returns an absolute timer expiry that is consumed in the turns_left calculation. js/timeout.js:peek_timer() already returns the matching timer timeout by function index and object identity.",
+                  "The exercised branch consumes BURN_OBJECT, svm.moves, obj->age, obj->lamplit, objects[obj->otyp].oc_cost, and the Is_candle(obj) classification. Preserve the zeroed anything timer with timer.a_obj = obj."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Source: frozen checkout 6d2c675aad59f170ec44980d6afce47f08ae7423, nethack-c/upstream/src/objnam.c:1223-1751 is the complete doname_base() function. Its candle arm at :1456-1477 calculates full burn time from objects[].oc_cost and, for a lit candle, adjusts stored age using peek_timer(BURN_OBJECT) - svm.moves before deciding whether to add \"partly used\".",
+                "Source caller: nethack-c/upstream/src/zap.c:6388 calls doname(otmp) to build the wish-result string before hold_another_object() at :6419. objnam.c:1753-1757 routes doname() to doname_base(). The command route is cmd.c:2000-2001 -> wizcmds.c:32-40 -> zap.c:makewish().",
+                "Diagnostic: .cache/synthetic-scans/v15/wizard-throws-magic-marker-during-lit-candle-probe.json reports a stop at segment 0, step 25 with \"unsupported object name branch: lit candle timer adjustment\". The current source-root implementation reaches this refusal in js/objnam.js:448-449 before formatting the candle; js/timeout.js:1155-1161 already ports peek_timer().",
+                "C recording: challenges/cases/v15/wizard-throws-magic-marker-during-lit-candle-probe.session.json has 29 steps. At step 25, the wish answer produces \"o - a candle (lit).\". The recipe then issues throw, selects n, and gives direction l. n selects the Wizard starter magic marker from the Wizard inventory in nethack-c/upstream/src/u_init.c:168-176; it is not the wished candle at o. Thus the recorded play reaches a marker throw, not a lit-candle throw.",
+                "Later source path: dothrow.c:351-375 dispatches the throw selection and :1818 calls (void) snuff_candle(obj) after floor effects. For the selected magic marker, apply.c:1472-1494 returns false before any output or timer change because it is neither a candle nor the candelabrum. js/dothrow.js:2693 still records note_unported(\"apply.c snuff_candle\") on this later marker-landing path. A throw of the lit candle at o would exercise snuff_candle() side effects, but this recording does not provide evidence for that branch."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "rogue-throws-wielded-aklys",
+          "session": "synthetic/v16/rogue-throws-wielded-aklys",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+          "recordingPath": "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+          "recordingSha256": "10995334024af1d28a1c9c522cee774cece26ecb24411cbfe5aaf4b67b58e0ed",
+          "recipe": "challenges/cases/v16/rogue-throws-wielded-aklys.recipe.session.json",
+          "recipeSha256": "32ae62cd0cd782724cd31a0676b752ddf35569f50e6345bd79f9a7f1c3cd5e78",
+          "replayInputSha256": "98f7db072bf178df8f43b9118af9162cb43b23dbabbaf47c38d30c0eea976f2d",
+          "evaluationPath": "challenges/evaluations/20261001220923-v16.json",
+          "evaluationCommit": "773af83383d42a4cbec583a298a100c949c92392",
+          "evaluationArtifact": "challenges/evaluations/20261001220923-v16.json",
+          "evaluationUtc": "2026-10-01T22:10:21.228Z",
+          "remainingScreens": 4,
+          "recordedSteps": 31,
+          "previousScreensMatched": 27,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 27,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2390,
+              "total": 2402
+            },
+            "cursors": {
+              "matched": 27,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: tethered weapon suffix",
+            "step": 27
+          },
+          "step": 27,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: tethered weapon suffix",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/rogue-throws-wielded-aklys.json",
+            "result": {
+              "session": "synthetic/v16/rogue-throws-wielded-aklys",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "rogue-throws-wielded-aklys",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingPath": "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+              "recordingSha256": "10995334024af1d28a1c9c522cee774cece26ecb24411cbfe5aaf4b67b58e0ed",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 4,
+              "recordedSteps": 31,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "rogue-throws-wielded-aklys",
+                "session": "synthetic/v16/rogue-throws-wielded-aklys",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+                "recordingPath": "challenges/cases/v16/rogue-throws-wielded-aklys.session.json",
+                "recordingSha256": "10995334024af1d28a1c9c522cee774cece26ecb24411cbfe5aaf4b67b58e0ed",
+                "recipe": "challenges/cases/v16/rogue-throws-wielded-aklys.recipe.session.json",
+                "recipeSha256": "32ae62cd0cd782724cd31a0676b752ddf35569f50e6345bd79f9a7f1c3cd5e78",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 4,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 27,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2390,
+                    "total": 2402
+                  },
+                  "cursors": {
+                    "matched": 27,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: tethered weapon suffix",
+                  "step": 27
+                },
+                "step": 27,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero command: an unported branch of this command: unsupported object name branch: tethered weapon suffix",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first stop at segment 0 step 27 is the deliberate refusal for naming a wielded AKLYS. Port the complete objnam.c doname_base() source function through its existing JS donameFreshInternal()/wornSuffix() path, including the tethered-to hand suffix and removal of the AKLYS preflight refusal. The subsequent wielded-AKLYS throw-and-return path is already implemented in dothrow.js; preserve its non-tethered sho_obj_return_to_u gap.",
+              "source": {
+                "file": "objnam.c",
+                "branch": "In doname_base(), after class-specific naming, when W_WEP is set and gm.mrg_to_wielded is false, the singleton primary AKLYS takes the hand-form suffix branch (the recorded hero is not dual-wielding): choose \"tethered to\" in place of \"weapon in\" and append the hand name. Preserve the ordinary wielded, stack/ammo, twoweapon, and merge guards around this suffix.",
+                "functions": [
+                  "doname_base"
+                ],
+                "callers": [
+                  "wield.c ready_weapon() temporarily sets W_WEP on the selected object and calls invent.c prinv(); invent.c prinv() routes through xprname() to objnam.c doname(), whose ordinary wrapper calls doname_base(obj, 0).",
+                  "Production JS path: js/cmd.js dispatches the wield key to dowield(); js/wield.js ready_weapon() temporarily sets W_WEP and calls js/invent.js prinv(); js/invent.js xprname() calls js/objnam.js donameFresh(), which reaches donameFreshInternal(), preflightDoname(), and wornSuffix(). failClosedCommand() converts the current preflight refusal to the saved stop boundary.",
+                  "After the wield screen, dothrow.c dothrow()/throw_ok()/throw_obj()/throwit() is reached by recorded keys t, h, l (segment 0 steps 28-30); js/cmd.js dispatches to js/dothrow.js dothrow(), throw_obj(), and throwit(). This is downstream context, not an additional missing owner for the current first mismatch."
+                ],
+                "dependencies": [
+                  "doname_base() first obtains its base through objnam.c xname(); the current JS donameFreshInternal() already calls xnameFresh() before appending suffixes.",
+                  "The suffix order and hand wording depend on is_weptool(), is_ammo(), is_missile(), bimanual(), makeplural(), and body_part(HAND), plus object quantity, primary-slot identity, dual-wield state, and handedness. Existing JS equivalents are present; retain their C branch order and do not add a second copy of this game state.",
+                  "gm.mrg_to_wielded is a separate source guard set around pickup.c merged-stack naming. Keep it so the tether suffix is omitted while a stack is being named as merged into the wielded slot."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20261001125731-v16.json, tied to evaluation commit 452fff60d85992524c72a8282fbae13a5e32a906, reports 27/31 screens, 27/31 cursors, 2390/2402 RNG calls, and four remaining screens. Its first mismatch is a stop at step 27 with \"unsupported hero command: an unported branch of this command: unsupported object name branch: tethered weapon suffix\".",
+                "The immutable challenges/cases/v16/rogue-throws-wielded-aklys.session.json shows step 27 (key h) as \"You secure the tether. h - a thonged club (tethered to right hand).\" It then records the throw prompt at step 28, direction prompt at step 29, and \"The thonged club returns to your hand!\" at step 30.",
+                "Upstream nethack-c/upstream/src/objnam.c defines doname_base() as the core of doname() at lines 1221-1225. Lines 1561-1595 gate the wield suffix on W_WEP and !gm.mrg_to_wielded, distinguish the ordinary alternate-name path, and select \"tethered to\" for AKLYS; doname() delegates to doname_base(obj, 0) at lines 1753-1756.",
+                "Upstream nethack-c/upstream/src/wield.c ready_weapon() at lines 221-227 temporarily ORs W_WEP, emits \"You secure the tether.\", calls prinv(), then restores the old mask. invent.c prinv() uses xprname(), which calls doname() when no explicit text is supplied (invent.c:2875-2925).",
+                "The checked patch directory has no matching objnam.c, doname_base, dothrow.c, or tethered entries; the relevant naming rule is the upstream source rule. The recorder patches do not replace this suffix behavior.",
+                "Current js/objnam.js preflightDoname() at lines 424-431 rejects exactly (obj.owornmask & W_WEP) && obj.otyp === AKLYS. wornSuffix() formats the already-ported hand suffix at lines 1214-1238 but does not yet choose \"tethered to\"; donameFreshInternal() reaches the preflight before the formatter and calls wornSuffix() at line 1728.",
+                "The later recorded throw is not blocked by the separate dothrow gap: upstream dothrow.c throwit() lines 1711-1718 uses tethered_weapon to take tmp_at(DISP_END, BACKTRACK), bypassing sho_obj_return_to_u(), then checks the return roll and emits the return message. js/dothrow.js has the same tethered guard around its existing note_unported(\"dothrow.c sho_obj_return_to_u\"). Preserve that gap for the non-tethered branch; this case does not require that helper."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "The #wield entry point reaches ready_weapon() and invent.c prinv() for the single AKLYS at segment 0 step 27; the source screen proves the tethered name branch is executed.",
+                  "The #throw entry point accepts and throws the primary AKLYS at segment 0 steps 28-30; C recording and dothrow.c source establish the tethered return path."
+                ],
+                "blocked": [
+                  "JS does not advance past step 27 until the doname_base() AKLYS suffix is implemented, so the saved evaluation cannot yet verify the JS throw screens. The source trace identifies no additional missing owner on the aklys-specific return path."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "objnam.c",
+                  "functions": [
+                    "doname_base"
+                  ]
+                },
+                "callerWiring": [
+                  "Keep the production route wield.c ready_weapon() -> invent.c prinv()/xprname() -> objnam.c doname() -> doname_base() reachable through js/cmd.js -> js/wield.js -> js/invent.js -> js/objnam.js.",
+                  "Keep the existing js/cmd.js -> js/dothrow.js route intact so the same replay reaches its throw entry point after the wield label formats."
+                ],
+                "returnValuedDependencies": [],
+                "downstreamUnresolvedGaps": [
+                  "dothrow.c sho_obj_return_to_u() remains explicitly skipped by note_unported() for non-tethered returning missiles. Its void result is discarded, and the tethered-aklys branch bypasses the call; do not broaden this objnam.c port to implement that helper."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "doname_base",
+            "implementation": "js/objnam.js",
+            "symbol": "doname_base",
+            "sourceReview": "Compared the complete objnam.c:doname_base (1223-1751), preserving xname-before-identification order; quantity/article and fake-artifact handling; BUC, empty/trapped/locked/greased state; worn suffixes and body-part wording; the full object-class switch; charges, candle timer adjustment, corpse/egg names, quiver and wizard-gender suffixes; unpaid, live-price and remembered-price branches; wizard weight; and sequential BUFSZ truncation. Removed selected preflightDoname refusals for the valid source branches. The C-discarded impossible leash branch remains note_unported('pline.c impossible'); apply.c:snuff_candle remains a separate gap. This correction also rechecked the C Concat and ConcatF1/F2 macros: every sequential append is bounded by the remaining BUFSZ body bytes, Concat uses strncat(spaceleft + delta), ConcatF uses snprintf(spaceleft + delta), delta-one writes back over the actual clipped final byte, and wizard weight is appended before strprepend. The consumed objnam.c:xname_flags gameover disclosure branch now uses the existing read.js text helpers in C order; objnam.c:distant_name saves, zeros and restores o_id in C order. These are supporting corrections with no separate whole-function credit. The result updates object identification and price-quote extrema, so this function is impure. Required return-valued helpers were also compared at their complete source definitions and tested: shk.c:get_cost_of_shop_item (2809-2843), get_pricing_units (2846-2859), oid_price_adjustment (2864-2872), get_cost (2877-2988), contained_cost (2995-3042), unpaid_cost (3260-3305), corpsenm_price_adj (4275-4316), and getprice (4319-4358). Their original C caller order remains in the naming path; C-discarded impossible diagnostics stay explicitly named at the relevant helper boundaries. invent.c:count_contents and timeout.c:peek_timer are reused as the existing canonical helpers. The final pointer-offset pass preserves C xname_flags returning buf+4 after stripping the article, then doname_base stripping the poisoned prefix with bp += 9 while leaving bp_eos and bpspaceleft unchanged; those byte offsets remain in force for every later bounded append. The corpse_xname result stays in prefix[] while bp retains xname() body text, and known egg species similarly stays in prefix while only the bounded laid-by-you text appends to bp. Source-pinned tests fill the body to C limits for poisoned and article-bearing names, and verify corpse gender and egg suffixes fit only when their prefixes stay outside bp. The selected object-naming-preflight contract cleanup removes assertObjectNameable and its no-op call sites from pickup.js and invent.js, retaining actual priced-object checks. Supporting shk.c:append_price_quote (454-493) now uses UTF-8 byte lengths for both its suffix and input buffer, matching C’s strict `len2 < BUFSZ - len - 1` guard. Its caller appends the returned suffix and advances the body end while preserving C’s unchanged cached bpspaceleft; wizard weight therefore uses pre-quote remaining bytes. The get_cost_of_shop_item caller also matches C’s current-shop/coin/ball/chain checks before get_obj_location and its get_cost-before-get_pricing_units call order; source-pinned proxy tests verify those orders.",
+            "callers": [
+              {
+                "path": "js/objnam.js",
+                "symbol": "donameFresh",
+                "source": "objnam.c:doname -> doname_base for ordinary names"
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "doname_vague_quan",
+                "source": "objnam.c:doname_vague_quan -> doname_base with DONAME_VAGUE_QUAN"
+              },
+              {
+                "path": "js/objnam.js",
+                "symbol": "doname_with_price",
+                "source": "objnam.c:doname_with_price -> doname_base with DONAME_WITH_PRICE"
+              },
+              {
+                "path": "js/end.js",
+                "symbol": "disclose",
+                "source": "end.c:disclose -> display_inventory after the gameover possession-identification prompt; invent.c:display_inventory formats items through objnam.c:doname -> doname_base"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/objnam.test.mjs",
+              "scripts/shop-floor-pricing.test.mjs",
+              "scripts/shk.test.mjs",
+              "scripts/shop-billing.test.mjs",
+              "scripts/shop-payment.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pickup.c/shop-food.session.json",
+              "recordings/pickup.c/shop-potion.session.json",
+              "recordings/objnam.c/gameover-tourist-hawaiian-disclosure-a69-corrected.session.json",
+              "recordings/objnam.c/gameover-tourist-hawaiian-male-variation-a69.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "wizcmds.c:wizwish -> makewish -> objnam.c:doname -> doname_base; this range establishes lit-candle naming only"
+              },
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "wizcmds.c:wizwish -> makewish -> objnam.c:doname -> doname_base; the candle is a naming probe, not a snuffing entry"
+              },
+              {
+                "batch": "v16",
+                "caseId": "rogue-throws-wielded-aklys",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "wield.c:ready_weapon -> invent.c:prinv/xprname -> objnam.c:doname -> doname_base"
+              }
+            ],
+            "checkedAt": "99889b823aa12206a22bec10277f2a3c8b5d9524"
+          }
+        ],
+        "entryPointReview": "The selected whole source function is objnam.c:doname_base, with active recorded routes through objnam.c:doname for #wizwish and #wield and through objnam.c:doname_with_price for shop-floor descriptions. The v15 wizard wish ranges through segment 0 step 25 reach lit-candle naming; the marker case uses the candle only as a naming probe and does not exercise apply.c:snuff_candle. The v16 rogue #wield range through segment 0 step 27 reaches the tethered AKLYS suffix. Existing pickup.c shop-food and shop-potion recordings reach doname_with_price, live-price calculation and the unpaid inventory suffix at their saved boundaries. Source-pinned tests cover pure price helpers and corpse adjustment. doname_vague_quan and paydoname are audited direct wrappers but have no separate runtime claim. The xname_flags gameover disclosure refusal is removed by the correction; the later apply.c:snuff_candle call remains out of scope. The return-valued shop helpers are supporting scope and receive no independent roadmap completion credit in this evidence object; scripts/shk.test.mjs, shop-floor-pricing.test.mjs, shop-billing.test.mjs and shop-payment.test.mjs pin their source formulas and branches. The correction adds a matching gameover inventory-disclosure route: end.c:really_done -> disclose -> display_inventory -> doname -> doname_base. Two C-first Tourist recordings match completely and display distinct Hawaiian-shirt motifs. The C attribute-disclosure route calls minimal_xname with a dummy object whose o_id is already zero; the new records do not establish a nonzero-ID distant_name gameover call. The ID masking/restoration branch is source-pinned in scripts/objnam.test.mjs and receives no separate completion credit. The correction also source-pins pointer-capacity edge cases and corpse/egg prefix-versus-body ordering in scripts/objnam.test.mjs; those unit tests supplement, rather than replace, the recorded production routes. The no-op object-nameability preflight is deleted from pickup.js and invent.js under the reserved contract, while real price-admission checks remain.",
+        "entryPoints": [
+          {
+            "name": "#wizwish object naming through objnam.c:doname",
+            "functions": [
+              "doname_base"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "wizcmds.c:wizwish -> makewish -> objnam.c:doname -> doname_base"
+              },
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-magic-marker-during-lit-candle-probe",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 25,
+                "source": "wizcmds.c:wizwish -> makewish -> objnam.c:doname -> doname_base"
+              }
+            ]
+          },
+          {
+            "name": "#wield inventory naming through objnam.c:doname",
+            "functions": [
+              "doname_base"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "rogue-throws-wielded-aklys",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 27,
+                "source": "wield.c:ready_weapon -> invent.c:prinv/xprname -> objnam.c:doname -> doname_base"
+              }
+            ]
+          },
+          {
+            "name": "shop-floor pricing through objnam.c:doname_with_price",
+            "functions": [
+              "doname_base"
+            ],
+            "recordings": [
+              "recordings/pickup.c/shop-food.session.json",
+              "recordings/pickup.c/shop-potion.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "end-game possession disclosure through end.c:disclose and invent.c:display_inventory",
+            "functions": [
+              "doname_base"
+            ],
+            "recordings": [
+              "recordings/objnam.c/gameover-tourist-hawaiian-disclosure-a69-corrected.session.json",
+              "recordings/objnam.c/gameover-tourist-hawaiian-male-variation-a69.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v15",
+          "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "session": "synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+          "manifestPath": "challenges/manifests/v15.json",
+          "manifestSha256": "11376c921df771171eb29f4005f348b90ebb246e6e9c66b87bb40747ee5f4966",
+          "recording": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+          "recordingPath": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.session.json",
+          "recordingSha256": "b4b1b381f5ce0d9122924bf688efa90d1ec39da3c86b828b163c16531892a6ba",
+          "recipe": "challenges/cases/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.recipe.session.json",
+          "recipeSha256": "b9e232c7707804772ab3d6aa557133292c7bf81bdc8b6cb0c319aac8ea329356",
+          "replayInputSha256": "37ba97a2f31c782d4f64bfe51539d7590cfbba3842de614467248d0a17487632",
+          "evaluationPath": "challenges/evaluations/20261001230131-v15.json",
+          "evaluationCommit": "c842043c989d321c10404073a9cc57190a675d85",
+          "evaluationArtifact": "challenges/evaluations/20261001230131-v15.json",
+          "evaluationUtc": "2026-10-01T23:02:06.693Z",
+          "remainingScreens": 1,
+          "recordedSteps": 29,
+          "previousScreensMatched": 25,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 29
+            },
+            "rng": {
+              "matched": 2757,
+              "total": 2757
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 29
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 28,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 28,
+                "key": "l"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 28,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "stale",
+            "path": "investigations/synthetic/v15/wizard-throws-lit-wax-candle-o-slot-extinguishes-flame.json",
+            "previousRemainingScreens": 4
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "c842043c989d321c10404073a9cc57190a675d85",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-mhitu-summonmu-synthetic-v17-20261001",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete monster were summoning",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests"
+      ],
+      "selectionReason": "The v17 werejackal-on-bite mismatch exposed the unported summonmu helper at the exact assignment base. B81 ports the whole source function and the required caller/callee plumbing. The current selected-case replay still diverges later in the same combat flow, so it is not used as completion evidence. Instead, independent strict runtime evidence covers a protected werewolf form-change/summon route and the existing demon summon route; source-pinned tests cover source message grammar and every were_summon species selector. Root verified the whole helper, production caller and complete independent were/demon runtime evidence. Supporting callee plumbing receives no whole-function credit.",
+      "detail": "Root compared the complete mhitu.c:summonmu function and mattacku caller against the exact committed delivery. Demon exclusions, Hell RNG gate, human/animal property and night gates, refreshed form, helper roll, preface order, visible/hemmed-in/no-help and unseen/Deaf grammar match C. The same planner random owner passes through new_were, were_summon, makemon_runtime and msummon. Existing runtime creation tail is awaited for the exact ordinary-play hero-square/NO_MM_FLAGS call; species selection and tame return handling match source. Root accepted source-pinned singular/plural grammar and intrinsic/extrinsic property tests. The independent werewolf recording and existing water-demon recording fully match screens, attributes, RNG, cursors and animation frames, establishing both active monster-turn routes. Only summonmu receives whole-function credit; remaining possibly_unwield gap and downstream mhitm_ad_were remain outside B81.",
+      "openedAt": "2e3adac465398af2f74b030dd6293ce2c001b3bc",
+      "openStanding": {
+        "sha": "5ac067d41dcef6d216f7c9284b9806e8a19ae450",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "summonmu",
+          "line": 956,
+          "endLine": 1032,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 956,
+        "to": 1032
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests": {
+          "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+          "evaluationPath": "challenges/evaluations/20261001230131-v17.json",
+          "evaluationCommit": "c842043c989d321c10404073a9cc57190a675d85"
+        }
+      },
+      "activeStanding": {
+        "sha": "5ac067d41dcef6d216f7c9284b9806e8a19ae450",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+          "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+          "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+          "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+          "replayInputSha256": "bc8ccbff7b2eb5f7bc2110f13bdbf123a4444725eabf4169bf3f4b7da749d6ec",
+          "evaluationPath": "challenges/evaluations/20261001230131-v17.json",
+          "evaluationCommit": "c842043c989d321c10404073a9cc57190a675d85",
+          "evaluationArtifact": "challenges/evaluations/20261001230131-v17.json",
+          "evaluationUtc": "2026-10-01T23:02:18.203Z",
+          "remainingScreens": 37,
+          "recordedSteps": 109,
+          "previousScreensMatched": 72,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 72,
+              "total": 109
+            },
+            "rng": {
+              "matched": 2229,
+              "total": 2338
+            },
+            "cursors": {
+              "matched": 72,
+              "total": 109
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a were creature summoning critters",
+            "step": 72
+          },
+          "step": 72,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a were creature summoning critters",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests.json",
+            "result": {
+              "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+              "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+              "recipePath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+              "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 37,
+              "recordedSteps": 109,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+                "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+                "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+                "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+                "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+                "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 37,
+                "recordedSteps": 109,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 72,
+                    "total": 109
+                  },
+                  "rng": {
+                    "matched": 2229,
+                    "total": 2338
+                  },
+                  "cursors": {
+                    "matched": 72,
+                    "total": 109
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a were creature summoning critters",
+                  "step": 72
+                },
+                "step": 72,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a were creature summoning critters",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first missing behavior is the were branch of mhitu.c::summonmu, reached from mattacku for this uncancelled, non-shapechanged adjacent werejackal. C step 72 takes the rn2(30)=23 no-transformation path, then rn2(10)=0 and creates a visible jackal in were_summon; JavaScript stops at its explicit unsupported branch before those gates. This is a partial whole-function port, so the actionable scope is file-port mhitu.c::summonmu. The dependent JS were_summon currently draws from global rng wrappers instead of mattacku’s planner-injected clone RNG, which must be threaded for the newly reachable path to remain plan-safe. The case title’s later bite/infection is downstream. Existing new_were also retains a conditional note_unported for weapon.c::possibly_unwield; this trace does not take the rn2(30)==0 transformation path.",
+              "source": {
+                "file": "mhitu.c",
+                "functions": [
+                  "summonmu"
+                ],
+                "branch": "mattacku calls summonmu only for an uncancelled monster whose cham is NON_PM, when it is not in range2 and its current data is demon or were. The were arm may transform form, refreshes mdat, then independently rolls rn2(10) to summon compatible helpers; the assigned trace is an animal-form werejackal with no transformation and a successful summon roll.",
+                "callers": [
+                  "C: nethack-c/upstream/src/mhitu.c::mattacku calls summonmu; JS: js/mhitu.js::mattacku contains the inline summonmu branch and current were-arm refusal"
+                ],
+                "dependencies": [
+                  "were.c::were_summon (already ported in js/were.js; summonmu consumes its total, visible count, and generic species noun to choose messages)",
+                  "were.c::new_were (already ported in js/mon.js; summonmu calls it for the conditional were-form transition and discards its result)",
+                  "minion.c::msummon (already ported in js/minion.js for the demon arm; summonmu discards its result)",
+                  "RNG integration: pass mattacku rawEnv.random to were_summon; js/were.js currently imports global rn2/rnd, while the simple-turn planner supplies a cloned core RNG to mattacku",
+                  "Conditional downstream gap: js/mon.js::new_were records note_unported('weapon.c possibly_unwield') when the transforming monster has a weapon; not reached by this recording"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/mhitu.c:729-740 is the production caller: mattacku requires cham == NON_PM, !mcan, !range2, and is_demon(mdat) || is_were(mdat), calls summonmu, then refreshes mdat after a possible transformation. The assigned C recording reaches this call at step 72.",
+                "nethack-c/upstream/src/mhitu.c:974-996 defines the first missing were behavior. An animal-form were creature calls new_were only when Protection_from_shape_changers is active or rn2(30) is zero; independently, rn2(10)==0 initializes the help message state and calls were_summon. The C recording step 72 has rn2(30)=23, rn2(10)=0, rnd(5)=5, rn2(7)=2, then shows “The werejackal summons help! A jackal suddenly appears next to you!--More--” with cursor [76,0,1].",
+                "The saved evaluation challenges/evaluations/20261001190602-v17.json records stop at step 72 with “simple monster action requires a were creature summoning critters”; the immutable recording is challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json. Thus the first mismatch is the summoned-help branch, not the later werejackal bite/infection implied by the title.",
+                "js/mhitu.js:968-984 already ports the caller’s shared demon/were gate and demon arm, but its were arm throws unsupported('a were creature summoning critters') before either C were roll. This makes mhitu.c::summonmu the actionable owner and a file-port of that whole C function, not a defect in a behaviorally implemented branch.",
+                "The consumed-return dependency already exists: nethack-c/upstream/src/were.c:142-188 returns total while writing visible/genbuf, and mhitu.c:996-1018 uses those values for the visible/no-helper message branches; js/were.js:41-64 contains the corresponding helper. But js/were.js:27,48-60 imports and calls module-global rn2/rnd. js/mhitu.js:855 receives a caller-owned random object, and js/unported_monster_actions.js:370-373 clones state.coreCtx for planning before supplying it to the simple monster action. The new summon path must pass that clone-local random source through were_summon to avoid advancing live RNG during planning.",
+                "were.c::new_were is already present at js/mon.js:3562-3583 and accepts caller state/random/display operations. Its existing conditional weapon.c::possibly_unwield gap is recorded with note_unported when monster.mw is set; C source were.c:126-137 includes equipment and fear side effects. This C step’s rn2(30)=23 skips new_were, so the trace does not establish those transformation outcomes.",
+                "The source owner was verified against the current C recording and upstream sources; no matching patch hunk for summonmu or were_summon was found under nethack-c/patches. Queue identity is unchanged: 37 remaining screens, 109 recorded steps, recording digest matches the file, and manifest corpus digest matches the queued digest."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "summonmu",
+            "implementation": "js/mhitu.js",
+            "symbol": "summonmu",
+            "sourceReview": "Read and compared the complete static mhitu.c:summonmu definition (956-1030). The JS implementation preserves the demon exclusions and rn2 gate, discarded msummon result, separate human/animal were form-change conditions, refreshed mdat, rn2(10) helper gate, preface/output order, numhelp/numseen feedback, and Deaf/growl behavior. The unseen message helper follows C grammar: an(genericwere) for one visible helper, makeplural(genericwere) for several, upstart(buf), and “ from nowhere” only for Deaf. The same state and random owner flows through new_were, were_summon, makemon and msummon. The direct mattacku caller retains its source preconditions, new-flee early return and mdat refresh. The consumed were_summon result and creation tail are preserved; source’s tamedog result is discarded. new_were’s existing conditional weapon.c:possibly_unwield note_unported remains when a monster carries a weapon. The later uhitm.c:mhitm_ad_were attack path is outside this function/task and remains a downstream boundary. Supporting makemon runtime wiring is narrowly admitted for the exact were_summon hero-square/NO_MM_FLAGS creation call; it does not claim makemon.c whole-function completion. The supporting Protection_from_shape_changers helper is a pure youprop.h:355-360 macro expansion; its source-pinned test checks both the intrinsic and extrinsic truth arms and the zero/zero false case.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku calls summonmu(mtmp, youseeit) after cancellation/cham/range checks at 729-740, then checks newly set mflee and refreshes mdat."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/summonmu-werewolf-protection-ring-variation-b81.session.json",
+              "recordings/minion.c/msummon-water-demon-independent.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "5e22e8c4339d2222357fd58418786b871e68390a"
+          }
+        ],
+        "entryPointReview": "The helper has one source call site, in mhitu.c:mattacku at 733, under the active uncancelled, non-shapechanged demon-or-were gate. The demon branch runs the rn2(Inhell?10:16) gate before the were branch enters the form-change and helper-summon logic. Both are branches of the same monster-turn production entry: js/mhitu.js:mattacku. The independent B81 recording reaches the were branch through this caller at segment 0 step 77 and matches the complete 78-screen/4,677-RNG replay. The existing minion recording reaches the demon branch through the same caller at segment 0 steps 46 and 103 and matches its complete 104-screen/3,419-RNG replay. Source search of mhitu.c finds only the declaration, this caller, and the definition; no other active summonmu caller is omitted. The selected v17 case also reaches the source helper, but its full replay remains unmatched later in combat and is not cited. Supporting makemon helper-creation tests directly exercise the C-selected species and creation tail; they are not production entry-point evidence. This range has no command entry point, so entryPoints is empty as required for helper-only evidence.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+          "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+          "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+          "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+          "replayInputSha256": "0d1c104fbf79536e6932d034b987fff44ca65f6b3d9cbccfcbbc40abd9de1894",
+          "evaluationPath": "challenges/evaluations/20261001233847-v17.json",
+          "evaluationCommit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+          "evaluationArtifact": "challenges/evaluations/20261001233847-v17.json",
+          "evaluationUtc": "2026-10-01T23:39:46.336Z",
+          "remainingScreens": 37,
+          "recordedSteps": 109,
+          "previousScreensMatched": 72,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 72,
+              "total": 109
+            },
+            "rng": {
+              "matched": 2229,
+              "total": 2338
+            },
+            "cursors": {
+              "matched": 72,
+              "total": 109
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_were()",
+            "step": 72
+          },
+          "step": 72,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_were",
+          "message": "simple monster action requires uhitm.c mhitm_ad_were()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests.json",
+            "result": {
+              "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+              "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+              "recipePath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+              "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 37,
+              "recordedSteps": 109,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+                "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+                "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+                "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+                "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+                "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 37,
+                "recordedSteps": 109,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 72,
+                    "total": 109
+                  },
+                  "rng": {
+                    "matched": 2229,
+                    "total": 2338
+                  },
+                  "cursors": {
+                    "matched": 72,
+                    "total": 109
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a were creature summoning critters",
+                  "step": 72
+                },
+                "step": 72,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a were creature summoning critters",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first missing behavior is the were branch of mhitu.c::summonmu, reached from mattacku for this uncancelled, non-shapechanged adjacent werejackal. C step 72 takes the rn2(30)=23 no-transformation path, then rn2(10)=0 and creates a visible jackal in were_summon; JavaScript stops at its explicit unsupported branch before those gates. This is a partial whole-function port, so the actionable scope is file-port mhitu.c::summonmu. The dependent JS were_summon currently draws from global rng wrappers instead of mattacku’s planner-injected clone RNG, which must be threaded for the newly reachable path to remain plan-safe. The case title’s later bite/infection is downstream. Existing new_were also retains a conditional note_unported for weapon.c::possibly_unwield; this trace does not take the rn2(30)==0 transformation path.",
+              "source": {
+                "file": "mhitu.c",
+                "functions": [
+                  "summonmu"
+                ],
+                "branch": "mattacku calls summonmu only for an uncancelled monster whose cham is NON_PM, when it is not in range2 and its current data is demon or were. The were arm may transform form, refreshes mdat, then independently rolls rn2(10) to summon compatible helpers; the assigned trace is an animal-form werejackal with no transformation and a successful summon roll.",
+                "callers": [
+                  "C: nethack-c/upstream/src/mhitu.c::mattacku calls summonmu; JS: js/mhitu.js::mattacku contains the inline summonmu branch and current were-arm refusal"
+                ],
+                "dependencies": [
+                  "were.c::were_summon (already ported in js/were.js; summonmu consumes its total, visible count, and generic species noun to choose messages)",
+                  "were.c::new_were (already ported in js/mon.js; summonmu calls it for the conditional were-form transition and discards its result)",
+                  "minion.c::msummon (already ported in js/minion.js for the demon arm; summonmu discards its result)",
+                  "RNG integration: pass mattacku rawEnv.random to were_summon; js/were.js currently imports global rn2/rnd, while the simple-turn planner supplies a cloned core RNG to mattacku",
+                  "Conditional downstream gap: js/mon.js::new_were records note_unported('weapon.c possibly_unwield') when the transforming monster has a weapon; not reached by this recording"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "nethack-c/upstream/src/mhitu.c:729-740 is the production caller: mattacku requires cham == NON_PM, !mcan, !range2, and is_demon(mdat) || is_were(mdat), calls summonmu, then refreshes mdat after a possible transformation. The assigned C recording reaches this call at step 72.",
+                "nethack-c/upstream/src/mhitu.c:974-996 defines the first missing were behavior. An animal-form were creature calls new_were only when Protection_from_shape_changers is active or rn2(30) is zero; independently, rn2(10)==0 initializes the help message state and calls were_summon. The C recording step 72 has rn2(30)=23, rn2(10)=0, rnd(5)=5, rn2(7)=2, then shows “The werejackal summons help! A jackal suddenly appears next to you!--More--” with cursor [76,0,1].",
+                "The saved evaluation challenges/evaluations/20261001190602-v17.json records stop at step 72 with “simple monster action requires a were creature summoning critters”; the immutable recording is challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json. Thus the first mismatch is the summoned-help branch, not the later werejackal bite/infection implied by the title.",
+                "js/mhitu.js:968-984 already ports the caller’s shared demon/were gate and demon arm, but its were arm throws unsupported('a were creature summoning critters') before either C were roll. This makes mhitu.c::summonmu the actionable owner and a file-port of that whole C function, not a defect in a behaviorally implemented branch.",
+                "The consumed-return dependency already exists: nethack-c/upstream/src/were.c:142-188 returns total while writing visible/genbuf, and mhitu.c:996-1018 uses those values for the visible/no-helper message branches; js/were.js:41-64 contains the corresponding helper. But js/were.js:27,48-60 imports and calls module-global rn2/rnd. js/mhitu.js:855 receives a caller-owned random object, and js/unported_monster_actions.js:370-373 clones state.coreCtx for planning before supplying it to the simple monster action. The new summon path must pass that clone-local random source through were_summon to avoid advancing live RNG during planning.",
+                "were.c::new_were is already present at js/mon.js:3562-3583 and accepts caller state/random/display operations. Its existing conditional weapon.c::possibly_unwield gap is recorded with note_unported when monster.mw is set; C source were.c:126-137 includes equipment and fear side effects. This C step’s rn2(30)=23 skips new_were, so the trace does not establish those transformation outcomes.",
+                "The source owner was verified against the current C recording and upstream sources; no matching patch hunk for summonmu or were_summon was found under nethack-c/patches. Queue identity is unchanged: 37 remaining screens, 109 recorded steps, recording digest matches the file, and manifest corpus digest matches the queued digest."
+              ]
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

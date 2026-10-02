@@ -35,6 +35,7 @@ import {
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     PROTECTION,
+    PROT_FROM_SHAPE_CHANGERS,
     P_WHIP,
     RLOC_NOMSG,
     SEE_INVIS,
@@ -66,7 +67,7 @@ import {
     is_art,
     protects,
 } from './artifacts.js';
-import { midnight } from './calendar.js';
+import { midnight, night } from './calendar.js';
 import {
     bot,
     flush_screen,
@@ -91,7 +92,7 @@ import { In_hell, on_level } from './dungeon.js';
 import { done_in_by } from './end.js';
 import { game } from './gstate.js';
 import { nomul, showdamage, spoteffects } from './hack.js';
-import { dist2, distmin } from './hacklib.js';
+import { dist2, distmin, upstart } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { msummon } from './minion.js';
@@ -104,6 +105,7 @@ import {
 import {
     golemeffects,
     mon_to_stone,
+    new_were,
     set_ustuck,
     unstuck,
     xkilled,
@@ -116,6 +118,7 @@ import {
     hides_under,
     is_animal,
     is_demon,
+    is_human,
     is_minion,
     is_orc,
     nolimbs,
@@ -153,7 +156,7 @@ import {
     WEAPON_CLASS,
     getObjects,
 } from './objects.js';
-import { donameFresh, xnameFresh } from './objnam.js';
+import { an, donameFresh, xnameFresh } from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
 import {
@@ -178,6 +181,9 @@ import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './teleport.js';
 import { poly_gender, rehumanize } from './polyself.js';
 import { note_unported } from './unported.js';
+import { heroDeaf, heroUnaware } from './pline.js';
+import { growl_sound } from './sounds.js';
+import { were_summon } from './were.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any
@@ -203,6 +209,123 @@ export class MonsterDeathPlanningError extends Error {
         this.name = 'MonsterDeathPlanningError';
         this.monsterId = monster.m_id;
         this.how = DIED;
+    }
+}
+
+// mhitu.c:summonmu() uses an() for one visible helper but makeplural() for
+// several; Deaf changes only the final source suffix.
+export function unseenWereSummonMessage(numseen, genericWere, deaf) {
+    const nounPhrase = numseen === 1
+        ? `${an(genericWere)} appears`
+        : `${makeplural(genericWere)} appear`;
+    return `${upstart(nounPhrase)}${deaf ? ' from nowhere' : ''}!`;
+}
+
+// C expands youprop.h:Protection_from_shape_changers in mhitu.c and were.c.
+export function Protection_from_shape_changers(state) {
+    const property = state.u.uprops[PROT_FROM_SHAPE_CHANGERS];
+    return Boolean(property.intrinsic || property.extrinsic);
+}
+
+// C ref: mhitu.c summonmu() (956-1030). The caller supplies the same random
+// owner it uses for the rest of the attack; this matters when mattacku() is
+// evaluating the turn on its planning clone.
+export async function summonmu(monster, youseeit, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne };
+    const message = rawEnv.message ?? ttyPline;
+    const mdat = monster.data;
+
+    if (is_demon(mdat)) {
+        if (mdat.pmidx !== M.PM_BALROG
+            && mdat.pmidx !== M.PM_AMOROUS_DEMON
+            && !random.rn2(In_hell(state.u.uz, state) ? 10 : 16)) {
+            // mhitu.c discards msummon()'s result.
+            await msummon(monster, { ...rawEnv, state, random });
+        }
+        return;
+    }
+
+    if (!is_were(mdat)) return;
+
+    if (is_human(mdat)) {
+        if (!Protection_from_shape_changers(state)
+            && !random.rn2(5 - (night(state) ? 2 : 0))) {
+            await new_were(monster, {
+                ...rawEnv,
+                state,
+                random,
+                message,
+                redrawSquare: rawEnv.redrawSquare
+                    ?? rawEnv.redraw
+                    ?? ((x, y) => newsym(x, y)),
+            });
+        }
+    } else if (Protection_from_shape_changers(state)
+        || !random.rn2(30)) {
+        await new_were(monster, {
+            ...rawEnv,
+            state,
+            random,
+            message,
+            redrawSquare: rawEnv.redrawSquare
+                ?? rawEnv.redraw
+                ?? ((x, y) => newsym(x, y)),
+        });
+    }
+
+    // C refreshes mdat after new_were() before choosing compatible helpers.
+    const currentData = monster.data;
+    if (random.rn2(10)) return;
+
+    const visible = { value: 0 };
+    const genericWere = { value: 'creature' };
+    if (youseeit) {
+        await message(`${Monnam(monster, state, rawEnv)} summons help!`, state);
+    }
+    const numhelp = await were_summon(
+        currentData,
+        false,
+        visible,
+        genericWere,
+        state,
+        random,
+        rawEnv,
+    );
+
+    const hemmedIn = async () => message(
+        `${heroUnaware(state) ? 'You dream that you feel' : 'You feel'} hemmed in.`,
+        state,
+    );
+    if (youseeit) {
+        if (numhelp > 0) {
+            if (visible.value === 0) await hemmedIn();
+        } else {
+            await message('But none comes.', state);
+        }
+        return;
+    }
+
+    const deaf = heroDeaf(state);
+    if (!deaf) {
+        await message(
+            `Something ${makeplural(growl_sound(monster))}!`,
+            state,
+        );
+    }
+    if (numhelp > 0) {
+        if (visible.value < 1) {
+            await hemmedIn();
+        } else {
+            await message(
+                unseenWereSummonMessage(
+                    visible.value,
+                    genericWere.value,
+                    deaf,
+                ),
+                state,
+            );
+        }
     }
 }
 
@@ -896,7 +1019,7 @@ export async function mattacku(monster, rawEnv = {}) {
         markInvisible, displayRandom,
         planningDeath: (subject) => new MonsterDeathPlanningError(subject),
     };
-    const mdat = monster.data;
+    let mdat = monster.data;
     const initial = calc_mattacku_vars(monster, env);
     let { range2, foundyou } = initial;
 
@@ -965,23 +1088,14 @@ export async function mattacku(monster, rawEnv = {}) {
 
     /* when not cancelled and not in current form due to shapechange, many
        demons can summon more demons and were creatures can summon critters */
-    // C ref: mhitu.c:955-993, summonmu(). Extracted from mattacku() in C.
+    // C ref: mhitu.c:mattacku() calls summonmu() at 729-740.
     if (monster.cham === M.NON_PM && !monster.mcan && !range2
         && (is_demon(mdat) || is_were(mdat))) {
-        if (is_demon(mdat)) {
-            // C ref: mhitu.c:966-971. Non-balrog, non-amorous demons
-            // roll rn2(Inhell ? 10 : 16); only a 0 calls msummon().
-            if (mdat.pmidx !== M.PM_BALROG
-                && mdat.pmidx !== M.PM_AMOROUS_DEMON) {
-                if (!random.rn2(In_hell(u.uz, state) ? 10 : 16)) {
-                    await msummon(monster, env);
-                }
-            }
-            // C returns after the demon arm (no demon were-creatures).
-        } else {
-            // Were-creature summoning is not ported.
-            unsupported('a were creature summoning critters');
-        }
+        const alreadyFleeing = Boolean(monster.mflee);
+        await summonmu(monster, initial.youseeit, env);
+        if (monster.mflee && !alreadyFleeing) return false;
+        // were.c:new_were() can replace the form while summonmu() runs.
+        mdat = monster.data;
     }
 
     if (u.uinvulnerable) return false; /* monsters won't attack you */

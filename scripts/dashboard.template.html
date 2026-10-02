@@ -925,7 +925,7 @@ canvas {
   <p class="activity-pan-hint">Drag the timeline to move through time. Arrow keys work when the timeline is focused.</p>
   <div class="chart-wrap">
     <div class="activity-metrics" id="activityMetrics"></div>
-    <p class="activity-note">Integration includes review and checks; exact validation-slot occupancy is not recorded here.</p>
+    <p class="activity-note">Assignment and wait bars for the same task share a row. Overlapping rows show deliveries waiting while other tasks proceed. Integration includes review and checks; exact validation-slot occupancy is not recorded here.</p>
     <div class="legend" id="timelineLegend"></div>
     <div class="activity-timeline" id="timeline" tabindex="0" aria-label="Worker and Main activity timeline. Drag horizontally or use left and right arrow keys to move through time."></div>
     <div class="activity-details">
@@ -1650,7 +1650,36 @@ document.getElementById('stats').innerHTML = [
   const captured = Date.parse(activity.capturedAt);
   const first = Math.min(...segments.map(segment => Date.parse(segment.start)));
   const latest = Math.min(captured, Math.max(...segments.map(segment => Date.parse(segment.end))));
-  const lanes = ['A', 'B', 'C', 'Main'];
+  const lanes = [...new Set(segments.map(segment => segment.lane)
+    .filter(lane => lane !== 'Main'))].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  lanes.push('Main');
+  // Reserve a worker row for the task's entire handoff history, including
+  // corrections. Compute from the full snapshot so zoom and pan do not move
+  // the bars vertically. Main stages use separate intervals to allow gaps.
+  const slotHeight = 16;
+  const laneLayouts = new Map(lanes.map(lane => {
+    const intervals = new Map();
+    segments.forEach((segment, index) => {
+      if (segment.lane !== lane) return;
+      const key = lane === 'Main' ? index : segment.task;
+      const start = Date.parse(segment.start);
+      const end = Date.parse(segment.end);
+      const interval = intervals.get(key);
+      if (interval) {
+        interval.start = Math.min(interval.start, start);
+        interval.end = Math.max(interval.end, end);
+      } else intervals.set(key, { key, start, end });
+    });
+    const ends = [];
+    const slots = new Map();
+    for (const interval of [...intervals.values()].sort((a, b) => a.start - b.start)) {
+      let slot = ends.findIndex(end => end <= interval.start);
+      if (slot < 0) slot = ends.length;
+      ends[slot] = interval.end;
+      slots.set(interval.key, slot);
+    }
+    return [lane, { slots, height: Math.max(48, ends.length * slotHeight + 12) }];
+  }));
   let hours = 6;
   let viewEnd = latest;
   let selectedIndex = null;
@@ -1747,24 +1776,16 @@ document.getElementById('stats').innerHTML = [
         + '%">' + label + '</span>';
     }
     html += '</div>';
-    const laneHeight = 48;
     for (const lane of lanes) {
+      const layout = laneLayouts.get(lane);
       const bars = shown.filter(row => row.segment.lane === lane).map(row => ({
         ...row, a: Math.max(Date.parse(row.segment.start), start),
         b: Math.min(Date.parse(row.segment.end), viewEnd),
+        slot: layout.slots.get(lane === 'Main' ? row.index : row.segment.task),
       })).sort((a, b) => a.a - b.a);
-      const laneEnds = [];
-      for (const bar of bars) {
-        let slot = laneEnds.findIndex(end => end <= bar.a);
-        if (slot < 0) slot = laneEnds.length;
-        laneEnds[slot] = bar.b;
-        bar.slot = slot;
-      }
-      const slotHeight = (laneHeight - 12) / Math.max(1, laneEnds.length);
-      const barHeight = Math.min(12, Math.max(1, slotHeight - 2));
       html += '<div class="activity-row' + (lane === 'Main' ? ' main' : '')
-        + '" style="height:' + laneHeight + 'px"><div class="activity-label">'
-        + lane + '</div><div class="activity-track">'
+        + '" style="height:' + layout.height + 'px"><div class="activity-label">'
+        + esc(lane) + '</div><div class="activity-track">'
         + bars.map(bar => '<div class="activity-bar phase-' + bar.segment.phase
           + (bar.index === selectedIndex ? ' selected' : '') + '" data-segment="'
           + bar.index + '" tabindex="0" role="button" aria-label="'
@@ -1772,7 +1793,7 @@ document.getElementById('stats').innerHTML = [
           + ', ' + fmt(duration(bar.segment))) + '" style="left:'
           + ((bar.a - start) / span * 100) + '%;width:' + ((bar.b - bar.a) / span * 100)
           + '%;top:' + (6 + bar.slot * slotHeight)
-          + 'px;height:' + barHeight + 'px"></div>').join('')
+          + 'px;height:12px"></div>').join('')
         + '</div></div>';
     }
     container.innerHTML = html;

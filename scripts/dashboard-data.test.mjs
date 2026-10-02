@@ -563,7 +563,8 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     assert.match(rendered.get('activityMetrics').innerHTML, /Ready → Main[\s\S]*30m[\s\S]*2 completed waits/u);
     assert.match(rendered.get('activityWaitList').innerHTML, /A1[\s\S]*30m/u);
     assert.match(rendered.get('timeline').innerHTML, /activity-row main/u);
-    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
+    // Only the recorded workers A and B, plus Main, need lanes.
+    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
     const firstBarTop = lane => rendered.get('timeline').innerHTML.match(new RegExp(
         `activity-label">${lane}<\\/div><div class="activity-track"><div class="activity-bar[^>]*top:([^;]+);`, 'u'))?.[1];
     assert.equal(firstBarTop('A'), '6px');
@@ -585,7 +586,7 @@ test('activity view ranks handoff waits and explains concurrent assignments', ()
     assert.notEqual(rendered.get('activityWindowLabel').textContent, shortWindow);
     assert.match(rendered.get('activityWaitList').innerHTML, /B0/u);
     assert.doesNotMatch(rendered.get('activityWaitList').innerHTML, /A1/u);
-    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 4);
+    assert.equal((rendered.get('timeline').innerHTML.match(/activity-row(?: main)?" style="height:48px"/gu) || []).length, 3);
     rendered.get('activityLatest').listeners.click[0]();
     assert.equal(rendered.get('activityWindowLabel').textContent, shortWindow);
     const select = rendered.get('activityWindow');
@@ -610,6 +611,74 @@ test('activity wait list contains every wait in the window', () => {
     const rendered = renderDashboard(data);
     assert.equal((rendered.get('activityWaitList').innerHTML.match(/<button /gu) || []).length, 7);
     assert.match(readFileSync(TEMPLATE, 'utf8'), /<h4>Waits by length<\/h4>/u);
+});
+
+test('activity renders replacement workers and keeps each task on one row across views', () => {
+    const data = sourceDashboardData();
+    // B1 leaves the queue while B2 and B3 are assigned. Allocating rows per
+    // segment would move their subsequent waits into B1's vacated row.
+    // B2 also resumes after feedback, which must preserve its original row.
+    // A2 is a worker ID, distinct from the historical A worker.
+    const at = time => `2026-09-25T${time}:00Z`;
+    const events = [
+        // Earlier history permits panning without clipping the B assignments.
+        ['assign', '00:00', 'B0', 'B'], ['park', '00:30', 'B0'],
+        ['assign', '09:00', 'B1', 'B'], ['ready', '10:00', 'B1'],
+        ['assign', '10:10', 'B2', 'B'], ['assign', '10:12', 'B3', 'B'],
+        ['integrating', '10:15', 'B1'], ['ready', '10:20', 'B2'],
+        ['ready', '10:30', 'B3'], ['feedback', '10:40', 'B2'],
+        ['resume', '10:45', 'B2'], ['ready', '10:50', 'B2'],
+        ['integrating', '11:00', 'B2'],
+        ['integrating', '11:30', 'B3'],
+        ['assign', '09:00', 'old-A', 'A'], ['ready', '09:30', 'old-A'],
+        ['integrating', '10:00', 'old-A'],
+        ['assign', '10:00', 'replacement-A', 'A2'],
+        ['ready', '11:45', 'replacement-A'],
+    ].map(([type, time, task, worker], index) => ({
+        id: String(index), type, at: at(time), task, ...(worker ? { worker } : {}),
+    }));
+    data.activity = activityTimeline({ events }, at('12:00'));
+    const rendered = renderDashboard(data);
+    const timeline = rendered.get('timeline');
+    assert.match(timeline.innerHTML, /activity-label">A2<\/div>/u);
+    assert.match(timeline.innerHTML, /Assigned task for replacement-A/u);
+    assert.match(timeline.innerHTML, /Waiting for integration for replacement-A/u);
+    const barPosition = index => {
+        const bar = timeline.innerHTML.match(new RegExp(
+            `<div class="activity-bar[^>]*data-segment="${index}"[^>]*>`, 'u'))?.[0];
+        assert.ok(bar, `segment ${index} is rendered`);
+        return bar.match(/top:([^;]+);[^>]*height:([^;"]+)/u)?.slice(1);
+    };
+    const taskPositions = new Map();
+    for (const task of ['B1', 'B2', 'B3']) {
+        const indices = data.activity.segments.flatMap((segment, index) =>
+            segment.task === task && segment.lane === 'B' ? [index] : []);
+        const positions = indices.map(barPosition);
+        for (const position of positions) {
+            assert.deepEqual(position, positions[0], `${task} assignments and waits align`);
+        }
+        taskPositions.set(task, { index: indices[0], position: positions[0] });
+    }
+    // All three tasks overlap between 10:12 and 10:15, requiring three rows.
+    assert.equal(new Set([...taskPositions.values()].map(row => row.position[0])).size, 3);
+    const initialWindow = rendered.get('activityWindowLabel').textContent;
+    // A short drag shifts the window while keeping all three assignments visible.
+    timeline.listeners.pointerdown[0]({ button: 0, clientX: 0, pointerId: 1, target: timeline });
+    timeline.listeners.pointermove[0]({ clientX: 100, pointerId: 1 });
+    timeline.listeners.pointerup[0]({ pointerId: 1 });
+    assert.notEqual(rendered.get('activityWindowLabel').textContent, initialWindow);
+    for (const { index, position } of taskPositions.values()) {
+        assert.deepEqual(barPosition(index), position, 'panning preserves task rows');
+    }
+    rendered.get('activityLatest').listeners.click[0]();
+    const select = rendered.get('activityWindow');
+    for (const hours of ['24', '168', '6']) {
+        select.value = hours;
+        select.listeners.change[0]();
+        for (const { index, position } of taskPositions.values()) {
+            assert.deepEqual(barPosition(index), position, 'zoom preserves task rows');
+        }
+    }
 });
 
 function sourceFileRows(table) {
