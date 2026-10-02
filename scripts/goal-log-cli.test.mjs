@@ -1083,3 +1083,38 @@ test('CLI records required whole functions and invalidates evidence by source ow
     assert.equal(f.goals()[0].invalidatedFunctions[0].sourceFile, 'unrelated.c');
     assert.equal(f.goals()[1].functions[0].complete, false);
 });
+
+test('CLI records a required helper outside the selected range in the same C file', (t) => {
+    const f = fixture(t);
+    // The consumed helper is outside the one-function primary range, as with
+    // uhitm.c:mhitm_ad_slee calling the earlier mhitm_mgc_atk_negated.
+    f.write('nethack-c/upstream/src/widget.c',
+        'int\nhelper(void)\n{ return support(); }\nint\nsupport(void)\n{ return 0; }\n');
+    f.write('js/widget.js',
+        'export function helper() { return support(); }\nexport function support() { return 0; }\n');
+    f.commit('nethack-c/upstream/src/widget.c', 'js/widget.js');
+    const args = ['queue-goal', '--id', 'same-file', '--kind', 'file-port',
+        '--c-file', 'widget.c', '--from-function', 'helper', '--to-function', 'helper',
+        '--summary', 'Port helper and its consumed support function'];
+    f.refuses(/already selected|primary source functions/u,
+        ...args, '--required-functions', 'widget.c:helper');
+    f.refuses(/duplicate required source function/u,
+        ...args, '--required-functions', 'widget.c:support,widget.c:support');
+    f.cli(...args, '--required-functions', 'widget.c:support');
+    assert.deepEqual(f.goals()[0].functions.map(entry => entry.name), ['helper']);
+    assert.equal(f.goals()[0].requiredFunctions[0].name, 'support');
+    const context = JSON.parse(f.cli('task-context', '--goal', 'same-file'));
+    assert.equal(context.requiredFunctions[0].sourceFile, 'widget.c');
+    f.cli('open-goal', '--id', 'same-file');
+    const evidence = f.evidence();
+    f.record('same-file', evidence);
+    f.commit('GOALS.json'); f.checkpoint();
+    f.refuses(/support/u, 'close-goal', '--goal', 'same-file');
+    evidence.functions.push({ ...evidence.functions[0], name: 'support',
+        sourceFile: 'widget.c', callers: [{ path: 'js/widget.js', symbol: 'helper',
+            source: 'widget.c helper consumes support()' }] });
+    f.record('same-file', evidence);
+    f.commit('GOALS.json'); f.checkpoint();
+    f.cli('close-goal', '--goal', 'same-file');
+    assert.equal(f.goals()[0].requiredFunctions[0].complete, true);
+});
