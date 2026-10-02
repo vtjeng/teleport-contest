@@ -2381,11 +2381,9 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
         return false;
     }
     if (monster.mtrapped && !range.nearby) {
-        const selectRangedWeapon = requireDochugOperation(
-            rawEnv,
-            'selectRangedWeapon',
-        );
-        if (await selectRangedWeapon(monster, rawEnv)) return false;
+        // C monmove.c calls select_rwep() here only to see whether a ranged
+        // weapon is available; mon_wield_item() owns the later propellor use.
+        if (select_rwep(monster, rawEnv)) return false;
     }
 
     monster.weapon_check = NEED_HTH_WEAPON;
