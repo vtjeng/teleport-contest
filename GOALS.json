@@ -138086,8 +138086,8 @@
           "name": "aggravate",
           "line": 494,
           "endLine": 516,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -138406,7 +138406,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "aggravate",
+            "implementation": "js/wizard.js",
+            "symbol": "aggravate",
+            "sourceReview": "Root compared whole wizard.c:aggravate and nine existing callers against C. Hero tower membership is cached, dead/other-region monsters skipped in fmon order, exact wait/appear bits cleared, sleeping cleared, conditional rn2(5) only on immobile monsters and zero-roll thaw preserved. Existing In_W_tower return dependency is source checked. Exact callers are peffect_invisibility, cursed_book, m_respond_shrieker, m_respond, doturn, dosit throne case11, domonnoise MS_SHRIEK, domonability shriek, mcast_spell MCAST_AGGRAVATION. Correction replaces undefined random with imported rn2 owner at domonnoise; a regression reproduced ReferenceError before the fix and now checks one draw/wake/message. No whole caller credit. Missing intervene remains an explicit distinct gap.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_invisibility",
+                "source": "potion.c:peffect_invisibility (830-837), cursed invisibility branch after the known-presence pline and before FROMOUTSIDE is cleared."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "cursed_book",
+                "source": "spell.c:cursed_book case 1 after the threatened message."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond_shrieker",
+                "source": "mon.c:m_respond_shrieker after optional summoning and shriek handling."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond",
+                "source": "mon.c:m_respond hostile visible Erinys branch."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "doturn",
+                "source": "pray.c:doturn #turn deity-ignore and Gehennom branches; the helper uses doturn's existing random owner and stays after its message."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit negative-Luck case 11 after the threatened message, preserving the alternate teleport arm."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise MS_SHRIEK branch after selecting the shriek message and before printing it."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c:domonability polymorphed shrieking-form branch when not buried, after the shriek message."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell MCAST_AGGRAVATION arm after its feeling message and before dmg is set to zero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/mon-response.test.mjs",
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 50,
+                "source": "read.c:create_particular sleeping-orc setup -> potion.c:peffect_invisibility cursed-potion branch -> wizard.c:aggravate -> the next command-prefix boundary"
+              }
+            ],
+            "checkedAt": "1a3be611b869c779506379a286f615b9e6b1fe62"
+          }
+        ],
+        "entryPointReview": "This is helper-only selected coverage, so entryPoints is empty. The original reservation mislabeled the sounds.c:domonnoise call as sounds.c:growl; the correction retains growl only as historical reservation scope. All existing JavaScript aggravate call gaps in potion.c:peffect_invisibility, spell.c:cursed_book, mon.c:m_respond_shrieker, mon.c:m_respond, pray.c:doturn, sit.c:dosit, sounds.c:domonnoise, cmd.c:domonability, and mcastu.c:mcast_spell were replaced at their source call positions; none of those caller functions receives whole-function completion credit. The v17 cursed-invisibility case is a matching production route: read.c:create_particular creates the sleeping orc, potion.c:peffect_invisibility runs the cursed potion path, and its known-presence pline is followed by wizard.c:aggravate before the command returns. Correction bounded run-ewCjPA verifies the C/JS recording through segment 0 step 50, including the following `m` command-prefix boundary. Step 51 is intentionally excluded: it enters the later weapon.c:mon_wield_item welded-weapon action, and bounded run-p0vJPZ confirms that this later boundary does not match because that separate action remains unported. The independent Valkyrie C-first recipes are preserved as blocked attempts; the pager-boundary strict comparison fails at C step 54 for the same weapon.c:mon_wield_item gap, so no nonmatching recording is committed under recordings/. wizard.c:intervene is another direct C caller but has no existing JavaScript function/call site to wire here; it remains an explicit source-named gap. Runtime completion is limited to the selected helper through the cursed-invisibility caller range, not to every caller or the later wield action.",
+        "entryPoints": []
+      }
     }
   ]
 }
