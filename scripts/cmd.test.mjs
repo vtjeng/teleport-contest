@@ -30,6 +30,7 @@ import {
     UnsupportedHungerTransitionError,
 } from '../js/eat.js';
 import { getobj } from '../js/invent.js';
+import { itemactions } from '../js/iactions.js';
 import { INTERNALCMD, extcmdlist } from '../js/extcmdlist_data.js';
 import {
     ALTAR,
@@ -151,6 +152,9 @@ import {
 
 const CMD_C = readFileSync(
     new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8',
+);
+const IACTIONS_C = readFileSync(
+    new URL('../nethack-c/upstream/src/iactions.c', import.meta.url), 'utf8',
 );
 const HACK_C = readFileSync(
     new URL('../nethack-c/upstream/src/hack.c', import.meta.url), 'utf8',
@@ -3608,6 +3612,70 @@ test('inventory preserves the action selected by itemactions', async () => {
         assert.notEqual(item, selected, 'the selected object left inventory');
     }
 });
+
+test('itemactions dispatches queued adjust by its C function identity',
+    async () => {
+        // Seed 4210045 is a stable startup fixture for an inventory with a
+        // first-slot item; its RNG values are not under test. Destination z
+        // is an available letter in this starting pack. invlet_constant keeps
+        // the queued source letter stable across C's doorganize() entry; the
+        // action must still use the queued function pointer and consume the
+        // following inventory-letter key.
+        await runSegment({
+            seed: 4210045,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:QueuedAdjust,role:Valkyrie,race:human,'
+                + 'gender:female,align:lawful,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: ' ',
+        });
+        const selected = game.invent;
+        assert.ok(selected?.invlet);
+        game.flags.invlet_constant = true;
+
+        const sourceStart = IACTIONS_C.indexOf('case IA_ADJUST_OBJ:');
+        const sourceEnd = IACTIONS_C.indexOf('case IA_ADJUST_STACK:',
+            sourceStart);
+        const sourceBranch = IACTIONS_C.slice(sourceStart, sourceEnd);
+        const queueCommand = sourceBranch.indexOf(
+            'cmdq_add_ec(CQ_CANNED, doorganize)',
+        );
+        const queueLetter = sourceBranch.indexOf(
+            'cmdq_add_key(CQ_CANNED, otmp->invlet)',
+        );
+        assert.ok(sourceStart >= 0 && sourceEnd > sourceStart);
+        assert.ok(queueCommand >= 0 && queueCommand < queueLetter);
+        const adjustRow = extcmdRow('adjust');
+        assert.equal(adjustRow.ef_txt, 'adjust');
+        assert.equal(adjustRow.ef_funct, 'doorganize');
+
+        await itemactions(selected, game, {
+            selectMenu: async (_state, spec) => (
+                spec.items.find((item) => item.selector === 'i')?.value
+            ),
+        });
+        assert.equal(
+            cmdq_peek(CQ_CANNED, game).ec_entry.ef_funct,
+            'doorganize',
+        );
+        assert.equal(game.command_queue[CQ_CANNED][1].key, selected.invlet);
+
+        // doorganize's first prompt acknowledges the still-pending startup
+        // line; z is the independent destination-letter answer that follows.
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        game.nhDisplay.pushKey('z'.charCodeAt(0));
+        game.context.move = 0;
+        await rhack(0, game);
+
+        assert.equal(cmdq_peek(CQ_CANNED, game), null);
+        assert.equal(selected.invlet, 'z');
+        assert.equal(game.context.move, 0, 'doorganize returns ECMD_OK');
+        assert.match(topLine(game), /^Moving: z - /u);
+        assert.match(CMD_C,
+            /func = \(\(struct ext_func_tab \*\) tlist\)->ef_funct;[\s\S]*?res = \(\*func\)\(\);/u);
+        assert.match(CMD_JS,
+            /queuedExtcmdEntry\?\.ef_funct === 'doorganize'[\s\S]*?doorganize\(state\)/u);
+    });
 
 test('queued getobj awaits an asynchronous object filter', async () => {
     await runSegment({
