@@ -492,7 +492,10 @@ export async function shkcatch(obj, x, y, state = game, rawEnv = {}) {
         return null;
     }
 
-    if (mnearto(shkp, x, y, true, RLOC_NOMSG, state) === 2
+    if (await mnearto(shkp, x, y, true, RLOC_NOMSG, {
+        ...rawEnv,
+        state,
+    }) === 2
         && !heroIsDeaf(state) && !muteshk(shkp)) {
         set_voice(shkp, 0, 80, 0, state);
         await verbalize('Out of my way, scum!', state);

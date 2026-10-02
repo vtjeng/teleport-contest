@@ -225,6 +225,7 @@ import {
     disturb_buried_zombies,
     losehp,
     NODIAG,
+    spoteffects,
     u_locomotion,
 } from './hack.js';
 import { dist2, online2, ordin, s_suffix, upstart } from './hacklib.js';
@@ -4573,30 +4574,35 @@ export function mon_leaving_level(mon, state = game, env = {}) {
     /* "to prevent an infinite relobj-flooreffects-hmon-killed loop" */
     mon.mtrapped = 0;
     /* "mon is not swallowing or holding you nor held by you" */
-    unstuck(mon, state, env);
-
-    /* "vault guard might be at <0,0>" */
-    if (onmap || mon === m_at(0, 0, state)) {
-        if (mon.wormno) remove_worm(mon, { ...env, state });
-        else remove_monster(mx, my, state);
-    }
-    if (onmap) {
-        /* "for migration; doesn't matter for death" */
-        mon.mundetected = 0;
-        /* "unhide mimic in case its shape has been blocking line of sight
-           or it is accompanying the hero to another level" */
-        if (M_AP_TYPE(mon) !== M_AP_NOTHING && M_AP_TYPE(mon) !== M_AP_MONSTER)
-            requiredKillOperation(env, 'unsupported')('unhiding a mimic');
-        /* "if mon is pinned by a boulder, removing mon lets boulder drop" */
-        fill_pit(mx, my, state);
-        killRedraw(mx, my, { ...env, state });
-    }
-    /* "if mon is a remembered target, forget it since it isn't here anymore".
-       apply.c use_pole() is the only C writer that stores a monster here and
-       none of it is ported, so in production this pointer is null and the
-       test cannot hold; js/dog.js relmon() restates the same two lines. */
-    if (state.context?.polearm?.hitmon === mon)
-        state.context.polearm.hitmon = null;
+    const finishLeaving = () => {
+        /* "vault guard might be at <0,0>" */
+        if (onmap || mon === m_at(0, 0, state)) {
+            if (mon.wormno) remove_worm(mon, { ...env, state });
+            else remove_monster(mx, my, state);
+        }
+        if (onmap) {
+            /* "for migration; doesn't matter for death" */
+            mon.mundetected = 0;
+            /* "unhide mimic in case its shape has been blocking line of sight
+               or it is accompanying the hero to another level" */
+            if (M_AP_TYPE(mon) !== M_AP_NOTHING
+                && M_AP_TYPE(mon) !== M_AP_MONSTER)
+                requiredKillOperation(env, 'unsupported')('unhiding a mimic');
+            /* "if mon is pinned by a boulder, removing mon lets boulder drop" */
+            fill_pit(mx, my, state);
+            killRedraw(mx, my, { ...env, state });
+        }
+        /* "if mon is a remembered target, forget it since it isn't here anymore".
+           apply.c use_pole() is the only C writer that stores a monster here and
+           none of it is ported, so in production this pointer is null and the
+           test cannot hold; js/dog.js relmon() restates the same two lines. */
+        if (state.context?.polearm?.hitmon === mon)
+            state.context.polearm.hitmon = null;
+    };
+    const release = unstuck(mon, state, env);
+    return release && typeof release.then === 'function'
+        ? release.then(finishLeaving)
+        : finishLeaving();
 }
 
 // C ref: mon.c mnearto() (4019-4085). Put a monster at or near the requested
@@ -4622,43 +4628,49 @@ export function mnearto(
 
     let other = null;
     if (moveOther) other = m_at(x, y, state);
-    if (other) {
-        mon_leaving_level(other, state, env);
-        other.mx = 0;
-        other.my = 0;
-        other.mstate = (other.mstate ?? 0) | MON_OFFMAP;
-    }
-
-    let destination = { x, y };
-    if (!goodpos(x, y, monster, 0, env)) {
-        destination = enexto(x, y, monster.data, env);
-        if (!destination || !isok(destination.x, destination.y)) {
-            if (other) deal_with_overcrowding(other, state, env);
-            return 0;
+    const finishLeaving = () => {
+        if (other) {
+            other.mx = 0;
+            other.my = 0;
+            other.mstate = (other.mstate ?? 0) | MON_OFFMAP;
         }
-    }
-    const placement = rloc_to_flag(monster, destination.x, destination.y,
-        rlocflags, {
-        ...env,
-        state,
-        rlocflags,
-    });
 
-    const finish = () => {
-        if (!(moveOther && other)) return 1;
-        const nested = mnearto(other, x, y, false, rlocflags, env);
-        if (nested && typeof nested.then === 'function') {
-            return nested.then((result) => {
-                if (!result) deal_with_overcrowding(other, state, env);
-                return 2;
+        let destination = { x, y };
+        if (!goodpos(x, y, monster, 0, env)) {
+            destination = enexto(x, y, monster.data, env);
+            if (!destination || !isok(destination.x, destination.y)) {
+                if (other) deal_with_overcrowding(other, state, env);
+                return 0;
+            }
+        }
+        const placement = rloc_to_flag(monster, destination.x, destination.y,
+            rlocflags, {
+                ...env,
+                state,
+                rlocflags,
             });
-        }
-        if (!nested) deal_with_overcrowding(other, state, env);
-        return 2;
+
+        const finish = () => {
+            if (!(moveOther && other)) return 1;
+            const nested = mnearto(other, x, y, false, rlocflags, env);
+            if (nested && typeof nested.then === 'function') {
+                return nested.then((result) => {
+                    if (!result) deal_with_overcrowding(other, state, env);
+                    return 2;
+                });
+            }
+            if (!nested) deal_with_overcrowding(other, state, env);
+            return 2;
+        };
+        if (placement && typeof placement.then === 'function')
+            return placement.then(finish);
+        return finish();
     };
-    if (placement && typeof placement.then === 'function')
-        return placement.then(finish);
-    return finish();
+    if (!other) return finishLeaving();
+    const leaving = mon_leaving_level(other, state, env);
+    return leaving && typeof leaving.then === 'function'
+        ? leaving.then(finishLeaving)
+        : finishLeaving();
 }
 
 // C ref: mon.c m_detach() (2733-2803). "'mtmp' is going away; remove effects
@@ -4704,15 +4716,13 @@ export function m_detach(
      * gets placed.  We compromise and just make sure mtmp is off the map
      * before dropping its former belongings."
      */
-    mon_leaving_level(mtmp, state, env);
-
-    mtmp.mhp = 0; /* "simplify some tests: force mhp to 0" */
-    /* "death handling for the Wizard needs to take place even if he is
-       leaving the dungeon alive rather than dying" */
-    if (mtmp.iswiz) unsupported("the Wizard of Yendor's death");
-    /* "foodead() might give quest feedback for foo having died; skip that
-       if we're called for mongone() rather than mondead()" */
     const finishDetach = () => {
+        mtmp.mhp = 0; /* "simplify some tests: force mhp to 0" */
+        /* "death handling for the Wizard needs to take place even if he is
+           leaving the dungeon alive rather than dying" */
+        if (mtmp.iswiz) unsupported("the Wizard of Yendor's death");
+        /* "foodead() might give quest feedback for foo having died; skip that
+           if we're called for mongone() rather than mondead()" */
         /* gs.stealmid is 0 while no theft is in progress, and makemon() assigns
            m_id from svc.context.ident, which starts at 1, so the nonzero test
            keeps an unset stealmid from matching a monster with no identity. */
@@ -4734,17 +4744,23 @@ export function m_detach(
             unsupported("the death of the hero's steed");
     };
 
-    if (due_to_death) {
-        if (mtmp.data.msound === MS_NEMESIS)
-            unsupported("the quest nemesis's death");
-        if (mtmp.data.msound === MS_LEADER)
-            unsupported("the quest leader's death");
-        /* "release (drop onto map) all objects carried by mtmp; assumes that
-           mtmp->mx,my contains the appropriate location" */
-        return relobj(mtmp, 1, false, { ...env, state })
-            .then(finishDetach);
-    }
-    return finishDetach();
+    const finishAfterLeaving = () => {
+        if (due_to_death) {
+            if (mtmp.data.msound === MS_NEMESIS)
+                unsupported("the quest nemesis's death");
+            if (mtmp.data.msound === MS_LEADER)
+                unsupported("the quest leader's death");
+            /* "release (drop onto map) all objects carried by mtmp; assumes that
+               mtmp->mx,my contains the appropriate location" */
+            return relobj(mtmp, 1, false, { ...env, state })
+                .then(finishDetach);
+        }
+        return finishDetach();
+    };
+    const leaving = mon_leaving_level(mtmp, state, env);
+    return leaving && typeof leaving.then === 'function'
+        ? leaving.then(finishAfterLeaving)
+        : finishAfterLeaving();
 }
 
 function monsterOnLevelChain(monster, state) {
@@ -4805,7 +4821,7 @@ export function mongone(monster, env = {}) {
         };
         // C passes due_to_death=false, so this stays synchronous after the
         // optional swallowed release; source-site failures reach the caller.
-        m_detach(monster, monster.data, false, state, {
+        return m_detach(monster, monster.data, false, state, {
             ...env,
             state,
             unsupported,
@@ -5758,9 +5774,10 @@ export async function killed(mtmp, state = game, env = {}) {
 // branch, murder and unicorn penalties, quest/nemesis/guardian/priest
 // alignment, pets, and peaceful monsters. Remaining helper boundaries are
 // explicit: monstone()/mondead(), corpse_chance(), and flooreffects() still
-// have their own unported species or object branches; the void
-// hack.c:spoteffects() call at 3638 is recorded and skipped below. The
-// buried-corpse message now reads the actual return from make_corpse().
+// have their own unported species or object branches. In the wasinside arm,
+// C copies the monster before the discarded-void spoteffects() call and then
+// uses that copy for the remaining cleanup; this call now follows that order.
+// The buried-corpse message now reads the actual return from make_corpse().
 //
 // C's `goto cleanup` at 3571 and 3575 jumps over the corpse-and-drop half, so
 // that half becomes the `if (!skipCorpseAndDrops)` block below and the cleanup
@@ -5956,11 +5973,11 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         }
 
         if (wasinside) {
-            // mon.c:3638 discards hack.c:spoteffects()'s void result. That
-            // source unit is still partial, so keep the gap at its call site;
-            // continue with xkilled()'s saved-monster cleanup as C does.
-            note_unported('hack.c spoteffects');
-            mtmp = { ...mtmp, nmon: null, minvent: null, mextra: null };
+            // C copies the engulfer before spoteffects() can clear or move
+            // monsters, then continues cleanup through that saved copy.
+            const museum = { ...mtmp, nmon: null, minvent: null, mextra: null };
+            await spoteffects(true, state, env);
+            mtmp = museum;
         }
         /* "monster is gone, corpse or other object might now be visible" */
         killRedraw(x, y, { ...env, state });

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -61,6 +62,15 @@ import {
     PM_SHOPKEEPER,
     PM_TOURIST,
 } from '../js/monsters.js';
+
+const C_SHK = readFileSync('nethack-c/upstream/src/shk.c', 'utf8');
+const JS_SHK = readFileSync('js/shk.js', 'utf8');
+
+function sourceBody(source, signature) {
+    const start = source.indexOf(signature);
+    assert.ok(start >= 0, `${signature} is present`);
+    return source.slice(start);
+}
 
 test('addupbill sums exactly the active bill entries', () => {
     // C ref: shk.c addupbill() (496-507).  billct bounds the pointer walk;
@@ -750,4 +760,25 @@ test('shk_your handles personal, unique, and ordinary corpse prefixes', () => {
     assert.equal(shk_your(corpse(PM_MEDUSA), state), '');
     assert.equal(shk_your(corpse(PM_ORACLE), state), 'the ');
     assert.equal(shk_your(corpse(PM_GOBLIN), state), 'your ');
+});
+
+test('shkcatch waits for mnearto before source speech and catch effects', () => {
+    const cBody = sourceBody(C_SHK, '\nshkcatch(\n');
+    const cMove = cBody.indexOf('if (mnearto(shkp, x, y, TRUE, RLOC_NOMSG) == 2');
+    const cVoice = cBody.indexOf('SetVoice(shkp, 0, 80, 0);', cMove);
+    const cSpeak = cBody.indexOf('verbalize("Out of my way, scum!");', cVoice);
+    const cBill = cBody.indexOf('subfrombill(obj, shkp);', cSpeak);
+    const cCatch = cBody.indexOf('mpickobj(shkp, obj);', cBill);
+    assert.ok(cMove >= 0 && cMove < cVoice && cVoice < cSpeak);
+    assert.ok(cSpeak < cBill && cBill < cCatch);
+
+    const jsBody = sourceBody(JS_SHK, 'export async function shkcatch(');
+    const jsMove = jsBody.indexOf('if (await mnearto(shkp, x, y, true');
+    const jsVoice = jsBody.indexOf('set_voice(shkp, 0, 80, 0, state);', jsMove);
+    const jsSpeak = jsBody.indexOf("await verbalize('Out of my way, scum!'", jsVoice);
+    const jsBill = jsBody.indexOf('subfrombill(obj, shkp, state, rawEnv);', jsSpeak);
+    const jsCatch = jsBody.indexOf('mpickobj(shkp, obj, { ...rawEnv, state });', jsBill);
+    assert.ok(jsMove >= 0 && jsMove < jsVoice && jsVoice < jsSpeak);
+    assert.ok(jsSpeak < jsBill && jsBill < jsCatch);
+    assert.match(jsBody, /\{\s*\.\.\.rawEnv,\s*state,\s*\}\) === 2/);
 });

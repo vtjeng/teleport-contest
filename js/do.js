@@ -2648,7 +2648,7 @@ export async function goto_level(
     // redraw; Fire instead creates fumaroles from its level flag.
     if (on_level(u.uz, state.water_level)
         || on_level(u.uz, state.air_level))
-        movebubbles(state);
+        await movebubbles(state);
     else if (state.level.flags.fumaroles) await fumaroles(state);
 
     /* Reset the screen. */
