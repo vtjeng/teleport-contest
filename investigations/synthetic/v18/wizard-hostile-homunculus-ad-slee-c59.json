@@ -1,0 +1,95 @@
+{
+  "corpus": "synthetic",
+  "batch": "v18",
+  "caseId": "wizard-hostile-homunculus-ad-slee-c59",
+  "session": "synthetic/v18/wizard-hostile-homunculus-ad-slee-c59",
+  "manifestPath": "challenges/manifests/v18.json",
+  "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+  "recordingSha256": "67ea3708f5bc7c7fbec6513c3bd64f368e82511610af6910855607cbf7c366a1",
+  "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+  "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+  "remainingScreens": 2,
+  "recordedSteps": 35,
+  "status": "complete",
+  "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v18",
+    "caseId": "wizard-hostile-homunculus-ad-slee-c59",
+    "session": "synthetic/v18/wizard-hostile-homunculus-ad-slee-c59",
+    "manifestPath": "challenges/manifests/v18.json",
+    "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+    "recording": "challenges/cases/v18/wizard-hostile-homunculus-AD-SLEE-c59.session.json",
+    "recordingPath": "challenges/cases/v18/wizard-hostile-homunculus-AD-SLEE-c59.session.json",
+    "recordingSha256": "67ea3708f5bc7c7fbec6513c3bd64f368e82511610af6910855607cbf7c366a1",
+    "recipe": "challenges/cases/v18/wizard-hostile-homunculus-AD-SLEE-c59.recipe.session.json",
+    "recipeSha256": "cc3b38b7326dd6726aaf60e5ecb52afe537c66c5871ac2ba044caf23826fa8d0",
+    "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+    "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+    "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationUtc": "2026-10-02T06:59:12.293Z",
+    "remainingScreens": 2,
+    "recordedSteps": 35,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 35
+      },
+      "rng": {
+        "matched": 2337,
+        "total": 2386
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 35
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_slee()",
+      "step": 33
+    },
+    "step": 33,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_slee",
+    "message": "simple monster action requires uhitm.c mhitm_ad_slee()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The AD_SLEE dispatcher arm stops at a missing uhitm.c:mhitm_ad_slee() implementation during a landed monster attack against the hero. The whole source function has three attacker/defender branches; this case reaches its monster-to-hero branch, where C prints the hit message and its recorded rn2(5) value of 3 fails the effect gate. This case therefore establishes the missing function and continuation boundary, not an actual sleep effect.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "Port all of mhitm_ad_slee(): hero attacking a non-sleeping monster applies the source magic-cancellation and sleep_monst gates; a monster attacking the hero prints hitmsg, then applies its gm.multi >= 0, !rn2(5), and magic-cancellation gates, recording or clearing seen sleep resistance and falling asleep only when each gate permits; monster-versus-monster attacks use the two short-circuit sleep_monst calls, optional visible message, STRAT_WAITFORU clear, and slept_monst. The assigned recording reaches the monster-to-hero arm, but rn2(5)=3 fails the effect gate.",
+    "functions": [
+      "mhitm_ad_slee"
+    ],
+    "callers": [
+      "uhitm.c:mhitm_adtyping() dispatches AD_SLEE to mhitm_ad_slee(); js/uhitm.js:mhitm_adtyping() currently maps AD_SLEE to the unported-operation stop.",
+      "mhitu.c:hitmu() calls mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm); js/mhitu.js:hitmu() invokes the same dispatcher for the assigned monster-to-hero path.",
+      "uhitm.c:damageum() calls mhitm_adtyping(&gy.youmonst, mattk, mdef, &mhm); js/uhitm.js:damageum() is the hero-to-monster production route.",
+      "mhitm.c:mdamagem() calls mhitm_adtyping(magr, mattk, mdef, &mhm); js/mhitm.js:mdamagem() is the monster-to-monster production route."
+    ],
+    "dependencies": [
+      "mhitm_mgc_atk_negated() -> boolean, consumed as a gate in the hero-to-monster and monster-to-hero arms; its result depends on magic_negation() -> MC integer and rn2(10) when the attacker is not canceled. Existing JS implementations are js/uhitm.js:mhitm_mgc_atk_negated() and js/mhitu.js:magic_negation().",
+      "sleep_monst() -> boolean, consumed by short-circuit conditions in the hero-to-monster and monster-to-monster arms; C source is mhitm.c:1221-1245 and JS implementation is js/mhitm.js:sleep_monst().",
+      "rn2(5) supplies the monster-to-hero effect gate and rnd(10) supplies sleep duration; preserve source ordering and short-circuit behavior.",
+      "hitmsg(), monstseesu(), monstunseesu(), fall_asleep(), and slept_monst() have void message/state effects in their respective branches; their current JS implementations are present in js/mhitu.js, js/mondata.js, js/timeout.js, and js/mhitm.js."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "At examined commit 04b79edc2bcff3a4c2d70efba937608818f85b53, the upstream submodule is pinned at 16ff59115315917b93185d026aeefea06db9b0f4. In uhitm.c:3478-3521, mhitm_ad_slee() has three complete arms selected by whether magr or mdef is gy.youmonst; its monster-to-hero arm calls hitmsg before testing gm.multi >= 0, !rn2(5), and !mhitm_mgc_atk_negated(). If the hero resists sleep it calls monstseesu(M_SEEN_SLEEP) and returns; otherwise it calls monstunseesu(), fall_asleep(-rnd(10), TRUE), and prints the sleep message.",
+    "The saved C recording at step 33 has key \".\", the bite screen, and the source gate call rn2(5)=3 @ mhitm_ad_slee(uhitm.c:3495). The source condition is !rn2(5), so this attempt fails before magic cancellation or the resistance/sleep effects; the private step excerpt is .cache/v18-investigations/wizard-hostile-homunculus-ad-slee-c59/c-step-33.json.",
+    "The current saved queue/evaluation entry identifies 2 unmatched screens out of 35 and a step-33 stop requiring uhitm.c mhitm_ad_slee(). The stop is the actual cause: at js/uhitm.js:4837 the AD_SLEE case calls unported(), while uhitm.c:4816 dispatches to mhitm_ad_slee().",
+    "The direct dispatcher callers are uhitm.c:4854 damageum(), mhitu.c:1191 hitmu(), and mhitm.c:1059 mdamagem(); their current JS counterparts call js/uhitm.js:mhitm_adtyping() at js/uhitm.js:4886, js/mhitu.js:1707, and js/mhitm.js:1057. This establishes caller reachability/wiring only, not whole-source completion of those outer functions.",
+    "The consumed helper return values are mhitm_mgc_atk_negated() at uhitm.c:74-99 (using magic_negation() at mhitu.c:1088-1137) and sleep_monst() at mhitm.c:1221-1245. Their JS implementations exist in js/uhitm.js:776, js/mhitu.js:1566, and js/mhitm.js:184; preserve the boolean values, ordered rolls, and short-circuit behavior in the new source function.",
+    "The v18 manifest records an independent patched-C replay whose output SHA-256 matches the immutable recording (67ea3708f5bc7c7fbec6513c3bd64f368e82511610af6910855607cbf7c366a1). Its historical comparison measured 35 C screens versus 33 JS screens; the current saved evaluation independently reports 33/35 matched and the same step-33 missing-function stop."
+  ]
+}

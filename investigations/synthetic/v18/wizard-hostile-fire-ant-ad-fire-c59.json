@@ -1,0 +1,97 @@
+{
+  "session": "synthetic/v18/wizard-hostile-fire-ant-ad-fire-c59",
+  "corpus": "synthetic",
+  "batch": "v18",
+  "caseId": "wizard-hostile-fire-ant-ad-fire-c59",
+  "manifestPath": "challenges/manifests/v18.json",
+  "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+  "recordingSha256": "2e089f493a758b81379deef6739e2d35cfb17dede196be6ca6c725bbb4e5be10",
+  "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+  "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+  "remainingScreens": 3,
+  "recordedSteps": 34,
+  "status": "complete",
+  "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v18",
+    "caseId": "wizard-hostile-fire-ant-ad-fire-c59",
+    "session": "synthetic/v18/wizard-hostile-fire-ant-ad-fire-c59",
+    "manifestPath": "challenges/manifests/v18.json",
+    "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+    "recording": "challenges/cases/v18/wizard-hostile-fire-ant-AD-FIRE-c59.session.json",
+    "recordingPath": "challenges/cases/v18/wizard-hostile-fire-ant-AD-FIRE-c59.session.json",
+    "recordingSha256": "2e089f493a758b81379deef6739e2d35cfb17dede196be6ca6c725bbb4e5be10",
+    "recipe": "challenges/cases/v18/wizard-hostile-fire-ant-AD-FIRE-c59.recipe.session.json",
+    "recipeSha256": "953a5a3a265f16f44c064ef525529efe9f1d7e8126397b410670417d242dd9c5",
+    "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+    "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+    "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationUtc": "2026-10-02T06:59:12.293Z",
+    "remainingScreens": 3,
+    "recordedSteps": 34,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 31,
+        "total": 34
+      },
+      "rng": {
+        "matched": 2562,
+        "total": 2576
+      },
+      "cursors": {
+        "matched": 31,
+        "total": 34
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_fire()",
+      "step": 31
+    },
+    "step": 31,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_fire",
+    "message": "simple monster action requires uhitm.c mhitm_ad_fire()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The current first mismatch is the explicit refusal for uhitm.c mhitm_ad_fire() in js/uhitm.js mhitm_adtyping()’s AD_FIRE arm. C reaches the monster-to-hero branch from mhitu.c hitmu() after the hostile fire ant lands its AD_FIRE attack, applies the fire message and damage, then returns to the remaining hitmu work. The actionable source owner is the whole uhitm.c mhitm_ad_fire() function, with its AD_FIRE dispatch wired through the existing mhitm_adtyping() callers. Three later C screens remain unobserved past the JavaScript refusal.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "For this case magr != &gy.youmonst and mdef == &gy.youmonst, so mhitm_ad_fire() takes the mhitu arm. The recorded blow is not magic-canceled; the hero is not fire-resistant; and the C branch continues through its attacker-level rn2(20) check and burn_away_slime(). The task scope must port the entire function, including its uhitm and mhitm arms, not just this reached branch.",
+    "functions": [
+      "mhitm_ad_fire"
+    ],
+    "callers": [
+      "uhitm.c mhitm_adtyping() case AD_FIRE (line 4792) directly calls mhitm_ad_fire().",
+      "mhitu.c hitmu() calls mhitm_adtyping() at line 1191; this is the reached monster-to-hero production route and is wired by js/mhitu.js hitmu() to js/uhitm.js mhitm_adtyping().",
+      "mhitm.c mdamagem() calls mhitm_adtyping() at line 1059; the existing JavaScript route is js/mhitm.js mdamagem().",
+      "uhitm.c damageum() calls mhitm_adtyping() at line 4854; the existing JavaScript route is js/uhitm.js damageum()."
+    ],
+    "dependencies": [
+      "mhitm_mgc_atk_negated() returns a boolean consumed by each arm to zero damage and either return or continue; the reached call is false for this recorded hit.",
+      "on_fire() returns the message text and completelyburns() returns a branch predicate; resists_fire() (monst.h macro over Resists_Elem) and defended() return booleans selecting resistance handling.",
+      "canseemon() and mlifesaver() return values used for visible-monster and life-saving messages; DEADMONSTER is a macro used to set mhm.done and mhm.hitflags.",
+      "destroy_items() returns extra damage consumed by the uhitm and mhitm arms; the mhitu arm explicitly discards its return value.",
+      "makemon.c grow_up() returns a permonst pointer consumed as a boolean when mhitm sets M_ATTK_AGR_DIED after burning a monster defender. js/makemon.js grow_up() currently refuses the bigger-form branch, so this consumed return dependency is not fully covered by its present implementation.",
+      "xkilled(), monkilled(), golemeffects(), shieldeff(), ignite_items(), burn_away_slime(), monstunseesu(), monstseesu(), and rehumanize() have results discarded by C; if a callee path is unported, record note_unported() and skip it under the project gap rule."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The current saved evaluation challenges/evaluations/20261002065911-v18.json measures 31/34 screens, 2562/2576 RNG calls, and 31/34 cursors; its first mismatch is a stop at zero-based step 31 with “simple monster action requires uhitm.c mhitm_ad_fire()”. This identifies the JavaScript refusal, not the C RNG call-site tag, as the current cause.",
+    "The immutable case entry in challenges/manifests/v18.json identifies sourcePointers mhitu.c:hitmu, uhitm.c:mhitm_adtyping, and uhitm.c:mhitm_ad_fire. Its C outcome says the hostile fire-ant AD_FIRE attack reaches the monster-to-hero arm. Independent patched-C replay run-fUxLz8 exited 0 and reproduced the recording hash; the manifest cites its receipt under /tmp/teleport-loop-worker-c-20260925/.cache/C59-logs/final-replay-checks/wizard-hostile-fire-ant-AD-FIRE-c59/receipt.json.",
+    "The immutable recording challenges/cases/v18/wizard-hostile-fire-ant-AD-FIRE-c59.session.json has 34 steps. At zero-based step 31, C records rn2(10)=8 and rn2(20)=11 at mhitm_ad_fire(uhitm.c:2579), the message “You’re on fire!”, and HP 5(12), confirming that the non-negated, non-fire-resistant mhitu branch applies damage before later monster processing.",
+    "C source route: mhitu.c:1186-1194 rolls hitmu damage and calls mhitm_adtyping(); uhitm.c:4786-4792 dispatches AD_FIRE to mhitm_ad_fire(); uhitm.c:2561-2586 defines the reached mhitu behavior. In JavaScript, mhitu.js hitmu() and the other production callers reach uhitm.js mhitm_adtyping(), whose AD_FIRE arm at line 4799 still calls the explicit unsupported operation.",
+    "uhitm.c:2521-2623 is one whole function with three distinct attacker/defender contexts (hero-to-monster, monster-to-hero, monster-to-monster). Only the middle arm explains this mismatch, but the source port must cover all three. In particular, destroy_items() contributes return-valued damage in the first and third arms, and grow_up()’s return contributes M_ATTK_AGR_DIED in the third.",
+    "Historical counter-evidence: the immutable manifest’s exactComparison records an older B82 comparison at c279bd556876e7c8494dbe37aea914412f8e75a3, where the next C-only RNG entry after the same step boundary was rn2(5)=1 at distfleeck(monmove.c:538). That later call-site label describes where C continued after the old JavaScript path stopped; it is not the source cause. The current saved evaluation now reports the explicit mhitm_ad_fire refusal. The three remaining recorded screens are downstream and still need re-evaluation after this owner is implemented."
+  ]
+}
