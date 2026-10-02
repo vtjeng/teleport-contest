@@ -140977,8 +140977,8 @@
           "name": "make_slimed",
           "line": 195,
           "endLine": 221,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -141472,7 +141472,148 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "make_slimed",
+            "implementation": "js/potion.js",
+            "symbol": "make_slimed",
+            "sourceReview": "Ported the complete potion.c:make_slimed definition at lines 195-218. C snapshots the full Slimed intrinsic, calls set_itimeout, toggles disp.botl and emits the optional message only when the old and new timeout truth values differ, then tests the complete resulting Slimed intrinsic before unlinking the delayed killer and clearing the green-slime disguise. JavaScript preserves the disabled Unaware block, source call/message/state order, and upper intrinsic flags when clearing only the timeout. The full-intrinsic cleanup condition is !prop.intrinsic, matching potion.c's !Slimed rather than masking to TIMEOUT. Supporting timeout.c:burn_away_slime is also ported as a two-branch async helper: it awaits make_slimed only while Slimed is active. Its existing JS callers preserve C order and await the helper; unported outer functions remain explicit in task context.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c:wiz_intrinsic -> potion.c:make_slimed; cmd.c:wizintrinsic is the production command dispatcher."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "cprefx",
+                "source": "eat.c:eatcorpse or eat.c:consume_tin -> eat.c:cprefx -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects SPE_CURE_SICKNESS arm -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Amulet_on",
+                "source": "do_wear.c:Amulet_on UNCHANGING arm -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_healing",
+                "source": "artifact.c:invoke_healing -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c:fix_worst_trouble -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c:newman -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon cleanup branches -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "gulpum",
+                "source": "uhitm.c:gulpum -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "burn_away_slime",
+                "source": "timeout.c:burn_away_slime -> potion.c:make_slimed when Slimed is active."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/amulet-unchanging-cures-sliming-a79.session.json",
+              "recordings/potion.c/amulet-unchanging-cures-five-turn-sliming-a79.session.json",
+              "recordings/potion.c/lit-oil-burns-away-slime-barbarian-a79.session.json",
+              "recordings/potion.c/lit-oil-burns-away-slime-wizard-variation-a79.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 17,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_slimed(30, ...)"
+              },
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_slimed(5, ...)"
+              }
+            ],
+            "checkedAt": "3c2c08f8105bef27f061a82b6138d130da8f4172"
+          }
+        ],
+        "entryPointReview": "The selected whole helper is exercised through three matching production routes. The admitted v18 default-duration and five-turn #wizintrinsic cases execute the positive make_slimed transition through zero-based steps 0-17 and 0-18 respectively. Independent Amulet_on records exercise the active-to-clear transition with 30-turn and five-turn SLIMED values. Two independent lit-oil records exercise peffect_oil -> timeout.c:burn_away_slime -> make_slimed, including a Barbarian with ordinary lit oil and a Wizard with blessed lit oil; both match the face-burn and slime-cleared messages. The source-pinned potion tests verify transition-only output, full-intrinsic flag preservation and cleanup. All existing active direct make_slimed callers are represented in source and wired in C order. The valid homemade-gnome tin recording covers eat.c:consume_tin -> cprefx only and is not make_slimed runtime evidence. A79 also wires every represented JS burn_away_slime site: artifact_hit, explode, peffect_oil, zapyourself, zhitu, mcast_fire_pillar, dofiretrap, seffect_fire, lava_effects, boulder_hits_pool, and both dosit lava branches. Source-pinned caller tests cover the newly exposed seffect_fire, lava_effects, boulder_hits_pool, and dosit calls; existing fire-scroll and lava-effects recordings remain unchanged and strict-matching. No whole caller completion is claimed. Explicitly excluded outer callers and timer/death gaps are listed in .cache/A79-context.json.",
+        "entryPoints": [
+          {
+            "name": "Wizard sets the full Slimed intrinsic through #wizintrinsic",
+            "functions": [
+              "make_slimed"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 17,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_slimed(30, ...)"
+              },
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_slimed(5, ...)"
+              }
+            ]
+          },
+          {
+            "name": "Wearing an Amulet of Unchanging clears active Slimed",
+            "functions": [
+              "make_slimed"
+            ],
+            "recordings": [
+              "recordings/potion.c/amulet-unchanging-cures-sliming-a79.session.json",
+              "recordings/potion.c/amulet-unchanging-cures-five-turn-sliming-a79.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Lit oil clears active Slimed through burn_away_slime",
+            "functions": [
+              "make_slimed"
+            ],
+            "recordings": [
+              "recordings/potion.c/lit-oil-burns-away-slime-barbarian-a79.session.json",
+              "recordings/potion.c/lit-oil-burns-away-slime-wizard-variation-a79.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
