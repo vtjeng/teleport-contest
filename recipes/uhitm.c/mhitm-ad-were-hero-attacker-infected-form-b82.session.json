@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Preserved C-first setup miss for B82's hero-attacker direction. Seed 8806440 and the 2034 date are independent. The blessed tin opens with one More pager; this recipe sends two spaces, so the second selects the default no at eat.c:start_tin's 'Eat it?' prompt and discards the tin. No cpostfx lycanthropy state is set, so the later #polyself request is refused by polyself.c:polyself for the non-polyable wererat. Its exact C trace is retained under .cache/B82-scratch/ and is not a runtime witness.",
+  "segments": [{
+    "seed": 8806440,
+    "datetime": "20340605070809",
+    "nethackrc": "OPTIONS=name:B82LycanHero,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!acoustics\n",
+    "moves": " \u0017blessed homemade tin of human wererat meat\nen  y #polyself\nwererat\n #wizgenesis\nhostile newt\nh"
+  }]
+}

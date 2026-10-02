@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B82 monster-to-hero AD_WERE variation through magic cancellation. The wish creates Werebane at slot o, while this input deliberately wields n, the Wizard's magic marker; C confirms that inventory item is wielded at step 36. At step 74 the werejackal bite reaches mhitm_ad_were (rn2(4)=0), then mhitm_mgc_atk_negated consumes rn2(10)=2 and prints 'You avoid harm.' This is not Werebane defense evidence; it covers the magic-negation branch. The full C/JS replay matches through all 88 boundaries.",
+  "segments": [
+    {
+      "seed": 19284017,
+      "datetime": "20340507103000",
+      "nethackrc": "OPTIONS=name:WerebaneBite,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n10\n        \u0017Werebane\nwn#wizgenesis\nhostile werejackal\n...................."
+    }
+  ]
+}

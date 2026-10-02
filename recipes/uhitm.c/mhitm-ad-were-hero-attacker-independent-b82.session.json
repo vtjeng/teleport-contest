@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "Blocked independent C-first B82 hero-attacker setup miss. Seed 8806420 and the 2032 date were selected independently to request a controlled werejackal hero form before creating a hostile newt. polyself.c:polyself only bypasses polyok for a were beast when iswere is true and were_beastie(mntmp) matches the existing u.ulycn; this uninfected Wizard cannot enter the no-poly werejackal form. The remaining input was consumed by the repeated controlled-form prompt and transformed the hero into a newt, so the scratch C artifact is setup history, not a runtime witness.",
+  "segments": [{
+    "seed": 8806420,
+    "datetime": "20320405060708",
+    "nethackrc": "OPTIONS=name:B82WereHero,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!acoustics\n",
+    "moves": " #polyself\nwerejackal\n #wizgenesis\nhostile newt\nh"
+  }]
+}

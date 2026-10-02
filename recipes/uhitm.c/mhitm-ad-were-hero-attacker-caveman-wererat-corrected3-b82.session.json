@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first B82 setup miss. With no alignment specified, C asks whether to pick a human Caveman's alignment; the first `n` declines, and subsequent #levelchange text is consumed by character-selection prompts instead of commands. Later letters accidentally enter game actions and do not establish the intended tin/poly/attack route. The next correction sets a valid neutral alignment in nethackrc before replaying the source-derived commands.",
+  "segments": [{
+    "seed": 7983552,
+    "datetime": "20360315082910",
+    "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": "n#levelchange\n5\n   \u0017blessed homemade tin of human wererat meat\nef y#polyself\nwererat\n #wizgenesis\nhostile newt\nhhhhhhhhhh"
+  }]
+}

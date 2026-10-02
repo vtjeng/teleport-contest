@@ -8,7 +8,9 @@ import {
     ALTAR,
     BLINDED,
     DETECT_MONSTERS,
+    DRAIN_RES,
     FIRE_RES,
+    FROMFORM,
     FOUNTAIN,
     GRAVE,
     ICE,
@@ -17,6 +19,7 @@ import {
     DOOR,
     OBJ_INVENT,
     POISON_RES,
+    PROT_FROM_SHAPE_CHANGERS,
     ROOM,
     SINK,
     STAIRS,
@@ -39,6 +42,8 @@ import {
     AD_CURS,
     AD_STON,
     AD_DRST,
+    AD_WERE,
+    AT_BITE,
     AT_CLAW,
     AT_WEAP,
     PM_GREMLIN,
@@ -55,6 +60,8 @@ import {
     PM_SEWER_RAT,
     PM_SHADE,
     PM_WATER_MOCCASIN,
+    PM_WEREJACKAL,
+    NON_PM,
 } from '../js/monsters.js';
 import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -68,6 +75,7 @@ import {
     LEATHER_ARMOR,
 } from '../js/objects.js';
 import { dmgval } from '../js/weapon.js';
+import { set_ulycn } from '../js/were.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
@@ -89,6 +97,21 @@ import { withSerializedGrids } from './terminal-grid-capture.mjs';
 const DATETIME = '20300102030405';
 const UHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url), 'utf8',
+);
+const WERE_C = readFileSync(
+    new URL('../nethack-c/upstream/src/were.c', import.meta.url), 'utf8',
+);
+const MHITU_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
+);
+const MHITM_C = readFileSync(
+    new URL('../nethack-c/upstream/src/mhitm.c', import.meta.url), 'utf8',
+);
+const POTION_C = readFileSync(
+    new URL('../nethack-c/upstream/src/potion.c', import.meta.url), 'utf8',
+);
+const EAT_C = readFileSync(
+    new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
 );
 function petRc({
     role = 'Tourist',
@@ -697,6 +720,149 @@ test('shade_miss waits for deferred feedback before cleanup', async () => {
     assert.equal(await pending, true);
     assert.equal(shade.msleeping, 0);
     assert.deepEqual(events, ['message-start', 'message-resolved']);
+});
+
+test('set_ulycn stores one value and refreshes form drain resistance', async () => {
+    // were.c:232-237 assigns u.ulycn before set_uasmon(); polyself.c then
+    // derives DRAIN_RES/FROMFORM from that same canonical hero state.
+    assert.match(WERE_C, /set_ulycn\(int which\)\s*\{\s*u\.ulycn = which;[\s\S]*?set_uasmon\(\);\s*\}/u);
+    assert.match(UHITM_C, /case AD_WERE:\s*mhitm_ad_were\(magr, mattk, mdef, mhm\); break;/u);
+    assert.match(POTION_C, /set_ulycn\(NON_PM\); \/\* cure lycanthropy \*\//u);
+    assert.match(EAT_C, /if\s*\(ismnum\(catch_lycanthropy\)\)\s*\{\s*set_ulycn\(catch_lycanthropy\);/u);
+    const potionJs = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const eatJs = readFileSync(new URL('../js/eat.js', import.meta.url), 'utf8');
+    assert.match(potionJs, /set_ulycn\(NON_PM, state\);/u);
+    assert.match(eatJs, /set_ulycn\(catch_lycanthropy, state\);\s*note_unported\('artifact\.c retouch_equipment'\);/u);
+
+    await runSegment({
+        // Seed 8806410 initializes a human hero so this test isolates the
+        // setter's lycanthropy bit rather than a polymorph-form effect.
+        seed: 8806410, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    assert.equal(game.u.ulycn, NON_PM);
+    assert.equal(game.u.uprops[DRAIN_RES].intrinsic & FROMFORM, 0);
+
+    // were.c's species index is installed before set_uasmon re-reads it.
+    set_ulycn(PM_WEREJACKAL, game);
+    assert.equal(game.u.ulycn, PM_WEREJACKAL);
+    assert.equal(game.u.uprops[DRAIN_RES].intrinsic & FROMFORM, FROMFORM);
+
+    // NON_PM removes only the lycanthropy contribution from the same bit.
+    set_ulycn(NON_PM, game);
+    assert.equal(game.u.ulycn, NON_PM);
+    assert.equal(game.u.uprops[DRAIN_RES].intrinsic & FROMFORM, 0);
+});
+
+test('mhitm_ad_were preserves all three source direction arms and infection order', async () => {
+    // uhitm.c:4265-4293 calls physical damage for hero and monster pairs;
+    // only a monster hitting the hero enters the hitmsg/gate/infection chain.
+    assert.match(UHITM_C, /struct permonst \*pa = magr->data;[\s\S]*?if\s*\(magr == &gy\.youmonst\)[\s\S]*?mhitm_ad_phys\(magr, mattk, mdef, mhm\);\s*if\s*\(mhm->done\)\s*return;[\s\S]*?else if\s*\(mdef == &gy\.youmonst\)[\s\S]*?hitmsg\(magr, mattk\);[\s\S]*?!rn2\(4\)[\s\S]*?u\.ulycn == NON_PM[\s\S]*?!Protection_from_shape_changers[\s\S]*?!defends\(AD_WERE, uwep\)[\s\S]*?!mhitm_mgc_atk_negated\(magr, mdef, TRUE\)[\s\S]*?urgent_pline\("You feel feverish\."\)[\s\S]*?exercise\(A_CON, FALSE\)[\s\S]*?set_ulycn\(monsndx\(pa\)\)[\s\S]*?retouch_equipment\(2\);[\s\S]*?else\s*\{\s*\/\* mhitm \*\/[\s\S]*?mhitm_ad_phys\(magr, mattk, mdef, mhm\);/u);
+    assert.match(MHITU_C, /mhitm_adtyping\(mtmp, mattk, &gy\.youmonst, &mhm\);/u);
+    assert.match(UHITM_C, /mhitm_adtyping\(&gy\.youmonst, mattk, mdef, &mhm\);/u);
+    assert.match(MHITM_C, /mhitm_adtyping\(magr, mattk, mdef, &mhm\);/u);
+
+    const attackEnv = (random, events = []) => ({
+        random,
+        message: async (line) => { events.push(`message:${line}`); },
+        urgentMessage: async (line) => { events.push(`urgent:${line}`); },
+        encumberMessage: async () => { events.push('encumber'); },
+        unsupported: (reason) => assert.fail(reason),
+    });
+
+    await runSegment({
+        // Seed 8806411 starts a regular human hero; the adjacent rat fixtures
+        // exercise the hero-to-monster physical delegation without setup RNG.
+        seed: 8806411, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const rat = {
+        // Synthetic m_id 93011 is distinct from every fixture and only
+        // identifies this adjacent source-test defender.
+        data: game.mons[PM_SEWER_RAT], m_id: 93011,
+        mx: game.u.ux + 1, my: game.u.uy,
+    };
+    // The sentinel damage value makes the delegated physical arm observable.
+    const heroBlow = { damage: 3, specialdmg: 0, done: false, hitflags: 0 };
+    await mhitm_adtyping(
+        game.youmonst,
+        { aatyp: AT_BITE, adtyp: AD_WERE },
+        rat,
+        heroBlow,
+        game,
+        attackEnv({ rn2: () => assert.fail('hero arm draws no RNG') }),
+    );
+    assert.equal(heroBlow.damage, 3);
+    assert.equal(heroBlow.done, false);
+
+    await runSegment({
+        // Seed 8806412 initializes the monster-pair test with no live map
+        // combat; source direction dispatch is the behavior under test.
+        seed: 8806412, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const werejackal = {
+        // These synthetic IDs keep the monster-pair fixture identities apart.
+        data: game.mons[PM_WEREJACKAL], m_id: 93012,
+        mx: game.u.ux + 1, my: game.u.uy, mcan: false,
+    };
+    const otherRat = {
+        data: game.mons[PM_SEWER_RAT], m_id: 93013,
+        mx: game.u.ux - 1, my: game.u.uy, mcan: false,
+    };
+    game.gv.vis = false;
+    const monsterBlow = { damage: 4, specialdmg: 0, done: false, hitflags: 0 };
+    await mhitm_adtyping(
+        werejackal,
+        { aatyp: AT_BITE, adtyp: AD_WERE },
+        otherRat,
+        monsterBlow,
+        game,
+        attackEnv({ rn2: () => assert.fail('ordinary physical pair draws no RNG') }),
+    );
+    assert.equal(monsterBlow.damage, 4);
+    assert.equal(monsterBlow.done, false);
+
+    await runSegment({
+        // Seed 8806413 starts the infection test at human form. Three fixed
+        // draws pass rn2(4), avoid MC, and exercise Constitution downward.
+        seed: 8806413, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.u.ulycn = NON_PM;
+    game.u.uprops[PROT_FROM_SHAPE_CHANGERS].intrinsic = 0;
+    game.u.uprops[PROT_FROM_SHAPE_CHANGERS].extrinsic = 0;
+    game.moves = 10; // Positive moves require exercise()'s encumber callback.
+    const draws = [];
+    const events = [];
+    const infectionAttacker = {
+        // C snapshots this werejackal form before hitmsg. The awaited test
+        // callback swaps data afterward to pin that source value lifetime.
+        data: game.mons[PM_WEREJACKAL], m_id: 93014,
+        mx: game.u.ux + 1, my: game.u.uy, mcan: false,
+    };
+    const bite = { aatyp: AT_BITE, adtyp: AD_WERE };
+    const infectionEnv = attackEnv({ rn2: (bound) => {
+        draws.push(bound);
+        if (bound === 4) return 0;
+        if (bound === 10) return 9;
+        if (bound === 2) return 1;
+        assert.fail(`unexpected rn2(${bound})`);
+    } }, events);
+    infectionEnv.message = async (line) => {
+        events.push(`message:${line}`);
+        infectionAttacker.data = game.mons[PM_SEWER_RAT];
+    };
+    await mhitm_adtyping(
+        infectionAttacker, bite, game.youmonst,
+        { damage: 1, specialdmg: 0, done: false, hitflags: 0 },
+        game,
+        infectionEnv,
+    );
+    assert.deepEqual(draws, [4, 10, 2]);
+    assert.match(events[0], /^message:.*bites!/u);
+    assert.equal(events[1], 'urgent:You feel feverish.');
+    assert.equal(events[2], 'encumber');
+    assert.equal(infectionAttacker.data, game.mons[PM_SEWER_RAT]);
+    assert.equal(game.u.ulycn, PM_WEREJACKAL);
+    assert.equal(game.u.uprops[DRAIN_RES].intrinsic & FROMFORM, FROMFORM);
+    assert.ok(game.unported.has('artifact.c retouch_equipment'));
 });
 
 test('mhitm_ad_curs follows all three uhitm.c direction arms', async () => {

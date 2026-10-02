@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "B82 C-first monster-versus-monster route from source: set the default 30-turn invulnerability and Conflict intrinsics, create a hostile level-zero newt, then create `tame rat wererat` using mondata.c:name_to_monplus's animal-form synonym (not the human wererat), which read.c:create_particular_parse passes through tamedog. The pet's dogmove.c:dog_move permits an adjacent newt below its balk level and dispatches mattackm; verify the actual AD_WERE bite in C before comparison. Keep outside recordings unless the complete C trace reaches the helper and the strict JS replay matches.",
+  "segments": [{
+    "seed": 5418237,
+    "datetime": "20380417112233",
+    "nethackrc": "OPTIONS=name:B82PetLycan,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": " #wizintrinsic\na>>h\n  #wizgenesis\nhostile newt\n #wizgenesis\ntame rat wererat\n . . . . . . . . . ."
+  }]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first B82 dwarf-form cure recipe. The prior run reached dwarf form and set lycanthropy from the wererat tin, but C start_tin printed a second --More-- after the cooked tin's slippery-fingers effect; this input supplies the second dismissal before the potion wishes. The orc Wizard remains a chaotic CANNIBAL_ALLOWED role/race, and Upolyd skips allmain.c:328 while dwarf form avoids you_unwere's same-were-species condition. Keep the resulting session only if the C water cure executes and strict JS parity is complete.",
+  "segments": [
+    {
+      "seed": 10834921,
+      "datetime": "20320804131500",
+      "nethackrc": "OPTIONS=name:DwarfCure,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#levelchange\n5\n   #polyself\ndwarf\n#wizwish\nblessed homemade tin of human wererat meat\neo  y  \u0017blessed potion of full healing\nqp \u0017blessed potion of water\nqq"
+    }
+  ]
+}

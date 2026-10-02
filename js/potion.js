@@ -100,6 +100,7 @@ import {
     MM_NOMSG,
     MAGICENLIGHTENMENT,
     NEUTRAL,
+    NON_PM,
     POISON_RES,
     POLY_CONTROLLED,
     POLY_LOW_CTRL,
@@ -188,6 +189,7 @@ import { is_boots, is_gloves } from './obj.js';
 import { discover_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import { body_part, float_vs_flight, polyself } from './polyself.js';
+import { set_ulycn } from './were.js';
 import {
     dealloc_killer,
     delayed_killer,
@@ -991,7 +993,7 @@ async function peffect_water(otmp, state = game, rawEnv = {}) {
                 );
                 if (state.youmonst.data === state.mons[u.ulycn])
                     note_unported('were.c you_unwere');
-                note_unported('were.c set_ulycn');
+                set_ulycn(NON_PM, state);
             }
             const damage = Maybe_Half_Phys(random.d(2, 6), state);
             await losehp(

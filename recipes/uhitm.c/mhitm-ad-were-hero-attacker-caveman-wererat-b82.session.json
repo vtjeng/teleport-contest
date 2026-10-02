@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B82 hero-to-monster route for mhitm_ad_were. The human Caveman is CANNIBAL_ALLOWED; consuming blessed human-wererat tin sets u.ulycn through eat.c:cpostfx. The recipe then requests the corresponding wererat form before any water cure or elapsed turn and attacks a hostile newt with the natural were attack. Keep only if the C trace confirms the form shift and a source-attributed AD_WERE attack through the helper, then strict replay matches.",
+  "segments": [{
+    "seed": 7983552,
+    "datetime": "20360315082910",
+    "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": "#levelchange\n5\n   \u0017blessed homemade tin of human wererat meat\neo  y #polyself\nwererat\n#wizgenesis\nhostile newt\nhhhhhhhhhh"
+  }]
+}

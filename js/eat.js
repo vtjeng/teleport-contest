@@ -153,7 +153,7 @@ import {
 } from './invent.js';
 import { dropx, dropy, trycall } from './do.js';
 import { makeplural } from './fruit.js';
-import { were_beastie } from './were.js';
+import { set_ulycn, were_beastie } from './were.js';
 import { staleEgg } from './dogfood.js';
 import { iter_mons_safe, mon_offmap, pm_to_cham, rescham } from './mon.js';
 import {
@@ -2744,7 +2744,7 @@ async function cpostfx(pm, state, env = {}) {
     } /* check_intrinsics */
 
     if (ismnum(catch_lycanthropy)) {
-        note_unported('were.c set_ulycn');
+        set_ulycn(catch_lycanthropy, state);
         note_unported('artifact.c retouch_equipment');
     }
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first potion setup miss: the blessed tin opened and was consumed, and the full-healing potion was drunk, but the second wished potion occupied slot g because inventory letters advance after each wish. Selecting qf therefore did not drink blessed water or reach potion.c:peffect_water. The corrected recipe selects qg, based on this C output.",
+  "segments": [
+    {
+      "seed": 91827433,
+      "datetime": "20290617141000",
+      "nethackrc": "OPTIONS=name:B82WaterSet,role:Barbarian,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed homemade tin of human wererat meat\nee  y \u0017blessed potion of full healing\nqf \u0017blessed potion of water\nqf"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected independent C-first orc variation for B82 potion.c:peffect_water. C showed the wished blessed wererat tin in slot g, then assigned blessed potions to h and i. This chaotic orc Barbarian satisfies CANNIBAL_ALLOWED; after selecting g and dismissing source pagers, the tin reaches eat.c:cpostfx and sets lycanthropy while the hero stays human. A blessed full-healing potion precedes blessed water. This independently chosen seed/date reaches set_ulycn(NON_PM) through peffect_water; retain only after complete strict JS parity.",
+  "segments": [
+    {
+      "seed": 83199213,
+      "datetime": "20290725163000",
+      "nethackrc": "OPTIONS=name:B82OrcWater,role:Barbarian,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed homemade tin of human wererat meat\neg  y \u0017blessed potion of full healing\nqh \u0017blessed potion of water\nqi"
+    }
+  ]
+}
