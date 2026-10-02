@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T08:06:30.207Z",
+  "capturedAt": "2026-10-02T08:37:40.692Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -15075,12 +15075,93 @@
         "type": "accepted",
         "at": "2026-10-02T08:03:49.264Z",
         "task": "A75"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A75-published-33e00aac",
+        "type": "published",
+        "at": "2026-10-02T08:06:43.221Z",
+        "task": "A75",
+        "commit": "33e00aac62350c7f0b679662e935879ad355993a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-741e213f5071c092c280613e150369980883a6c9",
+        "type": "ready",
+        "at": "2026-10-02T08:21:32.618Z",
+        "task": "A76",
+        "delivery": "741e213f5071c092c280613e150369980883a6c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A76-741e213f-20261002",
+        "type": "received",
+        "at": "2026-10-02T08:22:06.278Z",
+        "task": "A76",
+        "delivery": "741e213f5071c092c280613e150369980883a6c9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A76-integrating-748daddf",
+        "type": "integrating",
+        "at": "2026-10-02T08:24:55.276Z",
+        "task": "A76",
+        "integration": "748daddfb38002a54a8b72ac24d07c3290b150d1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-c67654288eede0e471359118559d3b9d3d6eacd2",
+        "type": "ready",
+        "at": "2026-10-02T08:25:19.460Z",
+        "task": "C60",
+        "delivery": "c67654288eede0e471359118559d3b9d3d6eacd2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C60-c6765428-20261002",
+        "type": "received",
+        "at": "2026-10-02T08:26:11.471Z",
+        "task": "C60",
+        "delivery": "c67654288eede0e471359118559d3b9d3d6eacd2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A76-integrating-e1beae94",
+        "type": "integrating",
+        "at": "2026-10-02T08:26:52.184Z",
+        "task": "A76",
+        "integration": "e1beae945a8ac244f44cc8625af9d552b3372da8"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A77-20261002",
+        "type": "assign",
+        "at": "2026-10-02T08:30:44.179Z",
+        "task": "A77",
+        "worker": "A2",
+        "goal": "fix-trap-dotrap-forced-seen-bypass-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A76-validated-e1beae94",
+        "type": "validated",
+        "at": "2026-10-02T08:37:06.757Z",
+        "task": "A76",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A76-accepted-e1beae94",
+        "type": "accepted",
+        "at": "2026-10-02T08:37:07.165Z",
+        "task": "A76"
       }
     ]
   },
   "development": {
-    "executionCommit": "6f62f97576e59ad69ca3dae0c919680cf95b89e9",
-    "measuredAt": "2026-10-02T07:56:40.132Z",
+    "executionCommit": "e1beae945a8ac244f44cc8625af9d552b3372da8",
+    "measuredAt": "2026-10-02T08:32:52.765Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
