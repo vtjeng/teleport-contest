@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T02:28:25.350Z",
+  "capturedAt": "2026-10-02T02:58:47.565Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -14372,12 +14372,95 @@
         "at": "2026-10-02T02:28:03.731Z",
         "task": "B82",
         "delivery": "992c855599e3ea392c543d86e7476c9dc0d46943"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A70-published-3b569136",
+        "type": "published",
+        "at": "2026-10-02T02:28:38.489Z",
+        "task": "A70",
+        "commit": "3b5691368cc659fd6a201d428c9e874c672cebb5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B82-received-992c8555",
+        "type": "received",
+        "at": "2026-10-02T02:30:26.414Z",
+        "task": "B82",
+        "delivery": "992c855599e3ea392c543d86e7476c9dc0d46943"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "A71-assign-music-charm-calm-20261002",
+        "type": "assign",
+        "at": "2026-10-02T02:34:56.135Z",
+        "task": "A71",
+        "worker": "A2",
+        "goal": "port-music-monster-charm-and-calm-v17",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B82-integrating-09707966",
+        "type": "integrating",
+        "at": "2026-10-02T02:43:25.455Z",
+        "task": "B82",
+        "integration": "097079667b6d8501dbcfdd0c3e21a9473bf06f82"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B82-integrating-48c8ad86",
+        "type": "integrating",
+        "at": "2026-10-02T02:46:40.944Z",
+        "task": "B82",
+        "integration": "48c8ad86f003808ee782d390a9a7001693595b65"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B83-assign-object-detection-20261002",
+        "type": "assign",
+        "at": "2026-10-02T02:51:40.800Z",
+        "task": "B83",
+        "worker": "B",
+        "goal": "port-potion-object-detection-v16-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-eed95fcc1adec03e369a68a43f37c098cd3d077f",
+        "type": "ready",
+        "at": "2026-10-02T02:52:29.881Z",
+        "task": "A71",
+        "delivery": "eed95fcc1adec03e369a68a43f37c098cd3d077f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A71-received-eed95fcc",
+        "type": "received",
+        "at": "2026-10-02T02:56:12.012Z",
+        "task": "A71",
+        "delivery": "eed95fcc1adec03e369a68a43f37c098cd3d077f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B82-validated-48c8ad86",
+        "type": "validated",
+        "at": "2026-10-02T02:57:58.708Z",
+        "task": "B82",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B82-accepted-48c8ad86",
+        "type": "accepted",
+        "at": "2026-10-02T02:57:59.136Z",
+        "task": "B82"
       }
     ]
   },
   "development": {
-    "executionCommit": "ce951eab2ffcfb81dead927ea16565c4bd9da62c",
-    "measuredAt": "2026-10-02T02:24:21.558Z",
+    "executionCommit": "48c8ad86f003808ee782d390a9a7001693595b65",
+    "measuredAt": "2026-10-02T02:52:30.382Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

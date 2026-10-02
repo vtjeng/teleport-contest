@@ -135478,7 +135478,7 @@
     {
       "id": "port-uhitm-mhitm-ad-were-synthetic-v17-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete lycanthropy attack helper and state callers",
       "cFile": "uhitm.c",
       "sessions": [
@@ -135492,8 +135492,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "48c8ad86f003808ee782d390a9a7001693595b65",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_were",
@@ -135723,6 +135726,12 @@
         ],
         "entryPointReview": "This is a helper-only source range, so entryPoints is empty. The three active production directions are enumerated and independently recorded: hero-to-monster via uhitm.c:damageum -> mhitm_adtyping -> mhitm_ad_were (corrected13, segment 0 step 137, the natural wererat bite); monster-to-hero via mhitu.c:hitmu -> mhitm_adtyping -> mhitm_ad_were (the non-Werebane MC variation reaches rn2(4)=0 at step 74, then mhitm_mgc_atk_negated consumes rn2(10)=2 and prints “You avoid harm”; the distinct wielded-Werebane guard variation reaches rn2(4)=0 at steps 74 and 75 and short-circuits at defends(AD_WERE)); monster-to-monster via mhitm.c:mdamagem -> mhitm_adtyping -> mhitm_ad_were (the tame animal-form rat wererat bites the newt at step 77). All cited helper recordings strictly match their full C outputs. Supporting state-owner evidence is separate: eat.c:cpostfx reaches set_ulycn when the corrected13 route consumes wererat soup at step 86, and potion.c:peffect_water reaches set_ulycn(NON_PM) on the dwarf-polymorphed blessed-water cure at step 155. The v17 selected case is a separate full 109-boundary replay diagnostic; C is held at the prior summon/help More pager, so it does not execute mhitm_ad_were and is not cited as a function recording. The unpolymorphed infection recipes retain the allmain.c:moveloop_core lycanthropy-turn chance as their blocker. The longer Werejackal variation retains the pending were.c:were_summon pager continuation as a separate blocker. The supported cure recording is polymorphed, so were.c:you_unwere remains a separate outer caller gap. The helper's discarded artifact.c:retouch_equipment call remains note_unported at its exact source site.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "48c8ad86f003808ee782d390a9a7001693595b65",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
