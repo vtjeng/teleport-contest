@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T12:53:50.466Z",
+  "capturedAt": "2026-10-02T13:56:19.633Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -15529,12 +15529,61 @@
         "at": "2026-10-02T12:44:56.786Z",
         "task": "A79",
         "commit": "e3004d4c2f9ea21c2bc68de191a3a7711d67f6d1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fd05e4adc29d24a226b92b45020bbd3c6ad98055",
+        "type": "ready",
+        "at": "2026-10-02T13:26:15.162Z",
+        "task": "A80",
+        "delivery": "fd05e4adc29d24a226b92b45020bbd3c6ad98055"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A80-received-fd05e4ad",
+        "type": "received",
+        "at": "2026-10-02T13:30:07.926Z",
+        "task": "A80",
+        "delivery": "fd05e4adc29d24a226b92b45020bbd3c6ad98055"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-A81-tty-rhack-v18-20261002",
+        "type": "assign",
+        "at": "2026-10-02T13:33:55.813Z",
+        "task": "A81",
+        "worker": "A2",
+        "goal": "fix-tty-corner-dismiss-and-queued-adjust-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A80-integrating-e596209b",
+        "type": "integrating",
+        "at": "2026-10-02T13:35:33.645Z",
+        "task": "A80",
+        "integration": "e596209b6216abb6987670e4d2a22def93291ef4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A80-validated-e596209b",
+        "type": "validated",
+        "at": "2026-10-02T13:51:00.742Z",
+        "task": "A80",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A80-accepted-e596209b",
+        "type": "accepted",
+        "at": "2026-10-02T13:51:01.166Z",
+        "task": "A80"
       }
     ]
   },
   "development": {
-    "executionCommit": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
-    "measuredAt": "2026-10-02T12:37:17.958Z",
+    "executionCommit": "e596209b6216abb6987670e4d2a22def93291ef4",
+    "measuredAt": "2026-10-02T13:45:26.782Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
