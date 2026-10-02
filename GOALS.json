@@ -137067,7 +137067,7 @@
     {
       "id": "port-potion-object-detection-v16-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete potion and spell object detection",
       "cFile": "potion.c",
       "sessions": [
@@ -137081,8 +137081,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "126406c2f937916811ea50d146414a88ffa5e730",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "peffect_object_detection",
@@ -137315,6 +137318,12 @@
         ],
         "entryPointReview": "This is a helper-only source range, so entryPoints is empty. The potion production route is cmd.c's q command -> potion.c:dodrink -> potion.c:dopotion -> potion.c:peffects(POT_OBJECT_DETECTION) -> peffect_object_detection; the admitted v16 case wizard-quaffs-object-detection-near-dagger strictly matches through segment 0 step 69 at current HEAD. The spell production route is spell.c:dowizcast -> spell.c:spelleffects(SPE_DETECT_TREASURE) -> potion.c:peffects -> peffect_object_detection; two independent C-first recordings (human Wizard and Elf Wizard) execute the helper at segment 0 step 12 and strictly match all screens, RNG calls and cursor positions. end.c:fuzzer_savelife also calls peffects, but its object types are POT_WATER and POT_RESTORE_ABILITY, so it cannot reach this helper. The pre-existing detect.c:browse_map note_unported remains a separate broader source boundary; these three cited runtime records match completely and no browse_map unit completion is claimed.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "126406c2f937916811ea50d146414a88ffa5e730",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
