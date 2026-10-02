@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B87 witness: debug-mode Monk, seed 712387, and clock 20520322113000 were chosen independently to exercise the wished-ice turn without copying a challenge input. The C trace reaches hack.c:slippery_ice_fumbling() and timeout.c:slip_or_trip(); the recipe ends after the one eastward step, before a later hack.c:test_move() special-terrain boundary.",
+  "segments": [
+    {
+      "seed": 712387,
+      "datetime": "20520322113000",
+      "nethackrc": "OPTIONS=name:B87IceShort,role:Monk,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nice\nl"
+    }
+  ]
+}
