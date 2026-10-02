@@ -246,3 +246,35 @@ test('a malformed stored attestation cannot be counted as completed', (t) => {
     evidence.functions[0].callers = [];
     assert.deepEqual([...completedFunctionNames(goal)], []);
 });
+
+test('required functions keep evidence and invalidation tied to their C file', (t) => {
+    const { root, write, goal, evidence } = fixture(t);
+    // Reuse the helper name in a different C file to expose owner collisions.
+    write('nethack-c/upstream/src/foreign.c', 'int\nhelper(void)\n{ return 1; }\n');
+    goal.requiredFunctions = [{ sourceFile: 'foreign.c', name: 'helper' }];
+    const foreign = { ...structuredClone(evidence.functions[0]), sourceFile: 'foreign.c' };
+    evidence.functions.push(foreign);
+    evidence.entryPoints = [{ name: 'two owners', functions: ['helper',
+        { sourceFile: 'foreign.c', name: 'helper' }], recordings: [] }];
+    goal.evidence = validatePortEvidence(goal, evidence, { root });
+    assert.equal(goal.evidence.functions.length, 2);
+    assert.deepEqual([...completedFunctionNames(goal)], ['helper']);
+    goal.invalidatedFunctions = [{ sourceFile: 'foreign.c', name: 'helper' }];
+    assert.deepEqual([...completedFunctionNames(goal)], ['helper']);
+    foreign.sourceFile = 'wrong.c';
+    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /does not contain source unit wrong.c:helper/u);
+});
+
+test('foreign evidence requires an explicit planned owner and an actual source definition', (t) => {
+    const { root, write, goal, evidence } = fixture(t);
+    // The other file deliberately does not define its planned helper.
+    write('nethack-c/upstream/src/foreign.c', 'int\nother(void)\n{ return 1; }\n');
+    goal.requiredFunctions = [{ sourceFile: 'foreign.c', name: 'foreign_helper' }];
+    evidence.functions[0].name = 'foreign_helper';
+    evidence.functions[0].symbol = 'helper';
+    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /widget.c:foreign_helper/u);
+    evidence.functions[0].sourceFile = 'foreign.c';
+    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /source foreign.c has no definition/u);
+    evidence.functions[0].sourceFile = '../foreign.c';
+    assert.throws(() => validatePortEvidence(goal, evidence, { root }), /does not contain source unit/u);
+});

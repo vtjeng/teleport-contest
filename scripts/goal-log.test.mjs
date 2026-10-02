@@ -601,3 +601,35 @@ test('close-goal requires a passing current checkpoint even when SCORE names HEA
     assert.deepEqual(closed.goal.delivered, { screens: 21, rng: 31 });
     assert.equal(closed.goal.closeStanding.sha, 'c'.repeat(40));
 });
+
+test('required whole functions contribute completion and roadmap evidence to their owner', () => {
+    // These same-named functions and small source extents are schema fixtures.
+    const goal = { id: 'cross-file', kind: 'file-port', status: 'open', cFile: 'primary.c',
+        functions: [{ name: 'helper', line: 1, endLine: 4 }],
+        requiredFunctions: [{ sourceFile: 'foreign.c', name: 'helper', line: 2, endLine: 5 }] };
+    const record = { name: 'helper', implementation: 'js/helpers.js', symbol: 'helper',
+        sourceReview: 'Whole source and caller checked.', pure: true,
+        callers: [{ path: 'js/helpers.js', symbol: 'caller', source: 'primary.c caller' }],
+        tests: ['scripts/helpers.test.mjs'], recordings: [] };
+    const head = 'b'.repeat(40); // Fixed commit-shaped provenance for merging.
+    recordEvidence(goal, { functions: [record], entryPointReview: 'Helper callers checked.', entryPoints: [] }, head);
+    refreshCompletion(goal, new Set(['helper']));
+    assert.equal(goal.functions[0].complete, true);
+    assert.equal(goal.requiredFunctions[0].complete, false);
+    assert.throws(() => assertPortComplete(goal), /foreign.c:helper/u);
+    recordEvidence(goal, { functions: [{ ...record, sourceFile: 'foreign.c' }] }, head);
+    refreshCompletion(goal, new Set(['helper']));
+    assert.equal(goal.evidence.functions.length, 2);
+    assert.equal(goal.requiredFunctions[0].complete, true);
+    assert.doesNotThrow(() => assertPortComplete(goal));
+    const text = 'int\nhelper(void)\n{ return 0; }\n';
+    const rows = roadmapRows([{ name: 'primary.c', text }, { name: 'foreign.c', text }], new Set(['helper']), [goal]);
+    assert.deepEqual(rows.map(row => row.complete), [1, 1]);
+    goal.invalidatedFunctions = [{ sourceFile: 'foreign.c', name: 'helper' }];
+    refreshCompletion(goal, new Set(['helper']));
+    assert.equal(goal.functions[0].complete, true);
+    assert.equal(goal.requiredFunctions[0].complete, false);
+    const context = taskContext(goal);
+    assert.deepEqual(context.functions, []);
+    assert.equal(context.requiredFunctions[0].sourceFile, 'foreign.c');
+});

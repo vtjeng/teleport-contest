@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { completedFunctionNames } from './port-evidence.mjs';
+import { completedSourceUnits, sourceUnits, sourceUnitKey } from './port-evidence.mjs';
 import { readRows, standing } from './score-log.mjs';
 import { challengeDashboard } from './challenge-results.mjs';
 import { activityTimeline, syntheticGainByCommit } from './dashboard-activity.mjs';
@@ -275,13 +275,14 @@ if (existsSync('GOALS.json')) {
 }
 
 function completionCounts(record) {
-  const functions = record?.functions ?? [];
-  const verified = completedFunctionNames(record);
+  const functions = sourceUnits(record);
+  const verified = new Set(completedSourceUnits(record).map(entry => sourceUnitKey(record, entry)));
   return {
     functionsDeclared: functions.filter((entry) => entry.declared ?? entry.ported).length,
     functionsVerified: verified.size,
     functionsTotal: functions.length,
-    units: functions.map((entry) => ({ name: entry.name, verified: verified.has(entry.name) })),
+    units: functions.map((entry) => ({ name: entry.name, sourceFile: entry.sourceFile,
+      verified: verified.has(sourceUnitKey(record, entry)) })),
   };
 }
 
