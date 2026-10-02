@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 hero-hit Spotted Jelly candidate frozen before C recording and JavaScript comparison. The leading newline dismisses the exact welcome pager seen in the prior Skeleton setup miss. #wizgenesis creates a hostile Spotted Jelly; repeated eastward l attacks use the Wizard’s actual starting weapon. The target is the AT_NONE/AD_ACID passive in monsters.h:601 -> uhitm.c:passive (5865 onward), including its acid gate, damage/resistance, possible armor erosion and passive_obj weapon path. Preserve the actual first hit, miss, kill or source branch.",
+  "segments": [
+    {
+      "seed": 510293846,
+      "datetime": "21120918063500",
+      "nethackrc": "OPTIONS=name:C62Jelly,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n#wizgenesis\nhostile spotted jelly\nllllll"
+    }
+  ]
+}

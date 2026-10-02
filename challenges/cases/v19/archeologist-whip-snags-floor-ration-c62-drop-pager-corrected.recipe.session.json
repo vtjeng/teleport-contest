@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C62 continuation frozen from the new C observation: after the levitation pager is dismissed, C accepts the drop command and drops the 3-ration stack at zero-based step 22, then opens a second More prompt before the apply input. This input preserves the same seed, date, state setup and intended use_whip branch, adding the observed second pager dismissal before the already frozen a/a/> apply sequence. It is still pre-JS.",
+  "segments": [
+    {
+      "seed": 1102206198,
+      "datetime": "20361107142300",
+      "nethackrc": "OPTIONS=name:C62Whip,role:Archeologist,race:human,gender=male,align=lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " wa#wizintrinsic\nq\n dd aa>"
+    }
+  ]
+}

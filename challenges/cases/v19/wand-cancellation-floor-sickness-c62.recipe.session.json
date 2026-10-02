@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 zap.c:bhito floor-object cancellation candidate. Wish a cancellation wand and a sickness potion, drop the potion, move north, then zap south toward the dropped square. The wand and target slots/directions are independently chosen from the documented floor-object source path; retain actual C prompts and any miss. Frozen before C recording and JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 723098411,
+      "datetime": "21121010040700",
+      "nethackrc": "OPTIONS=name:C62FloorZap,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n\u0017wand of cancellation\n\u0017potion of sickness\ndo kznj"
+    }
+  ]
+}

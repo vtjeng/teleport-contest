@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 candidate frozen before JavaScript comparison. Use the Wizard monster-creation command to create a hostile Quantum Mechanic, then use source-approved waits. The C target is the monster-to-hero AT_CLAW/AD_TLPT branch through mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_tlpt, including actual hero relocation or a source-gated no-op. Keep the C-observed result even if the attack misses or the source blocks teleportation.",
+  "segments": [
+    {
+      "seed": 781026443,
+      "datetime": "21121210072545",
+      "nethackrc": "OPTIONS=name:C62Quantum,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile quantum mechanic\n. . . . . . . . . . . ."
+    }
+  ]
+}

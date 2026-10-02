@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 Black Pudding AD_CORR probe frozen before recording and JavaScript comparison. The first space dismisses the observed female-Wizard welcome pager. Wish uncursed +0 iron chain mail, remove the initial Wizard cloak, wear the suit, then use #wizgenesis to create a hostile Black Pudding. Source target: mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_CORR) -> mhitm_ad_corr; on hero defense C calls hitmsg, skips erosion only if the attacker is cancelled, otherwise erode_armor(ERODE_CORRODE). Verify actual C target, armor and outcome.",
+  "segments": [
+    {
+      "seed": 719384650,
+      "datetime": "21130212103000",
+      "nethackrc": "OPTIONS=name:C62CorrodeArmor,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed +0 chain mail\nTbWo#wizgenesis\nhostile black pudding\n........"
+    }
+  ]
+}

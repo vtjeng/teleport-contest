@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 Rust Monster probe frozen before recording or JS comparison. Wish uncursed +0 iron chain mail, take off the Wizard cloak, wear the new suit, and create a hostile Rust Monster. Source target: mhitu.c:hitmu -> uhitm.c:mhitm_adtyping AD_RUST -> mhitm_ad_rust; the actual C armor erosion and target must be observed, not inferred from inventory.",
+  "segments": [
+    {
+      "seed": 508147263,
+      "datetime": "21111610253000",
+      "nethackrc": "OPTIONS=name:C62RustArmor,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017uncursed +0 chain mail\nTbWo#wizgenesis\nhostile rust monster\n........"
+    }
+  ]
+}

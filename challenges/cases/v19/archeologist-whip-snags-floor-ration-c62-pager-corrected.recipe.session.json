@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C62 source/menu-corrected continuation frozen after the first recording showed that wizcmds.c:wiz_intrinsic q emitted `Timeout for levitating set to 30.--More--` and consumed the planned drop/apply keys without executing them. This keeps the original seed, date, role, inventory selections and target branch; it adds one space to dismiss that observed pager, then drops the source-identified fourth Archeologist starting item (food ration) and applies the already wielded first item (bullwhip) downward. No JS comparison informed this continuation.",
+  "segments": [
+    {
+      "seed": 1102206198,
+      "datetime": "20361107142300",
+      "nethackrc": "OPTIONS=name:C62Whip,role:Archeologist,race:human,gender=male,align=lawful,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " wa#wizintrinsic\nq\n ddaa>"
+    }
+  ]
+}

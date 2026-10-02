@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 candidate frozen before any JavaScript comparison. Use the debug Wizard's monster-creation command (^G / #wizgenesis) to request a hostile Energy Vortex, then let C decide whether adjacency and the source AT_ENGL sequence reaches mhitu.c:mattacku -> mhitu.c:gulpmu. The target behavior is the second engulfing AD_DREN attack and drain_en call; retain a valid miss or matching result with its observed C branch.",
+  "segments": [
+    {
+      "seed": 602102813,
+      "datetime": "21111014124500",
+      "nethackrc": "OPTIONS=name:C62Vortex,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile energy vortex\ny. . . ."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first v19 candidate before recording or JavaScript comparison. cmd.c binds Control-G to wizgenesis and Control-W to wizwish; this recipe uses Control-G to create hostile Yeenoghu in debug mode. It first sets the debug invulnerability intrinsic to protect the Valkyrie from the earlier AT_WEAP/AD_PHYS hit, then waits for C-observed attacks. Character role is not the WIZMODECMD gate. The source target is the distinct second AT_WEAP/AD_CONF attack through mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_conf; preserve whatever C actually reaches.",
+  "segments": [
+    {
+      "seed": 915837241,
+      "datetime": "21110406081100",
+      "nethackrc": "OPTIONS=name:C62ConfW,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n\u0007hostile Yeenoghu\n...."
+    }
+  ]
+}
