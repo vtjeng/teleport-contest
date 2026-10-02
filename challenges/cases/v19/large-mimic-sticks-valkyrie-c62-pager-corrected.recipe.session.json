@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first continuation frozen after the unchanged prior record exposed a second floor-items --More-- pager. The two leading newlines dismiss, in order, the welcome page and the observed underfoot-items page before entering #wizgenesis. Character role is retained for survivability; C marks wizgenesis WIZMODECMD and gates it on debug/wizard mode, not role. No JavaScript result informed this correction. Target: monsters.h:679 AT_CLAW/AD_STCK -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> mhitm_ad_stck.",
+  "segments": [
+    {
+      "seed": 819045273,
+      "datetime": "21121011130300",
+      "nethackrc": "OPTIONS=name:C62Mimic,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n\n#wizgenesis\nhostile large mimic\n......"
+    }
+  ]
+}

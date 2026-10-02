@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after the prior C record showed the startup welcome page was not dismissed and that the empty Wizard inventory selector was hijk. The new sequence first answers the welcome More prompt, then wishes a blessed scroll of genocide, reads it from the next free inventory slot l, and enters the valid orc class at the do_class_genocide getlin prompt. This is a C-observed input correction made before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 761204983,
+      "datetime": "21111215082000",
+      "nethackrc": "OPTIONS=name:C62Genocide,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of genocide\nrlo\n"
+    }
+  ]
+}
