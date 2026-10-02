@@ -1049,3 +1049,37 @@ test('failed replay and mid-replay edits publish no measurement or goal boundary
         });
     }
 });
+
+test('CLI records required whole functions and invalidates evidence by source owner', (t) => {
+    const f = fixture(t);
+    // The foreign file already defines other(); its JS declaration is a
+    // disposable source-evidence fixture, with no actual game behavior.
+    f.write('js/unrelated.js', 'export function other() { return 0; }\n');
+    f.commit('js/unrelated.js');
+    f.cli('queue-goal', '--id', 'cross-file', '--kind', 'file-port', '--c-file', 'widget.c',
+        '--from-function', 'helper', '--to-function', 'helper', '--summary', 'Port helper and consumed other',
+        '--required-functions', 'unrelated.c:other');
+    const planned = f.goals()[0];
+    assert.equal(planned.requiredFunctions[0].sourceFile, 'unrelated.c');
+    assert.equal(planned.requiredFunctions[0].name, 'other');
+    assert.equal(planned.requiredFunctions[0].line, 2); // Name line in the three-line C fixture.
+    const context = JSON.parse(f.cli('task-context', '--goal', 'cross-file'));
+    assert.equal(context.requiredFunctions[0].jsFile, 'js/unrelated.js');
+    f.cli('open-goal', '--id', 'cross-file');
+    const evidence = f.evidence();
+    f.record('cross-file', evidence);
+    f.commit('GOALS.json'); f.checkpoint();
+    f.refuses(/unrelated.c:other/u, 'close-goal', '--goal', 'cross-file');
+    evidence.functions.push({ ...evidence.functions[0], name: 'other', sourceFile: 'unrelated.c',
+        implementation: 'js/unrelated.js' });
+    f.record('cross-file', evidence);
+    f.commit('GOALS.json'); f.checkpoint();
+    f.cli('close-goal', '--goal', 'cross-file');
+    assert.equal(f.goals()[0].requiredFunctions[0].complete, true);
+    assert.match(f.cli('roadmap'), /unrelated.c/u);
+    f.queue('unrelated.c'); queueC(f, 'foreign-followup', 'unrelated.c');
+    f.cli('invalidate-evidence', '--goal', 'cross-file', '--source-file', 'unrelated.c',
+        '--function', 'other', '--by', 'foreign-followup', '--reason', 'Fixture foreign branch requires renewed verification.');
+    assert.equal(f.goals()[0].invalidatedFunctions[0].sourceFile, 'unrelated.c');
+    assert.equal(f.goals()[1].functions[0].complete, false);
+});

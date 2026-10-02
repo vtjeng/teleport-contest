@@ -18,7 +18,7 @@ import {
     parseCFunctions,
 } from './c-functions.mjs';
 import { listLuaFiles, luaProgram } from './lua-sources.mjs';
-import { completedFunctionNames, validatePortEvidence } from './port-evidence.mjs';
+import { completedSourceUnits, sourceUnits, sourceUnitKey, validatePortEvidence } from './port-evidence.mjs';
 import { fixedWorkload } from './fixed-workload.mjs';
 
 export const DEFAULT_PATH = fileURLToPath(new URL('../GOALS.json',
@@ -84,6 +84,22 @@ export function validateGoals(store) {
             if (isSourcePort(goal) && !Array.isArray(goal.functions)) {
                 throw new Error(`goal ${goal.id} needs a functions array`);
             }
+            if (goal.requiredFunctions !== undefined) {
+                if (goal.kind !== 'file-port' || !Array.isArray(goal.requiredFunctions)) {
+                    throw new Error(`goal ${goal.id} needs a C requiredFunctions array`);
+                }
+                const keys = new Set();
+                for (const entry of goal.requiredFunctions) {
+                    const key = sourceUnitKey(goal, entry);
+                    if (!/^[A-Za-z0-9_-]+\.c$/u.test(entry.sourceFile ?? '')
+                        || entry.sourceFile === goal.cFile || !nonempty(entry.name)
+                        || !Number.isInteger(entry.line) || !Number.isInteger(entry.endLine)
+                        || entry.line < 1 || entry.endLine < entry.line || keys.has(key)) {
+                        throw new Error(`goal ${goal.id} has an invalid required source function`);
+                    }
+                    keys.add(key);
+                }
+            }
             if (goal.kind === 'divergence-fix'
                 && !(nonempty(goal.function) && nonempty(goal.session))) {
                 throw new Error(
@@ -95,7 +111,7 @@ export function validateGoals(store) {
             if (!nonempty(entry.name) || !nonempty(entry.reason)
                 || !nonempty(entry.followupGoal)
                 || !/^[a-f0-9]{40}$/u.test(entry.at ?? '')
-                || !goal.evidence?.functions?.some((evidence) => evidence.name === entry.name)) {
+                || !goal.evidence?.functions?.some((evidence) => sourceUnitKey(goal, evidence) === sourceUnitKey(goal, entry))) {
                 throw new Error(`goal ${goal.id} has an invalid source-evidence invalidation`);
             }
         }
@@ -208,7 +224,7 @@ function sourceFile(goal) {
 
 /** Keep name inventory and evidence-backed completion separate. */
 export function completionCount(goal) {
-    const functions = goal.functions ?? [];
+    const functions = sourceUnits(goal);
     return {
         declared: functions.filter((entry) => entry.declared).length,
         complete: functions.filter((entry) => entry.complete).length,
@@ -220,8 +236,11 @@ export function completionCount(goal) {
 export function verifiedNames(file, goals) {
     const names = new Set();
     for (const goal of goals) {
-        if (sourceFile(goal) !== file) continue;
-        for (const name of completedFunctionNames(goal)) names.add(name);
+        if (sourceFile(goal) !== file
+            && !goal.requiredFunctions?.some(entry => entry.sourceFile === file)) continue;
+        for (const entry of completedSourceUnits(goal)) {
+            if (entry.sourceFile === file) names.add(entry.name);
+        }
     }
     return names;
 }
@@ -236,6 +255,12 @@ export function refreshCompletion(goal, names = null, goals = [goal]) {
         complete: complete.has(entry.name)
             && (goal.kind === 'lua-port' || entry.declared),
     }));
+    if (goal.requiredFunctions) {
+        goal.requiredFunctions = markDeclared(goal.requiredFunctions, declared).map(entry => ({
+            ...entry,
+            complete: entry.declared && verifiedNames(entry.sourceFile, goals).has(entry.name),
+        }));
+    }
     return goal;
 }
 
@@ -366,7 +391,7 @@ export function taskContext(goal) {
     const entries = isSourcePort(goal)
         ? goal.functions.filter(entry => !entry.complete)
         : cFunctions(goal.cFile).filter(entry => entry.name === goal.function);
-    if (entries.length === 0)
+    if (entries.length === 0 && !goal.requiredFunctions?.some(entry => !entry.complete))
         throw new Error(`no source functions found for ${goal.id}`);
     const sessions = goal.sessions?.length ? goal.sessions : goal.session ? [goal.session] : [];
     const synthetic = sessions
@@ -378,6 +403,11 @@ export function taskContext(goal) {
         sourceFile: sourceFile(goal),
         ...(goal.luaFile ? { luaFile: goal.luaFile } : { cFile: goal.cFile }),
         functions: entries.map(entry => entry.name),
+        ...(goal.requiredFunctions?.length ? {
+            requiredFunctions: goal.requiredFunctions.filter(entry => !entry.complete)
+                .map(entry => ({ sourceFile: entry.sourceFile, name: entry.name,
+                    line: entry.line, endLine: entry.endLine, jsFile: jsFileFor(entry.sourceFile) })),
+        } : {}),
         lineRanges: lineRanges(entries),
         cLines: entries.reduce((sum, entry) => sum + (entry.endLine - entry.line + 1), 0),
         jsFile: goal.luaFile ? null : jsFileFor(goal.cFile),
@@ -407,6 +437,10 @@ export function formatGoal(goal, { detail = false } = {}) {
         lines.push(`  ${goal.kind} of ${sourceFile(goal)}: ${complete} of ${total} `
             + 'source units verified'
             + (goal.kind === 'file-port' ? `; ${declared} declarations found` : ''));
+        if (goal.requiredFunctions?.length) {
+            lines.push(`  required functions: ${goal.requiredFunctions.map(entry =>
+                `${sourceUnitKey(goal, entry)} (${entry.complete ? 'verified' : 'unverified'})`).join(', ')}`);
+        }
     } else if (goal.kind === 'divergence-fix') {
         lines.push(`  divergence fix in ${goal.cFile} ${goal.function}() `
             + `for ${goal.session}`
@@ -438,7 +472,9 @@ export function formatGoal(goal, { detail = false } = {}) {
 export function roadmapRows(files, names, goals) {
     const latestGoal = new Map();
     for (const goal of goals) {
-        if (goal.kind === 'file-port' && goal.status !== 'superseded') latestGoal.set(goal.cFile, goal);
+        if (goal.kind === 'file-port' && goal.status !== 'superseded') {
+            for (const file of new Set([goal.cFile, ...sourceUnits(goal).map(entry => entry.sourceFile)])) latestGoal.set(file, goal);
+        }
     }
     return files.map(({ name, text }) => {
         const functions = parseCFunctions(text);
@@ -511,6 +547,7 @@ const COMMAND_HELP = {
         details: `Source options by --kind:
   file-port       --c-file <name.c>
                   [--from-function <name>] [--to-function <name>]
+                  [--required-functions <file.c:function,...>]
                   Omitted bounds select the start/end of the C file.
   lua-port        --lua-file <name.lua>
                   Covers the whole Lua program, including top-level statements.
@@ -544,7 +581,7 @@ open-goal when integrating the task.`,
     },
     'invalidate-evidence': {
         description: 'Retire stale source completion evidence without deleting its history.',
-        usage: '--goal <completed-source-goal-id> --function <name> --by <queued-id> --reason <source trace>',
+        usage: '--goal <completed-source-goal-id> --function <name> [--source-file <file.c>] --by <queued-id> --reason <source trace>',
         details: 'Use only when a new source trace proves a completed function was partial.\n'
             + 'The old goal may be closed, or parked with a closed span covering that function.\n'
             + 'Preserves the old evidence and makes the function eligible for a new whole-function task.',
@@ -673,6 +710,19 @@ function newGoal(options) {
         if (!functions.length) throw new Error(`${goal.cFile} has no function definitions`);
         goal.functions = markDeclared(functions, jsFunctionNames());
         goal.range = { from: functions[0].line, to: functions.at(-1).endLine };
+        if (options['required-functions']) {
+            goal.requiredFunctions = commaSeparated(options['required-functions']).map(unit => {
+                const match = unit.match(/^([A-Za-z0-9_-]+\.c):([A-Za-z_][A-Za-z0-9_]*)$/u);
+                if (!match) throw new Error('--required-functions entries must be file.c:function');
+                const [, file, name] = match;
+                if (file === goal.cFile) throw new Error('primary source functions belong in the selected range');
+                const definition = cFunctions(file).find(entry => entry.name === name);
+                if (!definition) throw new Error(`no function named ${name} in ${file}`);
+                return { ...markDeclared([definition], jsFunctionNames())[0], sourceFile: file };
+            });
+            const keys = goal.requiredFunctions.map(entry => sourceUnitKey(goal, entry));
+            if (new Set(keys).size !== keys.length) throw new Error('duplicate required source function');
+        }
     } else if (goal.kind === 'lua-port') {
         goal.functions = [luaProgram(goal.luaFile)];
     } else {
@@ -681,14 +731,18 @@ function newGoal(options) {
         goal.session = sessionIdentifier(options.session);
         if (options.step !== undefined) goal.step = Number(options.step);
     }
+    if (options['required-functions'] && goal.kind !== 'file-port') {
+        throw new Error('--required-functions requires a C file-port');
+    }
     return goal;
 }
 
 /** A name inventory or a unit test alone cannot close a port. */
 export function assertPortComplete(goal) {
     if (!isSourcePort(goal)) return;
-    const pending = goal.functions.filter((entry) => !entry.complete);
-    if (pending.length) throw new Error(`unverified source units: ${pending.map((entry) => entry.name).join(', ')}`);
+    const pending = sourceUnits(goal).filter((entry) => !entry.complete);
+    if (pending.length) throw new Error(`unverified source units: ${pending.map((entry) => entry.sourceFile === sourceFile(goal)
+        ? entry.name : sourceUnitKey(goal, entry)).join(', ')}`);
     if (goal.spans && goal.spans.some((span) => span.status !== 'closed'))
         throw new Error('close every span before closing the goal');
     if (!nonempty(goal.evidence?.entryPointReview))
@@ -704,9 +758,9 @@ export function assertPortComplete(goal) {
 /** Merge one span's evidence without discarding evidence for earlier spans. */
 export function recordEvidence(goal, evidence, head) {
     const previous = goal.evidence ?? {};
-    const functions = new Map((previous.functions ?? []).map((entry) => [entry.name, entry]));
+    const functions = new Map((previous.functions ?? []).map((entry) => [sourceUnitKey(goal, entry), entry]));
     for (const entry of evidence.functions ?? [])
-        functions.set(entry.name, { ...entry, checkedAt: head });
+        functions.set(sourceUnitKey(goal, entry), { ...entry, checkedAt: head });
     goal.evidence = { ...previous, ...evidence, functions: [...functions.values()] };
     return goal;
 }
@@ -951,24 +1005,26 @@ async function main(args) {
         const store = readGoals();
         const goal = findGoal(store, options.goal);
         const followup = findGoal(store, options.by);
+        const unit = { sourceFile: options['source-file'] ?? sourceFile(goal), name: options.function };
+        const key = sourceUnitKey(goal, unit);
         const completedSourceGoal = goal.status === 'closed'
             || (goal.status === 'parked' && goal.spans?.some((span) =>
                 span.status === 'closed' && span.functions?.includes(options.function)));
         if (!completedSourceGoal || !isSourcePort(goal)
-            || !goal.evidence?.functions?.some((entry) => entry.name === options.function)) {
+            || !goal.evidence?.functions?.some((entry) => sourceUnitKey(goal, entry) === key)) {
             throw new Error('invalidate-evidence requires a completed source function with evidence');
         }
         if (followup.status !== 'queued' || !isSourcePort(followup)
-            || sourceFile(followup) !== sourceFile(goal)
-            || !followup.functions.some((entry) => entry.name === options.function)) {
+            || !sourceUnits(followup).some((entry) => sourceUnitKey(followup, entry) === key)) {
             throw new Error('follow-up must be a queued source goal for the same function');
         }
-        if (goal.invalidatedFunctions?.some((entry) => entry.name === options.function)) {
+        if (goal.invalidatedFunctions?.some((entry) => sourceUnitKey(goal, entry) === key)) {
             throw new Error(`evidence already invalidated for ${goal.id} ${options.function}`);
         }
         goal.invalidatedFunctions ??= [];
         goal.invalidatedFunctions.push({
             name: options.function,
+            ...(options['source-file'] ? { sourceFile: unit.sourceFile } : {}),
             reason: options.reason,
             followupGoal: followup.id,
             at: repositoryHead(),
