@@ -140032,6 +140032,210 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-plys-v18-20261002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Monster and polymorphed hero paralysis attacks",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59"
+      ],
+      "selectionReason": "The current v18 queue has a source-traced stop in wizard-hostile-ghoul-ad-plys-wander-pursuit-c59 at the exact AD_PLYS dispatch. C reaches the whole helper from ordinary hostile ghoul melee; JS currently refuses the branch. Port the complete uhitm.c:mhitm_ad_plys function and wire its exact AD_PLYS dispatch arm, preserving the three source-defined attacker/defender orientations. Selected synthetic case v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59 is documented in investigations/synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59.json; all three helper orientations and the AD_PLYS dispatcher are in scope.",
+      "detail": "",
+      "openedAt": "4d320363050579bc34a10d073bbd012d0603b90d",
+      "openStanding": {
+        "sha": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_plys",
+          "line": 3431,
+          "endLine": 3478,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3431,
+        "to": 3478
+      },
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59": {
+          "session": "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.session.json",
+          "recordingSha256": "06622a44a32a9503c3f2b94d8996967db0b890fd679494777b09a3b08333c7ea",
+          "evaluationPath": "challenges/evaluations/20261002093104-v18.json",
+          "evaluationCommit": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866"
+        }
+      },
+      "activeStanding": {
+        "sha": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "session": "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.session.json",
+          "recordingSha256": "06622a44a32a9503c3f2b94d8996967db0b890fd679494777b09a3b08333c7ea",
+          "recipe": "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.recipe.session.json",
+          "recipeSha256": "a6a4a2d0e0c4529c73e6ebe2464c0a0039bed410eba28486d92eb33b781b9ad9",
+          "replayInputSha256": "8dad0c5686befd6cc5453fa07132aa7878c6a3eb3298dfd462e7de7337c7d5fb",
+          "evaluationPath": "challenges/evaluations/20261002093104-v18.json",
+          "evaluationCommit": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+          "evaluationArtifact": "challenges/evaluations/20261002093104-v18.json",
+          "evaluationUtc": "2026-10-02T09:31:58.497Z",
+          "remainingScreens": 9,
+          "recordedSteps": 37,
+          "previousScreensMatched": 28,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 28,
+              "total": 37
+            },
+            "rng": {
+              "matched": 2275,
+              "total": 2371
+            },
+            "cursors": {
+              "matched": 28,
+              "total": 37
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_plys()",
+            "step": 28
+          },
+          "step": 28,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_plys",
+          "message": "simple monster action requires uhitm.c mhitm_ad_plys()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59.json",
+            "result": {
+              "session": "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingPath": "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.session.json",
+              "recordingSha256": "06622a44a32a9503c3f2b94d8996967db0b890fd679494777b09a3b08333c7ea",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "remainingScreens": 9,
+              "recordedSteps": 37,
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+                "session": "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.session.json",
+                "recordingSha256": "06622a44a32a9503c3f2b94d8996967db0b890fd679494777b09a3b08333c7ea",
+                "recipe": "challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.recipe.session.json",
+                "recipeSha256": "a6a4a2d0e0c4529c73e6ebe2464c0a0039bed410eba28486d92eb33b781b9ad9",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 9,
+                "recordedSteps": 37,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 28,
+                    "total": 37
+                  },
+                  "rng": {
+                    "matched": 2275,
+                    "total": 2371
+                  },
+                  "cursors": {
+                    "matched": 28,
+                    "total": 37
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_plys()",
+                  "step": 28
+                },
+                "step": 28,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_plys",
+                "message": "simple monster action requires uhitm.c mhitm_ad_plys()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The unmatched behavior is the ghoul’s monster-to-hero AD_PLYS claw, whose source owner is uhitm.c:mhitm_ad_plys(). The current evaluation matches 28/37 screens, 2275/2371 RNG calls, and 28/37 cursors, then stops at step 28 when JS uhitm.c:mhitm_adtyping() dispatches AD_PLYS to its unported refusal. C reaches mhitu.c:hitmu() and uhitm.c:mhitm_ad_plys(), prints the attack message, and consumes rn2(3)=2; that value fails the paralysis-chance test, so this recording proves the helper/message path is reached but does not show the hero becoming paralyzed. The actionable scope is a whole-function port of uhitm.c:mhitm_ad_plys() and replacing the AD_PLYS dispatcher refusal while preserving its three attacker/defender branches and all existing dispatch callers. Its consumed mhitm_mgc_atk_negated() boolean already has a JS implementation. The successful-paralysis path also calls void uhitm.c:dynamic_multi_reason(), for which JS has no matching helper; retain that named void gap if it is not included. No replay was needed because the admitted C recording, saved evaluation and source show the reached branch and refusal.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A hostile ghoul summoned with the Wizard command gets a movement opportunity while the player waits, closes to an attack, and lands its first AT_CLAW attack (AD_PLYS, 1d2). monmove.c:dochug() sends it through the standard monster-to-hero attack path; mhitu.c:hitmu() passes the AD_PLYS attack to uhitm.c:mhitm_adtyping(), which selects mhitm_ad_plys(). In the saved C step 28, rn2(3)=2 fails the paralysis chance, but the helper still emits the hit message and consumes that chance roll.",
+                "functions": [
+                  "mhitm_ad_plys"
+                ],
+                "callers": [
+                  "C runtime route: monmove.c:dochug() standard attack gate (965-972) -> mhitu.c:mattacku() melee hit path (812) -> mhitu.c:hitmu() (1143 onward), which calls uhitm.c:mhitm_adtyping() at 1191 -> uhitm.c:mhitm_ad_plys() from the AD_PLYS dispatcher at 4815. JS route: unported_monster_actions.js:runSimpleMonsterAction() (1566-1587) configures attackHeroWithMattacku() (1482-1485); monmove.js:dochug() invokes it at 2773 -> mhitu.js:mattacku()/hitmu() (1178, 1650-1707) -> uhitm.js:mhitm_adtyping() AD_PLYS arm at 4836, which currently throws through the unsupported callback.",
+                  "The shared uhitm.c:mhitm_adtyping() dispatcher is also called by mhitm.c:mdamagem() at 1059 and uhitm.c:damageum() at 4854. Preserve those production routes: JS mhitm.js:mdamagem() calls it at 1057, and JS uhitm.js:damageum() calls it at 4886; they supply the hero-to-monster and monster-to-monster branches of the same helper."
+                ],
+                "dependencies": [
+                  "C uhitm.c:mhitm_ad_plys() (3431-3476) is void and has three branches selected by whether magr or mdef is gy.youmonst: hero-to-monster, monster-to-hero, and monster-to-monster. All are part of the whole-function scope. In this case the monster-to-hero branch calls hitmsg(magr, mattk), tests gm.multi >= 0, consumes rn2(3), and uses the boolean returned by mhitm_mgc_atk_negated(magr, mdef, TRUE) to gate paralysis. JS hitmsg() already exists in mhitu.js, and JS mhitm_mgc_atk_negated() exists at uhitm.js:776-815.",
+                  "When a paralysis gate succeeds, the hero branch tests Free_action; otherwise Blind selects the message, rnd(10) supplies the nomul duration, nomul() installs the delay, dynamic_multi_reason() writes the monster-specific multi_reason, and exercise(A_DEX, FALSE) updates dexterity exercise. JS has nomul(), exercise(), and the related monster paralyze_monst() implementation for the other attacker/defender branches. The C rn2(3)=2 in this recording fails the chance condition, so it does not reach mhitm_mgc_atk_negated(), nomul(), or dynamic_multi_reason().",
+                  "uhitm.c:dynamic_multi_reason() (103-123) is a void state-writing callee with no JS counterpart; `rg -n 'dynamic_multi_reason' js/uhitm.js js/mhitu.js js/mhitm.js` returns no matches. If it remains outside the implementation scope, record and skip it as `note_unported(\"uhitm.c dynamic_multi_reason\")` rather than inventing a return value. No return from mhitm_ad_plys() or mhitm_adtyping() is consumed by their callers."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The admitted queue entry and challenges/evaluations/20261002065911-v18.json agree on case identity, 9 remaining screens and 37 recorded steps. The saved evaluation at d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d reports 28/37 screens, 2275/2371 RNG calls, and 28/37 cursors; its step-28 stop is “simple monster action requires uhitm.c mhitm_ad_plys()”. The examined source commit is 04b79edc2bcff3a4c2d70efba937608818f85b53; evaluation provenance remains separately recorded as d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d.",
+                "Immutable C recording challenges/cases/v18/wizard-hostile-ghoul-AD-PLYS-wander-pursuit-c59.session.json: step 26 creates the hostile ghoul, step 27 is a wait without an attack, and step 28 is a wait on which C shows “The ghoul hits! The ghoul hits again!”. On that step C logs `rnd(20)=4 @ mattacku`, `d(1,2)=2 @ hitmu`, and `rn2(3)=2 @ mhitm_ad_plys(uhitm.c:3446)`. Because 2 is nonzero, the C paralysis chance fails; this is evidence of the helper and hit-message path, not a successful paralysis effect.",
+                "C source defines the ghoul’s first two attacks as AT_CLAW/AD_PLYS 1d2 then AT_CLAW/AD_PHYS 1d3 in nethack-c/upstream/include/monsters.h:2478-2483. monmove.c:dochug() sends an eligible hostile monster through mattacku() at 965-972; mhitu.c:mattacku() calls hitmu() for its landed melee hit at 812; mhitu.c:hitmu() calls uhitm.c:mhitm_adtyping() at 1191; uhitm.c:mhitm_adtyping() dispatches AD_PLYS to mhitm_ad_plys() at 4815.",
+                "The source function uhitm.c:mhitm_ad_plys() at 3431-3476 handles uhitm, mhitu and mhitm attacker/defender orientations. In the recorded mhitu orientation it calls hitmsg() before the gm.multi/rn2(3) paralysis gate. The first recorded rn2(3)=2 bypasses the consumed mhitm_mgc_atk_negated() return and the paralysis side effects, explaining why the C screen reports hits but not freezing.",
+                "Current JS has the same outer route: unported_monster_actions.js:runSimpleMonsterAction() supplies attackHeroWithMattacku(); monmove.js:dochug() calls that operation at 2773; mhitu.js:mattacku() reaches hitmu() at 1178; hitmu() calls uhitm.js:mhitm_adtyping() at 1707. The dispatcher’s AD_PLYS arm at uhitm.js:4836 calls unported(\"mhitm_ad_plys\"); unported_monster_actions.js:214-224 turns that name into the observed UnsupportedSimpleMonsterActionError. This is the missing source function, not an inference from the downstream RNG caller tag.",
+                "Other production paths share the dispatcher: C mhitm.c:mdamagem() (1059) and uhitm.c:damageum() (4854); JS mhitm.js:mdamagem() (1057) and uhitm.js:damageum() (4886). The helper port and dispatcher wiring must retain those existing callers.",
+                "C mhitm_ad_plys() consumes the boolean result of uhitm.c:mhitm_mgc_atk_negated() in its chance-success branch; JS already implements the helper at uhitm.js:776-815, including the consumed rn2(10) and optional message. C dynamic_multi_reason() at uhitm.c:103-123 has no JS counterpart (confirmed by the cited rg search) and remains a conditional void gap if the successful paralysis branch is not expanded to port it.",
+                "Historical counter-evidence from the exact C recording: although the case is specifically selected for AD_PLYS, the first `rn2(3)=2` gate does not establish that paralysis occurred. The saved screen states only that the ghoul hit twice. Keep the source port general across all three C branches; do not describe this case as a successful frozen-status outcome."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
