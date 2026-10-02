@@ -1,0 +1,97 @@
+{
+  "session": "synthetic/v19/spotted-jelly-acid-passive-c62-west-attack",
+  "corpus": "synthetic",
+  "batch": "v19",
+  "caseId": "spotted-jelly-acid-passive-c62-west-attack",
+  "remainingScreens": 6,
+  "recordedSteps": 42,
+  "manifestPath": "challenges/manifests/v19.json",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "recordingSha256": "74fff48656e1780f3cb48dc59014b1edead682f710e83fe76f8eb33c4f064334",
+  "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "status": "complete",
+  "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v19",
+    "caseId": "spotted-jelly-acid-passive-c62-west-attack",
+    "session": "synthetic/v19/spotted-jelly-acid-passive-c62-west-attack",
+    "manifestPath": "challenges/manifests/v19.json",
+    "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+    "recording": "challenges/cases/v19/spotted-jelly-acid-passive-c62-west-attack.session.json",
+    "recordingPath": "challenges/cases/v19/spotted-jelly-acid-passive-c62-west-attack.session.json",
+    "recordingSha256": "74fff48656e1780f3cb48dc59014b1edead682f710e83fe76f8eb33c4f064334",
+    "recipe": "challenges/cases/v19/spotted-jelly-acid-passive-c62-west-attack.recipe.session.json",
+    "recipeSha256": "c1aec9c084f2cf21a5d2d99360bb0995baef9fc20297eaec2f23b883567dbb1f",
+    "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+    "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+    "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationUtc": "2026-10-02T18:07:42.516Z",
+    "remainingScreens": 6,
+    "recordedSteps": 42,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 36,
+        "total": 42
+      },
+      "rng": {
+        "matched": 3088,
+        "total": 3111
+      },
+      "cursors": {
+        "matched": 36,
+        "total": 42
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: passive counter-attack",
+      "step": 36
+    },
+    "step": 36,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero move: passive counter-attack",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The human Wizard reaches uhitm.c:passive() after the first westward hit on the generated Spotted Jelly. C computes the passive damage dice, then consumes the acid splash gate rn2(2)=0; js/uhitm.js:passive() instead throws at its generic AD_ACID refusal after the matching damage roll, so the attack stops before that C call and leaves six screens unmatched. Port the whole passive() and passive_obj() functions and preserve their existing hitum()/hmonas() callers. The full passive() scope also has a return-valued polyself.c:polymon() dependency in AD_STON, whose current JS implementation omits the stone-resistance cure branch.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "The recipe starts a human Wizard in debug mode, creates a hostile Spotted Jelly immediately west, then inputs h. On zero-based step 36 this hits: the jelly is alive and uncanceled, the hero hit is successful (mhitb=1), and the AT_WEAP attack has a weapon. monsters.h:601-604 gives the jelly an AT_NONE/AD_ACID/0/6 passive; uhitm.c:passive() selects that first AT_NONE attack and rolls d(mon->m_lev+1, 6), recorded here as d(5,6)=16. C then takes rn2(2)=0 at 5907, so there is no acid splash, but still tests the weapon through passive_obj() (rn2(6)=3), exercises Strength, and takes the alive/non-canceled rn2(3)=0 gate. The next h at step 37 has rn2(2)=1 and enters the splash arm, but it is later behavior. At the examined commit js/uhitm.js:passive() reaches its generic unsupported branch for every type except AD_PHYS and AD_ENCH immediately after matching the damage dice, before issuing the AD_ACID gate.",
+    "functions": [
+      "passive",
+      "passive_obj"
+    ],
+    "callers": [
+      "The recorded human-form melee route: uhitm.c:do_attack() (565-568) calls hitum(); hitum() calls passive() after the first swing at 789 and after a qualifying second swing at 810. JavaScript js/uhitm.js:do_attack() (2078-2083) dispatches to hitum(); js/uhitm.js:hitum() calls passive() at 2330 and 2381. This recording follows the primary-swing call.",
+      "Polymorphed-hero melee also reaches passive(): uhitm.c:hmonas() calls it at 713-715 and 5825-5830; js/uhitm.js:hmonas() calls it at 1890-1897. Keep both existing caller paths wired when completing the whole function.",
+      "passive() calls passive_obj() for the acid weapon-contact arm at uhitm.c:5923-5932, as well as the fire, rust, corrosion and disenchantment arms at 5896-5903, 5959-5966, 5970-5977 and 5993-6010; js/uhitm.js:passive() currently only wires the AD_ENCH arm at 5330.",
+      "passive_obj() is also called by dothrow.c:throwit() (2226), with the existing JavaScript call in js/dothrow.js:3071; and by mthrowu.c:drop_throw() (189), with the existing JavaScript passiveObject callback in js/mthrowu.js:538-540 and js/unported_monster_actions.js:1338-1343. Preserve those shared-helper callers."
+    ],
+    "dependencies": [
+      "passive_obj() is a void callee of passive(); it must support the AD_ACID corrosion arm for this recording because C consumes rn2(6) there even when the roll does not erode the weapon. Port its whole source function (uhitm.c:6127-6190), not only the reached acid branch.",
+      "passive() returns malive | mhit, but all five C call sites cast the result to void (uhitm.c:715, 789, 810, 5827 and 5829); preserve the source return value while retaining that caller behavior.",
+      "passive_obj() calls trap.c:erode_obj() with a discarded return; its JavaScript counterpart already exists as js/trap_erode_obj.js:erode_obj(). Use the existing helper for fire, acid, rust and corrosion effects, including source RNG and item updates.",
+      "The AD_STON branch of passive() consumes poly_when_stoned() and polymon(PM_STONE_GOLEM) results (uhitm.c:5946-5950). js/mondata.js:poly_when_stoned() exists; js/polyself.js:polymon() is partial and omits C polyself.c:838-841, where Stone_resistance clears Stoned after transformation. Complete that return-valued polyself.c:polymon() dependency in the same source task.",
+      "The function family uses d(), rn2(), and rnd() through the existing JS attack random source; preserve source evaluation order. Other side-effect helpers such as mdamageu(), exercise(), attk_protection(), resistance checks, and monster-seen updates already have JavaScript owners."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Current saved evaluation challenges/evaluations/20261002180737-v19.json (commit 8583a972f66a872a8ad73c888a24dd01075481f4) records this case at 36/42 screens, 3088/3111 RNG calls and 36/42 cursors; remainingScreens is 6. The queue entry identifies the first stop at zero-based step 36 on key h as “unsupported hero move: passive counter-attack”.",
+    "The frozen recording challenges/cases/v19/spotted-jelly-acid-passive-c62-west-attack.session.json (SHA-256 74fff48656e1780f3cb48dc59014b1edead682f710e83fe76f8eb33c4f064334) shows step 36’s exact source order: rnd(20)=7 at hitum, d(5,6)=16 at passive:5888, rn2(2)=0 at passive:5907, rn2(6)=3 at passive_obj:6165, rn2(2)=1 at exercise, rn2(3)=0 at passive:6019. The first splash-success roll at step 37 is rn2(2)=1; the four later h inputs dismiss the pending More prompt.",
+    "The C62 comparison receipt /tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ot8cZJ/receipt.json (SHA-256 7e20ab9289ded4b2b960200157cf02706ee13d309b7e6b6926cadf36b2fdc932) and stdout.log (SHA-256 9d589a2a480b3484e7d525d445b94b36c42ba9dd5657849e0653a9926e2f5e34) identify the same first missing behavior on the frozen west-attack recipe: the C-only rn2(2)=0 at passive(uhitm.c:5907); the preceding d(5,6) matches. This older comparison corroborates source order; the current v19 evaluation independently confirms six screens still remain at the examined commit.",
+    "C source: nethack-c/upstream/src/uhitm.c:5865-6120 defines all passive counter-attack branches; lines 6127-6190 define passive_obj(). In js/uhitm.js:5299-5340, passive() reproduces the first passive slot and damage roll but routes AD_ACID to requireAttackOperation(...)(\"passive counter-attack\") at 5334; js/uhitm.js:5345-5380 similarly supports passive_obj() only for AD_ENCH/AD_PHYS and refuses acid object damage. This is incomplete source behavior, so port the whole two-function family in uhitm.c.",
+    "The production caller is already wired: C uhitm.c:do_attack() (565-568) selects hitum() for this human-form Wizard; JS js/uhitm.js:do_attack() (2078-2083) selects the same helper. hitum() already invokes passive() after the hit in both implementations. The missing behavior is inside the partial helper and its passive_obj() callee, not in the first RNG caller, a special case for this recording, or a missing attack dispatcher.",
+    "Whole-function dependency boundary: uhitm.c:passive() uses polyself.c:polymon(PM_STONE_GOLEM) as a return-valued AD_STON condition at 5946-5950. Its current JS counterpart js/polyself.js:polymon() (1048 onward) omits the Stone_resistance && Stoned cleanup at polyself.c:838-841. Include that callee path in the same source task rather than leaving a consumed return dependency as an unported gap."
+  ]
+}

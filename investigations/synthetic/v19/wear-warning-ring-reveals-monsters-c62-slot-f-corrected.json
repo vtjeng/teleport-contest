@@ -1,0 +1,95 @@
+{
+  "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+  "corpus": "synthetic",
+  "batch": "v19",
+  "caseId": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+  "remainingScreens": 1,
+  "recordedSteps": 54,
+  "manifestPath": "challenges/manifests/v19.json",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "recordingSha256": "043e228144da907d0453b55427976cae61bf67f4440017b820553b89657388b2",
+  "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "status": "complete",
+  "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v19",
+    "caseId": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+    "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+    "manifestPath": "challenges/manifests/v19.json",
+    "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+    "recording": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.session.json",
+    "recordingPath": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.session.json",
+    "recordingSha256": "043e228144da907d0453b55427976cae61bf67f4440017b820553b89657388b2",
+    "recipe": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.recipe.session.json",
+    "recipeSha256": "b89f98d12e0c4c8cbbc8093aa6cd50a393c56f036c0647631f89d1537e86eb78",
+    "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+    "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+    "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationUtc": "2026-10-02T18:07:42.516Z",
+    "remainingScreens": 1,
+    "recordedSteps": 54,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 53,
+        "total": 54
+      },
+      "rng": {
+        "matched": 2826,
+        "total": 2833
+      },
+      "cursors": {
+        "matched": 53,
+        "total": 54
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+      "step": 53
+    },
+    "step": 53,
+    "kind": "stop",
+    "sourceFile": "do_wear.c",
+    "function": "Ring_on",
+    "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+    "cFile": "do_wear.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Wearing a warning ring reaches an unported Ring_on branch. C refreshes monsters but produces no warning for the level-1 orc. Port the whole Ring_on function and wire the monster refresh.",
+  "source": {
+    "file": "do_wear.c",
+    "branch": "Putting the slot-f RIN_WARNING on the left hand calls see_monsters; warning requires an active property, a hostile nearby monster, and integer monster level / 4 at least context.warnlevel.",
+    "functions": [
+      "Ring_on"
+    ],
+    "callers": [
+      "do_wear.c:doputon -> accessory_or_armor_on -> Ring_on"
+    ],
+    "dependencies": [
+      "display.c:see_monsters",
+      "display.c:display_warning",
+      "display.c:warning_of",
+      "do_wear.c:learnring",
+      "do_wear.c:adjust_attrib",
+      "wield.c:setuwep/setuswapwep/setuqwep"
+    ]
+  },
+  "evidence": [
+    "nethack-c/upstream/src/do_wear.c:1242-1344 defines Ring_on. After clearing wield/quiver references and preserving the other ring property mask, RIN_WARNING calls see_monsters. accessory_or_armor_on at 2209 and its ring branch set the worn slot before calling Ring_on; doputon provides the production command route.",
+    "js/do_wear.js:818-823 throws UnsupportedRingOnError for RIN_WARNING instead of calling see_monsters. The admitted baseline stops at the left-hand selection boundary, before the turn completes; the later mcalcmove comparator gap does not diagnose monster movement.",
+    "nethack-c/upstream/src/display.c:1487-1522 see_monsters refreshes monster locations and special display state. display_warning at 634-651 uses warning_of unless hallucinating, then show_mon_or_warn. warning_of at 654-662 clamps integer level / 4 to WARNCOUNT - 1.",
+    "nethack-c/upstream/include/display.h:64-66 requires Warning, a non-peaceful monster, distance squared below 100, and integer level / 4 >= context.warnlevel. allmain.c:774 initializes warnlevel=1. Existing JS display.js monsterWarnsHero and warning_of mirror this threshold; their declarations do not by themselves establish whole-function completion.",
+    "The frozen recording at segment 0 step 53, key l, shows f - a wire ring (on left hand). The invisible hostile orc has level 1, so 1 / 4 truncates to 0 and misses threshold 1; no warning glyph is expected. This is a negative threshold route, not missing C warning behavior.",
+    "Both ring recordings select one whole Ring_on file-port scope, not two separate source tasks. Include its other source branches and required consumed-return closure, remove replaced refusals, and wire the existing monster refresh with source-backed behavior. This does not grant completion credit to the whole accessory command or movement loop.",
+    "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+  ],
+  "goalKind": "file-port"
+}

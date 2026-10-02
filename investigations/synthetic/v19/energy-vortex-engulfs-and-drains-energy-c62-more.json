@@ -1,0 +1,91 @@
+{
+  "session": "synthetic/v19/energy-vortex-engulfs-and-drains-energy-c62-more",
+  "corpus": "synthetic",
+  "batch": "v19",
+  "caseId": "energy-vortex-engulfs-and-drains-energy-c62-more",
+  "manifestPath": "challenges/manifests/v19.json",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "recordingSha256": "5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62",
+  "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "remainingScreens": 9,
+  "recordedSteps": 44,
+  "status": "complete",
+  "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v19",
+    "caseId": "energy-vortex-engulfs-and-drains-energy-c62-more",
+    "session": "synthetic/v19/energy-vortex-engulfs-and-drains-energy-c62-more",
+    "manifestPath": "challenges/manifests/v19.json",
+    "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+    "recording": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+    "recordingPath": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+    "recordingSha256": "5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62",
+    "recipe": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.recipe.session.json",
+    "recipeSha256": "a12789cc7b7515d1e474e2839b04e744547dd21c27172c4e419616a3ba513ce2",
+    "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+    "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+    "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationUtc": "2026-10-02T18:07:42.516Z",
+    "remainingScreens": 9,
+    "recordedSteps": 44,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 35,
+        "total": 44
+      },
+      "rng": {
+        "matched": 2704,
+        "total": 2731
+      },
+      "cursors": {
+        "matched": 35,
+        "total": 44
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "unsupported hero move: passive counter-attack",
+      "step": 35
+    },
+    "step": 35,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "unsupported hero move: passive counter-attack",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first divergence is the incomplete uhitm.c passive() AD_ELEC branch. On step 35, hitum() misses the living Energy Vortex but still calls passive(); C rolls d(6,4)=18, then rn2(3)=1, and prints the electrical jolt. JS passive() throws for this nonphysical passive attack before the matching rn2(3) and screen boundary. A whole-function file-port of passive() is actionable; the later step-43 gulpmu(AD_DREN) continuation is a separate mismatch, not this cause.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "passive() selects the first AT_NONE attack and computes its damage, then enters the second switch only when malive is true, mon->mcan is false, and rn2(3) is nonzero. Its AD_ELEC arm checks Shock_resistance and either reports a mild tingle with shield/resistance and golem effects or, without resistance, reports an electrical jolt and calls mdamageu(). This switch does not require mhitb, so it can affect the hero after a missed swing.",
+    "functions": [
+      "passive"
+    ],
+    "callers": [
+      "uhitm.c hitum_cleave() at line 715 and hitum() at lines 789, 810; js/uhitm.js hitum() wires ordinary swings, while its Cleaver path currently refuses before passive().",
+      "uhitm.c hmonas() at lines 5827, 5829; js/uhitm.js hmonas() calls passive() after polymorphed attacks.",
+      "dokick.c kickdmg() at line 116 and kick_monster() at lines 158, 213, 219, 241, 265, 282; js/dokick.js kickdmg() and kick_monster() call passive()."
+    ],
+    "dependencies": [
+      "uhitm.c passive_obj() is a separate partial helper used by passive() for AD_FIRE, AD_ACID, AD_RUST, AD_CORR, and AD_ENCH object effects. It does not run on this AD_ELEC branch; keep its independent object-effect scope explicit if implementation work extends beyond the first divergence."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "nethack-c/upstream/include/monsters.h:1081-1090 defines Energy Vortex with a third mattk entry AT_NONE/AD_ELEC/0d4 after its two active engulf attacks. nethack-c/upstream/src/uhitm.c:5865-5888 selects that first empty slot and draws the passive damage before testing the effect gate.",
+    "nethack-c/upstream/src/uhitm.c:6017-6020 gates the surviving-monster effects on malive, !mon->mcan, and rn2(3); :6103-6113 handles AD_ELEC. The AD_ELEC arm has no mhitb condition. nethack-c/upstream/src/uhitm.c:758-815 calls passive() from hitum() after known_hitum() even when its hit result is false.",
+    "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json (recording SHA-256 5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62), segment 0 step 35, records key y, rnd(20)=15 at hitum, d(6,4)=18 at passive, then rn2(3)=1 at passive. Its screen says “You miss the energy vortex. You are jolted with electricity!” and status HP is 0; this confirms the miss still enters the AD_ELEC branch and its non-resisted damage arm.",
+    "js/uhitm.js:5299-5340 is a partial passive() port: it handles AD_ENCH and AD_PHYS, then throws “passive counter-attack” for the Energy Vortex AD_ELEC before the malive/!mcan/rn2(3) guard. The function is already called by the ordinary hitum() path at js/uhitm.js:2330, so the missing behavior is in the source-owned function rather than a missing caller.",
+    "C62 comparison receipt /tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-NgqNgG/receipt.json has SHA-256 93633a26de6430d7da428f5afbacfdb85f1d1f2b52c170c701658d11ce38806b; stdout.log has SHA-256 9dc2cae636082e29d28f4b62a8d4e1c8d9a3af393bc6147361b6edfa00b3adf6 and identifies the first missing JS call as C rn2(3)=1 at passive(uhitm.c:6019), with C screen/cursor boundary 36 and no JS boundary. The C recording and receipt evidence agree; no new C recording or replay was needed.",
+    "The same recording reaches mhitu.c:gulpmu(AD_DREN) later at segment 0 step 43 after the More continuation. That later engulf/drain behavior is not the first mismatch and is outside this investigation scope."
+  ]
+}

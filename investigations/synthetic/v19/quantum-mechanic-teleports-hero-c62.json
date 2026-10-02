@@ -1,0 +1,96 @@
+{
+  "session": "synthetic/v19/quantum-mechanic-teleports-hero-c62",
+  "corpus": "synthetic",
+  "batch": "v19",
+  "caseId": "quantum-mechanic-teleports-hero-c62",
+  "manifestPath": "challenges/manifests/v19.json",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "recordingSha256": "bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922",
+  "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "remainingScreens": 21,
+  "recordedSteps": 61,
+  "status": "complete",
+  "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v19",
+    "caseId": "quantum-mechanic-teleports-hero-c62",
+    "session": "synthetic/v19/quantum-mechanic-teleports-hero-c62",
+    "manifestPath": "challenges/manifests/v19.json",
+    "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+    "recording": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+    "recordingPath": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+    "recordingSha256": "bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922",
+    "recipe": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.recipe.session.json",
+    "recipeSha256": "1040cc28ed417e38c3b3ee1a5320c27ddc1533f2e9ff38008332cd3a6a4154d3",
+    "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+    "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+    "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationUtc": "2026-10-02T18:07:42.516Z",
+    "remainingScreens": 21,
+    "recordedSteps": 61,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 40,
+        "total": 61
+      },
+      "rng": {
+        "matched": 6259,
+        "total": 6297
+      },
+      "cursors": {
+        "matched": 40,
+        "total": 61
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_tlpt()",
+      "step": 40
+    },
+    "step": 40,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_tlpt",
+    "message": "simple monster action requires uhitm.c mhitm_ad_tlpt()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The source owner is the whole uhitm.c:mhitm_ad_tlpt() helper, including all three attacker/defender identity branches, dispatched by the AD_TLPT arm of mhitm_adtyping(). In this case a landed hostile Quantum Mechanic attack reaches the monster-to-hero arm. JS refuses that AD_TLPT arm during cloned turn preflight, which becomes a turn-boundary stop before the live monster scan. The comparator’s earlier distfleeck RNG absence is a consequence of that preflight stop, not the source owner. The debug-wizard recording selects the hero’s current square, so it exercises the controlled teleport selector without claiming relocation.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "Port the complete mhitm_ad_tlpt() identity dispatch: magr == &youmonst (hero-to-monster), mdef == &youmonst (monster-to-hero), and otherwise monster-to-monster. This recording reaches the monster-to-hero arm only after the hostile AT_CLAW attack is in range, not skipped or missed by mattacku() hit gating, hitmu() rolls damage, AD_TLPT dispatches, and mhitm_mgc_atk_negated() permits the effect. The arm then calls tele(); wizard mode admits a controlled destination and the recorded selector chooses the current square. Preserve all arm conditions and damage caps; do not infer that the hero moved.",
+    "functions": [
+      "mhitm_ad_tlpt"
+    ],
+    "callers": [
+      "uhitm.c:mhitm_adtyping() case AD_TLPT is the direct dispatch; its JavaScript counterpart is js/uhitm.js:4949, currently unported.",
+      "mhitu.c:mattacku() -> hitmu() -> mhitm_adtyping() is the reached monster-to-hero route; the claw hit gate is at mhitu.c:793-814 and hitmu dispatches after damage at mhitu.c:1187-1191.",
+      "mhitm.c:mdamagem() -> mhitm_adtyping() reaches the helper’s monster-to-monster arm at mhitm.c:1059.",
+      "uhitm.c:damageum() -> mhitm_adtyping() reaches the helper’s hero-to-monster arm at uhitm.c:4854."
+    ],
+    "dependencies": [
+      "Direct shared dependency uhitm.c:mhitm_mgc_atk_negated(); a JavaScript implementation exists at js/uhitm.js:785.",
+      "Monster-to-hero dependency mhitu.c:hitmsg(); a JavaScript implementation exists at js/mhitu.js:654.",
+      "Monster-to-hero teleport dependency teleport.c:tele() -> scrolltele(), getpos(), teleok(), teleds(); JavaScript implementations are in js/teleport.js, including tele() at :1671 and scrolltele() at :1604. Audit this return closure during implementation.",
+      "The other complete-helper arms call teleport.c:u_teleport_mon(), tele_restrict(), and rloc(); JavaScript implementations exist in js/teleport.js at :508, :757, and :462. Audit their return closure during implementation.",
+      "Other AD_* arms in uhitm.c:mhitm_adtyping() remain separate unported attack-type paths; only its AD_TLPT arm is in this helper’s dispatch scope."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The immutable queue capsule `.cache/v19-investigation-capsules/0.json` records the exact evaluated commit 8583a972f66a872a8ad73c888a24dd01075481f4, manifest identity, recording SHA-256 bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922, 61 steps, 21 remaining screens, and the stop `simple monster action requires uhitm.c mhitm_ad_tlpt()` at step 40. The v19 evaluation artifact for that commit reports 40/61 screens and cursors and 6259/6297 RNG calls.",
+    "The source definition `nethack-c/upstream/include/monsters.h:2127-2133` gives Quantum Mechanic one `AT_CLAW/AD_TLPT` attack with 1d4 damage. In `mhitu.c:mattacku()` at :793-814, the physical attack is omitted on its explicit gates or reaches `hitmu()` only on `tmp > rnd(20+i)`; a miss calls `missmu()`. `mhitu.c:hitmu()` rolls damage then calls `mhitm_adtyping()` at :1187-1191. The frozen C trace records “The quantum mechanic hits!”, `rnd(20)=8`, `d(1,4)=4`, and `rn2(10)=7` at `mhitm_mgc_atk_negated`, establishing this case passed target-miss and magic-negation gates.",
+    "The whole C helper is `nethack-c/upstream/src/uhitm.c:mhitm_ad_tlpt()` at :2859-2955; `mhitm_adtyping()` dispatches AD_TLPT to it at :4782-4802. The monster-to-hero arm at :2884-2927 calls `hitmsg()`, checks magic negation, messages uncertainty, calls `tele()`, then caps damage against polymorph HP or hero HP while preserving at least one HP. The helper also has hero-to-monster and monster-to-monster arms, so the source goal is the full helper, with only its AD_TLPT caller arm wired—not all attack types in `mhitm_adtyping()`.",
+    "For this debug-wizard input, `teleport.c:scrolltele()` allows controlled destination selection when `wizard` is set even without Teleport_control (`:872-892`); C then accepts the recorded current-square choice and reports “You materialize in the same location!” at step 48. This proves the selector path is reached but does not prove relocation; coordinates remain unchanged.",
+    "The JavaScript sequence is `allmain.js:1334-1336` calling `planElapsedTurn()` before its live `movemon()` loop at :1373-1377. `planElapsedTurn()` calls `preflightSimpleMonsterActions()` at :1242-1260; that function clones state and ISAAC (`js/unported_monster_actions.js:1780-1786`, `:364-367`). During the clone scan the JS `mhitm_adtyping()` AD_TLPT arm calls `unported()` (`js/uhitm.js:4949`), raising `UnsupportedSimpleMonsterActionError`; the preflight catch converts it to `UnsupportedTurnBoundaryError` (`js/allmain.js:1261-1276`). The live scan therefore never runs for this step.",
+    "Counter-evidence against treating `distfleeck` as owner: the older C62 raw comparator receipt in the capsule (run-ppCadc, measured worker head 3b30ca493456d7d79d49c1bf3ca79d9d32addf15; receipt SHA-256 f8ab7945d23fa41a51df2457f2c1912fbff0753971dbbcf23affcd95611b1cb2) reports C’s first absent-from-JS raw call as `rn2(5)=1` at `monmove.c:538`, input step 40. That is the live scan’s earlier call; the cloned preflight RNG is discarded after the AD_TLPT refusal, before live `movemon()`. The receipt’s measured commit is older than this investigation’s evaluation commit, so it supports the raw symptom only; source and current evaluation establish the cause."
+  ]
+}

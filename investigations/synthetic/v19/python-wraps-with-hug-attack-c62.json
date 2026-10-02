@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+  "corpus": "synthetic",
+  "batch": "v19",
+  "caseId": "python-wraps-with-hug-attack-c62",
+  "manifestPath": "challenges/manifests/v19.json",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+  "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "remainingScreens": 10,
+  "recordedSteps": 40,
+  "status": "complete",
+  "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v19",
+    "caseId": "python-wraps-with-hug-attack-c62",
+    "session": "synthetic/v19/python-wraps-with-hug-attack-c62",
+    "manifestPath": "challenges/manifests/v19.json",
+    "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+    "recording": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+    "recordingPath": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+    "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+    "recipe": "challenges/cases/v19/python-wraps-with-hug-attack-c62.recipe.session.json",
+    "recipeSha256": "58386c4a0a8652ec52464ff8a08f270972dd9a1d2bea49e3258a0e216257e2f4",
+    "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+    "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+    "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationUtc": "2026-10-02T18:07:42.516Z",
+    "remainingScreens": 10,
+    "recordedSteps": 40,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 30,
+        "total": 40
+      },
+      "rng": {
+        "matched": 3736,
+        "total": 3747
+      },
+      "cursors": {
+        "matched": 30,
+        "total": 40
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires a monster crushing the hero",
+      "step": 30
+    },
+    "step": 30,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "simple monster action requires a monster crushing the hero",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "C62 reaches the Python’s automatic third-slot AT_HUGS after its preceding AT_BITE and AT_TUCH succeed. JS refuses in mhitu.js:mattacku() before hitmu(); restoring that source path then requires the still-unported uhitm.c AD_WRAP helper. The first comparator RNG caller distfleeck is a whole-turn symptom, not the source owner.",
+  "source": {
+    "file": "mhitu.c",
+    "functions": [
+      "mattacku"
+    ],
+    "branch": "AT_HUGS is eligible when (!range2 && i >= 2 && sum[i - 1] && sum[i - 2]) or the attacker is u.ustuck; after failed_grab() is false, C calls hitmu() and assigns its result to sum[i]. For this Python, the two prior attacks succeed; the human hero is solid, so failed_grab() returns false. The downstream AD_WRAP helper receives an uncancelled Python and non-sticky, unheld hero; rn2(10)=5 fails the wrap gate.",
+    "callers": [
+      "monmove.c:dochug() standard-attack path -> mhitu.c:mattacku(mtmp)",
+      "mhitu.c:mattacku() AT_HUGS -> hitmu() -> uhitm.c:mhitm_adtyping() -> uhitm.c:mhitm_ad_wrap()",
+      "js/unported_monster_actions.js:runSimpleMonsterAction() -> dochug() -> js/mhitu.js:mattacku()"
+    ],
+    "dependencies": [
+      "mhitm.c:failed_grab(): existing helper; returns false for this solid human hero and permits the AT_HUGS hit.",
+      "mhitu.c:hitmu(): existing path; its M_ATTK result is stored in the attack-slot sum and it calls uhitm.c:mhitm_adtyping().",
+      "uhitm.c:mhitm_adtyping() AD_WRAP dispatch and uhitm.c:mhitm_ad_wrap(): required downstream source behavior; js/uhitm.js still refuses this dispatch/helper, so include the complete helper and wire its source call when implementing the selected C62 path."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Upstream mhitu.c:mattacku() AT_HUGS arm (nethack-c/upstream/src/mhitu.c:823-828) dispatches only when the monster is in melee and the prior two attack-slot results are nonzero, or it is already u.ustuck. The C62 Python reaches this third slot after AT_BITE and AT_TUCH succeed. failed_grab() at mhitu.c:827 returns false for the solid human hero, so C calls hitmu() and stores its result in sum[i].",
+    "hitmu() calls uhitm.c:mhitm_adtyping() (nethack-c/upstream/src/mhitu.c:1191), whose AD_WRAP arm calls mhitm_ad_wrap() (nethack-c/upstream/src/uhitm.c:4814). In the monster-attacks-hero branch, an uncancelled Python with a non-sticky hero and no existing hold reaches rn2(10); the frozen C62 evidence records 5 at uhitm.c:3379, so no hold is established and C zeroes the damage (with the verbose brush message when enabled).",
+    "The corresponding JavaScript preflight is js/mhitu.js:mattacku() at lines 1225-1231: its matching AT_HUGS gate throws unsupported(\"a monster crushing the hero\") instead of running failed_grab() and hitmu(). If that source path is restored, js/mhitu.js:1738 reaches js/uhitm.js:mhitm_adtyping(), whose AD_WRAP arm at js/uhitm.js:4968 still calls unported(\"mhitm_ad_wrap\"). Both missing source behaviors are required for C62 to pass this boundary.",
+    "The raw comparator reports C distfleeck(monmove.c:538), but that is a turn-boundary symptom rather than the source owner: C executes that call before the attack in the turn, while the JavaScript simple-action preflight refusal prevents the whole turn boundary from running. Do not select distfleeck as the cause.",
+    "GOALS.json currently marks mhitu.c:mattacku complete under port-mhitu-wildmiss-mattacku-seed0360, while this reached AT_HUGS branch still has an explicit refusal. Reconcile or invalidate that completion evidence before claiming whole-function completion, as AGENTS.md requires when later source tracing shows a completed function claim missed a branch.",
+    "The current v19 evaluation at examined commit 8583a972f66a872a8ad73c888a24dd01075481f4 retains this case's stop at zero-based step 30 with 10 remaining screens. The frozen recording hash is 7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7; C62's independent bounded comparison was run run-EUtuUZ and its receipt/stdout hashes are 2a0dafbe419b44194656e32848359af38cebee46062dedcbe0a9f371b5c267c4 and f6251bb93b30c07d2f0d173a9e16ecc9824c62ac0b9ec8a2f762039b0c941e51. These existing artifacts were reused; no replay or recorder was run."
+  ]
+}
