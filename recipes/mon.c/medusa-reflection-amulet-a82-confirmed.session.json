@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first corrected Medusa setup from the preserved prompt miss: the previous C recording asked whether wizard creation should force the Medusa and the dots did not answer it, so this fresh recipe sends the source-observed yes response before waiting. It retains the valid wished amulet and C-observed wear letter o.",
+  "segments": [
+    {
+      "seed": 83082028,
+      "datetime": "20261002110000",
+      "nethackrc": "OPTIONS=name:A82MedusaAmulet,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  #wizwish\namulet of reflection\nPo#wizgenesis\nhostile Medusa\ny...................."
+    }
+  ]
+}

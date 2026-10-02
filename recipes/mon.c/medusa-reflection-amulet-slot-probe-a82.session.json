@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first inventory-slot probe for a valid reflection object. The independently chosen Wizard seed/date issue one amulet-of-reflection wish, then open inventory so the later Medusa recipe uses C's observed item letter instead of assuming it.",
+  "segments": [
+    {
+      "seed": 83082027,
+      "datetime": "20261002104700",
+      "nethackrc": "OPTIONS=name:A82AmuletSlot,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  #wizwish\namulet of reflection\ni"
+    }
+  ]
+}
