@@ -69,7 +69,7 @@ import { game } from './gstate.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { hands_obj } from './invent.js';
 import { m_carrying } from './mon.js';
-import { mon_nam } from './do_name.js';
+import { Monnam, mon_nam } from './do_name.js';
 import {
     bigmonst,
     hates_light,
@@ -83,6 +83,7 @@ import {
     mindless,
     mon_hates_blessings,
     mon_hates_silver,
+    mhis,
     passes_walls,
     strongmonst,
     thick_skinned,
@@ -212,7 +213,7 @@ import {
     YA,
     YUMI,
 } from './objects.js';
-import { makesingular } from './fruit.js';
+import { makeplural, makesingular } from './fruit.js';
 import { d, rn2, rnd } from './rng.js';
 import {
     P_ADVANCE,
@@ -229,11 +230,17 @@ import { y_n } from './cmd.js';
 import { select_menu } from './windows.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { canseemon, couldsee } from './vision.js';
-import { mwelded, will_weld } from './wield.js';
-import { The, otense, xnameFresh } from './objnam.js';
+import { cansee, canseemon, couldsee } from './vision.js';
+import { mwelded } from './wield.js';
+import {
+    The, Tobjnam, Yname2, donameFresh, is_plural, otense, the, xnameFresh,
+} from './objnam.js';
 import { mbodypart } from './polyself.js';
-import { which_armor } from './worn.js';
+import { bimanual, which_armor } from './worn.js';
+import { canSpotMonster, messageAt } from './startup_a11y.js';
+import { arti_light_description } from './light.js';
+import { begin_burn } from './timeout.js';
+import { objectGenerationEnv } from './object_generation.js';
 
 const MR_STONE = 0x80;
 
@@ -919,19 +926,19 @@ function selectToolWeapon(monster, weaponCheck, state) {
     switch (weaponCheck) {
     case NEED_PICK_AXE:
         return m_carrying(monster, PICK_AXE, state)
-            || (!which_armor(monster, W_ARMS)
+            || (!which_armor(monster, W_ARMS, state)
                 ? m_carrying(monster, DWARVISH_MATTOCK, state)
                 : null);
     case NEED_AXE: {
         const battleAxe = m_carrying(monster, BATTLE_AXE, state);
-        return battleAxe && !which_armor(monster, W_ARMS)
+        return battleAxe && !which_armor(monster, W_ARMS, state)
             ? battleAxe
             : m_carrying(monster, AXE, state);
     }
     case NEED_PICK_OR_AXE: {
         let obj = m_carrying(monster, DWARVISH_MATTOCK, state)
             || m_carrying(monster, BATTLE_AXE, state);
-        if (!obj || which_armor(monster, W_ARMS)) {
+        if (!obj || which_armor(monster, W_ARMS, state)) {
             obj = m_carrying(monster, PICK_AXE, state)
                 || m_carrying(monster, AXE, state);
         }
@@ -942,12 +949,18 @@ function selectToolWeapon(monster, weaponCheck, state) {
     }
 }
 
-// C ref: weapon.c mon_wield_item(). Ranged selection and presentation remain
-// explicit downstream owners; this function owns selection order and every
-// monster/object state transition.
+// C ref: weapon.c mon_wield_item() (801-934). This owns weapon selection,
+// monster/object state, and every source message. Its caller supplies the
+// current game/RNG/display context; only note_unported() remains for C's
+// discarded impossible() diagnostic on an invalid weapon_check value.
 export async function mon_wield_item(monster, env = {}) {
     const normalized = weaponEnv(env);
     const state = normalized.state;
+    const namingEnv = {
+        ...normalized,
+        state,
+        canSpotMonster: normalized.canSpotMonster ?? canSpotMonster,
+    };
     const weaponCheck = monster.weapon_check;
     if (weaponCheck === NO_WEAPON_WANTED) return 0;
 
@@ -956,22 +969,23 @@ export async function mon_wield_item(monster, env = {}) {
     if (weaponCheck === NEED_HTH_WEAPON) {
         obj = select_hwep(monster, normalized);
     } else if (weaponCheck === NEED_RANGED_WEAPON) {
-        const selectRangedWeapon = requiredOperation(
-            normalized,
-            'selectRangedWeapon',
-            'mon_wield_item',
-        );
-        obj = await selectRangedWeapon(monster, normalized);
+        // C discards select_rwep()'s missile return and reads gp.propellor.
+        // Keep those values separate: a projectile can be selected while the
+        // monster's wielded object is its launcher (or hands_obj).
+        const propellorResult = {};
+        select_rwep(monster, { ...normalized, propellorResult });
+        obj = propellorResult.value;
     } else if (weaponCheck === NEED_PICK_AXE
         || weaponCheck === NEED_AXE
         || weaponCheck === NEED_PICK_OR_AXE) {
         obj = selectToolWeapon(monster, weaponCheck, state);
         exclaim = false;
     } else {
-        throw new RangeError(`unsupported monster weapon_check ${weaponCheck}`);
+        note_unported('pline.c impossible');
+        return 0;
     }
 
-    if (obj && obj !== normalized.handsObject) {
+    if (obj && obj !== hands_obj) {
         const current = monster.mw;
         if (current && current.otyp === obj.otyp) {
             monster.weapon_check = NEED_WEAPON;
@@ -979,73 +993,135 @@ export async function mon_wield_item(monster, env = {}) {
         }
 
         if (current && mwelded(current, state)) {
-            const canSeeMonster = requiredOperation(
-                normalized,
-                'canSeeMonster',
-                'mon_wield_item',
-            );
-            if (canSeeMonster(monster, normalized)) {
-                const weldedMessage = requiredOperation(
-                    normalized,
-                    'weldedMessage',
-                    'mon_wield_item',
-                );
-                await weldedMessage(monster, current, obj, normalized);
+            if (canseemon(monster, state)) {
+                const hand = bimanual(current, state)
+                    ? makeplural(mbodypart(monster, HAND))
+                    : mbodypart(monster, HAND);
+                const welded = `${otense(current, 'are')} welded to `
+                    + `${mhis(monster, namingEnv)} ${hand}`;
+                const message = normalized.message
+                    ?? (normalized.planning ? async () => {} : ttyPline);
+
+                if (obj.otyp === PICK_AXE) {
+                    await message(
+                        `Since ${s_suffix(mon_nam(monster, state, namingEnv))}`
+                        + ` weapon${plur(current.quan)} ${welded},`,
+                        state,
+                        normalized,
+                    );
+                    await message(
+                        `${mon_nam(monster, state, namingEnv)} cannot wield `
+                        + `that ${xnameFresh(obj, state)}.`,
+                        state,
+                        normalized,
+                    );
+                } else {
+                    await message(
+                        messageAt(
+                            `${Monnam(monster, state, namingEnv)} tries to wield `
+                            + `${donameFresh(obj, state)}.`,
+                            monster.mx,
+                            monster.my,
+                            state,
+                        ),
+                        state,
+                        normalized,
+                    );
+                    await message(
+                        `${Yname2(current, state)} ${welded}!`,
+                        state,
+                        normalized,
+                    );
+                }
                 current.bknown = true;
             }
             monster.weapon_check = NO_WEAPON_WANTED;
             return 1;
         }
 
-        // Resolve the presentation operations before the first mutation.
-        // setmnotwielded() now owns its artifact-light cleanup, so an old
-        // light has a canonical fallback when no presentation hook is passed.
-        const transition = {
-            canSeeMonster: requiredOperation(
-                normalized,
-                'canSeeMonster',
-                'mon_wield_item',
-            ),
-        };
-        const startsArtifactLight = artifact_light(obj) && !obj.lamplit;
-        transition.startArtifactLight = startsArtifactLight
-            ? requiredOperation(
-                normalized,
-                'startArtifactLight',
-                'mon_wield_item',
-            )
-            : null;
-
         monster.mw = obj;
-        await clearMonsterWeapon(
-            monster,
-            current,
-            normalized,
-        );
+        await setmnotwielded(monster, current, normalized);
         monster.weapon_check = NEED_WEAPON;
-        // weapon.c mon_wield_item() evaluates canseemon() here, after
-        // setmnotwielded() has already run end_burn() on the old weapon, so a
-        // monster lit only by that artifact is unseen by this test. Resolving
-        // wieldMessage inside the branch keeps the operation optional for an
-        // unseen monster, which C never prints for, and matches the welded
-        // branch above.
-        if (transition.canSeeMonster(monster, normalized)) {
-            const wieldMessage = requiredOperation(
-                normalized,
-                'wieldMessage',
-                'mon_wield_item',
-            );
-            const newlyWelded = will_weld(obj, state);
-            await wieldMessage(
-                monster,
-                obj,
-                { exclaim, newlyWelded },
+        const message = normalized.message
+            ?? (normalized.planning ? async () => {} : ttyPline);
+
+        if (canseemon(monster, state)) {
+            await message(
+                messageAt(
+                    `${Monnam(monster, state, namingEnv)} wields `
+                    + `${donameFresh(obj, state)}${exclaim ? '!' : '.'}`,
+                    monster.mx,
+                    monster.my,
+                    state,
+                ),
+                state,
                 normalized,
             );
-            if (newlyWelded) obj.bknown = true;
+            const returned = autoreturn_weapon(obj);
+            if (returned?.tethered) {
+                await message(
+                    messageAt(
+                        `${Monnam(monster, state, namingEnv)} secures the tether `
+                        + `on ${the(xnameFresh(obj, state), state)}.`,
+                        monster.mx,
+                        monster.my,
+                        state,
+                    ),
+                    state,
+                    normalized,
+                );
+            }
+
+            // C temporarily sets W_WEP because mwelded() tests both the curse
+            // and that worn bit. Clear just that bit before the final source
+            // assignment below, preserving any other slot flags.
+            obj.owornmask |= W_WEP;
+            let newlyWelded;
+            try {
+                newlyWelded = mwelded(obj, state);
+            } finally {
+                obj.owornmask &= ~W_WEP;
+            }
+            if (newlyWelded) {
+                let hand = mbodypart(monster, HAND);
+                if (bimanual(obj, state)) hand = makeplural(hand);
+                await message(
+                    `${Tobjnam(obj, 'weld', state)} `
+                    + `${is_plural(obj) ? 'themselves' : 'itself'} `
+                    + `to ${s_suffix(mon_nam(monster, state, namingEnv))} `
+                    + `${hand}!`,
+                    state,
+                    normalized,
+                );
+                obj.bknown = true;
+            }
         }
-        if (transition.startArtifactLight) {
-            await transition.startArtifactLight(monster, obj, normalized);
+
+        if (artifact_light(obj) && !obj.lamplit) {
+            begin_burn(obj, false, objectGenerationEnv(normalized));
+            if (canseemon(monster, state)) {
+                await message(
+                    `${Tobjnam(obj, 'shine', state)} `
+                    + `${arti_light_description(obj, state)} in `
+                    + `${s_suffix(mon_nam(monster, state, namingEnv))} `
+                    + `${mbodypart(monster, HAND)}!`,
+                    state,
+                    normalized,
+                );
+            } else if (cansee(monster.mx, monster.my, state)) {
+                const distance = dist2(
+                    monster.mx,
+                    monster.my,
+                    state.u.ux,
+                    state.u.uy,
+                );
+                await message(
+                    `Light begins shining ${distance <= 5 * 5
+                        ? 'nearby' : 'in the distance'}.`,
+                    state,
+                    normalized,
+                );
+            }
         }
         obj.owornmask = W_WEP;
         return 1;

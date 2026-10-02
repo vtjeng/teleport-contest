@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T06:55:00.679Z",
+  "capturedAt": "2026-10-02T08:06:30.207Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -14979,12 +14979,108 @@
         "type": "accepted",
         "at": "2026-10-02T06:55:00.402Z",
         "task": "C59"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C59-published-5058f210",
+        "type": "published",
+        "at": "2026-10-02T06:55:43.735Z",
+        "task": "C59",
+        "commit": "5058f210fe229b517d0ad3bec93d9fb36a2d657b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-514d8dd5e72e8f9ab77ebc54a85d4a9dd54df543",
+        "type": "ready",
+        "at": "2026-10-02T07:17:22.979Z",
+        "task": "B85",
+        "delivery": "514d8dd5e72e8f9ab77ebc54a85d4a9dd54df543"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B85-received-514d8dd5",
+        "type": "received",
+        "at": "2026-10-02T07:19:23.592Z",
+        "task": "B85",
+        "delivery": "514d8dd5e72e8f9ab77ebc54a85d4a9dd54df543"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B85-root-north-bridge-feedback-20261002",
+        "type": "feedback",
+        "at": "2026-10-02T07:30:47.199Z",
+        "task": "B85",
+        "delivery": "514d8dd5e72e8f9ab77ebc54a85d4a9dd54df543"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B85-drawbridge-correction-20261002",
+        "type": "resume",
+        "at": "2026-10-02T07:33:46.294Z",
+        "task": "B85"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fe1dea0c3c86be8d3c99bbb7844b3db9020ffc01",
+        "type": "ready",
+        "at": "2026-10-02T07:41:07.290Z",
+        "task": "A75",
+        "delivery": "fe1dea0c3c86be8d3c99bbb7844b3db9020ffc01"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A75-fe1dea0c-20261002",
+        "type": "received",
+        "at": "2026-10-02T07:42:57.292Z",
+        "task": "A75",
+        "delivery": "fe1dea0c3c86be8d3c99bbb7844b3db9020ffc01"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A75-integrating-709d5526",
+        "type": "integrating",
+        "at": "2026-10-02T07:48:46.884Z",
+        "task": "A75",
+        "integration": "709d5526f3697c75133e1a0a14d51d78f720f8b5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A75-integrating-6f62f975",
+        "type": "integrating",
+        "at": "2026-10-02T07:51:01.994Z",
+        "task": "A75",
+        "integration": "6f62f97576e59ad69ca3dae0c919680cf95b89e9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A76-learn-egg-type-v18-20261002",
+        "type": "assign",
+        "at": "2026-10-02T07:59:24.153Z",
+        "task": "A76",
+        "worker": "A2",
+        "goal": "port-timeout-learn-egg-type-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A75-validated-6f62f975",
+        "type": "validated",
+        "at": "2026-10-02T08:03:48.871Z",
+        "task": "A75",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A75-accepted-6f62f975",
+        "type": "accepted",
+        "at": "2026-10-02T08:03:49.264Z",
+        "task": "A75"
       }
     ]
   },
   "development": {
-    "executionCommit": "1035c78375008a0c44bd0819b40e8436697bcfb4",
-    "measuredAt": "2026-10-02T06:53:46.708Z",
+    "executionCommit": "6f62f97576e59ad69ca3dae0c919680cf95b89e9",
+    "measuredAt": "2026-10-02T07:56:40.132Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

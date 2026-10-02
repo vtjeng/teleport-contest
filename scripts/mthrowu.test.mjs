@@ -350,23 +350,24 @@ test('thrwmu spends an empty-handed launcher wield turn', async () => {
     subject.mw = null;
     const arrow = mksobj(ARROW, false, false, { state });
     const bow = mksobj(BOW, false, false, { state });
-    arrow.nobj = bow;
-    bow.nobj = null;
-    subject.minvent = arrow;
+    // add_to_minv() sets C's where/v ownership fields as well as the list;
+    // select_rwep and Yname2 consume that same inventory owner.
+    add_to_minv(subject, bow, { state });
+    add_to_minv(subject, arrow, { state });
+    // canseemon() gates weapon.c's visible pline_mon() announcement.
+    state.viz_array[y][subject.mx] |= IN_SIGHT;
     const messages = [];
 
     assert.equal(await thrwmu(subject, {
         state,
-        canSeeMonster: () => true,
-        wieldMessage: (_monster, obj, detail) => {
-            messages.push([obj.otyp, detail.exclaim]);
-        },
+        message: (text) => { messages.push(text); },
         continueRangedAttack: () => assert.fail('wield turn continued'),
     }), 1);
     assert.equal(subject.mw, bow);
     assert.equal(subject.weapon_check, NEED_WEAPON);
     assert.equal(bow.owornmask, W_WEP);
-    assert.deepEqual(messages, [[BOW, true]]);
+    // Monnam(PM_GIANT_RAT) and doname(BOW) form weapon.c's visible line.
+    assert.deepEqual(messages, ['The giant rat wields a bow!']);
 });
 
 test('thrwmu announces one visible ordinary throw before missile flight',
@@ -1409,8 +1410,6 @@ test('thrwmu retreat rn2 uses monster-to-target distance, not hero-to-monster',
         let rn2Bound;
         await thrwmu(subject, {
             state,
-            canSeeMonster: () => false,
-            wieldMessage: () => {},
             continueRangedAttack: async () => {
                 await assert.rejects(
                     Promise.reject(new Error('stop after rn2')),

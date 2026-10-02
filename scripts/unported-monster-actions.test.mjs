@@ -1301,7 +1301,7 @@ test('a ranged attacker replaces a non-welded current weapon before flight',
         );
     });
 
-test('a ranged attacker keeps a welded current weapon fail-closed',
+test('a ranged attacker preflights a welded switch without mutating live state',
     async () => {
         const target = await prepareSelectedAction({ pmidx: PM_GNOME });
         const arrow = monsterObject(ARROW, 9211);
@@ -1309,6 +1309,10 @@ test('a ranged attacker keeps a welded current weapon fail-closed',
         const dagger = monsterObject(DAGGER, 9213);
         dagger.cursed = true;
         dagger.owornmask = W_WEP;
+        // The C object union stores minvent ownership in v/ocarry. This plain
+        // fixture object does not install newObject()'s ocarry alias, so set
+        // the underlying C owner field that the planning clone remaps.
+        dagger.v = target.monster;
         arrow.nobj = bow;
         bow.nobj = dagger;
         target.monster.minvent = arrow;
@@ -1319,18 +1323,18 @@ test('a ranged attacker keeps a welded current weapon fail-closed',
         const before = completeSecondTurnSnapshot(game, target.replay);
         const beforeRandom = rngSnapshot();
 
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'monster ranged wield with a welded current weapon'
-            ),
-        );
+        await preflightSimpleMonsterActions(game);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
         );
         assert.deepEqual(rngSnapshot(), beforeRandom);
+        assert.equal(target.monster.mw, dagger);
+        assert.equal(dagger.owornmask, W_WEP);
+
+        // The recorded v17 range exercises the live refusal message; this
+        // fixture pins only that planning admits the branch without changing
+        // the live weapon or its curse knowledge.
     });
 
 test('fog-region transition callbacks remain fail-closed and inert',
@@ -3127,7 +3131,7 @@ test('simple item search admits a touchable artifact', async () => {
     }
 });
 
-test('monster retaliation keeps artifact and welded selections closed',
+test('monster retaliation completes artifact selection and new welding',
     async () => {
         await prepareSelectedAction();
         const cases = [
@@ -3151,30 +3155,26 @@ test('monster retaliation keeps artifact and welded selections closed',
             },
         ];
         for (const row of cases) {
+            // The two fixtures distinguish C's touchable artifact selector
+            // from its ordinary cursed-weapon selector.
+            const selected = row.object();
             const monster = ordinaryMonster(PM_GNOME, 10, 10, {
-                minvent: row.object(),
+                minvent: selected,
                 mw: null,
                 weapon_check: NEED_HTH_WEAPON,
             });
-            const before = structuredClone({
-                minvent: monster.minvent,
-                mw: monster.mw,
-                weapon_check: monster.weapon_check,
+            selected.ocarry = monster;
+            // The C-created fixture marks its Sting as existing before the
+            // naming path can discover it.
+            if (row.name === 'artifact')
+                game.artiexist[ART_STING].exists = 1;
+            const result = await wieldMonsterItemAgainstMonster(monster, {
+                planning: true,
+                state: game,
             });
-            await assert.rejects(
-                wieldMonsterItemAgainstMonster(monster, {
-                    planning: true,
-                    state: game,
-                }),
-                (error) => error instanceof UnsupportedSimpleMonsterActionError
-                    && error.reason === row.reason,
-                row.name,
-            );
-            assert.deepEqual({
-                minvent: monster.minvent,
-                mw: monster.mw,
-                weapon_check: monster.weapon_check,
-            }, before, row.name);
+            assert.equal(result, 1, row.name);
+            assert.equal(monster.mw, selected, row.name);
+            assert.equal(monster.weapon_check, NEED_WEAPON, row.name);
         }
     });
 
@@ -3221,12 +3221,13 @@ test('a pet fetching a touchable artifact uses the source gate', async () => {
 // AT_KICK and AT_BITE. So this fixture puts an AT_WEAP attack in the pony's
 // first free mattk slot, which is where a permonst entry with three attacks
 // carries it, and leaves the kick and the bite in place.
-test('a pet picking a weapon up refuses instead of crashing', async () => {
+test('a pet picking a weapon up uses the source weapon helper on the clone', async () => {
     const target = await prepareStartingPetAction(PM_PONY);
     target.monster.mextra.edog.apport = 20;
     const attacks = [...target.monster.data.mattk];
-    // ATTK(AT_WEAP, AD_PHYS, 1, 6): AD_PHYS is 0 and the damage is never
-    // rolled here, so only aatyp selects the arm.
+    // ATTK(AT_WEAP, AD_PHYS, 1, 6): this fabricated pony entry makes the
+    // otherwise species-unreachable dog_invent wield caller testable; damage
+    // is never rolled in the carry-and-wield arm.
     attacks[2] = { aatyp: AT_WEAP, adtyp: 0, damn: 1, damd: 6 };
     target.monster.data = { ...target.monster.data, mattk: attacks };
     // C ref: dogmove.c:467. NEED_WEAPON is the second half of the gate, and
@@ -3242,21 +3243,14 @@ test('a pet picking a weapon up refuses instead of crashing', async () => {
     const before = completeSecondTurnSnapshot(game, target.replay);
 
     for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'pet weapon selection'
-            ),
-            `attempt ${attempt + 1}`,
-        );
+        await preflightSimpleMonsterActions(game);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
             `attempt ${attempt + 1}`,
         );
-        // The refusal lands after mpickobj() has run on the clone, so the live
-        // dagger stays on the floor and the live pony's pack stays empty.
+        // mpickobj() and mon_wield_item() run only on the planning clone, so
+        // the live floor object, pack and weapon check remain untouched.
         assert.equal(
             game.level.objects[target.monsterX][target.heroY],
             dagger,

@@ -90,7 +90,6 @@ import { dist2, distmin, s_suffix, sgn, upstart } from './hacklib.js';
 import {
     add_to_minv,
     delobj,
-    hands_obj,
     hold_another_object,
     obfree,
     obj_extract_self,
@@ -1406,15 +1405,6 @@ export async function thrwmm(mtmp, mtarg, rawEnv = {}) {
         /* mon_wield_item resets weapon_check as appropriate */
         if (await mon_wield_item(mtmp, {
             ...env,
-            handsObject: hands_obj,
-            selectRangedWeapon: (subject, selectionEnv) => {
-                const propellorResult = {};
-                select_rwep(subject, {
-                    ...selectionEnv,
-                    propellorResult,
-                });
-                return propellorResult.value;
-            },
         }) !== 0)
             return M_ATTK_MISS;
     }
@@ -1728,18 +1718,8 @@ export async function thrwmu(monster, rawEnv = {}) {
 
     if (monster.weapon_check === NEED_WEAPON || !monster.mw) {
         monster.weapon_check = NEED_RANGED_WEAPON;
-        const selectRangedWeapon = (subject, selectionEnv) => {
-            const propellorResult = {};
-            select_rwep(subject, {
-                ...selectionEnv,
-                propellorResult,
-            });
-            return propellorResult.value;
-        };
         if (await mon_wield_item(monster, {
             ...env,
-            handsObject: hands_obj,
-            selectRangedWeapon,
         }) !== 0) {
             return 1;
         }

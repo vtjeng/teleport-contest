@@ -10,7 +10,6 @@
 //
 // Delete this file once ported coverage makes the boundary unnecessary.
 
-import { artifact_light } from './artifacts.js';
 import {
     BEAR_TRAP,
     WEB,
@@ -29,7 +28,6 @@ import {
     IS_TREE,
     MON_FLOOR,
     MON_MIGRATING,
-    NEED_WEAPON,
     NORMAL_SPEED,
     OBJ_MINVENT,
     SLEEP_RES,
@@ -71,7 +69,7 @@ import {
     nh_delay_output,
     nomul,
 } from './hack.js';
-import { hands_obj, obj_extract_self, stackobj } from './invent.js';
+import { obj_extract_self, stackobj } from './invent.js';
 import {
     m_dowear,
     set_mimic_sym,
@@ -150,7 +148,6 @@ import {
     remove_object,
 } from './obj.js';
 import { observe_object } from './o_init.js';
-import { donameFresh } from './objnam.js';
 import { encumber_msg } from './pickup.js';
 import { potionhit } from './potion.js';
 import { dist2 } from './hacklib.js';
@@ -195,11 +192,8 @@ import {
 import {
     dmgval,
     mon_wield_item,
-    select_hwep,
-    select_rwep,
     setmnotwielded,
 } from './weapon.js';
-import { mwelded, will_weld } from './wield.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
@@ -1092,29 +1086,12 @@ function monsterMigrationOperation(env) {
     );
 }
 
-// weapon.c mon_wield_item()'s two presentation operations, as
-// m_digweapon_check() reaches it. The planning pass mutates its cloned monster
-// and inventory but writes no line; the live replay of the same turn writes
-// the pline_mon() text C writes at weapon.c:891-893.
+// The fleeing path in monmove.c consumes canSeeMonster() to decide whether
+// its source-owned message can be seen. mon_wield_item() now owns its own
+// weapon.c canseemon() presentation checks.
 function monsterWieldOperations(env) {
     return {
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
-        wieldMessage: async (subject, obj, detail) => {
-            // weapon.c:906-914 follows the wields line with a second pline for
-            // a weapon that welds itself, whose Tobjnam()/mbodypart() text and
-            // bknown write have no owner here. It is refused before the
-            // planning early return below, so the preflight scan stops the
-            // turn instead of writing only the first of C's two lines.
-            if (detail.newlyWelded)
-                unsupported('a monster wielding a weapon that welds itself');
-            if (env.planning) return;
-            await ttyPline(
-                `${capitalizedMonsterName(subject, env.state)} wields `
-                + `${donameFresh(obj, env.state)}`
-                + `${detail.exclaim ? '!' : '.'}`,
-                env.state,
-            );
-        },
     };
 }
 
@@ -1242,7 +1219,8 @@ async function moveSimplePet(monster, after, env) {
         // widening a named refusal. scripts/unported-monster-actions.test.mjs
         // fabricates an AT_WEAP pony to pin it, so the pair reads as dead
         // code plus scaffolding and is neither.
-        wieldPickedItem: () => unsupported('pet weapon selection'),
+        wieldPickedItem: (subject, actionEnv) =>
+            mon_wield_item(subject, actionEnv),
     });
 }
 
@@ -1395,15 +1373,6 @@ function monsterMissileEnv(monster, env) {
                 ? undefined : m_throw(...args)
             : m_throw,
         unsupported,
-        wieldMessage: async (subject, obj, detail) => {
-            if (env.planning) return;
-            await ttyPline(
-                `${capitalizedMonsterName(subject, env.state)} wields `
-                + `${donameFresh(obj, env.state)}`
-                + `${detail.exclaim ? '!' : '.'}`,
-                env.state,
-            );
-        },
     };
 }
 
@@ -1428,48 +1397,13 @@ async function useOffensiveItem(monster, env) {
     });
 }
 
-// C ref: mthrowu.c thrwmu() (566-...), the head that mattacku()'s range2
-// AT_WEAP arm reaches. thrwmu() is not ported, and the port lets a monster
-// past only where C's own head returns without acting: select_rwep() finds no
-// missile.
-//
-// C reaches that answer twice. It first sets weapon_check to
-// NEED_RANGED_WEAPON and calls mon_wield_item(), whose ranged branch runs
-// select_rwep() and, finding nothing, leaves weapon_check at NEED_WEAPON and
-// returns 0; thrwmu() then calls select_rwep() itself and returns. This runs
-// the selection once and writes the same weapon_check, because
-// runSimpleMonsterAction() binds mon_wield_item()'s selectRangedWeapon
-// operation to a refusal and going through it would stop every monster C
-// leaves alone.
+// C ref: mhitu.c mattacku()'s range2 AT_WEAP arm calls mthrowu.c:thrwmu().
+// The caller supplies the same missile and message operations as the other
+// m_throw() entries; mon_wield_item() owns the initial wield check, and
+// thrwmu() performs its source-ordered second select_rwep() for the throw.
 async function throwRangedWeapon(monster, env) {
-    const selectionEnv = {
-        ...env,
-        touchArtifact: () => unsupported('monster artifact weapon selection'),
-    };
-    if (monster.weapon_check === NEED_WEAPON || !monster.mw) {
-        const propellorResult = {};
-        const selected = select_rwep(monster, {
-            ...selectionEnv,
-            propellorResult,
-        });
-        const propellor = propellorResult.value;
-        if (propellor && propellor !== hands_obj) {
-            // C's thrwmu() preamble reaches mon_wield_item() even when a
-            // different, non-welded MON_WEP already exists. That call clears
-            // the old W_WEP bit, equips gp.propellor, announces the switch,
-            // and consumes this monster turn. A welded current weapon stays
-            // fail-closed because weapon.c mon_wield_item() takes its own
-            // refusal branch instead of replacing it.
-            if (monster.mw && mwelded(monster.mw, env.state))
-                unsupported('monster ranged wield with a welded current weapon');
-            if (propellor.oartifact || artifact_light(propellor))
-                unsupported('monster ranged artifact wield');
-            if (will_weld(propellor, env.state))
-                unsupported('monster ranged wield with a welded weapon');
-        }
-    }
     return thrwmu(monster, {
-        ...selectionEnv,
+        ...env,
         ...monsterMissileEnv(monster, env),
     });
 }
@@ -1525,40 +1459,7 @@ export async function wieldMonsterItemAgainstMonster(
     weaponUser,
     weaponEnv,
 ) {
-    const selectionEnv = {
-        ...weaponEnv,
-        touchArtifact: () => unsupported('monster artifact weapon selection'),
-    };
-    const selected = select_hwep(weaponUser, selectionEnv);
-    // This boundary admits only the empty-handed ordinary wielding turn. A
-    // current weapon continues into possibly_unwield(), and a newly welded
-    // weapon adds the welded message and discovery writes; both remain with
-    // the armed-swing continuation.
-    if (selected && weaponUser.mw)
-        unsupported('monster wield action with a current weapon');
-    if (selected?.oartifact)
-        unsupported('monster artifact weapon selection');
-    if (selected && will_weld(selected, weaponEnv.state))
-        unsupported('monster wield action with a welded weapon');
-    return mon_wield_item(weaponUser, {
-        ...selectionEnv,
-        canSeeMonster: (subject) =>
-            canSeeMonster(subject, weaponEnv.state),
-        // The planning pass mutates its cloned monster and inventory, but
-        // leaves the live terminal and object discovery state untouched. The
-        // live replay performs doname() and writes the same pline_mon() text
-        // as C.
-        wieldMessage: async (subject, obj, detail) => {
-            if (weaponEnv.planning) return;
-            await ttyPline(
-                `${capitalizedMonsterName(subject,
-                    weaponEnv.state)} wields `
-                + `${donameFresh(obj, weaponEnv.state)}`
-                + `${detail.exclaim ? '!' : '.'}`,
-                weaponEnv.state,
-            );
-        },
-    });
+    return mon_wield_item(weaponUser, weaponEnv);
 }
 
 // Execute one already-preflighted monster action. The same function is used
@@ -1654,8 +1555,6 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 }),
                 monsterCanSeeHero: ordinaryMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
-                selectRangedWeapon: () =>
-                    unsupported('monster ranged weapon selection'),
                 // muse.c find_offensive(), which dochug()'s post-move
                 // disjunction calls, refuses through this rather than
                 // answering TRUE.
@@ -1698,45 +1597,8 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                     }
                     return false;
                 },
-                wieldMonsterItem: async (weaponUser, weaponEnv) => {
-                    const selectionEnv = {
-                        ...weaponEnv,
-                        touchArtifact: () =>
-                            unsupported('monster artifact weapon selection'),
-                    };
-                    const selected = select_hwep(
-                        weaponUser,
-                        selectionEnv,
-                    );
-                    if (selected?.oartifact)
-                        unsupported('monster artifact weapon selection');
-                    if (selected
-                        && weaponUser.mw
-                        && mwelded(weaponUser.mw, weaponEnv.state))
-                        unsupported(
-                            'monster wield with a welded current weapon',
-                        );
-                    if (selected
-                        && will_weld(selected, weaponEnv.state))
-                        unsupported(
-                            'monster wield action with a welded weapon',
-                        );
-                    return mon_wield_item(weaponUser, {
-                        ...selectionEnv,
-                        canSeeMonster: (subject) =>
-                            canSeeMonster(subject, weaponEnv.state),
-                        wieldMessage: async (subject, obj, detail) => {
-                            if (weaponEnv.planning) return;
-                            await ttyPline(
-                                `${capitalizedMonsterName(subject,
-                                    weaponEnv.state)} wields `
-                                + `${donameFresh(obj, weaponEnv.state)}`
-                                + `${detail.exclaim ? '!' : '.'}`,
-                                weaponEnv.state,
-                            );
-                        },
-                    });
-                },
+                wieldMonsterItem: (weaponUser, weaponEnv) =>
+                    mon_wield_item(weaponUser, weaponEnv),
                 wieldMonsterItemAgainstMonster,
                 wakeMessage: env.planning ? () => {} : wake_msg,
                 wipeEngraving: wipeSimpleEngraving,

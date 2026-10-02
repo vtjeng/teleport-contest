@@ -37,6 +37,10 @@ import {
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
     NO_WEAPON_WANTED,
+    COLNO,
+    IN_SIGHT,
+    OBJ_MINVENT,
+    ROWNO,
     W_ARM,
     W_ARMC,
     W_ARMG,
@@ -182,18 +186,13 @@ function inventory(...objects) {
     return objects[0] ?? null;
 }
 
-function visibleOperations(events = []) {
-    return {
-        canSeeMonster: () => true,
-        wieldMessage(_monster, obj, detail) {
-            events.push(
-                `wield:${obj.otyp}:${detail.exclaim}:${detail.newlyWelded}`,
-            );
-        },
-        weldedMessage(_monster, current, wanted) {
-            events.push(`welded:${current.otyp}:${wanted.otyp}`);
-        },
-    };
+function visibleMessages(state, events = []) {
+    // Every cell is IN_SIGHT so canseemon() takes the visible C message arm;
+    // a zero-valued init_objects draw keeps the displayed object names fixed.
+    state.viz_array = Array.from({ length: ROWNO }, () =>
+        new Uint32Array(COLNO).fill(IN_SIGHT));
+    init_objects(state, () => 0);
+    return { state, message: async (text) => events.push(text) };
 }
 
 test('can_touch_safely applies corpse, Rider, silver, and artifact gates', () => {
@@ -421,27 +420,27 @@ test('mon_wield_item selects hand-to-hand weapons and reports welded state', asy
     subject.minvent = inventory(dagger, sword);
     const events = [];
 
-    assert.equal(await mon_wield_item(subject, {
-        state,
-        ...visibleOperations(events),
-    }), 1);
+    assert.equal(await mon_wield_item(subject, visibleMessages(state, events)), 1);
     assert.equal(subject.mw, sword);
     assert.equal(subject.weapon_check, NEED_WEAPON);
     assert.equal(sword.owornmask, W_WEP);
-    assert.deepEqual(events, [`wield:${LONG_SWORD}:true:false`]);
+    assert.match(events[0], /wields .*long sword!/);
 
     subject.mw = dagger;
     dagger.owornmask = W_WEP;
+    // C's Yname2(current) follows the object owner's OBJ_MINVENT link when
+    // composing the welded-current message.
+    dagger.where = OBJ_MINVENT;
+    dagger.ocarry = subject;
     subject.weapon_check = NEED_HTH_WEAPON;
     subject.minvent = inventory(dagger, object(state, LONG_SWORD));
-    assert.equal(await mon_wield_item(subject, {
-        state,
-        ...visibleOperations(events),
-    }), 1);
+    events.length = 0;
+    assert.equal(await mon_wield_item(subject, visibleMessages(state, events)), 1);
     assert.equal(subject.mw, dagger);
     assert.equal(subject.weapon_check, NO_WEAPON_WANTED);
     assert.equal(dagger.bknown, true);
-    assert.equal(events.at(-1), `welded:${DAGGER}:${LONG_SWORD}`);
+    assert.match(events[0], /tries to wield .*long sword/);
+    assert.match(events[1], /welded to/);
 });
 
 test('mon_wield_item keeps same-type and empty selection branches actionless', async () => {
@@ -475,13 +474,13 @@ test('mon_wield_item identifies a newly welded visible weapon', async () => {
     const events = [];
 
     assert.equal(await mon_wield_item(subject, {
-        state,
-        ...visibleOperations(events),
+        ...visibleMessages(state, events),
     }), 1);
     assert.equal(subject.mw, dagger);
     assert.equal(dagger.owornmask, W_WEP);
     assert.equal(dagger.bknown, true);
-    assert.deepEqual(events, [`wield:${DAGGER}:true:true`]);
+    assert.match(events[0], /wields .*dagger!/);
+    assert.match(events[1], /welds itself to/);
 });
 
 test('mon_wield_item selects digging tools around shield restrictions', async () => {
@@ -498,21 +497,17 @@ test('mon_wield_item selects digging tools around shield restrictions', async ()
     });
     const events = [];
 
-    assert.equal(await mon_wield_item(subject, {
-        state,
-        ...visibleOperations(events),
-    }), 1);
+    assert.equal(await mon_wield_item(subject, visibleMessages(state, events)), 1);
     assert.equal(subject.mw, pick);
-    assert.equal(events.at(-1), `wield:${PICK_AXE}:false:false`);
+    assert.match(events.at(-1), /wields .*pick-axe\./);
 
     subject.mw = null;
     pick.owornmask = 0;
     subject.weapon_check = NEED_AXE;
-    assert.equal(await mon_wield_item(subject, {
-        state,
-        ...visibleOperations(events),
-    }), 1);
+    events.length = 0;
+    assert.equal(await mon_wield_item(subject, visibleMessages(state, events)), 1);
     assert.equal(subject.mw, axe);
+    assert.match(events.at(-1), /wields .*axe\./);
 });
 
 test('mon_wield_item preserves combined pick-or-axe source priority', async () => {
@@ -529,11 +524,10 @@ test('mon_wield_item preserves combined pick-or-axe source priority', async () =
         weapon_check: NEED_PICK_OR_AXE,
     });
     assert.equal(await mon_wield_item(unshielded, {
-        state,
-        ...visibleOperations(events),
+        ...visibleMessages(state, events),
     }), 1);
     assert.equal(unshielded.mw.otyp, DWARVISH_MATTOCK);
-    assert.equal(events.at(-1), `wield:${DWARVISH_MATTOCK}:false:false`);
+    assert.match(events.at(-1), /wields .*broad pick\./);
 
     const shield = object(state, DAGGER, { owornmask: W_ARMS });
     const shielded = monster(state, PM_NEWT, {
@@ -548,11 +542,10 @@ test('mon_wield_item preserves combined pick-or-axe source priority', async () =
         weapon_check: NEED_PICK_OR_AXE,
     });
     assert.equal(await mon_wield_item(shielded, {
-        state,
-        ...visibleOperations(events),
+        ...visibleMessages(state, events),
     }), 1);
     assert.equal(shielded.mw.otyp, PICK_AXE);
-    assert.equal(events.at(-1), `wield:${PICK_AXE}:false:false`);
+    assert.match(events.at(-1), /wields .*pick-axe\./);
 
     // Both fixtures above stock every tool, so two of C's four m_carrying()
     // lookups are never the one that decides. These make each decisive.
@@ -566,8 +559,7 @@ test('mon_wield_item preserves combined pick-or-axe source priority', async () =
             weapon_check: NEED_PICK_OR_AXE,
         });
         const result = await mon_wield_item(subject, {
-            state,
-            ...visibleOperations(events),
+            ...visibleMessages(state, events),
         });
         return { result, otyp: subject.mw?.otyp };
     };
@@ -590,142 +582,96 @@ test('mon_wield_item preserves combined pick-or-axe source priority', async () =
     );
 });
 
-test('mon_wield_item delegates ranged selection and artifact-light lifecycle', async () => {
+test('mon_wield_item wields the ranged selection propellor', async () => {
     const state = makeState();
-    const oldLight = object(state, LONG_SWORD, {
-        oartifact: ART_SUNSWORD,
-        lamplit: true,
-        owornmask: W_WEP,
-    });
-    const ranged = object(state, DAGGER, { oartifact: ART_SUNSWORD });
+    const oldWeapon = object(state, LONG_SWORD, { owornmask: W_WEP });
+    const arrow = object(state, ARROW);
+    const bow = object(state, BOW);
     const subject = monster(state, PM_NEWT, {
-        minvent: inventory(oldLight, ranged),
-        mw: oldLight,
+        minvent: inventory(oldWeapon, arrow, bow),
+        mw: oldWeapon,
         weapon_check: NEED_RANGED_WEAPON,
     });
     const events = [];
+    const propellor = {};
 
-    assert.equal(await mon_wield_item(subject, {
-        state,
-        ...visibleOperations(events),
-        selectRangedWeapon: () => ranged,
-        async endArtifactLight(_monster, obj) {
-            events.push(`end:${obj.otyp}`);
-            obj.lamplit = false;
-        },
-        async startArtifactLight(_monster, obj) {
-            events.push(`start:${obj.otyp}`);
-            obj.lamplit = true;
-        },
-    }), 1);
-    assert.equal(subject.mw, ranged);
-    assert.equal(oldLight.owornmask, 0);
-    assert.equal(ranged.owornmask, W_WEP);
-    assert.deepEqual(events, [
-        `end:${LONG_SWORD}`,
-        `wield:${DAGGER}:true:false`,
-        `start:${DAGGER}`,
-    ]);
+    // C select_rwep() returns the arrow but writes its launcher to gp.propellor.
+    assert.equal(select_rwep(subject, { state, propellorResult: propellor }), arrow);
+    assert.equal(propellor.value, bow);
+    assert.equal(await mon_wield_item(subject, visibleMessages(state, events)), 1);
+    assert.equal(subject.mw, bow);
+    assert.equal(oldWeapon.owornmask, 0);
+    assert.equal(bow.owornmask, W_WEP);
+    assert.match(events[0], /wields .*bow!/);
 });
 
-test('mon_wield_item checks visibility after extinguishing the old weapon', async () => {
+test('mon_wield_item completes an unseen weapon swap without presentation', async () => {
     const state = makeState();
-    const current = object(state, LONG_SWORD, {
-        oartifact: ART_SUNSWORD,
-        lamplit: true,
-        owornmask: W_WEP,
-    });
-    const wanted = object(state, DAGGER, { cursed: true });
+    const current = object(state, DAGGER, { owornmask: W_WEP });
+    const wanted = object(state, LONG_SWORD);
     const subject = monster(state, PM_NEWT, {
         minvent: inventory(current, wanted),
         mw: current,
-        weapon_check: NEED_RANGED_WEAPON,
+        weapon_check: NEED_HTH_WEAPON,
     });
     const events = [];
-    let visible = true;
+    // The all-zero vision grid is the source's unseen-monster branch.
+    state.viz_array = Array.from({ length: ROWNO }, () =>
+        new Uint32Array(COLNO));
 
     assert.equal(await mon_wield_item(subject, {
         state,
-        selectRangedWeapon: () => wanted,
-        async endArtifactLight(_monster, obj) {
-            events.push('end');
-            obj.lamplit = false;
-            visible = false;
-        },
-        canSeeMonster() {
-            events.push('see');
-            return visible;
-        },
-        wieldMessage() {
-            events.push('wield');
-        },
+        message: async (text) => events.push(text),
     }), 1);
-    assert.deepEqual(events, ['end', 'see']);
     assert.equal(subject.mw, wanted);
     assert.equal(current.owornmask, 0);
     assert.equal(wanted.owornmask, W_WEP);
     assert.equal(wanted.bknown, false);
+    assert.deepEqual(events, []);
 });
 
-test('mon_wield_item uses the canonical old-light lifecycle owner', async () => {
+test('mon_wield_item orders weld discovery before artifact-light startup', async () => {
     const state = makeState();
-    const current = object(state, LONG_SWORD, {
-        oartifact: ART_SUNSWORD,
-        lamplit: true,
-        owornmask: W_WEP,
-    });
-    const wanted = object(state, DAGGER, { oartifact: ART_SUNSWORD });
-    const subject = monster(state, PM_NEWT, {
-        minvent: inventory(current, wanted),
-        mw: current,
-        weapon_check: NEED_RANGED_WEAPON,
-    });
-
-    // weapon.c mon_wield_item() prints nothing for a monster canseemon()
-    // rejects, so an unseen monster needs no wieldMessage and must still
-    // complete the swap. Its visibility is tested after setmnotwielded() has
-    // run end_burn() on the old weapon, which is why wieldMessage cannot be
-    // resolved in the preflight above: a monster lit only by that artifact is
-    // seen before the extinguish and unseen after it.
-    const unseenCurrent = object(state, LONG_SWORD, { owornmask: W_WEP });
-    const unseenWanted = object(state, DAGGER);
-    const unseen = monster(state, PM_NEWT, {
-        minvent: inventory(unseenCurrent, unseenWanted),
-        mw: unseenCurrent,
-        weapon_check: NEED_RANGED_WEAPON,
-    });
-    assert.equal(await mon_wield_item(unseen, {
-        state,
-        canSeeMonster: () => false,
-        selectRangedWeapon: () => unseenWanted,
-    }), 1);
-    assert.equal(unseen.mw, unseenWanted);
-    assert.equal(unseenWanted.owornmask, W_WEP);
-    assert.equal(unseen.weapon_check, NEED_WEAPON);
-
-    // With no injected old-light callback, weapon.c setmnotwielded() owns the
-    // end_burn(), naming, and visible stop message.  Register the source so
-    // the direct canonical cleanup can unlink it, and provide the hero
-    // position used by the source naming predicate.
-    state.u = { ux: 0, uy: 0, uprops: [] };
-    state.gd = { distantname: 1 };
+    // init_artifacts() uses the role's quest-artifact slot while constructing
+    // the source artifact table; Valkyrie's zero quest id gives this fixture a
+    // valid ordinary table without granting any extra artifact.
+    state.urole = { mnum: PM_VALKYRIE, questarti: 0 };
+    state.flags = { initalign: 0 };
+    init_artifacts(state);
+    // Artifact generation owns this exists bit in play; the fixture supplies
+    // the already-created Sunsword so doname() can record its discovery.
+    state.artiexist[ART_SUNSWORD].exists = 1;
     light_globals_init(state);
-    new_light_source(0, 0, 1, LS_OBJECT, current, state);
-    const lifecycleMessages = [];
-    await mon_wield_item(subject, {
-        state,
-        canSeeMonster: () => false,
-        wieldMessage: () => {},
-        selectRangedWeapon: () => wanted,
-        startArtifactLight: () => {},
-        message: async (text) => lifecycleMessages.push(text),
+    const wanted = object(state, LONG_SWORD, {
+        oartifact: ART_SUNSWORD,
+        cursed: true,
+        where: OBJ_MINVENT,
     });
+    const subject = monster(state, PM_NEWT, {
+        mx: 12,
+        my: 8,
+        minvent: wanted,
+        weapon_check: NEED_HTH_WEAPON,
+    });
+    wanted.ocarry = subject;
+    const events = [];
+
+    // This fixture forces only artifact touch eligibility; C owns selection,
+    // visible output, temporary W_WEP probing and burn startup.
+    const visible = visibleMessages(state, events);
+    assert.equal(await mon_wield_item(subject, {
+        ...visible,
+        touchArtifact: () => true,
+    }), 1);
     assert.equal(subject.mw, wanted);
     assert.equal(subject.weapon_check, NEED_WEAPON);
-    assert.equal(current.lamplit, false);
-    assert.equal(current.owornmask, 0);
+    assert.equal(wanted.lamplit, true);
     assert.equal(wanted.owornmask, W_WEP);
-    assert.deepEqual(lifecycleMessages, []);
+    assert.equal(wanted.bknown, true);
+    assert.match(events[0], /wields .*long sword!/);
+    assert.match(events[1], /welds itself to/);
+    // polyself.c mbodypart() names the newt's HAND as "foreclaw".
+    assert.equal(events[2], "The long sword shines dimly in the newt's foreclaw!");
 });
 
 test('setmnotwielded clears ordinary state and stops lit artifacts canonically', async () => {
