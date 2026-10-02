@@ -135733,6 +135733,961 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-music-monster-charm-and-calm-v17",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete flute snake charm and harp nymph calm",
+      "cFile": "music.c",
+      "sessions": [
+        "synthetic/v17/wooden-flute-charms-moving-snake-slot-e-more-continued",
+        "synthetic/v17/wooden-harp-calms-nymph-slot-e-corrected",
+        "synthetic/v17/wooden-harp-calms-nymph-slot-e-more-continued"
+      ],
+      "selectionReason": "Continue the v17 source mismatch family after the accepted A70 merge. The B81 queue and current complete evaluation identify three actionable sessions through apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation: wooden-flute charm_snakes and wooden-harp calm_nymphs (two related recordings). These adjacent music.c helpers traverse the live monster list and update state before visible messages. The earthquake drum/do_pit terrain family remains separate. Root verified both whole helpers, their two production instrument call arms, and the three matching admitted synthetic replay ranges. Current B82 evaluation retains all three selected mismatches; terrain-changing instrument helpers remain separate.",
+      "detail": "Root compared all of music.c charm_snakes (105–132) and calm_nymphs (139–158), plus the WOODEN_FLUTE and WOODEN_HARP do_improvisation call sites, with exact delivery eed95fcc. Verified linked monster order, dead/mobile/species predicates, strict squared distance, prior peacefulness and visibility snapshots, state mutation order, concealment clearing and redraw order, message text and awaited input, and exercise after helper completion. No RNG calls or unported callees occur in either selected helper. Removed both source placeholder calls; existing naming and redraw helper interfaces verified. Whole do_improvisation and other music helpers remain outside scope.",
+      "openedAt": "ce477b65a9f37576f1c44891ead0f43e7c5d0162",
+      "openStanding": {
+        "sha": "48c8ad86f003808ee782d390a9a7001693595b65",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "3ccadef61f309bb3a696aca7e61937d124264826",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "charm_snakes",
+          "line": 105,
+          "endLine": 138,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "calm_nymphs",
+          "line": 139,
+          "endLine": 161,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 105,
+        "to": 161
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/wooden-flute-charms-moving-snake-slot-e-more-continued": {
+          "session": "synthetic/v17/wooden-flute-charms-moving-snake-slot-e-more-continued",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json",
+          "recordingSha256": "cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44",
+          "evaluationPath": "challenges/evaluations/20261002025454-v17.json",
+          "evaluationCommit": "48c8ad86f003808ee782d390a9a7001693595b65"
+        },
+        "synthetic/v17/wooden-harp-calms-nymph-slot-e-corrected": {
+          "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-corrected",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wooden-harp-calms-nymph-slot-e-corrected",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.session.json",
+          "recordingSha256": "25da9de703f27a56abf0009a5be89a61b6530d266cbb871cd2f762b1a975570d",
+          "evaluationPath": "challenges/evaluations/20261002025454-v17.json",
+          "evaluationCommit": "48c8ad86f003808ee782d390a9a7001693595b65"
+        },
+        "synthetic/v17/wooden-harp-calms-nymph-slot-e-more-continued": {
+          "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-more-continued",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+          "recordingSha256": "67977a917cf1ae9da9793837e18cc1086bfeca4de1af9c0dc94728d04ea8b0b3",
+          "evaluationPath": "challenges/evaluations/20261002025454-v17.json",
+          "evaluationCommit": "48c8ad86f003808ee782d390a9a7001693595b65"
+        }
+      },
+      "activeStanding": {
+        "sha": "48c8ad86f003808ee782d390a9a7001693595b65",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+          "session": "synthetic/v17/wooden-flute-charms-moving-snake-slot-e-more-continued",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json",
+          "recordingPath": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json",
+          "recordingSha256": "cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44",
+          "recipe": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.recipe.session.json",
+          "recipeSha256": "9a29ad4cad7cebc48919c7f088f187f08f59a3e268016fe7f706a7587b96a587",
+          "replayInputSha256": "77ede94985ed44c1fcbc90bda7fe359b210dc81bddc43b3d7c8cd3bee5e98fb0",
+          "evaluationPath": "challenges/evaluations/20261002025454-v17.json",
+          "evaluationCommit": "48c8ad86f003808ee782d390a9a7001693595b65",
+          "evaluationArtifact": "challenges/evaluations/20261002025454-v17.json",
+          "evaluationUtc": "2026-10-02T02:55:39.094Z",
+          "remainingScreens": 2,
+          "recordedSteps": 80,
+          "previousScreensMatched": 78,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 78,
+              "total": 80
+            },
+            "rng": {
+              "matched": 2843,
+              "total": 2843
+            },
+            "cursors": {
+              "matched": 79,
+              "total": 80
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 78,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 78,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 48,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 78,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 78,
+                "key": "y"
+              },
+              "cCursor": [
+                56,
+                0,
+                1
+              ],
+              "jsCursor": [
+                34,
+                7,
+                1
+              ]
+            }
+          },
+          "step": 78,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.json",
+            "result": {
+              "session": "synthetic/v17/wooden-flute-charms-moving-snake-slot-e-more-continued",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingSha256": "cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 2,
+              "recordedSteps": 80,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+                "session": "synthetic/v17/wooden-flute-charms-moving-snake-slot-e-more-continued",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json",
+                "recordingPath": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json",
+                "recordingSha256": "cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44",
+                "recipe": "challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.recipe.session.json",
+                "recipeSha256": "9a29ad4cad7cebc48919c7f088f187f08f59a3e268016fe7f706a7587b96a587",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 2,
+                "recordedSteps": 80,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 78,
+                    "total": 80
+                  },
+                  "rng": {
+                    "matched": 2843,
+                    "total": 2843
+                  },
+                  "cursors": {
+                    "matched": 79,
+                    "total": 80
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 78,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 78,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 48,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 78,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 78,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      56,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      34,
+                      7,
+                      1
+                    ]
+                  }
+                },
+                "step": 78,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The two remaining screens come from the missing music.c:charm_snakes() call after a successful wooden-flute gate. Its visible snake reaction is the next message after the flute line; topl.c:update_topl() therefore inserts the step-78 --More-- prompt before replacing that line. JS still records note_unported(\"music.c charm_snakes\") and skips both the snake state changes and message. Port and wire the whole charm_snakes helper in js/music.js; the existing pager implementation is not the source defect.",
+              "source": {
+                "file": "music.c",
+                "branch": "In do_improvisation(WOODEN_FLUTE), when the hero is not stunned or confused and rn2(ACURR(A_DEX)) + u.ulevel > 25, C calls charm_snakes(u.ulevel * 3). charm_snakes traverses fmon and affects each living S_SNAKE that can move and has mdistu(mon) strictly less than that distance. It saves prior visibility and peacefulness, sets peaceful, clears mavenge and STRAT_WAITMASK, clears mundetected, redraws with newsym, then emits a message only if the snake is visible after the redraw: “You notice ... swaying with the music” when it was not visible before, otherwise “... freezes, then sways with the music” with “, and now seems quieter” only when previously hostile. The helper does not tame snakes or draw RNG. The recorded level-20 flute passes with rn2(15)=14; the adjacent visible hostile moving snake is inside distance 60.",
+                "functions": [
+                  "charm_snakes"
+                ],
+                "callers": [
+                  "C: apply.c:doapply() dispatches WOODEN_FLUTE to music.c:do_play_instrument(obj); js/apply.js:doapply() has the same instrument dispatch to js/music.js:do_play_instrument().",
+                  "C: music.c:do_play_instrument() accepts the recorded “y” for Improvise? and calls do_improvisation(); js/music.js:do_play_instrument() sends the yes/default branch to do_improvisation().",
+                  "C: music.c:do_improvisation() completes its flute message and Hero_playnotes() call, then calls charm_snakes(u.ulevel * 3) when do_spec is true; js/music.js:do_improvisation() currently replaces this call with note_unported(\"music.c charm_snakes\") and proceeds to exercise().",
+                  "C message path: charm_snakes() emits its visible-monster pline after the flute messages; win/tty/topl.c:update_topl()/more() provides the pager boundary before replacing the full top line. JS already has the matching ttyPline/dismissPendingTtyMessage path in js/tty_message.js."
+                ],
+                "dependencies": [
+                  "hack.h:mdistu(mon) expands to distu()/hacklib.c:dist2(); the strict squared-Euclidean range predicate is implemented by js/hacklib.js:dist2().",
+                  "display.c:canseemon() supplies the before/after visibility predicates consumed by the message branches; js/vision.js:canseemon() is already present.",
+                  "display.c:newsym() is a side-effect-only redraw after mundetected is cleared; js/display.js:newsym() is already present.",
+                  "do_name.c:a_monnam() and Monnam() provide the two message names; js/do_name.js already implements both.",
+                  "pline.c You()/pline() route through win/tty/topl.c update_topl()/more(); js/tty_message.js already models the pager. Hero_playnotes() is an empty macro in this recorder build (include/sndprocs.h:272-273), so no sound call or RNG should be invented."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current saved queue and baseline challenges/evaluations/20261001190602-v17.json identify 2 remaining screens in 80 steps: 78/80 screens, 2843/2843 RNG calls, and 79/80 cursors matched. At segment 0, step 78 on “y”, C row 0 column 48 is the first dash of --More-- and C cursor is [56,0,1]; JS has a space and cursor [34,7,1]. The immutable recording hash is cb2ff5fdab929497e00a6176b2689dfbf700f2f4655bc3848c7b1d5380899d44.",
+                "Upstream nethack-c/upstream/src/music.c:104-132 defines the complete missing charm_snakes() helper: living movable snakes strictly inside range become peaceful, stop avenging, clear their wait strategy and undetected state, redraw, then report only if visible. It retains the prior peaceful/visibility values for exact message selection. music.c:599-609 calls it after the WOODEN_FLUTE gate at line 600 and before exercise; the recorded rn2(15)=14 plus level 20 passes the gate.",
+                "The production C route is apply.c:doapply() lines 4373-4384 -> music.c:do_play_instrument() lines 776-784 -> music.c:do_improvisation(WOODEN_FLUTE) lines 599-609 -> charm_snakes(). The parallel JS route is js/apply.js:5008-5019 -> js/music.js:313-334 -> js/music.js:217-224. The JS branch currently has note_unported(\"music.c charm_snakes\") at line 222; this is the earliest missing source behavior, not a pager defect.",
+                "The C recording challenges/cases/v17/wooden-flute-charms-moving-snake-slot-e-more-continued.session.json shows step 78 after input “y”: “You start playing your flute.  The flute trills.--More--”. After input space at step 79, it shows “The snake freezes, then sways with the music, and now seems quieter.” The C random log begins that step with exercise(attrib.c:509), after the helper’s no-RNG state/message work.",
+                "Pager order is confirmed by nethack-c/upstream/win/tty/topl.c:update_topl() lines 259-279: a message joins the existing line only if it fits with room reserved for --More--; otherwise TOPLINE_NEED_MORE calls more() before the new line is copied/rendered. Here the snake reaction is the third message, so the prompt visible at step 78 is raised by charm_snakes()’s pline before its text replaces the flute line. space at step 79 resumes the same ordered path. This explains both remaining screens without changing the correct existing pager port.",
+                "The retained-case crosswalk in .cache/C56-accepted-preparation-evidence.json names this target’s sourcePointers as doapply -> do_play_instrument -> do_improvisation(WOODEN_FLUTE) -> charm_snakes -> topl.more, and its reachedSource/cOutcome and exact step-78 mismatch agree with the source and recording. One closestCausalComparisons note on this flute row incorrectly describes a wooden-harp/calm_nymphs path. The admission correctionAudit separately identifies wooden-harp-calms-nymph-slot-e-more-continued as the harp/nymph More continuation and corrects its closest Bell comparison to v13/ordinary-bell-rings; that distinct harp path does not apply here. The target row’s own v13 Bell comparison also correctly distinguishes use_bell/wake_nearby from flute charm_snakes.",
+                "include/sndprocs.h:272-273 expands Hero_playnotes() to an empty macro in the recorder build. The helper’s behavior and the missing pager boundary therefore come from charm_snakes() state/message handling, with no hidden sound callback or random draw dependency."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+          "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-more-continued",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+          "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+          "recordingSha256": "67977a917cf1ae9da9793837e18cc1086bfeca4de1af9c0dc94728d04ea8b0b3",
+          "recipe": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.recipe.session.json",
+          "recipeSha256": "e469e34187c8c66996e62eb8dc35f1aee889705fe90806025759f359b9a05a6f",
+          "replayInputSha256": "77ede94985ed44c1fcbc90bda7fe359b210dc81bddc43b3d7c8cd3bee5e98fb0",
+          "evaluationPath": "challenges/evaluations/20261002025454-v17.json",
+          "evaluationCommit": "48c8ad86f003808ee782d390a9a7001693595b65",
+          "evaluationArtifact": "challenges/evaluations/20261002025454-v17.json",
+          "evaluationUtc": "2026-10-02T02:55:39.094Z",
+          "remainingScreens": 2,
+          "recordedSteps": 87,
+          "previousScreensMatched": 85,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 85,
+              "total": 87
+            },
+            "rng": {
+              "matched": 3096,
+              "total": 3096
+            },
+            "cursors": {
+              "matched": 86,
+              "total": 87
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 85,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 85,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 66,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 85,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 85,
+                "key": "y"
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                56,
+                19,
+                1
+              ]
+            }
+          },
+          "step": 85,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/wooden-harp-calms-nymph-slot-e-more-continued.json",
+            "result": {
+              "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-more-continued",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+              "recordingSha256": "67977a917cf1ae9da9793837e18cc1086bfeca4de1af9c0dc94728d04ea8b0b3",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 2,
+              "recordedSteps": 87,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+                "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-more-continued",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+                "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json",
+                "recordingSha256": "67977a917cf1ae9da9793837e18cc1086bfeca4de1af9c0dc94728d04ea8b0b3",
+                "recipe": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.recipe.session.json",
+                "recipeSha256": "e469e34187c8c66996e62eb8dc35f1aee889705fe90806025759f359b9a05a6f",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 2,
+                "recordedSteps": 87,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 85,
+                    "total": 87
+                  },
+                  "rng": {
+                    "matched": 3096,
+                    "total": 3096
+                  },
+                  "cursors": {
+                    "matched": 86,
+                    "total": 87
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 85,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 85,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 66,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 85,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 85,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      74,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      56,
+                      19,
+                      1
+                    ]
+                  }
+                },
+                "step": 85,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The two remaining screens come from the unported music.c:calm_nymphs helper on the wooden-harp success path. At step 85, do_improvisation has already passed the harp gate and emitted the melody; it calls calm_nymphs before exercise(A_DEX). C changes the nearby mobile nymph to peaceful and clears sleep, avenge, and wait-strategy state, then its visible-nymph pline reaches a More boundary. Space at step 86 dismisses that boundary, shows the nymph response, and only then lets the helper return so exercise consumes rn2(19)=6. JS currently records note_unported(\"music.c calm_nymphs\") and skips both those state changes and the awaited message. The existing TTY message path owns the pager behavior; this case does not identify a separate topl.c:more defect. The source-traced task is a file-port of the whole calm_nymphs function in music.c, wired at the existing wooden-harp call site in js/music.js.",
+              "source": {
+                "file": "music.c",
+                "branch": "do_improvisation(WOODEN_HARP) reaches do_spec=true after rn2(ACURR(A_DEX)) + u.ulevel > 25, then calls calm_nymphs(u.ulevel * 3) before exercising Dexterity. For each non-dead monster, calm_nymphs selects S_NYMPH monsters that can move and whose mdistu is below that distance; it clears sleeping, makes them peaceful, clears avenge and STRAT_WAITMASK, and prints the response only when canseemon is true. The recorded level-30 case passes the gate with rn2(18)=12 and invokes the helper with distance 90.",
+                "functions": [
+                  "calm_nymphs"
+                ],
+                "callers": [
+                  "C apply.c:doapply (4373-4383) routes WOODEN_HARP to music.c:do_play_instrument; JS cmd.js rhack (5145-5146) routes doapply through runApplyCommand to apply.js:doapply, whose instrument arm (5008-5019) calls music.js:do_play_instrument.",
+                  "C music.c:do_play_instrument (776-784) asks Improvise? and, for a non-n key, calls music.c:do_improvisation while consuming its ECMD_TIME/ECMD_OK return. JS music.js:do_play_instrument (327-334) mirrors this and consumes the do_improvisation result.",
+                  "C music.c:do_improvisation wooden-harp arm (672-686) calls calm_nymphs when do_spec is true, before exercise(A_DEX, TRUE). JS music.js:do_improvisation (271-279) has the same gate and message order, but the call site currently invokes note_unported(\"music.c calm_nymphs\") instead of the helper."
+                ],
+                "dependencies": [
+                  "The helper consumes hack.h:mdistu(mon), a distance-squared return; the JS music module already imports dist2 from hacklib.js, which can represent the macro as dist2(mon.mx, mon.my, state.u.ux, state.u.uy). It also filters DEADMONSTER, S_NYMPH, and mcanmove and mutates msleeping, mpeaceful, mavenge, and mstrategy on the selected monster.",
+                  "canseemon(mon) gates the visible response and Monnam(mon) supplies its name; js/music.js already imports canseemon from vision.js and Monnam from do_name.js. Their returned values are consumed by the source branch.",
+                  "C pline is void but its awaited TTY effect may block on More. The JS caller must await the response message before returning to do_improvisation, preserving the source order before exercise(A_DEX). do_play_instrument separately consumes the existing do_improvisation command-time result; preserve that caller contract."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20261001190602-v17.json, measured at 518d4526ccba82c89752a8babb892ba9bc48bc60, reports 85/87 screens, 3096/3096 RNG calls, and 86/87 cursors. The first mismatch is step 85, key y: C has a hyphen at row 0 column 66 and cursor [74,0,1], while JS has a space and cursor [56,19,1]. The queue records exactly two remaining screens across 87 steps.",
+                "Immutable challenges/cases/v17/wooden-harp-calms-nymph-slot-e-more-continued.session.json step 85 records the harp gate draw rn2(18)=12 at music.c:673 after improvised_notes; its screen ends with the melody and --More--. Step 86 is space; the C screen then shows “The wood nymph listens cheerfully to the music, then seems quieter.” and its first RNG is rn2(19)=6 at exercise(attrib.c:509), followed by ordinary monster and end-turn draws. This locates the pager inside the calm_nymphs response pline, before exercise.",
+                "Upstream nethack-c/upstream/src/music.c:139-158 confirms calm_nymphs iterates fmon, skips dead monsters, selects mobile nymphs within mdistu(mon) < distance, changes their sleep/peaceful/avenge/wait-strategy state, and calls pline only for visible nymphs. The wooden-harp caller at music.c:672-686 calls it with u.ulevel * 3 before exercise. No calm_nymphs or do_improvisation changes are present under nethack-c/patches (search returned no matches).",
+                "Current js/music.js:271-279 mirrors the wooden-harp gate and melody but replaces the special path with note_unported(\"music.c calm_nymphs\") before exercise. Current js/music.js imports dist2, canseemon, and Monnam; js/tty_message.js:449-582 implements ttyPline’s pending-message overflow, More dismissal, and continuation. Therefore the missing owner is the C helper and its existing call site, not a pager rewrite.",
+                "The matching historical C56 row is .cache/C56-accepted-preparation-evidence.json missionPlanEvidence.fullSourceActionCrosswalk.retainedCases[32]. It independently identifies the step-85 calm_nymphs visible-nymph More continuation and calls this recording a strict-prefix continuation of the corrected slot-e harp case, not a new mismatch bucket; those claims are confirmed by the C source and saved recording.",
+                "Canonical v17 corpus identity: readChallengeBatches() and challengeState() both report 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada, matching the saved work-queue and evaluation identity."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wooden-harp-calms-nymph-slot-e-corrected",
+          "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-corrected",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.session.json",
+          "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.session.json",
+          "recordingSha256": "25da9de703f27a56abf0009a5be89a61b6530d266cbb871cd2f762b1a975570d",
+          "recipe": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.recipe.session.json",
+          "recipeSha256": "ba131f4e253bb4e67ced735bff6f34b0271e9a274b566fca1fb5b6f252349b65",
+          "replayInputSha256": "77ede94985ed44c1fcbc90bda7fe359b210dc81bddc43b3d7c8cd3bee5e98fb0",
+          "evaluationPath": "challenges/evaluations/20261002025454-v17.json",
+          "evaluationCommit": "48c8ad86f003808ee782d390a9a7001693595b65",
+          "evaluationArtifact": "challenges/evaluations/20261002025454-v17.json",
+          "evaluationUtc": "2026-10-02T02:55:39.094Z",
+          "remainingScreens": 1,
+          "recordedSteps": 86,
+          "previousScreensMatched": 85,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 85,
+              "total": 86
+            },
+            "rng": {
+              "matched": 3085,
+              "total": 3085
+            },
+            "cursors": {
+              "matched": 85,
+              "total": 86
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 85,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 85,
+                "key": "y"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 66,
+              "cCell": {
+                "ch": "-",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3085,
+              "cCaller": null,
+              "jsEntry": "rn2(19)=6",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 85,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 85,
+                "key": "y"
+              },
+              "cCursor": [
+                74,
+                0,
+                1
+              ],
+              "jsCursor": [
+                56,
+                19,
+                1
+              ]
+            }
+          },
+          "step": 85,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/wooden-harp-calms-nymph-slot-e-corrected.json",
+            "result": {
+              "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-corrected",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "wooden-harp-calms-nymph-slot-e-corrected",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.session.json",
+              "recordingSha256": "25da9de703f27a56abf0009a5be89a61b6530d266cbb871cd2f762b1a975570d",
+              "recipe": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.recipe.session.json",
+              "recipeSha256": "ba131f4e253bb4e67ced735bff6f34b0271e9a274b566fca1fb5b6f252349b65",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 1,
+              "recordedSteps": 86,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-corrected",
+                "session": "synthetic/v17/wooden-harp-calms-nymph-slot-e-corrected",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.session.json",
+                "recordingPath": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.session.json",
+                "recordingSha256": "25da9de703f27a56abf0009a5be89a61b6530d266cbb871cd2f762b1a975570d",
+                "recipe": "challenges/cases/v17/wooden-harp-calms-nymph-slot-e-corrected.recipe.session.json",
+                "recipeSha256": "ba131f4e253bb4e67ced735bff6f34b0271e9a274b566fca1fb5b6f252349b65",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 1,
+                "recordedSteps": 86,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 85,
+                    "total": 86
+                  },
+                  "rng": {
+                    "matched": 3085,
+                    "total": 3085
+                  },
+                  "cursors": {
+                    "matched": 85,
+                    "total": 86
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 85,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 85,
+                      "key": "y"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 66,
+                    "cCell": {
+                      "ch": "-",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3085,
+                    "cCaller": null,
+                    "jsEntry": "rn2(19)=6",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 85,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 85,
+                      "key": "y"
+                    },
+                    "cCursor": [
+                      74,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      56,
+                      19,
+                      1
+                    ]
+                  }
+                },
+                "step": 85,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The sole unmatched screen is the successful wooden-harp path entering music.c:calm_nymphs before exercise. C reaches the helper and its visible-nymph message forces a --More-- boundary; JavaScript records note_unported(\"music.c calm_nymphs\") and advances directly to exercise and the monster turn. Port the complete helper and wire it at its existing call site.",
+              "source": {
+                "file": "music.c",
+                "branch": "In do_improvisation()’s WOODEN_HARP arm, when rn2(ACURR(A_DEX)) + u.ulevel > 25, C calls calm_nymphs(u.ulevel * 3) before exercise(A_DEX, TRUE). calm_nymphs() scans fmon in order, skipping DEADMONSTER entries; for each S_NYMPH with mcanmove and mdistu(mtmp) < distance, it clears msleeping, sets mpeaceful, clears mavenge and STRAT_WAITMASK, then calls pline(Monnam(...)) only when canseemon() is true. The helper has no RNG draw and does not thaw a monster whose mcanmove is false.",
+                "functions": [
+                  "calm_nymphs"
+                ],
+                "callers": [
+                  "C production chain: apply.c:doapply() dispatches musical instruments to do_play_instrument() (:4373-4383); music.c:do_play_instrument() routes the accepted improvisation answer to do_improvisation() (:783-784); its WOODEN_HARP arm calls calm_nymphs() only after the special-effect gate (:672-686). calm_nymphs() has this single source call site (besides its declaration).",
+                  "JavaScript production chain is already present: js/apply.js:doapply() routes WOODEN_HARP to do_play_instrument() (:5008-5019); js/music.js:do_play_instrument() dispatches the accepted improvisation to do_improvisation(); the matching WOODEN_HARP arm currently replaces the C helper with note_unported(\"music.c calm_nymphs\") at :271-279. Wire the whole helper there before exercise; apply.js and do_play_instrument() need no separate change for this case."
+                ],
+                "dependencies": [
+                  "C fmon maps to state.level.monlist; DEADMONSTER(mon) is mon.mhp < 1 (include/monst.h:213-214); S_NYMPH maps to the exported JavaScript monster-class constant. Keep the source loop order and skip dead entries.",
+                  "mdistu(mon) expands to distu(mon.mx, mon.my), then dist2 against the hero (include/hack.h:1531-1532); js/hacklib.js:dist2() already supplies this calculation. Preserve the strict < comparison against the caller-provided distance.",
+                  "The selected mutations map directly to existing monster fields. The visible branch uses canseemon(), Monnam(), and pline(); js/music.js already imports canseemon, Monnam and ttyPline and passes the caller’s message callback through env. No unported callee result is consumed; the helper itself has no RNG or return-valued dependency."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned entry .cache/v17-investigations/13.json and both copies in .cache/v17-work-queue.json agree on the v17 case identity, remainingScreens 1 and recordedSteps 86. The v17 manifest corpus digest, recipe and recording SHA-256 values match the assigned entry. The saved evaluation challenges/evaluations/20261001190602-v17.json has the matching batch, manifest digest, replay-input digest, evaluation SHA/commit, and recording digest.",
+                "The saved evaluation reports 85/86 screens and cursors matched and 3085/3085 C RNG entries matched before JavaScript’s extra rn2(19)=6 at RNG index 3085. Its first mismatch is segment 0, step 85, key y: screen row 0 column 66 is C - versus JS space; C cursor is [74,0,1], JS cursor [56,19,1]. The source annotation is null, so the display mismatch needs the direct source trace below.",
+                "The immutable C recording’s step 82 reports “A wood nymph appears next to you.”; step 83 key a opens apply selection, step 84 key e receives the “Improvise?” prompt, and step 85 key y accepts. The input recipe supplies a level-30 character and an uncursed wooden harp. At step 85 C logs rn2(2)=1 at music.c:535, rnd(5)=1 and rn2(7)=1 in improvised_notes(), then rn2(18)=12 at the wooden-harp special-effect gate music.c:673; 12 + level 30 exceeds 25. The C screen ends “You start playing your harp.  Your harp produces a lilting melody.--More--”.",
+                "Upstream music.c:do_improvisation() orders the helper call at :684-685 before exercise(A_DEX, TRUE) at :686. calm_nymphs() at :139-155 performs its living/nymph/mobile/range filters, applies the four specified monster-state changes, then asks pline() to display the visible nymph response. In this recording the prompt at the end of the melody is the More boundary raised while that next visible response is being submitted; topl.c:update_topl() calls more() when the next message cannot fit with the --More-- space reserved (:259-280). The helper updates monster state before this message wait.",
+                "The JS branch at js/music.js:271-279 has the same gate and melody message, but line 277 records note_unported(\"music.c calm_nymphs\") and immediately calls exercise(). Upstream attrib.c:exercise() can draw rn2(19) on the gain path (:499-510), matching the first extra JS entry; C has not reached its post-helper exercise call while waiting at the More boundary. This is a missing game-state/message call, not an independent terminal renderer defect.",
+                "The matching retainedCases row in .cache/C56-accepted-preparation-evidence.json points to apply.c:doapply, music.c:do_play_instrument, music.c:do_improvisation(WOODEN_HARP), music.c:calm_nymphs and topl.c:more, and classifies music.c:calm_nymphs as the first mismatch owner. Those pointers were verified against the immutable recording and actual upstream sources; the historical row is corroboration only.",
+                "The examined main commit is 45a483d2dd3320f9268aeb4477a785237e69df4e; the checked upstream C submodule is 16ff59115315917b93185d026aeefea06db9b0f4. `rg -n \"calm_nymphs|do_improvisation\" nethack-c/patches` returned no matches, so this behavior is unmodified by the comparison patches.",
+                "The source owner and implementable unit are the complete music.c:calm_nymphs() helper, implemented in js/music.js and wired at the existing successful wooden-harp branch. The assigned recording reaches its visible response’s pager boundary but ends there; it does not establish a post-More continuation or the helper’s no-visible-nymph, out-of-range, dead, or immobile filters. The current helper gap also leaves the one assigned screen unmatched until a later replay.",
+                "Keep separate existing music.js gaps out of this helper task: music.c:charm_snakes (wooden flute), music.c:charm_monsters (magic harp), music.c:do_earthquake (earthquake drum), and the impossible/default refusal are distinct paths in do_improvisation()."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "The active entry point is the apply command using a wooden harp, answering y to Improvise?, and passing the source special-effect roll. The immutable recording reaches the call from the actual apply/do_play_instrument/do_improvisation chain and then the visible-nymph pline boundary."
+                ],
+                "coverageLimits": [
+                  "This recording stops at the More prompt raised by the helper’s visible response. It does not continue through message dismissal to exercise() or the rest of the turn, and its one visible mobile nearby nymph does not cover the helper’s other filter outcomes."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "music.c",
+                  "functions": [
+                    "calm_nymphs"
+                  ]
+                },
+                "callerWiring": [
+                  "Add the full calm_nymphs(distance,state,env) source implementation in js/music.js, preserving fmon traversal, alive/species/mobile/strict-range predicates, mutation order, and conditional visible response.",
+                  "Replace the WOODEN_HARP branch’s note_unported(\"music.c calm_nymphs\") with an awaited call before exercise(A_DEX, true). Keep existing apply.js and do_play_instrument() caller routing."
+                ],
+                "returnValuedDependencies": [],
+                "downstreamUnresolvedGaps": [
+                  "The assigned recording ends at its first helper-generated More boundary; a later replay must establish the returned path and subsequent exercise/game-turn order. The investigation identifies the source owner, not a fix or a post-fix validation result.",
+                  "The other named music.js gaps for charm_snakes, charm_monsters, and do_earthquake, plus the do_improvisation default refusal and separate do_play_instrument drawbridge gaps, remain outside calm_nymphs()."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "charm_snakes",
+            "implementation": "js/music.js",
+            "symbol": "charm_snakes",
+            "sourceReview": "Read the complete music.c:charm_snakes definition (105-132) and its selected call arm in do_improvisation (WOODEN_FLUTE, 608). C iterates fmon in nmon order, skips DEADMONSTER before checking S_SNAKE, mcanmove, then strict mdistu(mtmp) < distance. hack.h defines mdistu -> distu -> dist2, so JS passes hero coordinates to dist2 and keeps the strict comparison. For each eligible snake, save pre-change mpeaceful; set peaceful, clear avenge and STRAT_WAITMASK; call canseemon before clearing mundetected; clear mundetected; call newsym; then call canseemon again. If newly visible, consume a_monnam in the You notice message; otherwise consume Monnam and the saved peacefulness in the freeze/sway message. The helper makes no RNG call. JS awaits its message before do_improvisation proceeds to exercise(A_DEX, TRUE). newsym, canseemon, a_monnam, Monnam, dist2 and ttyPline are existing implementations; no unported callee is invoked.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation WOODEN_FLUTE arm calls the selected helper after its instrument response and notes, before exercise(A_DEX, TRUE)"
+              },
+              {
+                "path": "js/music.js",
+                "symbol": "do_play_instrument",
+                "source": "music.c:do_play_instrument dispatches accepted instrument input to do_improvisation"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply wooden flute/harp cases dispatch to do_play_instrument"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 79,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_FLUTE) -> music.c:charm_snakes"
+              }
+            ],
+            "checkedAt": "a2c9e6096c3e7b8ff3820973dfba7c909a1759ef"
+          },
+          {
+            "name": "calm_nymphs",
+            "implementation": "js/music.js",
+            "symbol": "calm_nymphs",
+            "sourceReview": "Read the complete music.c:calm_nymphs definition (139-158) and its selected call arm in do_improvisation (WOODEN_HARP, 684-685). C iterates fmon in nmon order, skips DEADMONSTER before checking S_NYMPH, mcanmove, then strict mdistu(mtmp) < distance; hack.h maps mdistu through distu to squared dist2. For each eligible nymph, C clears msleeping, sets peaceful, clears avenge and STRAT_WAITMASK, then checks canseemon and consumes Monnam only for visible feedback. It does not redraw, call RNG, or use any return value from the message. JS awaits visible feedback before do_improvisation proceeds to exercise(A_DEX, TRUE). dist2, canseemon, Monnam and ttyPline are existing implementations; no unported callee is invoked.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation WOODEN_HARP arm calls the selected helper after its instrument response and notes, before exercise(A_DEX, TRUE)"
+              },
+              {
+                "path": "js/music.js",
+                "symbol": "do_play_instrument",
+                "source": "music.c:do_play_instrument dispatches accepted instrument input to do_improvisation"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply wooden flute/harp cases dispatch to do_play_instrument"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_HARP) -> music.c:calm_nymphs"
+              },
+              {
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 86,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_HARP) -> music.c:calm_nymphs"
+              }
+            ],
+            "checkedAt": "a2c9e6096c3e7b8ff3820973dfba7c909a1759ef"
+          }
+        ],
+        "entryPointReview": "C defines exactly two selected instrument-helper routes in music.c:do_improvisation: the special-effect WOODEN_FLUTE branch calls charm_snakes and the special-effect WOODEN_HARP branch calls calm_nymphs; both calls precede exercise(A_DEX, TRUE). The production chain is apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation. No other direct C call to either selected helper exists. The active flute route is matched by v17 wooden-flute-charms-moving-snake-slot-e-more-continued through segment 0 step 79. The active harp route is matched by v17 wooden-harp-calms-nymph-slot-e-corrected through step 85 and wooden-harp-calms-nymph-slot-e-more-continued through step 86. Other instrument helpers and do_pit/do_earthquake remain outside the selected source units; no whole do_improvisation credit is claimed.",
+        "entryPoints": [
+          {
+            "name": "Apply a wooden flute with the C special-effect gate satisfied",
+            "functions": [
+              "charm_snakes"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 79,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_FLUTE) -> music.c:charm_snakes"
+              }
+            ]
+          },
+          {
+            "name": "Apply a wooden harp with the C special-effect gate satisfied",
+            "functions": [
+              "calm_nymphs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_HARP) -> music.c:calm_nymphs"
+              },
+              {
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 86,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_HARP) -> music.c:calm_nymphs"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3ccadef61f309bb3a696aca7e61937d124264826",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
