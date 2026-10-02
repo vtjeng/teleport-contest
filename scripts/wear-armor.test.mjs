@@ -24,6 +24,7 @@ import {
     FUMBLING,
     FREE_ACTION,
     FROMEXPER,
+    FROMOUTSIDE,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_INACCESS,
@@ -183,11 +184,14 @@ import {
     RIN_GAIN_STRENGTH,
     RIN_INCREASE_ACCURACY,
     RIN_INCREASE_DAMAGE,
+    RIN_INVISIBILITY,
     RIN_LEVITATION,
     RIN_PROTECTION,
     RIN_REGENERATION,
+    RIN_SEE_INVISIBLE,
     RIN_STEALTH,
     RIN_TELEPORTATION,
+    RIN_WARNING,
     RED_DRAGON_SCALES,
     RED_DRAGON_SCALE_MAIL,
     ROBE,
@@ -1526,41 +1530,44 @@ test('the fedora is worth a point of Luck to an Archeologist alone',
     assert.equal(game.u.uluck, luckBefore, 'no point for a Valkyrie');
 });
 
-test('set_wear runs the startup callbacks and stops on the slots it cannot',
+test('set_wear dispatches accessory callbacks and keeps only the named gaps',
     async () => {
-    // do_wear.c set_wear() (1537-1568) with a Null argument, which allmain.c
-    // moveloop_preamble():73 is the only caller of. Its inputs are bounded by
-    // u_init.c: ini_inv_use_obj() fills armor slots and nothing else.
-    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    // do_wear.c:1537-1568 dispatches blindfold, right ring, left ring,
+    // amulet, then armor. The two +2/+3 spe values make both ring callbacks'
+    // source arithmetic visible in one startup call.
+    const segment = segmentFor(TAKEOFF_KEY + WEAR_KEY + 'c');
     await setup(segment, WAIT);
 
-    // The four accessory slots do_wear.c:1544-1551 would run first. Each is
-    // tested on its own so that no one of them can hide the others.
-    for (const field of ['ublindf', 'uright', 'uleft', 'uamul']) {
-        game[field] = { oclass: AMULET_CLASS, otyp: AMULET_OF_ESP };
-        await assert.rejects(() => set_wear(game),
-            refusal(UnsupportedWearError, 'set_wear() accessories'), field);
-        game[field] = null;
-    }
-    // The seven armor calls at do_wear.c:1553-1565, one seeded piece each.
-    // Every callback this port carries reveals the enchantment a wished piece
-    // would still be hiding, and that `known` write is the only mark any of
-    // them leaves; a starting piece cannot witness it, because
-    // ini_inv_adjust_obj():1215-1216 marks every worn piece known before the
-    // preamble ever calls set_wear(). So each slot below is seeded at known
-    // false, and deleting any one of the seven calls turns exactly the
-    // matching assertion red.
-    //
-    // The types are the ones each callback carries, and the six that a role
-    // can start in are the type that role starts in: the Tourist's shirt, the
-    // Rogue's and Caveman's suit, the Monk's and Priest's robe, the Healer's,
-    // Knight's and Monk's gloves, the Knight's helmet and the Valkyrie's,
-    // Knight's and Priest's shield. Boots are the exception at
-    // do_wear.c:1558-1559: no role's gear can reach that call -- the test
-    // below this one is what shows that -- and low boots stand in to show the
-    // call is C's own rather than a refusal in front of a ported function.
-    const startingShield = game.uarms;
+    game.ublindf = {};
+    const right = syntheticRing(RIN_INCREASE_ACCURACY, 2);
+    right.owornmask = W_RINGR;
+    game.uright = right;
+    const left = syntheticRing(RIN_INCREASE_DAMAGE, 3);
+    left.owornmask = W_RINGL;
+    game.uleft = left;
+    game.uamul = {};
+    const hitBefore = game.u.uhitinc ?? 0;
+    const damageBefore = game.u.udaminc ?? 0;
 
+    await set_wear(game);
+
+    assert.equal(game.u.uhitinc, hitBefore + 2,
+        'the right-ring callback ran');
+    assert.equal(game.u.udaminc, damageBefore + 3,
+        'the left-ring callback ran');
+    assert.equal(game.initial_don, false,
+        'C clears initial_don after every set_wear invocation');
+    assert.ok(game.unported.has('do_wear.c Blindf_on'));
+    assert.ok(game.unported.has('do_wear.c Amulet_on'));
+    game.ublindf = null;
+    game.uright = null;
+    game.uleft = null;
+    game.uamul = null;
+
+    // The seven armor calls at do_wear.c:1553-1565, one seeded piece each.
+    // Each callback marks its source object known; startup inventory starts
+    // known, so false isolates the callback write.
+    const startingShield = game.uarms;
     game.uarmu = armor(T_SHIRT, { known: false });
     game.uarm = armor(LEATHER_ARMOR, { known: false });
     game.uarmc = armor(ROBE, { known: false });
@@ -1584,20 +1591,19 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
     game.uarmh = null;
     game.uarms = startingShield;
 
-    // set_wear() reaches the same callback for a startup water-walking boot.
+    // u_init.c supplies no water-walking boots at startup, so this wished
+    // object checks the direct W_ARMF callback independently.
     game.uarmf = armor(WATER_WALKING_BOOTS, { known: false });
     await set_wear(game);
     assert.equal(game.uarmf.known, true);
     game.uarmf = null;
 });
 
-test('no starting hero reaches a slot or a type set_wear refuses',
+test('starting hero wear callback slots match source inventory',
     async () => {
-    // The premise every refusal in set_wear() rests on. u_init.c decides which
-    // slots ini_inv_use_obj() fills and with what, so the list below is what
-    // makes "no role starts in boots" and "no role starts in a worn ring,
-    // amulet or blindfold" checkable rather than asserted -- and it is what
-    // will fail first if a role's gear changes.
+    // u_init.c decides which slots ini_inv_use_obj() fills and with what.
+    // These source-derived rows check the startup callback inputs, including
+    // the empty ring, amulet, and blindfold slots.
     //
     // One row per distinct worn-armor configuration, plus the two races that
     // substitute a worn piece at u_init.c:226-249: an elf Ranger's cloak of
@@ -1650,8 +1656,7 @@ test('no starting hero reaches a slot or a type set_wear refuses',
             assert.equal(game[slot]?.otyp ?? null, expected[slot] ?? null,
                 `${label} ${slot}`);
         }
-        // Only the Archeologist's fedora makes set_wear() do anything a
-        // startup setworn() had not already done.
+        // Only the Archeologist's fedora changes Luck during startup.
         assert.equal(game.u.uluck, role === 'Archeologist' ? 1 : 0, label);
     }
 });
@@ -3348,6 +3353,122 @@ test('Ring_on adjust_attrib changes CON for ring of gain constitution',
     );
 });
 
+test('Ring_on warning redraws the level through its caller seam', async () => {
+    // do_wear.c:1285 calls see_monsters() for RIN_WARNING. The synthetic
+    // callback records the C redraw contract without changing the live screen.
+    const debug = debugRingSegment('ring of warning', WAIT);
+    await setup(debug, debug.moves);
+    const ring = syntheticRing(RIN_WARNING);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+    const redrawn = [];
+
+    await Ring_on(ring, game, {
+        redraw: (x, y) => redrawn.push([x, y]),
+    });
+
+    assert.ok(redrawn.some(([x, y]) => x === game.u.ux && y === game.u.uy),
+        'see_monsters() redraws the hero square');
+});
+
+test('Ring_on see-invisible branch preserves redraw, message, and named gap order',
+    async () => {
+    // do_wear.c:1288-1297. FROMOUTSIDE makes the hero invisible; the newly
+    // worn ring supplies SEE_INVIS only through its W_RINGL extrinsic.
+    const debug = debugRingSegment('ring of see invisible', WAIT);
+    await setup(debug, debug.moves);
+    const ring = syntheticRing(RIN_SEE_INVISIBLE);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+    game.u.uprops[INVIS].intrinsic = FROMOUTSIDE;
+    game.u.uprops[INVIS].extrinsic = 0;
+    game.u.uprops[INVIS].blocked = 0;
+    game.u.uprops[SEE_INVIS].intrinsic = 0;
+    game.u.uprops[SEE_INVIS].extrinsic = W_RINGL;
+    game.u.uprops[SEE_INVIS].blocked = 0;
+    const events = [];
+
+    await Ring_on(ring, game, {
+        redraw: (x, y) => events.push(['redraw', x, y]),
+        message: async (line) => events.push(['message', line]),
+    });
+
+    const messageAt = events.findIndex(([kind]) => kind === 'message');
+    assert.ok(messageAt > 0);
+    assert.deepEqual(events[messageAt - 1], [
+        'redraw', game.u.ux, game.u.uy,
+    ]);
+    assert.deepEqual(events[messageAt], [
+        'message', 'Suddenly you are transparent, but there!',
+    ]);
+    assert.ok(game.unported.has('display.c set_mimic_blocking'));
+});
+
+test('Ring_on invisibility branch learns, redraws, then uses self message',
+    async () => {
+    // do_wear.c:1299-1304. The ring's W_RINGL extrinsic is not HInvis, so it
+    // permits the branch when no intrinsic or blocking source is present.
+    const debug = debugRingSegment('ring of invisibility', WAIT);
+    await setup(debug, debug.moves);
+    const ring = syntheticRing(RIN_INVISIBILITY);
+    ring.owornmask = W_RINGL;
+    game.uleft = ring;
+    game.u.uprops[INVIS].intrinsic = 0;
+    game.u.uprops[INVIS].extrinsic = W_RINGL;
+    game.u.uprops[INVIS].blocked = 0;
+    const events = [];
+
+    await Ring_on(ring, game, {
+        redraw: (x, y) => events.push(['redraw', x, y]),
+        message: async (line) => events.push(['message', line]),
+    });
+
+    assert.deepEqual(events, [
+        ['redraw', game.u.ux, game.u.uy],
+        ['message', "Gee!  All of a sudden, you can't see yourself."],
+    ]);
+});
+
+test('Ring_on clears a matching weapon slot before applying the ring arm',
+    async () => {
+    // do_wear.c:1249-1254 names one canonical setter for each defensive alias.
+    const debug = debugRingSegment('ring of increase damage', WAIT);
+    await setup(debug, debug.moves);
+    for (const field of ['uwep', 'uswapwep', 'uquiver']) {
+        const ring = syntheticRing(RIN_INCREASE_DAMAGE, 1);
+        ring.owornmask = W_RINGL;
+        game.uleft = ring;
+        game[field] = ring;
+
+        await Ring_on(ring, game);
+
+        assert.equal(game[field] ?? null, null,
+            field + ' is cleared by its C setter');
+        game.uleft = null;
+    }
+});
+
+test('set_wear target dispatches only the matching ring slot', async () => {
+    // do_wear.c:1545-1546 compares a non-null obj by pointer identity. These
+    // +2/+3 enchantments distinguish the right and left Ring_on callbacks.
+    const debug = debugRingSegment('ring of increase accuracy', WAIT);
+    await setup(debug, debug.moves);
+    const right = syntheticRing(RIN_INCREASE_ACCURACY, 2);
+    right.owornmask = W_RINGR;
+    const left = syntheticRing(RIN_INCREASE_DAMAGE, 3);
+    left.owornmask = W_RINGL;
+    game.uright = right;
+    game.uleft = left;
+    const hitBefore = game.u.uhitinc ?? 0;
+    const damageBefore = game.u.udaminc ?? 0;
+
+    await set_wear(game, right);
+
+    assert.equal(game.u.uhitinc, hitBefore + 2);
+    assert.equal(game.u.udaminc ?? 0, damageBefore);
+    assert.equal(game.initial_don, false);
+});
+
 test('Ring_on no-op types do not throw', async () => {
     // Sixteen ring types plus meat ring have no effect beyond the extrinsic
     // that setworn() already set. Ring_on must not throw for any of them.
@@ -3374,7 +3495,10 @@ test('Ring_on no-op types do not throw', async () => {
 test('Ring_on levitation starts floating and reveals the ring effect', async () => {
     const debug = debugRingSegment('ring of levitation', `${WAIT}`);
     await setup(debug, debug.moves);
-    const ring = syntheticRing(RIN_LEVITATION, 0);
+    // spe=2 would raise STR if the source switch omitted its break before
+    // RIN_GAIN_STRENGTH; C's levitation arm ignores this enchantment.
+    const strBefore = acurr(game, A_STR);
+    const ring = syntheticRing(RIN_LEVITATION, 2);
     ring.owornmask = W_RINGL;
     game.uleft = ring;
     game.u.uprops[LEVITATION].extrinsic = W_RINGL;
@@ -3384,6 +3508,8 @@ test('Ring_on levitation starts floating and reveals the ring effect', async () 
 
     assert.match(takePendingTopLine(), /You start to float in the air!/u);
     assert.ok(game.disp.botl);
+    assert.equal(acurr(game, A_STR), strBefore,
+        'levitation did not fall through to gain-strength');
 });
 
 test('Ring_on increase_accuracy adjusts uhitinc', async () => {

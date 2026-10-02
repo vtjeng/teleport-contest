@@ -361,7 +361,8 @@ import {
 import { encumber_msg, u_safe_from_fatal_corpse } from './pickup.js';
 import { body_part, float_vs_flight } from './polyself.js';
 import {
-    incr_itimeout, make_hallucinated, make_slimed, toggle_blindness,
+    incr_itimeout, make_hallucinated, make_slimed, self_invis_message,
+    toggle_blindness,
 } from './potion.js';
 import { rn2, rn2_on_display_rng, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
@@ -373,6 +374,7 @@ import { weapon_descr } from './weapon.js';
 import {
     bimanual,
     setnotworn,
+    setuqwep,
     setuswapwep,
     setuwep,
     setworn,
@@ -746,52 +748,31 @@ function extremeattr(attrindx, state) {
     return curval === lolimit || curval === hilimit;
 }
 
-// Raised where Ring_on() reaches a branch this port has not translated.
-export class UnsupportedRingOnError extends Error {
-    constructor(what) {
-        super(`Ring_on() reached an unported branch: ${what}`);
-        this.name = 'UnsupportedRingOnError';
-    }
-}
-
-// C ref: do_wear.c Ring_on() (1242-1344). Called after the ring is already
-// worn in its slot (setworn() ran above). The switch dispatches on ring type.
+// C ref: do_wear.c Ring_on() (1242-1344). Called after setworn() has
+// installed the ring. oldprop is read before the defensive weapon-slot
+// cleanup, and only its W_RING bits are masked for a single matching ring.
 //
-// Sixteen types have no effect besides the extrinsic setworn() already set:
-// teleportation, regeneration, searching, hunger, aggravate monster, poison/
-// fire/cold/shock resistance, conflict, teleport control, polymorph,
-// polymorph control, free action, slow digestion, sustain ability, and meat.
-//
-// Three remaining branches call helpers this port has not reached: warning
-// (see_monsters), see invisible (set_mimic_blocking + see_monsters), and
-// invisibility (self_invis_message). Levitation and protection from shape
-// changers use helpers already ported below.
-//
-// The remaining arms -- warning (see_monsters), gain strength/constitution/
-// adornment (adjust_attrib), increase accuracy/damage (uhitinc/udaminc), and
-// protection (learnring + find_ac) -- are ported below.
-export async function Ring_on(obj, state = game) {
+// C's set_mimic_blocking() result is discarded; keep that precise display.c
+// boundary while still running the existing see_monsters() helper.
+export async function Ring_on(obj, state = game, rawEnv = {}) {
+    const env = wearOperationEnv(rawEnv);
     const oldprop = state.u.uprops[objectType(obj, state).oc_oprop]?.extrinsic
         ?? 0;
     let observable;
 
-    /* make sure ring isn't wielded */
-    if (obj === state.uwep || obj === state.uswapwep || obj === state.uquiver) {
-        // do_wear.c:1249-1254 calls setuwep/setuswapwep/setuqwep to unwield.
-        // accessory_or_armor_on() already ran the W_WEAPONS check for armor;
-        // nothing in the port puts a ring in a weapon slot, so this is inert.
-        throw new UnsupportedRingOnError('ring wielded as weapon');
-    }
+    // C clears any weapon-slot alias with the matching canonical setter.
+    if (obj === state.uwep) setuwep(null, setwornEnv(state));
+    else if (obj === state.uswapwep)
+        setuswapwep(null, setwornEnv(state));
+    else if (obj === state.uquiver) setuqwep(null, setwornEnv(state));
 
-    // C masks out W_RING only when the hero does not have both left and right
-    // rings of the same type; the oldprop variable drives the "already had
-    // this property" tests in the specific arms.
+    // C masks W_RING only when the property is not supplied by both slots.
     let maskedOldprop = oldprop;
     if ((oldprop & W_RING) !== W_RING)
         maskedOldprop = oldprop & ~W_RING;
 
     switch (obj.otyp) {
-    /* sixteen no-op types: the extrinsic from setworn() is the whole effect */
+    /* These types only retain the extrinsic that setworn() already installed. */
     case RIN_TELEPORTATION:
     case RIN_REGENERATION:
     case RIN_SEARCHING:
@@ -813,32 +794,49 @@ export async function Ring_on(obj, state = game) {
         /* wearing a meat ring does not affect vegan conduct */
         break;
     case RIN_STEALTH:
-        await toggle_stealth(obj, maskedOldprop, true, state);
+        await toggle_stealth(obj, maskedOldprop, true, state, env);
         break;
     case RIN_WARNING:
-        // see_monsters() redraws; the extrinsic from setworn() is the real
-        // behavioral change. The redraw is unported but the property is live.
-        throw new UnsupportedRingOnError(
-            `see_monsters() for otyp ${obj.otyp}`,
-        );
-    case RIN_SEE_INVISIBLE:
-        throw new UnsupportedRingOnError(
-            `set_mimic_blocking() + see_monsters() for otyp ${obj.otyp}`,
-        );
-    case RIN_INVISIBILITY:
-        throw new UnsupportedRingOnError(
-            `self_invis_message() for otyp ${obj.otyp}`,
-        );
+        see_monsters(state, { redraw: env.redraw });
+        break;
+    case RIN_SEE_INVISIBLE: {
+        note_unported('display.c set_mimic_blocking');
+        see_monsters(state, { redraw: env.redraw });
+        const invisibility = state.u.uprops[INVIS];
+        const invisible = Boolean((invisibility?.intrinsic
+            || invisibility?.extrinsic) && !invisibility?.blocked);
+        if (invisible && !maskedOldprop
+            && !state.u.uprops[SEE_INVIS]?.intrinsic
+            && !heroIsBlind(state)) {
+            env.redraw(state.u.ux, state.u.uy, state);
+            await env.message(
+                'Suddenly you are transparent, but there!', state, env,
+            );
+            learnring(obj, true, state);
+        }
+        break;
+    }
+    case RIN_INVISIBILITY: {
+        const invisibility = state.u.uprops[INVIS];
+        if (!maskedOldprop && !invisibility?.intrinsic
+            && !invisibility?.blocked && !heroIsBlind(state)) {
+            learnring(obj, true, state);
+            env.redraw(state.u.ux, state.u.uy, state);
+            await self_invis_message(state, env);
+        }
+        break;
+    }
     case RIN_LEVITATION:
         if (!maskedOldprop
             && !state.u.uprops[LEVITATION].intrinsic
             && !(state.u.uprops[LEVITATION].blocked & FROMOUTSIDE)) {
             await float_up(state);
             learnring(obj, true, state);
-            if (Levitation(state)) await spoteffects(false, state);
+            if (Levitation(state)) await spoteffects(false, state, env);
         } else {
             float_vs_flight(state);
         }
+        break;
     case RIN_GAIN_STRENGTH:
         adjust_attrib(obj, A_STR, obj.spe, state);
         break;
@@ -858,9 +856,7 @@ export async function Ring_on(obj, state = game) {
         await rescham(state);
         break;
     case RIN_PROTECTION:
-        /* usually learn enchantment and discover type;
-           won't happen if ring is unseen or if it's +0
-           and the type hasn't been discovered yet */
+        /* Usually learn enchantment and discover type. */
         observable = (obj.spe !== 0);
         learnring(obj, observable, state);
         if (obj.spe)
@@ -2518,72 +2514,37 @@ export function Shirt_off(state = game) {
     return 0;
 }
 
-// C ref: do_wear.c set_wear() (1537-1568), which allmain.c
-// moveloop_preamble():73 runs once per new game as `set_wear((struct obj *) 0)`
-// "for side-effects of starting gear". Only that arm is here: C's parameter
-// selects one object instead of all of them, and zap.c poly_obj():1948 is the
-// only caller that passes one, so the parameter has no reader and is left out.
-//
-// The point of the function is that u_init.c ini_inv_use_obj() (1262-1281)
-// dresses the hero with bare setworn() calls, which move the slots, the
-// extrinsics and the status line but run none of the <X>_on() callbacks. For
-// six of the seven slots that costs nothing here, because every type a new
-// game can start in falls to a callback whose whole body is a `known` write
-// that u_init.c ini_inv_adjust_obj():1215-1216 has already made true. The
-// seventh is the helmet: an Archeologist starts in a fedora, and Helmet_on()
-// gives her the point of Luck that Helmet_off() takes back.
-//
-// C's gi.initial_don is represented by state.initial_don. It is TRUE while
-// the startup callbacks run, so toggle_displacement() can skip discovery and
-// feedback for a Ranger's starting cloak of displacement (u_init.c:233).
-// Every refusal below ends the segment at a boundary with its matching prefix
-// intact, which is not this file's doing: js/cmd.js failClosedCommandRefusals()
-// lists the class, and js/moveloop_preamble.js
-// runMoveloopPreambleAtStartupBoundary() wraps the preamble call this function
-// arrives on and reads that list, as js/cmd.js failClosedCommand() does for a
-// command and js/allmain.js for an elapsed turn. Nothing reaches one today --
-// the accessory test below cannot fire, and the startup test walks the roles
-// to show no worn piece reaches a refused otyp -- so that conversion is what
-// keeps the next refusal added to an <X>_on() from costing a segment its whole
-// prefix.
-//
-// The seven calls below are awaited, as js/hack.js unmul() awaits the same
-// callbacks. Cloak_on() is what made that necessary rather than tidy: its
-// OILSKIN_CLOAK arm prints through ttyPline(), so the callback is async, and
-// an unawaited call would return a pending promise while the preamble ran on.
-// The other six are plain functions, where awaiting is a no-op; they are
-// awaited anyway, so that the next callback to print does not have to
-// rediscover this.
-export async function set_wear(state = game) {
-    // do_wear.c:1542 sets gi.initial_don before it dispatches any callback.
-    // Keep the flag through every callback and clear it even when a separate
-    // unported startup branch refuses, so a later command cannot inherit it.
-    state.initial_don = true;
+// C ref: do_wear.c set_wear() (1537-1568). A null target replays startup
+// effects for every occupied slot; a target selects only the slot whose object
+// pointer matches. poly_obj() uses the latter form after replacing a worn ring.
+// C stores initial_don as !obj and clears it after the callback sequence.
+export async function set_wear(state = game, obj = null, rawEnv = {}) {
+    const env = wearOperationEnv(rawEnv);
+    state.initial_don = !obj;
     try {
-        if (state.ublindf || state.uright || state.uleft || state.uamul) {
-            // do_wear.c:1544-1551 Blindf_on(), Ring_on() twice and Amulet_on().
-            // ini_inv_use_obj() fills only the seven armor slots, so a new game
-            // leaves all four of these empty; no role's starting gear includes a
-            // worn ring, amulet or blindfold.
-            throw new UnsupportedWearError('set_wear() accessories');
-        }
-        if (state.uarmu) await Shirt_on(state);
-        if (state.uarm) await Armor_on(state);
-        if (state.uarmc) await Cloak_on(state);
-        // do_wear.c:1558-1559. No role's starting gear fills W_ARMF: u_init.c
-        // names boots nowhere but in the elven discovery list at :825, and
-        // scripts/wear-armor.test.mjs pins the worn set of every distinct starting
-        // configuration -- thirteen rows covering the eleven roles that differ,
-        // plus the two racial substitutions; the Caveman and the Rogue share one
-        // row because both start in leather armor and nothing else. So nothing
-        // reaches this call. It is a call rather than a
-        // refusal because Boots_on() is ported: a refusal standing in front of a
-        // ported function would stop a game C finishes if a role ever gained
-        // boots, which is the opposite of what a fail-closed boundary is for.
-        if (state.uarmf) await Boots_on(state);
-        if (state.uarmg) await Gloves_on(state);
-        if (state.uarmh) await Helmet_on(state);
-        if (state.uarms) await Shield_on(state);
+        if (!obj ? state.ublindf : obj === state.ublindf)
+            note_unported('do_wear.c Blindf_on');
+        if (!obj ? state.uright : obj === state.uright)
+            await Ring_on(state.uright, state, env);
+        if (!obj ? state.uleft : obj === state.uleft)
+            await Ring_on(state.uleft, state, env);
+        if (!obj ? state.uamul : obj === state.uamul)
+            note_unported('do_wear.c Amulet_on');
+
+        if (!obj ? state.uarmu : obj === state.uarmu)
+            await Shirt_on(state);
+        if (!obj ? state.uarm : obj === state.uarm)
+            await Armor_on(state);
+        if (!obj ? state.uarmc : obj === state.uarmc)
+            await Cloak_on(state);
+        if (!obj ? state.uarmf : obj === state.uarmf)
+            await Boots_on(state);
+        if (!obj ? state.uarmg : obj === state.uarmg)
+            await Gloves_on(state);
+        if (!obj ? state.uarmh : obj === state.uarmh)
+            await Helmet_on(state);
+        if (!obj ? state.uarms : obj === state.uarms)
+            await Shield_on(state);
     } finally {
         state.initial_don = false;
     }
