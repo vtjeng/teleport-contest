@@ -139390,6 +139390,355 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-disturb-grave-callers-v17-20261002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Disturb graves through engraving and kicking",
+      "cFile": "engrave.c",
+      "sessions": [
+        "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it"
+      ],
+      "selectionReason": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it, investigation investigations/synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it.json, current evaluation challenges/evaluations/20261002083338-v17.json. Port whole engrave.c:disturb_grave and wire existing engraving and kick callers. Preserve message, disturbed bit, monster creation and Wisdom exercise order. Manifest challenges/manifests/v17.json SHA256 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada; recording challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json SHA256 48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f.",
+      "detail": "Compared engrave.c:disturb_grave in full: diagnostic guards, message, disturbed bit, awaited existing makemon runtime effects, then Wisdom exercise. Exact doengrave call and kick_nondoor Levitation/rn2(4)/undisturbed/rn2(2) order agree with C; headstone destruction remains an outer refusal. Generic supporting makemon admission is based on explicit non-null species, valid nonrandom coordinates, NO_MM_FLAGS and runtime mode; direct nonhero placement omits goodpos as C does, occupied destinations return null before RNG, hero-square requests retain enexto relocation. Existing constructor/runtime suffix remains source-derived and receives no whole makemon credit. Athame, wand and kick C records reach helper at steps28,34,14 and independent replay hashes match. Original direct-command check logs are preserved separately from five verified bounded supplements. Recheck against accepted main after A76 measurement and publication; root combined validation remains required.",
+      "openedAt": "cc3deafadc73eab0af4edbed7cd7315eae465350",
+      "openStanding": {
+        "sha": "e1beae945a8ac244f44cc8625af9d552b3372da8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "disturb_grave",
+          "line": 1707,
+          "endLine": 1723,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1707,
+        "to": 1723
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it": {
+          "session": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+          "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+          "evaluationPath": "challenges/evaluations/20261002083338-v17.json",
+          "evaluationCommit": "e1beae945a8ac244f44cc8625af9d552b3372da8"
+        }
+      },
+      "activeStanding": {
+        "sha": "e1beae945a8ac244f44cc8625af9d552b3372da8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+          "session": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+          "recordingPath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+          "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+          "recipe": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json",
+          "recipeSha256": "16d1cf36d86545556db7efb37da6b036f5d12a2a0cc446127d4467057d01f3bf",
+          "replayInputSha256": "d121f612c55fbfbc4ba7a12056b3e89561fad7d7d129b1b8b89dc16997760dae",
+          "evaluationPath": "challenges/evaluations/20261002083338-v17.json",
+          "evaluationCommit": "e1beae945a8ac244f44cc8625af9d552b3372da8",
+          "evaluationArtifact": "challenges/evaluations/20261002083338-v17.json",
+          "evaluationUtc": "2026-10-02T08:34:22.046Z",
+          "remainingScreens": 1,
+          "recordedSteps": 21,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 21
+            },
+            "rng": {
+              "matched": 3107,
+              "total": 3159
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 20,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "a"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3107,
+              "cEntry": "rn2(8)=0",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "a"
+              },
+              "stepIndex": 20
+            },
+            "cursor": null
+          },
+          "step": 20,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+              "session": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+              "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+              "recipePath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json",
+              "recipeSha256": "16d1cf36d86545556db7efb37da6b036f5d12a2a0cc446127d4467057d01f3bf",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationUtc": "2026-10-01T19:06:03.082Z",
+              "remainingScreens": 1,
+              "recordedSteps": 21,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 20,
+                  "total": 21
+                },
+                "rng": {
+                  "matched": 3107,
+                  "total": 3159
+                },
+                "cursors": {
+                  "matched": 21,
+                  "total": 21
+                }
+              },
+              "firstMismatch": {
+                "screen": {
+                  "index": 20,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 20,
+                    "key": "a"
+                  },
+                  "kind": "ch",
+                  "row": 0,
+                  "column": 0,
+                  "cCell": {
+                    "ch": "Y",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": "W",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "rng": {
+                  "index": 3107,
+                  "cEntry": "rn2(8)=0",
+                  "cCaller": "collect_coords(teleport.c:700)",
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 20,
+                    "key": "a"
+                  },
+                  "stepIndex": 20
+                },
+                "cursor": null
+              },
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+                "session": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+                "recordingPath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+                "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+                "recipe": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json",
+                "recipeSha256": "16d1cf36d86545556db7efb37da6b036f5d12a2a0cc446127d4467057d01f3bf",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 1,
+                "recordedSteps": 21,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 3107,
+                    "total": 3159
+                  },
+                  "cursors": {
+                    "matched": 21,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 20,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "a"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3107,
+                    "cEntry": "rn2(8)=0",
+                    "cCaller": "collect_coords(teleport.c:700)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "a"
+                    },
+                    "stepIndex": 20
+                  },
+                  "cursor": null
+                },
+                "step": 20,
+                "kind": "rng",
+                "sourceFile": "teleport.c",
+                "function": "collect_coords",
+                "message": null,
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": 700
+              },
+              "summary": "For a non-finger implement on an undisturbed grave, engrave.c::doengrave() calls engrave.c::disturb_grave() and exits before the engraving text phase. The helper prints “You disturb the undead!”, marks the tile disturbed, creates a ghoul through makemon(), then exercises Wisdom. js/engrave.js currently records note_unported(\"grave.c disturb_grave\") and returns, so it skips the entire event. The reported teleport.c::collect_coords RNG draw is downstream of makemon() relocating a hero-square creation through enexto_core(); it is not the source owner. The other production caller is dokick.c::kick_nondoor(), whose JavaScript grave arm still refuses. A source-aligned makemon() runtime call shape is also missing for this NO_MM_FLAGS call, so the creation side effects and observed RNG remain a downstream implementation blocker.",
+              "source": {
+                "file": "engrave.c",
+                "functions": [
+                  "disturb_grave"
+                ],
+                "branch": "When the target is a grave and has not already been disturbed, disturb_grave() emits the undead message, sets rm.disturbed, calls makemon(&mons[PM_GHOUL], x, y, NO_MM_FLAGS) with its return discarded, then calls exercise(A_WIS, FALSE). Its non-grave and already-disturbed paths report impossible conditions and make no state change.",
+                "callers": [
+                  "engrave.c::doengrave() at 1024-1030: on a grave, finger-only use reports a smudge; any other implement on an undisturbed grave calls disturb_grave(u.ux, u.uy), then exits. The command-table E entry in cmd.c:1714-1715 routes to doengrave(); the recorded #engrave command reaches the same handler.",
+                  "dokick.c::kick_nondoor() at 1098-1108: after the grave levitation and minor-injury checks, an undisturbed grave with the 1-in-2 branch calls disturb_grave(x, y). This is the only other direct C call site found.",
+                  "Current JavaScript caller gaps: js/engrave.js::doengrave() at 954-960 skips the call with note_unported(\"grave.c disturb_grave\"); js/dokick.js::kick_nondoor() at 819-823 throws UnsupportedKickError for the grave arm. Wire both callers when porting the helper."
+                ],
+                "dependencies": [
+                  "makemon.c::makemon() at 1179-1184 handles a runtime creation requested at the hero square by calling enexto_core() to choose an adjacent square. Its return value is discarded in disturb_grave(), but its creation, RNG, and screen side effects are observable here. js/makemon_create.js::preflightCreation() currently admits explicit-coordinate runtime calls only with MM_NOMSG, and explicit inventoryless hero-square calls with NO_MINVENT|MM_NOMSG; this caller supplies NO_MM_FLAGS and has no source marker, so it reaches the outside-mklev refusal. If makemon.c is not included in source-port scope, retain a named makemon.c gap and do not synthesize its RNG. This call shape blocks parity for the selected screen.",
+                  "The C byyou placement path calls teleport.c::enexto_core(), which uses teleport.c::collect_coords() to randomize nearby squares; the evaluation’s next C draw is rn2(8)=0 at collect_coords:700. js/teleport.js already implements enexto_core()/collect_coords(); this is a downstream path skipped because the grave helper and makemon() call are absent, not an independent teleport.c source-owner finding.",
+                  "attrib.c::exercise(A_WIS, FALSE) runs after monster creation. js/attrib.js already exports exercise(); preserve the C ordering and normal Wisdom state/RNG effects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261001190602-v17.json at 518d4526ccba82c89752a8babb892ba9bc48bc60 reports 20/21 screens, 3107/3159 RNG calls, and 21/21 cursors. Its first mismatch is segment 0, zero-based step 20, key a: C has glyph Y where JavaScript has W; C’s next call is rn2(8)=0 from collect_coords(teleport.c:700).",
+                "The immutable recipe challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json (SHA-256 16d1cf36d86545556db7efb37da6b036f5d12a2a0cc446127d4467057d01f3bf) uses seed 41827461, wishes a grave underfoot, then enters #engrave and selects key a. The recipe comment calls the callee grave.c:disturb_grave, but that comment is stale: the actual C definition is in engrave.c.",
+                "Upstream nethack-c/upstream/src/engrave.c:1019-1030 shows doengrave() taking the non-finger, undisturbed-grave branch, calling disturb_grave(), and exiting. engrave.c:1705-1721 defines disturb_grave(): message, lev->disturbed = 1, discarded-result makemon(PM_GHOUL, x, y, NO_MM_FLAGS), then negative Wisdom exercise.",
+                "The direct C call-site search finds engrave.c:1028 and dokick.c:1106. dokick.c:1098-1108 confirms the separate kick caller and its 1-in-2 undisturbed-grave condition. cmd.c:1714-1715 registers E to doengrave(). The accepted-preparation retainedCases row for this exact case likewise records reachedSource engrave.c:doengrave -> engrave.c:disturb_grave and identifies engrave.c as owner; the C source confirms it.",
+                "Upstream makemon.c:1179-1184 routes hero-square runtime creation through enexto_core(); teleport.c:242-257 gathers nearby candidate coordinates, and teleport.c:700 draws rn2(n) while shuffling. Existing js/teleport.js contains enexto_core()/collect_coords, while js/makemon_create.js:1293-1307 and 1439-1483 do not admit this NO_MM_FLAGS call shape. This accounts for why the RNG annotation names a downstream caller.",
+                "Current gaps are visible in js/engrave.js:954-960 (wrongly named note_unported skip) and js/dokick.js:819-823 (UnsupportedKickError for grave kicking). A search of nethack-c/patches for disturb_grave found no direct patch hunk; upstream engrave.c defines the behavior under investigation."
+              ],
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "engrave.c",
+                  "functions": [
+                    "disturb_grave"
+                  ]
+                },
+                "callerWiring": [
+                  "Replace the grave branch skip in js/engrave.js::doengrave() with the helper call and exit matching C.",
+                  "Replace the grave refusal in js/dokick.js::kick_nondoor() with the helper call for the C 1-in-2 undisturbed-grave branch; preserve its preceding levitation/injury checks and other unrelated refusals."
+                ],
+                "unresolvedCallDependency": {
+                  "file": "makemon.c",
+                  "function": "makemon",
+                  "status": "The helper’s C call discards the return, but the call’s source side effects produce the ghoul, adjacent placement, RNG, and glyph seen in this case. Current JavaScript preflight rejects its NO_MM_FLAGS runtime shape. Record this precise gap if the source-aligned runtime route is not included; the case will remain unmatched until this behavior is supported."
+                },
+                "wholeFunctionBranches": [
+                  "Invalid non-grave: C impossible diagnostic only.",
+                  "Already disturbed grave: C impossible diagnostic only.",
+                  "Undisturbed grave: message, set disturbed, create ghoul at an adjacent valid location through makemon(), then exercise Wisdom downward."
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
