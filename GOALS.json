@@ -137329,7 +137329,7 @@
     {
       "id": "port-music-earthquake-pit-family-v17-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete earthquake scanning and pit creation",
       "cFile": "music.c",
       "sessions": [
@@ -137343,8 +137343,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e44d89030161c871e467c85f4acc8072a3359460",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "do_pit",
@@ -137707,6 +137710,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e44d89030161c871e467c85f4acc8072a3359460",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
