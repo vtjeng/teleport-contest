@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Strict passing independent C witness. Full C probe run-CsoeZH located the first successful source path at segment 0 step 85; shortest-prefix C rerun run-itPTG3 and strict JavaScript replay run-8TARxY match 86/86 screens, 3088/3088 RNG calls, and 86/86 cursors. C order is mhitm_mgc_atk_negated rn2(10)=7, hitmsg, some_armor selects the worn +3 MC1 leather cloak, then drain_item obj_resists rn2(100)=57 succeeds and prints “Your leather cloak seems less effective.”",
+  "segments": [
+    {
+      "seed": 10934827,
+      "datetime": "20381122093000",
+      "nethackrc": "OPTIONS=name:ArmorDrain4,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": "#wizintrinsic\n100a\n \u0017+3 leather cloak\nTWn#wizgenesis\nhostile disenchanter\n. . . . . ."
+    }
+  ]
+}

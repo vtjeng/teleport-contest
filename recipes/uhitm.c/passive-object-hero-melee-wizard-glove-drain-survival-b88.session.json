@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent source-reaching witness for the hero melee -> passive AD_ENCH route. C-first setup wears a life-saving amulet, +9 dexterity gauntlets, and two +9 accuracy rings; it leaves the hero unarmed and spawns an adjacent sleeping disenchanter. After one resisted passive drain at step 222, step 223 has obj_resists rn2(100)=79; C then prints the glove less-effective message at step 224, with passive()'s trailing rn2(3) and the following mhitm_mgc_atk_negated monster-response gate in that boundary. The frozen recording ends at that complete visible drain result before later combat or death.",
+  "segments": [
+    {
+      "seed": 90416035,
+      "datetime": "20421202114700",
+      "nethackrc": "OPTIONS=name:ArmorPassiveB88D,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": "#wizintrinsic\n100a\n \u0017uncursed amulet of life saving\nPo\u0017uncursed +9 gauntlets of dexterity\nWp\u0017uncursed +9 ring of increase accuracy\nPql\u0017uncursed +9 ring of increase accuracy\nPrw-#wizgenesis\nhostile sleeping disenchanter\nl  l "
+    }
+  ]
+}
