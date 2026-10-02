@@ -187,7 +187,7 @@ import {
     ttyUrgentPline,
 } from './tty_message.js';
 import { mhitm_adtyping, mhitm_knockback } from './uhitm.js';
-import { Cold_resistance, Fire_resistance } from './zap.js';
+import { Cold_resistance, Fire_resistance, drain_item } from './zap.js';
 import {
     cansee,
     canseemon,
@@ -195,7 +195,6 @@ import {
     m_canseeu,
     vision_recalc,
 } from './vision.js';
-import { drain_item } from './zap.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
