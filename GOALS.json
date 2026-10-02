@@ -138763,7 +138763,7 @@
           "line": 801,
           "endLine": 937,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -138982,7 +138982,102 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mon_wield_item",
+            "implementation": "js/weapon.js",
+            "symbol": "mon_wield_item",
+            "sourceReview": "Compared the complete weapon.c:mon_wield_item body and every changed caller against upstream C. Selector modes, same-type return, welded-current messages and knowledge, mw replacement before setmnotwielded, visible naming, tether, temporary W_WEP weld probe, canonical synchronous begin_burn, artifact messages, final worn mask and returned turn result follow source order. Existing return-valued selectors and naming/predicate owners are used; mwelded belongs to wield.c. All existing wield callback substitutes and preflights in scope are removed. Only the discarded impossible diagnostic remains a named gap. The selected admitted v17 prefix covers the active nearby hostile wield turn through step52; later armed attack behavior and vault.c:invault remain separate gaps.",
+            "callers": [
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "runSimpleMonsterAction",
+                "source": "monmove.c:dochug's hostile nearby AT_WEAP pre-movement NEED_WEAPON branch calls mon_wield_item; the current adapter enters runSimpleMonsterAction and its wieldMonsterItem callback."
+              },
+              {
+                "path": "js/monmove.js",
+                "symbol": "m_digweapon_check",
+                "source": "monmove.c:m_digweapon_check directly calls mon_wield_item when a tunneler needs a digging tool."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "wieldMonsterItemAgainstMonster",
+                "source": "mhitm.c:mattackm's adjacent AT_WEAP arm calls mon_wield_item and consumes its turn result."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku's adjacent AT_WEAP arm dispatches through runSimpleMonsterAction's wieldMonsterItem callback to mon_wield_item."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thrwmm",
+                "source": "mthrowu.c:thrwmm calls mon_wield_item with NEED_RANGED_WEAPON before its separate select_rwep missile selection."
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "thrwmu",
+                "source": "mthrowu.c:thrwmu calls mon_wield_item with NEED_RANGED_WEAPON before its separate select_rwep missile selection."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "makedog",
+                "source": "dog.c:makedog sets NEED_HTH_WEAPON for a weapon-using starting pet and discards mon_wield_item's result."
+              },
+              {
+                "path": "js/dog.js",
+                "symbol": "tamedog",
+                "source": "dog.c:tamedog sets NEED_HTH_WEAPON for a weapon-using newly tamed monster and discards mon_wield_item's result."
+              },
+              {
+                "path": "js/unported_monster_actions.js",
+                "symbol": "moveSimplePet",
+                "source": "dogmove.c:dog_invent invokes the supplied wieldPickedItem callback; this adapter calls mon_wield_item and preserves dog_invent's AT_WEAP/NEED_WEAPON gates."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/weapon.test.mjs",
+              "scripts/unported-monster-actions.test.mjs",
+              "scripts/mthrowu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "monmove.c:dochug -> weapon.c:mon_wield_item; the awakened nearby orc wields its scimitar before moving"
+              }
+            ],
+            "checkedAt": "709d5526f3697c75133e1a0a14d51d78f720f8b5"
+          }
+        ],
+        "entryPointReview": "The selected impure function is invoked from the active dochug pre-movement weapon path and these wired caller sites: monmove.c:m_digweapon_check; mhitm.c:mattackm; mhitu.c:mattacku; mthrowu.c:thrwmu and thrwmm; dog.c:makedog and tamedog; dogmove.c:dog_invent. The task wires only each caller's mon_wield_item branch; no outer caller is claimed complete. The admitted v17 range through step 52 exercises monmove.c:dochug's nearby hostile AT_WEAP wield turn through weapon.c:mon_wield_item and the source message pager acknowledgement. The focused tests pin selector, state, message, and caller behavior, but do not substitute for runtime evidence for other command paths. vault.c:invault also calls the helper with a discarded result, but the current JS invault path has no such call and remains an explicit gap.",
+        "entryPoints": [
+          {
+            "name": "dochug nearby hostile hand-to-hand weapon turn",
+            "functions": [
+              "mon_wield_item"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 52,
+                "source": "monmove.c:dochug -> weapon.c:mon_wield_item"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
