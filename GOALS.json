@@ -138737,6 +138737,252 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mon-wield-item-v17-20261002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete monster weapon wielding and wire existing callers",
+      "cFile": "weapon.c",
+      "sessions": [
+        "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation"
+      ],
+      "selectionReason": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation, investigation investigations/synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.json, current evaluation challenges/evaluations/20261002063546-v17.json. Port whole weapon.c:mon_wield_item, preserve source selection and state/message order, and replace existing caller substitutes. The matching admitted prefix through step52 establishes the nearby hostile wield turn; outer caller functions receive no completion credit. Manifest challenges/manifests/v17.json SHA256 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada; recording challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json SHA256 9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9.",
+      "detail": "Compared the complete weapon.c:mon_wield_item body and every changed caller against upstream C. Selector modes, same-type return, welded-current messages and knowledge, mw replacement before setmnotwielded, visible naming, tether, temporary W_WEP weld probe, canonical synchronous begin_burn, artifact messages, final worn mask and returned turn result follow source order. Existing return-valued selectors and naming/predicate owners are used; mwelded belongs to wield.c. All existing wield callback substitutes and preflights in scope are removed. Only the discarded impossible diagnostic remains a named gap. The selected admitted v17 prefix covers the active nearby hostile wield turn through step52; later armed attack behavior and vault.c:invault remain separate gaps.",
+      "openedAt": "a4258075fcbda16eaa3324a99c07505383d561b6",
+      "openStanding": {
+        "sha": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mon_wield_item",
+          "line": 801,
+          "endLine": 937,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 801,
+        "to": 937
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation": {
+          "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+          "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+          "evaluationPath": "challenges/evaluations/20261002063546-v17.json",
+          "evaluationCommit": "5884f8731e9783777cd400459ca559449da9a3be"
+        }
+      },
+      "activeStanding": {
+        "sha": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+          "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+          "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+          "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+          "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+          "replayInputSha256": "2e49b0756281ef8e89e856df5dd5ba1ba79d223e9ab8919dfe680a7f3a6b5b3b",
+          "evaluationPath": "challenges/evaluations/20261002063546-v17.json",
+          "evaluationCommit": "5884f8731e9783777cd400459ca559449da9a3be",
+          "evaluationArtifact": "challenges/evaluations/20261002063546-v17.json",
+          "evaluationUtc": "2026-10-02T06:36:32.249Z",
+          "remainingScreens": 9,
+          "recordedSteps": 60,
+          "previousScreensMatched": 51,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 51,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2419,
+              "total": 2420
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires monster wield action with a welded weapon",
+            "step": 51
+          },
+          "step": 51,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires monster wield action with a welded weapon",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.json",
+            "result": {
+              "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+              "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+              "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+              "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+              "replayInputSha256": "2e49b0756281ef8e89e856df5dd5ba1ba79d223e9ab8919dfe680a7f3a6b5b3b",
+              "evaluationPath": "challenges/evaluations/20261002063546-v17.json",
+              "evaluationCommit": "5884f8731e9783777cd400459ca559449da9a3be",
+              "remainingScreens": 9,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "5884f8731e9783777cd400459ca559449da9a3be",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+                "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+                "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+                "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+                "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+                "replayInputSha256": "2e49b0756281ef8e89e856df5dd5ba1ba79d223e9ab8919dfe680a7f3a6b5b3b",
+                "evaluationPath": "challenges/evaluations/20261002063546-v17.json",
+                "evaluationCommit": "5884f8731e9783777cd400459ca559449da9a3be",
+                "evaluationArtifact": "challenges/evaluations/20261002063546-v17.json",
+                "evaluationUtc": "2026-10-02T06:36:32.249Z",
+                "remainingScreens": 9,
+                "recordedSteps": 60,
+                "previousScreensMatched": 51,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 51,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2419,
+                    "total": 2420
+                  },
+                  "cursors": {
+                    "matched": 51,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires monster wield action with a welded weapon",
+                  "step": 51
+                },
+                "step": 51,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires monster wield action with a welded weapon",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The preceding cursed-invisibility aggravation path now matches through segment 0 step 50. At step 51, C prints ‘The orc wields a scimitar!’, while JavaScript stops at the newly welded weapon preflight: ‘simple monster action requires monster wield action with a welded weapon’. Port the whole weapon.c:mon_wield_item function and replace its caller selection, message, and wield preflight substitutes. The earlier distfleeck RNG attribution was downstream; the current saved result identifies the wield refusal directly.",
+              "source": {
+                "file": "weapon.c",
+                "branch": "Implement the whole weapon.c:mon_wield_item definition. Preserve every weapon_check selector, return value, W_WEP/mw/weapon_check/bknown mutation, source visibility check, welded refusal/message, tethered autoreturn line, artifact-light lifecycle and offscreen message. In NEED_RANGED_WEAPON, C discards select_rwep()’s return and consumes gp.propellor; keep that side channel separate from the missile return and preserve caller state/RNG order.",
+                "functions": [
+                  "mon_wield_item"
+                ],
+                "callers": [
+                  "monmove.c:dochug pre-move AT_WEAP gate -> mon_wield_item after its trapped/far select_rwep preflight; JS currently injects a selector refusal and presentation adapter.",
+                  "monmove.c:m_digweapon_check -> mon_wield_item; JS has its existing helper call and caller message adapter.",
+                  "mhitm.c:mattackm -> mon_wield_item; JS routes through wieldMonsterItemAgainstMonster, which currently duplicates selector and welded/artifact preflight.",
+                  "mhitu.c:mattacku -> mon_wield_item or thrwmu; JS routes through runSimpleMonsterAction and attackHeroWithMattacku adapters.",
+                  "mthrowu.c:thrwmu and thrwmm -> mon_wield_item in NEED_RANGED_WEAPON arms; JS injects selectRangedWeapon callbacks that duplicate selection.",
+                  "dog.c:makedog and tamedog -> mon_wield_item; JS directly calls it but tamedog still supplies presentation hooks.",
+                  "dogmove.c:dog_invent -> mon_wield_item after picking an AT_WEAP item; JS currently injects unsupported pet weapon selection at this exact branch.",
+                  "vault.c:invault revived-guard branch directly calls mon_wield_item; existing JS invault has no matching wield call and remains a named caller gap."
+                ],
+                "dependencies": [
+                  "weapon.c:select_hwep and weapon.c:select_rwep return/side-channel behavior are existing source-backed helpers in js/weapon.js.",
+                  "mon.c:m_carrying, worn.c:which_armor, weapon.c:mwelded, vision.c:canseemon/cansee, weapon.c:setmnotwielded, weapon.c:autoreturn_weapon, artifact.c:artifact_light, timeout.c:begin_burn, polyself.c:mbodypart, do_name.c:mon_nam/Monnam, objnam.c naming helpers, and hacklib plural/suffix helpers are existing JS implementations; trace their caller state contracts before use.",
+                  "pline.c:impossible is a discarded diagnostic call on the invalid weapon_check arm; preserve it as a named note_unported gap rather than inventing the diagnostic."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved challenges/evaluations/20261002063546-v17.json at 5884f8731e9783777cd400459ca559449da9a3be reports 51/60 screens, 2419/2420 RNG calls and 51/60 cursors. The refreshed queue identifies a stop at segment 0 step 51: simple monster action requires monster wield action with a welded weapon. These measurements preserve nine unmatched screens after the matched aggravation continuation.",
+                "The saved A74 bounded v17 replay run-ewCjPA matches through segment 0 step 50 after the cursed-invisibility command-prefix boundary. This is the prior helper range and establishes the aggravate continuation before the step-51 weapon action; it does not establish the selected wield branch.",
+                "Upstream weapon.c:mon_wield_item is the complete selected source owner at lines 801-934. The C normal branch sets mon->mw, calls setmnotwielded(mon,mw_tmp), resets weapon_check, emits pline_mon when canseemon, optionally emits the autoreturn tether line, temporarily sets/clears W_WEP for mwelded, sets bknown when newly welded, calls begin_burn for a newly lit artifact, then sets final owornmask=W_WEP and returns 1.",
+                "The current JS mon_wield_item at js/weapon.js:948-1051 leaves NEED_RANGED selection and presentation with injected operations, and the existing callers add preflight refusals for artifacts, welded weapons, ranged selection, pet weapon selection, or newly welded message handling. The C source requires the selected helper to own these branches and the caller adapters to retain only their source-specific preconditions.",
+                "The C source call-site search `rg -n -C 5 \"mon_wield_item\\(\" nethack-c/upstream/src/{monmove,mhitm,mhitu,mthrowu,dog,dogmove,vault}.c` finds dochug, m_digweapon_check, mattackm, mattacku, thrwmm, thrwmu, makedog, tamedog, dog_invent, and invault. JavaScript caller/adapter coverage exists for all except invault; preserve invault as an explicit caller gap.",
+                "Historical counter-evidence: the pre-aggravate evaluation reported the initial T of the same C wield message at step 51 and tagged rn2(5)=0 in distfleeck versus JS rn2(7)=6. That RNG diagnosis located downstream behavior in the earlier implementation; the current saved result stops at the weapon preflight instead. The known-presence message precedes aggravate and alone does not prove its execution; the matched command-prefix boundary at step 50 follows the helper return."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "The selected active runtime route is read.c:create_particular sleeping-orc setup -> potion.c:peffect_invisibility cursed potion -> wizard.c:aggravate (matched through step 50) -> monmove.c:dochug wield check -> weapon.c:mon_wield_item visible normal weapon-change branch at step 51.",
+                  "Other direct source callers are monmove.c:m_digweapon_check, mhitm.c:mattackm, mhitu.c:mattacku, mthrowu.c:thrwmu/thrwmm, dog.c:makedog/tamedog, and dogmove.c:dog_invent. Existing JS adapters should be wired in this task; do not claim the outer callers complete."
+                ],
+                "blocked": [
+                  "vault.c:invault has a C resurrected-guard wield call, but its partial JavaScript invault implementation has no corresponding call site; retain it as a named caller gap.",
+                  "The current selected evaluation diverges at step 51, so no matching runtime evidence currently proves completion of the mon_wield_item branch. Recheck the same admitted range after implementation.",
+                  "Unmatched downstream attack, throw, and other caller behavior remains owned by the corresponding incomplete outer source functions; do not broaden A75 into those function ports."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "weapon.c",
+                  "functions": [
+                    "mon_wield_item"
+                  ]
+                },
+                "callerWiring": [
+                  "Implement mon_wield_item in js/weapon.js with one gp.propellor side-channel owner and the caller-provided state/RNG environment.",
+                  "Replace selection/presentation/preflight stand-ins only at the exact existing dochug, m_digweapon_check, mattackm, mattacku, thrwmu/thrwmm, makedog/tamedog, and dog_invent call branches.",
+                  "Leave vault.c:invault as a source-named gap because no matching JS call site exists; do not claim any whole outer caller function."
+                ],
+                "returnValuedDependencies": [
+                  "select_hwep(), m_carrying(), which_armor(), mwelded(), canseemon(), autoreturn_weapon(), and artifact_light() have source return values consumed by mon_wield_item; use their existing state-aware JS implementations.",
+                  "select_rwep() has a missile return discarded here while C consumes gp.propellor; preserve its distinct side channel and exact draw order.",
+                  "setmnotwielded() and begin_burn() have effectful state/timer lifecycles; await their existing JS owners before the source-ordered continuation."
+                ],
+                "downstreamUnresolvedGaps": [
+                  "pline.c:impossible remains a named discarded-void diagnostic gap only on invalid weapon_check.",
+                  "vault.c:invault resurrected-guard wield entry remains unwired in JS and outside whole-function completion.",
+                  "No outer caller listed above receives whole-function credit from caller-only branch wiring.",
+                  "Existing whole-function completion remains unproven at the step-51 wield boundary; the matched aggravation range covers only the preceding helper."
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }
