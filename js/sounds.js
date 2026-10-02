@@ -1197,7 +1197,7 @@ export async function domonnoise(mtmp, state = game) {
         break;
     case MS_SHRIEK:
         plineMsg = 'shrieks.';
-        aggravate(state, random);
+        aggravate(state, { rn2 });
         break;
     case MS_IMITATE:
         plineMsg = 'imitates you.';
