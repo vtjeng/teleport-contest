@@ -17,7 +17,7 @@ import { record_achievement } from './insight.js';
 import { consume_obj_charge } from './invent.js';
 import { can_blow, is_mercenary, mindless, unique_corpstat } from './mondata.js';
 import { monflee, monfleeMessage, onscary, youHear } from './monmove.js';
-import { Monnam } from './do_name.js';
+import { a_monnam, Monnam } from './do_name.js';
 import { tamedog } from './dog.js';
 import { discover_object } from './o_init.js';
 import { an, the, thesimpleoname, Tobjnam, xnameFresh, yname, Yname2 } from './objnam.js';
@@ -25,7 +25,7 @@ import {
     BUGLE, DRUM_OF_EARTHQUAKE, FIRE_HORN, FROST_HORN, LEATHER_DRUM,
     MAGIC_FLUTE, MAGIC_HARP, TOOL_CLASS, TOOLED_HORN, WOODEN_FLUTE, WOODEN_HARP,
 } from './objects.js';
-import { PM_GUARD } from './monsters.js';
+import { PM_GUARD, S_NYMPH, S_SNAKE } from './monsters.js';
 import { incr_itimeout } from './potion.js';
 import { create_gas_cloud } from './region.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
@@ -159,6 +159,68 @@ export async function put_monsters_to_sleep(distance, state = game, env = {}) {
     }
 }
 
+// C ref: music.c charm_snakes() (105-132). C's mdistu is the squared
+// distance from the hero, and the visible message follows state changes,
+// mundetected clearing, and the map redraw in that order.
+export async function charm_snakes(distance, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const canSeeMonster = env.canSeeMonster
+        ?? (mon => canseemon(mon, state));
+    const redraw = env.newsym ?? newsym;
+
+    for (let mon = state.level.monlist; mon; mon = mon.nmon) {
+        if (mon.mhp < 1) continue;
+        if (mon.data.mlet === S_SNAKE && mon.mcanmove
+            && dist2(mon.mx, mon.my, state.u.ux, state.u.uy) < distance) {
+            const wasPeaceful = mon.mpeaceful;
+            mon.mpeaceful = true;
+            mon.mavenge = false;
+            mon.mstrategy &= ~STRAT_WAITMASK;
+            const couldSeeMonster = canSeeMonster(mon);
+            mon.mundetected = false;
+            redraw(mon.mx, mon.my, state);
+            if (canSeeMonster(mon)) {
+                if (!couldSeeMonster) {
+                    await message(
+                        `You notice ${a_monnam(mon, { state })}, swaying with the music.`,
+                        state,
+                    );
+                } else {
+                    await message(
+                        `${Monnam(mon, state)} freezes, then sways with the music${wasPeaceful ? '' : ', and now seems quieter'}.`,
+                        state,
+                    );
+                }
+            }
+        }
+    }
+}
+
+// C ref: music.c calm_nymphs() (139-158). It shares the strict squared range
+// and monster-list filters with charm_snakes, but does not redraw the map.
+export async function calm_nymphs(distance, state = game, env = {}) {
+    const message = env.message ?? ttyPline;
+    const canSeeMonster = env.canSeeMonster
+        ?? (mon => canseemon(mon, state));
+
+    for (let mon = state.level.monlist; mon; mon = mon.nmon) {
+        if (mon.mhp < 1) continue;
+        if (mon.data.mlet === S_NYMPH && mon.mcanmove
+            && dist2(mon.mx, mon.my, state.u.ux, state.u.uy) < distance) {
+            mon.msleeping = 0;
+            mon.mpeaceful = true;
+            mon.mavenge = false;
+            mon.mstrategy &= ~STRAT_WAITMASK;
+            if (canSeeMonster(mon)) {
+                await message(
+                    `${Monnam(mon, state)} listens cheerfully to the music, then seems quieter.`,
+                    state,
+                );
+            }
+        }
+    }
+}
+
 // C ref: music.c generic_lvl_desc() (478-492), using dungeon.h's exact
 // level comparisons. Supplying state keeps the pure predicate testable.
 export function generic_lvl_desc(state = game) {
@@ -238,7 +300,8 @@ export async function do_improvisation(instr, state = game, env = {}) {
         await message(!Deaf(state)
             ? `${Tobjnam(instr, special ? 'trill' : 'toot', state)}${same ? ' a familiar tune' : ''}.`
             : `You feel ${yname(instr, state)} ${special ? 'trill' : 'toot'}.`, state);
-        if (special) note_unported('music.c charm_snakes');
+        if (special)
+            await charm_snakes(state.u.ulevel * 3, state, { ...env, message, random });
         await exercise(A_DEX, true, state, random);
         break;
     case FIRE_HORN:
@@ -295,7 +358,8 @@ export async function do_improvisation(instr, state = game, env = {}) {
             ? `${Yname2(instr, state)} ${special ? (same ? 'produces a familiar, lilting melody' : 'produces a lilting melody')
                 : (same ? 'twangs a familiar tune' : 'twangs')}.`
             : 'You feel soothing vibrations.', state);
-        if (special) note_unported('music.c calm_nymphs');
+        if (special)
+            await calm_nymphs(state.u.ulevel * 3, state, { ...env, message, random });
         await exercise(A_DEX, true, state, random);
         break;
     case DRUM_OF_EARTHQUAKE:

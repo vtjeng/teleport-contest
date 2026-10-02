@@ -8,9 +8,11 @@ import { find_drawbridge, is_db_wall, is_drawbridge_wall } from '../js/dbridge.j
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { awaken_monsters, awaken_scare, awaken_soldiers, charm_monsters,
-    do_improvisation, do_play_instrument, generic_lvl_desc, improvised_notes,
+    charm_snakes, calm_nymphs, do_improvisation, do_play_instrument,
+    generic_lvl_desc, improvised_notes,
     put_monsters_to_sleep } from '../js/music.js';
-import { PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SOLDIER } from '../js/monsters.js';
+import { PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SNAKE, PM_SOLDIER,
+    PM_WOOD_NYMPH } from '../js/monsters.js';
 import { DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS, WOODEN_FLUTE } from '../js/objects.js';
 
 // Fixed fixture seed, selected before inspection; these source-pinned tests
@@ -91,6 +93,16 @@ function monster(state, overrides = {}) {
         mfrozen: 8, mstrategy: 0, mtrack: [], ...overrides };
 }
 
+function musicMonster(state, species, overrides = {}) {
+    // HP4 satisfies C's live-monster test and the +1 coordinate is adjacent.
+    // The defaults are mobile, hostile, avenge-ready, sleeping, visible, and a
+    // null list tail; tests override fields to isolate each C filter/change.
+    return { data: state.mons[species], mhp: 4,
+        mx: state.u.ux + 1, my: state.u.uy, mcanmove: true,
+        mpeaceful: false, mavenge: true, mstrategy: 0, msleeping: true,
+        mundetected: false, nmon: null, ...overrides };
+}
+
 test('charm_monsters matches C dead, inclusive range, and resistance-before-taming order', async () => {
     const source = readFileSync(new URL('../nethack-c/upstream/src/music.c', import.meta.url), 'utf8');
     const helper = source.match(/charm_monsters\(int distance\)\s*\{([\s\S]*?)\n\}/u)?.[1];
@@ -126,6 +138,152 @@ test('charm_monsters matches C dead, inclusive range, and resistance-before-tami
     assert.equal(dead.mpeaceful, false);
     assert.equal(messages.length, 1);
     assert.match(messages[0], /seems more amiable/u);
+});
+
+test('charm_snakes uses C strict squared range and redraws before visible feedback', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/music.c', import.meta.url), 'utf8');
+    const helper = source.match(/staticfn void\s+charm_snakes\(int distance\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(helper, 'C charm_snakes definition');
+    assert.match(helper, /DEADMONSTER\(mtmp\)[\s\S]*?mlet == S_SNAKE\s*&& mtmp->mcanmove\s*&& mdistu\(mtmp\) < distance/u);
+    assert.match(helper, /was_peaceful = mtmp->mpeaceful;\s*mtmp->mpeaceful = 1;\s*mtmp->mavenge = 0;\s*mtmp->mstrategy &= ~STRAT_WAITMASK;\s*could_see_mon = canseemon\(mtmp\);\s*mtmp->mundetected = 0;\s*newsym\(mtmp->mx, mtmp->my\);\s*if \(canseemon\(mtmp\)\)/u);
+    const caller = source.match(/staticfn int\s+do_improvisation\(struct obj \*instr\)\s*\{([\s\S]*?)^\}/mu)?.[1];
+    assert.ok(caller, 'C do_improvisation definition');
+    assert.match(caller, /case WOODEN_FLUTE:[\s\S]*?if \(do_spec\)\s*charm_snakes\(u\.ulevel \* 3\);\s*exercise\(A_DEX, TRUE\);/u);
+    const js = readFileSync(new URL('../js/music.js', import.meta.url), 'utf8');
+    assert.match(js, /if \(special\)\s*await charm_snakes\(state\.u\.ulevel \* 3, state, \{ \.\.\.env, message, random \}\);\s*await exercise\(A_DEX, true, state, random\);/u);
+
+    const state = await startedGame();
+    // Distance4 makes a one-square diagonal (dist2=2) eligible and a two-square
+    // orthogonal offset (dist2=4) exactly on C's excluded strict boundary.
+    const distance = 4;
+    const oneSquare = 1; // The diagonal fixture's x/y offsets are each one square.
+    const boundaryOffset = 2; // Squared C distance equals the supplied bound.
+    const farOffset = 3; // Squared C distance lies outside the supplied bound.
+    const unrelatedStrategyFlag = 1 << 8; // C's mask must preserve this non-wait flag.
+    const dead = musicMonster(state, PM_SNAKE, { mhp: 0, mx: state.u.ux + oneSquare });
+    const immobile = musicMonster(state, PM_SNAKE, { mcanmove: false, mx: state.u.ux + oneSquare });
+    const boundary = musicMonster(state, PM_SNAKE, { mx: state.u.ux + boundaryOffset });
+    const far = musicMonster(state, PM_SNAKE, { mx: state.u.ux + farOffset });
+    const wrongClass = musicMonster(state, PM_WOOD_NYMPH, { mx: state.u.ux + oneSquare });
+    const hidden = musicMonster(state, PM_SNAKE, {
+        mx: state.u.ux + oneSquare, my: state.u.uy + oneSquare,
+        mundetected: true, mstrategy: STRAT_WAITMASK | unrelatedStrategyFlag,
+    });
+    const hostileVisible = musicMonster(state, PM_SNAKE, {
+        mx: state.u.ux + oneSquare,
+        mstrategy: STRAT_WAITMASK | unrelatedStrategyFlag,
+    });
+    const peacefulVisible = musicMonster(state, PM_SNAKE, {
+        my: state.u.uy + oneSquare, mpeaceful: true,
+    });
+    // C's fmon traversal sees all fixture classes in this linked order; only
+    // the final three are mobile living snakes strictly inside distance4.
+    dead.nmon = immobile; immobile.nmon = boundary; boundary.nmon = far;
+    far.nmon = wrongClass; wrongClass.nmon = hidden; hidden.nmon = hostileVisible;
+    hostileVisible.nmon = peacefulVisible; state.level.monlist = dead;
+
+    const events = [];
+    let hiddenVisibilityChecks = 0;
+    await charm_snakes(distance, state, {
+        canSeeMonster: subject => {
+            events.push(`visible:${subject === hidden ? 'hidden' : subject === hostileVisible ? 'hostile' : 'peaceful'}`);
+            // The hider is unseen before C clears mundetected and visible afterward.
+            return subject === hidden ? hiddenVisibilityChecks++ > 0 : true;
+        },
+        newsym: (x, y) => {
+            const subject = [hidden, hostileVisible, peacefulVisible]
+                .find(candidate => candidate.mx === x && candidate.my === y);
+            assert.ok(subject, 'C redraws the affected snake location');
+            assert.equal(subject.mundetected, false);
+            assert.equal(subject.mpeaceful, true);
+            assert.equal(subject.mavenge, false);
+            assert.equal(subject.mstrategy, subject === peacefulVisible ? 0 : unrelatedStrategyFlag);
+            events.push('newsym');
+        },
+        message: line => { events.push(`message:${line}`); },
+    });
+
+    assert.deepEqual([dead.mpeaceful, immobile.mpeaceful, boundary.mpeaceful,
+        far.mpeaceful, wrongClass.mpeaceful], [false, false, false, false, false]);
+    // C clears hostile/avenge/wait state but retains unrelated strategy bits.
+    assert.deepEqual([hidden.mpeaceful, hidden.mavenge, hidden.mstrategy,
+        hidden.mundetected], [true, false, unrelatedStrategyFlag, false]);
+    assert.deepEqual([hostileVisible.mpeaceful, hostileVisible.mavenge,
+        hostileVisible.mstrategy], [true, false, unrelatedStrategyFlag]);
+    assert.deepEqual([peacefulVisible.mpeaceful, peacefulVisible.mavenge,
+        peacefulVisible.mstrategy], [true, false, 0]);
+    // For each eligible snake C checks visibility, clears concealment, redraws,
+    // checks again, then emits the branch-specific response.
+    assert.deepEqual(events, [
+        'visible:hidden', 'newsym', 'visible:hidden',
+        'message:You notice a snake, swaying with the music.',
+        'visible:hostile', 'newsym', 'visible:hostile',
+        'message:The snake freezes, then sways with the music, and now seems quieter.',
+        'visible:peaceful', 'newsym', 'visible:peaceful',
+        'message:The snake freezes, then sways with the music.',
+    ]);
+});
+
+test('calm_nymphs clears source state before visible feedback and preserves range order', async () => {
+    const source = readFileSync(new URL('../nethack-c/upstream/src/music.c', import.meta.url), 'utf8');
+    const helper = source.match(/staticfn void\s+calm_nymphs\(int distance\)\s*\{([\s\S]*?)\n\}/u)?.[1];
+    assert.ok(helper, 'C calm_nymphs definition');
+    assert.match(helper, /DEADMONSTER\(mtmp\)[\s\S]*?mlet == S_NYMPH\s*&& mtmp->mcanmove\s*&& mdistu\(mtmp\) < distance/u);
+    assert.match(helper, /mtmp->msleeping = 0;\s*mtmp->mpeaceful = 1;\s*mtmp->mavenge = 0;\s*mtmp->mstrategy &= ~STRAT_WAITMASK;\s*if \(canseemon\(mtmp\)\)/u);
+    const caller = source.match(/staticfn int\s+do_improvisation\(struct obj \*instr\)\s*\{([\s\S]*?)^\}/mu)?.[1];
+    assert.ok(caller, 'C do_improvisation definition');
+    assert.match(caller, /case WOODEN_HARP:[\s\S]*?if \(do_spec\)\s*calm_nymphs\(u\.ulevel \* 3\);\s*exercise\(A_DEX, TRUE\);/u);
+    const js = readFileSync(new URL('../js/music.js', import.meta.url), 'utf8');
+    assert.match(js, /if \(special\)\s*await calm_nymphs\(state\.u\.ulevel \* 3, state, \{ \.\.\.env, message, random \}\);\s*await exercise\(A_DEX, true, state, random\);/u);
+
+    const state = await startedGame();
+    // The same distance4 boundary distinguishes squared-distance inclusion from
+    // C's strict exclusion; one-square offsets remain inside the effect area.
+    const distance = 4;
+    const oneSquare = 1; // In-range x/y displacement for the responsive nymphs.
+    const boundaryOffset = 2; // The C predicate rejects dist2=distance.
+    const unrelatedStrategyFlag = 1 << 8; // C's mask preserves unrelated strategy bits.
+    const visible = musicMonster(state, PM_WOOD_NYMPH, {
+        mx: state.u.ux + oneSquare, msleeping: true,
+        mstrategy: STRAT_WAITMASK | unrelatedStrategyFlag,
+    });
+    const unseen = musicMonster(state, PM_WOOD_NYMPH, {
+        mx: state.u.ux + oneSquare, my: state.u.uy + oneSquare,
+        msleeping: true, mstrategy: STRAT_WAITMASK,
+    });
+    const boundary = musicMonster(state, PM_WOOD_NYMPH, {
+        mx: state.u.ux + boundaryOffset, msleeping: true,
+    });
+    const dead = musicMonster(state, PM_WOOD_NYMPH, { mhp: 0, msleeping: true });
+    const immobile = musicMonster(state, PM_WOOD_NYMPH, { mcanmove: false, msleeping: true });
+    const wrongClass = musicMonster(state, PM_SNAKE, { msleeping: true });
+    // This chain checks C's dead/species/mobile/range filters in traversal order.
+    visible.nmon = unseen; unseen.nmon = boundary; boundary.nmon = dead;
+    dead.nmon = immobile; immobile.nmon = wrongClass; state.level.monlist = visible;
+    const events = [];
+    await calm_nymphs(distance, state, {
+        canSeeMonster: subject => {
+            events.push(`visible:${subject === visible ? 'nymph' : 'unseen'}`);
+            assert.equal(subject.msleeping, 0);
+            assert.equal(subject.mpeaceful, true);
+            assert.equal(subject.mavenge, false);
+            assert.equal(subject.mstrategy, subject === visible ? unrelatedStrategyFlag : 0);
+            return subject === visible;
+        },
+        message: line => { events.push(`message:${line}`); },
+    });
+
+    assert.deepEqual([visible.msleeping, visible.mpeaceful, visible.mavenge,
+        visible.mstrategy, visible.mcanmove], [0, true, false, unrelatedStrategyFlag, true]);
+    assert.deepEqual([unseen.msleeping, unseen.mpeaceful, unseen.mavenge,
+        unseen.mstrategy], [0, true, false, 0]);
+    assert.deepEqual([boundary.msleeping, dead.msleeping, immobile.msleeping,
+        wrongClass.msleeping], [true, true, true, true]);
+    assert.deepEqual(events, [
+        'visible:nymph',
+        'message:The wood nymph listens cheerfully to the music, then seems quieter.',
+        'visible:unseen',
+    ]);
 });
 
 test('awaken_scare skips resistance for waiting and mindless monsters', async () => {
