@@ -140341,6 +140341,318 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-timeout-slip-or-trip-v17-20261002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port whole slip_or_trip and its FUMBLING expiry caller in C message and random order",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o"
+      ],
+      "selectionReason": "Synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o remains mismatched at zap.c:zap_over_floor; investigations/synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o.json identifies melt_ice and its callers. Parked B85 independent monster-fire-trap recording run-iymxGo reaches hack.c:slippery_ice_fumbling then timeout.c:nh_timeout -> slip_or_trip at segment0 step70 before trap.c:trapeffect_fire_trap. B87 ports whole timeout.c:slip_or_trip and its exact FUMBLING caller as this source-traced runtime prerequisite, with existing confdir clone RNG support; it does not claim melt_ice or fire-trap completion. B85 d2291ade remains parked outside B87 ancestry. Current v17 evaluation challenges/evaluations/20261002101955-v17.json, manifest 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada, recording 5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431. Two independent strict C recordings execute the helper through its production caller.",
+      "detail": "",
+      "openedAt": "eeca14ac2d37d0805aa6c344136e0209791fe54e",
+      "openStanding": {
+        "sha": "8050102cadf9a212c6a151d59b653fdf0709d41e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "slip_or_trip",
+          "line": 1222,
+          "endLine": 1344,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1222,
+        "to": 1344
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o": {
+          "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wizard-fire-ray-melts-wished-ice-slot-o",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+          "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+          "evaluationPath": "challenges/evaluations/20261002101955-v17.json",
+          "evaluationCommit": "35c50b07a51f3af4d84690b160c36db5ec874540"
+        }
+      },
+      "activeStanding": {
+        "sha": "8050102cadf9a212c6a151d59b653fdf0709d41e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wizard-fire-ray-melts-wished-ice-slot-o",
+          "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+          "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+          "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+          "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.recipe.session.json",
+          "recipeSha256": "cb19a5c4399b58fa89155e3cd6932e5863cbec4682a43d0d6c4c411d77077e45",
+          "replayInputSha256": "7d5df19f6c552d4eb3152557308d4e7d4d7659bab2b07fd4f936e7b6a7ca45d6",
+          "evaluationPath": "challenges/evaluations/20261002101955-v17.json",
+          "evaluationCommit": "35c50b07a51f3af4d84690b160c36db5ec874540",
+          "evaluationArtifact": "challenges/evaluations/20261002101955-v17.json",
+          "evaluationUtc": "2026-10-02T10:20:38.798Z",
+          "remainingScreens": 1,
+          "recordedSteps": 34,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 34
+            },
+            "rng": {
+              "matched": 2151,
+              "total": 2158
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 4,
+              "cCell": {
+                "ch": "i",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "b",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2151,
+              "cEntry": "rnd(5)=2",
+              "cCaller": "zap_over_floor(zap.c:5186)",
+              "jsEntry": "rn2(20)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "h"
+              },
+              "stepIndex": 33
+            },
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "h"
+              },
+              "cCursor": [
+                59,
+                0,
+                1
+              ],
+              "jsCursor": [
+                57,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "zap_over_floor",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 5186,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o.json",
+            "result": {
+              "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "wizard-fire-ray-melts-wished-ice-slot-o",
+              "remainingScreens": 1,
+              "recordedSteps": 34,
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+              "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+              "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.recipe.session.json",
+              "recipeSha256": "cb19a5c4399b58fa89155e3cd6932e5863cbec4682a43d0d6c4c411d77077e45",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationUtc": "2026-10-01T19:06:03.082Z",
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "wizard-fire-ray-melts-wished-ice-slot-o",
+                "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+                "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+                "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+                "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.recipe.session.json",
+                "recipeSha256": "cb19a5c4399b58fa89155e3cd6932e5863cbec4682a43d0d6c4c411d77077e45",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 1,
+                "recordedSteps": 34,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 2151,
+                    "total": 2158
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 4,
+                    "cCell": {
+                      "ch": "i",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "b",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2151,
+                    "cEntry": "rnd(5)=2",
+                    "cCaller": "zap_over_floor(zap.c:5186)",
+                    "jsEntry": "rn2(20)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "h"
+                    },
+                    "stepIndex": 33
+                  },
+                  "cursor": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      59,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      57,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 33,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "zap_over_floor",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 5186
+              },
+              "summary": "The remaining fire-ray screen is caused by the unported zap.c:melt_ice() call in zap_over_floor’s ZT_FIRE branch. When the ray reaches ice, C changes the tile to its underlying pool or moat (or clears DB_ICE on a drawbridge), performs the ice side effects and redraw, then reports “The ice crackles and melts.” JavaScript currently calls note_unported() at this source site, leaving the terrain and message unchanged. The first RNG mismatch at zap_over_floor:5186 is a later pool-evaporation draw, not a random call in melt_ice().",
+              "source": {
+                "file": "zap.c",
+                "functions": [
+                  "melt_ice"
+                ],
+                "branch": "When zap_over_floor handles ZT_FIRE on a square for which is_ice(x,y) is true: ordinary ICE changes to POOL or MOAT according to icedpool, while an ice-covered drawbridge clears DB_ICE. The helper stops the melt timer, applies trap/object/vision effects, redraws, reports the message when visible or underfoot, handles boulders, and runs hero or monster floor effects.",
+                "callers": [
+                  "zap.c:zap_over_floor at 5173-5174; reached by zap.c:dobuzz for each visible ray square. JS js/zap.js:5211-5213 currently records note_unported(\"zap.c melt_ice\") instead of invoking the helper.",
+                  "trap.c:dofiretrap at 4313; the hero fire-trap path. JS js/trap_effects.js:2178-2179 has the corresponding melt_ice note.",
+                  "trap.c:trapeffect_fire_trap at 1812; the monster fire-trap path. JS js/trap_effects.js:2298-2299 has the corresponding melt_ice note.",
+                  "eat.c:vomit at 3781; the acidic-form branch. JS js/eat.js:2032-2033 currently refuses the acidic-form arm before this ice check, so that production path remains separately unsupported.",
+                  "zap.c:melt_ice_away at 5130; the timer callback. JS js/timeout.js:365 registers the callback without an implementation, and zap.c:start_melt_ice_timeout is also still an explicit JS gap in the cold-ray path."
+                ],
+                "dependencies": [
+                  "trap.c:trap_ice_effects(x,y,TRUE) is a void, state-changing callee and has no JS implementation. Its C body clears a trapped monster and converts or deletes eligible traps as ice melts (trap.c:7174-7193); retain a named note_unported(\"trap.c trap_ice_effects\") gap only when a trap is present until that separate source function is ported.",
+                  "boulder_hits_pool() returns a boolean consumed by melt_ice() to detect an impossible failed pool fill; js/do.js exports an async implementation at 677, so the caller must await and preserve that result.",
+                  "minliquid(mtmp) is explicitly cast to void in C; js/mon.js has the async helper at 2210, so run its side effects but do not use its return value.",
+                  "melt_ice() itself returns void. zap_over_floor() retains its separate rangemod return contract, consumed by dobuzz() to adjust ray range; do not use a melt_ice return as the range delta."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The immutable v17 evaluation challenges/evaluations/20261001190602-v17.json records this case at 33/34 screens, 2151/2158 RNG calls and 33/34 cursors; the only remaining screen is segment 0, step 33, key h. Its earliest reported RNG difference is C rnd(5)=2 at zap_over_floor(zap.c:5186), while the screen and cursor also differ.",
+                "The C recording challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json ends step 33 with “The ice crackles and melts. Some water evaporates.” The recorded animation frames show the fire beam crossing the wished ice and the tile changing from ice to liquid before the final pool evaporation message.",
+                "Upstream zap.c:5040-5079 defines the complete void melt_ice() body: default message; clear DB_ICE or restore the underlying POOL/MOAT and clear icedpool; stop MELT_ICE_AWAY; call trap_ice_effects, obj_ice_effects and unearth_objs; recalculate underwater vision; newsym before Norep; process boulders; then call spoteffects underfoot or minliquid for a monster in the pool.",
+                "Upstream zap.c:5141-5187 puts melt_ice() in the ZT_FIRE ice arm at 5173-5174. rnd(5) at 5186 belongs only to the following is_pool() arm. melt_ice() contains no direct random-number call, so the saved first RNG difference identifies later pool evaporation, not the source owner.",
+                "Upstream zap.c:dobuzz (4780 onward) paints and delays the beam at each square before calling zap_over_floor(), then re-reads the monster because melting ice can change its floor effects (zap.c:4828-4861). JS js/zap.js:5888-5912 follows the same animation-before-floor-effect order; call melt_ice at the existing note site without moving the call ahead of the beam frame or delay.",
+                "A direct upstream source search, rg -n \"melt_ice\\(\" nethack-c/upstream/src/{zap.c,trap.c,eat.c}, finds zap.c:zap_over_floor and melt_ice_away, trap.c:dofiretrap and trapeffect_fire_trap, and eat.c:vomit, in addition to the definition. The paired rg search for melt_ice, zap_over_floor and trap_ice_effects in nethack-c/patches returns no matches; the owning behavior is the upstream C body.",
+                "The matching retainedCases context in .cache/C56-accepted-preparation-evidence.json attributes the C outcome to zap.c:weffects -> buzz -> zap_over_floor -> melt_ice, with ice becoming water. Direct inspection confirms that attribution: js/zap.js:5211-5213 still skips the C helper. The retained trace’s zap_over_floor:5186 RNG caller is downstream pool handling and must not be treated as melt_ice ownership."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
