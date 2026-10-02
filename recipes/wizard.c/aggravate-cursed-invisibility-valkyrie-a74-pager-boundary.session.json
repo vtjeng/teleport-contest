@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent A74 C-first attempt. This Valkyrie seed and clock differ from v17; Ctrl-W creates a cursed potion and Ctrl-G creates a sleeping goblin. C calls potion.c:peffect_invisibility and wizard.c:aggravate, then the later wait reaches a monster wield action. The C boundary at step 54 includes distfleeck and a wield message, but the strict diff fails there because JavaScript does not port weapon.c:mon_wield_item's welded-weapon action. Keep the raw C recording and failed replay in .cache/A74-logs/attempts; do not add this nonmatching record to recordings/.",
+  "segments": [
+    {
+      "seed": 83927149,
+      "datetime": "20861002152000",
+      "nethackrc": "OPTIONS=name:A74InvisVariation,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017cursed potion of invisibility\n\u0007sleeping goblin\nqe m."
+    }
+  ]
+}

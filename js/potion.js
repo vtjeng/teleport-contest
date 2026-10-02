@@ -199,6 +199,7 @@ import {
 import { fix_petrification } from './eat.js';
 import { monstseesu, monstunseesu } from './mondata.js';
 import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
+import { aggravate } from './wizard.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
 import {
@@ -1373,10 +1374,9 @@ async function peffect_oil(otmp, state = game) {
 
 // C ref: potion.c peffect_invisibility() (811-840). HInvis is the complete
 // intrinsic field in u.uprops[INVIS], including FROMOUTSIDE. Spell objects
-// cannot bypass a blocking source when mummy wrapping is worn. The cursed
-// aggravate() result is void and its source family remains unported, so keep
-// that named gap without inventing its monster effects.
-async function peffect_invisibility(otmp, state = game) {
+// cannot bypass a blocking source when mummy wrapping is worn.
+async function peffect_invisibility(otmp, state = game, env = {}) {
+    const random = env.random ?? { d, rn2 };
     const isSpell = otmp.oclass === SPBOOK_CLASS;
     const invisibility = state.u.uprops[INVIS];
     const blocked = Boolean(invisibility?.blocked);
@@ -1398,12 +1398,12 @@ async function peffect_invisibility(otmp, state = game) {
     // C tests the whole HInvis intrinsic bitfield, not only its timeout;
     // FROMOUTSIDE and racial/permanent sources select the shorter chance too.
     const hInvis = invisibility?.intrinsic ?? 0;
-    if (otmp.blessed && !rn2(hInvis ? 15 : 30)) {
+    if (otmp.blessed && !random.rn2(hInvis ? 15 : 30)) {
         invisibility.intrinsic |= FROMOUTSIDE;
     } else {
         incr_itimeout(
             invisibility,
-            d(6 - 3 * bcsign(otmp), 100) + 100,
+            random.d(6 - 3 * bcsign(otmp), 100) + 100,
         );
     }
     newsym(state.u.ux, state.u.uy);
@@ -1411,7 +1411,7 @@ async function peffect_invisibility(otmp, state = game) {
     if (otmp.cursed) {
         await ttyPline(
             'For some reason, you feel your presence is known.', state);
-        note_unported('wizard.c aggravate');
+        aggravate(state, random);
         invisibility.intrinsic &= ~FROMOUTSIDE;
     }
 }
@@ -1873,7 +1873,9 @@ export async function peffects(otmp, state = game, env = {}) {
         break;
     case SPE_INVISIBILITY:
     case POT_INVISIBILITY:
-        await peffect_invisibility(otmp, state);
+        await peffect_invisibility(
+            otmp, state, potionEffectEnvironment(env),
+        );
         break;
     case POT_SEE_INVISIBLE:
     case POT_FRUIT_JUICE:

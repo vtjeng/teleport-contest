@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved full independent C attempt for A74. The cursed-invisibility helper runs and the awakened goblin reaches weapon.c:mon_wield_item; after the first wield message, the appended space advances into its cursed welded-weapon branch. JavaScript does not port that later branch, so this longer recipe is not a passing A74 recording. Its raw C output, strict differential failure and receipts are retained under .cache/A74-logs/attempts.",
+  "segments": [
+    {
+      "seed": 83927149,
+      "datetime": "20861002152000",
+      "nethackrc": "OPTIONS=name:A74InvisVariation,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017cursed potion of invisibility\n\u0007sleeping goblin\nqe m. "
+    }
+  ]
+}

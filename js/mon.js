@@ -692,7 +692,12 @@ import {
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
-import { mon_has_amulet, mon_has_special, pick_nasty } from './wizard.js';
+import {
+    aggravate,
+    mon_has_amulet,
+    mon_has_special,
+    pick_nasty,
+} from './wizard.js';
 import { getlin } from './windows.js';
 import { tt_doppel } from './topten.js';
 import { mwepgone } from './weapon.js';
@@ -3640,9 +3645,7 @@ async function m_respond_shrieker(monster, rawEnv = {}) {
             },
         });
     }
-    // wizard.c aggravate() has no return value. Its full tower and paralysis
-    // behavior is still unported, so retain the source-ordered gap here.
-    note_unported('wizard.c aggravate');
+    aggravate(state, random);
 }
 
 // C ref: mon.c m_respond_medusa(). gazemu() is outside this span and returns
@@ -3671,7 +3674,7 @@ export async function m_respond(monster, rawEnv = {}) {
     }
     if (monster.data === state.mons?.[PM_ERINYS]
         && !monster.mpeaceful && m_canseeu(monster, state)) {
-        note_unported('wizard.c aggravate');
+        aggravate(state, rawEnv.random ?? { rn2 });
     }
 }
 

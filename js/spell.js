@@ -132,6 +132,7 @@ import {
     LENSES,
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz } from './rng.js';
+import { aggravate } from './wizard.js';
 import { ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import {
@@ -303,7 +304,7 @@ export async function cursed_book(book, state = game, env = {}) {
         break;
     case 1:
         await message('You feel threatened.', state);
-        if (state === game) note_unported('wizard.c aggravate');
+        aggravate(state, random);
         break;
     case 2: {
         const prior = timeout[BLINDED]?.intrinsic ?? 0;

@@ -13,6 +13,8 @@ import {
     M_ATTK_MISS,
     M_SEEN_MAGR,
     MFAST,
+    STRAT_APPEARMSG,
+    STRAT_WAITFORU,
     TELEPAT,
 } from '../js/const.js';
 import { buzzmu, castmu, mcast_summon_mons } from '../js/mcastu.js';
@@ -359,15 +361,18 @@ test('spell_would_be_useless: MCAST_HASTE_SELF when already fast', async () => {
 // Wizard list maxlev is 20 (MCAST_DEATH_TOUCH), so rn2(15)=13 needs no
 // reroll and MCAST_AGGRAVATION (level 13) is the first candidate.
 
-test('spell_would_be_useless: MCAST_AGGRAVATION draws nothing when a monster sleeps',
+test('MCAST_AGGRAVATION wakes a waiting monster after its spell message',
     async () => {
         // Second value: rn2(ml*10)=rn2(150)=50 passes the fumble check.
         const random = scriptedRandom([13, 50]);
         const state = makeState();
-        state.level = {
-            monlist: { mhp: 5, msleeping: 1, mcanmove: true, mx: 7, my: 7,
-                mstrategy: 0, nmon: null },
+        // The mobile monster shares the hero's false tower result on this
+        // ordinary level; aggravation clears it without an extra thaw draw.
+        const waiting = {
+            mhp: 5, msleeping: 1, mcanmove: true, mx: 7, my: 7,
+            mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG, nmon: null,
         };
+        state.level = { monlist: waiting };
         const refusals = [];
         const messages = [];
         const result = await castmu(
@@ -378,15 +383,17 @@ test('spell_would_be_useless: MCAST_AGGRAVATION draws nothing when a monster sle
                 noteUnported: (what) => refusals.push(what),
             },
         );
-        // The undirected aggravation spell is chosen and reaches
-        // mcast_spell(), which records the discarded wizard.c aggravate call.
+        // The undirected aggravation spell reaches mcast_spell(), then runs
+        // the source helper after the spell's feeling message.
         assert.equal(result, M_ATTK_HIT);
         assert.deepEqual(random.draws, ['rn2(15)', 'rn2(150)']);
         assert.deepEqual(messages, [
             'Kobold shaman casts a spell!',
             'You feel that monsters are aware of your presence.',
         ]);
-        assert.deepEqual(refusals, ['wizard.c aggravate']);
+        assert.deepEqual(refusals, []);
+        assert.equal(waiting.msleeping, false);
+        assert.equal(waiting.mstrategy, 0);
     });
 
 test('spell_would_be_useless: MCAST_AGGRAVATION draws rn2(100) when nothing sleeps',

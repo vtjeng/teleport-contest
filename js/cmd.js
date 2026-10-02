@@ -386,6 +386,7 @@ import {
     cantwield,
 } from './wield.js';
 import { rn1, rn2, rnd } from './rng.js';
+import { aggravate } from './wizard.js';
 import { dotalk, UnsupportedChatError } from './sounds.js';
 import {
     clearTtyMessageWindow,
@@ -3579,9 +3580,13 @@ async function domonability(state) {
             'domonability unicorn-horn for unicorn form',
         );
     } else if (uptr?.msound === MS_SHRIEK) {
-        throw new UnsupportedHeroCommandBranchBoundaryError(
-            'domonability shriek for a shrieking form',
-        );
+        await ttyPline('You shriek.', state);
+        if (state.u.uburied)
+            await ttyPline(
+                'Unfortunately sound does not carry well through rock.',
+                state,
+            );
+        else aggravate(state, { rn2 });
     } else if (is_vampire(uptr) || is_vampshifter(state.youmonst)) {
         return dopoly(state);
     } else if (state.u.usteed && can_breathe(state.u.usteed?.data)) {

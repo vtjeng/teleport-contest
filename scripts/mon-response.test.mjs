@@ -1,14 +1,22 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { STRAT_WAITFORU, STRAT_WAITMASK } from '../js/const.js';
+import {
+    MS_SHRIEK,
+    STRAT_APPEARMSG,
+    STRAT_WAITFORU,
+    STRAT_WAITMASK,
+} from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { getRngLog, enableRngLog } from '../js/rng.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     m_respond,
     peacefuls_respond,
     qst_guardians_respond,
     wake_nearto_core,
 } from '../js/mon.js';
+import { domonnoise } from '../js/sounds.js';
 import {
     G_UNIQ,
     PM_GNOME,
@@ -60,6 +68,12 @@ test('m_respond_shrieker prints, then interrupts, in C order', async () => {
     await hero();
     const shrieker = monster(PM_SHRIEKER);
     prepend(shrieker);
+    // This mobile sleeper is in the same false tower region as the hero on
+    // the ordinary dungeon level; aggravate wakes it without another draw.
+    const sleeper = prepend(monster(PM_GNOME, {
+        msleeping: true,
+        mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG,
+    }));
     const events = [];
     const random = { rn2: (bound) => {
         assert.equal(bound, 10); // mon.c:4101's one-in-ten summon check.
@@ -74,7 +88,46 @@ test('m_respond_shrieker prints, then interrupts, in C order', async () => {
     });
 
     assert.deepEqual(events, ['message:The shrieker shrieks.', 'stop']);
-    assert.ok(game.unported.has('wizard.c aggravate'));
+    assert.equal(sleeper.msleeping, false);
+    assert.equal(sleeper.mstrategy, 0);
+    assert.ok(!game.unported.has('wizard.c aggravate'));
+});
+
+test('domonnoise passes its rn2 owner to the shriek aggravation branch', async () => {
+    await hero();
+    // Keep only these two fixtures in fmon: the mobile shrieker selects C's
+    // sounds.c:domonnoise MS_SHRIEK branch, and the sleeping gnome is the one
+    // immobile monster that makes wizard.c:aggravate consume rn2(5).
+    game.level.monlist = null;
+    const shrieker = prepend(monster(PM_SHRIEKER));
+    const sleeper = prepend(monster(PM_GNOME, {
+        mcanmove: false,
+        mfrozen: 4, // A positive timer exposes C's zero-roll thaw branch.
+        msleeping: true,
+        mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG,
+    }));
+    // Drain the start-game welcome topline so domonnoise can print without
+    // requesting an unrelated continuation key from the test input queue.
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    enableRngLog();
+
+    assert.equal(shrieker.data.msound, MS_SHRIEK);
+    await domonnoise(shrieker, game);
+
+    // C sounds.c:domonnoise calls aggravate before emitting the shriek line.
+    // The existing core RNG wrapper records exactly one source rn2(5) draw.
+    const draws = getRngLog();
+    assert.equal(draws.length, 1);
+    const match = /^rn2\(5\)=(\d+)$/u.exec(draws[0]);
+    assert.ok(match, 'the shrieker caller uses the core rn2(5) owner');
+    const roll = Number(match[1]);
+    assert.ok(roll >= 0 && roll < 5);
+    assert.equal(sleeper.msleeping, false);
+    assert.equal(sleeper.mstrategy & (STRAT_WAITFORU | STRAT_APPEARMSG), 0);
+    assert.equal(sleeper.mcanmove, roll === 0);
+    assert.equal(sleeper.mfrozen, roll === 0 ? 0 : 4);
+    assert.equal(game._ttyToplines, 'The shrieker shrieks.');
 });
 
 test('qst_guardians_respond angers visible role guardians', async () => {

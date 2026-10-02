@@ -138061,6 +138061,682 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-wizard-aggravate-v17-20261002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete monster aggravation and wire existing callers",
+      "cFile": "wizard.c",
+      "sessions": [
+        "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation"
+      ],
+      "selectionReason": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation, investigation investigations/synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.json, current evaluation challenges/evaluations/20261002061530-v17.json. Complete whole wizard.c:aggravate and nine existing source-aligned caller branches. Matching production evidence ends after potion return and the next command-prefix boundary at step50; later mon_wield_item action at51 remains outside this task. No whole caller credit. Manifest challenges/manifests/v17.json SHA256 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada; recording challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json SHA256 9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9.",
+      "detail": "Root compared whole wizard.c:aggravate and nine existing callers against C. Hero tower membership is cached, dead/other-region monsters skipped in fmon order, exact wait/appear bits cleared, sleeping cleared, conditional rn2(5) only on immobile monsters and zero-roll thaw preserved. Existing In_W_tower return dependency is source checked. Exact callers are peffect_invisibility, cursed_book, m_respond_shrieker, m_respond, doturn, dosit throne case11, domonnoise MS_SHRIEK, domonability shriek, mcast_spell MCAST_AGGRAVATION. Correction replaces undefined random with imported rn2 owner at domonnoise; a regression reproduced ReferenceError before the fix and now checks one draw/wake/message. No whole caller credit. Missing intervene remains an explicit distinct gap.",
+      "openedAt": "83c2d5be02f2ba68a35d1d2be6b5ff3a1dfc6439",
+      "openStanding": {
+        "sha": "03fd87c4d989cd5a9f3a731abe1f45442a0919e1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5884f8731e9783777cd400459ca559449da9a3be",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "aggravate",
+          "line": 494,
+          "endLine": 516,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 494,
+        "to": 516
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation": {
+          "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+          "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+          "evaluationPath": "challenges/evaluations/20261002061530-v17.json",
+          "evaluationCommit": "03fd87c4d989cd5a9f3a731abe1f45442a0919e1"
+        }
+      },
+      "activeStanding": {
+        "sha": "03fd87c4d989cd5a9f3a731abe1f45442a0919e1",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+          "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+          "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+          "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+          "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+          "replayInputSha256": "1aed2425e991017d705ba43c1b8296c8e24713b722ef4796d403ad3a9a0030bf",
+          "evaluationPath": "challenges/evaluations/20261002061530-v17.json",
+          "evaluationCommit": "03fd87c4d989cd5a9f3a731abe1f45442a0919e1",
+          "evaluationArtifact": "challenges/evaluations/20261002061530-v17.json",
+          "evaluationUtc": "2026-10-02T06:16:16.077Z",
+          "remainingScreens": 9,
+          "recordedSteps": 60,
+          "previousScreensMatched": 51,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 51,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2419,
+              "total": 2420
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 51,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 51,
+                "key": "."
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2419,
+              "cEntry": "rn2(5)=0",
+              "cCaller": "distfleeck(monmove.c:538)",
+              "jsEntry": "rn2(7)=6",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 51,
+                "key": "."
+              },
+              "stepIndex": 51
+            },
+            "cursor": {
+              "index": 51,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 51,
+                "key": "."
+              },
+              "cCursor": [
+                34,
+                0,
+                1
+              ],
+              "jsCursor": [
+                32,
+                4,
+                1
+              ]
+            }
+          },
+          "step": 51,
+          "kind": "rng",
+          "sourceFile": "monmove.c",
+          "function": "distfleeck",
+          "message": null,
+          "cFile": "monmove.c",
+          "luaFile": null,
+          "line": 538,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.json",
+            "result": {
+              "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+              "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+              "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+              "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 9,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+                "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+                "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+                "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+                "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 9,
+                "recordedSteps": 60,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 51,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2419,
+                    "total": 2420
+                  },
+                  "cursors": {
+                    "matched": 51,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 51,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 51,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2419,
+                    "cEntry": "rn2(5)=0",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rn2(7)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 51,
+                      "key": "."
+                    },
+                    "stepIndex": 51
+                  },
+                  "cursor": {
+                    "index": 51,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 51,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      34,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      32,
+                      4,
+                      1
+                    ]
+                  }
+                },
+                "step": 51,
+                "kind": "rng",
+                "sourceFile": "monmove.c",
+                "function": "distfleeck",
+                "message": null,
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 538
+              },
+              "summary": "The first screen/RNG mismatch occurs on the monster turn after a cursed invisibility potion. potion.c peffect_invisibility() calls the void wizard.c aggravate(); JavaScript currently records note_unported() there, leaving the sleeping orc asleep. Port the whole aggravate() function and wire its existing JavaScript gap callers. The queue’s distfleeck RNG tag is downstream of the missing state change.",
+              "source": {
+                "file": "wizard.c",
+                "branch": "For each living monster in the current fmon chain whose In_W_tower() result matches the hero’s, aggravate() clears STRAT_WAITFORU and STRAT_APPEARMSG and sets msleeping to zero. If that monster cannot move, it then rolls rn2(5); only a zero result clears mfrozen and restores mcanmove. The function returns void and emits no message.",
+                "functions": [
+                  "aggravate"
+                ],
+                "callers": [
+                  "Recorded path: cmd.c binds quaff to potion.c dodrink() -> dopotion() -> peffects() -> peffect_invisibility() (:811-837); for a cursed potion, peffect_invisibility() emits the known-presence message and calls aggravate() at :832. JavaScript routes q through js/cmd.js dodrink dispatch into js/potion.js dodrink()/dopotion()/peffects()/peffect_invisibility(); peffect_invisibility() currently leaves note_unported('wizard.c aggravate') at js/potion.js:1385.",
+                  "spell.c cursed_book() calls aggravate() in cursed-book result case 1 at :141-144; js/spell.js cursed_book() records the same named gap at :306 when operating on the live game state.",
+                  "mon.c m_respond_shrieker() calls aggravate() after its shriek and any summon at :4089-4105, and m_respond() calls it for a hostile visible Erinys at :4122-4130. js/mon.js has named gaps at :3645 and :3674.",
+                  "pray.c dopray() calls aggravate() when the deity ignores the petitioner (:2441-2448) and when prayer is attempted in Gehennom (:2450-2456); js/pray.js records named gaps at :1681 and :1693.",
+                  "sit.c dosit() calls aggravate() on the negative-luck case (:185-193); js/sit.js records a named gap at :468.",
+                  "sounds.c growl() calls aggravate() for MS_SHRIEK (:960-964); js/sounds.js growl() records a named gap at :1199.",
+                  "cmd.c domonability() calls aggravate() when the hero form shrieks and is not buried (:932-937); js/cmd.js still refuses its shrieker branch with UnsupportedHeroCommandBranchBoundaryError at :3589-3592.",
+                  "mcastu.c castmu() calls aggravate() for MCAST_AGGRAVATION (:826-830); js/mcastu.js emits the message then records recordMcastGap('wizard.c aggravate') at :773-777.",
+                  "wizard.c intervene() calls aggravate() in result case 3 (:784-802) after the Wizard of Yendor is killed. No JavaScript intervene() implementation exists; this is a separate unported caller path."
+                ],
+                "dependencies": [
+                  "dungeon.c In_W_tower() returns the consumed hero/monster region predicate. js/dungeon.js already exports In_W_tower(x, y, level, state); compute the hero result once and compare it with each monster result in source order.",
+                  "The C global fmon linked list maps to state.level.monlist. DEADMONSTER(mtmp) is the mhp < 1 check. Update each existing monster object in place: clear exactly STRAT_WAITFORU | STRAT_APPEARMSG, clear msleeping, and conditionally set mfrozen=0 and mcanmove=1.",
+                  "rng.c rn2() supplies the consumed result only when mcanmove is false. js/wizard.js already imports rn2; use the call-site random stream where its caller supplies one. Calls to aggravate() discard its void result, so there is no return-valued dependency."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned entry .cache/v17-investigations/3.json and .cache/v17-work-queue.json agree on session synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation, remainingScreens 9, recordedSteps 60, batch v17, manifest digest 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada, recording digest 9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9, and evaluation identity. The manifest corpus digest and immutable recipe/recording hashes were checked before writing.",
+                "Saved challenges/evaluations/20261001190602-v17.json, associated with evaluation commit 518d4526ccba82c89752a8babb892ba9bc48bc60, reports 51/60 screens and cursors, 2419/2420 RNG calls, and first mismatch at segment 0, step 51, key dot. C’s next logged draw is rn2(5)=0 from distfleeck(monmove.c:538); JS next logs rn2(7)=6. This caller tag locates the downstream draw, while the source trace below identifies the earlier skipped aggravation call.",
+                "The immutable C recording shows step 48 key e quaffing the cursed potion and drawing d(9,100)=461 at peffect_invisibility(potion.c:828). Step 49 key space displays “For some reason, you feel your presence is known.” The input recipe creates “sleeping orc”; upstream read.c create_particular_parse() recognizes the “sleeping ” prefix at :3174-3176, and create_particular_creation() sets mtmp->msleeping=1 at :3341-3342. That confirms the monster setup reaches the intended state before the potion effect.",
+                "At step 50 key m, the C recording screen remains the matched blank continuation. At step 51 key dot, the recorded C first line is “The orc wields a scimitar!--More--”; the differing cell at row 0 column 0 is the initial T of that message, not an orc map glyph. The retained C56 row’s wording about an orc glyph is imprecise for this cell. Its sourcePointers include potion.c:peffect_invisibility and wizard.c:aggravate, which are verified directly against source here.",
+                "Upstream nethack-c/upstream/src/potion.c peffect_invisibility() calls aggravate() only in the cursed-object branch at :830-836, after printing the known-presence message and before clearing HInvis FROMOUTSIDE. The current js/potion.js implementation preserves the message and timeout work but calls note_unported('wizard.c aggravate') at :1385, then clears the same intrinsic bit. This is the missing monster-state mutation before the later monster turn.",
+                "Upstream nethack-c/upstream/src/wizard.c aggravate() is the complete source owner at :494-511. It scans fmon, skips dead monsters and monsters across the Wizard’s Tower boundary, clears the two named strategy flags and sleeping status, and conditionally thaws an immobile monster after rn2(5). Existing js/wizard.js has the adjacent has_aggravatables() helper and imports In_W_tower, STRAT_WAITFORU, STRAT_APPEARMSG, game, and rn2, but has no aggravate() implementation.",
+                "The C source callers were enumerated with rg -n \"aggravate\\(\\)\" over potion.c, spell.c, wizard.c, mon.c, pray.c, sit.c, sounds.c, cmd.c, and mcastu.c. Existing JavaScript callers contain named void gaps in potion.js, spell.js, mon.js, pray.js, sit.js, sounds.js, and mcastu.js. cmd.js has a source-specific shrieker refusal; wizard.c intervene() has no JavaScript counterpart. Those callers need explicit scope decisions when wiring the helper.",
+                "The matching retainedCases row in .cache/C56-accepted-preparation-evidence.json records the same sourcePointers and firstMismatchOwner wizard.c:aggravate; its independent C replay was byte-identical to the immutable recording. This historical classification is corroboration only; the current C call and state branches were read directly.",
+                "The source submodule at examined commit 45a483d2dd3320f9268aeb4477a785237e69df4e is upstream commit 16ff59115315917b93185d026aeefea06db9b0f4. Search `rg -n \"aggravate|wizard\\.c\" nethack-c/patches` returned no matches, so no project patch changes this behavior.",
+                "Coverage limits: the saved C route exercises the ordinary same-level sleeping-monster wake path, but its current JS replay diverges before the effect is validated end to end. It does not demonstrate the immobile-monster rn2(5) thaw branch or the tower-membership filter. A whole-function completion will need matching caller evidence and a focused recipe for those branches; no replay or test was run in this investigation."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Cursed-potion entry: quaff command -> potion.c dodrink()/dopotion()/peffects()/peffect_invisibility() -> wizard.c aggravate(); the C recording reaches it at segment 0 step 49 and exposes the missing wake effect on the subsequent dot command at step 51.",
+                  "Other implemented call paths are cursed spellbook, monster response/shriek, prayer, sitting, special ability, and monster spell aggravation; their C callers and JavaScript gap locations are listed in source.callers."
+                ],
+                "blocked": [
+                  "The current saved JavaScript evaluation diverges at step 51, so it cannot yet serve as matching completion evidence through aggravate().",
+                  "The immobile-monster thaw roll and Wizard’s Tower boundary cases are not covered by this recording.",
+                  "cmd.c domonability() has a shrieker branch refusal in JavaScript, and wizard.c intervene() has no JavaScript caller. Keep these explicit when assigning caller-wiring scope."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "wizard.c",
+                  "functions": [
+                    "aggravate"
+                  ]
+                },
+                "callerWiring": [
+                  "Implement the complete wizard.c aggravate() function in js/wizard.js, preserving the fmon scan order, dead-monster and In_W_tower filters, exact strategy mask, sleeping update, and conditional rn2(5) order.",
+                  "Replace the existing wizard.c aggravate named gaps in js/potion.js, js/spell.js, js/mon.js, js/pray.js, js/sit.js, js/sounds.js, and js/mcastu.js with calls that pass each caller’s game state and random stream.",
+                  "Wire the existing js/cmd.js shrieker-form refusal to the C domonability() branch if the assigned implementation claims coverage for that production caller; preserve its other unported ability branches."
+                ],
+                "returnValuedDependencies": [],
+                "downstreamUnresolvedGaps": [
+                  "wizard.c intervene() is a separate source caller after Wizard death, but no JS intervene() function exists; do not claim that entrypoint is wired by adding aggravate() alone.",
+                  "The case’s evaluation remains at 9 unmatched screens until a later implementation and replay. The existing case does not cover aggravate()’s immobile-monster rn2(5) branch or tower filtering.",
+                  "Unrelated source gaps at the same callers, including mhitu.c gazemu in js/mon.js and the other UnsupportedHeroCommandBranchBoundaryError branches in js/cmd.js, remain outside aggravate()."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "aggravate",
+            "implementation": "js/wizard.js",
+            "symbol": "aggravate",
+            "sourceReview": "Root compared whole wizard.c:aggravate and nine existing callers against C. Hero tower membership is cached, dead/other-region monsters skipped in fmon order, exact wait/appear bits cleared, sleeping cleared, conditional rn2(5) only on immobile monsters and zero-roll thaw preserved. Existing In_W_tower return dependency is source checked. Exact callers are peffect_invisibility, cursed_book, m_respond_shrieker, m_respond, doturn, dosit throne case11, domonnoise MS_SHRIEK, domonability shriek, mcast_spell MCAST_AGGRAVATION. Correction replaces undefined random with imported rn2 owner at domonnoise; a regression reproduced ReferenceError before the fix and now checks one draw/wake/message. No whole caller credit. Missing intervene remains an explicit distinct gap.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffect_invisibility",
+                "source": "potion.c:peffect_invisibility (830-837), cursed invisibility branch after the known-presence pline and before FROMOUTSIDE is cleared."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "cursed_book",
+                "source": "spell.c:cursed_book case 1 after the threatened message."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond_shrieker",
+                "source": "mon.c:m_respond_shrieker after optional summoning and shriek handling."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond",
+                "source": "mon.c:m_respond hostile visible Erinys branch."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "doturn",
+                "source": "pray.c:doturn #turn deity-ignore and Gehennom branches; the helper uses doturn's existing random owner and stays after its message."
+              },
+              {
+                "path": "js/sit.js",
+                "symbol": "dosit",
+                "source": "sit.c:dosit negative-Luck case 11 after the threatened message, preserving the alternate teleport arm."
+              },
+              {
+                "path": "js/sounds.js",
+                "symbol": "domonnoise",
+                "source": "sounds.c:domonnoise MS_SHRIEK branch after selecting the shriek message and before printing it."
+              },
+              {
+                "path": "js/cmd.js",
+                "symbol": "domonability",
+                "source": "cmd.c:domonability polymorphed shrieking-form branch when not buried, after the shriek message."
+              },
+              {
+                "path": "js/mcastu.js",
+                "symbol": "mcast_spell",
+                "source": "mcastu.c:mcast_spell MCAST_AGGRAVATION arm after its feeling message and before dmg is set to zero."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wizard.test.mjs",
+              "scripts/potion.test.mjs",
+              "scripts/mon-response.test.mjs",
+              "scripts/mcastu.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "segment": 0,
+                "fromStep": 48,
+                "throughStep": 50,
+                "source": "read.c:create_particular sleeping-orc setup -> potion.c:peffect_invisibility cursed-potion branch -> wizard.c:aggravate -> the next command-prefix boundary"
+              }
+            ],
+            "checkedAt": "1a3be611b869c779506379a286f615b9e6b1fe62"
+          }
+        ],
+        "entryPointReview": "This is helper-only selected coverage, so entryPoints is empty. The original reservation mislabeled the sounds.c:domonnoise call as sounds.c:growl; the correction retains growl only as historical reservation scope. All existing JavaScript aggravate call gaps in potion.c:peffect_invisibility, spell.c:cursed_book, mon.c:m_respond_shrieker, mon.c:m_respond, pray.c:doturn, sit.c:dosit, sounds.c:domonnoise, cmd.c:domonability, and mcastu.c:mcast_spell were replaced at their source call positions; none of those caller functions receives whole-function completion credit. The v17 cursed-invisibility case is a matching production route: read.c:create_particular creates the sleeping orc, potion.c:peffect_invisibility runs the cursed potion path, and its known-presence pline is followed by wizard.c:aggravate before the command returns. Correction bounded run-ewCjPA verifies the C/JS recording through segment 0 step 50, including the following `m` command-prefix boundary. Step 51 is intentionally excluded: it enters the later weapon.c:mon_wield_item welded-weapon action, and bounded run-p0vJPZ confirms that this later boundary does not match because that separate action remains unported. The independent Valkyrie C-first recipes are preserved as blocked attempts; the pager-boundary strict comparison fails at C step 54 for the same weapon.c:mon_wield_item gap, so no nonmatching recording is committed under recordings/. wizard.c:intervene is another direct C caller but has no existing JavaScript function/call site to wire here; it remains an explicit source-named gap. Runtime completion is limited to the selected helper through the cursed-invisibility caller range, not to every caller or the later wield action.",
+        "entryPoints": []
+      },
+      "closeMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+          "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+          "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+          "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+          "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+          "replayInputSha256": "2e49b0756281ef8e89e856df5dd5ba1ba79d223e9ab8919dfe680a7f3a6b5b3b",
+          "evaluationPath": "challenges/evaluations/20261002063546-v17.json",
+          "evaluationCommit": "5884f8731e9783777cd400459ca559449da9a3be",
+          "evaluationArtifact": "challenges/evaluations/20261002063546-v17.json",
+          "evaluationUtc": "2026-10-02T06:36:32.249Z",
+          "remainingScreens": 9,
+          "recordedSteps": 60,
+          "previousScreensMatched": 51,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 51,
+              "total": 60
+            },
+            "rng": {
+              "matched": 2419,
+              "total": 2420
+            },
+            "cursors": {
+              "matched": 51,
+              "total": 60
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires monster wield action with a welded weapon",
+            "step": 51
+          },
+          "step": 51,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires monster wield action with a welded weapon",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.json",
+            "result": {
+              "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+              "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+              "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+              "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 9,
+              "recordedSteps": 60,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "session": "synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+                "recordingPath": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.session.json",
+                "recordingSha256": "9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9",
+                "recipe": "challenges/cases/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation.recipe.session.json",
+                "recipeSha256": "1b07b3c796188ff236193b0a30b41c7913ae00286e2f0e71ac4daf1ff5234d9d",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 9,
+                "recordedSteps": 60,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 51,
+                    "total": 60
+                  },
+                  "rng": {
+                    "matched": 2419,
+                    "total": 2420
+                  },
+                  "cursors": {
+                    "matched": 51,
+                    "total": 60
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 51,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 51,
+                      "key": "."
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2419,
+                    "cEntry": "rn2(5)=0",
+                    "cCaller": "distfleeck(monmove.c:538)",
+                    "jsEntry": "rn2(7)=6",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 51,
+                      "key": "."
+                    },
+                    "stepIndex": 51
+                  },
+                  "cursor": {
+                    "index": 51,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 51,
+                      "key": "."
+                    },
+                    "cCursor": [
+                      34,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      32,
+                      4,
+                      1
+                    ]
+                  }
+                },
+                "step": 51,
+                "kind": "rng",
+                "sourceFile": "monmove.c",
+                "function": "distfleeck",
+                "message": null,
+                "cFile": "monmove.c",
+                "luaFile": null,
+                "line": 538
+              },
+              "summary": "The first screen/RNG mismatch occurs on the monster turn after a cursed invisibility potion. potion.c peffect_invisibility() calls the void wizard.c aggravate(); JavaScript currently records note_unported() there, leaving the sleeping orc asleep. Port the whole aggravate() function and wire its existing JavaScript gap callers. The queue’s distfleeck RNG tag is downstream of the missing state change.",
+              "source": {
+                "file": "wizard.c",
+                "branch": "For each living monster in the current fmon chain whose In_W_tower() result matches the hero’s, aggravate() clears STRAT_WAITFORU and STRAT_APPEARMSG and sets msleeping to zero. If that monster cannot move, it then rolls rn2(5); only a zero result clears mfrozen and restores mcanmove. The function returns void and emits no message.",
+                "functions": [
+                  "aggravate"
+                ],
+                "callers": [
+                  "Recorded path: cmd.c binds quaff to potion.c dodrink() -> dopotion() -> peffects() -> peffect_invisibility() (:811-837); for a cursed potion, peffect_invisibility() emits the known-presence message and calls aggravate() at :832. JavaScript routes q through js/cmd.js dodrink dispatch into js/potion.js dodrink()/dopotion()/peffects()/peffect_invisibility(); peffect_invisibility() currently leaves note_unported('wizard.c aggravate') at js/potion.js:1385.",
+                  "spell.c cursed_book() calls aggravate() in cursed-book result case 1 at :141-144; js/spell.js cursed_book() records the same named gap at :306 when operating on the live game state.",
+                  "mon.c m_respond_shrieker() calls aggravate() after its shriek and any summon at :4089-4105, and m_respond() calls it for a hostile visible Erinys at :4122-4130. js/mon.js has named gaps at :3645 and :3674.",
+                  "pray.c dopray() calls aggravate() when the deity ignores the petitioner (:2441-2448) and when prayer is attempted in Gehennom (:2450-2456); js/pray.js records named gaps at :1681 and :1693.",
+                  "sit.c dosit() calls aggravate() on the negative-luck case (:185-193); js/sit.js records a named gap at :468.",
+                  "sounds.c growl() calls aggravate() for MS_SHRIEK (:960-964); js/sounds.js growl() records a named gap at :1199.",
+                  "cmd.c domonability() calls aggravate() when the hero form shrieks and is not buried (:932-937); js/cmd.js still refuses its shrieker branch with UnsupportedHeroCommandBranchBoundaryError at :3589-3592.",
+                  "mcastu.c castmu() calls aggravate() for MCAST_AGGRAVATION (:826-830); js/mcastu.js emits the message then records recordMcastGap('wizard.c aggravate') at :773-777.",
+                  "wizard.c intervene() calls aggravate() in result case 3 (:784-802) after the Wizard of Yendor is killed. No JavaScript intervene() implementation exists; this is a separate unported caller path."
+                ],
+                "dependencies": [
+                  "dungeon.c In_W_tower() returns the consumed hero/monster region predicate. js/dungeon.js already exports In_W_tower(x, y, level, state); compute the hero result once and compare it with each monster result in source order.",
+                  "The C global fmon linked list maps to state.level.monlist. DEADMONSTER(mtmp) is the mhp < 1 check. Update each existing monster object in place: clear exactly STRAT_WAITFORU | STRAT_APPEARMSG, clear msleeping, and conditionally set mfrozen=0 and mcanmove=1.",
+                  "rng.c rn2() supplies the consumed result only when mcanmove is false. js/wizard.js already imports rn2; use the call-site random stream where its caller supplies one. Calls to aggravate() discard its void result, so there is no return-valued dependency."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The assigned entry .cache/v17-investigations/3.json and .cache/v17-work-queue.json agree on session synthetic/v17/cursed-invisibility-aggravates-sleeping-orc-mprefix-continuation, remainingScreens 9, recordedSteps 60, batch v17, manifest digest 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada, recording digest 9658e3f285247499038a35fd97b8085b1f4778763e21d3c0c7b5b25a3f09ffa9, and evaluation identity. The manifest corpus digest and immutable recipe/recording hashes were checked before writing.",
+                "Saved challenges/evaluations/20261001190602-v17.json, associated with evaluation commit 518d4526ccba82c89752a8babb892ba9bc48bc60, reports 51/60 screens and cursors, 2419/2420 RNG calls, and first mismatch at segment 0, step 51, key dot. C’s next logged draw is rn2(5)=0 from distfleeck(monmove.c:538); JS next logs rn2(7)=6. This caller tag locates the downstream draw, while the source trace below identifies the earlier skipped aggravation call.",
+                "The immutable C recording shows step 48 key e quaffing the cursed potion and drawing d(9,100)=461 at peffect_invisibility(potion.c:828). Step 49 key space displays “For some reason, you feel your presence is known.” The input recipe creates “sleeping orc”; upstream read.c create_particular_parse() recognizes the “sleeping ” prefix at :3174-3176, and create_particular_creation() sets mtmp->msleeping=1 at :3341-3342. That confirms the monster setup reaches the intended state before the potion effect.",
+                "At step 50 key m, the C recording screen remains the matched blank continuation. At step 51 key dot, the recorded C first line is “The orc wields a scimitar!--More--”; the differing cell at row 0 column 0 is the initial T of that message, not an orc map glyph. The retained C56 row’s wording about an orc glyph is imprecise for this cell. Its sourcePointers include potion.c:peffect_invisibility and wizard.c:aggravate, which are verified directly against source here.",
+                "Upstream nethack-c/upstream/src/potion.c peffect_invisibility() calls aggravate() only in the cursed-object branch at :830-836, after printing the known-presence message and before clearing HInvis FROMOUTSIDE. The current js/potion.js implementation preserves the message and timeout work but calls note_unported('wizard.c aggravate') at :1385, then clears the same intrinsic bit. This is the missing monster-state mutation before the later monster turn.",
+                "Upstream nethack-c/upstream/src/wizard.c aggravate() is the complete source owner at :494-511. It scans fmon, skips dead monsters and monsters across the Wizard’s Tower boundary, clears the two named strategy flags and sleeping status, and conditionally thaws an immobile monster after rn2(5). Existing js/wizard.js has the adjacent has_aggravatables() helper and imports In_W_tower, STRAT_WAITFORU, STRAT_APPEARMSG, game, and rn2, but has no aggravate() implementation.",
+                "The C source callers were enumerated with rg -n \"aggravate\\(\\)\" over potion.c, spell.c, wizard.c, mon.c, pray.c, sit.c, sounds.c, cmd.c, and mcastu.c. Existing JavaScript callers contain named void gaps in potion.js, spell.js, mon.js, pray.js, sit.js, sounds.js, and mcastu.js. cmd.js has a source-specific shrieker refusal; wizard.c intervene() has no JavaScript counterpart. Those callers need explicit scope decisions when wiring the helper.",
+                "The matching retainedCases row in .cache/C56-accepted-preparation-evidence.json records the same sourcePointers and firstMismatchOwner wizard.c:aggravate; its independent C replay was byte-identical to the immutable recording. This historical classification is corroboration only; the current C call and state branches were read directly.",
+                "The source submodule at examined commit 45a483d2dd3320f9268aeb4477a785237e69df4e is upstream commit 16ff59115315917b93185d026aeefea06db9b0f4. Search `rg -n \"aggravate|wizard\\.c\" nethack-c/patches` returned no matches, so no project patch changes this behavior.",
+                "Coverage limits: the saved C route exercises the ordinary same-level sleeping-monster wake path, but its current JS replay diverges before the effect is validated end to end. It does not demonstrate the immobile-monster rn2(5) thaw branch or the tower-membership filter. A whole-function completion will need matching caller evidence and a focused recipe for those branches; no replay or test was run in this investigation."
+              ],
+              "entryPointReview": {
+                "active": [
+                  "Cursed-potion entry: quaff command -> potion.c dodrink()/dopotion()/peffects()/peffect_invisibility() -> wizard.c aggravate(); the C recording reaches it at segment 0 step 49 and exposes the missing wake effect on the subsequent dot command at step 51.",
+                  "Other implemented call paths are cursed spellbook, monster response/shriek, prayer, sitting, special ability, and monster spell aggravation; their C callers and JavaScript gap locations are listed in source.callers."
+                ],
+                "blocked": [
+                  "The current saved JavaScript evaluation diverges at step 51, so it cannot yet serve as matching completion evidence through aggravate().",
+                  "The immobile-monster thaw roll and Wizard’s Tower boundary cases are not covered by this recording.",
+                  "cmd.c domonability() has a shrieker branch refusal in JavaScript, and wizard.c intervene() has no JavaScript caller. Keep these explicit when assigning caller-wiring scope."
+                ]
+              },
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "wizard.c",
+                  "functions": [
+                    "aggravate"
+                  ]
+                },
+                "callerWiring": [
+                  "Implement the complete wizard.c aggravate() function in js/wizard.js, preserving the fmon scan order, dead-monster and In_W_tower filters, exact strategy mask, sleeping update, and conditional rn2(5) order.",
+                  "Replace the existing wizard.c aggravate named gaps in js/potion.js, js/spell.js, js/mon.js, js/pray.js, js/sit.js, js/sounds.js, and js/mcastu.js with calls that pass each caller’s game state and random stream.",
+                  "Wire the existing js/cmd.js shrieker-form refusal to the C domonability() branch if the assigned implementation claims coverage for that production caller; preserve its other unported ability branches."
+                ],
+                "returnValuedDependencies": [],
+                "downstreamUnresolvedGaps": [
+                  "wizard.c intervene() is a separate source caller after Wizard death, but no JS intervene() function exists; do not claim that entrypoint is wired by adding aggravate() alone.",
+                  "The case’s evaluation remains at 9 unmatched screens until a later implementation and replay. The existing case does not cover aggravate()’s immobile-monster rn2(5) branch or tower filtering.",
+                  "Unrelated source gaps at the same callers, including mhitu.c gazemu in js/mon.js and the other UnsupportedHeroCommandBranchBoundaryError branches in js/cmd.js, remain outside aggravate()."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "closeStanding": {
+        "sha": "5884f8731e9783777cd400459ca559449da9a3be",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
