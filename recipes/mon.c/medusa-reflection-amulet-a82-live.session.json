@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first reachable Medusa route based on the two observed prompt corrections: answer the actual force-Medusa question with y, then use twenty m.-prefixed rest commands because C refused bare periods while a hostile Medusa was adjacent. The amulet's inventory letter o was observed in the separate valid-object probe and confirmed as worn by C before monster creation.",
+  "segments": [
+    {
+      "seed": 83082028,
+      "datetime": "20261002110000",
+      "nethackrc": "OPTIONS=name:A82MedusaAmulet,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  #wizwish\namulet of reflection\nPo#wizgenesis\nhostile Medusa\nym.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

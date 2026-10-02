@@ -2540,16 +2540,18 @@ export async function dochug(monster, rawEnv = {}) {
                 });
             return 0;
         }
-        // C ref: monmove.c:753-755. A Medusa gaze can kill the responder, so
-        // the dead-monster result is tested before fleeing recovery.
-        await m_respond(monster, env);
-        if (monster.mhp < 1) return 1;
-        // C ref: monmove.c:758-760.  Fleeing monsters might regain courage.
-        if (!monster.mfleetim
-            && monster.mhp === monster.mhpmax
-            && !random.rn2(25)) {
-            monster.mflee = false;
-        }
+    }
+
+    // C ref: monmove.c:753-755. Respond after the optional flee teleport for
+    // every monster; a Medusa gaze can kill it, so test death before recovery.
+    await m_respond(monster, env);
+    if (monster.mhp < 1) return 1;
+
+    // C ref: monmove.c:758-760. Only fleeing monsters might regain courage.
+    if (monster.mflee && !monster.mfleetim
+        && monster.mhp === monster.mhpmax
+        && !random.rn2(25)) {
+        monster.mflee = false;
     }
 
     // C ref: monmove.c:763-767. Cease conflict-induced swallow/grab if
