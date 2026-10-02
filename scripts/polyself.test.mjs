@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { compareSessionOutputs } from './diff-fresh.mjs';
 
 import {
     PM_BROWN_MOLD,
@@ -427,6 +428,38 @@ test('polymon stops after fatal lava during water-walking boot removal',
     assert.equal(boots.owornmask, 0,
         'fatal Boots_off leaves the boot object unworn');
 });
+test('polymon learns egg species in both matching red-dragon routes', async () => {
+    // C polymon reaches the lays_eggs branch when the transformation screen
+    // identifies red dragon; #sit at step 31 later confirms the egg-laying form.
+    assert.match(C_POLYMON_FUNCTION, /newsym\(u\.ux, u\.uy\);[\s\S]*if \(lays_eggs\(gy\.youmonst\.data\)\) \{[\s\S]*learn_egg_type\(u\.umonnum\);[\s\S]*learn_egg_type\(egg_type_from_parent\(u\.umonnum, TRUE\)\);/u);
+    assert.match(JS_POLYMON_FUNCTION, /redraw\(u\.ux, u\.uy, state\);[\s\S]*if \(lays_eggs\(state\.youmonst\.data\)\) \{[\s\S]*learn_egg_type\(u\.umonnum, state, env\);[\s\S]*learn_egg_type\(egg_type_from_parent\(u\.umonnum, true\), state, env\);/u);
+
+    for (const path of [
+        'recordings/sit.c/egg-laying-red-dragon-independent.session.json',
+        'recordings/sit.c/egg-laying-red-dragon-role-variation.session.json',
+    ]) {
+        const recording = JSON.parse(readFileSync(path, 'utf8'));
+        const segment = recording.segments[0];
+        const result = await runSegment(segment);
+        const comparison = compareSessionOutputs(recording, {
+            rng: result.getRngLog(),
+            screens: result.getScreens(),
+            cursors: result.getCursors(),
+            animFrames: result.getAnimationFramesByStep(),
+            segments: [{
+                rng: result.getRngLog(),
+                screens: result.getScreens(),
+                cursors: result.getCursors(),
+                animFrames: result.getAnimationFramesByStep(),
+            }],
+        });
+        assert.equal(comparison.passed, true,
+            path + ': ' + JSON.stringify(comparison, null, 2));
+        assert.match(segment.steps[22].screen, /You turn into a red dragon/u);
+        assert.match(segment.steps[31].screen, /You lay an egg/u);
+    }
+});
+
 test('polyself keeps the C early guards, selector, and final gate in order', () => {
     assert.ok(C_START >= 0 && C_END > C_START);
     assert.ok(JS_START >= 0 && JS_END > JS_START);

@@ -174,6 +174,7 @@ import {
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { body_part, mbodypart } from './polyself.js';
+import { learn_egg_type } from './timeout.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -2817,7 +2818,7 @@ export function fully_identify_obj(obj, state = game) {
     obj.rknown = true;
     set_cknown_lknown(obj);
     if (obj.otyp === EGG && obj.corpsenm !== NON_PM)
-        note_unported('timeout.c learn_egg_type');
+        learn_egg_type(obj.corpsenm, state);
 }
 
 // C ref: invent.c identify() (2653-2657). The callback returns one so its
