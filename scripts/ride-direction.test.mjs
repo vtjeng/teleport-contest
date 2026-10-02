@@ -481,6 +481,38 @@ test('u_maybe_impaired draws rn2(5) only for a confused hero', async () => {
     assert.equal(confdir(false, game), undefined);
 });
 
+test('confdir takes the planner-owned RNG while preserving live defaults', () => {
+    const state = directionState();
+    const draws = [];
+    confdir(true, state, {
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                return 3;
+            },
+        },
+    });
+    // dirs_ord[3] is direction 6 (south); the explicit random owner must
+    // receive cmd.c's full eight-direction bound exactly once.
+    assert.deepEqual(draws, [8]);
+    assert.deepEqual([state.u.dx, state.u.dy], [0, 1]);
+
+    const gridBug = directionState();
+    gridBug.u.umonnum = PM_GRID_BUG;
+    draws.length = 0;
+    confdir(true, gridBug, {
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                return 3;
+            },
+        },
+    });
+    // NODIAG restricts the same dirs_ord table to its first four entries.
+    assert.deepEqual(draws, [4]);
+    assert.deepEqual([gridBug.u.dx, gridBug.u.dy], [0, 1]);
+});
+
 test('yn_function stops on a query too long for QBUFSZ', async () => {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
     // cmd.c:5484 truncates at `strlen(query) >= QBUFSZ` after paniclog().
