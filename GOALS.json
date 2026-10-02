@@ -140955,7 +140955,7 @@
     {
       "id": "port-potion-make-slimed-v18-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port whole make_slimed and wire source-owned setting, cure and fire callers",
       "cFile": "potion.c",
       "sessions": [
@@ -140970,8 +140970,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "make_slimed",
@@ -141613,6 +141616,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
