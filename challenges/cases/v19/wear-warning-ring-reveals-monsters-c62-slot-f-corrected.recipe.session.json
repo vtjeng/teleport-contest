@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first selector-corrected continuation of wear-warning-ring-reveals-monsters-c62. The original C run, before any JavaScript comparison, showed a wished wire ring in slot f and the ring prompt offered only f; this recipe changes only the ring selector from o to the C-observed f, preserving seed, date, role, monster setup and all other actions. Target remains do_wear.c:Ring_on(RIN_WARNING) -> display.c:see_monsters.",
+  "segments": [
+    {
+      "seed": 602101409,
+      "datetime": "20261002141000",
+      "nethackrc": "OPTIONS=name:C62RingAlert,role:Valkyrie,race:human,gender=female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed ring of warning\n\u0007invisible hostile orc\nPfl"
+    }
+  ]
+}

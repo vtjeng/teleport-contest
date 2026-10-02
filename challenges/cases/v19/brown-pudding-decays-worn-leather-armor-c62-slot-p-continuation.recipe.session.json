@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first correction of the Brown Pudding AD_DCAY target miss, frozen before this recording and before JavaScript comparison. The previous C menu showed p - a leather armor; slot o selected the starting blindfold. Use the same independently chosen seed/date/setup and replace only the C-observed wrong wear selector with p. Keep 24 source-approved wait turns to allow the source-created hostile Brown Pudding to reach the hero. Intended branch: mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_DCAY) -> mhitm_ad_dcay; verify actual C attack/ERODE_ROT instead of assuming the retry fixes it.",
+  "segments": [
+    {
+      "seed": 813620477,
+      "datetime": "21141025171839",
+      "nethackrc": "OPTIONS=name:C62Decay,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed +0 leather armor\nTbWp#wizgenesis\nhostile brown pudding\n........................"
+    }
+  ]
+}

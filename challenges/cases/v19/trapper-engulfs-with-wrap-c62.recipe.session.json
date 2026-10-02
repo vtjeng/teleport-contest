@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 Trapper engulf candidate frozen before any JavaScript comparison. Use the debug Wizard's ^G/#wizgenesis monster-creation command to request a hostile Trapper, then let C choose the spawn square and resolve its monster-to-hero AT_ENGL/AD_WRAP through mhitu.c:mattacku and mhitu.c:gulpmu. The desired source state is the hero swallowed/stuck with the actual wrap/default physical effect; preserve a valid miss or matching result.",
+  "segments": [
+    {
+      "seed": 347199232,
+      "datetime": "21121007091500",
+      "nethackrc": "OPTIONS=name:C62Trapper,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile Trapper\ny. . . . . ."
+    }
+  ]
+}

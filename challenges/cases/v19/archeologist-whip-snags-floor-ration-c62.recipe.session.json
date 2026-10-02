@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C62 independently planned branch of apply.c:use_whip floor snag. The source Archeologist kit places its bullwhip first and food ration fourth; the recorded input selects source-derived slots a and d, sets the wizard-only Levitation intrinsic from the C menu’s q row, drops the ration beneath the hero, and applies the bullwhip downward. use_whip requires a floor object, Levitation or an equivalent floor-reaching state, and positive proficiency before its rnl(6)/pickup_object branch. This candidate was frozen before C recording and any JS comparison.",
+  "segments": [
+    {
+      "seed": 1102206198,
+      "datetime": "20361107142300",
+      "nethackrc": "OPTIONS=name:C62Whip,role:Archeologist,race:human,gender=male,align=lawful,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " wa#wizintrinsic\nq\nddaa>"
+    }
+  ]
+}

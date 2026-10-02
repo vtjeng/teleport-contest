@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after the preceding C recording reached read.c:seffect_genocide and stopped on the “You have found a scroll of genocide!” More message. Continue by dismissing that observed page and entering the valid orc class at read.c:do_class_genocide’s class prompt. The preceding C prefix keeps its own immutable recipe and recording; no JavaScript result informed these inputs.",
+  "segments": [
+    {
+      "seed": 761204983,
+      "datetime": "21111215082000",
+      "nethackrc": "OPTIONS=name:C62Genocide,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of genocide\nrmo\n o\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 probe frozen before recording and JS comparison. Wish a charged cancellation wand, create a hostile Large Mimic with #wizgenesis, and send one ray toward the independently chosen east-side target route. Source target: zap.c:bhitm cancellation arm, including its disguised_mimic reveal prelude and cancel_monst result. Preserve C-observed target, selector and resistance outcomes, including a valid target miss.",
+  "segments": [
+    {
+      "seed": 946302817,
+      "datetime": "21100315153000",
+      "nethackrc": "OPTIONS=name:C62CancelMimic,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017wand of cancellation\n#wizgenesis\nhostile large mimic\nz?ol "
+    }
+  ]
+}

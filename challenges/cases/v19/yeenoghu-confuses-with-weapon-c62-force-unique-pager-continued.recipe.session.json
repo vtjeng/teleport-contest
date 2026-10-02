@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen continuation after run-xtc32Y created Yeenoghu, then the first period produced “Yeenoghu vanishes and reappears next to you. Yeenoghu wields a flail!--More--” with teleport.c:collect_coords draws. The unchanged original four periods end while that page remains; this recipe appends a newline to dismiss the observed More followed by four turns. This is a C-input correction made before any JS result. Keep the original attempts and outcomes.",
+  "segments": [
+    {
+      "seed": 915837241,
+      "datetime": "21110406081100",
+      "nethackrc": "OPTIONS=name:C62ConfW,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n\n\u0007hostile Yeenoghu\ny....\n...."
+    }
+  ]
+}

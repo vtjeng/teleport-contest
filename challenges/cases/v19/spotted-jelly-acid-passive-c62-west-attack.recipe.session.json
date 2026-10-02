@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after the preceding C record showed the hostile Spotted Jelly immediately west of the hero. Replacing the six eastward wall-facing inputs with westward h inputs targets that observed adjacent monster; preserve the actual attack hit/miss and acid/passive-object branch. This corrected input is frozen before its C recording and any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 510293846,
+      "datetime": "21120918063500",
+      "nethackrc": "OPTIONS=name:C62Jelly,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n#wizgenesis\nhostile spotted jelly\nhhhhhh"
+    }
+  ]
+}

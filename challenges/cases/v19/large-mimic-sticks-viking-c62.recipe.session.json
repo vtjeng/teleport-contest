@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first hostile Large Mimic AD_STCK candidate. The leading newline dismisses the observed welcome pager. #wizgenesis creates a hostile Large Mimic; six period commands are elapsed turns because safe_wait is disabled. Valkyrie health gives the adjacent monster time to attack. Record whether the mimic emerges from disguise, reaches AT_CLAW/AD_STCK, and whether the hero is actually stuck; do not infer the branch from intended setup.",
+  "segments": [
+    {
+      "seed": 819045273,
+      "datetime": "21121011130300",
+      "nethackrc": "OPTIONS=name:C62Mimic,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n#wizgenesis\nhostile large mimic\n......"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 candidate frozen before JavaScript comparison. Wish a blessed scroll of genocide through the debug Wizard, read the wished scroll from the observed inventory selector position, and choose the ordinary orc monster class in read.c:do_class_genocide. The class is deliberately not the human Wizard’s own class; retain any source-confirmed target miss or matching result.",
+  "segments": [
+    {
+      "seed": 761204983,
+      "datetime": "21111215082000",
+      "nethackrc": "OPTIONS=name:C62Genocide,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nblessed scroll of genocide\nro"
+    }
+  ]
+}

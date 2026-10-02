@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 Brown Pudding AD_DCAY probe, frozen before C recording and JavaScript comparison. Dismiss the female-Wizard welcome pager, wish uncursed +0 leather armor, remove the starting cloak and wear the suit, then create a hostile Brown Pudding. C source target: mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_DCAY) -> uhitm.c:mhitm_ad_dcay; its hero-defender branch calls hitmsg, returns if the attacker is cancelled, checks completelyrots, then calls erode_armor(ERODE_ROT). Leather is rottable by mkobj.c:is_rottable. Retain the actual C armor target and first effect.",
+  "segments": [
+    {
+      "seed": 813620477,
+      "datetime": "21141025171839",
+      "nethackrc": "OPTIONS=name:C62Decay,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed +0 leather armor\nTbWo#wizgenesis\nhostile brown pudding\n........"
+    }
+  ]
+}

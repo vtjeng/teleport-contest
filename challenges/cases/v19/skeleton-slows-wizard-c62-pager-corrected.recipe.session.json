@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen from the original C welcome-pager observation, before any JavaScript comparison of this corrected input. The leading newline dismisses the recorded “Hello wizard, welcome to NetHack! --More--” screen; then #wizgenesis creates a hostile Skeleton. Keep the same independently chosen seed/date/options and change only the input needed to pass the C-observed pager. The target is the Skeleton AT_TUCH/AD_SLOW branch after its AT_WEAP attack; preserve its actual gate or target miss.",
+  "segments": [
+    {
+      "seed": 741293608,
+      "datetime": "21121104102030",
+      "nethackrc": "OPTIONS=name:C62Skeleton,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n#wizgenesis\nhostile skeleton\n. . . . . . . ."
+    }
+  ]
+}

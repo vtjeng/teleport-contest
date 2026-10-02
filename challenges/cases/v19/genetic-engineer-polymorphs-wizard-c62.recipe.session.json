@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 candidate frozen before any JavaScript comparison. Create a hostile Genetic Engineer with the Wizard monster-creation command and observe its C attack sequence without changing inputs from JS feedback. The target is the monster-to-hero AT_CLAW/AD_POLY path through mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_poly, including its actual resistance, damage, and polymorph result or source gate.",
+  "segments": [
+    {
+      "seed": 341992107,
+      "datetime": "21121012094620",
+      "nethackrc": "OPTIONS=name:C62Genetic,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile genetic engineer\n. . . . . . . ."
+    }
+  ]
+}
