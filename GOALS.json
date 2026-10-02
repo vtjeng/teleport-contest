@@ -137325,6 +137325,398 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-music-earthquake-pit-family-v17-20261002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete earthquake scanning and pit creation",
+      "cFile": "music.c",
+      "sessions": [
+        "synthetic/v17/earthquake-drum-opens-pits-pager-corrected"
+      ],
+      "selectionReason": "synthetic/v17/earthquake-drum-opens-pits-pager-corrected, investigation investigations/synthetic/v17/earthquake-drum-opens-pits-pager-corrected.json, current evaluation challenges/evaluations/20261002040420-v17.json. Complete adjacent music.c:do_pit and do_earthquake, with caller-only wiring of the charged drum arm in do_improvisation. The selected case already matches45 screens/cursors and retains32 missing RNG calls; its zero draws hit ineligible terrain and establish no do_pit runtime evidence. Independent charged-drum recordings establish pit creation. Manifest challenges/manifests/v17.json SHA256 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada; recording challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.session.json SHA256 b212e228ad360fa591d013f158fd73eab6cadcb6813cc5a2275614c1bda0f7fe.",
+      "detail": "Root compared whole music.c:do_pit and do_earthquake and the charged DRUM_OF_EARTHQUAKE caller. Verified maketrap return/seen state, boulder branch, consumed fillholetyp and trap recheck, monster/hero trap and damage order, short-circuit footing draws, force cap13, clipped x-major/y-minor scan, wake/unhide/mimic before each terrain draw, all terrain branches including sanctum altar and doorless/shop-door handling, and awaited caller before awaken_monsters/makeknown. Read existing consumed helper implementations and source macros/predicates; pure half-physical-damage helper has source-pinned intrinsic/extrinsic/rounding tests. Discarded boundaries remain at exact C calls: do.c flooreffects, dig.c liquid_flow, trap.c mselftouch/selftouch, mon.c xkilled (parked incomplete source unit), pray.c desecrate_altar, shk.c add_damage. Removed the do_earthquake placeholder. No whole outer caller or downstream unit credit.",
+      "openedAt": "ad1f9b748fcfa5e0d36b35a924229b5450a686c7",
+      "openStanding": {
+        "sha": "126406c2f937916811ea50d146414a88ffa5e730",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "e44d89030161c871e467c85f4acc8072a3359460",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "do_pit",
+          "line": 221,
+          "endLine": 343,
+          "declared": true,
+          "complete": true
+        },
+        {
+          "name": "do_earthquake",
+          "line": 344,
+          "endLine": 477,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 221,
+        "to": 477
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/earthquake-drum-opens-pits-pager-corrected": {
+          "session": "synthetic/v17/earthquake-drum-opens-pits-pager-corrected",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "earthquake-drum-opens-pits-pager-corrected",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.session.json",
+          "recordingSha256": "b212e228ad360fa591d013f158fd73eab6cadcb6813cc5a2275614c1bda0f7fe",
+          "evaluationPath": "challenges/evaluations/20261002040420-v17.json",
+          "evaluationCommit": "126406c2f937916811ea50d146414a88ffa5e730"
+        }
+      },
+      "activeStanding": {
+        "sha": "126406c2f937916811ea50d146414a88ffa5e730",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "earthquake-drum-opens-pits-pager-corrected",
+          "session": "synthetic/v17/earthquake-drum-opens-pits-pager-corrected",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.session.json",
+          "recordingPath": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.session.json",
+          "recordingSha256": "b212e228ad360fa591d013f158fd73eab6cadcb6813cc5a2275614c1bda0f7fe",
+          "recipe": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.recipe.session.json",
+          "recipeSha256": "bc923ee0a3e13351f9ced6cf427f9b626e7978e5ba0da0863752299615296a44",
+          "replayInputSha256": "70860d4406e0abb840fc0437392d32eda72583ff0a221d6faedc99b32ecad608",
+          "evaluationPath": "challenges/evaluations/20261002040420-v17.json",
+          "evaluationCommit": "126406c2f937916811ea50d146414a88ffa5e730",
+          "evaluationArtifact": "challenges/evaluations/20261002040420-v17.json",
+          "evaluationUtc": "2026-10-02T04:05:03.902Z",
+          "remainingScreens": 0,
+          "recordedSteps": 45,
+          "previousScreensMatched": 45,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 45,
+              "total": 45
+            },
+            "rng": {
+              "matched": 2393,
+              "total": 2425
+            },
+            "cursors": {
+              "matched": 45,
+              "total": 45
+            }
+          },
+          "firstMismatch": {
+            "screen": null,
+            "rng": {
+              "index": 2393,
+              "cEntry": "rn2(13)=10",
+              "cCaller": "do_earthquake(music.c:387)",
+              "jsEntry": "rn2(109)=69",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 39,
+                "key": " "
+              },
+              "stepIndex": 39
+            },
+            "cursor": null
+          },
+          "step": 39,
+          "kind": "rng",
+          "sourceFile": "music.c",
+          "function": "do_earthquake",
+          "message": null,
+          "cFile": "music.c",
+          "luaFile": null,
+          "line": 387,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/earthquake-drum-opens-pits-pager-corrected.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "earthquake-drum-opens-pits-pager-corrected",
+              "session": "synthetic/v17/earthquake-drum-opens-pits-pager-corrected",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.session.json",
+              "recordingSha256": "b212e228ad360fa591d013f158fd73eab6cadcb6813cc5a2275614c1bda0f7fe",
+              "recipePath": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.recipe.session.json",
+              "recipeSha256": "bc923ee0a3e13351f9ced6cf427f9b626e7978e5ba0da0863752299615296a44",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationUtc": "2026-10-01T19:06:03.082Z",
+              "remainingScreens": 0,
+              "recordedSteps": 45,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 45,
+                  "total": 45
+                },
+                "rng": {
+                  "matched": 2393,
+                  "total": 2425
+                },
+                "cursors": {
+                  "matched": 45,
+                  "total": 45
+                }
+              },
+              "firstMismatch": {
+                "screen": null,
+                "rng": {
+                  "index": 2393,
+                  "cEntry": "rn2(13)=10",
+                  "cCaller": "do_earthquake(music.c:387)",
+                  "jsEntry": "rn2(109)=69",
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 39,
+                    "key": " "
+                  },
+                  "stepIndex": 39
+                },
+                "cursor": null
+              },
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "earthquake-drum-opens-pits-pager-corrected",
+                "session": "synthetic/v17/earthquake-drum-opens-pits-pager-corrected",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.session.json",
+                "recordingPath": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.session.json",
+                "recordingSha256": "b212e228ad360fa591d013f158fd73eab6cadcb6813cc5a2275614c1bda0f7fe",
+                "recipe": "challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.recipe.session.json",
+                "recipeSha256": "bc923ee0a3e13351f9ced6cf427f9b626e7978e5ba0da0863752299615296a44",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 0,
+                "recordedSteps": 45,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 45,
+                    "total": 45
+                  },
+                  "rng": {
+                    "matched": 2393,
+                    "total": 2425
+                  },
+                  "cursors": {
+                    "matched": 45,
+                    "total": 45
+                  }
+                },
+                "firstMismatch": {
+                  "screen": null,
+                  "rng": {
+                    "index": 2393,
+                    "cEntry": "rn2(13)=10",
+                    "cCaller": "do_earthquake(music.c:387)",
+                    "jsEntry": "rn2(109)=69",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 39,
+                      "key": " "
+                    },
+                    "stepIndex": 39
+                  },
+                  "cursor": null
+                },
+                "step": 39,
+                "kind": "rng",
+                "sourceFile": "music.c",
+                "function": "do_earthquake",
+                "message": null,
+                "cFile": "music.c",
+                "luaFile": null,
+                "line": 387
+              },
+              "summary": "This case is not a pass: the saved evaluation has zero screen mismatches and all cursors match, but RNG diverges at segment 0, step 39. The C path reaches music.c::do_earthquake() from the charged earthquake-drum arm and begins its per-square rn2(14 - force) loop; C draws rn2(13)=10 while JavaScript next draws rn2(109)=69. js/music.js currently calls note_unported(\"music.c do_earthquake\") and continues to monster awakening/object discovery, omitting the whole terrain/RNG helper. The closely coupled static music.c::do_pit() helper also has no JavaScript counterpart, so port both helpers together and wire the drum arm in place. Existing void/deferred source gaps in special pit subbranches must stay explicit.",
+              "source": {
+                "file": "music.c",
+                "functions": [
+                  "do_pit",
+                  "do_earthquake"
+                ],
+                "branch": "The charged DRUM_OF_EARTHQUAKE arm calls do_earthquake((u.ulevel - 1) / 3 + 1) after the heavy-rolling and shaking messages and before awaken_monsters()/makeknown(). do_earthquake clamps force, scans a bounded square around the hero, wakes/reveals monsters, and tests each square with rn2(14 - force); successful squares collapse eligible terrain or pass to do_pit(). do_pit() creates a seen pit when maketrap() succeeds, then handles boulders, adjacent liquids, monsters, and the hero. In this recording the first earthquake test has bound 13 and result 10, so the first scanned tile is skipped; the saved comparison does not establish a screen difference or that this first tile becomes a pit.",
+                "callers": [
+                  "music.c::do_improvisation() at 688-701 is the sole direct caller of do_earthquake(); after the charged earthquake-drum messages it calls do_earthquake((u.ulevel - 1) / 3 + 1), then awakens all monsters and makes the drum known.",
+                  "Production entry path: apply.c::doapply() at 4382-4383 dispatches DRUM_OF_EARTHQUAKE to music.c::do_play_instrument(); music.c::do_play_instrument() at 783-784 enters do_improvisation() for this instrument. The JavaScript route is js/apply.js::doapply() at 5017-5019 -> js/music.js::do_play_instrument() -> js/music.js::do_improvisation().",
+                  "Current JavaScript source gap: js/music.js::do_improvisation() at 280-286 emits both matched messages, then records note_unported(\"music.c do_earthquake\") and continues to awaken_monsters() and discover_object(). Replace that gap with the awaited source helper call in the same position."
+                ],
+                "dependencies": [
+                  "do_pit() is the adjacent static helper at music.c:221-338 and is only called from do_earthquake(). Its return is void; include it in this same self-contained music.c function family rather than substituting a call gap for the pit and fall behavior.",
+                  "do_pit() consumes maketrap()’s pointer result to stop when a pit cannot be made; js/trap.js::maketrap() exists. It consumes fillholetyp()’s terrain result and rechecks t_at() after liquid handling; js/dig.js::fillholetyp() and js/trap.js trap lookup helpers exist. Preserve their results and the source order.",
+                  "C calls dig.c::liquid_flow() (void) when fillholetyp() finds liquid; JavaScript retains note_unported(\"dig.c liquid_flow\") at comparable callers. Keep this a named void gap if that callee is not in scope; do not invent liquid movement.",
+                  "For non-sanctum altars do_earthquake() calls pray.c::desecrate_altar(FALSE, algn), a void source gap represented in js/pray.js by note_unported(\"pray.c desecrate_altar\"). For shop damage it calls shk.c::add_damage(), also void and represented by existing named gaps. Preserve these only on their source branches.",
+                  "do_pit() discards flooreffects()’s boolean result for a boulder and discards the results of mselftouch(), xkilled(), selftouch(), and other state-changing calls. js/do.js has a flooreffects() implementation with branch gaps; js/trap_effects.js::mselftouch() is partial; trap.c::selftouch() remains a named note_unported gap. Keep unavailable discarded-result behavior explicit, especially petrifying-weapon and hero-fall branches.",
+                  "The drum arm’s awaken_monsters() and makeknown()/discover_object() calls remain after do_earthquake() in source order and already have JavaScript implementations. Do not move them before the missing terrain function or attribute their following RNG to the earthquake loop."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261001190602-v17.json at 518d4526ccba82c89752a8babb892ba9bc48bc60 is failed despite 45/45 screens and 45/45 cursors: only 2393/2425 RNG calls match. At segment 0, zero-based step 39, key space, C records rn2(13)=10 from do_earthquake(music.c:387), while JavaScript’s next entry is rn2(109)=69. The queue correctly reports remainingScreens 0; that count does not represent parity.",
+                "The immutable recipe challenges/cases/v17/earthquake-drum-opens-pits-pager-corrected.recipe.session.json uses seed 52910077, wishes an uncursed drum of earthquake, selects slot e, and sends spaces through the messages. The matching retainedCases row in .cache/C56-accepted-preparation-evidence.json records the reached source as apply.c:doapply -> music.c:do_play_instrument(DRUM_OF_EARTHQUAKE) -> music.c:do_earthquake and classifies music.c:do_earthquake as the first mismatch owner.",
+                "Upstream nethack-c/upstream/src/music.c:221-338 defines the whole static do_pit() helper; music.c:344-475 defines the whole static do_earthquake() function and its per-square RNG at line 387. The only direct call is music.c:698 from do_improvisation(). music.c:688-701 establishes that the earthquake helper precedes monster awakening and object discovery.",
+                "The production C route is apply.c:4382-4383 -> music.c:do_play_instrument(); music.c:783-784 routes to do_improvisation(). The JavaScript caller already follows this route in js/apply.js:5017-5019 and js/music.js; the missing whole helper is exactly the note_unported call at js/music.js:284.",
+                "The RNG attribution is not a screen or cursor issue: evaluation metrics show no screen/cursor differences, while the source gap suppresses the earthquake scan. Existing JS helper implementations include trap.js::maketrap() and dig.js::fillholetyp(); current named downstream gaps include dig.c::liquid_flow, pray.c::desecrate_altar, shk.c::add_damage, and trap.c::selftouch. These do not change the actual source owner.",
+                "Examined implementation is 45a483d2dd3320f9268aeb4477a785237e69df4e. The later worktree commits changed unrelated potion implementation and investigation/ledger files; js/music.js and the earthquake source/caller paths are unchanged from the examined commit. No direct do_pit/do_earthquake patch hunk was found under nethack-c/patches."
+              ],
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "music.c",
+                  "functions": [
+                    "do_pit",
+                    "do_earthquake"
+                  ]
+                },
+                "callerWiring": [
+                  "Port both whole static helpers into js/music.js in C definition order.",
+                  "Replace the DRUM_OF_EARTHQUAKE note_unported call in js/music.js::do_improvisation() with an awaited do_earthquake(force, state, env) call before awaken_monsters() and discover_object(). The outer apply and play-instrument routes already reach this arm."
+                ],
+                "retainedDownstreamGaps": [
+                  "dig.c::liquid_flow (void) when a new pit intersects nearby liquid.",
+                  "pray.c::desecrate_altar (void) for eligible altars, and shk.c::add_damage (void) for shop damage.",
+                  "do.c::flooreffects return is discarded by C for boulder fall; trap.c::selftouch and trap.c::mselftouch are void fall/petrification effects with existing implementation gaps."
+                ],
+                "wholeFunctionBranches": [
+                  "do_earthquake force cap, bounds, x-major/y-minor coordinate order, per-square monster wake/reveal handling, and rn2(14-force) test.",
+                  "Terrain switch: fountain, sink, non-sanctum altar, grave, throne, corridor/room, secret corridor, secret door, and door collapse paths.",
+                  "do_pit trap creation, boulder-to-chasm handling, liquid fill/flow, monster fall/trap/self-touch/damage/death, hero trap/levitation/fall/jostle/damage/exercise/self-touch, and empty-square redraw."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_pit",
+            "implementation": "js/music.js",
+            "symbol": "do_pit",
+            "sourceReview": "Root compared whole music.c:do_pit (221–338): nullable maketrap return and seen state, boulder message/extraction and discarded flooreffects, consumed fillholetyp and trap recheck, monster trap/damage/death order, hero buried-chain/levitation/fall/jostle branches, footing short-circuit RNG and half-damage rounding, and final newsym. Source gaps at discarded calls: do.c flooreffects, dig.c liquid_flow, trap.c mselftouch/selftouch, mon.c xkilled. No placeholder remains in this helper. Existing consumed helpers and macros were source-checked; independent room-pit recordings establish production reachability.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_earthquake",
+                "source": "music.c:do_earthquake (344-475) calls do_pit for the terrain-specific earthquake results; the JavaScript awaits the helper at those same branches."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [
+              "recordings/music.c/earthquake-room-pit-force-two-a73.session.json",
+              "recordings/music.c/earthquake-room-pit-force-three-corrected-a73.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "6ef7d7c651888c75325b649a2b4703e62aead4e6"
+          },
+          {
+            "name": "do_earthquake",
+            "implementation": "js/music.js",
+            "symbol": "do_earthquake",
+            "sourceReview": "Root compared whole music.c:do_earthquake (344–475): pre-scan hero pit state, cap13 and clipped bounds, x-major/y-minor scan, wake/unhide/mimic before each rn2(14-force), and every terrain arm. Verified furniture and ordinary-floor pit calls, sanctum preservation and altar alignment message, secret corridor/door conversion, doorless pit handling, door redraw/message before shop repair. Discarded pray.c desecrate_altar and shk.c add_damage calls remain named gaps at exact C positions. Charged drum caller awaits quake after both source messages and before awaken_monsters/makeknown; no whole outer caller credit. Independent recordings establish pit calls and selected synthetic step39 establishes the scan.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation (503-730), DRUM_OF_EARTHQUAKE case around 698, calls do_earthquake((u.ulevel - 1) / 3 + 1) after both messages and before awaken_monsters and makeknown."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [
+              "recordings/music.c/earthquake-room-pit-force-two-a73.session.json",
+              "recordings/music.c/earthquake-room-pit-force-three-corrected-a73.session.json",
+              "recordings/music.c/charged-earthquake-blocked.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "earthquake-drum-opens-pits-pager-corrected",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 39,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation DRUM_OF_EARTHQUAKE arm -> music.c:do_earthquake"
+              }
+            ],
+            "checkedAt": "6ef7d7c651888c75325b649a2b4703e62aead4e6"
+          }
+        ],
+        "entryPointReview": "The active production entry is using a charged drum of earthquake: apply.c:doapply dispatches to do_play_instrument, which reaches do_improvisation and its DRUM_OF_EARTHQUAKE branch. JavaScript follows js/apply.js:doapply -> js/music.js:do_play_instrument -> js/music.js:do_improvisation -> do_earthquake. The admitted v17 case earthquake-drum-opens-pits-pager-corrected matches through segment 0, zero-based step 39 and establishes the previously missing earthquake scan. Its force-one scan has three zero results, but map/source tracing places them below the room, on its southern wall, and beyond its eastern wall; none enters do_pit, so this range is not cited for do_pit. The independent force-two and force-three C-first room recordings both show newly created room pits and strictly match through their complete recordings; they establish do_earthquake -> do_pit runtime. The pre-existing charged recording also strictly matches and supplies another charged-drum caller route. The helper test pins force caps 13 and 14 and pure musicMaybeHalfPhys behavior; direct unit coverage is supplemental, not production evidence. Other terrain branches are translated and source-compared but lack separate runtime recordings. Named discarded-void callees remain unported and receive no completion credit. Whole do_improvisation, do_play_instrument, doapply, trap, dig, monster, prayer, and shop units are not claimed.",
+        "entryPoints": [
+          {
+            "name": "Use a charged drum of earthquake to scan terrain and create pits",
+            "functions": [
+              "do_earthquake",
+              "do_pit"
+            ],
+            "recordings": [
+              "recordings/music.c/earthquake-room-pit-force-two-a73.session.json",
+              "recordings/music.c/earthquake-room-pit-force-three-corrected-a73.session.json",
+              "recordings/music.c/charged-earthquake-blocked.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "earthquake-drum-opens-pits-pager-corrected",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 39,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation -> music.c:do_earthquake"
+              }
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e44d89030161c871e467c85f4acc8072a3359460",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
