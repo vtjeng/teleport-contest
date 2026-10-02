@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent Elf Wizard variation for the hero melee -> passive AD_ENCH fallback to worn gloves. This uses the C-observed inventory slots and eastward target location, followed by the two pager acknowledgments that finish the unarmed attack sequence. C step 179 reaches hmon_hitmon_barehands; step 181 follows known_hitum with obj_resists(zap.c:1469)=11 inside passive_obj -> drain_item. The ordinary-object resistance threshold is 10, so the glove is drained: the C status changes Dexterity 23 to 22 in that boundary.",
+  "segments": [
+    {
+      "seed": 90416609,
+      "datetime": "20430618132500",
+      "nethackrc": "OPTIONS=name:ArmorPassiveB88E,role:Wizard,race:elf,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": "#wizintrinsic\n100a\n \u0017uncursed amulet of life saving\nWp\u0017uncursed +9 gauntlets of dexterity\nWq\u0017uncursed +9 ring of increase accuracy\nPrrw-#wizgenesis\nhostile sleeping disenchanter\nl  "
+    }
+  ]
+}

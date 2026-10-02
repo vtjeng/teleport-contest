@@ -173,7 +173,7 @@ import {
     ttyUrgentPline,
 } from './tty_message.js';
 import { mhitm_adtyping, mhitm_knockback } from './uhitm.js';
-import { Cold_resistance } from './zap.js';
+import { Cold_resistance, drain_item } from './zap.js';
 import { cansee, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
@@ -2001,7 +2001,8 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
         return M_ATTK_HIT;
     }
     case M.AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
-        if (env.mon_currwep) note_unported('zap.c drain_item');
+        if (env.mon_currwep)
+            drain_item(env.mon_currwep, true, state, env);
         return M_ATTK_HIT;
     default:
         break;

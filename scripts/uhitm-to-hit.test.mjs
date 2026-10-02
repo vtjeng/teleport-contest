@@ -874,13 +874,13 @@ test('passive draws once for a live ordinary target and never for a corpse',
         };
 
         // uhitm.c:6013, the guard on the second switch.
-        passive(target(), null, false, true, AT_WEAP, false, game, env);
+        await passive(target(), null, false, true, AT_WEAP, false, game, env);
         assert.deepEqual(draws, ['rn2(3)']);
 
         // A dead target makes it, and a cancelled one does not.
         draws.length = 0;
-        passive(target(), null, false, false, AT_WEAP, false, game, env);
-        passive(target(PM_LICHEN, { mcan: 1 }), null, false, true, AT_WEAP,
+        await passive(target(), null, false, false, AT_WEAP, false, game, env);
+        await passive(target(PM_LICHEN, { mcan: 1 }), null, false, true, AT_WEAP,
             false, game, env);
         assert.deepEqual(draws, []);
 
@@ -893,7 +893,7 @@ test('passive draws once for a live ordinary target and never for a corpse',
                 aatyp: AT_BITE, adtyp: AD_PHYS, damn: 1, damd: 2,
             })),
         };
-        passive(full, null, false, true, AT_WEAP, false, game, env);
+        await passive(full, null, false, true, AT_WEAP, false, game, env);
         assert.deepEqual(draws, []);
     });
 
@@ -914,7 +914,7 @@ test('passive rolls the empty slot dice and stops on a real counter-attack',
         // read, and the type then stops.
         const mold = target(PM_BROWN_MOLD, { m_lev: 1 });
         assert.equal(mold.data.mattk[0].adtyp, AD_COLD);
-        refuses(
+        await refusesAsync(
             () => passive(mold, null, false, true, AT_WEAP, false, game, env),
             'passive counter-attack',
         );
@@ -926,7 +926,7 @@ test('passive rolls the empty slot dice and stops on a real counter-attack',
         const blob = target(PM_ACID_BLOB);
         const slot = blob.data.mattk[0];
         assert.equal(slot.aatyp, AT_NONE);
-        refuses(
+        await refusesAsync(
             () => passive(blob, null, false, true, AT_WEAP, false, game, env),
             'passive counter-attack',
         );

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Strict passing cheap variation for the some_armor suit candidate. The full C probe run-pKhQeh observed the first successful suit drain at segment 0 step 87; shortest-prefix C rerun run-lMab9r and strict JavaScript replay run-QN199H match 89/89 screens, 2703/2703 RNG calls, and 89/89 cursors. At step 85 C selects the worn +3 studded leather suit, but obj_resists rn2(100)=4 resists; at step 87 obj_resists rn2(100)=82 succeeds, with the less-effective message on the next pager screen.",
+  "segments": [
+    {
+      "seed": 8294015,
+      "datetime": "20430519104700",
+      "nethackrc": "OPTIONS=name:ArmorDrainSuit,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait,!autopickup\n",
+      "moves": "#wizintrinsic\n100a\n \u0017+3 studded leather armor\nTWo#wizgenesis\nhostile disenchanter\n. . . "
+    }
+  ]
+}
