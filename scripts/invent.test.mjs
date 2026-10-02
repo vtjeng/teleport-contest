@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { compareSessionOutputs } from './diff-fresh.mjs';
 
 import { ROOM } from '../js/const.js';
 import {
@@ -9,10 +10,49 @@ import {
     only_here,
 } from '../js/invent.js';
 import { UnsupportedShopError } from '../js/shk.js';
+import { runSegment } from '../js/jsmain.js';
 
 const INVENT_C = readFileSync(
     new URL('../nethack-c/upstream/src/invent.c', import.meta.url), 'utf8',
 );
+const INVENT_JS = readFileSync('js/invent.js', 'utf8');
+
+test('fully_identify_obj learns a known egg species after object flags', () => {
+    const cStart = INVENT_C.indexOf('fully_identify_obj(struct obj *otmp)');
+    const cEnd = INVENT_C.indexOf('\n}', cStart) + 2;
+    const cFunction = INVENT_C.slice(cStart, cEnd);
+    const jsStart = INVENT_JS.indexOf('export function fully_identify_obj(');
+    const jsEnd = INVENT_JS.indexOf('\n}', jsStart) + 2;
+    const jsFunction = INVENT_JS.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(cFunction, /otmp->known = otmp->bknown = otmp->rknown = 1;[\s\S]*if \(otmp->otyp == EGG && otmp->corpsenm != NON_PM\)[\s\S]*learn_egg_type\(otmp->corpsenm\);/u);
+    assert.match(jsFunction, /obj\.known = true;[\s\S]*obj\.rknown = true;[\s\S]*if \(obj\.otyp === EGG && obj\.corpsenm !== NON_PM\)[\s\S]*learn_egg_type\(obj\.corpsenm, state\);/u);
+});
+
+test('fully_identify_obj matches the admitted egg-species identification route', async () => {
+    // The recorded #wizidentify path selects all-identify and reaches this
+    // helper with a blessed giant-ant egg; step 69 names the next fresh egg.
+    const recording = JSON.parse(readFileSync(
+        'challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.session.json',
+        'utf8',
+    ));
+    const segment = recording.segments[0];
+    const result = await runSegment(segment);
+    const comparison = compareSessionOutputs(recording, {
+        rng: result.getRngLog(),
+        screens: result.getScreens(),
+        cursors: result.getCursors(),
+        animFrames: result.getAnimationFramesByStep(),
+        segments: [{
+            rng: result.getRngLog(),
+            screens: result.getScreens(),
+            cursors: result.getCursors(),
+            animFrames: result.getAnimationFramesByStep(),
+        }],
+    });
+    assert.equal(comparison.passed, true, JSON.stringify(comparison, null, 2));
+    assert.match(segment.steps[69].screen, /a giant ant egg/u);
+});
 
 test('only_here reads C go.only and matches only its target square', () => {
     // The target (5,9) is the C go.only value; the second object differs in x

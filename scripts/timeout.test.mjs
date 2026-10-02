@@ -54,6 +54,8 @@ import {
     TIMER_LEVEL,
     TIMER_OBJECT,
     LEVITATION,
+    G_EXTINCT,
+    MV_KNOWS_EGG,
     UNCHANGING,
     VOMITING,
     WARN_OF_MON,
@@ -67,6 +69,8 @@ import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import { HCOLORS } from '../js/random_text_data.js';
 import {
+    PM_BABY_CROCODILE,
+    PM_CROCODILE,
     PM_DEATH,
     PM_ACID_BLOB,
     PM_ARCHEOLOGIST,
@@ -98,6 +102,7 @@ import {
     UnsupportedTimerCleanupError,
     attach_egg_hatch_timeout,
     attach_fig_transform_timeout,
+    learn_egg_type,
     fall_asleep,
     nh_timeout,
     nh_timeout_requires_live_state,
@@ -120,6 +125,45 @@ const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
 const C_ALLMAIN = readFileSync('nethack-c/upstream/src/allmain.c', 'utf8');
 const JS_TIMEOUT = readFileSync('js/timeout.js', 'utf8');
 const JS_ALLMAIN = readFileSync('js/allmain.js', 'utf8');
+
+test('learn_egg_type normalizes baby species, preserves mvflags, then refreshes inventory', () => {
+    // C maps baby crocodile eggs to adult crocodiles; G_EXTINCT is an existing
+    // unrelated mvflags bit that the source's |= must preserve.
+    const cStart = C_TIMEOUT.indexOf('learn_egg_type(int mnum)');
+    const cEnd = C_TIMEOUT.indexOf('\n}', cStart) + 2;
+    const cFunction = C_TIMEOUT.slice(cStart, cEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.match(
+        cFunction,
+        /mnum = little_to_big\(mnum\);[\s\S]*svm\.mvitals\[mnum\]\.mvflags \|= MV_KNOWS_EGG;[\s\S]*update_inventory\(\);/u,
+    );
+    const jsStart = JS_TIMEOUT.indexOf('export function learn_egg_type(');
+    const jsEnd = JS_TIMEOUT.indexOf('\n}', jsStart) + 2;
+    const jsFunction = JS_TIMEOUT.slice(jsStart, jsEnd);
+    assert.match(
+        jsFunction,
+        /mnum = little_to_big\(mnum\);[\s\S]*state\.svm\.mvitals\[mnum\]\.mvflags \|= MV_KNOWS_EGG;[\s\S]*update_inventory\(\{\s*\.\.\.env, state\s*\}\);/u,
+    );
+
+    // The adult slot begins with G_EXTINCT to prove learn_egg_type only adds
+    // the knowledge bit; the hook observes the source-ordered refresh.
+    const state = {
+        program_state: { in_moveloop: 1 },
+        svm: { mvitals: [] },
+    };
+    state.svm.mvitals[PM_CROCODILE] = { mvflags: G_EXTINCT };
+    const events = [];
+    learn_egg_type(PM_BABY_CROCODILE, state, {
+        hooks: {
+            updateInventory(updatedState) {
+                events.push([updatedState.svm.mvitals[PM_CROCODILE].mvflags]);
+            },
+        },
+    });
+    assert.equal(state.svm.mvitals[PM_CROCODILE].mvflags,
+        G_EXTINCT | MV_KNOWS_EGG);
+    assert.deepEqual(events, [[G_EXTINCT | MV_KNOWS_EGG]]);
+});
 
 function timerState(moves = 10) {
     const state = { moves, gt: { other: true }, svt: { other: true } };
