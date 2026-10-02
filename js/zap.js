@@ -641,6 +641,7 @@ import {
 import { readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg, force_decor } from './pickup.js';
 import { cant_revive, litroom, unpunish } from './read.js';
+import { set_wear } from './do_wear.js';
 import { is_quest_artifact } from './questpgr.js';
 import { mstatusline, ustatusline } from './insight.js';
 import {
@@ -2994,10 +2995,11 @@ export async function poly_obj(obj, id, state = game,
                 setuqwep(replacement, env);
             } else if (newWornMask) {
                 setworn(replacement, newWornMask, env);
-                // C's set_wear() return is discarded. The existing JS
-                // set_wear() is the startup-wide callback and has a
-                // different signature, so retain this call-site gap.
-                note_unported('do_wear.c set_wear');
+                if (newWornMask & W_RING) {
+                    await set_wear(state, replacement, { ...rawEnv, random });
+                } else {
+                    note_unported('do_wear.c set_wear');
+                }
                 replacement = wearmask_to_obj(newWornMask, state);
             }
         }

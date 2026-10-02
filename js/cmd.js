@@ -143,7 +143,7 @@ import {
 } from './do.js';
 import {
     doremring, doputon, dotakeoff, dowear, remarm_swapwep, reset_remarm,
-    UnsupportedAccessoryOnError, UnsupportedRingOnError,
+    UnsupportedAccessoryOnError,
     UnsupportedTakeOffError, UnsupportedWearError,
 } from './do_wear.js';
 import { doclose, doforce, doopen, reset_pick, UnsupportedLockError } from './lock.js';
@@ -2860,12 +2860,6 @@ export function failClosedCommandRefusals() {
         // set_wear() raises it too, from moveloop_preamble() rather than from
         // a command, which is the raiser the startup reader above converts.
         UnsupportedWearError,
-        // do_wear.c Ring_on() raises this for the five ring types whose
-        // on-wear effect calls helpers this port has not reached:
-        // toggle_stealth, set_mimic_blocking, self_invis_message, float_up,
-        // The no-op, arithmetic, and shape-changer protection arms work
-        // without the remaining unsupported ring helpers.
-        UnsupportedRingOnError,
         // do_wear.c Amulet_on() and Blindf_on() are fail-closed entry points
         // that belong to later puton-command slices.
         UnsupportedAccessoryOnError,
