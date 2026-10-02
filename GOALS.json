@@ -142043,6 +142043,258 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-tty-corner-dismiss-and-queued-adjust-v18-20261002",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Fix corner status dismissal and queued inventory adjustment",
+      "cFile": "wintty.c",
+      "sessions": [
+        "synthetic/v18/wizard-applies-wet-towel-clears-glib-c59-continuation"
+      ],
+      "selectionReason": "Continue the same-seed v18 case wizard-applies-wet-towel-clears-glib-c59-continuation after the A80 delivery. The first mismatch at segment 0 step 25 is the stale status suffix restored by corner-menu dismissal. The queued IA_ADJUST_OBJ action at step 27 then fails because rhack uses ef_txt adjust instead of the C queued function doorganize; step 28 confirms C completes the rename. This task fixes only these two existing divergences. It does not port use_towel or claim GLIB behavior, and it does not touch B88-owned throwit behavior. Root verified immutable original and same-scope equality correction against published main 0f6363b9495049bb3760ec65fde1cd99a1e4f311. The current A80 v18 evaluation e596 retains25/42screens,27/42cursors,2311/2319rng. The fixed branch and subsequent queued dispatch are implemented existing-code divergences, not whole-source ports. Full correctness review is required before acceptance.",
+      "detail": "Admitted v18 case segment0 zero-based step25 key i: screen row22,column31 C blank vs JS S after active corner-menu dismissal. C win/tty/wintty.c tty_dismiss_nhwindow -> erase_menu_or_text nonzero offx -> docorner clears the covered suffix and marks disp.botlx/calls bot when ymax>=WIN_STATUS offy, including equality. JS dismissTtyMenu restored the prior status suffix and omitted that status refresh. Later step27 IA_ADJUST_OBJ queues ef_funct doorganize; cmd.c rhack dispatches function identity after permission checks and consumes ECMD result. Existing JS derived adjust spelling and missed doorganize. Full42-step immutable replay covers both corrections. No use_towel/GLIB or whole-function completion credit.",
+      "openedAt": "0f6363b9495049bb3760ec65fde1cd99a1e4f311",
+      "openStanding": {
+        "sha": "e596209b6216abb6987670e4d2a22def93291ef4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "15f03a8d4e6a97037534f666b9b6c002a37c5d5b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "docorner",
+      "session": "synthetic/v18/wizard-applies-wet-towel-clears-glib-c59-continuation",
+      "step": 25,
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-applies-wet-towel-clears-glib-c59-continuation": {
+          "session": "synthetic/v18/wizard-applies-wet-towel-clears-glib-c59-continuation",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-applies-wet-towel-clears-glib-c59-continuation",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.session.json",
+          "recordingSha256": "a0c9881421363a63cdd96ba0bf7bad6f1036c09bffdda1c4d8270b0160202f04",
+          "evaluationPath": "challenges/evaluations/20261002134625-v18.json",
+          "evaluationCommit": "e596209b6216abb6987670e4d2a22def93291ef4"
+        }
+      },
+      "activeStanding": {
+        "sha": "e596209b6216abb6987670e4d2a22def93291ef4",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-applies-wet-towel-clears-glib-c59-continuation",
+          "session": "synthetic/v18/wizard-applies-wet-towel-clears-glib-c59-continuation",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.session.json",
+          "recordingSha256": "a0c9881421363a63cdd96ba0bf7bad6f1036c09bffdda1c4d8270b0160202f04",
+          "recipe": "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.recipe.session.json",
+          "recipeSha256": "b4d4c9c0bd45d407b3a7f26b5251c346db0e8bdea7f10efcd7ee5d496b5d4647",
+          "replayInputSha256": "63a7c09166ed385ab1066814ae5ac8f9bad25a2725ccee50ec7fad9fd266e0de",
+          "evaluationPath": "challenges/evaluations/20261002134625-v18.json",
+          "evaluationCommit": "e596209b6216abb6987670e4d2a22def93291ef4",
+          "evaluationArtifact": "challenges/evaluations/20261002134625-v18.json",
+          "evaluationUtc": "2026-10-02T13:47:14.957Z",
+          "remainingScreens": 17,
+          "recordedSteps": 42,
+          "previousScreensMatched": 25,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 25,
+              "total": 42
+            },
+            "rng": {
+              "matched": 2311,
+              "total": 2319
+            },
+            "cursors": {
+              "matched": 27,
+              "total": 42
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 25,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 25,
+                "key": "i"
+              },
+              "kind": "ch",
+              "row": 22,
+              "column": 31,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "S",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 25,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.json",
+            "result": {
+              "session": "synthetic/v18/wizard-applies-wet-towel-clears-glib-c59-continuation",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-applies-wet-towel-clears-glib-c59-continuation",
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "a0c9881421363a63cdd96ba0bf7bad6f1036c09bffdda1c4d8270b0160202f04",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "remainingScreens": 17,
+              "recordedSteps": 42,
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-applies-wet-towel-clears-glib-c59-continuation",
+                "session": "synthetic/v18/wizard-applies-wet-towel-clears-glib-c59-continuation",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.session.json",
+                "recordingSha256": "a0c9881421363a63cdd96ba0bf7bad6f1036c09bffdda1c4d8270b0160202f04",
+                "recipe": "challenges/cases/v18/wizard-applies-wet-towel-clears-glib-c59-continuation.recipe.session.json",
+                "recipeSha256": "b4d4c9c0bd45d407b3a7f26b5251c346db0e8bdea7f10efcd7ee5d496b5d4647",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 17,
+                "recordedSteps": 42,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 25,
+                    "total": 42
+                  },
+                  "rng": {
+                    "matched": 2311,
+                    "total": 2319
+                  },
+                  "cursors": {
+                    "matched": 27,
+                    "total": 42
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 25,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 25,
+                      "key": "i"
+                    },
+                    "kind": "ch",
+                    "row": 22,
+                    "column": 31,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "S",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 25,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first saved screen mismatch is a corner-menu dismissal divergence: C clears the inventory overlay through the lower status row, while JS restores the covered status cells. After the menu choice, JS also refuses the queued adjust action before step 27 because rhack dispatches its label instead of the C function pointer. C then throws a spellbook and rejects the final apply selection; it does not reach use_towel or demonstrate GLIB clearing in this recording.",
+              "source": {
+                "file": "win/tty/wintty.c",
+                "branch": "For an active menu window with window initialization enabled, tty_dismiss_nhwindow() reaches erase_menu_or_text(); when cw->offx is nonzero, erase_menu_or_text() calls docorner(cw->offx, cw->maxrow + 1, 0), which clears to end-of-line over each covered row. This inventory menu reaches row 22, leaving the covered status cells blank. JS dismissTtyMenu() restores the saved corner region instead. The next IA_ADJUST_OBJ selection also requires the queued doorganize function pointer to dispatch in rhack(); JS sets cmdqCommand from ef_txt (\"adjust\") but its handler branch is keyed by ef_funct (\"doorganize\"), so it falls through to the unsupported-command refusal.",
+                "functions": [
+                  "tty_dismiss_nhwindow",
+                  "erase_menu_or_text",
+                  "docorner",
+                  "cmd.c:rhack"
+                ],
+                "callers": [
+                  "C: invent.c ddoinv() -> dispinv_with_action() -> itemactions(); windows.c select_menu() -> win_select_menu -> win/tty/wintty.c tty_select_menu() -> tty_dismiss_nhwindow().",
+                  "JS: cmd.js runInventoryCommand() -> invent.js ddoinv() -> dispinv_with_action() -> itemactions(); windows.js select_menu() -> tty_menu.js selectTtyMenu() -> dismissTtyMenu().",
+                  "C: iactions.c itemactions_pushkeys() queues the doorganize() function and selected inventory letter; cmd.c rhack() jumps to do_cmdq_extcmd with that function-table row.",
+                  "JS: iactions.js itemactions_pushkeys() queues extcmdRow(\"adjust\") and the object letter; cmd.js rhack() copies ef_txt into cmdqCommand, then dispatches only source function-name cases."
+                ],
+                "dependencies": [
+                  "windows.c select_menu() raises gb.bot_disabled around the TTY selector; botl.c bot() and timebot() return early while it is raised, so the status region cleared by corner dismissal remains blank until a later enabled status update.",
+                  "invent.c dispinv_with_action() consumes display_inventory() selection and calls itemactions() for its inventory letter; itemactions_pushkeys() consumes the selected action and queues doorganize() plus that object letter. The doorganize() result is ECMD_OK and is consumed by rhack() result handling.",
+                  "C cmd.c rhack() uses the queued extcmd function-table row as tlist and dispatches its ef_funct; JS cmd.js rhack() instead sets cmdqCommand to ef_txt before a switch keyed by ef_funct names. The existing doorganize() implementation in js/invent.js is not reached on this queued path.",
+                  "C dothrow.c throwit() reaches breaktest() for the hard-floor landing; breaktest() consumes zap.c obj_resists() return value and its rn2(100) call. JS has corresponding breaktest() and obj_resists() implementations, but the focused replay refuses at the earlier queued-command boundary and never reaches this draw.",
+                  "apply.c use_towel() is not reached: after the throw, the C apply prompt offers [cikm or ?*], and the final recorded n is rejected. The wet-towel/GLIB action named by the case is therefore not an executed behavior in this recording."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "At examined commit 04b79edc2bcff3a4c2d70efba937608818f85b53, the saved v18 evaluation 20261002065911-v18.json (evaluation commit d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d) records 25/42 matching screens, 2311/2319 matching RNG calls, 27/42 matching cursors, and 17 unmatched screens. Its first screen mismatch is segment 0, step 25, key i, row 22 column 31: C is a blank cell and JS contains S (the start of St:).",
+                "C source: win/tty/wintty.c tty_dismiss_nhwindow() (1953-2026) routes active menu/text/perminvent dismissal through erase_menu_or_text() (966-984); its nonzero-offx arm calls docorner() (3650 onward). docorner() clears from xmin to end of line for each row through ymax; it does not restore a saved terminal snapshot. The preceding C inventory overlay ends at row 22, so its dismissal clears the status suffix before the shorter item-actions menu is drawn. js/tty_menu.js dismissTtyMenu() restores the snapshot for the corner-menu path, retaining the prior status suffix and producing the recorded S at column 31. Patch nethack-c/patches/006-nomux-capture.patch records the TTY shadow frame and cursor; it does not redraw the status row.",
+                "The immutable recording and manifest retain C59 independent patched-C replay run-XgE7UB, exit 0 and byte-identical to recording SHA-256 a0c9881421363a63cdd96ba0bf7bad6f1036c09bffdda1c4d8270b0160202f04; receipt path is /tmp/teleport-loop-worker-c-20260925/.cache/C59-logs/final-replay-checks/wizard-applies-wet-towel-clears-glib-c59-continuation/receipt.json. The older C59 comparison at c279bd556876e7c8494dbe37aea914412f8e75a3 likewise shows the row-22 status difference; its later RNG tag is retained only as counter-evidence, not as the first cause.",
+                "C step 22 opens inventory and step 25 selects the scroll of food detection, whose menu includes i - Adjust inventory by assigning new letter. At step 27, i selects IA_ADJUST_OBJ. C iactions.c itemactions_pushkeys() queues doorganize() and the object letter; invent.c doorganize() consumes that letter and the step-28 message confirms the scroll was reassigned to n. JS focused replay run-JbzdRb emitted 27 screens and 2311 RNG calls, then reported UnsupportedHeroCommandBoundaryError from js/cmd.js rhack() at line 6433 before a screen for step 27. The case-specific receipt and stdout are .cache/v18-investigations/wizard-applies-wet-towel-clears-glib-c59-continuation/focused-replay-receipt.json and focused-replay-output.log.",
+                "The downstream dispatch mismatch is source-grounded: C cmd.c rhack() lines 3642-3648 saves CMDQ_EXTCMD into cmdq_ec and jumps to do_cmdq_extcmd; lines 3681 onward assigns tlist = cmdq_ec and dispatches the row function. JS iactions.js queues extcmdRow(\"adjust\"); js/cmd.js rhack() copies queued.ec_entry.ef_txt (\"adjust\") into cmdqCommand, but its command switch handles the function spelling \"doorganize\" and reaches the refusal at line 6433. This is a distinct required wiring correction after the earlier corner-screen mismatch.",
+                "The C recording continues through the later throw: step 37 enters count 1, step 38 selects the spellbook at inventory letter l, and step 39 reaches the hard-floor path in dothrow.c throwit() (around line 1780), which calls breaktest() (2581-2610); that calls zap.c obj_resists() (1458-1472), whose ordinary-object branch consumes rn2(100). The saved C event is rn2(100)=90 at RNG index 2311 and step 39. The JS replay has no result for this branch because it stopped at step 27; do not diagnose the C-only RNG tail as an independent obj_resists defect from this evidence.",
+                "The label is not proof that the case exercises wet-towel use: at step 40 C asks What do you want to use or apply? [cikm or ?*]; at step 41 key n produces Sorry, I don’t know how to use that. The scroll was changed to n at step 28, and apply.c use_towel() is not reached. Thus this recording provides no evidence for clearing GLIB; preserve this as downstream target counter-evidence rather than attributing a use_towel source gap."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "15f03a8d4e6a97037534f666b9b6c002a37c5d5b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
