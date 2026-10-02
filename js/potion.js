@@ -20,7 +20,7 @@
 //        make_hallucinated() (387-442), toggle_blindness() (336-364).
 //
 // dodrink() is the #quaff command entry point. Its occupied milky-potion
-// branch still names the void ghost_from_bottle() gap; the common path calls
+// branch calls the source-ported ghost_from_bottle(); the common path calls
 // getobj() -> dopotion() -> peffects().
 //
 // peffects() dispatches the potion and spell effects; POT_ACID, POT_BOOZE, POT_CONFUSION,
@@ -147,6 +147,7 @@ import {
     hcolor,
     hliquid,
     mon_nam,
+    rndmonnam,
     x_monnam,
 } from './do_name.js';
 import { tamedog } from './dog.js';
@@ -1997,10 +1998,54 @@ export async function dopotion(otmp, state = game, env = {}) {
     return ECMD_TIME;
 }
 
-// C ref: potion.c dodrink() (526-615). The #quaff command entry point.
-//
-// Source-ordered port of potion.c:dodrink(). The void ghost_from_bottle()
-// and remove_worn_item() dependencies remain named gaps when reached.
+// C ref: potion.c ghost_from_bottle() (481-500). C consumes makemon()'s
+// nullable result before choosing its message and only applies the forced-rest
+// state after the nonblind success message.
+export async function ghost_from_bottle(state = game, rawEnv = {}) {
+    const message = rawEnv.message ?? ttyPline;
+    const makeMonster = rawEnv.makeMonster ?? makemon_runtime;
+    const monster = await makeMonster(
+        state.mons[PM_GHOST],
+        state.u.ux,
+        state.u.uy,
+        MM_NOMSG,
+        { ...rawEnv, state },
+    );
+    if (!monster) {
+        await message('This bottle turns out to be empty.', state);
+        return null;
+    }
+
+    if (heroIsBlind(state)) {
+        await message('As you open the bottle, something emerges.', state);
+        return null;
+    }
+
+    const monsterName = Hallucination(state)
+        ? rndmonnam({
+            state,
+            random: rawEnv.displayRandom ?? rawEnv.random,
+        })
+        : 'ghost';
+    await message(
+        `As you open the bottle, an enormous ${monsterName} emerges!`,
+        state,
+    );
+    if (state.flags?.verbose) {
+        await message(
+            'You are frightened to death, and unable to move.',
+            state,
+        );
+    }
+    nomul(-3, state);
+    state.multi_reason = 'being frightened to death';
+    state.nomovemsg = 'You regain your composure.';
+    return null;
+}
+
+// C ref: potion.c dodrink() (526-615). The #quaff command entry point. Its
+// source-ported ghost branch completes before the bottle is used up; the
+// separate remove_worn_item() dependency remains named when reached.
 export async function dodrink(state = game) {
     const hero = state.u;
 
@@ -2090,7 +2135,7 @@ export async function dodrink(state = game) {
         const ghostVital = state.mvitals[PM_GHOST];
         if (!(ghostVital.mvflags & G_GONE)
             && !rn2(13 + 2 * ghostVital.born)) {
-            note_unported('potion.c ghost_from_bottle');
+            await ghost_from_bottle(state);
             useup(otmp, { state });
             return ECMD_TIME;
         }
