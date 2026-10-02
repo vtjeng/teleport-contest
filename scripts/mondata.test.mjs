@@ -15,6 +15,9 @@ import {
     ARTILIST_TEMPLATE,
     ART_GRIMTOOTH,
     ART_MITRE_OF_HOLINESS,
+    NROFARTIFACTS,
+    ART_SCEPTRE_OF_MIGHT,
+    ART_SUNSWORD,
 } from '../js/artifacts.js';
 import {
     _mondataInternals,
@@ -30,6 +33,7 @@ import {
     can_be_hatched,
     dmgtype,
     dead_species,
+    defended,
     flesh_petrifies,
     flaming,
     get_atkdam_type,
@@ -75,6 +79,7 @@ import {
     locomotion,
     mon_knows_traps,
     monster_resists_element,
+    Resists_Elem,
     name_to_mon,
     name_to_monclass,
     name_to_monplus,
@@ -89,6 +94,7 @@ import {
     poisonous,
     regenerates,
     resists_blnd,
+    resists_blnd_by_arti,
     resist_conflict,
     same_race,
     set_mon_data,
@@ -116,6 +122,8 @@ import {
     RIN_POISON_RESISTANCE,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+import { game } from '../js/gstate.js';
+import { initUnported } from '../js/unported.js';
 
 // Monster flags, sizes, class letters, and attack types, transcribed from the
 // C headers. mondata.c's predicates test these exact values, so a case built
@@ -832,6 +840,12 @@ test('demon rank and conflict resistance preserve source composition', () => {
 test('monster elemental resistance includes source equipment defenses', () => {
     const state = {
         artilist: ARTILIST_TEMPLATE,
+        // artifactTables() requires the per-game existence array initialized;
+        // these reads exercise defenses without running role-specific fixups.
+        artiexist: Array.from({ length: NROFARTIFACTS + 1 }, () => ({
+            exists: 0, found: 0, gift: 0, wish: 0, named: 0,
+            viadip: 0, lvldef: 0, bones: 0, rndm: 0,
+        })),
         objects: OBJECT_TEMPLATES,
     };
     const monster = {
@@ -880,6 +894,113 @@ test('monster elemental resistance includes source equipment defenses', () => {
     assert.equal(monster_resists_element(monster, FIRE_RES, state), true);
 });
 
+test('defended uses the source artifact and adult-dragon armor rules', () => {
+    // mondata.c:91-124 first checks wielded artifact defense, then treats an
+    // adult dragon as wearing the corresponding dragon scales itself.
+    const state = monsterState();
+    state.artilist = ARTILIST_TEMPLATE;
+    state.artiexist = Array.from({ length: NROFARTIFACTS + 1 }, () => ({
+        exists: 0, found: 0, gift: 0, wish: 0, named: 0,
+        viadip: 0, lvldef: 0, bones: 0, rndm: 0,
+    }));
+    state.objects = OBJECT_TEMPLATES;
+    const newt = {
+        data: state.mons[M.PM_NEWT], mw: null, minvent: null,
+    };
+    assert.equal(defended(newt, M.AD_DRST, state), false);
+
+    const greenDragon = {
+        data: state.mons[M.PM_GREEN_DRAGON], mw: null, minvent: null,
+    };
+    assert.equal(defended(greenDragon, M.AD_DRST, state), true);
+});
+
+test('Resists_Elem covers hero properties, equipment, and delegated defenses', () => {
+    // prop.h:18-27 assigns FIRE_RES..STONE_RES the consecutive values 1..8;
+    // prop.h:30, 27 and 56 assign ANTIMAGIC=12, DRAIN_RES=9, BLND_RES=38.
+    const C_ELEMENTAL_PROPERTIES = [1, 2, 3, 4, 5, 6, 7, 8];
+    const state = monsterState();
+    state.objects = OBJECT_TEMPLATES;
+    state.artilist = ARTILIST_TEMPLATE;
+    state.artiexist = Array.from({ length: ARTILIST_TEMPLATE.length },
+        () => ({}));
+    state.invent = null;
+    state.uwep = null;
+    const hero = {
+        data: state.mons[M.PM_HUMAN],
+        mextrinsics: 0,
+        mintrinsics: 0,
+        minvent: null,
+        mw: null,
+    };
+    state.youmonst = hero;
+    state.u = { uprops: Array(64).fill(null), twoweap: false, ulycn: 0 };
+
+    // C's elemental switch maps all eight properties before examining the
+    // hero's intrinsic/extrinsic property value.
+    for (const property of C_ELEMENTAL_PROPERTIES) {
+        state.u.uprops[property] = { intrinsic: 1, extrinsic: 0 };
+        assert.equal(Resists_Elem(hero, property, state), true, `property ${property}`);
+        state.u.uprops[property] = { intrinsic: 0, extrinsic: 0 };
+    }
+
+    // objects.h's poison-resistance ring carries POISON_RES. prop.h:118-122
+    // places W_RINGL inside W_ACCESSORY, so it works for hero inventory.
+    state.invent = {
+        otyp: RIN_POISON_RESISTANCE,
+        owornmask: 0x00020000,
+        oartifact: 0,
+        nobj: null,
+    };
+    assert.equal(Resists_Elem(hero, 6, state), true);
+
+    // The Mitre's artilist cary.adtyp is AD_FIRE (2), which is FIRE_RES+1;
+    // carried-artifact defense does not require an equipment slot.
+    state.invent = {
+        otyp: 0,
+        owornmask: 0,
+        oartifact: ART_MITRE_OF_HOLINESS,
+        nobj: null,
+    };
+    assert.equal(Resists_Elem(hero, 1, state), true);
+
+    // ANTIMAGIC delegates to resists_magm(), whose wielded-artifact branch
+    // uses the Sceptre's C defn.adtyp=AD_MAGM record.
+    state.invent = null;
+    state.uwep = { otyp: 0, oartifact: ART_SCEPTRE_OF_MIGHT };
+    assert.equal(Resists_Elem(hero, 12, state), true);
+
+    // Human-form hero lycanthropy is the explicit extra resists_drli case;
+    // is_were() itself only reads the current human form's mflags2.
+    state.uwep = null;
+    state.u.ulycn = M.PM_WERERAT;
+    assert.equal(Resists_Elem(hero, 9, state), true);
+
+    // BLND_RES delegates to resists_blnd(); actual blindness is a direct C
+    // true arm before the inconsistent-resistance impossible() fallback.
+    state.u.ulycn = 0;
+    state.u.uprops[15] = { intrinsic: 1, extrinsic: 0 };
+    assert.equal(Resists_Elem(hero, 38, state), true);
+});
+
+test('Resists_Elem retains the source impossible() diagnostic defaults', () => {
+    const state = monsterState();
+    const hero = { data: state.mons[M.PM_HUMAN], minvent: null, mw: null };
+    state.youmonst = hero;
+    state.u = { uprops: Array(64).fill(null) };
+    initUnported();
+    assert.equal(Resists_Elem(hero, 99, state), false);
+    assert.equal(game.unported.has('pline.c impossible'), true);
+
+    // mondata.c resists_blnd() diagnoses Blnd_resist that was not explained
+    // by Blind/Unaware, monster attack type, or artifact defense, then TRUE.
+    initUnported();
+    state.u.uprops[38] = { intrinsic: 1, extrinsic: 0 };
+    assert.equal(Resists_Elem(hero, 38, state), true);
+    assert.equal(game.unported.has('pline.c impossible'), true);
+    initUnported();
+});
+
 test('compound movement predicates preserve source special cases', () => {
     const state = monsterState();
     const species = (mndx) => state.mons[mndx];
@@ -913,6 +1034,9 @@ test('compound movement predicates preserve source special cases', () => {
     assert.equal(passes_bars(species(M.PM_HUMAN)), false);
 });
 
+// mondata.c:248-275; youprop.h:88-96,125. C answers Blind/Unaware first,
+// then attack-based and artifact blindness resistance, then its diagnosed
+// inconsistent Blnd_resist fallback.
 test('blindness predicates distinguish eyewear and the source Unaware state', () => {
     const state = monsterState();
     state.u = {
@@ -988,6 +1112,29 @@ test('blindness predicates distinguish eyewear and the source Unaware state', ()
         false,
         'FAINTED under a negative multi makes AT_ENGL harmless',
     );
+});
+
+test('resists_blnd_by_arti checks wielded defense and carried artifact rows', () => {
+    // mondata.c:278-303 checks uwep first, then every inventory object with
+    // defends_when_carried(AD_BLND). Sunsword defn.adtyp is AD_BLND (11),
+    // while its cary.adtyp is zero in artilist.h.
+    const state = monsterState();
+    state.artilist = ARTILIST_TEMPLATE;
+    state.artiexist = Array.from({ length: ARTILIST_TEMPLATE.length },
+        () => ({}));
+    const hero = {
+        data: state.mons[M.PM_HUMAN],
+        minvent: null,
+        mw: null,
+    };
+    state.youmonst = hero;
+    state.uwep = { oartifact: ART_SUNSWORD };
+    state.invent = null;
+    assert.equal(resists_blnd_by_arti(hero, state), true);
+
+    state.uwep = null;
+    state.invent = { oartifact: ART_SUNSWORD, nobj: null };
+    assert.equal(resists_blnd_by_arti(hero, state), false);
 });
 
 test('movement attack, life-state, web, and trap queries match source tables', () => {

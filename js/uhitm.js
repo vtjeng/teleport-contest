@@ -57,6 +57,7 @@ import {
     RLOC_NOMSG,
     M_SEEN_COLD,
     M_SEEN_ELEC,
+    M_SEEN_SLEEP,
     MON_EXPLODE,
     NATTK,
     NOTELL,
@@ -92,6 +93,7 @@ import {
     SEE_INVIS,
     SICK,
     SICK_RES,
+    SLEEP_RES,
     SLOW_DIGESTION,
     STOMACH,
     STRAT_WAITFORU,
@@ -413,7 +415,14 @@ import {
     S_ORC,
     S_ZOMBIE,
 } from './monsters.js';
-import { engulf_target, failed_grab, paralyze_monst } from './mhitm.js';
+import {
+    engulf_target,
+    failed_grab,
+    paralyze_monst,
+    sleep_monst,
+    slept_monst,
+} from './mhitm.js';
+import { fall_asleep } from './timeout.js';
 import { set_ulycn } from './were.js';
 import {
     carried,
@@ -4845,6 +4854,84 @@ async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
     }
 }
 
+// C ref: uhitm.c mhitm_ad_slee() (3478-3522). Preserve all three attack
+// directions and the source's short-circuit/RNG order. In the monster-pair
+// arm C calls sleep_monst() twice, although its first successful call makes
+// the defender immobile and guarantees that the second returns false.
+export async function mhitm_ad_slee(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2, rnd };
+    const message = requireAttackOperation(env, 'message');
+    const effectEnv = { ...env, state, random, message };
+
+    if (magr === state.youmonst) {
+        if (!mdef.msleeping
+            && !await mhitm_mgc_atk_negated(
+                magr, mdef, false, state, effectEnv,
+            )
+            && await sleep_monst(
+                mdef, random.rnd(10), -1, effectEnv,
+            )) {
+            if (!heroIsBlind(state))
+                await message(
+                    `${Monnam(mdef, state)} is put to sleep by you!`,
+                    state,
+                    env,
+                );
+            await slept_monst(mdef, effectEnv);
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, effectEnv);
+        if ((state.multi ?? 0) >= 0
+            && !random.rn2(5)
+            && !await mhitm_mgc_atk_negated(
+                magr, mdef, true, state, effectEnv,
+            )) {
+            const sleepResistance = state.u?.uprops?.[SLEEP_RES];
+            if (sleepResistance?.intrinsic || sleepResistance?.extrinsic) {
+                monstseesu(M_SEEN_SLEEP, state);
+                return;
+            }
+            monstunseesu(M_SEEN_SLEEP, state);
+            await fall_asleep(-random.rnd(10), true, state, effectEnv);
+            if (heroIsBlind(state)) {
+                await message('You are put to sleep!', state, env);
+            } else {
+                await message(
+                    `You are put to sleep by ${mon_nam(magr, state)}!`,
+                    state,
+                    env,
+                );
+            }
+        }
+    } else {
+        if (!mdef.msleeping
+            && await sleep_monst(
+                mdef, random.rnd(10), -1, effectEnv,
+            )
+            && await sleep_monst(
+                mdef, random.rnd(10), -1, effectEnv,
+            )) {
+            if (state.gv?.vis && canSpotMonster(mdef, state)) {
+                await message(
+                    `${Monnam(mdef, state)} is put to sleep by `
+                    + `${mon_nam(magr, state)}.`,
+                    state,
+                    env,
+                );
+            }
+            mdef.mstrategy &= ~STRAT_WAITFORU;
+            await slept_monst(mdef, effectEnv);
+        }
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_ench() (3602-3649). A disenchanter's blow has no
 // effect on the hero attacker or another monster. Against the hero, preserve
 // the magic-cancellation check, hit message, worn-armor selection, fallback
@@ -4969,7 +5056,9 @@ export async function mhitm_adtyping(
     case AD_PLYS:
         await mhitm_ad_plys(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_SLEE: unported('mhitm_ad_slee'); break;
+    case AD_SLEE:
+        await mhitm_ad_slee(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_SLIM: unported('mhitm_ad_slim'); break;
     case AD_ENCH:
         await mhitm_ad_ench(magr, mattk, mdef, mhm, state, env);

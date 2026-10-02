@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap independent variation for the monster-to-hero AD_SLEE route: a Tourist with a different seed, date, gender, and character name creates the same source-defined hostile homunculus and waits five turns. This varies hero equipment and magic cancellation while retaining the source attack under test; no JavaScript seed search was used.",
+  "segments": [
+    {
+      "seed": 710902,
+      "datetime": "20320416101500",
+      "nethackrc": "OPTIONS=name:SleepVariant,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile homunculus\n. ........."
+    }
+  ]
+}

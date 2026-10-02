@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first hero-to-monster trial after the setup probe showed the hostile lichen directly north of the pauper homunculus. The frozen input makes one northward attack; retain as a matching witness only if its C trace executes mhitm_ad_slee and the complete JS replay matches.",
+  "segments": [
+    {
+      "seed": 711116,
+      "datetime": "20320515103000",
+      "nethackrc": "OPTIONS=name:SleepFighter16,role:Wizard,race:human,gender:female,align:neutral,pauper\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "\n#wizgenesis\nhostile lichen\n#polyself\nhomunculus\nk"
+    }
+  ]
+}

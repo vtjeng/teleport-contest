@@ -446,19 +446,20 @@ export function setnotworn(obj, env = {}) {
 // that same mask-to-field mapping, so the switch is a lookup here.
 //
 // C's switch answers for the seven armor masks and nothing else: every other
-// flag reaches `default: impossible("bad flag in which_armor"); return 0;`,
-// which only warns and answers "nothing worn". WORN_SLOTS carries the ring,
-// weapon and tool slots too, so the seven are named again here rather than
-// searched for; a hero asked for W_WEP must answer null, not uwep.
+// flag reaches `default: impossible("bad flag in which_armor"); return 0;`.
+// Preserve that return and record the still-unported diagnostic. WORN_SLOTS
+// also contains ring, weapon and tool slots, so the hero lookup filters it
+// back to the seven armor slots rather than answering those other pointers.
 // weapon.c special_dmgval() is the caller that passes the hero.
-const HERO_ARMOR_MASKS = W_ARM | W_ARMC | W_ARMH | W_ARMS | W_ARMG | W_ARMF
-    | W_ARMU;
-
 export function which_armor(monster, mask, state = game) {
     if (monster === state.youmonst) {
-        if ((mask & ~HERO_ARMOR_MASKS) !== 0) return null;
-        const slot = WORN_SLOTS.find((entry) => entry.mask === mask);
-        return slot ? (state[slot.field] ?? null) : null;
+        const slot = WORN_SLOTS.find((entry) => entry.mask === mask
+            && (entry.mask & W_ARMOR));
+        if (!slot) {
+            note_unported('pline.c impossible');
+            return null;
+        }
+        return state[slot.field] ?? null;
     }
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         if (obj.owornmask & mask) return obj;

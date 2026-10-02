@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Shortest C-observed monster-to-monster AD_SLEE witness for the independent Conflict setup. The full C continuation showed the first positive monster-to-monster helper call on the 22nd post-creation monster turn (recording boundary 121): mhitm_ad_slee consumes separate rnd(10)=2 and rnd(10)=9 calls, while the first sleep_monst success makes the second call return false. The input ends at that C-observed call; it is not shortened from a JavaScript failure. Source path: mon.c:movemon_singlemon -> mhitm.c:fightm -> mhitm.c:mattackm -> uhitm.c:mhitm_adtyping(AD_SLEE) -> uhitm.c:mhitm_ad_slee.",
+  "segments": [
+    {
+      "seed": 711203,
+      "datetime": "20320421101010",
+      "nethackrc": "OPTIONS=name:SleepPairConflict,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\na>>h\n \n#wizgenesis\nhostile newt\n #wizgenesis\nhostile homunculus\n. . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}
