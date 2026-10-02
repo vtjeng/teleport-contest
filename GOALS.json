@@ -141623,6 +141623,286 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-make-stunned-v18-20261002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port make_stunned and wire represented source callers",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v18/wizard-sets-stunned-intrinsic-c59"
+      ],
+      "selectionReason": "Continue the v18 wizard-sets-stunned-intrinsic-c59 mismatch. Its C recording reaches wizcmds.c:wiz_intrinsic case STUNNED -> potion.c:make_stunned(30, TRUE) at segment 0 step 17; JavaScript currently leaves the effect unported. Port the entire potion.c:make_stunned definition and wire all represented direct callers from the source audit. Preserve the seven absent outer caller branches as named gaps and do not modify B88-owned uhitm.c:passive AD_STUN. Root verified the immutable delivery fd05e4adc29d24a226b92b45020bbd3c6ad98055 at base cb1698a9f9c3767747adfe65aafeb7ada9f7ba3f against accepted main c8643e137300c13069ae58d2c40ced226baf2b60. The current v18 evaluation 20261002123847-v18.json at af31fadba807f9170de9a9152f6a2ca4d7102ba6 retains one unmatched screen. Canonical manifest/recording/recipe hashes were verified in the root context supplement. Whole primary scope is potion.c:make_stunned; twelve represented caller functions are wired without whole outer-function completion credit. Two independent matching blessed-horn cure recordings and the admitted onset range cover the three declared entry points; all eight saved checks and terminal receipts were verified.",
+      "detail": "",
+      "openedAt": "c8643e137300c13069ae58d2c40ced226baf2b60",
+      "openStanding": {
+        "sha": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "make_stunned",
+          "line": 107,
+          "endLine": 136,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 107,
+        "to": 136
+      },
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-sets-stunned-intrinsic-c59": {
+          "session": "synthetic/v18/wizard-sets-stunned-intrinsic-c59",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-sets-stunned-intrinsic-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.session.json",
+          "recordingSha256": "237640772c4943d2ad389bf9a496cc400248508a7f6329b68cedb8ccb5545d1f",
+          "evaluationPath": "challenges/evaluations/20261002123847-v18.json",
+          "evaluationCommit": "af31fadba807f9170de9a9152f6a2ca4d7102ba6"
+        }
+      },
+      "activeStanding": {
+        "sha": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-sets-stunned-intrinsic-c59",
+          "session": "synthetic/v18/wizard-sets-stunned-intrinsic-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.session.json",
+          "recordingSha256": "237640772c4943d2ad389bf9a496cc400248508a7f6329b68cedb8ccb5545d1f",
+          "recipe": "challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.recipe.session.json",
+          "recipeSha256": "0c9cc1aeb9289f24fda1d30e6b8e756ede77333d4cce160d16e078eb315cb718",
+          "replayInputSha256": "61c973e631aba57fe0daa38146c0bf8fa14ceac19d2fa31630c13d3325775859",
+          "evaluationPath": "challenges/evaluations/20261002123847-v18.json",
+          "evaluationCommit": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+          "evaluationArtifact": "challenges/evaluations/20261002123847-v18.json",
+          "evaluationUtc": "2026-10-02T12:39:36.476Z",
+          "remainingScreens": 1,
+          "recordedSteps": 18,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 18
+            },
+            "rng": {
+              "matched": 2670,
+              "total": 2670
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 18
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "cCursor": [
+                22,
+                0,
+                1
+              ],
+              "jsCursor": [
+                6,
+                19,
+                1
+              ]
+            }
+          },
+          "step": 17,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-sets-stunned-intrinsic-c59.json",
+            "result": {
+              "session": "synthetic/v18/wizard-sets-stunned-intrinsic-c59",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-sets-stunned-intrinsic-c59",
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "237640772c4943d2ad389bf9a496cc400248508a7f6329b68cedb8ccb5545d1f",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "remainingScreens": 1,
+              "recordedSteps": 18,
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-sets-stunned-intrinsic-c59",
+                "session": "synthetic/v18/wizard-sets-stunned-intrinsic-c59",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.session.json",
+                "recordingSha256": "237640772c4943d2ad389bf9a496cc400248508a7f6329b68cedb8ccb5545d1f",
+                "recipe": "challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.recipe.session.json",
+                "recipeSha256": "0c9cc1aeb9289f24fda1d30e6b8e756ede77333d4cce160d16e078eb315cb718",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 1,
+                "recordedSteps": 18,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 18
+                  },
+                  "rng": {
+                    "matched": 2670,
+                    "total": 2670
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 18
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      22,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      6,
+                      19,
+                      1
+                    ]
+                  }
+                },
+                "step": 17,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The sole current mismatch is the missing start-stun effect in the wizard intrinsic command. At segment 0, step 17, the STUNNED selection reaches C potion.c:make_stunned with old timeout 0, xtime 30 and talk enabled; it prints “You stagger...” and updates the status line. JavaScript wiz_intrinsic records note_unported(\"potion.c make_stunned\") and emits no effect, leaving the C message absent. Port the complete make_stunned function and wire this branch; this does not close other callers’ recorded gaps.",
+              "source": {
+                "file": "potion.c",
+                "branch": "make_stunned(xtime, talk) reads old=HStun; suppresses talk while Unaware; when clearing (xtime==0 && old>0 && talk) it reports “less wobbly” or “a bit steadier” according to Hallucination; when starting (xtime>0 && old==0 && talk) it reports saddle wobble or calls You(\"%s...\", stagger(youmonst.data, \"stagger\")); it sets disp.botl only on start/clear transitions, then always calls set_itimeout(&HStun, xtime), preserving non-timeout intrinsic bits. The recorded case takes the aware, on-foot start branch with old=0 and xtime=30.",
+                "functions": [
+                  "make_stunned"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/wizcmds.c:wiz_intrinsic(), case STUNNED (1049-1051), calls make_stunned(newtimeout, TRUE) and discards its void result. The command is registered at cmd.c:1965-1966; the current JavaScript production route is cmd.js:runIntrinsicCommand() -> wizcmds.js:wiz_intrinsic() STUNNED branch, currently note_unported at wizcmds.js:436-437.",
+                  "Other source callers exist in read.c, timeout.c, uhitm.c, apply.c, spell.c, mhitu.c, pray.c, trap.c, artifact.c, mcastu.c, zap.c, teleport.c and eat.c; their paths were not taken by this session and remain independent call-site gaps.",
+                  "Wire the existing JS make_stunned gaps in wizcmds.c:wiz_intrinsic, read.c:seffect_remove_curse, timeout.c:vomiting_dialogue and nh_timeout, uhitm.c:mhitm_knockback, apply.c:use_unicorn_horn (cursed case and cure), eat.c:cpostfx (stalker/light/bat fallthroughs and lizard) and doeat (rustproof metal), pray.c:fix_worst_trouble, trap.c:chest_trap, artifact.c:artifact_hit, and zap.c:unturn_you. Preserve each caller’s source duration expression and talk flag; the helper owner is potion.c even where a gap names timeout.c. Whole outer-function completion remains separate.",
+                  "Other active C direct callers without a corresponding existing JS helper call site remain outer source gaps: spell.c:spelleffects (1205/1209/1213), mhitu.c attack branches (1788/1819), uhitm.c attack branches (4407/6087), trap.c fire/damage branch (6706), mcastu.c spell branches (511/517), and teleport.c (1485). Verify the exact function boundaries from C when defining the helper task."
+                ],
+                "dependencies": [
+                  "mondata.c:stagger() returns the phrase consumed by You(\"%s...\", stagger(...)) in the on-foot start branch; the JavaScript helper is already present as mondata.js:stagger(). The ridden start branch does not consume it.",
+                  "potion.c:set_itimeout() mutates the existing HStun packed intrinsic value; its JavaScript equivalent already exists at potion.js:set_itimeout(). make_stunned(), set_itimeout(), You() and You_feel() return void, and the wiz_intrinsic caller discards make_stunned’s result. Unaware and Hallucination determine the message branches; no random-number call occurs."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/20261002065911-v18.json records 17/18 screens and 17/18 cursors matched, with all 2670/2670 RNG calls matched. The only first mismatch is segment 0, step 17, key newline: C screen row 0 column 0 is Y, JavaScript is a space; C cursor is [22,0,1] and JavaScript cursor is [6,19,1]. The C recording’s step-17 message begins “You stagger...--More--”. This current saved evaluation is attached to d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d; the examined source commit is 04b79edc2bcff3a4c2d70efba937608818f85b53.",
+                "The input-only recipe challenges/cases/v18/wizard-sets-stunned-intrinsic-c59.recipe.session.json identifies a fresh debug Wizard and the #wizintrinsic menu key f for the first-page stunned row; the admitted C recording has SHA-256 237640772c4943d2ad389bf9a496cc400248508a7f6329b68cedb8ccb5545d1f. The v18 manifest records source pointers wizcmds.c:wiz_intrinsic and potion.c:make_stunned, plus independent patched-C replay run-BQcoeR reproducing those recording bytes. Its older exact comparison at c279bd556876e7c8494dbe37aea914412f8e75a3 is historical; the assigned saved evaluation independently confirms the same step-17 boundary on its later evaluation commit.",
+                "C source nethack-c/upstream/src/wizcmds.c:1048-1051 passes newtimeout=30 and TRUE for the selected STUNNED property. In nethack-c/upstream/src/potion.c:107-131, old is HStun; because the case starts un-stunned, is aware, on foot and talk is TRUE, make_stunned calls You with the stagger phrase, marks disp.botl on the 0-to-positive transition, then updates HStun through set_itimeout. This matches the recorded “You stagger...” output and explains the absent JavaScript message.",
+                "At js/wizcmds.js:436-437 the same selected property only calls note_unported(\"potion.c make_stunned\"); there is no make_stunned definition in js/potion.js (search: rg -n \"export (async )?function make_stunned|function make_stunned\" js/potion.js, no matches). No Unsupported*Error is thrown on this route: the effect is silently skipped. Production dispatch is cmd.c:1965-1966 and js/cmd.js:3520-3524, then js/wizcmds.js:wiz_intrinsic.",
+                "The consumed return dependency is mondata.c:stagger at line 1395, whose phrase is passed into You; its JavaScript implementation already exists in js/mondata.js:1959-1963. The mutator set_itimeout is already implemented in js/potion.js:466-470. Other active make_stunned call paths remain placeholders in js/apply.js, js/artifacts.js, js/eat.js, js/pray.js, js/read.js, js/timeout.js, js/trap.js, js/uhitm.js and js/zap.js; several notes are tagged timeout.c even though the function owner is potion.c. The assigned wizard command path is established here; those independent caller defects remain unresolved.",
+                "Exact source caller durations: wiz_intrinsic newtimeout/TRUE; cursed remove-curse timeout+rn1(10,10)/TRUE; vomiting_dialogue case 6 timeout+d(2,4)/FALSE before fallthrough; nh_timeout expiry clear/TRUE before occupation stop; mhitm_knockback previously unstunned and rn2(4)==0 gives knockdistance+1/TRUE; cursed unicorn horn timeout+lcount/TRUE and cure zero/TRUE; cpostfx lizard reduces timeout to 2/FALSE while stalker/light/bat preserve both source fallthrough calls; rust-monster doeat timeout+rn2(10)/TRUE; prayer cure zero/TRUE; chest gas timeout+rn1(7,16)/FALSE; artifact stun timeout+3/FALSE; unturn_you timeout+rnd(30)/FALSE."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
