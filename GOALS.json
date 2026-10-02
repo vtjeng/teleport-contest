@@ -135499,8 +135499,8 @@
           "name": "mhitm_ad_were",
           "line": 4265,
           "endLine": 4295,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -135677,7 +135677,53 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_were",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_were",
+            "sourceReview": "Compared the complete uhitm.c:mhitm_ad_were definition (4265-4293) and the AD_WERE dispatcher arm. The function snapshots pa=magr->data before any call that can yield. For a hero aggressor it calls mhitm_ad_phys and returns when mhm.done; for a monster aggressor against the hero it calls hitmsg before rn2(4), then preserves C short-circuit order across u.ulycn == NON_PM, Protection_from_shape_changers, defends(AD_WERE, uwep), and mhitm_mgc_atk_negated(..., TRUE). On success it issues urgent_pline, exercises Constitution downward with the existing RNG/message owner, stores monsndx(pa) through were.c:set_ulycn, then records the discarded artifact.c:retouch_equipment(2) void call as note_unported at that source site. For monster-versus-monster it calls mhitm_ad_phys and returns on mhm.done. The dispatcher now awaits this helper for AD_WERE. Supporting were.c:set_ulycn preserves the single u.ulycn owner and calls set_uasmon to refresh form-derived properties. peffect_water and cpostfx call that same setter; cpostfx retains its separately named discarded retouch gap. No value is fabricated for retouch_equipment, were.c:you_unwere, or the allmain elapsed-turn gate.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping AD_WERE switch arm calls mhitm_ad_were; this dispatcher is reached by damageum at uhitm.c:4854."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum calls mhitm_adtyping(&gy.youmonst, mattk, mdef, &mhm), the hero-to-monster direction."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu calls mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm), the monster-to-hero direction."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem calls mhitm_adtyping(magr, mattk, mdef, &mhm), the monster-to-monster direction."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-were-hero-attacker-dwarf-wererat-corrected13-b82.session.json",
+              "recordings/uhitm.c/mhitm-ad-were-werebane-hostile-werejackal-b82.session.json",
+              "recordings/uhitm.c/mhitm-ad-were-werebane-werejackal-shortened-b82.session.json",
+              "recordings/uhitm.c/mhitm-ad-were-monster-pet-empty-area-corrected-two-turns-b82.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "097079667b6d8501dbcfdd0c3e21a9473bf06f82"
+          }
+        ],
+        "entryPointReview": "This is a helper-only source range, so entryPoints is empty. The three active production directions are enumerated and independently recorded: hero-to-monster via uhitm.c:damageum -> mhitm_adtyping -> mhitm_ad_were (corrected13, segment 0 step 137, the natural wererat bite); monster-to-hero via mhitu.c:hitmu -> mhitm_adtyping -> mhitm_ad_were (the non-Werebane MC variation reaches rn2(4)=0 at step 74, then mhitm_mgc_atk_negated consumes rn2(10)=2 and prints “You avoid harm”; the distinct wielded-Werebane guard variation reaches rn2(4)=0 at steps 74 and 75 and short-circuits at defends(AD_WERE)); monster-to-monster via mhitm.c:mdamagem -> mhitm_adtyping -> mhitm_ad_were (the tame animal-form rat wererat bites the newt at step 77). All cited helper recordings strictly match their full C outputs. Supporting state-owner evidence is separate: eat.c:cpostfx reaches set_ulycn when the corrected13 route consumes wererat soup at step 86, and potion.c:peffect_water reaches set_ulycn(NON_PM) on the dwarf-polymorphed blessed-water cure at step 155. The v17 selected case is a separate full 109-boundary replay diagnostic; C is held at the prior summon/help More pager, so it does not execute mhitm_ad_were and is not cited as a function recording. The unpolymorphed infection recipes retain the allmain.c:moveloop_core lycanthropy-turn chance as their blocker. The longer Werejackal variation retains the pending were.c:were_summon pager continuation as a separate blocker. The supported cure recording is polymorphed, so were.c:you_unwere remains a separate outer caller gap. The helper's discarded artifact.c:retouch_equipment call remains note_unported at its exact source site.",
+        "entryPoints": []
+      }
     }
   ]
 }
