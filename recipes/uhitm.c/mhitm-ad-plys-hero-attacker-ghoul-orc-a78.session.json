@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 retained C-first hero-to-monster target miss. The starting-item probe showed slot a is the Wizard's blessed +1 quarterstaff, so `da` drops it before ghoul polymorph. The C setup placed the orc immediately west; `h` selected that observed target, but C's natural-attack hit check missed before uhitm.c:damageum and the AD_PLYS helper. Preserve the source-based attempt without treating it as runtime evidence.",
+  "segments": [
+    {
+      "seed": 8806621,
+      "datetime": "20311013101010",
+      "nethackrc": "OPTIONS=name:PlysGhoul,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "da#polyself\nghoul\n #wizgenesis\nhostile orc\nh"
+    }
+  ]
+}

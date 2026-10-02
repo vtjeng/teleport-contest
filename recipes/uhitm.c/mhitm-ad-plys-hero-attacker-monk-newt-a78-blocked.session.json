@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 retained C-first Monk variation, not passing evidence. The same seed and ghoul/newt setup vary role-derived state, but C's first relevant turn is the newt's bite through monmove.c:dochug and mhitu.c:hitmu; the input does not reach uhitm.c:damageum or the selected AD_PLYS helper. Keep the observed setup miss without treating it as runtime coverage.",
+  "segments": [
+    {
+      "seed": 8806622,
+      "datetime": "20311014101010",
+      "nethackrc": "OPTIONS=name:PlysMonk,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "da#polyself\nghoul\n #wizgenesis\nhostile newt\nl"
+    }
+  ]
+}

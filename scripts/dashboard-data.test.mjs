@@ -955,3 +955,13 @@ test('challenge session counts describe measured cases when the catalog has grow
     assert.doesNotMatch(stats, /Cases evaluated|Manifest/u);
     assert.match(stats.replace(/<[^>]*>/gu, ''), /Sessions1 \/ 2/u);
 });
+
+test('source work attributes required units to their own file without name collisions', () => {
+    // Same-named fixture units must produce two separate source-file rows.
+    const rendered = renderDashboard(sourceDashboardData([{ id: 'cross-file', sourceFile: 'primary.c', status: 'open',
+        units: [{ name: 'helper', sourceFile: 'primary.c', verified: true },
+            { name: 'helper', sourceFile: 'foreign.c', verified: false }] }]));
+    const rows = sourceFileRows(rendered.get('sourceWorkTable').innerHTML);
+    assert.deepEqual(rows.get('primary.c'), ['1', '', '', '1', '1']);
+    assert.deepEqual(rows.get('foreign.c'), ['1', '', '', '0', '1']);
+});

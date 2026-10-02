@@ -58,6 +58,19 @@ function syntheticRanges(value, label) {
     });
 }
 
+/** Whole source units include required callees outside the primary range. */
+export function sourceUnits(goal = {}) {
+    const sourceFile = goal.luaFile ?? goal.cFile;
+    return [
+        ...(goal.functions ?? []).map(entry => ({ ...entry, sourceFile })),
+        ...(goal.requiredFunctions ?? []),
+    ];
+}
+
+export function sourceUnitKey(goal, entry) {
+    return `${entry.sourceFile ?? goal.luaFile ?? goal.cFile}:${entry.name}`;
+}
+
 function goalScope(goal) {
     if (!['file-port', 'lua-port'].includes(goal?.kind)
         || !Array.isArray(goal.functions)) {
@@ -73,12 +86,24 @@ function goalScope(goal) {
     if (lua && (names.size !== 1 || !names.has(file))) {
         throw new Error('a Lua goal must name its whole source program in functions');
     }
-    return { lua, file, names };
+    const units = new Set();
+    for (const entry of sourceUnits(goal)) {
+        text(entry.name, 'goal function name');
+        if (!/^[A-Za-z0-9_-]+\.(?:c|lua)$/u.test(entry.sourceFile)
+            || (entry.sourceFile !== file && (lua || !entry.sourceFile.endsWith('.c')))) {
+            throw new Error('required source file must be a C basename');
+        }
+        const key = sourceUnitKey(goal, entry);
+        if (units.has(key)) throw new Error(`duplicate planned source unit ${key}`);
+        units.add(key);
+    }
+    return { lua, file, names, units };
 }
 
 function functionEvidence(record, scope) {
     const name = text(record?.name, 'function name');
-    if (!scope.names.has(name)) throw new Error(`goal does not contain source unit ${name}`);
+    const sourceFile = record.sourceFile ?? scope.file;
+    if (!scope.units.has(`${sourceFile}:${name}`)) throw new Error(`goal does not contain source unit ${sourceFile}:${name}`);
     const symbol = identifier(record.symbol ?? (scope.lua ? undefined : name), `${name} symbol`);
     const implementation = safePath(record.implementation, 'js', '.js', `${name} implementation`);
     const sourceReview = text(record.sourceReview, `${name} sourceReview`);
@@ -94,6 +119,7 @@ function functionEvidence(record, scope) {
     const synthetic = syntheticRanges(record.synthetic ?? [], name);
     const result = { name, implementation, symbol, sourceReview, callers,
         pure: record.pure, tests, recordings };
+    if (record.sourceFile !== undefined) result.sourceFile = sourceFile;
     if (record.synthetic !== undefined) result.synthetic = synthetic;
     if (record.inactiveReason !== undefined) {
         result.inactiveReason = text(record.inactiveReason, `${name} inactiveReason`);
@@ -119,8 +145,9 @@ function evidenceShape(goal, evidence) {
     const names = new Set();
     const functions = evidence.functions.map((record) => {
         const result = functionEvidence(record, scope);
-        if (names.has(result.name)) throw new Error(`duplicate function evidence for ${result.name}`);
-        names.add(result.name);
+        const key = `${result.sourceFile ?? scope.file}:${result.name}`;
+        if (names.has(key)) throw new Error(`duplicate function evidence for ${key}`);
+        names.add(key);
         return result;
     });
     const result = { functions };
@@ -138,10 +165,14 @@ function evidenceShape(goal, evidence) {
                 throw new Error(`entry point ${name} needs a nonempty functions array`);
             }
             const units = entry.functions.map((unit) => {
-                if (!scope.names.has(unit)) throw new Error(`entry point ${name} has unknown source unit ${unit}`);
-                return unit;
+                const sourceFile = typeof unit === 'string' ? scope.file : unit?.sourceFile;
+                const unitName = typeof unit === 'string' ? unit : unit?.name;
+                if (!scope.units.has(`${sourceFile}:${unitName}`)) throw new Error(`entry point ${name} has unknown source unit ${sourceFile}:${unitName}`);
+                return typeof unit === 'string' ? unit : { sourceFile, name: unitName };
             });
-            const result = { name, functions: [...new Set(units)],
+            const unique = new Map(units.map(unit => [typeof unit === 'string'
+                ? `${scope.file}:${unit}` : `${unit.sourceFile}:${unit.name}`, unit]));
+            const result = { name, functions: [...unique.values()],
                 recordings: pathList(entry.recordings ?? [], 'recordings', '.session.json', `${name} recordings`) };
             if (entry.synthetic !== undefined)
                 result.synthetic = syntheticRanges(entry.synthetic, name);
@@ -213,20 +244,27 @@ export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT, comm
     };
     const file = commit ? committedFile : path => regularFile(path, root);
     const read = commit ? path => git(root, ['show', `${commit}:${path}`]) : path => readFileSync(path, 'utf8');
-    let sourceText;
-    if (commit) {
-        const cRoot = join(root, 'nethack-c/upstream');
-        const cCommit = git(root, ['rev-parse', `${commit}:nethack-c/upstream`]).trim();
-        const directories = scope.lua ? ['dat'] : ['src', 'win/tty'];
-        for (const directory of directories) {
-            const path = `${directory}/${scope.file}`;
-            if (git(cRoot, ['ls-tree', cCommit, '--', path]).trim()) {
-                sourceText = git(cRoot, ['show', `${cCommit}:${path}`]);
-                break;
+    const sourceTexts = new Map();
+    const readSource = (sourceFile) => {
+        if (sourceTexts.has(sourceFile)) return sourceTexts.get(sourceFile);
+        let sourceText;
+        if (commit) {
+            const cRoot = join(root, 'nethack-c/upstream');
+            const cCommit = git(root, ['rev-parse', `${commit}:nethack-c/upstream`]).trim();
+            const directories = scope.lua ? ['dat'] : ['src', 'win/tty'];
+            for (const directory of directories) {
+                const path = `${directory}/${sourceFile}`;
+                if (git(cRoot, ['ls-tree', cCommit, '--', path]).trim()) {
+                    sourceText = git(cRoot, ['show', `${cCommit}:${path}`]);
+                    break;
+                }
             }
-        }
-        if (sourceText === undefined) throw new Error(`source file ${scope.file} is missing at pinned C commit`);
-    } else sourceText = readFileSync(sourcePath(scope, root), 'utf8');
+            if (sourceText === undefined) throw new Error(`source file ${sourceFile} is missing at pinned C commit`);
+        } else sourceText = readFileSync(sourcePath({ ...scope, file: sourceFile }, root), 'utf8');
+        sourceTexts.set(sourceFile, sourceText);
+        return sourceText;
+    };
+    readSource(scope.file);
     const symbols = [];
     for (const entry of result.functions) {
         symbols.push({ path: file(entry.implementation),
@@ -240,10 +278,15 @@ export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT, comm
         for (const path of entry.recordings) file(path);
     }
     if (!scope.lua) {
-        const sourceNames = new Set(parseCFunctions(blankCommentsAndStrings(sourceText))
-            .map((entry) => entry.name));
+        const sourceNamesByFile = new Map();
         for (const entry of result.functions) {
-            if (!sourceNames.has(entry.name)) throw new Error(`source ${scope.file} has no definition for ${entry.name}`);
+            const sourceFile = entry.sourceFile ?? scope.file;
+            if (!sourceNamesByFile.has(sourceFile)) {
+                sourceNamesByFile.set(sourceFile, new Set(parseCFunctions(blankCommentsAndStrings(readSource(sourceFile)))
+                    .map((definition) => definition.name)));
+            }
+            const sourceNames = sourceNamesByFile.get(sourceFile);
+            if (!sourceNames.has(entry.name)) throw new Error(`source ${sourceFile} has no definition for ${entry.name}`);
         }
     }
     const sources = new Map();
@@ -262,11 +305,19 @@ export function validatePortEvidence(goal, evidence, { root = PROJECT_ROOT, comm
  * a same-named JavaScript declaration or historical `ported` flag is no proof.
  */
 export function completedFunctionNames(goal) {
+    const primary = goal.luaFile ?? goal.cFile;
+    return new Set(completedSourceUnits(goal).filter(entry => entry.sourceFile === primary)
+        .map(entry => entry.name));
+}
+
+export function completedSourceUnits(goal) {
     try {
-        const invalidated = new Set((goal.invalidatedFunctions ?? []).map((entry) => entry.name));
-        return new Set(evidenceShape(goal, goal.evidence).evidence.functions
-            .map((entry) => entry.name).filter((name) => !invalidated.has(name)));
+        const invalidated = new Set((goal.invalidatedFunctions ?? [])
+            .map(entry => sourceUnitKey(goal, entry)));
+        return evidenceShape(goal, goal.evidence).evidence.functions
+            .filter(entry => !invalidated.has(sourceUnitKey(goal, entry)))
+            .map(entry => ({ sourceFile: entry.sourceFile ?? goal.luaFile ?? goal.cFile, name: entry.name }));
     } catch {
-        return new Set();
+        return [];
     }
 }

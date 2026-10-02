@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 independent C-first monster-to-hero route. A debug Wizard creates a hostile ghoul from wizard.c's named genesis command and gives it ten elapsed player turns; this is a bounded set of opportunities for the ghoul's source-defined AT_CLAW/AD_PLYS attack and its 1-in-3 paralysis gate. The recipe was chosen from monsters.h and hitmu's caller path before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 8806601,
+      "datetime": "20311010101010",
+      "nethackrc": "OPTIONS=name:PlysWizard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile ghoul\n.........."
+    }
+  ]
+}
