@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 cheap C-first BUC variation, frozen before recording: a new date/seed and an uncursed unicorn horn preserve the single STUNNED trouble while changing use_unicorn_horn's source roll from blessed d(2,4) to uncursed d(2,2). The same valid Wizard menu/wish/apply sequence targets the zero-timeout cure helper.",
+  "segments": [
+    {
+      "seed": 1289047217,
+      "datetime": "20341106142600",
+      "nethackrc": "OPTIONS=name:A80CureUncursed2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017uncursed unicorn horn\nag"
+    }
+  ]
+}

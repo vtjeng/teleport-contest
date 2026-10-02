@@ -1,7 +1,7 @@
 // potion.js -- quaffing and vapor effects for potions.
 // C ref: src/potion.c dodrink() (526-615), drink_ok() (505-521),
 //        dopotion() (618-641), peffects() (1333-1425),
-//        make_confused() (89-104), self_invis_message() (471-478),
+//        make_confused()/make_stunned() (89-131), self_invis_message() (471-478),
 //        peffect_booze() (771-792), peffect_enlightenment() (794-808),
 //        peffect_confusion() (1014-1027),
 //        peffect_gain_ability() (1030-1051),
@@ -121,6 +121,7 @@ import {
     SLEEP_RES,
     SICK_RES,
     SLIMED,
+    STUNNED,
     STONED,
     STRANGLED,
     TELEPAT,
@@ -172,7 +173,7 @@ import { clone_mon, set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import {
     breathless, dmgtype, has_head, haseyes, is_human, is_silent,
-    is_vampshifter, is_were, likes_fire, mon_hates_blessings,
+    is_vampshifter, is_were, likes_fire, mon_hates_blessings, stagger,
     defended, monster_resists_element,
 } from './mondata.js';
 import {
@@ -806,6 +807,43 @@ export async function make_confused(xtime, talk, state = game, env = {}) {
     }
     if ((xtime && !old) || (!xtime && old))
         state.disp.botl = true;
+
+    set_itimeout(prop, xtime);
+}
+
+// C ref: potion.c make_stunned() (107-131). HStun is one packed intrinsic
+// value; the transition tests use its full value, while set_itimeout changes
+// only the timeout bits at the end of the source sequence.
+export async function make_stunned(xtime, talk, state = game, env = {}) {
+    const prop = state.u.uprops[STUNNED] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+    };
+    const old = prop.intrinsic;
+    const message = env.message ?? ttyPline;
+
+    if (Unaware(state)) talk = false;
+
+    if (!xtime && old && talk) {
+        await message(
+            `You feel ${Hallucination(state)
+                ? 'less wobbly' : 'a bit steadier'} now.`,
+            state,
+        );
+    }
+    if (xtime && !old && talk) {
+        if (state.u.usteed) {
+            await message('You wobble in the saddle.', state);
+        } else {
+            await message(
+                `You ${stagger(state.youmonst.data, 'stagger')}...`,
+                state,
+            );
+        }
+    }
+    if ((!xtime && old) || (xtime && !old)) {
+        state.disp.botl = true;
+    }
 
     set_itimeout(prop, xtime);
 }

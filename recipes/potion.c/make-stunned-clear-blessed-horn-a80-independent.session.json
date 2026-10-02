@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 C-first cure route: in debug mode, #wizintrinsic selects the source menu's stunned row (f), then a blessed unicorn horn is wished and applied. The intervening space dismisses the C-observed You stagger... More before the next command. The sole active trouble is stunned, so use_unicorn_horn reaches make_stunned(0, TRUE); its blessed d(2,4) limit exercises the source BUC branch.",
+  "segments": [
+    {
+      "seed": 81270061,
+      "datetime": "20341103142600",
+      "nethackrc": "OPTIONS=name:A80CureBlessed,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017blessed unicorn horn\nag"
+    }
+  ]
+}

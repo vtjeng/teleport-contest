@@ -201,6 +201,7 @@ import {
     make_hallucinated,
     make_sick,
     make_slimed,
+    make_stunned,
     set_itimeout,
 } from './potion.js';
 import { region_danger } from './region.js';
@@ -1289,7 +1290,7 @@ export async function fix_worst_trouble(trouble, state = game) {
         await heal_legs(state);
         break;
     case TROUBLE_STUNNED:
-        note_unported('potion.c make_stunned');
+        await make_stunned(0, true, state);
         break;
     case TROUBLE_CONFUSED:
         await make_confused(0, true, state);

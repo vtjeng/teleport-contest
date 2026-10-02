@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 cheap role variation, frozen C-first: a Priest in debug mode selects STUNNED with the same #wizintrinsic menu row and uses a blessed unicorn horn. The role changes startup inventory and RNG; this is a separate production route to the same single-trouble zero-timeout helper call.",
+  "segments": [
+    {
+      "seed": 1376543129,
+      "datetime": "20341107142600",
+      "nethackrc": "OPTIONS=name:A80PriestCure,role:Priest,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017blessed unicorn horn\nag"
+    }
+  ]
+}

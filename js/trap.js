@@ -300,7 +300,7 @@ import {
     SPE_BOOK_OF_THE_DEAD, SPE_FIREBALL, STATUE, WOOD,
 } from './objects.js';
 import { encumber_msg, pickup } from './pickup.js';
-import { make_hallucinated, set_itimeout } from './potion.js';
+import { make_hallucinated, make_stunned, set_itimeout } from './potion.js';
 import { waterbody_name } from './pager.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
 import { create_gas_cloud } from './region.js';
@@ -3641,8 +3641,10 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                     );
                 }
             }
-            // C: make_stunned((HStun & TIMEOUT) + rn1(7, 16), FALSE).
-            note_unported('timeout.c make_stunned');
+            const stunTimeout = (
+                (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0) & TIMEOUT
+            ) + rn1(7, 16);
+            await make_stunned(stunTimeout, false, state);
             await make_hallucinated(
                 ((state.u?.uprops?.[HALLUC]?.intrinsic ?? 0) & TIMEOUT)
                     + rn1(5, 16),
