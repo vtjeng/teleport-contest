@@ -137742,8 +137742,8 @@
           "name": "water_prayer",
           "line": 1387,
           "endLine": 1414,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -138011,7 +138011,47 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "water_prayer",
+            "implementation": "js/pray.js",
+            "symbol": "water_prayer",
+            "sourceReview": "Root compared complete pray.c:water_prayer and four prayer_done arms: linked floor pile order, eligible water BUC/knowledge writes, long quantity total, other potion wording including already matching water, Blind/Hallucination gates, hcolor display-RNG, and consumed versus discarded returns. p0 and p2 TRUE penalties are source ordered; p1 lacks those penalties, p2 FALSE reaches pleased, p3 leaves the discarded pray_revive gap. Only water_prayer receives whole-function credit.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:prayer_done (2316-2339), all four active water_prayer caller branches; see branch-specific source traces and recordings in entryPointReview."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/water-prayer-p0-neutral-lawful-altar-b84.session.json",
+              "recordings/pray.c/water-prayer-p1-knight-underfoot-terrain-wish-b84.session.json",
+              "recordings/pray.c/water-prayer-p2-true-neutral-underfoot-b84.session.json",
+              "recordings/pray.c/water-prayer-p2-false-empty-altar-b84.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c pray -> prayer_done p_type 3 -> pray_revive() discarded -> water_prayer(TRUE) -> pleased"
+              }
+            ],
+            "checkedAt": "0fc065dcca5977d62899412f5e83f4c73384148b"
+          }
+        ],
+        "entryPointReview": "Helper-only range: `entryPoints` is intentionally empty under validation.md. Production callers are `prayer_done` p_type 0 at pray.c:2316-2318 (FALSE result discarded before penalties), p_type 1 at 2323-2325 (FALSE result discarded before angrygods), p_type 2 at 2327-2335 (FALSE result consumed to select penalties versus pleased), and p_type 3 at 2336-2339 (TRUE result discarded after pray_revive). Matching caller evidence: p_type 0 recording step 53; p_type 1 recording steps 130 and 155; p_type 2 FALSE recording step 127 ending at pleased; p_type 2 TRUE recording steps 131/146/156 with rnz(250)=369 at prayer_done:2329; selected v17 p_type 3 range segment 0 steps 0-54. The helper is reached through cmd.c pray -> dopray -> prayer_done; p_type -2, -1 and Gehennom arms do not call it and remain outside scope.",
+        "entryPoints": []
+      }
     }
   ]
 }
