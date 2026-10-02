@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 74028019,
+      "datetime": "20261002141200",
+      "nethackrc": "OPTIONS=name:A79BurnCure,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\nc\n #wizwish\nlit potion of oil\nqe"
+    }
+  ],
+  "_comment": "Independent C-first A79 runtime recipe for potion.c:peffect_oil -> timeout.c:burn_away_slime -> potion.c:make_slimed. The Barbarian, seed 74028019, and clock were selected without JavaScript comparison. #wizintrinsic applies the source SLIMED property; the lit oil wish then reaches peffect_oil through the normal quaff command. The source lit branch burns the hero and calls burn_away_slime regardless of beatitude. The C-created lit oil was displayed in inventory slot e; qe selects it through the ordinary quaff command."
+}

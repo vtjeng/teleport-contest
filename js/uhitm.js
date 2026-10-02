@@ -498,7 +498,9 @@ import {
 import { acurr } from './attrib.js';
 import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
-import { make_blinded, potionhit } from './potion.js';
+import {
+    make_blinded, make_slimed, make_stunned, potionhit,
+} from './potion.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { night } from './calendar.js';
 import {
@@ -1445,7 +1447,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                         // not displayed.
                         if (turns !== 0) state.nomovemsg = slimeMessage;
                         if (!heroUnchanging(state))
-                            note_unported('potion.c make_slimed');
+                            await make_slimed(5, null, state, env);
                     } else {
                         await exercise(A_CON, true, state, random, env);
                     }
@@ -5263,7 +5265,9 @@ export async function mhitm_knockback(
         set_apparxy(magr, { ...env, state });
         if (!state.u?.uprops?.[STUNNED]?.intrinsic
             && !rng.rn2(4)) {
-            note_unported('potion.c make_stunned');
+            await make_stunned(
+                knockdistance + 1, true, state, { ...env, message },
+            );
         }
     } else {
         await mhurtle(mdef, dx, dy, knockdistance, {

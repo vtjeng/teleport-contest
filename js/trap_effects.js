@@ -87,7 +87,6 @@ import {
     ROLL,
     ROLLING_BOULDER_TRAP,
     RUST_TRAP,
-    SLIMED,
     SLEEP_RES,
     SEE_INVIS,
     M_SEEN_SLEEP,
@@ -2158,12 +2157,8 @@ export async function dofiretrap(box, rawEnv = {}) {
     else
         await losehp(num, towerOfFlame, KILLED_BY_AN, state, env);
 
-    // timeout.c:burn_away_slime() is a void helper. Its ordinary path is a
-    // no-op; the active make_slimed() branch remains a named source gap.
-    if (u.uprops?.[SLIMED]?.intrinsic)
-        note_unported('timeout.c burn_away_slime');
-    else
-        burn_away_slime(state);
+    // trap.c calls burn_away_slime before the remaining fire-trap effects.
+    await burn_away_slime(state, env);
 
     if (await burnarmor(state.youmonst, env)
         || random.rn2(3)) {

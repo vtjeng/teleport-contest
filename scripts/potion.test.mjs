@@ -18,21 +18,24 @@ import {
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
     OBJ_DELETED, POTHIT_MONST_THROW, SEE_INVIS,
     SATIATED, SICK, SLEEP_RES, WEAK, STRAT_APPEARMSG, STRAT_WAITFORU,
-    KILLED_BY, STONED, TELEPAT, TIMEOUT, UNCHANGING, VOMITING,
+    KILLED_BY, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, SLIMED, STONED,
+    STUNNED, TELEPAT, TIMEOUT, UNCHANGING, VOMITING,
     WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
 import { trycall } from '../js/do.js';
 import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
-import { PM_GRID_BUG } from '../js/monsters.js';
+import { PM_GREEN_SLIME, PM_GRID_BUG } from '../js/monsters.js';
 import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
 import { addinv } from '../js/invent.js';
 import { planningState } from '../js/unported_monster_actions.js';
 import { mksobj, place_object } from '../js/obj.js';
 import { dist2 } from '../js/hacklib.js';
-import { begin_burn, peek_timer } from '../js/timeout.js';
+import {
+    begin_burn, burn_away_slime, peek_timer,
+} from '../js/timeout.js';
 import {
     POT_ACID,
     POT_BLINDNESS,
@@ -80,6 +83,8 @@ import {
     make_blinded,
     make_hallucinated,
     make_glib,
+    make_slimed,
+    make_stunned,
     make_stoned,
     make_vomiting,
     dopotion,
@@ -111,6 +116,157 @@ test('make_blinded silently extends an existing timed blindness', async () => {
     assert.equal(state.disp.botl, false,
         'an extension that remains blind does not toggle status display');
 });
+
+test('make_slimed updates only on truth changes and clears cure-owned state',
+    async () => {
+        const state = {
+            u: { uprops: [] },
+            youmonst: {
+                m_ap_type: M_AP_MONSTER,
+                mappearance: PM_GREEN_SLIME,
+            },
+            disp: { botl: false },
+            killer: { next: null },
+        };
+        state.u.uprops[SLIMED] = { intrinsic: 0, extrinsic: 0 };
+        const messages = [];
+
+        // The ordinary wizard caller supplies 30 turns; the v18 count-prefix
+        // variation supplies 5. Both change only the timeout low bits.
+        await make_slimed(30, 'You are turning into slime.', state, {
+            message: async (line) => messages.push(line),
+        });
+        assert.equal(state.u.uprops[SLIMED].intrinsic & TIMEOUT, 30);
+        assert.equal(state.disp.botl, true);
+        assert.deepEqual(messages, ['You are turning into slime.']);
+
+        // C's truth-value test suppresses transition output when one active
+        // timeout is replaced by another, even though its duration changes.
+        state.disp.botl = false;
+        await make_slimed(5, 'This extension message is not emitted.', state, {
+            message: async (line) => messages.push(line),
+        });
+        assert.equal(state.u.uprops[SLIMED].intrinsic & TIMEOUT, 5);
+        assert.equal(state.disp.botl, false);
+        assert.deepEqual(messages, ['You are turning into slime.']);
+
+        // The active-to-clear source branch marks the condition line, emits
+        // its optional message, unlinks the delayed killer, and removes only
+        // the hero's green-slime monster disguise.
+        const delayed = { id: SLIMED, name: 'green slime', next: null };
+        state.killer.next = delayed;
+        state.youmonst.m_ap_type = M_AP_MONSTER;
+        state.youmonst.mappearance = PM_GREEN_SLIME;
+        state.disp.botl = false;
+        await make_slimed(0, 'The slime disappears!', state, {
+            message: async (line) => messages.push(line),
+        });
+        assert.equal(state.u.uprops[SLIMED].intrinsic & TIMEOUT, 0);
+        assert.equal(state.disp.botl, true);
+        assert.deepEqual(messages, [
+            'You are turning into slime.',
+            'The slime disappears!',
+        ]);
+        assert.equal(find_delayed_killer(SLIMED, state), null);
+        assert.equal(M_AP_TYPE(state.youmonst), M_AP_NOTHING);
+        assert.equal(state.youmonst.mappearance, 0);
+    });
+
+test('make_slimed removes a stale delayed killer even when already clear',
+    async () => {
+        const state = {
+            u: { uprops: [] },
+            youmonst: { m_ap_type: M_AP_NOTHING, mappearance: 0 },
+            disp: { botl: false },
+            killer: {
+                next: { id: SLIMED, name: 'stale slime', next: null },
+            },
+        };
+        state.u.uprops[SLIMED] = { intrinsic: 0, extrinsic: 0 };
+        const messages = [];
+
+        // C reaches dealloc_killer whenever the resulting Slimed value is
+        // zero, even when the timeout was already inactive.
+        await make_slimed(0, null, state, {
+            message: async (line) => messages.push(line),
+        });
+
+        assert.equal(state.disp.botl, false);
+        assert.deepEqual(messages, []);
+        assert.equal(find_delayed_killer(SLIMED, state), null);
+    });
+
+test('make_slimed cleanup tests the complete intrinsic property value',
+    async () => {
+        const delayed = { id: SLIMED, name: 'green slime', next: null };
+        const state = {
+            u: { uprops: [] },
+            youmonst: {
+                m_ap_type: M_AP_MONSTER,
+                mappearance: PM_GREEN_SLIME,
+            },
+            disp: { botl: false },
+            killer: { next: delayed },
+        };
+
+        // C defines Slimed as the whole intrinsic value (youprop.h:113).
+        // set_itimeout clears only TIMEOUT (potion.c:74-79), so this
+        // source-derived high flag leaves Slimed truthy after the timer ends.
+        state.u.uprops[SLIMED] = {
+            intrinsic: FROMOUTSIDE | 8,
+            extrinsic: 0,
+        };
+        const messages = [];
+
+        await make_slimed(0, 'The C truth transition still has a message.',
+            state, {
+                message: async (line) => messages.push(line),
+            });
+
+        assert.equal(state.u.uprops[SLIMED].intrinsic, FROMOUTSIDE);
+        assert.equal(state.u.uprops[SLIMED].intrinsic & TIMEOUT, 0);
+        assert.equal(state.disp.botl, true,
+            'old full Slimed value is truthy, so clearing the requested timeout toggles the status line');
+        assert.deepEqual(messages, [
+            'The C truth transition still has a message.',
+        ]);
+        assert.equal(find_delayed_killer(SLIMED, state), delayed,
+            'C skips delayed-killer cleanup while the complete Slimed value remains truthy');
+        assert.equal(M_AP_TYPE(state.youmonst), M_AP_MONSTER);
+        assert.equal(state.youmonst.mappearance, PM_GREEN_SLIME,
+            'C retains the late green-slime disguise while Slimed remains nonzero');
+    });
+
+test('burn_away_slime awaits the active cure and leaves inactive state alone',
+    async () => {
+        const state = {
+            u: { uprops: [] },
+            youmonst: { m_ap_type: M_AP_NOTHING, mappearance: 0 },
+            disp: { botl: false },
+            killer: { next: null },
+        };
+        state.u.uprops[SLIMED] = { intrinsic: 8, extrinsic: 0 };
+        const messages = [];
+
+        // The timeout value 8 confirms that the helper acts on any active
+        // countdown; the exact duration does not alter make_slimed's cure.
+        await burn_away_slime(state, {
+            message: async (line) => messages.push(line),
+        });
+        assert.equal(state.u.uprops[SLIMED].intrinsic & TIMEOUT, 0);
+        assert.deepEqual(messages, [
+            'The slime that covers you is burned away!',
+        ]);
+        assert.equal(state.disp.botl, true);
+
+        // A second call when the property is clear is the C no-op branch.
+        state.disp.botl = false;
+        await burn_away_slime(state, {
+            message: async (line) => messages.push(line),
+        });
+        assert.equal(state.disp.botl, false);
+        assert.equal(messages.length, 1);
+    });
 
 test('make_hallucinated forwards every planning display seam in source order',
     async () => {
@@ -391,6 +547,14 @@ function potionSource() {
         new URL('../nethack-c/upstream/src/potion.c', import.meta.url),
         'utf8',
     );
+}
+
+function makeStunnedSource() {
+    const source = potionSource();
+    const start = source.indexOf('make_stunned(long xtime, boolean talk)');
+    const end = source.indexOf('\n}', start);
+    assert.ok(start > 0 && end > start, 'potion.c still defines make_stunned');
+    return source.slice(start, end);
 }
 
 test('peffect_enlightenment follows the complete C branch and dispatch order', async () => {
@@ -2351,6 +2515,81 @@ test('make_confused updates only status transitions and clears with feedback',
     assert.equal(toplines(), '');
     assert.equal(game.disp.botl, true);
 });
+
+test('make_stunned follows the complete packed-HStun source sequence',
+    async () => {
+        const body = makeStunnedSource();
+        const sourceOrder = [
+            'long old = HStun;',
+            'if (Unaware)\n        talk = FALSE;',
+            'if (!xtime && old)',
+            'if (xtime && !old)',
+            'if ((!xtime && old) || (xtime && !old))',
+            'set_itimeout(&HStun, xtime);',
+        ].map((text) => body.indexOf(text));
+        assert.ok(sourceOrder.every((offset) => offset >= 0));
+        assert.deepEqual(sourceOrder, [...sourceOrder].sort((a, b) => a - b),
+            'C captures full HStun, handles feedback, marks transitions, then sets timeout');
+        assert.match(body,
+            /Hallucination \? "less wobbly" : "a bit steadier"/u);
+        assert.match(body,
+            /if \(u\.usteed\)[\s\S]*?You\("wobble in the saddle\."\)[\s\S]*?stagger\(gy\.youmonst\.data, "stagger"\)/u);
+
+        // This fixed seed makes the standalone state-transition fixture
+        // reproducible; the assertions overwrite HStun and do not depend on
+        // any startup random result.
+        await startedGame(771007, 'StunnedTransitions');
+        const stun = game.u.uprops[STUNNED];
+        const messages = [];
+        const env = { message: async (line) => messages.push(line) };
+
+        // A newly active timeout reports the C stagger phrase and crosses
+        // the status-line boundary. The exact phrase comes from mondata.c.
+        stun.intrinsic = 0;
+        game.disp.botl = false;
+        await make_stunned(12, true, game, env);
+        assert.equal(stun.intrinsic & TIMEOUT, 12);
+        assert.equal(game.disp.botl, true);
+        assert.equal(messages.length, 1);
+        assert.match(messages[0], /^You .+\.\.\.$/u);
+
+        // An active-to-active update changes the timeout but neither emits
+        // transition text nor marks the status line.
+        messages.length = 0;
+        game.disp.botl = false;
+        await make_stunned(30, true, game, env);
+        assert.equal(stun.intrinsic & TIMEOUT, 30);
+        assert.equal(game.disp.botl, false);
+        assert.deepEqual(messages, []);
+
+        // FROMOUTSIDE is part of old HStun, so clearing a zero-timeout
+        // packed value still follows C's old-truthy cure branch. set_itimeout
+        // removes only TIMEOUT and retains that independent flag.
+        stun.intrinsic = FROMOUTSIDE;
+        game.disp.botl = false;
+        await make_stunned(0, true, game, env);
+        assert.equal(stun.intrinsic & TIMEOUT, 0);
+        assert.equal(stun.intrinsic & ~TIMEOUT, FROMOUTSIDE);
+        assert.equal(game.disp.botl, true);
+        assert.deepEqual(messages, ['You feel a bit steadier now.']);
+
+        // Hallucination selects the other literal. Unaware suppresses that
+        // message but still clears the packed timeout and marks the change.
+        messages.length = 0;
+        stun.intrinsic = TIMEOUT | 9;
+        game.u.uprops[HALLUC].intrinsic = 1;
+        await make_stunned(0, true, game, env);
+        assert.deepEqual(messages, ['You feel less wobbly now.']);
+        messages.length = 0;
+        stun.intrinsic = TIMEOUT | 4;
+        game.multi = -1;
+        game.nomovemsg = 'You awake.';
+        game.disp.botl = false;
+        await make_stunned(0, true, game, env);
+        assert.equal(stun.intrinsic & TIMEOUT, 0);
+        assert.equal(game.disp.botl, true);
+        assert.deepEqual(messages, []);
+    });
 
 // potion.c:771-792. Confusion uses the hunger status before nutrition is
 // added; dilution suppresses healing but not nutrition, and blessed booze

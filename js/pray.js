@@ -200,6 +200,8 @@ import {
     make_glib,
     make_hallucinated,
     make_sick,
+    make_slimed,
+    make_stunned,
     set_itimeout,
 } from './potion.js';
 import { region_danger } from './region.js';
@@ -1108,7 +1110,7 @@ export async function fix_worst_trouble(trouble, state = game) {
         note_unported('potion.c make_stoned');
         break;
     case TROUBLE_SLIMED:
-        note_unported('potion.c make_slimed');
+        await make_slimed(0, 'The slime disappears.', state);
         break;
     case TROUBLE_STRANGLED:
         if (state.uamul && state.uamul.otyp === AMULET_OF_STRANGULATION) {
@@ -1288,7 +1290,7 @@ export async function fix_worst_trouble(trouble, state = game) {
         await heal_legs(state);
         break;
     case TROUBLE_STUNNED:
-        note_unported('potion.c make_stunned');
+        await make_stunned(0, true, state);
         break;
     case TROUBLE_CONFUSED:
         await make_confused(0, true, state);

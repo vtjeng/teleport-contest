@@ -101,6 +101,7 @@ import {
     RIGHT_RING,
     SEE_INVIS,
     SICK_RES,
+    SLIMED,
     SLEEPY,
     SLOW_DIGESTION,
     STONE_RES,
@@ -359,7 +360,9 @@ import {
 } from './objnam.js';
 import { encumber_msg, u_safe_from_fatal_corpse } from './pickup.js';
 import { body_part, float_vs_flight } from './polyself.js';
-import { incr_itimeout, make_hallucinated, toggle_blindness } from './potion.js';
+import {
+    incr_itimeout, make_hallucinated, make_slimed, toggle_blindness,
+} from './potion.js';
 import { rn2, rn2_on_display_rng, rnl, rnd } from './rng.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
@@ -1019,9 +1022,9 @@ async function Amulet_on(obj, state = game) {
             'AMULET_OF_MAGICAL_BREATHING (needs region_danger integration)',
         );
     case AMULET_OF_UNCHANGING:
-        throw new UnsupportedAccessoryOnError(
-            'AMULET_OF_UNCHANGING (needs make_slimed)',
-        );
+        if (state.u.uprops[SLIMED].intrinsic)
+            await make_slimed(0, null, state);
+        break;
     case AMULET_OF_CHANGE:
         throw new UnsupportedAccessoryOnError(
             'AMULET_OF_CHANGE (needs change_sex, livelog_newform, useup, trycall)',

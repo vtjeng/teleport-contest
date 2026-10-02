@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 independent cheap role variation, frozen C-first: a debug Valkyrie sets the one timed STUNNED trouble through the source menu, wishes a blessed unicorn horn, and applies it. Role and fresh seed/date change startup state/RNG while preserving the source cure helper branch.",
+  "segments": [
+    {
+      "seed": 994271003,
+      "datetime": "20341108142600",
+      "nethackrc": "OPTIONS=name:A80ValkyrieCure,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017blessed unicorn horn\nag"
+    }
+  ]
+}

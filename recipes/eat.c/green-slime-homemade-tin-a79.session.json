@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 39028046,
+      "datetime": "20261002123000",
+      "nethackrc": "OPTIONS=name:GreenTinHomeA79,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\ng\n \u0017homemade tin of green slime meat\nee y"
+    }
+  ],
+  "comment": "A79 C setup attempt retained as history: wishing a tin then using eat on the unopened tin produces C's 'You cannot eat that!' and does not reach consume_tin/cprefx. The revised independent witness uses apply.c:doapply with a wished tin opener; do not treat this prefix as helper coverage."
+}

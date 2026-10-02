@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 53147029,
+      "datetime": "20261002201500",
+      "nethackrc": "OPTIONS=name:SlimeTinA79Home2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed tin opener\n\u0017blessed homemade tin of green slime meat\nao epy"
+    }
+  ],
+  "comment": "Corrected C-first A79 input after preserving the prior wrong-letter attempt. C at the earlier independently chosen inventory showed tin opener in slot o and tin in slot p. Source use_tin_opener first wields the opener and returns, so the space dismisses that C message; e/p then chooses the tin while wielding it, and y accepts the immediate eat prompt. Seed/date remain from the original setup; only the observed source input slots and the required second eat command changed. No JavaScript comparison has run."
+}

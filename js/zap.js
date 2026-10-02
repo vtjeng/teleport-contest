@@ -641,7 +641,8 @@ import {
 } from './polyself.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
 import {
-    healup, make_blinded, incr_itimeout, speed_up, self_invis_message,
+    healup, make_blinded, incr_itimeout, make_stunned, speed_up,
+    self_invis_message,
 } from './potion.js';
 import {
     d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz,
@@ -1607,8 +1608,7 @@ export async function unturn_dead(monster, state = game, rawEnv = {}) {
     return revivedCount;
 }
 
-// C ref: zap.c unturn_you() (1225-1234). The duration argument to the still
-// unported make_stunned() is evaluated before the discarded void call.
+// C ref: zap.c unturn_you() (1225-1234).
 async function unturn_you(state = game) {
     await unturn_dead(state.youmonst, state);
     if (is_undead(state.youmonst?.data)) {
@@ -1617,8 +1617,9 @@ async function unturn_you(state = game) {
             `You feel frightened and ${already ? 'even more ' : ''}stunned.`,
             state,
         );
-        rnd(30);
-        note_unported('potion.c make_stunned');
+        const stunTimeout = (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0)
+            & TIMEOUT;
+        await make_stunned(stunTimeout + rnd(30), false, state);
     } else {
         await ttyPline('You shudder in dread.', state);
     }
@@ -1701,7 +1702,7 @@ export async function zapyourself(obj, ordinary, state = game) {
             damage = orig_dmg;
             monstunseesu(M_SEEN_FIRE, state);
         }
-        burn_away_slime(state);
+        await burn_away_slime(state, env);
         await burnarmor(state.youmonst, env);
         await destroy_items(state.youmonst, AD_FIRE, orig_dmg, env);
         await ignite_items(state.invent, env);
@@ -5193,7 +5194,7 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random, rawEnv = {}) {
         }
         dam = orig_dam;
         monstunseesu(M_SEEN_FIRE, state);
-        burn_away_slime(state);
+        await burn_away_slime(state, env);
         /* "body hit" */
         if (await burnarmor(state.youmonst, { ...env })) {
             if (!random.rn2(3))

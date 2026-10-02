@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48003177,
+      "datetime": "20261002164000",
+      "nethackrc": "OPTIONS=name:SlimeTinA79Home,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\ng\n \u0017blessed tin opener\n\u0017blessed homemade tin of green slime meat\napqy"
+    }
+  ],
+  "comment": "Independent A79 C-first caller witness. Wizard wishes for a blessed tin opener and a blessed homemade tin of green slime meat, then applies the opener to the tin. C source makes this a deterministic immediate open and reaches eat.c:consume_tin -> cprefx(PM_GREEN_SLIME) -> make_slimed, before cpostfx. The seed/date/name and tin contents are newly chosen; the second recipe varies the tin variety. Frozen before any JavaScript comparison."
+}

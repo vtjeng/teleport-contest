@@ -331,3 +331,31 @@ test('climb_pit keeps the complete source branch and caller order', () => {
     assert.match(JS_HACK, /if \(desttrap && desttrap\.tseen && is_pit\(desttrap\.ttyp\)\)\s*return true;/u);
     assert.match(JS_HACK, /if \(u\.utraptype === TT_PIT\)\s*\{[\s\S]*?await climb_pit\(state\);\s*return false;/u);
 });
+
+test('trap.c lava_effects awaits burn_away_slime before lava handling', () => {
+    const cLava = cFunction(
+        C_TRAP,
+        'lava_effects(void)',
+        '\n/* called each turn when trapped in lava */',
+    );
+    const cOrder = [
+        'feel_newsym(u.ux, u.uy);',
+        'burn_away_slime();',
+        'if (likes_lava(gy.youmonst.data))',
+    ].map((text) => cLava.indexOf(text));
+    assert.ok(cOrder.every((index) => index >= 0));
+    assert.deepEqual(cOrder, [...cOrder].sort((a, b) => a - b));
+
+    const jsStart = JS_TRAP.indexOf('export async function lava_effects(');
+    const jsEnd = JS_TRAP.indexOf('\n}\n', jsStart) + 3;
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsLava = JS_TRAP.slice(jsStart, jsEnd);
+    const jsOrder = [
+        'feel_newsym(u.ux, u.uy, state);',
+        'await burn_away_slime(state);',
+        'if (likes_lava(state.youmonst?.data))',
+    ].map((text) => jsLava.indexOf(text));
+    assert.ok(jsOrder.every((index) => index >= 0));
+    assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
+    assert.doesNotMatch(jsLava, /note_unported\(['"]timeout\.c burn_away_slime/u);
+});

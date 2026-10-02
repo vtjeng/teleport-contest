@@ -234,7 +234,9 @@ import { P_MAX_SKILL, spell_skilltype } from './startup_skills.js';
 import { spelleffects } from './spell.js';
 import { seffects } from './read.js';
 import { charge_ok, recharge } from './read.js';
-import { healup, make_blinded, make_sick } from './potion.js';
+import {
+    healup, make_blinded, make_sick, make_slimed, make_stunned,
+} from './potion.js';
 import { dropx, maybe_lvltport_feedback, goto_level } from './do.js';
 import { select_menu } from './windows.js';
 import { clr2colorname } from './coloratt.js';
@@ -1853,7 +1855,10 @@ export async function Mb_hit(
     /* stun if that was selected and a worse effect didn't occur */
     if (do_stun) {
         if (youdefend) {
-            note_unported('timeout.c make_stunned');
+            const stunTimeout = (
+                (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0) & TIMEOUT
+            ) + 3;
+            await make_stunned(stunTimeout, false, state);
         } else {
             mdef.mstun = 1;
         }
@@ -1974,7 +1979,7 @@ export async function artifact_hit(
             await ignite_items(mdef.minvent, env);
         }
         if (youdefend && Slimed(state))
-            burn_away_slime(state);
+            await burn_away_slime(state, env);
         return realizes_damage;
     }
     if (attacks(AD_COLD, otmp, state)) {
@@ -2318,7 +2323,7 @@ async function invoke_healing(obj, state) {
         await make_sick(0, null, false, SICK_ALL, state);
     }
     if (slimed) {
-        note_unported('hack.c make_slimed');
+        await make_slimed(0, null, state);
     }
     if (blindedTimeout > creamed)
         await make_blinded(creamed, false, state);

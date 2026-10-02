@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 C-observed input correction to the uncursed BUC variation: the previous C wish confirmation displayed the horn in inventory slot o, and the Wizard apply prompt offered c/l/m/n/o. This changes only the selected slot from g to o; its fresh seed/date and uncursed d(2,2) branch remain source-relevant.",
+  "segments": [
+    {
+      "seed": 1289047217,
+      "datetime": "20341106142600",
+      "nethackrc": "OPTIONS=name:A80CureUncursed2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017uncursed unicorn horn\nao"
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { COLNO, PICK_NONE, ROOM, ROWNO } from '../js/const.js';
-import { flush_screen } from '../js/display.js';
+import { flush_screen, status_window_rows } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -35,6 +36,11 @@ import {
     vision_recalc,
     vision_reset,
 } from '../js/vision.js';
+
+const WINTTY_C = readFileSync(
+    new URL('../nethack-c/upstream/win/tty/wintty.c', import.meta.url),
+    'utf8',
+);
 
 function menuState(keys = '') {
     resetGame();
@@ -536,6 +542,143 @@ test('corner rendering reserves the extra docorner row until dismissal', async (
         'Z',
     );
 });
+
+test('gameplay corner dismissal keeps the C-cleared status suffix blank',
+    async () => {
+        const state = menuState();
+        // Twenty short rows plus the title keep this a corner menu while its
+        // docorner(maxrow + 1) repair reaches the two-row status window on
+        // the default 24-row TTY. The caller holds bot_disabled during menu
+        // selection, so bot() leaves its newly cleared cells blank.
+        const spec = {
+            title: 'Inventory actions',
+            lines: Array.from({ length: 20 }, (_, index) => `action ${index}`),
+        };
+        const layout = ttyMenuLayout(state.nhDisplay, spec);
+        assert.equal(layout.fullScreen, false);
+        assert.ok(layout.maxrow + 1
+            > state.nhDisplay.rows - status_window_rows());
+
+        const statusRow = state.nhDisplay.rows - status_window_rows();
+        // Column 3 is left of the repair; repairColumn + 3 is inside the
+        // suffix docorner clears on both status rows. Arbitrary styled
+        // markers make the C clear boundary visible without depending on
+        // status wording.
+        const leftStatusColumn = 3;
+        const staleStatusColumn = layout.repairColumn + 3;
+        const secondStatusRow = statusRow + 1;
+        state.nhDisplay.setCell(leftStatusColumn, statusRow, 'L', 2, 1);
+        state.nhDisplay.setCell(staleStatusColumn, statusRow, 'S', 4, 2);
+        state.nhDisplay.setCell(staleStatusColumn, secondStatusRow, 'T', 4, 2);
+        // C docorner() positions at xmin before cl_end(): the first repaired
+        // cell must clear, while its immediate left neighbor must survive.
+        // Nondefault colors and attributes distinguish clearing from a blank
+        // glyph that retains the old style on either repaired status row.
+        for (const row of [statusRow, secondStatusRow]) {
+            state.nhDisplay.setCell(layout.repairColumn - 1, row, 'B', 2, 1);
+            state.nhDisplay.setCell(layout.repairColumn, row, 'C', 4, 2);
+        }
+        // This map-row marker sits behind the menu and must still be restored
+        // from the pre-menu base frame after the status suffix is cleared.
+        state.nhDisplay.setCell(60, 5, '@', 3, 1);
+        state.gb = { bot_disabled: true };
+        state.disp = { botlx: false };
+
+        const rendered = renderTtyMenu(state, spec);
+        await dismissTtyMenu(state, rendered);
+
+        assert.deepEqual(
+            [
+                state.nhDisplay.grid[statusRow][leftStatusColumn].ch,
+                state.nhDisplay.grid[statusRow][leftStatusColumn].color,
+                state.nhDisplay.grid[statusRow][leftStatusColumn].attr,
+            ],
+            ['L', 2, 1],
+        );
+        assert.deepEqual(
+            [
+                state.nhDisplay.grid[statusRow][staleStatusColumn].ch,
+                state.nhDisplay.grid[statusRow][staleStatusColumn].color,
+                state.nhDisplay.grid[statusRow][staleStatusColumn].attr,
+            ],
+            [' ', 7, 0],
+        );
+        assert.deepEqual(
+            [
+                state.nhDisplay.grid[secondStatusRow][staleStatusColumn].ch,
+                state.nhDisplay.grid[secondStatusRow][staleStatusColumn].color,
+                state.nhDisplay.grid[secondStatusRow][staleStatusColumn].attr,
+            ],
+            [' ', 7, 0],
+        );
+        for (const row of [statusRow, secondStatusRow]) {
+            const before = state.nhDisplay.grid[row][layout.repairColumn - 1];
+            const first = state.nhDisplay.grid[row][layout.repairColumn];
+            assert.deepEqual([before.ch, before.color, before.attr], ['B', 2, 1]);
+            assert.deepEqual([first.ch, first.color, first.attr], [' ', 7, 0]);
+        }
+        assert.equal(state.nhDisplay.grid[5][60].ch, '@');
+        assert.equal(state.disp.botlx, true);
+
+        const eraseStart = WINTTY_C.indexOf('erase_menu_or_text(\n');
+        const eraseEnd = WINTTY_C.indexOf('\n}\n', eraseStart);
+        const erase = WINTTY_C.slice(eraseStart, eraseEnd);
+        assert.match(erase,
+            /docorner\(\(int\) cw->offx, cw->maxrow \+ 1, 0\);/u);
+        const cornerStart = WINTTY_C.indexOf('docorner(\n');
+        const cornerEnd = WINTTY_C.indexOf('\n}\n', cornerStart);
+        const corner = WINTTY_C.slice(cornerStart, cornerEnd);
+        const clear = corner.indexOf('cl_end();');
+        const redraw = corner.indexOf('row_refresh(');
+        const bottomDamage = corner.indexOf('disp.botlx = TRUE;');
+        const update = corner.indexOf('bot();', bottomDamage);
+        assert.ok(clear >= 0 && clear < redraw);
+        assert.ok(redraw < bottomDamage && bottomDamage < update);
+    });
+
+test('corner dismissal marks bottom damage when docorner ends at status origin',
+    async () => {
+        const state = menuState();
+        const statusRow = state.nhDisplay.rows - status_window_rows();
+        // Eighteen menu lines place the exclusive docorner end exactly at
+        // row 22 on the default 24-row, two-status-row TTY. C still sets
+        // disp.botlx at this equality even though it clears no status cell.
+        const spec = {
+            title: 'Inventory actions',
+            lines: Array.from({ length: 18 }, (_, index) => `action ${index}`),
+        };
+        const layout = ttyMenuLayout(state.nhDisplay, spec);
+        assert.equal(layout.maxrow + 1, statusRow);
+        assert.equal(layout.fullScreen, false);
+
+        // This marker begins at the first untouched status row; the equality
+        // boundary leaves its pixels alone while recording bottom damage. A
+        // nondefault color/attribute pair makes style preservation observable.
+        const statusMarkerColumn = layout.repairColumn + 3;
+        state.nhDisplay.setCell(statusMarkerColumn, statusRow, 'S', 4, 2);
+        state.gb = { bot_disabled: true };
+        state.disp = { botlx: false };
+        const rendered = renderTtyMenu(state, spec);
+
+        await dismissTtyMenu(state, rendered);
+
+        assert.deepEqual(
+            [
+                state.nhDisplay.grid[statusRow][statusMarkerColumn].ch,
+                state.nhDisplay.grid[statusRow][statusMarkerColumn].color,
+                state.nhDisplay.grid[statusRow][statusMarkerColumn].attr,
+            ],
+            ['S', 4, 2],
+        );
+        assert.equal(state.disp.botlx, true);
+
+        const cornerStart = WINTTY_C.indexOf('docorner(\n');
+        const cornerEnd = WINTTY_C.indexOf('\n}\n', cornerStart);
+        const corner = WINTTY_C.slice(cornerStart, cornerEnd);
+        assert.match(corner,
+            /ymax >= \(int\) wins\[WIN_STATUS\]->offy/u);
+        assert.match(corner, /disp\.botlx = TRUE;[\s\S]*?bot\(\);/u);
+    });
 
 test('a 24-row role menu becomes full-screen', () => {
     const state = menuState();

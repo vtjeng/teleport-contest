@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 C-observed slot correction for the fresh Valkyrie variation: the wish result displayed the blessed unicorn horn in inventory slot e. The preserved g attempt selected no horn; this recipe changes only to the C-observed e key so the next C run reaches use_unicorn_horn.",
+  "segments": [
+    {
+      "seed": 994271003,
+      "datetime": "20341108142600",
+      "nethackrc": "OPTIONS=name:A80ValkyrieCure,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017blessed unicorn horn\nae"
+    }
+  ]
+}

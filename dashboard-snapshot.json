@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T11:18:47.948Z",
+  "capturedAt": "2026-10-02T14:55:20.447Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -15454,12 +15454,232 @@
         "type": "accepted",
         "at": "2026-10-02T11:18:26.369Z",
         "task": "B87"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B87-published-2cb60929",
+        "type": "published",
+        "at": "2026-10-02T11:19:01.276Z",
+        "task": "B87",
+        "commit": "2cb609294e38f0b8e43d4f01c182bb88c458584d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B88-ad-ench-20261002",
+        "type": "assign",
+        "at": "2026-10-02T11:36:13.727Z",
+        "task": "B88",
+        "worker": "B",
+        "goal": "port-uhitm-mhitm-ad-ench-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-bb10fa69216f37f42394a6ba03194decd1182418",
+        "type": "ready",
+        "at": "2026-10-02T12:22:21.416Z",
+        "task": "A79",
+        "delivery": "bb10fa69216f37f42394a6ba03194decd1182418"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A79-received-bb10fa69-20261002",
+        "type": "received",
+        "at": "2026-10-02T12:23:51.542Z",
+        "task": "A79",
+        "delivery": "bb10fa69216f37f42394a6ba03194decd1182418"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A79-integrating-af31fadb",
+        "type": "integrating",
+        "at": "2026-10-02T12:27:58.107Z",
+        "task": "A79",
+        "integration": "af31fadba807f9170de9a9152f6a2ca4d7102ba6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A80-make-stunned-v18-20261002-1229",
+        "type": "assign",
+        "at": "2026-10-02T12:34:53.708Z",
+        "task": "A80",
+        "worker": "A2",
+        "goal": "port-potion-make-stunned-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A79-validated-af31fadb",
+        "type": "validated",
+        "at": "2026-10-02T12:42:09.898Z",
+        "task": "A79",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A79-accepted-af31fadb",
+        "type": "accepted",
+        "at": "2026-10-02T12:42:10.321Z",
+        "task": "A79"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A79-published-e3004d4c",
+        "type": "published",
+        "at": "2026-10-02T12:44:56.786Z",
+        "task": "A79",
+        "commit": "e3004d4c2f9ea21c2bc68de191a3a7711d67f6d1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-fd05e4adc29d24a226b92b45020bbd3c6ad98055",
+        "type": "ready",
+        "at": "2026-10-02T13:26:15.162Z",
+        "task": "A80",
+        "delivery": "fd05e4adc29d24a226b92b45020bbd3c6ad98055"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A80-received-fd05e4ad",
+        "type": "received",
+        "at": "2026-10-02T13:30:07.926Z",
+        "task": "A80",
+        "delivery": "fd05e4adc29d24a226b92b45020bbd3c6ad98055"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A2-A81-tty-rhack-v18-20261002",
+        "type": "assign",
+        "at": "2026-10-02T13:33:55.813Z",
+        "task": "A81",
+        "worker": "A2",
+        "goal": "fix-tty-corner-dismiss-and-queued-adjust-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A80-integrating-e596209b",
+        "type": "integrating",
+        "at": "2026-10-02T13:35:33.645Z",
+        "task": "A80",
+        "integration": "e596209b6216abb6987670e4d2a22def93291ef4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A80-validated-e596209b",
+        "type": "validated",
+        "at": "2026-10-02T13:51:00.742Z",
+        "task": "A80",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A80-accepted-e596209b",
+        "type": "accepted",
+        "at": "2026-10-02T13:51:01.166Z",
+        "task": "A80"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A80-published-0f6363b9",
+        "type": "published",
+        "at": "2026-10-02T13:56:33.005Z",
+        "task": "A80",
+        "commit": "0f6363b9495049bb3760ec65fde1cd99a1e4f311"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-d6ee57d58ee4bb790c9c431136fee8a5124ba23f",
+        "type": "ready",
+        "at": "2026-10-02T14:03:39.776Z",
+        "task": "A81",
+        "delivery": "d6ee57d58ee4bb790c9c431136fee8a5124ba23f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A81-received-d6ee57d5",
+        "type": "received",
+        "at": "2026-10-02T14:06:00.901Z",
+        "task": "A81",
+        "delivery": "d6ee57d58ee4bb790c9c431136fee8a5124ba23f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A81-feedback-docorner-equality-d6ee57d5",
+        "type": "feedback",
+        "at": "2026-10-02T14:06:43.859Z",
+        "task": "A81",
+        "delivery": "d6ee57d58ee4bb790c9c431136fee8a5124ba23f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-A2-A81-docorner-equality-correction-20261002T1421Z",
+        "type": "resume",
+        "at": "2026-10-02T14:07:26.603Z",
+        "task": "A81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-744c79688550a76436649e2fd921ab225f2e7bd0",
+        "type": "ready",
+        "at": "2026-10-02T14:15:05.608Z",
+        "task": "A81",
+        "delivery": "744c79688550a76436649e2fd921ab225f2e7bd0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A81-received-744c7968",
+        "type": "received",
+        "at": "2026-10-02T14:16:08.424Z",
+        "task": "A81",
+        "delivery": "744c79688550a76436649e2fd921ab225f2e7bd0"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A81-integrating-b81bf97f",
+        "type": "integrating",
+        "at": "2026-10-02T14:16:36.219Z",
+        "task": "A81",
+        "integration": "b81bf97f0035f8d3d1ec859209dd7ea108464b62"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A82-gazemu-20261002",
+        "type": "assign",
+        "at": "2026-10-02T14:36:45.621Z",
+        "task": "A82",
+        "worker": "A2",
+        "goal": "port-mhitu-gazemu-pyrolisk-and-medusa-gazes-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A81-integrating-15f03a8d",
+        "type": "integrating",
+        "at": "2026-10-02T14:45:35.954Z",
+        "task": "A81",
+        "integration": "15f03a8d4e6a97037534f666b9b6c002a37c5d5b"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A81-validated-15f03a8d",
+        "type": "validated",
+        "at": "2026-10-02T14:54:56.793Z",
+        "task": "A81",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A81-accepted-15f03a8d",
+        "type": "accepted",
+        "at": "2026-10-02T14:54:57.199Z",
+        "task": "A81"
       }
     ]
   },
   "development": {
-    "executionCommit": "1c3a2e71ab9691a383e5b52a24e5243a07620bb5",
-    "measuredAt": "2026-10-02T11:13:24.742Z",
+    "executionCommit": "15f03a8d4e6a97037534f666b9b6c002a37c5d5b",
+    "measuredAt": "2026-10-02T14:51:16.278Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

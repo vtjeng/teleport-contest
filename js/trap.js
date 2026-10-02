@@ -300,7 +300,7 @@ import {
     SPE_BOOK_OF_THE_DEAD, SPE_FIREBALL, STATUE, WOOD,
 } from './objects.js';
 import { encumber_msg, pickup } from './pickup.js';
-import { make_hallucinated, set_itimeout } from './potion.js';
+import { make_hallucinated, make_stunned, set_itimeout } from './potion.js';
 import { waterbody_name } from './pager.js';
 import { float_vs_flight, body_part, polymon } from './polyself.js';
 import { create_gas_cloud } from './region.js';
@@ -312,7 +312,7 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { trap_to_defsym } from './symbols.js';
 import { halu_trapnames } from './trap_names_data.js';
 import { is_ice, set_levltyp } from './terrain.js';
-import { spot_stop_timers } from './timeout.js';
+import { burn_away_slime, spot_stop_timers } from './timeout.js';
 import {
     dofiretrap, dotrap, feeltrap, mintrap, m_easy_escape_pit,
 } from './trap_effects.js';
@@ -1475,10 +1475,7 @@ export async function lava_effects(state = game) {
     }
 
     feel_newsym(u.ux, u.uy, state);
-    // This source call discards its result. The timeout owner still refuses
-    // make_slimed(), so keep the exact gap rather than invoking a partial
-    // implementation and swallowing its refusal.
-    note_unported('timeout.c burn_away_slime');
+    await burn_away_slime(state);
     if (likes_lava(state.youmonst?.data)) return false;
 
     let fireResistant = heroLavaProperty(state, FIRE_RES);
@@ -3644,8 +3641,10 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                     );
                 }
             }
-            // C: make_stunned((HStun & TIMEOUT) + rn1(7, 16), FALSE).
-            note_unported('timeout.c make_stunned');
+            const stunTimeout = (
+                (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0) & TIMEOUT
+            ) + rn1(7, 16);
+            await make_stunned(stunTimeout, false, state);
             await make_hallucinated(
                 ((state.u?.uprops?.[HALLUC]?.intrinsic ?? 0) & TIMEOUT)
                     + rn1(5, 16),

@@ -395,7 +395,7 @@ import { hard_helmet } from './do_wear.js';
 import { dmgval, drain_weapon_skill } from './weapon.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { body_part, mbodypart } from './polyself.js';
-import { make_confused, strange_feeling } from './potion.js';
+import { make_confused, make_stunned, strange_feeling } from './potion.js';
 // read.js -> monmove.js -> muse.js -> read.js is a function-body-only cycle:
 // these imported helpers are first read during gameplay.
 import { closed_door, monflee, youHear } from './monmove.js';
@@ -426,7 +426,7 @@ import { note_unported } from './unported.js';
 import { getpos } from './getpos.js';
 import { explode } from './explode.js';
 import { create_gas_cloud, valid_cloud_pos } from './region.js';
-import { end_burn } from './timeout.js';
+import { burn_away_slime, end_burn } from './timeout.js';
 import { encumber_msg } from './pickup.js';
 import { remove_worn_item } from './steal.js';
 
@@ -1871,10 +1871,7 @@ export async function seffect_destroy_armor(
             }
             const stun = (state.u.uprops[STUNNED]?.intrinsic ?? 0) & TIMEOUT;
             const duration = stun + random.rn1(10, 10);
-            note_unported('timeout.c make_stunned');
-            // `duration` is evaluated before the discarded make_stunned()
-            // call, even while timeout.c itself remains outside this task.
-            void duration;
+            await make_stunned(duration, true, state, rawEnv);
         } else if (await disintegrate_arm(otmp, { state, random })) {
             state.gk.known = true;
             return false;
@@ -2804,9 +2801,7 @@ export async function seffect_fire(scroll, state = game) {
             await ttyPline('The scroll erupts in a tower of flame!', state);
             state.iflags ??= {};
             state.iflags.last_msg = PLNMSG_TOWER_OF_FLAME;
-            // timeout.c burn_away_slime() returns void and its JS port is
-            // incomplete for the active Slimed branch; retain the source gap.
-            note_unported('timeout.c burn_away_slime');
+            await burn_away_slime(state);
         }
     }
 

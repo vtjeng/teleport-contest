@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
-    BLINDED, ECMD_OK, KILLED_BY, LAST_PROP, STONED, TIMEOUT,
+    BLINDED, ECMD_OK, KILLED_BY, LAST_PROP, SLIMED, STONED, TIMEOUT,
 } from '../js/const.js';
 import { delayed_killer } from '../js/end.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -151,6 +151,47 @@ test('wiz_intrinsic sets STONED and records its delayed killer through the menu'
             'You are turning into stone.',
         );
     });
+
+test('wiz_intrinsic routes SLIMED through potion.c make_slimed', async () => {
+    const potion = readFileSync(
+        new URL('../nethack-c/upstream/src/potion.c', import.meta.url),
+        'utf8',
+    );
+    const wizard = readFileSync(
+        new URL('../nethack-c/upstream/src/wizcmds.c', import.meta.url),
+        'utf8',
+    );
+    assert.match(potion,
+        /make_slimed\(long xtime, const char \*msg\)[\s\S]*?set_itimeout\(&Slimed, xtime\);[\s\S]*?if \(\(xtime != 0L\) \^ \(old != 0L\)\)/u);
+    assert.match(wizard,
+        /case SLIMED:\s*Sprintf\(buf, fmt,\s*!Slimed \? "" : " still", "turning into slime"\);\s*make_slimed\(newtimeout, buf\);/u);
+
+    const state = resetGame();
+    state.wizard = true;
+    state.iflags = { cbreak: true };
+    state.disp = { botl: false };
+    state.u = {
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+            intrinsic: 0, extrinsic: 0, blocked: 0,
+        })),
+    };
+    state.nhDisplay = new GameDisplay(null);
+    state.nhDisplay.onEmptyQueue = () => {
+        throw new Error('the intrinsic menu requested an unprovided key');
+    };
+    // WIZ_INTRINSIC_PROPERTIES maps its third source entry to 'c' (SLIMED).
+    state.nhDisplay.pushKey('c'.charCodeAt(0));
+    state.nhDisplay.pushKey('\n'.charCodeAt(0));
+    const messages = [];
+
+    await wiz_intrinsic(state, {
+        message: async (line) => messages.push(line),
+    });
+
+    assert.equal(state.u.uprops[SLIMED].intrinsic & TIMEOUT, 30);
+    assert.equal(state.disp.botl, true);
+    assert.deepEqual(messages, ['You are turning into slime.']);
+});
 
 test('make_stoned unlinks only its delayed-killer record when cured', async () => {
     const state = resetGame();

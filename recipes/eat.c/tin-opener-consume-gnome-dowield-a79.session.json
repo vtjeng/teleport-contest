@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 74126039,
+      "datetime": "20261002213500",
+      "nethackrc": "OPTIONS=name:TinCallerA79,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed tin opener\n\u0017blessed tin of homemade gnome\nwpeq y"
+    }
+  ],
+  "comment": "A79 C-first non-slime tin caller recipe. Seed 74126039 is retained from the independently recorded setup because its resulting inventory places the opener in p and tin in q; `w` readies the opener and `e` selects the tin, so the route reaches `eat.c:consume_tin` without `apply.c:doapply`. The single space after q dismisses the C-observed gnome-smell pager before y accepts the meal. This verifies ordinary consume_tin -> cprefx call order, not the Green Slime branch or make_slimed. Inputs are frozen before C recording and JavaScript comparison."
+}
