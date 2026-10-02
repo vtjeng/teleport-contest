@@ -140057,8 +140057,8 @@
           "name": "mhitm_ad_plys",
           "line": 3431,
           "endLine": 3478,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -140235,7 +140235,103 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_plys",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_plys",
+            "sourceReview": "Read and ported the complete uhitm.c:mhitm_ad_plys definition at lines 3431–3476. The hero-attacker arm preserves rn2(3), then damage < defender HP, then the consumed mhitm_mgc_atk_negated return; it conditionally prints only when !Blind and calls paralyze_monst(rnd(10)). The monster-attacker/hero-defender arm awaits hitmsg first, then checks gm.multi >= 0 and rn2(3), consumes the same magic-negation return, uses Free_action as u.uprops[FREE_ACTION].extrinsic only, otherwise selects the Blind-aware message, writes You_can_move_again, calls nomul(-rnd(10)), skips only the discarded void uhitm.c:dynamic_multi_reason result with note_unported, then exercises Dexterity. The monster-pair arm checks mdef->mcanmove before rn2(3), consumes the same magic-negation return, prints only when gv.vis && canspotmon(mdef), then calls paralyze_monst(rnd(10)). JS preserves these C short-circuit and RNG/output/state orders and uses the existing mhitm_mgc_atk_negated and paralyze_monst implementations. The dispatcher edit is limited to the AD_PLYS arm of uhitm.c:mhitm_adtyping; no whole-dispatcher completion is claimed. C macros are source-pinned: Free_action is the extrinsic property in include/youprop.h:383; the state updates are owned by mhitm.c:paralyze_monst at 1210.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping lines 4782–4832, case AD_PLYS dispatches mhitm_ad_plys."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum line 4854 calls mhitm_adtyping(&gy.youmonst, mattk, mdef, &mhm)."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu line 1191 calls mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm)."
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem line 1059 calls mhitm_adtyping(magr, mattk, mdef, &mhm)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-plys-ghoul-hero-success-a78.session.json",
+              "recordings/uhitm.c/mhitm-ad-plys-ghoul-hero-variation-a78.session.json",
+              "recordings/uhitm.c/mhitm-ad-plys-hero-attacker-ghoul-newt-a78.session.json",
+              "recordings/uhitm.c/mhitm-ad-plys-ghoul-conflict-paper-golem-a78.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 36,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku/hitmu -> uhitm.c:mhitm_adtyping(AD_PLYS) -> uhitm.c:mhitm_ad_plys"
+              }
+            ],
+            "checkedAt": "fbe09081407c8c3bfb5bd365eb9adaee0f77f67f"
+          }
+        ],
+        "entryPointReview": "The whole helper has three active production orientations, all dispatched through uhitm.c:mhitm_adtyping case AD_PLYS. Hero-to-monster reaches the helper through uhitm.c:hmon/damageum and is recorded by the strict-matching newt recipe at step 45 (rn2(3)=1, so this source call exercises the chance-fail arm). Monster-to-hero reaches it through monmove.c:dochug, mhitu.c:mattacku/hitmu, and is recorded by the successful ghoul recipe at step 32 (rn2(3)=0, rnd(10)=1, visible frozen message); a Monk role variation also strictly matches. Monster-to-monster reaches it through monmove.c conflict processing, mhitm.c:mattackm/mdamagem, and is recorded at steps 105–107 (rn2(3)=0, rnd(10)=9, paper golem frozen message). The admitted v18 wander-pursuit case matches all 37 boundaries and includes the monster-to-hero helper call at step 28. Source-pinned tests cover all three successful effect branches, Free_action, Blind text, short-circuit guards, and state changes. A longer hero-attack variation is retained as blocked because its later second hit enters unported uhitm.c:passive at step 48; a Monk hero-attack setup variant instead reaches the newt's monmove.c:dochug/hitmu turn first and does not call damageum.",
+        "entryPoints": [
+          {
+            "name": "Hero polymorph attack on monster through hmon/damageum",
+            "functions": [
+              "mhitm_ad_plys"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-plys-hero-attacker-ghoul-newt-a78.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Monster melee attack on hero through mattacku/hitmu",
+            "functions": [
+              "mhitm_ad_plys"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-plys-ghoul-hero-success-a78.session.json",
+              "recordings/uhitm.c/mhitm-ad-plys-ghoul-hero-variation-a78.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+                "segment": 0,
+                "fromStep": 26,
+                "throughStep": 36,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku/hitmu -> uhitm.c:mhitm_adtyping(AD_PLYS) -> uhitm.c:mhitm_ad_plys"
+              }
+            ]
+          },
+          {
+            "name": "Monster melee attack on monster through mattackm/mdamagem",
+            "functions": [
+              "mhitm_ad_plys"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-plys-ghoul-conflict-paper-golem-a78.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
