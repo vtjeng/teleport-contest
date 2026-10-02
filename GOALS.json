@@ -137721,7 +137721,7 @@
     {
       "id": "port-pray-water-prayer-v17-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete prayer water blessing and cursing",
       "cFile": "pray.c",
       "sessions": [
@@ -137735,8 +137735,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "03fd87c4d989cd5a9f3a731abe1f45442a0919e1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "water_prayer",
@@ -138051,6 +138054,12 @@
         ],
         "entryPointReview": "Helper-only range: `entryPoints` is intentionally empty under validation.md. Production callers are `prayer_done` p_type 0 at pray.c:2316-2318 (FALSE result discarded before penalties), p_type 1 at 2323-2325 (FALSE result discarded before angrygods), p_type 2 at 2327-2335 (FALSE result consumed to select penalties versus pleased), and p_type 3 at 2336-2339 (TRUE result discarded after pray_revive). Matching caller evidence: p_type 0 recording step 53; p_type 1 recording steps 130 and 155; p_type 2 FALSE recording step 127 ending at pleased; p_type 2 TRUE recording steps 131/146/156 with rnz(250)=369 at prayer_done:2329; selected v17 p_type 3 range segment 0 steps 0-54. The helper is reached through cmd.c pray -> dopray -> prayer_done; p_type -2, -1 and Gehennom arms do not call it and remain outside scope.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "03fd87c4d989cd5a9f3a731abe1f45442a0919e1",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
