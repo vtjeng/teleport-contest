@@ -144572,7 +144572,7 @@
           "line": 1242,
           "endLine": 1346,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -144911,7 +144911,69 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ring_on",
+            "implementation": "js/do_wear.js",
+            "symbol": "Ring_on",
+            "sourceReview": "Compared the complete do_wear.c:1242-1344 body. C captures the property extrinsic before clearing any accidental uwep/uswapwep/uquiver alias, masks W_RING only when the two slots do not jointly provide the property, and preserves the no-op ring list plus MEAT_RING. The active arms keep stealth feedback, warning detection, see-invisible mimic notification then visibility redraw/message/learning, invisibility learning/redraw/self message, levitation plus conditional spoteffects or float_vs_flight, attribute/accuracy/damage adjustments, shape-changer protection and protection/find_ac in source order. The missing display.c:set_mimic_blocking result is discarded, so JS records that exact gap and continues. The missing warning-artifact count-change path in display.c:see_monsters remains outside this source unit and is documented in entryPointReview. The levitation arm ends before RIN_GAIN_STRENGTH.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "accessory_or_armor_on",
+                "source": "do_wear.c:2407-2411 installs the ring with setworn before calling Ring_on; the #wear/#puton warning cases execute this route."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "set_wear",
+                "source": "do_wear.c:1546-1549 calls Ring_on for the right and left worn slots in source order; B90 wires both startup and target-object dispatch arms."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "recharge",
+                "source": "read.c:823-827 restores a charged worn ring with setworn then Ring_on; the existing charging-worn-adornment-ring recording reaches this caller."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "poly_obj",
+                "source": "zap.c:1945-1949 installs the transformed item, calls target-object set_wear, then rereads wearmask_to_obj; B90 wires the W_RING caller arm only."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs",
+              "scripts/zap-poly-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/charging-worn-adornment-ring-c31-independent.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+                "segment": 0,
+                "fromStep": 51,
+                "throughStep": 53,
+                "source": "P command -> do_wear.c:accessory_or_armor_on -> setworn -> Ring_on(RIN_WARNING) -> see_monsters; final left-ring selection executes Ring_on."
+              },
+              {
+                "batch": "v19",
+                "caseId": "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+                "segment": 0,
+                "fromStep": 52,
+                "throughStep": 54,
+                "source": "P command -> do_wear.c:accessory_or_armor_on -> setworn -> Ring_on(RIN_WARNING) -> see_monsters; final left-ring selection executes Ring_on at the warning threshold."
+              }
+            ],
+            "checkedAt": "33449a0b6b11992c3f6c3c11fc9f89a440d8efec"
+          }
+        ],
+        "entryPointReview": "Helper-only primary unit: entryPoints is empty. The production #wear/#puton dispatcher calls Ring_on from accessory_or_armor_on after setworn; the two admitted v19 cases execute this path at segment 0 steps 51-53 and 52-54, respectively, and cover the below-threshold and warning-threshold monster cases. Startup moveloop_preamble calls set_wear(NULL); ordinary role inventories do not begin with worn rings, while the source-ordered ring dispatch and initial_don lifetime are pinned by scripts/wear-armor.test.mjs. read.c:recharge also calls Ring_on after restoring a worn ring; its pre-existing charging-worn-adornment-ring recording is cited above. zap.c:poly_obj calls set_wear after transforming an item; B90 wires only the target W_RING arm and the focused source/runtime test calls poly_obj directly. The outer potion.c:potion_dip JavaScript path is still unported, so the test does not claim that production entry path. mhitu.c:doseduce is another C caller, but its JavaScript entry remains blocked by the existing AD_SSEX/seduction gaps; no completion is claimed for those callers. The existing see_monsters warning-artifact count-change limitation and the discarded display.c:set_mimic_blocking call remain precisely bounded gaps; B90 claims no display.c completion. Current implemented planning callers cannot replace a worn ring with a levitation ring: bhito polymorph production callers provide floor objects; carried stone-to-flesh rings become MEAT_RING; polymorph-trap callers convert footwear. The bhito impossible-location diagnostic continues and is not an early refusal. Random worn-ring replacement through potion_dip and seduction doseduce remain unimplemented outer paths. Before enabling those planning paths, route float_up output through the proper planning environment: planningState currently shares nhDisplay, and ttyPlineCore guards only live vision/flush, not direct display writes. No general float_up planning-safety claim is made.",
+        "entryPoints": []
+      }
     }
   ]
 }
