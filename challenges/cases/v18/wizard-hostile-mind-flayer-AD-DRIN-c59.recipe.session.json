@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first C59 source probe for mhitu.c:hitmu() -> uhitm.c:mhitm_adtyping() -> mhitm_ad_drin(): create one hostile adjacent mind flayer with the debug genesis command, then spend one hero turn waiting for its tentacle attacks. The intended first reachable source behavior is the monster-to-hero AD_DRIN arm; setup misses remain valid provenance and will not be relabeled as helper evidence.",
+  "segments": [
+    {
+      "seed": 603101117,
+      "datetime": "21110312131600",
+      "nethackrc": "OPTIONS=name:SynapseProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile mind flayer\n."
+    }
+  ]
+}

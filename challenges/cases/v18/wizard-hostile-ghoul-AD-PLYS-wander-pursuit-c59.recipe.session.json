@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation candidate for monsters.h PM_GHOUL's first AT_CLAW/AD_PLYS attack through mhitu.c:hitmu and uhitm.c:mhitm_ad_plys. The earlier four-wait ghoul recipe created the ghoul next to the hero but its recorded attacks were fox AD_PHYS only. Ghoul is M2_WANDER; monmove.c:monmove can spend a nearby turn moving instead of attacking on the is_wanderer && !rn2(4) arm. This separately frozen seed and ten elapsed waits provide additional source-based attack opportunities; !safe_wait ensures periods advance turns. Preserve an actual miss if the ghoul does not attack. No JavaScript result informed the inputs.",
+  "segments": [
+    {
+      "seed": 603101138,
+      "datetime": "21110514230000",
+      "nethackrc": "OPTIONS=name:ParalysisProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile ghoul\n.........."
+    }
+  ]
+}

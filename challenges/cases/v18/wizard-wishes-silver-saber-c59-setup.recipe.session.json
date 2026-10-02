@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C59 source-led setup probe for uhitm.c:hmon_hitmon_msg_silver. A fresh debug Wizard uses #wizgenesis to create a vampire, wishes an independently chosen +5 silver saber, then inspects the C inventory before freezing any attack continuation.",
+  "segments": [
+    {
+      "seed": 319864207,
+      "datetime": "20510405131500",
+      "nethackrc": "OPTIONS=name:V18Silver,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!debug_mongen\n",
+      "moves": "#wizgenesis\nvampire\n#wizwish\n+5 silver saber\ni"
+    }
+  ]
+}

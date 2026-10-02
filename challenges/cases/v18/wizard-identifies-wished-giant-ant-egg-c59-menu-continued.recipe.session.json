@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation frozen after the previous record showed the sole giant-ant egg selected in #wizidentify but not yet submitted. The final newline presses Enter once to commit that observed selection; no JavaScript result informed this continuation.",
+  "segments": [
+    {
+      "seed": 701239845,
+      "datetime": "20470718130900",
+      "nethackrc": "OPTIONS=name:C59Egg,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017egg of giant ant\n#wizidentify\n_\n"
+    }
+  ]
+}

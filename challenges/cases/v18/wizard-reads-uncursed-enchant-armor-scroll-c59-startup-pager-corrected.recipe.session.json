@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first correction for wizard-reads-uncursed-enchant-armor-scroll-c59. Its previous frozen input ended on the startup welcome --More-- before the wizard wish; this adds one leading space to acknowledge that exact C-observed pager. The remaining wish and selector are unchanged and are still C-validated before JS comparison.",
+  "segments": [
+    {
+      "seed": 177733751,
+      "datetime": "21110309141200",
+      "nethackrc": "OPTIONS=name:C59Armor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of enchant armor\nrp",
+      "recorderIsDst": true
+    }
+  ]
+}

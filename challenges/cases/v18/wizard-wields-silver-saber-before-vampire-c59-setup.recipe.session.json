@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first setup probe frozen before any JavaScript comparison. This deliberately wishes and wields silver before creating the hostile vampire, unlike the earlier vampire-fog/werewolf-bite attempts. C uhitm.c hitum sets hmd.silvermsg when a silver weapon strikes a silver-hating monster, then calls hmon_hitmon_msg_silver after the hit message; C wizcmds.c:wiz_genesis returns ECMD_OK without spending a monster turn. This setup ends at inventory display so C determines the actual saber slot before the attack continuation is frozen.",
+  "segments": [
+    {
+      "seed": 604190733,
+      "datetime": "21100620123000",
+      "nethackrc": "OPTIONS=name:V18SilverFirst,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nuncursed silver saber\ni",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-distinct candidate for the monster-to-hero paralysis-claw arm: monsters.h defines a ghoul first attack as AT_CLAW/AD_PLYS 1d2, then a physical claw; mhitu.c:hitmu dispatches the attack through uhitm.c:mhitm_adtyping to mhitm_ad_plys. The prior v1-v17 manifest search found no ghoul or AD_PLYS attack case; the v12 thrown-paralysis-potion miss is dothrow.c and does not exercise this monster attack. Four waits after source-created hostile ghoul allow it to close and provide more than one attack opportunity if needed. Inputs frozen before any JavaScript comparison; C must establish whether the AD_PLYS attack is actually reached.",
+  "segments": [
+    {
+      "seed": 603101121,
+      "datetime": "21110513153000",
+      "nethackrc": "OPTIONS=name:ParalysisProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile ghoul\n...."
+    }
+  ]
+}

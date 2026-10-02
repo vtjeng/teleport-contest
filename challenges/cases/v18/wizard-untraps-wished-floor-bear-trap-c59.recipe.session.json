@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first v18 candidate for trap.c:dountrap -> untrap -> disarm_holdingtrap. The debug Wizard wishes `trapped bear trap`, using objnam.c:readobjnam_postparse1 -> wizterrainwish -> maketrap to create a visible floor bear trap at the hero square without triggering it. Then #untrap targets the current square. Seed/date/character were independently chosen; C will confirm the exact command and disarm outcome before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 371924568,
+      "datetime": "20351022154000",
+      "nethackrc": "OPTIONS=name:C59Disarm,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "n\u0017trapped bear trap\n#untrap\n."
+    }
+  ]
+}

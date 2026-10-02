@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-distinct monster-gaze candidate. monsters.h defines the pyrolisk AT_GAZE/AD_FIRE attack; mhitu.c:mattacku dispatches it to mhitu.c:gazemu. This valid-time variant preserves the previously frozen seed, role, options, and four-wait action sequence, while replacing the malformed hour-30 datetime rejected by diff-fresh with 21110514230000 (2111-05-14 23:00:00). The clock correction is based only on the loader's YYYYMMDDHHMMSS validity rule, before any JS comparison; retain the original C-only observation and rejected comparison separately.",
+  "segments": [
+    {
+      "seed": 603101131,
+      "datetime": "21110514230000",
+      "nethackrc": "OPTIONS=name:GazeProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile pyrolisk\n...."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C59 C-only pager continuation for zap.c:probe_monster. The independently recorded prefix ends after C mstatusline reports the orc and presents --More-- at zero-based step 62. This separate frozen recipe adds exactly one space after `zok`, acknowledging that C-observed status pager so C can continue into probe_objchain and display_minventory. It retains the same independently chosen seed/date/setup, without JS feedback.",
+  "segments": [
+    {
+      "seed": 719602261,
+      "datetime": "21120114162700",
+      "nethackrc": "OPTIONS=name:V18Probe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\nhostile orc\n#wizwish\nuncursed wand of probing\nzok "
+    }
+  ]
+}

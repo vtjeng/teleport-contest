@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C59 independent C-first route for apply.c:use_camera and zap.c:do_blinding_ray/flash_hits_mon. It keeps the exact seed, datetime, hostile-orc wish and +5-camera wish from the frozen setup observation; that C run showed camera in slot o and the orc one square northeast. The inventory-display key is omitted because it made no game-state change. The added source-observed inputs apply the camera, select o, and aim u; freeze precedes JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 703119247,
+      "datetime": "21071201131400",
+      "nethackrc": "OPTIONS=name:V18Camera,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\nhostile orc\n\u0017uncursed +5 camera\naou"
+    }
+  ]
+}

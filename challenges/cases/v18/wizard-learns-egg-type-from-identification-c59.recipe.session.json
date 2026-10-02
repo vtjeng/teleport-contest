@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first consequence check for timeout.c:learn_egg_type. Wish and identify a blessed hatchable giant-ant egg through #wizidentify, then wish a second uncursed giant-ant egg. The C helper sets MV_KNOWS_EGG; a different BUC state keeps the second egg distinct from the identified object, so its inventory name tests the global learned-type flag. This input was frozen from C source before recording or any JS comparison.",
+  "segments": [
+    {
+      "seed": 564891237,
+      "datetime": "20510703145200",
+      "nethackrc": "OPTIONS=name:C59Egg2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017blessed egg of giant ant\n#wizidentify\n_\n\u0017uncursed egg of giant ant\n"
+    }
+  ]
+}

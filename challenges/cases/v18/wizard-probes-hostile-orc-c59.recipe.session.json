@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C59 independently frozen C-first route for the planned zap.c:probe_monster and local probe_objchain. It reuses only the original C-only setup recipe’s independently chosen seed/date and confirms the startup More correction, then follows C-observed results: the hostile orc appears due north and the wished probing wand is the item in slot o (displayed by its random uranium appearance). `zok` therefore selects that C-created wand and aims north at that C-observed orc. The source caller uses a non-damaging probe ray; no JS comparison informed this route.",
+  "segments": [
+    {
+      "seed": 719602261,
+      "datetime": "21120114162700",
+      "nethackrc": "OPTIONS=name:V18Probe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizgenesis\nhostile orc\n#wizwish\nuncursed wand of probing\nzok"
+    }
+  ]
+}

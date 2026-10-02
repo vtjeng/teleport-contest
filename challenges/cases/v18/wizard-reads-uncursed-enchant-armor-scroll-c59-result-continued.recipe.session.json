@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-only result continuation for the frozen selector-j armor enchant route. The exact preceding C recording ended at --More-- after scroll consumption and the rnd(2) armor enchantment draw. This adds one space to acknowledge that C-observed page and reveal the result; no JavaScript result informed it.",
+  "segments": [
+    {
+      "seed": 177733751,
+      "datetime": "21110309141200",
+      "nethackrc": "OPTIONS=name:C59Armor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of enchant armor\n rj ",
+      "recorderIsDst": true
+    }
+  ]
+}
