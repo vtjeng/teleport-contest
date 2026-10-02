@@ -143426,8 +143426,8 @@
           "name": "mhitm_ad_slee",
           "line": 3479,
           "endLine": 3525,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -143441,7 +143441,7 @@
           "endLine": 103,
           "declared": true,
           "sourceFile": "uhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "sleep_monst",
@@ -143449,7 +143449,7 @@
           "endLine": 1249,
           "declared": true,
           "sourceFile": "mhitm.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "magic_negation",
@@ -143457,7 +143457,7 @@
           "endLine": 1143,
           "declared": true,
           "sourceFile": "mhitu.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "defended",
@@ -143465,15 +143465,15 @@
           "endLine": 128,
           "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "Resists_Elem",
           "line": 129,
           "endLine": 200,
-          "declared": false,
+          "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "resists_drli",
@@ -143481,7 +143481,7 @@
           "endLine": 214,
           "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "resists_magm",
@@ -143489,7 +143489,7 @@
           "endLine": 247,
           "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "resists_blnd",
@@ -143497,7 +143497,7 @@
           "endLine": 277,
           "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "resists_blnd_by_arti",
@@ -143505,7 +143505,7 @@
           "endLine": 304,
           "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "dmgtype_fromattack",
@@ -143513,7 +143513,7 @@
           "endLine": 711,
           "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "dmgtype",
@@ -143521,7 +143521,7 @@
           "endLine": 719,
           "declared": true,
           "sourceFile": "mondata.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "which_armor",
@@ -143529,7 +143529,7 @@
           "endLine": 1039,
           "declared": true,
           "sourceFile": "worn.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "defends",
@@ -143537,7 +143537,7 @@
           "endLine": 686,
           "declared": true,
           "sourceFile": "artifact.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "defends_when_carried",
@@ -143545,7 +143545,7 @@
           "endLine": 697,
           "declared": true,
           "sourceFile": "artifact.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "protects",
@@ -143553,7 +143553,7 @@
           "endLine": 715,
           "declared": true,
           "sourceFile": "artifact.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "get_artifact",
@@ -143561,7 +143561,7 @@
           "endLine": 2836,
           "declared": true,
           "sourceFile": "artifact.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "isok",
@@ -143569,7 +143569,7 @@
           "endLine": 4333,
           "declared": true,
           "sourceFile": "cmd.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "is_pool",
@@ -143577,7 +143577,7 @@
           "endLine": 61,
           "declared": true,
           "sourceFile": "dbridge.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "is_moat",
@@ -143585,7 +143585,7 @@
           "endLine": 115,
           "declared": true,
           "sourceFile": "dbridge.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "on_level",
@@ -143593,7 +143593,7 @@
           "endLine": 1447,
           "declared": true,
           "sourceFile": "dungeon.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "tp_sensemon",
@@ -143601,15 +143601,15 @@
           "endLine": 172,
           "declared": true,
           "sourceFile": "display.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "sensemon",
           "line": 173,
           "endLine": 179,
-          "declared": false,
+          "declared": true,
           "sourceFile": "display.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "mon_visible",
@@ -143617,7 +143617,7 @@
           "endLine": 193,
           "declared": true,
           "sourceFile": "display.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "see_with_infrared",
@@ -143625,7 +143625,7 @@
           "endLine": 200,
           "declared": true,
           "sourceFile": "display.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "canseemon",
@@ -143633,7 +143633,7 @@
           "endLine": 207,
           "declared": true,
           "sourceFile": "display.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "worm_known",
@@ -143641,7 +143641,7 @@
           "endLine": 897,
           "declared": true,
           "sourceFile": "worm.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -143814,7 +143814,728 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_slee",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_slee",
+            "sourceReview": "Compared the complete uhitm.c:3478-3522 body. Hero-attacks-monster tests the sleeping flag, then magic cancellation, then rnd(10)/sleep_monst; successful sleep prints only when visible and runs slept_monst. Monster-attacks-hero awaits hitmsg before gm.multi, rn2(5), and verbose magic-cancellation checks; it updates M_SEEN_SLEEP on resistance, otherwise clears it, calls fall_asleep(-rnd(10), TRUE), and prints the blindness-sensitive message. Monster-versus-monster preserves the two sequential sleep_monst(mdef, rnd(10), -1) calls. A successful first call freezes the defender, so the second returns false; a failed first call short-circuits before the second draw. The later message, STRAT_WAITFORU clear, and slept_monst body are source-present but unreachable for the ordinary live movable defender covered here. No unsupported return substitutes remain in this function.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:4818, AD_SLEE dispatcher arm; active C routes are hero attack, monster attack on hero and monster attack on monster"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-slee.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-slee-monster-hero-tourist-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-hero-monster-pauper-lichen-first-attack.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-sleep-call.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-kobold-sleep-call-variation.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-homunculus-ad-slee-c59",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 33,
+                "source": "mattacku -> hitmu -> uhitm.c:mhitm_adtyping(AD_SLEE) -> uhitm.c:mhitm_ad_slee; the C effect gate draws rn2(5)=3 and returns without sleep"
+              }
+            ],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "mhitm_mgc_atk_negated",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_mgc_atk_negated",
+            "sourceReview": "Compared complete uhitm.c:75-99. An already-cancelled nonhero attacker returns TRUE before calling magic_negation or drawing RNG. Otherwise C gets magic_negation, consumes exactly rn2(10), compares against 3*armpro, then selects the optional visible cancellation message without changing the result or draw order.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_slee",
+                "source": "uhitm.c:3486, 3496, 3500; selected AD_SLEE helper consumes the boolean in the hero and monster-on-hero directions"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-slee.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-slee-monster-hero-tourist-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-hero-monster-pauper-lichen-first-attack.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-sleep-call.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-kobold-sleep-call-variation.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "sleep_monst",
+            "implementation": "js/mhitm.js",
+            "symbol": "sleep_monst",
+            "sourceReview": "Compared complete mhitm.c:1223-1246. With how >= 0, C first reveals an eligible awake/unfrozen object or furniture mimic. It then short-circuits resists_sleep/Resists_Elem(SLEEP_RES), defended(AD_SLEE), and resist(mon, how, 0, NOTELL) only for nonnegative how. Resistance discards shieldeff output and returns FALSE. An unresisted movable monster discards finish_meating, adds prior mfrozen to amount, and updates mcanmove/mfrozen or msleeping before returning TRUE; already immobile defenders return FALSE.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_slee",
+                "source": "uhitm.c:3487, 3510-3511; production AD_SLEE arms consume the result; B89 passes how=-1 so zap.c:resist is not invoked here"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-slee-hero-monster-pauper-lichen-first-attack.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-sleep-call.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-kobold-sleep-call-variation.session.json"
+            ],
+            "sourceFile": "mhitm.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "magic_negation",
+            "implementation": "js/mhitu.js",
+            "symbol": "magic_negation",
+            "sourceReview": "Compared complete mhitu.c:1089-1137. Preserve hero versus monster initial protection, high-cleric protection, armor/accessory/weapon mask traversal, max armor cancellation, amulet overwrite semantics, protects() short-circuit, and the final source return. The helper makes no RNG/output/state mutation.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_mgc_atk_negated",
+                "source": "uhitm.c:86 calls mhitu.c:magic_negation(mdef); JavaScript awaits the same imported result"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-slee-monster-hero-tourist-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-hero-monster-pauper-lichen-first-attack.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "defended",
+            "implementation": "js/mondata.js",
+            "symbol": "defended",
+            "sourceReview": "Compared complete mondata.c:91-124. Keep the wielded artifact check, monsndx adult-dragon classification, source-ordered synthetic dragon-scales object, ordinary hero/monster suit selection through which_armor, and the final dragon-armor defense lookup. C reads state and returns a Boolean without RNG, output or mutation.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "sleep_monst",
+                "source": "mhitm.c:1231 calls defended(mon, AD_SLEE) after resists_sleep"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-slee-monster-hero-tourist-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-hero-monster-pauper-lichen-first-attack.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-sleep-call.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-kobold-sleep-call-variation.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "Resists_Elem",
+            "implementation": "js/mondata.js",
+            "symbol": "Resists_Elem",
+            "sourceReview": "Compared complete mondata.c:129-197. Implement the special-property dispatch and full FIRE_RES through STONE_RES element range, including hero intrinsic/extrinsic state, monster resistance bits, wielded artifact defense, ordered inventory/property checks, alchemy-smock exclusion, and carried-artifact defense. The C impossible() diagnostic for unsupported property is discarded with note_unported(\"pline.c impossible\"); the returned FALSE is preserved. JavaScript uses this canonical Resists_Elem owner; the obsolete monster_resists_element alias was removed.",
+            "callers": [
+              {
+                "path": "js/mhitm.js",
+                "symbol": "sleep_monst",
+                "source": "mhitm.c:1231 through monst.h:resists_sleep -> Resists_Elem(mon, SLEEP_RES)"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mondata.test.mjs",
+              "scripts/mondata-magic-resistance.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-slee-monster-hero-tourist-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-hero-monster-pauper-lichen-first-attack.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-sleep-call.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-kobold-sleep-call-variation.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "resists_drli",
+            "implementation": "js/mondata.js",
+            "symbol": "resists_drli",
+            "sourceReview": "Compared complete mondata.c:201-211. Preserve species drain resistance, the human-form hero u.ulycn exception, vampire-shifter handling, then defended(AD_DRLI). The function reads state only and has no RNG, output or mutation.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "Resists_Elem",
+                "source": "mondata.c:162 delegates DRAIN_RES to resists_drli"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata.test.mjs",
+              "scripts/mondata-magic-resistance.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "resists_magm",
+            "implementation": "js/mondata.js",
+            "symbol": "resists_magm",
+            "sourceReview": "Compared complete mondata.c:215-244. Preserve innate MAGM/RBRE and baby-gray-dragon predicates, wielded artifact defenses, and distinct hero/monster inventory masks including the hero offhand only while twoweap is active; carried artifact protection remains ordered. The function has no RNG, output or state mutation.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "Resists_Elem",
+                "source": "mondata.c:160 delegates ANTIMAGIC to resists_magm"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata.test.mjs",
+              "scripts/mondata-magic-resistance.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "resists_blnd",
+            "implementation": "js/mondata.js",
+            "symbol": "resists_blnd",
+            "sourceReview": "Compared complete mondata.c:248-272. Preserve hero Blind/Unaware state; monster blindness, cansee, eyes, and sleeping state; AT_EXPL/AT_GAZE species defenses; carried artifact checks; and the final property-consistency diagnostic. C discards impossible() and returns TRUE, so JS records note_unported(\"pline.c impossible\") but keeps TRUE.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "Resists_Elem",
+                "source": "mondata.c:164 delegates BLND_RES to resists_blnd"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "explum",
+                "source": "uhitm.c:4897 checks resists_blnd(mdef) for AD_BLND after the hero explosive attack"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mondata.test.mjs",
+              "scripts/mondata-magic-resistance.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hmonas-explum-yellow-light-no-drop-independent-b64.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "resists_blnd_by_arti",
+            "implementation": "js/mondata.js",
+            "symbol": "resists_blnd_by_arti",
+            "sourceReview": "Compared complete mondata.c:278-298. Check hero wielded defense first, then the exact monster carried/worn artifact path using defends_when_carried(AD_BLND); no RNG, output or state mutation occurs.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "resists_blnd",
+                "source": "mondata.c:264 invokes the artifact-defense subquery"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata.test.mjs",
+              "scripts/mondata-magic-resistance.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/hmonas-explum-yellow-light-no-drop-independent-b64.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "dmgtype_fromattack",
+            "implementation": "js/mondata.js",
+            "symbol": "dmgtype_fromattack",
+            "sourceReview": "Compared complete mondata.c:700-708. Scan exactly NATTK attack entries in source order, return the matched attack object or NULL, and honor AT_ANY without inventing an attack. No state, output or RNG effects.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "dmgtype",
+                "source": "mondata.c:714 delegates the wildcard query"
+              },
+              {
+                "path": "js/mondata.js",
+                "symbol": "resists_blnd",
+                "source": "mondata.c:260-261 queries AT_EXPL and AT_GAZE"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "dmgtype",
+            "implementation": "js/mondata.js",
+            "symbol": "dmgtype",
+            "sourceReview": "Compared complete mondata.c:712-715. Return the boolean result of dmgtype_fromattack(ptr, dtyp, AT_ANY); preserve the source NULL/non-NULL semantics. No state, output or RNG effects.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "resists_magm",
+                "source": "mondata.c:223-224 uses dmgtype for AD_MAGM and AD_RBRE"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "which_armor",
+            "implementation": "js/worn.js",
+            "symbol": "which_armor",
+            "sourceReview": "Compared complete worn.c:1006-1036. Preserve hero’s exact seven uarm slot choices and monster’s first minvent object matching the requested mask. For an invalid hero mask, C discards impossible() then returns NULL; JS calls note_unported(\"pline.c impossible\") and returns null. The valid production masks are read-only.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "defended",
+                "source": "mondata.c:117 selects which_armor(mon, W_ARM) for nonhero targets"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/worn.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-slee-monster-hero-tourist-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-hero-monster-pauper-lichen-first-attack.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-sleep-call.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-monster-pair-conflict-kobold-sleep-call-variation.session.json"
+            ],
+            "sourceFile": "worn.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "defends",
+            "implementation": "js/artifacts.js",
+            "symbol": "defends",
+            "sourceReview": "Compared complete artifact.c:636-683. Preserve artifact defense-type lookup and the dragon-armor defense table; no mutation, output or RNG.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "defended",
+                "source": "mondata.c:99,120 checks wielded artifact/dragon armor"
+              },
+              {
+                "path": "js/mondata.js",
+                "symbol": "Resists_Elem",
+                "source": "mondata.c:175 checks wielded artifact defense"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/artifacts.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "artifact.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "defends_when_carried",
+            "implementation": "js/artifacts.js",
+            "symbol": "defends_when_carried",
+            "sourceReview": "Compared complete artifact.c:687-694. Preserve the carried artifact cspfx defense lookup and false sentinel behavior; no mutation, output or RNG.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "Resists_Elem",
+                "source": "mondata.c:194 checks carried artifact defense"
+              },
+              {
+                "path": "js/mondata.js",
+                "symbol": "resists_magm",
+                "source": "mondata.c:241 checks carried magic resistance"
+              },
+              {
+                "path": "js/mondata.js",
+                "symbol": "resists_blnd_by_arti",
+                "source": "mondata.c:288 checks carried blindness defense"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/artifacts.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "artifact.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "protects",
+            "implementation": "js/artifacts.js",
+            "symbol": "protects",
+            "sourceReview": "Compared complete artifact.c:698-709. Preserve artifact property lookup and SPFX_PROTECT behavior using the supplied being_worn value; no mutation, output or RNG.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "magic_negation",
+                "source": "mhitu.c:1117 calls protects for each eligible inventory object"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/artifacts.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-slee-monster-hero-tourist-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-slee-hero-monster-pauper-lichen-first-attack.session.json"
+            ],
+            "sourceFile": "artifact.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "get_artifact",
+            "implementation": "js/artifacts.js",
+            "symbol": "get_artifact",
+            "sourceReview": "Compared complete artifact.c:2821-2833, the real function (not the commented historical macro). Return the indexed artilist row when in range and the ART_NONARTIFACT sentinel otherwise, including null and invalid indices. No mutation, output or RNG.",
+            "callers": [
+              {
+                "path": "js/artifacts.js",
+                "symbol": "defends",
+                "source": "artifact.c:642 uses get_artifact for the wielded object"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "defends_when_carried",
+                "source": "artifact.c:691 uses get_artifact for a carried object"
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "protects",
+                "source": "artifact.c:704 uses get_artifact for an object"
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/artifacts.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "artifact.c",
+            "synthetic": [],
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "isok",
+            "implementation": "js/cmd_isok.js",
+            "symbol": "isok",
+            "sourceReview": "Compared the whole cmd.c:4326-4330 body: x is accepted from 1 through COLNO-1 and y from 0 through ROWNO-1, inclusive. The function reads coordinates and constants and returns the bounds predicate without RNG, output or state mutation.",
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "is_pool",
+                "source": "dbridge.c:50 rejects invalid coordinates through cmd.c:isok before reading levl."
+              },
+              {
+                "path": "js/dbridge.js",
+                "symbol": "is_moat",
+                "source": "dbridge.c:104 rejects invalid coordinates through cmd.c:isok before reading levl."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "adj_pit_checks",
+                "source": "dig.c:1772 rejects out-of-range coordinates through isok before accessing levl."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/cmd.test.mjs",
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "cmd.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "is_pool",
+            "implementation": "js/dbridge.js",
+            "symbol": "is_pool",
+            "sourceReview": "Compared the whole dbridge.c:46-59 body. C rejects non-isok coordinates, reads levl.typ, and returns true for POOL, MOAT, WATER or is_moat(x,y). The explicit MOAT test remains because Juiblex levels use MOAT terrain while is_moat is false there.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "sensemonCore",
+                "source": "display.h:_sensemon (55-58) consumes is_pool for the underwater sensing gate."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "fillholetyp",
+                "source": "dig.c:fillholetyp (614-623) counts is_pool after is_moat to preserve the source branch order."
+              },
+              {
+                "path": "js/dungeon.js",
+                "symbol": "surface",
+                "source": "dungeon.c:1749-1788 calls is_pool at 1763 while classifying the surface terrain."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dungeon.test.mjs",
+              "scripts/display-visibility.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "dbridge.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "is_moat",
+            "implementation": "js/dbridge.js",
+            "symbol": "is_moat",
+            "sourceReview": "Compared the whole dbridge.c:100-113 body. C bounds-checks first, reads the terrain type, then returns true only off Juiblex for MOAT or an open DRAWBRIDGE_UP whose DB_UNDER bits equal DB_MOAT. JavaScript reads drawbridgemask through the single location.flags owner and preserves Is_juiblex_level’s Lassigned gate before on_level.",
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "is_pool",
+                "source": "dbridge.c:is_pool (56) calls is_moat after the direct terrain cases."
+              },
+              {
+                "path": "js/dig.js",
+                "symbol": "fillholetyp",
+                "source": "dig.c:fillholetyp (616-618) tests is_moat before is_pool."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "dbridge.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "on_level",
+            "implementation": "js/dungeon.js",
+            "symbol": "on_level",
+            "sourceReview": "Compared the whole dungeon.c:1439-1443 body: C compares dnum and dlevel for equality and performs no output, RNG or mutation. Is_juiblex_level first applies Lassigned through Lcheck; that caller gate is preserved in dbridge.js:is_moat rather than folded into on_level.",
+            "callers": [
+              {
+                "path": "js/dbridge.js",
+                "symbol": "is_moat",
+                "source": "dbridge.c:107 uses Is_juiblex_level, which expands Lcheck to on_level only when the Juiblex level is assigned."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/dungeon.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "dungeon.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "tp_sensemon",
+            "implementation": "js/display.js",
+            "symbol": "tp_sensemon",
+            "sourceReview": "Compared the complete display.c:166-170 wrapper and display.h:_tp_sensemon (41-50). The C macro rejects mindless monsters first, then accepts blind telepathy or unblind telepathy within mdistu <= unblind_telepat_range. mdistu expands through distu to the existing squared-Euclidean dist2 helper; the JavaScript helper reads state only.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "sensemonCore",
+                "source": "display.h:_sensemon (58) consumes tp_sensemon after swallowed/underwater and Detect_monsters gates."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "attack_checks",
+                "source": "uhitm.c direct tp_sensemon visibility branches are mechanically wired through js/display.js."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/display-visibility.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "display.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "sensemon",
+            "implementation": "js/display.js",
+            "symbol": "sensemon",
+            "sourceReview": "Compared the complete display.c:172-177 wrapper and display.h:_sensemon (55-58). C short-circuits swallowed state, then Underwater requires mdistu <= 2 and is_pool, then Detect_monsters, tp_sensemon, and MATCH_WARN_OF_MON in order. The JavaScript warningMatches helper reflects the source macro; the expression reads state only.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "canspotmon",
+                "source": "display.h:canspotmon (129) combines canseemon and sensemon."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "newsym",
+                "source": "display.c:1013-1016 and 1046-1054 distinguish sensed visibility from Detect_monsters-only glyphs."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "attack_checks",
+                "source": "uhitm.c:258 and 303 consume sensemon for a disguised or hidden target."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "shade_miss",
+                "source": "uhitm.c:2031 uses sensemon in the visible-target check."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/display-visibility.test.mjs",
+              "scripts/display-symbols.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "display.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "mon_visible",
+            "implementation": "js/display.js",
+            "symbol": "mon_visible",
+            "sourceReview": "Compared the complete display.c:186-191 wrapper and the active display.h:_mon_visible definition at 91-96. The selected build branch returns true when the monster is not invisible or See_invisible is active, and the monster is not mundetected. The #if 0 buried-state variant is not active in this build.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "canseemon",
+                "source": "display.h:_canseemon (117-120) checks location visibility first and then consumes mon_visible."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:135 and 1627 use mon_visible directly; JavaScript calls the canonical display.js helper."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/display-visibility.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "display.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "see_with_infrared",
+            "implementation": "js/display.js",
+            "symbol": "see_with_infrared",
+            "sourceReview": "Compared the complete display.c:193-198 wrapper and display.h:_see_with_infrared (106-108). C requires an unblinded hero, Infravision, an infravisible monster and couldsee at its location; callers separately combine this with mon_visible. No state is changed.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "canseemon",
+                "source": "display.h:_canseemon (117-120) consumes see_with_infrared in the non-worm location branch."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "newsym",
+                "source": "display.c:1047-1050 tests see_with_infrared and then mon_visible in the out-of-sight branch."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/display-visibility.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "display.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "canseemon",
+            "implementation": "js/display.js",
+            "symbol": "canseemon",
+            "sourceReview": "Compared the complete display.c:200-205 wrapper and display.h:_canseemon (117-120). C selects worm_known for worm heads; otherwise it accepts cansee or see_with_infrared, then always consumes mon_visible. The JavaScript implementation keeps that order and does not mutate state.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_mgc_atk_negated",
+                "source": "uhitm.c:75-99 uses canseemon only to select the verbose visible-monster message after the returned cancellation decision."
+              },
+              {
+                "path": "js/display.js",
+                "symbol": "canspotmon",
+                "source": "display.h:canspotmon (129) checks canseemon before sensemon."
+              },
+              {
+                "path": "js/were.js",
+                "symbol": "were_summon",
+                "source": "were.c:182 uses canseemon after makemon to count visible summons."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/display-visibility.test.mjs",
+              "scripts/startup-a11y.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "display.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          },
+          {
+            "name": "worm_known",
+            "implementation": "js/worm.js",
+            "symbol": "worm_known",
+            "sourceReview": "Compared the whole worm.c:883-893 body. C walks wtails[wormno], tests each segment coordinate with cansee, and returns on the first visible segment; it has no RNG/output/state mutation. JavaScript uses the canonical level.worms[wormno].segments array and x/y coordinate fields used by all JS segment producers, with no wx/wy fallback. Invisibility and telepathy remain caller checks as C documents.",
+            "callers": [
+              {
+                "path": "js/display.js",
+                "symbol": "canseemon",
+                "source": "display.h:_canseemon (118-119) delegates worm-head location visibility to worm_known."
+              }
+            ],
+            "pure": true,
+            "tests": [
+              "scripts/whatis-command.test.mjs",
+              "scripts/display-visibility.test.mjs"
+            ],
+            "recordings": [],
+            "sourceFile": "worm.c",
+            "checkedAt": "95a380f8ba60a3caa443e4362aedd997d4a57e16"
+          }
+        ],
+        "entryPointReview": "Helper-only primary range: entryPoints is empty. The active production AD_SLEE dispatcher is uhitm.c:mhitm_adtyping (JS js/uhitm.js); it is reached in all three C directions. Monster-to-hero evidence is the independent Tourist route, strictly matched through all 43 screens/cursors and 2894 RNG calls. Hero-to-monster evidence is the independent Pauper-versus-lichen route, strictly matched through all 51 screens/cursors and 2664 RNG calls. Monster-to-monster evidence is the independent Conflict pair route, strictly matched through 122 screens/cursors and 3145 RNG calls; the second sleep_monst call returns false because the first successful call freezes the defender. The Kobold variation independently matches 111 screens/cursors, 5265 RNG calls, and two frames. The admitted v18 case only demonstrates the false rn2(5) gate at segment 0 step 33, not a positive sleep effect. The yellow-light recording exercises the source resists_blnd caller. Selected v18 continuation blocked outside this source range by the later armed mattackm AT_WEAP branch; its preserved diagnostic is not counted as AD_SLEE evidence. The conditional zap.c:resist call is not reached by these sleep_monst invocations because B89 passes how=-1; its existing whole-function completion is reused from port-zap-resist-lethal-synthetic-v5-20260926, not claimed as a B89 unit. Supporting cmd.c/dbridge.c/display.c/dungeon.c/worm.c predicate units are pure helpers, so the helper-only entryPoints array remains empty. Their complete C ranges, migrated production caller links and source-pinned tests are recorded per function; active impure coverage remains the three AD_SLEE directions already listed.",
+        "entryPoints": []
+      }
     }
   ]
 }
