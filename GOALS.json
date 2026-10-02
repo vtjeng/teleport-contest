@@ -137088,8 +137088,8 @@
           "name": "peffect_object_detection",
           "line": 955,
           "endLine": 963,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -137267,7 +137267,55 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_object_detection",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_object_detection",
+            "sourceReview": "Compared the complete potion.c:peffect_object_detection definition (955-963): it calls object_detect(otmp, 0), returns 1 immediately when that helper reports nothing, otherwise exercises Wisdom with A_WIS and TRUE and returns 0. The JavaScript awaits and preserves the same 1/0 result, then awaits exercise(A_WIS, true) only on the found branch. potion.c:peffects (1371-1375) dispatches POT_OBJECT_DETECTION and SPE_DETECT_TREASURE through this helper and immediately returns 1 for the no-detection result; the JavaScript dispatcher has the same short-circuit and continues its ordinary tail only for result 0. object_detect's consumed return and exercise's state/RNG effect use their existing owners. The broader detect.c:browse_map operation remains a named note_unported boundary in js/detect.js outside this B83 scope; it did not prevent the selected synthetic route or either independent spell recording from matching fully. No downstream browse_map completion is claimed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects directly calls peffect_object_detection for POT_OBJECT_DETECTION and SPE_DETECT_TREASURE, then returns 1 when the helper reports no detection."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion calls peffects for quaffed potions; the cmd.c q command reaches this path through potion.c:dodrink."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects routes SPE_DETECT_TREASURE to peffects(pseudo); spell.c:dowizcast reaches spelleffects for the selected menu entry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/object-detection-wizcast-b83-independent.session.json",
+              "recordings/spell.c/object-detection-wizcast-elf-variation-b83-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-quaffs-object-detection-near-dagger",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c q command -> potion.c:dodrink -> potion.c:dopotion -> potion.c:peffects(POT_OBJECT_DETECTION) -> potion.c:peffect_object_detection"
+              }
+            ],
+            "checkedAt": "9b5551c1f14c74b6e7cc25d667527d3b1a88a61e"
+          }
+        ],
+        "entryPointReview": "This is a helper-only source range, so entryPoints is empty. The potion production route is cmd.c's q command -> potion.c:dodrink -> potion.c:dopotion -> potion.c:peffects(POT_OBJECT_DETECTION) -> peffect_object_detection; the admitted v16 case wizard-quaffs-object-detection-near-dagger strictly matches through segment 0 step 69 at current HEAD. The spell production route is spell.c:dowizcast -> spell.c:spelleffects(SPE_DETECT_TREASURE) -> potion.c:peffects -> peffect_object_detection; two independent C-first recordings (human Wizard and Elf Wizard) execute the helper at segment 0 step 12 and strictly match all screens, RNG calls and cursor positions. end.c:fuzzer_savelife also calls peffects, but its object types are POT_WATER and POT_RESTORE_ABILITY, so it cannot reach this helper. The pre-existing detect.c:browse_map note_unported remains a separate broader source boundary; these three cited runtime records match completely and no browse_map unit completion is claimed.",
+        "entryPoints": []
+      }
     }
   ]
 }
