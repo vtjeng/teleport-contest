@@ -138741,7 +138741,7 @@
     {
       "id": "port-mon-wield-item-v17-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete monster weapon wielding and wire existing callers",
       "cFile": "weapon.c",
       "sessions": [
@@ -138755,8 +138755,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "6f62f97576e59ad69ca3dae0c919680cf95b89e9",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mon_wield_item",
@@ -139077,6 +139080,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6f62f97576e59ad69ca3dae0c919680cf95b89e9",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
