@@ -1,5 +1,6 @@
 // Engraving commands, creation, and erosion.
-// C ref: engrave.c cant_reach_floor(), doengrave(), u_can_engrave(),
+// C ref: engrave.c cant_reach_floor(), doengrave(), disturb_grave(),
+// u_can_engrave(),
 // engrave(), make_engr_at(), wipe_engr_at(), wipeout_text(), and freehand().
 
 import {
@@ -26,6 +27,7 @@ import {
     LL_CONDUCT,
     MARK,
     N_ENGRAVE,
+    NO_MM_FLAGS,
     P_BASIC,
     P_RIDING,
     STUNNED,
@@ -65,9 +67,10 @@ import {
     M1_FLY,
     M1_HIDE,
     MZ_HUGE,
+    PM_GHOUL,
     S_MIMIC,
 } from './monsters.js';
-import { rn2, rnd } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -891,6 +894,42 @@ export async function engrave(state = game, env = {}) {
     return 0;
 }
 
+// C ref: engrave.c disturb_grave() (1707-1721). makemon()'s return is
+// discarded, but await its runtime completion so creation messages and state
+// effects precede the Wisdom exercise exactly as they do in C.
+export async function disturb_grave(x, y, state = game, env = {}) {
+    const maploc = tileAt(x, y, state);
+    if (!IS_GRAVE(maploc.typ)) {
+        note_unported('pline.c impossible');
+        return;
+    }
+    if (maploc.disturbed) {
+        note_unported('pline.c impossible');
+        return;
+    }
+
+    const ttyMessage = await import('./tty_message.js');
+    const message = env.message ?? ttyMessage.ttyPline;
+    const norepMessage = env.norepMessage
+        ?? (message === ttyMessage.ttyPline
+            ? ttyMessage.ttyNorep : message);
+    await message('You disturb the undead!', state);
+    maploc.disturbed = true;
+
+    const { makemon_runtime } = await import('./makemon_create.js');
+    // The command caller exposes only engraving's rn2/rnd pair. C's
+    // makemon() runtime needs the complete source RNG family, so retain those
+    // overrides and fill the remaining operations from the shared RNG module.
+    const random = { d, rn1, rn2, rnd, rne, rnz, ...(env.random ?? {}) };
+    await makemon_runtime(
+        state.mons[PM_GHOUL], x, y, NO_MM_FLAGS,
+        { ...env, state, message, norepMessage, random },
+    );
+    exercise_nonphysical(
+        A_WIS, false, state, env.random ?? { rn2 },
+    );
+}
+
 // C ref: engrave.c doengrave() (956-1264), including its local setup,
 // item effects, overwrite decision, text corruption order and occupation
 // installation. Unported calls whose C results are discarded are skipped at
@@ -955,7 +994,7 @@ export async function doengrave(state = game, env = {}) {
             return de.ret;
         }
         if (!tileAt(state.u.ux, state.u.uy, state).disturbed) {
-            note_unported('grave.c disturb_grave');
+            await disturb_grave(state.u.ux, state.u.uy, state, env);
             return de.ret;
         }
     }

@@ -125,6 +125,7 @@ import {
     PM_FOREST_CENTAUR,
     PM_GARTER_SNAKE,
     PM_GHOST,
+    PM_GHOUL,
     PM_GIANT_RAT,
     PM_GIANT_MUMMY,
     PM_GIANT_EEL,
@@ -297,6 +298,12 @@ import { loadMonsterPickupRecipe } from './run-monster-pickup.mjs';
 
 const MAKEMON_C_SOURCE = readFileSync(
     'nethack-c/upstream/src/makemon.c', 'utf8',
+);
+const ENGRAVE_C_SOURCE = readFileSync(
+    'nethack-c/upstream/src/engrave.c', 'utf8',
+);
+const DOKICK_C_SOURCE = readFileSync(
+    'nethack-c/upstream/src/dokick.c', 'utf8',
 );
 const WERE_C_SOURCE = readFileSync('nethack-c/upstream/src/were.c', 'utf8');
 const MAKEMON_JS_SOURCE = readFileSync('js/makemon_create.js', 'utf8');
@@ -2883,6 +2890,157 @@ test('makemon admits an explicit inventoryless hero-square species by source sha
         assert.equal(state.level.monsters[monster.mx][monster.my], monster);
     });
 
+test('makemon admits the explicit hero-square NO_MM_FLAGS pointer from C',
+    async () => {
+        const sourceStart = ENGRAVE_C_SOURCE.indexOf('\ndisturb_grave(');
+        const sourceEnd = ENGRAVE_C_SOURCE.indexOf('\nsee_engraving(', sourceStart);
+        const disturbSource = ENGRAVE_C_SOURCE.slice(sourceStart, sourceEnd);
+        assert.ok(sourceStart >= 0 && sourceEnd > sourceStart);
+        assert.match(
+            disturbSource,
+            /makemon\(&mons\[PM_GHOUL\],\s*x,\s*y,\s*NO_MM_FLAGS\)/u,
+        );
+        const orderedCalls = [
+            'You("disturb the undead!")',
+            'lev->disturbed = 1',
+            'makemon(&mons[PM_GHOUL], x, y, NO_MM_FLAGS)',
+            'exercise(A_WIS, FALSE)',
+        ].map((token) => disturbSource.indexOf(token));
+        assert.ok(orderedCalls.every((position) => position >= 0));
+        assert.ok(orderedCalls.every((position, index) => index === 0
+            || position > orderedCalls[index - 1]));
+
+        const ghoulStart = MONSTERS_C_SOURCE.indexOf('MON(NAM("ghoul")');
+        const ghoulEnd = MONSTERS_C_SOURCE.indexOf('MON(', ghoulStart + 4);
+        const ghoulSource = MONSTERS_C_SOURCE.slice(ghoulStart, ghoulEnd);
+        assert.ok(ghoulStart >= 0 && ghoulEnd > ghoulStart);
+        assert.match(ghoulSource, /S_ZOMBIE/u);
+        assert.match(ghoulSource, /AT_CLAW, AD_PLYS/u);
+
+        const cMakemonStart = MAKEMON_C_SOURCE.indexOf(
+            'makemon(', MAKEMON_C_SOURCE.indexOf('called with [x,y]'),
+        );
+        const cMakemonEnd = MAKEMON_C_SOURCE.indexOf('\nunmakemon(', cMakemonStart);
+        const cMakemon = MAKEMON_C_SOURCE.slice(
+            cMakemonStart, cMakemonEnd,
+        );
+        assert.ok(cMakemonStart >= 0 && cMakemonEnd > cMakemonStart);
+        assert.match(cMakemon, /else if \(byyou && !gi\.in_mklev\)[\s\S]*?enexto_core\(&cc, u\.ux, u\.uy, ptr, gpflags\)/u);
+        assert.match(cMakemon, /if \(is_armed\(ptr\)\)\s*m_initweap\(mtmp\)/u);
+        assert.match(cMakemon, /m_initinv\(mtmp\);[\s\S]*?m_dowear\(mtmp, TRUE\)/u);
+
+        const kickSource = /if \(IS_GRAVE\(gm\.maploc->typ\)\)[\s\S]*?disturb_grave\(x, y\);/u;
+        assert.match(DOKICK_C_SOURCE, kickSource);
+
+        assert.match(
+            cMakemon,
+            /if \(!isok\(x, y\)\)[\s\S]*?return \(struct monst \*\) 0;[\s\S]*?if \(MON_AT\(x, y\)\) \{\s*if \(!\(mmflags & MM_ADJACENTOK\)\s*\|\| !enexto_core\([\s\S]*?\)\)\s*return \(struct monst \*\) 0;/u,
+        );
+
+        const jsContract = /const explicitCoordinateNoFlagsRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === NO_MM_FLAGS/u;
+        assert.match(MAKEMON_JS_SOURCE, jsContract);
+        const runtimeCallStart = MAKEMON_JS_SOURCE.indexOf('const runtimeCall =');
+        const runtimeCallEnd = MAKEMON_JS_SOURCE.indexOf(';', runtimeCallStart);
+        assert.ok(runtimeCallStart >= 0 && runtimeCallEnd > runtimeCallStart);
+        const runtimeCallSource = MAKEMON_JS_SOURCE.slice(
+            runtimeCallStart, runtimeCallEnd,
+        );
+        assert.match(
+            runtimeCallSource,
+            /\(explicitCoordinateNoFlagsRuntimeCall && !specialRoomCall\)/u,
+        );
+
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        state.viz_array = Array.from(
+            { length: ROWNO },
+            () => new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE),
+        );
+        for (let dx = -1; dx <= 1; ++dx)
+            for (let dy = -1; dy <= 1; ++dy)
+                if (dx || dy)
+                    state.level.at(MON_X + dx, MON_Y + dy).typ = ROOM;
+        const random = recordingRandom();
+        const messages = [];
+        const monster = await makemon_runtime(
+            state.mons[PM_GHOUL], state.u.ux, state.u.uy, NO_MM_FLAGS, {
+                state,
+                random: random.random,
+                message: async (text) => messages.push(['message', text]),
+                norepMessage: async (text) => messages.push(['norep', text]),
+            },
+        );
+
+        assert.equal(monster.data, state.mons[PM_GHOUL]);
+        assert.equal(monster.mnum, PM_GHOUL);
+        assert.notDeepEqual([monster.mx, monster.my], [state.u.ux, state.u.uy]);
+        assert.equal(state.mvitals[PM_GHOUL].born, 1);
+        assert.equal(state.level.monsters[monster.mx][monster.my], monster);
+        assert.deepEqual(random.calls[0], {
+            kind: 'rn2', args: [8], result: 7,
+        });
+        assert.ok(messages.some(([kind, text]) => kind === 'norep'
+            && text.includes('ghoul')));
+    });
+
+test('makemon uses a non-hero explicit NO_MM_FLAGS coordinate directly',
+    async () => {
+        const state = initialLevelState();
+        state.in_mklev = false;
+        state.u.ux = MON_X;
+        state.u.uy = MON_Y;
+        // The C kick caller supplies a valid grave coordinate away from the
+        // hero; this pool tile pins that makemon skips goodpos/accessibility
+        // checks for a non-null explicit species instead of relocating it.
+        const x = MON_X + 4;
+        const y = MON_Y + 1;
+        state.level.at(x, y).typ = POOL;
+        const random = recordingRandom();
+        const monster = await makemon_runtime(
+            state.mons[PM_GHOUL], x, y, NO_MM_FLAGS, {
+                state,
+                random: random.random,
+                message: async () => {},
+                norepMessage: async () => {},
+            },
+        );
+
+        assert.equal(monster.data, state.mons[PM_GHOUL]);
+        assert.equal(monster.mnum, PM_GHOUL);
+        assert.deepEqual([monster.mx, monster.my], [x, y]);
+        assert.equal(state.level.monsters[x][y], monster);
+        // C's explicit non-hero path avoids the rn2(8) collect_coords shuffle
+        // used only by hero-square relocation. This fixture's constructor
+        // starts with rnd(2), so the first draw pins that direct path.
+        assert.deepEqual(random.calls[0], {
+            kind: 'rnd', args: [2], result: 1,
+        });
+
+        // C's subsequent MON_AT check rejects an already occupied explicit
+        // square when MM_ADJACENTOK is absent; placing a test monster one
+        // step east exercises that no-creation return before any RNG draw.
+        const occupiedX = x + 1;
+        const occupant = newMonster({
+            data: state.mons[PM_GHOUL], mnum: PM_GHOUL, m_id: 9001,
+            mhp: 1, mhpmax: 1,
+        });
+        place_monster(occupant, occupiedX, y, state);
+        const occupiedRandom = recordingRandom();
+        const rejected = await makemon_runtime(
+            state.mons[PM_GHOUL], occupiedX, y, NO_MM_FLAGS, {
+                state,
+                random: occupiedRandom.random,
+                message: async () => {},
+                norepMessage: async () => {},
+            },
+        );
+        assert.equal(rejected, null);
+        assert.deepEqual(occupiedRandom.calls, []);
+        assert.equal(state.level.monsters[occupiedX][y], occupant);
+    });
+
 test('makemon.c create_critters hero-square null-species call is admitted',
     async () => {
         const state = initialLevelState();
@@ -3017,7 +3175,7 @@ test('were_summon creates each source-selected species through runtime makemon',
         );
         assert.match(
             MAKEMON_JS_SOURCE,
-            /normalized\._wereSummon === true[\s\S]*?mmflags === NO_MM_FLAGS/u,
+            /const explicitCoordinateNoFlagsRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === NO_MM_FLAGS/u,
         );
         const cases = [
             [PM_WERERAT, PM_SEWER_RAT, [[3, 1]], 'rat'],
@@ -3110,13 +3268,12 @@ test('were_summon creates each source-selected species through runtime makemon',
             );
         }
 
-        // The marker is tied to the exact C call contract, not a general
-        // runtime-creation bypass: moving one square, changing flags, or
-        // omitting the marker must fail before any source random draw.
-        for (const [name, marker, x, flags] of [
-            ['away from hero', true, MON_X + 1, NO_MM_FLAGS],
-            ['wrong flags', true, MON_X, MM_NOCOUNTBIRTH],
-            ['missing marker', false, MON_X, NO_MM_FLAGS],
+        // were_summon uses the hero square in C, but makemon's generic
+        // explicit NO_MM_FLAGS runtime contract also admits other valid
+        // coordinates. This source caller's wrong-flag variant remains
+        // unsupported and must stop before construction.
+        for (const [name, x, flags] of [
+            ['wrong flags', MON_X, MM_NOCOUNTBIRTH],
         ]) {
             const state = initialLevelState();
             state.in_mklev = false;
@@ -3131,7 +3288,7 @@ test('were_summon creates each source-selected species through runtime makemon',
                         random: random.random,
                         message: async () => {},
                         norepMessage: async () => {},
-                        ...(marker ? { _wereSummon: true } : {}),
+                        _wereSummon: true,
                     },
                 ),
                 /outside mklev/u,

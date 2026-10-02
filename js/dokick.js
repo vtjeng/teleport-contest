@@ -17,6 +17,8 @@
 //
 // kick_object(), really_kick_object(), watchman_thief_arrest(), and
 // watchman_door_damage() remain unported.
+// kick_nondoor() includes the source-gated disturbance path for an
+// undisturbed grave; its headstone-destruction alternative remains refused.
 // Object shipping below ports drop_to(), ship_object(), otransit_msg(), and
 // down_gate(), shared by hero drops, throws, and monster missile settlement.
 
@@ -96,7 +98,7 @@ import {
     legs_in_no_shape,
     set_wounded_legs,
 } from './do.js';
-import { u_wipe_engr } from './engrave.js';
+import { disturb_grave, u_wipe_engr } from './engrave.js';
 import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level } from './dungeon.js';
 import { breaktest, hurtle } from './dothrow.js';
 import { game } from './gstate.js';
@@ -817,8 +819,21 @@ async function kick_nondoor(x, y, state) {
         );
     }
     if (IS_GRAVE(maploc.typ)) {
+        if (Levitation(state)) {
+            await kick_dumb(x, y, state);
+            return ECMD_TIME;
+        }
+        if (rn2(4)) {
+            await kick_ouch(x, y, '', state);
+            return ECMD_TIME;
+        }
+        if (!maploc.disturbed && !rn2(2)) {
+            await disturb_grave(x, y, state);
+            return ECMD_TIME;
+        }
         throw new UnsupportedKickError(
-            "kick_nondoor()'s headstone arm, which needs disturb_grave()",
+            "kick_nondoor()'s headstone-destruction arm, which changes "
+            + 'alignment and terrain and creates a rock',
         );
     }
     if (maploc.typ === IRONBARS) {

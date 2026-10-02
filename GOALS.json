@@ -139390,6 +139390,648 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-disturb-grave-callers-v17-20261002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Disturb graves through engraving and kicking",
+      "cFile": "engrave.c",
+      "sessions": [
+        "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it"
+      ],
+      "selectionReason": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it, investigation investigations/synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it.json, current evaluation challenges/evaluations/20261002083338-v17.json. Port whole engrave.c:disturb_grave and wire existing engraving and kick callers. Preserve message, disturbed bit, monster creation and Wisdom exercise order. Manifest challenges/manifests/v17.json SHA256 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada; recording challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json SHA256 48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f.",
+      "detail": "Compared engrave.c:disturb_grave in full: diagnostic guards, message, disturbed bit, awaited existing makemon runtime effects, then Wisdom exercise. Exact doengrave call and kick_nondoor Levitation/rn2(4)/undisturbed/rn2(2) order agree with C; headstone destruction remains an outer refusal. Generic supporting makemon admission is based on explicit non-null species, valid nonrandom coordinates, NO_MM_FLAGS and runtime mode; direct nonhero placement omits goodpos as C does, occupied destinations return null before RNG, hero-square requests retain enexto relocation. Existing constructor/runtime suffix remains source-derived and receives no whole makemon credit. Athame, wand and kick C records reach helper at steps28,34,14 and independent replay hashes match. Original direct-command check logs are preserved separately from five verified bounded supplements. Recheck against accepted main after A76 measurement and publication; root combined validation remains required.",
+      "openedAt": "cc3deafadc73eab0af4edbed7cd7315eae465350",
+      "openStanding": {
+        "sha": "e1beae945a8ac244f44cc8625af9d552b3372da8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "3465177a540639127708e67f2de7a7103b056b74",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "disturb_grave",
+          "line": 1707,
+          "endLine": 1723,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1707,
+        "to": 1723
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it": {
+          "session": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+          "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+          "evaluationPath": "challenges/evaluations/20261002083338-v17.json",
+          "evaluationCommit": "e1beae945a8ac244f44cc8625af9d552b3372da8"
+        }
+      },
+      "activeStanding": {
+        "sha": "e1beae945a8ac244f44cc8625af9d552b3372da8",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+          "session": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+          "recordingPath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+          "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+          "recipe": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json",
+          "recipeSha256": "16d1cf36d86545556db7efb37da6b036f5d12a2a0cc446127d4467057d01f3bf",
+          "replayInputSha256": "d121f612c55fbfbc4ba7a12056b3e89561fad7d7d129b1b8b89dc16997760dae",
+          "evaluationPath": "challenges/evaluations/20261002083338-v17.json",
+          "evaluationCommit": "e1beae945a8ac244f44cc8625af9d552b3372da8",
+          "evaluationArtifact": "challenges/evaluations/20261002083338-v17.json",
+          "evaluationUtc": "2026-10-02T08:34:22.046Z",
+          "remainingScreens": 1,
+          "recordedSteps": 21,
+          "previousScreensMatched": 20,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 20,
+              "total": 21
+            },
+            "rng": {
+              "matched": 3107,
+              "total": 3159
+            },
+            "cursors": {
+              "matched": 21,
+              "total": 21
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 20,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "a"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "W",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 3107,
+              "cEntry": "rn2(8)=0",
+              "cCaller": "collect_coords(teleport.c:700)",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 20,
+                "key": "a"
+              },
+              "stepIndex": 20
+            },
+            "cursor": null
+          },
+          "step": 20,
+          "kind": "rng",
+          "sourceFile": "teleport.c",
+          "function": "collect_coords",
+          "message": null,
+          "cFile": "teleport.c",
+          "luaFile": null,
+          "line": 700,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it.json",
+            "result": {
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+              "session": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+              "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+              "recipePath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json",
+              "recipeSha256": "16d1cf36d86545556db7efb37da6b036f5d12a2a0cc446127d4467057d01f3bf",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationUtc": "2026-10-01T19:06:03.082Z",
+              "remainingScreens": 1,
+              "recordedSteps": 21,
+              "previousScreensMatched": null,
+              "regression": false,
+              "passed": false,
+              "error": null,
+              "metrics": {
+                "screens": {
+                  "matched": 20,
+                  "total": 21
+                },
+                "rng": {
+                  "matched": 3107,
+                  "total": 3159
+                },
+                "cursors": {
+                  "matched": 21,
+                  "total": 21
+                }
+              },
+              "firstMismatch": {
+                "screen": {
+                  "index": 20,
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 20,
+                    "key": "a"
+                  },
+                  "kind": "ch",
+                  "row": 0,
+                  "column": 0,
+                  "cCell": {
+                    "ch": "Y",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  },
+                  "jsCell": {
+                    "ch": "W",
+                    "color": 8,
+                    "attr": 0,
+                    "decgfx": 0
+                  }
+                },
+                "rng": {
+                  "index": 3107,
+                  "cEntry": "rn2(8)=0",
+                  "cCaller": "collect_coords(teleport.c:700)",
+                  "location": {
+                    "segmentIndex": 0,
+                    "stepIndex": 20,
+                    "key": "a"
+                  },
+                  "stepIndex": 20
+                },
+                "cursor": null
+              },
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+                "session": "synthetic/v17/engrave-on-wished-undisturbed-grave-disturbs-it",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+                "recordingPath": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.session.json",
+                "recordingSha256": "48e789e3a061ae8f23054a96b62eb83bf5a84da669d28f7fe87a54de3ee5642f",
+                "recipe": "challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json",
+                "recipeSha256": "16d1cf36d86545556db7efb37da6b036f5d12a2a0cc446127d4467057d01f3bf",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 1,
+                "recordedSteps": 21,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 20,
+                    "total": 21
+                  },
+                  "rng": {
+                    "matched": 3107,
+                    "total": 3159
+                  },
+                  "cursors": {
+                    "matched": 21,
+                    "total": 21
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 20,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "a"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "W",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 3107,
+                    "cEntry": "rn2(8)=0",
+                    "cCaller": "collect_coords(teleport.c:700)",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 20,
+                      "key": "a"
+                    },
+                    "stepIndex": 20
+                  },
+                  "cursor": null
+                },
+                "step": 20,
+                "kind": "rng",
+                "sourceFile": "teleport.c",
+                "function": "collect_coords",
+                "message": null,
+                "cFile": "teleport.c",
+                "luaFile": null,
+                "line": 700
+              },
+              "summary": "For a non-finger implement on an undisturbed grave, engrave.c::doengrave() calls engrave.c::disturb_grave() and exits before the engraving text phase. The helper prints “You disturb the undead!”, marks the tile disturbed, creates a ghoul through makemon(), then exercises Wisdom. js/engrave.js currently records note_unported(\"grave.c disturb_grave\") and returns, so it skips the entire event. The reported teleport.c::collect_coords RNG draw is downstream of makemon() relocating a hero-square creation through enexto_core(); it is not the source owner. The other production caller is dokick.c::kick_nondoor(), whose JavaScript grave arm still refuses. A source-aligned makemon() runtime call shape is also missing for this NO_MM_FLAGS call, so the creation side effects and observed RNG remain a downstream implementation blocker.",
+              "source": {
+                "file": "engrave.c",
+                "functions": [
+                  "disturb_grave"
+                ],
+                "branch": "When the target is a grave and has not already been disturbed, disturb_grave() emits the undead message, sets rm.disturbed, calls makemon(&mons[PM_GHOUL], x, y, NO_MM_FLAGS) with its return discarded, then calls exercise(A_WIS, FALSE). Its non-grave and already-disturbed paths report impossible conditions and make no state change.",
+                "callers": [
+                  "engrave.c::doengrave() at 1024-1030: on a grave, finger-only use reports a smudge; any other implement on an undisturbed grave calls disturb_grave(u.ux, u.uy), then exits. The command-table E entry in cmd.c:1714-1715 routes to doengrave(); the recorded #engrave command reaches the same handler.",
+                  "dokick.c::kick_nondoor() at 1098-1108: after the grave levitation and minor-injury checks, an undisturbed grave with the 1-in-2 branch calls disturb_grave(x, y). This is the only other direct C call site found.",
+                  "Current JavaScript caller gaps: js/engrave.js::doengrave() at 954-960 skips the call with note_unported(\"grave.c disturb_grave\"); js/dokick.js::kick_nondoor() at 819-823 throws UnsupportedKickError for the grave arm. Wire both callers when porting the helper."
+                ],
+                "dependencies": [
+                  "makemon.c::makemon() at 1179-1184 handles a runtime creation requested at the hero square by calling enexto_core() to choose an adjacent square. Its return value is discarded in disturb_grave(), but its creation, RNG, and screen side effects are observable here. js/makemon_create.js::preflightCreation() currently admits explicit-coordinate runtime calls only with MM_NOMSG, and explicit inventoryless hero-square calls with NO_MINVENT|MM_NOMSG; this caller supplies NO_MM_FLAGS and has no source marker, so it reaches the outside-mklev refusal. If makemon.c is not included in source-port scope, retain a named makemon.c gap and do not synthesize its RNG. This call shape blocks parity for the selected screen.",
+                  "The C byyou placement path calls teleport.c::enexto_core(), which uses teleport.c::collect_coords() to randomize nearby squares; the evaluation’s next C draw is rn2(8)=0 at collect_coords:700. js/teleport.js already implements enexto_core()/collect_coords(); this is a downstream path skipped because the grave helper and makemon() call are absent, not an independent teleport.c source-owner finding.",
+                  "attrib.c::exercise(A_WIS, FALSE) runs after monster creation. js/attrib.js already exports exercise(); preserve the C ordering and normal Wisdom state/RNG effects."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The saved evaluation challenges/evaluations/20261001190602-v17.json at 518d4526ccba82c89752a8babb892ba9bc48bc60 reports 20/21 screens, 3107/3159 RNG calls, and 21/21 cursors. Its first mismatch is segment 0, zero-based step 20, key a: C has glyph Y where JavaScript has W; C’s next call is rn2(8)=0 from collect_coords(teleport.c:700).",
+                "The immutable recipe challenges/cases/v17/engrave-on-wished-undisturbed-grave-disturbs-it.recipe.session.json (SHA-256 16d1cf36d86545556db7efb37da6b036f5d12a2a0cc446127d4467057d01f3bf) uses seed 41827461, wishes a grave underfoot, then enters #engrave and selects key a. The recipe comment calls the callee grave.c:disturb_grave, but that comment is stale: the actual C definition is in engrave.c.",
+                "Upstream nethack-c/upstream/src/engrave.c:1019-1030 shows doengrave() taking the non-finger, undisturbed-grave branch, calling disturb_grave(), and exiting. engrave.c:1705-1721 defines disturb_grave(): message, lev->disturbed = 1, discarded-result makemon(PM_GHOUL, x, y, NO_MM_FLAGS), then negative Wisdom exercise.",
+                "The direct C call-site search finds engrave.c:1028 and dokick.c:1106. dokick.c:1098-1108 confirms the separate kick caller and its 1-in-2 undisturbed-grave condition. cmd.c:1714-1715 registers E to doengrave(). The accepted-preparation retainedCases row for this exact case likewise records reachedSource engrave.c:doengrave -> engrave.c:disturb_grave and identifies engrave.c as owner; the C source confirms it.",
+                "Upstream makemon.c:1179-1184 routes hero-square runtime creation through enexto_core(); teleport.c:242-257 gathers nearby candidate coordinates, and teleport.c:700 draws rn2(n) while shuffling. Existing js/teleport.js contains enexto_core()/collect_coords, while js/makemon_create.js:1293-1307 and 1439-1483 do not admit this NO_MM_FLAGS call shape. This accounts for why the RNG annotation names a downstream caller.",
+                "Current gaps are visible in js/engrave.js:954-960 (wrongly named note_unported skip) and js/dokick.js:819-823 (UnsupportedKickError for grave kicking). A search of nethack-c/patches for disturb_grave found no direct patch hunk; upstream engrave.c defines the behavior under investigation."
+              ],
+              "plannedWholeFunctionScope": {
+                "primary": {
+                  "file": "engrave.c",
+                  "functions": [
+                    "disturb_grave"
+                  ]
+                },
+                "callerWiring": [
+                  "Replace the grave branch skip in js/engrave.js::doengrave() with the helper call and exit matching C.",
+                  "Replace the grave refusal in js/dokick.js::kick_nondoor() with the helper call for the C 1-in-2 undisturbed-grave branch; preserve its preceding levitation/injury checks and other unrelated refusals."
+                ],
+                "unresolvedCallDependency": {
+                  "file": "makemon.c",
+                  "function": "makemon",
+                  "status": "The helper’s C call discards the return, but the call’s source side effects produce the ghoul, adjacent placement, RNG, and glyph seen in this case. Current JavaScript preflight rejects its NO_MM_FLAGS runtime shape. Record this precise gap if the source-aligned runtime route is not included; the case will remain unmatched until this behavior is supported."
+                },
+                "wholeFunctionBranches": [
+                  "Invalid non-grave: C impossible diagnostic only.",
+                  "Already disturbed grave: C impossible diagnostic only.",
+                  "Undisturbed grave: message, set disturbed, create ghoul at an adjacent valid location through makemon(), then exercise Wisdom downward."
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "disturb_grave",
+            "implementation": "js/engrave.js",
+            "symbol": "disturb_grave",
+            "sourceReview": "Compared engrave.c:disturb_grave in full: diagnostic guards, message, disturbed bit, awaited existing makemon runtime effects, then Wisdom exercise. Exact doengrave call and kick_nondoor Levitation/rn2(4)/undisturbed/rn2(2) order agree with C; headstone destruction remains an outer refusal. Generic supporting makemon admission is based on explicit non-null species, valid nonrandom coordinates, NO_MM_FLAGS and runtime mode; direct nonhero placement omits goodpos as C does, occupied destinations return null before RNG, hero-square requests retain enexto relocation. Existing constructor/runtime suffix remains source-derived and receives no whole makemon credit. Athame, wand and kick C records reach helper at steps28,34,14 and independent replay hashes match. Original direct-command check logs are preserved separately from five verified bounded supplements. Recheck against accepted main after A76 measurement and publication; root combined validation remains required. Supporting generic monster-creation admission now excludes special-room generation from ordinary runtime continuation ownership, preserving the C topology-before-fill lifecycle and its dedicated tail.",
+            "callers": [
+              {
+                "path": "js/engrave.js",
+                "symbol": "doengrave",
+                "source": "engrave.c:doengrave, 1028; command dispatch cmd.c:doengrave table entry at 1715 -> js/cmd.js:runEngraveCommand -> js/engrave.js:doengrave"
+              },
+              {
+                "path": "js/dokick.js",
+                "symbol": "kick_nondoor",
+                "source": "dokick.c:kick_nondoor, 1107; dokick.c:dokick dispatch at 1468 -> js/dokick.js:dokick -> kick_nondoor"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/engrave-command.test.mjs",
+              "scripts/makemon-create.test.mjs"
+            ],
+            "recordings": [
+              "recordings/engrave.c/disturb-grave-engrave-athame-c60-room-corrected.session.json",
+              "recordings/engrave.c/disturb-grave-engrave-wand-variation-c60-same-room.session.json",
+              "recordings/dokick.c/disturb-grave-kick-valkyrie-c60-second-kick-continuation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c engrave command -> engrave.c:doengrave -> engrave.c:disturb_grave -> makemon.c:makemon"
+              }
+            ],
+            "checkedAt": "fcd7a5a2344a1d15884d1702abdcf726943cb6ba"
+          }
+        ],
+        "entryPointReview": "The range contains the active helper disturb_grave and two active production caller branches. The engrave command runs cmd.c table entry -> js/cmd.js:runEngraveCommand -> engrave.c/js doengrave; the independent athame and wand recordings exercise its hero-square makemon request, which C relocates with enexto_core. The kick command runs dokick.c:dokick -> kick_nondoor; the independent Valkyrie continuation records a non-hero grave coordinate, which C makemon uses directly after isok and occupied-monster checks, without goodpos or species-allowlist checks. Both callers strictly match through their complete recordings. The return from makemon is discarded in C, but its construction and runtime side effects are required before the following Wisdom exercise. This task makes only bounded makemon argument-shape admission supporting evidence and claims no whole makemon.c completion. Headstone destruction, levitating kicks, other kick_nondoor terrain arms, and invalid-input impossible diagnostics remain outside the completed entry points.",
+        "entryPoints": [
+          {
+            "name": "cmd.c engrave -> engrave.c:doengrave -> disturb_grave",
+            "functions": [
+              "disturb_grave"
+            ],
+            "recordings": [
+              "recordings/engrave.c/disturb-grave-engrave-athame-c60-room-corrected.session.json",
+              "recordings/engrave.c/disturb-grave-engrave-wand-variation-c60-same-room.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "engrave-on-wished-undisturbed-grave-disturbs-it",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 20,
+                "source": "cmd.c engrave table entry -> engrave.c:doengrave -> engrave.c:disturb_grave -> makemon.c:makemon"
+              }
+            ]
+          },
+          {
+            "name": "dokick.c:dokick -> kick_nondoor -> disturb_grave",
+            "functions": [
+              "disturb_grave"
+            ],
+            "recordings": [
+              "recordings/dokick.c/disturb-grave-kick-valkyrie-c60-second-kick-continuation.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3465177a540639127708e67f2de7a7103b056b74",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-trap-dotrap-forced-seen-bypass-v18-20261002",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Admit forced seen traps before their effects",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected"
+      ],
+      "selectionReason": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected, investigation investigations/synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.json, current evaluation challenges/evaluations/20261002091800-v18.json. Correct the narrow trap.c:dotrap forced seen-trap preflight predicate. No whole dotrap completion credit. Manifest challenges/manifests/v18.json SHA256 ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30; recording challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json SHA256 b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa.",
+      "detail": "Compared selected trap.c:dotrap forced predicate and seen escape gate with the two-file correction. FORCETRAP, FAILEDUNTRAP and fixed_tele_trap bypass the ordinary seen escape path; JS preflight now admits those conditions before writes, while existing dotrap applies flags/state in source order. No effect caller or RNG order changes. Existing ordinary seen, mounted and iron-shoe boundaries remain outside the narrow divergence. Root corrected packet prose: C has no JS-style preflight call before nomul; preflight is the JS refusal guard. Source-pinned forced fixtures and v18 step40 verify selected failed-disarm branch. This is a narrow divergence with no whole dotrap completion claim. Rechecked at accepted C60 main before integration.",
+      "openedAt": "dfc5024aa978cb9ac0b23054f7b62e0d8479a152",
+      "openStanding": {
+        "sha": "3465177a540639127708e67f2de7a7103b056b74",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dotrap",
+      "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+      "step": 40,
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected": {
+          "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-untraps-wished-floor-bear-trap-c59-detected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+          "recordingSha256": "b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa",
+          "evaluationPath": "challenges/evaluations/20261002091800-v18.json",
+          "evaluationCommit": "3465177a540639127708e67f2de7a7103b056b74"
+        }
+      },
+      "activeStanding": {
+        "sha": "3465177a540639127708e67f2de7a7103b056b74",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-untraps-wished-floor-bear-trap-c59-detected",
+          "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+          "recordingSha256": "b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa",
+          "recipe": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.recipe.session.json",
+          "recipeSha256": "97611d7962f241bd668c24a90b3cbcef29de065ee85a162c9bf33287bae67f4c",
+          "replayInputSha256": "6f41704fc44ccca3468b755266e10844c89e5636c476230c5fe6a9ecdc6de33e",
+          "evaluationPath": "challenges/evaluations/20261002091800-v18.json",
+          "evaluationCommit": "3465177a540639127708e67f2de7a7103b056b74",
+          "evaluationArtifact": "challenges/evaluations/20261002091800-v18.json",
+          "evaluationUtc": "2026-10-02T09:18:50.309Z",
+          "remainingScreens": 1,
+          "recordedSteps": 41,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2564,
+              "total": 2578
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: a trap the hero has already seen",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: a trap the hero has already seen",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.json",
+            "result": {
+              "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-untraps-wished-floor-bear-trap-c59-detected",
+              "remainingScreens": 1,
+              "recordedSteps": 41,
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingPath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+              "recordingSha256": "b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa",
+              "recipePath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.recipe.session.json",
+              "recipeSha256": "97611d7962f241bd668c24a90b3cbcef29de065ee85a162c9bf33287bae67f4c",
+              "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "status": "complete",
+              "summary": "The current mismatch is an overbroad JavaScript preflight refusal, not a missing bear-trap effect and not FAILEDUNTRAP itself. At segment 0, step 40, the detected floor bear trap is targeted with #untrap and direction “.” (the hero square). C try_disarm() consumes the failed untrap roll and rnl(5), then calls dotrap(ttmp, FAILEDUNTRAP). C dotrap() treats FAILEDUNTRAP as forcetrap and bypasses the already-seen trap escape gate; JavaScript has already consumed the corresponding untrap_prob and rnl draws, but preflight_dotrap() rejects tseen without checking trflags, before the existing forced bear-trap effect can draw damage. Fix that gate to honor the source forcetrap condition. The ordinary unmounted hero bear-trap arm is already implemented; mounted and iron-shoe branches remain outside this case.",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-untraps-wished-floor-bear-trap-c59-detected",
+                "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+                "recordingSha256": "b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa",
+                "recipe": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.recipe.session.json",
+                "recipeSha256": "97611d7962f241bd668c24a90b3cbcef29de065ee85a162c9bf33287bae67f4c",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 1,
+                "recordedSteps": 41,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2564,
+                    "total": 2578
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: a trap the hero has already seen",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: a trap the hero has already seen",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "source": {
+                "file": "trap.c",
+                "functions": [
+                  "dotrap"
+                ],
+                "branch": "At step 40 the wizard has already revealed the floor BEAR_TRAP with #wizdetect, then uses #untrap and “.” to target the hero square. trap.c:try_disarm() reaches its failed-attempt branch and calls dotrap(ttmp, FAILEDUNTRAP) (5512-5514). dotrap() computes forcetrap from FORCETRAP || FAILEDUNTRAP (2999-3000); because forcetrap is true, its !forcetrap block skips both check_in_air handling and the ordinary already_seen escape check (3025-3045), and it dispatches the bear-trap effect. The JavaScript try_disarm() reaches the same call after matching the recorded untrap_prob and rnl draws, but dotrap() calls preflight_dotrap() first; preflight_dotrap() rejects trap.tseen without consulting trflags, so it throws before the already-implemented forced hero effect. Correct the seen-trap preflight to preserve C’s forced-call bypass, including FAILEDUNTRAP (and FORCETRAP where the same C condition applies). This case is the ordinary unmounted, non-iron-shod hero arm only.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1915-1916 maps the “untrap” extended command to trap.c:dountrap(); js/cmd.js:5278-5280 dispatches the production command to dountrap().",
+                  "trap.c:dountrap() (5248-5254) consumes could_untrap() as its entry guard and the return from untrap() to select ECMD_TIME/ECMD_OK; js/trap.js:2256-2260 mirrors this command path.",
+                  "trap.c:untrap() (5848 onward) consumes getdir() and targets u_at(x,y) when “.” sets zero direction, keeps the detected t_at() result, checks can_reach_floor(), then dispatches BEAR_TRAP to disarm_holdingtrap() at 5965-5968; js/trap.js:2772-2878 is the corresponding live path.",
+                  "trap.c:disarm_holdingtrap() calls try_disarm() at 5557; trap.c:try_disarm() calls dotrap(ttmp, FAILEDUNTRAP) when under_u at 5512-5514. JavaScript js/trap.js:2529-2532 and :2424-2495 carry the same call path.",
+                  "trap.c:dotrap() passes the hero and flags to trapeffect_selector() at 3059; js/trap_effects.js:3901-3905 calls preflight_dotrap() before its existing forcetrap dispatch. The selector maps BEAR_TRAP to trapeffect_bear_trap() (trap.c:2948-2952; js/trap_effects.js:3778-3784)."
+                ],
+                "dependencies": [
+                  "Control returns consumed on the actual route: could_untrap() gates dountrap(); getdir() can abort and its u.dx/u.dy values select the target; t_at() supplies the seen trap; can_reach_floor() admits the floor-trap arm; m_at(), the boulder and reachability checks in try_disarm() can return early; try_disarm() returns 1 and disarm_holdingtrap() consumes that value with fails < 2 and returns without disarming.",
+                  "At recorded step 40, untrap_prob() returns rn2(3)=1, selecting failure, and rnl(5) returns 2, selecting “Whoops...” and the under_u dotrap(ttmp, FAILEDUNTRAP) call. The flag is consumed by dotrap()’s forcetrap boolean. That true value skips the ordinary floor_trigger()/check_in_air() and already_seen escape gates (and the latter gate’s rn2(5)); fixed_tele_trap(), conjoined_pits(), and adj_nonconjoined_pit() are also return-valued dotrap predicates evaluated before dispatch.",
+                  "After preflight admits the forced route, trapeffect_bear_trap() consumes d(2,4)=2 as damage, rn1(4,4) (recorded internal rn2(4)=3) as bear-trap duration, rn2(2)=0 to select the left leg, and rn1(10,10) (recorded internal rn2(10)=3) as wounded-leg duration. Maybe_Half_Phys() supplies the damage consumed by losehp(); the recorded exercise() path consumes rn2(2)=0. trap.c:dotrap() explicitly discards trapeffect_selector()’s return value."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20261002065911-v18.json, examined against commit 04b79edc2bcff3a4c2d70efba937608818f85b53, records the current stop at zero-based segment 0, step 40: 40/41 screens, 2564/2578 RNG calls, and 40/41 cursors match; the message is “unsupported hero move: a trap the hero has already seen”.",
+                "Immutable recording challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json has 41 steps. After step 31’s “You reveal 2 traps!” screen, step 39 asks “In what direction?” and step 40’s key “.” records rn2(3)=1 at untrap_prob(trap.c:5336), rnl(5)=2 at try_disarm(trap.c:5481), then d(2,4)=2 at trapeffect_bear_trap(trap.c:1490). Its output says “Whoops... A bear trap closes on your foot!” and status HP 10(12), confirming the failed underfoot untrap and forced hero effect.",
+                "This traces the earlier route beyond the manifest’s downstream causal label: trap.c:dountrap() -> untrap() -> disarm_holdingtrap() -> try_disarm() -> dotrap(ttmp, FAILEDUNTRAP). The hero’s “.” choice selects the already-detected trap underfoot; try_disarm() consumes the first two matching RNG calls and then enters dotrap(). JavaScript preflight_dotrap() is the throw site because its seen-trap guard ignores trflags; the stop is before C’s next call, d(2,4), not before all step-40 RNG.",
+                "The source itself proves the flag is not the defect: trap.c:dotrap() sets forcetrap for FAILEDUNTRAP and encloses the seen-trap escape gate within else if (!forcetrap). Existing js/trap_effects.js:3901-3955 already computes the same forcetrap condition and skips those gates; only the earlier preflight check rejects this source-valid route. Existing js/trap_effects.js:1149-1260 contains the ordinary hero bear-trap effect, including FAILEDUNTRAP in its force condition. This makes the actionable change a narrow divergence fix in preflight_dotrap(), not a new bear-trap effect port.",
+                "Historical counter-evidence: the manifest’s exact comparison at c279bd556876e7c8494dbe37aea914412f8e75a3 reported C 41 screens/2578 RNG versus JS 40 screens/2564 RNG; its first observed missing C entry was d(2,4)=2 at trapeffect_bear_trap(trap.c:1490), step 40. That observation is the first downstream effect draw omitted after the JavaScript stop, not the causing function. The current saved evaluation now supplies the exact refusal message and the source route explains it.",
+                "The same-batch hidden-bear-trap case and the preceding v17 drum case are distinct according to challenges/manifests/v18.json: those paths miss a hidden trap and do not reach try_disarm()/FAILEDUNTRAP. Here #wizdetect reveals the floor trap and the next #untrap “.” targets it directly. C replay reproducibility is already recorded in the manifest: run-k2rjWn exited 0 and matched the immutable recording SHA-256 b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa.",
+                "Unresolved scope: preflight_dotrap() still explicitly refuses the mounted bear-trap arm and iron-shoes branch; the historical trap-activation scope also leaves other trap types and monster arms incomplete. This recording uses an unmounted wizard without those branches, so those boundaries neither cause nor invalidate this one-step diagnosis."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

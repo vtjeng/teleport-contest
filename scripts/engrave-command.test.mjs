@@ -23,6 +23,7 @@ import {
 import {
     cant_reach_floor,
     doengrave,
+    disturb_grave,
     engr_at,
     make_engr_at,
     read_engr_at,
@@ -32,7 +33,8 @@ import { surface } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { M1_ANIMAL, S_VORTEX } from '../js/monsters.js';
+import { M1_ANIMAL, PM_GHOUL, S_VORTEX } from '../js/monsters.js';
+import { rn2, rnd } from '../js/rng.js';
 import {
     ENGRAVE_SETUP,
     ENGRAVE_KEY,
@@ -208,6 +210,34 @@ test('doengrave returns C ECMD_FAIL when its entry predicate refuses', async () 
     assert.deepEqual(messages, ["You can't write in cloud vapor!"]);
     assert.equal(prompted, false);
 });
+
+test('disturb_grave completes makemon with engraving callers partial RNG',
+    async () => {
+        // The production engraving dispatcher supplies rn2 and rnd, while
+        // makemon.c also uses d, rn1, and rne during this explicit ghoul call.
+        // Reuse the established engraving startup recipe to seed the shared
+        // RNG, then turn the hero's accessible square into the source grave.
+        const segment = loadEngraveFingertipDustRecipe().segments[0];
+        await runSegment({ ...segment, moves: '' });
+        const state = game;
+        const { ux, uy } = state.u;
+        const square = state.level.at(ux, uy);
+        square.typ = GRAVE;
+        square.disturbed = false;
+        const bornBefore = state.mvitals[PM_GHOUL].born;
+        const messages = [];
+
+        await disturb_grave(ux, uy, state, {
+            random: { rn2, rnd },
+            message: async (text) => messages.push(text),
+            norepMessage: async (text) => messages.push(text),
+        });
+
+        assert.equal(square.disturbed, true);
+        assert.equal(state.mvitals[PM_GHOUL].born, bornBefore + 1);
+        assert.equal(messages[0], 'You disturb the undead!');
+        assert.ok(messages.some((text) => text.includes('ghoul')));
+    });
 
 test('bare fingertips write a rate-10 dust engraving in one action',
     async () => {

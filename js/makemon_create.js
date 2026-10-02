@@ -4,10 +4,8 @@
 // Statuary's temporary monsters.
 // C ref: makemon.c makemon(), m_initgrp(), m_initthrow(), m_initweap(),
 // m_initinv(), and mongets(); worn.c m_dowear(). Outside level generation
-// the implementation fails closed on species and call shapes that have not
-// been ported.
-// Expanding that closed set means porting the corresponding complete source
-// branches, not approximating their PRNG effects.
+// runtime admission follows source pointer/coordinate/flag contracts; other
+// species-specific branches remain explicitly bounded.
 
 import {
     ACCESSIBLE,
@@ -1286,6 +1284,16 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === NO_MM_FLAGS;
+    // C makemon.c:1147-1200 accepts an explicit non-null species at every
+    // valid runtime coordinate with NO_MM_FLAGS. A request on the hero square
+    // is relocated through enexto_core(); another square is used directly,
+    // subject only to the source isok() and occupied-monster checks. C does
+    // not apply a species allowlist or goodpos() check to this call shape.
+    const explicitCoordinateNoFlagsRuntimeCall = !state.in_mklev
+        && Boolean(ptr)
+        && !randomCoordinates
+        && isok(x, y)
+        && mmflags === NO_MM_FLAGS;
     // C makemon() accepts explicit, inventoryless creation at the hero's
     // square on every runtime level. Its source-owned placement path first
     // relocates to enexto_core(); admission is based only on those arguments
@@ -1305,7 +1313,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !randomCoordinates
         && mmflags === MM_NOMSG;
     if (tutorialLevel && !runtimeExplicitRandomCall && !runtimeGroupCall
-        && !wereSummonCall
+        && !wereSummonCall && !explicitCoordinateNoFlagsRuntimeCall
         && !explicitInventorylessHeroCall
         && !explicitCoordinateRuntimeCall
         && (!state.in_mklev
@@ -1456,6 +1464,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || explicitCoordinateRuntimeCall
         || cloneuCall || minionSummonCall
         || familiarCall || wereSummonCall
+        // sp_lev.c finalizes topology before filling special rooms.  Those
+        // explicit-coordinate calls still belong to level generation and
+        // use the dedicated special-room tail below, not ordinary runtime
+        // continuation admission.
+        || (explicitCoordinateNoFlagsRuntimeCall && !specialRoomCall)
         || (!state.in_mklev && statueInventoryCall)
         || nastyCall;
     if (runtimeCall
@@ -1486,7 +1499,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         );
     }
     if (ptr?.pmidx === PM_SHOPKEEPER && !shopkeeperCall
-        && !explicitInventorylessHeroCall && !explicitCoordinateRuntimeCall) {
+        && !explicitInventorylessHeroCall && !explicitCoordinateRuntimeCall
+        && !explicitCoordinateNoFlagsRuntimeCall) {
         throw new UnsupportedMonsterCreationError(
             'shopkeeper creation outside shkinit',
         );
@@ -1508,7 +1522,9 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && !familiarCall && !wereSummonCall
         && !runtimeExplicitRandomCall && !runtimeGroupCall
         && !explicitInventorylessHeroCall && !randomCoordinates
-        && !explicitCoordinateRuntimeCall && !vaultGuardCall
+        && !explicitCoordinateRuntimeCall
+        && !explicitCoordinateNoFlagsRuntimeCall
+        && !vaultGuardCall
         && (!isok(x, y) || !ACCESSIBLE(state.level?.at(x, y)?.typ))) {
         throw new UnsupportedMonsterCreationError(
             `non-accessible location <${x},${y}>`,
@@ -1530,6 +1546,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         throw new Error('makemon requires initialized hero alignment and race');
     if (ptr?.pmidx === PM_CHAMELEON
         && !explicitInventorylessHeroCall
+        && !explicitCoordinateNoFlagsRuntimeCall
         && !heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)) {
         if (isRogueLevel(state)) {
             throw new UnsupportedMonsterCreationError(
@@ -1554,9 +1571,8 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         // allowlist for explicitly placed species but bypass it for
         // rndmonst selections (the _rndmonMklev flag, set in the rndmonst
         // loop). Outside mklev, ordinary runtime callers keep the allowlist.
-        // read.c create_particular_creation() has its own exact
-        // pointer/hero-square/flag contract above, and C makemon() has no
-        // species allowlist for that source path.
+        // C makemon() has no species allowlist for explicit runtime
+        // pointer/coordinate/flag shapes admitted above.
         if (!revivalCall
             && !statueInventoryCall
             && !specialRoomCall
@@ -1567,6 +1583,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             && !createParticularCall
             && !explicitInventorylessHeroCall
             && !explicitCoordinateRuntimeCall
+            && !explicitCoordinateNoFlagsRuntimeCall
             && !familiarCall
             && !nastyCall
             && (!state.in_mklev || (isMainDungeonLevel(state)
@@ -2886,7 +2903,9 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
 // explicit coordinate, and their MM_NOGRP recursive group members. Other
 // source callers include read.c create_particular_creation()'s named species
 // on the hero's own square under MM_NOEXCLAM, and seffect_light()'s explicit
-// cancelled-light pet shape.
+// cancelled-light pet shape. The generic explicit-pointer NO_MM_FLAGS shape
+// relocates only a hero-square request; another valid coordinate is used
+// directly before the runtime tail.
 //
 // After supported-call validation, source no-creation outcomes return null:
 // generation is disabled, the square is occupied, selection has no candidate,
