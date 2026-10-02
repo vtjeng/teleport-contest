@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "B82 independent C-first monster-versus-monster route. Seed 6821437 and 2039-03-18 16:27:41 were chosen independently to place the two wizard-created monsters near the hero. Wizard mode is required for the C #wizgenesis route. Conflict activates monmove.c:movemon_singlemon -> mhitm.c:fightm; creating hostile newt first and hostile animal-form 'rat wererat' second puts the wererat at the head of fmon without a tame-pet dog_move detour. One wait tests the source-derived adjacent fight. Do not accept as runtime evidence unless C enters uhitm.c AD_WERE and the full replay matches.",
+  "segments": [{
+    "seed": 6821437,
+    "datetime": "20390318162741",
+    "nethackrc": "OPTIONS=name:B82ConflictLycan,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": " #wizintrinsic\na>>h\n #wizgenesis\nhostile newt\n#wizgenesis\nhostile rat wererat\n."
+  }]
+}

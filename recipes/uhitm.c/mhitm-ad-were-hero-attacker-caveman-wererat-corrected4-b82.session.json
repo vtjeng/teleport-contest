@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first B82 setup trace after correcting character selection: explicit neutral Caveman alignment starts directly in the game, and #levelchange is now accepted. The tin is in slot f. This seed's opening has two pages (success opening the tin, then smell); the recipe supplies only one space, so subsequent keys are consumed by the remaining 'It smells like wererats' pager and later by the default-no eat prompt. The source-derived next correction uses a second space before yes. Earlier selection/setup misses remain preserved.",
+  "segments": [{
+    "seed": 7983552,
+    "datetime": "20360315082910",
+    "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": "#levelchange\n5\n   \u0017blessed homemade tin of human wererat meat\nef y#polyself\nwererat\n #wizgenesis\nhostile newt\nhhhhhhhhhh"
+  }]
+}

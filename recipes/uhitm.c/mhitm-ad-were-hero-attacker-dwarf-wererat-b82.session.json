@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first B82 hero-to-monster route corrected from run-zQIKc5: drop the +1 club, eat the C-observed boiled human-wererat tin, use #wizgenesis (the source wizard monster creation command) while still human, then shift into the corresponding wererat form and attack the adjacent newt. The prior `#monster` special-ability command is preserved as a setup miss. The artifact must show a natural AD_WERE attack through damageum/mhitm_ad_were before any parity claim.",
+  "segments": [
+    {
+      "seed": 7983552,
+      "datetime": "20360315082910",
+      "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n5\n   #polyself\ndwarf\n da \u0017blessed homemade tin of human wererat meat\nef  ydbdcdd#wizgenesis\nhostile newt\n#polyself\nwererat\n kk",
+      "comment": "B82 C-first source-supported alternative to the retained unpolymorphed corrected11 route, which diverges at allmain.c:moveloop_core lycanthropy chance. Enter a non-were dwarf form before eating the wererat tin; Upolyd then suppresses that separate elapsed-turn gate while cpostfx can assign u.ulycn. Drop the actual carried club, sling, flint, and rocks one at a time, wish a hostile newt, shift to the matching wererat form, dismiss the C-observed form notice, and attack north toward the adjacent target. This is an exploratory recipe; keep it out of recordings unless the complete C trace reaches a source-confirmed AD_WERE bite and strict JS replay matches. Preserved C setup miss from run-oqCzCf: the wizard-wished tin opened magically, so only one space dismissed its message; the second space answered the following Eat it? prompt with the default no. C discarded the open tin and never called cpostfx, then correctly refused the wererat transformation because u.ulycn was unset."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first setup miss: the chaotic orc Barbarian correctly avoids maybe_cannibal, but the C inventory screen presented the wished tin as g; this recipe selected e, so it never reached start_tin/cpostfx. The corrected variation selects g and follows later object letters h and i from the C screens.",
+  "segments": [
+    {
+      "seed": 83199213,
+      "datetime": "20290725163000",
+      "nethackrc": "OPTIONS=name:B82OrcWater,role:Barbarian,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed homemade tin of human wererat meat\nee  y \u0017blessed potion of full healing\nqf \u0017blessed potion of water\nqg"
+    }
+  ]
+}

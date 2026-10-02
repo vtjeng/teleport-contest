@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Source-corrected C-first B82 hero-to-monster attempt. The first independent Caveman attempt showed the wished wererat tin at inventory slot f, not o; this recipe selects f. Its first C trace established that one space reaches 'Eat it?' and the second accidental space chooses the default no. Preserve both setup observations; the next correction uses one space before confirming yes.",
+  "segments": [{
+    "seed": 7983552,
+    "datetime": "20360315082910",
+    "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": "#levelchange\n5\n   \u0017blessed homemade tin of human wererat meat\nef  y  #polyself\nwererat\n#wizgenesis\nhostile newt\nhhhhhhhhhh"
+  }]
+}

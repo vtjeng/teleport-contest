@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first B82 entry-route setup probe, not a passing recording: source artilist.h Werebane is the artifact whose DFNS(AD_WERE) protects the hero after mhitm_ad_were's hitmsg and rn2(4) gate. Raise the Wizard to level 10 so a nearby werewolf can attack without killing the hero; wish the artifact, then inspect its inventory letter before freezing the combat input. Independent seed/date chosen for this hero-defender caller route.",
+  "segments": [
+    {
+      "seed": 11870421,
+      "datetime": "20330311094500",
+      "nethackrc": "OPTIONS=name:WerebaneProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#levelchange\n10\n        \u0017Werebane\ni"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first B82 hero-to-monster route corrected from run-zQIKc5: drop the +1 club, eat the C-observed boiled human-wererat tin, use #wizgenesis (the source wizard monster creation command) while still human, then shift into the corresponding wererat form and attack the adjacent newt. The prior `#monster` special-ability command is preserved as a setup miss. The artifact must show a natural AD_WERE attack through damageum/mhitm_ad_were before any parity claim.",
+  "segments": [
+    {
+      "seed": 7983552,
+      "datetime": "20360315082910",
+      "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n5\n   #polyself\ndwarf\n da \u0017blessed homemade tin of human wererat meat\nef ydbdcdd#wizgenesis\nhostile newt\n#polyself\nwererat\n y",
+      "comment": "B82 C-first hero-to-monster route after corrected12 verified dwarf-form tin consumption and wererat form without the unpolymorphed allmain gate. Its C map showed the hostile newt northwest of the hero after setup; the frozen northward k inputs missed that target, and a later `The newt misses!` is not hero-attack evidence. Preserve this direction miss. Corrected13 keeps the same setup and sends y (northwest) once, matching the C-observed position; it remains blocked outside recordings unless C shows a natural AD_WERE bite and the complete JS replay matches."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B82 variation after the level-1 hill-orc form was rejected as too costly to survive. #levelchange raises the Wizard before controlled polymorph; the chosen non-were hill-orc form keeps hands for the tin/water items. The base orc race satisfies CANNIBAL_ALLOWED, and chaotic alignment makes blessed water take the source acid/cure branch. C allmain.c:328 skips the separate elapsed-turn lycanthropy gate while Upolyd. Keep this recipe only if the recorded form, tin setter, and water cure execute in C and strict JS replay matches.",
+  "segments": [
+    {
+      "seed": 10274321,
+      "datetime": "20310908131500",
+      "nethackrc": "OPTIONS=name:FormCureTwo,role:Wizard,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#levelchange\n5\n   #polyself\nhill orc\n #wizwish\nblessed homemade tin of human wererat meat\neg  y \u0017blessed potion of full healing\nqh \u0017blessed potion of water\nqi"
+    }
+  ]
+}

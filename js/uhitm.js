@@ -9,6 +9,7 @@ import {
     ART_TROLLSBANE,
     artifact_hit,
     artifact_light,
+    defends,
     is_art,
     permapoisoned,
     shade_glare,
@@ -158,6 +159,7 @@ import { livelog_printf } from './pline.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
+    ttyUrgentPline,
 } from './tty_message.js';
 import { makeplural } from './fruit.js';
 import {
@@ -210,6 +212,7 @@ import {
     mpoisons_subj,
     mtrapped_in_pit,
     mdamageu,
+    Protection_from_shape_changers,
 } from './mhitu.js';
 import { abuse_dog } from './dog.js';
 import {
@@ -390,6 +393,7 @@ import {
     PM_SHRIEKER,
     PM_STONE_GOLEM,
     PM_STEAM_VORTEX,
+    NON_PM,
     S_LIGHT,
     S_BLOB,
     S_EEL,
@@ -408,6 +412,7 @@ import {
     S_ZOMBIE,
 } from './monsters.js';
 import { engulf_target, failed_grab } from './mhitm.js';
+import { set_ulycn } from './were.js';
 import {
     carried,
     is_ammo,
@@ -4720,6 +4725,45 @@ export async function mhitm_ad_curs(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_were() (4265-4293). The hero's own blow and a
+// monster-versus-monster blow delegate to physical damage; a monster's hit on
+// the hero prints its hit message before the ordered lycanthropy gates.
+async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
+    // C snapshots pa before hitmsg/urgent_pline may yield or change form data.
+    const attackerData = magr.data;
+    const random = env.random ?? { rn2 };
+
+    if (magr === state.youmonst) {
+        await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (!random.rn2(4) && state.u.ulycn === NON_PM
+            && !Protection_from_shape_changers(state)
+            && !defends(AD_WERE, state.uwep, state)
+            && !(await mhitm_mgc_atk_negated(
+                magr, mdef, true, state, { ...env, random },
+            ))) {
+            await (env.urgentMessage ?? ttyUrgentPline)(
+                'You feel feverish.', state,
+            );
+            const encumberMessage = env.encumberMessage
+                ?? ((subject) => encumber_msg(subject, {
+                    message: env.message ?? ttyPline,
+                }));
+            await exercise(A_CON, false, state, random, {
+                encumberMessage,
+            });
+            set_ulycn(monsndx(attackerData), state);
+            // uhitm.c discards retouch_equipment()'s void result here.
+            note_unported('artifact.c retouch_equipment');
+        }
+    } else {
+        await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
+        if (mhm.done) return;
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -4745,7 +4789,9 @@ export async function mhitm_adtyping(
     case AD_LEGS:
         await mhitm_ad_legs(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_WERE: unported('mhitm_ad_were'); break;
+    case AD_WERE:
+        await mhitm_ad_were(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_HEAL: unported('mhitm_ad_heal'); break;
     case AD_PHYS:
         await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);

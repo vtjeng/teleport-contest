@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B82 cure route. #levelchange raises the orc Wizard to level 5 before controlled polymorph; dwarf is a supported non-were, hand-capable form distinct from the hero's orc race. The orc race satisfies CANNIBAL_ALLOWED, and chaotic alignment makes blessed water take peffect_water's acid/cure branch. While Upolyd, allmain.c:328 skips the separate elapsed-turn lycanthropy roll; dwarf form also avoids you_unwere's were-species path. Tin and potions are selected from the C-observed inventory letters. Keep only if the C setter calls and full JS replay match.",
+  "segments": [
+    {
+      "seed": 10834921,
+      "datetime": "20320804131500",
+      "nethackrc": "OPTIONS=name:DwarfCure,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#levelchange\n5\n   #polyself\ndwarf\n#wizwish\nblessed homemade tin of human wererat meat\neo  y \u0017blessed potion of full healing\nqp \u0017blessed potion of water\nqq"
+    }
+  ]
+}

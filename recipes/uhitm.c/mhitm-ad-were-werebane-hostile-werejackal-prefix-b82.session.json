@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Matching C-first B82 source prefix for the monster-to-hero arm. This keeps the corrected Werebane wield, hostile werejackal, and independently chosen character/seed from the full trace, then ends at C boundary 78 after the actual bite's rn2(4)=0 and the summon-help pager. The full trace diverges only on later were.c:were_summon RNG at boundary79 while processing that pager, outside B82. This prefix exercises hitmu → mhitm_ad_were through the source defense and is retained only after strict replay matches.",
+  "segments": [
+    {
+      "seed": 19284017,
+      "datetime": "20340507103000",
+      "nethackrc": "OPTIONS=name:WerebaneBite,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n10\n        \u0017Werebane\nwo#wizgenesis\nhostile werejackal\n..........."
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first B82 progression after correcting the two-page tin prompt: neutral Caveman selection and #levelchange work, the f-slot tin is eaten, cpostfx assigns the wererat identity, and #polyself changes form. C then reports armor falling, 'You can't even move a handspan with this load,' and a required club drop; the attempt never creates or attacks the hostile newt. Preserve this as an overload setup blocker. The next recipe drops the club before the shift and creates the target while still human.",
+  "segments": [{
+    "seed": 7983552,
+    "datetime": "20360315082910",
+    "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": "#levelchange\n5\n   \u0017blessed homemade tin of human wererat meat\nef  y#polyself\nwererat\n #wizgenesis\nhostile newt\nhhhhhhhhhh"
+  }]
+}

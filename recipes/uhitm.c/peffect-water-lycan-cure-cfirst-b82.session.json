@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B82 peffect_water setter route. A chaotic human Barbarian debug character wishes a blessed homemade human-wererat tin so C start_tin takes the blessed one-turn/immediate opening branch, consumes it through cpostfx to establish u.ulycn while the hero remains human, drinks a blessed full-healing potion, then drinks blessed holy water to reach peffect_water’s lycanthropy cure/set_ulycn(NON_PM) branch. Seed and date are independently selected. Preserve only after strict JS replay matches every input boundary, screen, cursor, and RNG call.",
+  "segments": [
+    {
+      "seed": 91827433,
+      "datetime": "20290617141000",
+      "nethackrc": "OPTIONS=name:B82WaterSet,role:Barbarian,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed homemade tin of human wererat meat\nee  y\u0017blessed potion of full healing\nqe \u0017blessed potion of water\nqe"
+    }
+  ]
+}
