@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T06:20:04.062Z",
+  "capturedAt": "2026-10-02T06:47:15.900Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -14873,12 +14873,87 @@
         "type": "accepted",
         "at": "2026-10-02T06:19:14.988Z",
         "task": "B84"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B84-published-83c2d5be",
+        "type": "published",
+        "at": "2026-10-02T06:20:16.830Z",
+        "task": "B84",
+        "commit": "83c2d5be02f2ba68a35d1d2be6b5ff3a1dfc6439"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A74-integrating-1a3be611",
+        "type": "integrating",
+        "at": "2026-10-02T06:23:53.469Z",
+        "task": "A74",
+        "integration": "1a3be611b869c779506379a286f615b9e6b1fe62"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-94e503280853ff1c6770d851ea0d693249e01fc7",
+        "type": "ready",
+        "at": "2026-10-02T06:26:52.002Z",
+        "task": "C59",
+        "delivery": "94e503280853ff1c6770d851ea0d693249e01fc7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A74-integrating-5884f873",
+        "type": "integrating",
+        "at": "2026-10-02T06:27:40.320Z",
+        "task": "A74",
+        "integration": "5884f8731e9783777cd400459ca559449da9a3be"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C59-received-94e50328",
+        "type": "received",
+        "at": "2026-10-02T06:29:21.424Z",
+        "task": "C59",
+        "delivery": "94e503280853ff1c6770d851ea0d693249e01fc7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A75-mon-wield-item-v17-20261002",
+        "type": "assign",
+        "at": "2026-10-02T06:42:36.431Z",
+        "task": "A75",
+        "worker": "A2",
+        "goal": "port-mon-wield-item-v17-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C60-assign-disturb-grave-20261002",
+        "type": "assign",
+        "at": "2026-10-02T06:43:17.469Z",
+        "task": "C60",
+        "worker": "C",
+        "goal": "port-disturb-grave-callers-v17-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A74-validated-5884f873",
+        "type": "validated",
+        "at": "2026-10-02T06:45:09.210Z",
+        "task": "A74",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A74-accepted-5884f873",
+        "type": "accepted",
+        "at": "2026-10-02T06:45:09.646Z",
+        "task": "A74"
       }
     ]
   },
   "development": {
-    "executionCommit": "03fd87c4d989cd5a9f3a731abe1f45442a0919e1",
-    "measuredAt": "2026-10-02T06:14:47.610Z",
+    "executionCommit": "5884f8731e9783777cd400459ca559449da9a3be",
+    "measuredAt": "2026-10-02T06:32:59.909Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
