@@ -141648,8 +141648,8 @@
           "name": "make_stunned",
           "line": 107,
           "endLine": 136,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -141902,7 +141902,138 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "make_stunned",
+            "implementation": "js/potion.js",
+            "symbol": "make_stunned",
+            "sourceReview": "Read all of potion.c:make_stunned (107-131). The implementation captures the full packed HStun intrinsic as old, suppresses talk when Unaware, emits the Hallucination-sensitive cure message for !xtime && old, emits the mounted wobble or on-foot stagger phrase for xtime && !old, updates disp.botl only for the C full-value transition predicate, and calls set_itimeout last so higher intrinsic flags remain stored. The function makes no random call but mutates HStun/disp.botl and may write a message, so it is impure. Its consumed dependencies are already implemented: mondata.c:stagger is pure and has the existing source-pinned test scripts/mondata-pure.test.mjs:619-641; potion.c:set_itimeout is the existing packed-property owner. The admitted v18 start recording exercises stagger; the independent cure recordings below exercise the cure message and do not establish stagger output. All represented direct callers below are wired in C order; the seven absent outer source branches remain named in entryPointReview. The selected yellow-mold passive AD_STUN arm stays unimplemented: C uhitm.c:passive calls make_stunned at 6085-6088, but js/uhitm.js:passive currently refuses all non-AD_PHYS arms before its switch, and B88 owns that outer function.",
+            "callers": [
+              {
+                "path": "js/eat.js",
+                "symbol": "cpostfx",
+                "source": "eat.c:cpostfx; C call sites 1178, 1182, 1239: preserve both sequential yellow-light/giant-bat fallthrough calls; lizard calls only when timeout>2, with duration 2 and talk false."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "doeat",
+                "source": "eat.c:doeat; C call site 2888: rust-monster branch keeps its rn2(10) duration draw before awaited stun and later spit/drop behavior."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "use_unicorn_horn",
+                "source": "apply.c:use_unicorn_horn; C call sites 2285, 2371: cursed case 3 uses timeout+lcount and talk true; STUNNED trouble cure uses zero and talk true."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_knockback",
+                "source": "uhitm.c:mhitm_knockback; C call site 5398: hero-defender branch calls after successful hurtle/apparxy and only after the source !Stunned && !rn2(4) guard."
+              },
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c:wiz_intrinsic; C call site 1050: selected v18 path: newtimeout, talk true; preserve A79 changes in this same source function."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "unturn_you",
+                "source": "zap.c:unturn_you; C call site 1231: undead hero: timeout+rnd(30), talk false after the fear message."
+              },
+              {
+                "path": "js/trap.js",
+                "symbol": "chest_trap",
+                "source": "trap.c:chest_trap; C call site 6486: stun gas draws rn1(7,16) after its message/stagger and passes timeout+draw with talk false before hallucination handling."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c:fix_worst_trouble; C call site 582: STUNNED cure: zero, talk true; preserve A79 changes in this same source function."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_destroy_armor",
+                "source": "read.c:seffect_destroy_armor; C call site 1361: both-cursed armor/scroll branch uses timeout+rn1(10,10), talk true."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "Mb_hit",
+                "source": "artifact.c:Mb_hit; C call site 1392: you-defender branch uses timeout+3, talk false; retain later source order."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "vomiting_dialogue",
+                "source": "timeout.c:vomiting_dialogue; C call site 215: case 6 passes timeout+d(2,4), talk false before Popeye/occupation logic and C fallthrough."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout; C call site 739: STUNNED expiry first forces timeout to 1, then clears through make_stunned(0,TRUE), then conditionally stops occupation; planning clones receive the state change through their supplied silent message owner."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs",
+              "scripts/eat-prompt.test.mjs",
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/make-stunned-clear-blessed-horn-a80-cure-slot-observed.session.json",
+              "recordings/potion.c/make-stunned-clear-valkyrie-a80-slot-observed.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-stunned-intrinsic-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 17,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_stunned -> mondata.c:stagger"
+              }
+            ],
+            "checkedAt": "66bc9f640faf06cdcbf26e5bc6cec0469dc86f54"
+          }
+        ],
+        "entryPointReview": "The selected potion.c helper has matching runtime through two active caller families. First, the admitted v18 wizard-sets-stunned-intrinsic-c59 range reaches cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> make_stunned at segment 0 step 17, exercising the positive aware on-foot transition and the pure stagger() dependency. Second, two independently recorded blessed-horn use_unicorn_horn routes reach make_stunned(0, TRUE) and display the C cure message: a Wizard and a Valkyrie role variation. The other represented direct callers are wired and focused-tested, but are not each separately recorded. The source-pinned mondata-pure test covers stagger() output independently; the cure recordings do not. C also calls make_stunned from uhitm.c:mhitm_ad_stun and the yellow-mold AD_STUN arm of uhitm.c:passive; these remain explicit gaps because their surrounding source behavior is unported/refused, with passive owned by B88. Additional absent outer caller gaps remain: mhitu.c:gazemu, spell.c:spell_backfire, trap.c:b_trapped, teleport.c:domagicportal, and mcastu.c:mcast_stun_you. No outer caller completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "#wizintrinsic selects STUNNED",
+            "functions": [
+              "make_stunned"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-stunned-intrinsic-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 17,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_stunned -> mondata.c:stagger"
+              }
+            ]
+          },
+          {
+            "name": "Wizard blessed-horn cure",
+            "functions": [
+              "make_stunned"
+            ],
+            "recordings": [
+              "recordings/potion.c/make-stunned-clear-blessed-horn-a80-cure-slot-observed.session.json"
+            ]
+          },
+          {
+            "name": "Valkyrie blessed-horn cure variation",
+            "functions": [
+              "make_stunned"
+            ],
+            "recordings": [
+              "recordings/potion.c/make-stunned-clear-valkyrie-a80-slot-observed.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
