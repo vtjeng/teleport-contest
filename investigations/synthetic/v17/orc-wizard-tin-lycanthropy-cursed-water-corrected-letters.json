@@ -6,12 +6,12 @@
   "manifestPath": "challenges/manifests/v17.json",
   "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
   "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
-  "evaluationPath": "challenges/evaluations/20261001214251-v17.json",
-  "evaluationCommit": "1f29dddb7791d0584379eeb425ef34791d600acc",
+  "evaluationPath": "challenges/evaluations/20261002152420-v17.json",
+  "evaluationCommit": "068504cf1fc7aac157918a9a81b3ce562f87cf42",
   "remainingScreens": 1,
   "recordedSteps": 78,
   "status": "complete",
-  "commit": "1f29dddb7791d0584379eeb425ef34791d600acc",
+  "commit": "068504cf1fc7aac157918a9a81b3ce562f87cf42",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v17",
@@ -24,14 +24,14 @@
     "recordingSha256": "70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e",
     "recipe": "challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.recipe.session.json",
     "recipeSha256": "b2ac2d535918bf55bf9cebcd14460c857b9455463d70e0fd1be37f2cf8093dcd",
-    "replayInputSha256": "f613e308a782216f90cf667f3e45652b9a4b09431b15fcca3f9f2a6ad3abaf0d",
-    "evaluationPath": "challenges/evaluations/20261001214251-v17.json",
-    "evaluationCommit": "1f29dddb7791d0584379eeb425ef34791d600acc",
-    "evaluationArtifact": "challenges/evaluations/20261001214251-v17.json",
-    "evaluationUtc": "2026-10-01T21:43:58.598Z",
+    "replayInputSha256": "5a8878ab53849370f8e0895b1750321da0f4a6699a57ebaa26f66be995f5acec",
+    "evaluationPath": "challenges/evaluations/20261002152420-v17.json",
+    "evaluationCommit": "068504cf1fc7aac157918a9a81b3ce562f87cf42",
+    "evaluationArtifact": "challenges/evaluations/20261002152420-v17.json",
+    "evaluationUtc": "2026-10-02T15:25:02.900Z",
     "remainingScreens": 1,
     "recordedSteps": 78,
-    "previousScreensMatched": 50,
+    "previousScreensMatched": 77,
     "regression": false,
     "passed": false,
     "error": null,
@@ -113,34 +113,31 @@
     "luaFile": null,
     "line": 328
   },
-  "summary": "B79 restored the tin variety data, so the first residual is no longer the step-50 hunger stop. Eating the human wererat tin reaches C eat.c:cpostfx(), which sets u.ulycn; JS still skips were.c:set_ulycn. C then consumes the once-per-turn lycanthrope chance roll in allmain.c:moveloop_core(), a branch absent from the JS elapsed-turn path, producing the first residual RNG mismatch at step 50. Implementing the setter and chance branch is the required first-cause scope. The one remaining screen at step 77 is a later, separate potion.c:peffect_water() -> were.c:you_were() -> polyself.c:polymon() gap.",
+  "summary": "The tin path now calls eat.c:cpostfx() and were.c:set_ulycn(), but JavaScript still skips the delayed polymorph and lycanthropy block in allmain.c:moveloop_core(). At step 50, C consumes rn2(80)=73 for the daytime change chance; JavaScript consumes the later hunger draw instead. Resume the parked whole moveloop_core source task, including pending-change state and ordered chance and dispatch gates. The final screen at step 77 is a separate potion.c:peffect_water() -> were.c:you_were() transformation gap.",
   "source": {
     "file": "allmain.c",
-    "branch": "After the turn upkeep, when the hero is not invulnerable, C clears stale mvl_change state and, absent a successful polymorph roll, tests `ismnum(u.ulycn) && !Upolyd && !rn2(80 - (20 * night()))`. A zero roll selects mvl_change=2 and may call you_were() when multi permits and the hero is not unchanging. This case eats a human wererat tin at step 50, so C first sets u.ulycn=PM_WERERAT; its recorded daytime roll is rn2(80)=73 and fails the shape-change check. JS lacks both the preceding setter and this hero lycanthropy chance branch; its rn2(20)=13 at the same RNG position consumes the raw draw C used for rn2(80)=73.",
+    "branch": "The hero has eaten a human wererat tin, cpostfx has set u.ulycn=PM_WERERAT, and the hero is not polymorphed. After teleportation and before searching, C moveloop_core validates mvl_change, tests Polymorph, then draws rn2(80 - 20 * night()) for lycanthropy. The recorded daytime value 73 fails the change gate, so no you_were call occurs at step 50. JavaScript has no corresponding delayed-change block.",
     "functions": [
-      "moveloop_core",
-      "were.c:set_ulycn"
+      "moveloop_core"
     ],
     "callers": [
-      "C allmain.c:moveloop() loops through moveloop_core() (586-597); JS js/allmain.js:moveloop() invokes its moveloop_core() (1735-1749), reached from js/jsmain.js:runSegment(). The missing hero-state branch belongs in the elapsed-turn tail represented by js/allmain.js:finishElapsedTurnAfterTimeout() (929 onward).",
-      "The prerequisite state mutation is reached through C eat.c:consume_tin() -> cpostfx() -> were.c:set_ulycn(PM_WERERAT) (eat.c:1323-1325). JS js/eat.js:cpostfx() takes the same catch_lycanthropy branch but records set_ulycn and retouch_equipment as gaps (2746-2748)."
+      "C allmain.c:moveloop() calls moveloop_core(); JS allmain.js:moveloop() calls moveloop_core(), whose elapsed-turn path reaches finishElapsedTurnAfterTimeout(). Its teleport handling is followed directly by searching, omitting C allmain.c:321-339.",
+      "Production tin consumption reaches eat.c:consume_tin() -> cpostfx() -> were.c:set_ulycn(). JS eat.js:cpostfx() now calls were.js:set_ulycn(), which assigns state.u.ulycn and refreshes form-derived properties with set_uasmon()."
     ],
     "dependencies": [
-      "Required source scope also includes the complete were.c:set_ulycn() function (230-237): assign u.ulycn, then call set_uasmon() to refresh innate form properties, especially Drain_resistance. JS has polyself.c:set_uasmon() at js/polyself.js:539-616, but no were.c:set_ulycn implementation; the C eat.c caller currently skips it.",
-      "The allmain.c branch reads night(), the current polymorph/lycanthropy state, static mvl_change, multi, and Unchanging, then may call stop_occupation() or were.c:you_were(). For the observed case the rn2(80) result is nonzero, so these success-side effects are not taken at step 50.",
-      "C eat.c:cpostfx() calls artifact.c:retouch_equipment(2) immediately after set_ulycn(). JS currently records this as an unported gap and polyself.js retains a stub. It is a separate equipment-touch behavior and is not the owner of the first RNG mismatch; preserve it as an unresolved dependency instead of attributing the turn-roll defect to it.",
-      "The final unmatched screen requires the later cursed-water branch: C potion.c:peffect_water() at 740-745 calls were.c:you_were() when cursed water is drunk by an unpolymorphed lycanthrope; JS js/potion.js:1004-1009 records were.c:you_were as unported. C were.c:you_were() increments gw.were_changes and calls polyself.c:polymon(u.ulycn) (192-209). The recorded step 77 includes polymon RNG rn2(500)=112 and d(2,8)=12 and the screen says the hero turns into a wererat. Keep this as a separate downstream screen gap; it is not the step-50 first RNG cause.",
-      "nethack-c/patches/README.md describes deterministic runtime, stable sorting, PRNG logging, and screen capture. Search of nethack-c/patches for `ulycn`, `moveloop_core`, `set_ulycn`, and `you_were` returned no matches, so the gameplay behavior traced here comes from upstream C."
+      "The existing parked goal port-allmain-moveloop-core-synthetic-20260918 covers the whole moveloop_core function. Resume or rescope that goal; do not replace it with a thin chance-roll task. Preserve static mvl_change state, stale-state reset, polymorph-before-lycanthropy RNG order, Unchanging and multi gates, occupation cancellation and dispatch.",
+      "were.c:you_were() is still a genuine discarded-return gap. The recorded rn2(80)=73 does not execute it at step 50, so this range provides no transformation coverage. Matching runtime evidence remains required for the selected function's active transformation entry points.",
+      "C eat.c:cpostfx() calls artifact.c:retouch_equipment(2) after set_ulycn(); JS retains note_unported for this separate equipment-touch gap. It is not the first recorded RNG divergence.",
+      "The later cursed-water command at step 77 reaches C potion.c:peffect_water() -> were.c:you_were() -> polyself.c:polymon(). JS peffect_water() still records the you_were gap. Preserve this downstream unmatched screen as separate source work."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "Current B79 queue entry `.cache/B79-final-work-queue.json` and evaluation `challenges/evaluations/20261001214251-v17.json` at commit 1f29dddb7791d0584379eeb425ef34791d600acc retain the same v17 manifest SHA-256 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada and recording SHA-256 70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e. The current queue has remainingScreens=1 and recordedSteps=78: 77/78 screens and cursors matched, while the earliest RNG difference is step 50, C rn2(80)=73 @ moveloop_core(allmain.c:328) versus JS rn2(20)=13.",
-    "Focused replay receipt `.cache/B79-orc-focused-replay.json` records the exact one-case command `node frozen/ps_test_runner.mjs --worker-session=challenges/cases/v17/orc-wizard-tin-lycanthropy-cursed-water-corrected-letters.session.json`, exit 0, and result 77/78 screens, 2682/2694 RNG calls, 77/78 cursors. This replay was run against the stated commit and did not create a C recording.",
-    "B79 immutable delivery packet referenced by `.cache/B79-delivery-packet.txt`, `context.postFixReplay` for this case and `checks[5]`, independently report 77/78 screens and the same first RNG divergence at step 50: C rn2(80)=73 in allmain.c:328 and JS rn2(20)=13. The prior accepted investigation was based on commit 45a483d2dd3320f9268aeb4477a785237e69df4e and evaluation `challenges/evaluations/20261001190602-v17.json` at 518d4526ccba82c89752a8babb892ba9bc48bc60; that record had 50/78 screens and stopped at step 50 in newuhs() because dried tin TIN_VARIETIES[7].nutrition was undefined. B79 restored the complete tintxts[] nutrition/greasy metadata, and the case now reaches the later cpostfx/allmain branch; the old hunger cause is superseded and must not be reintroduced as current scope.",
-    "Upstream `nethack-c/upstream/src/eat.c:1127-1327` sets catch_lycanthropy=PM_WERERAT for PM_HUMAN_WERERAT and at 1323-1325 calls set_ulycn() then retouch_equipment(2). The recorded step 47 selects dried variety index 7 (`rn2(15)=7 @ tin_variety(eat.c:1503)`); step 50 key y displays “You consume dried wererat.” and the rest of that C turn reaches `rn2(80)=73 @ moveloop_core(allmain.c:328)`.",
-    "Upstream `nethack-c/upstream/src/were.c:230-237` defines the complete setter as `u.ulycn = which; set_uasmon();`. C `allmain.c:307-339` then checks lycanthropy at 327-329 after upkeep and before searching/warning. In `js/allmain.js:929-1013`, the elapsed-turn tail moves from regeneration and the teleport branch to searching with no corresponding hero `u.ulycn`/`mvl_change` check. The focused search `rg -n \"u\\.ulycn|mvl_change|80 - \\(20 \\* night\" js/allmain.js` returned no matches (exit 1). JS `cpostfx()` still calls `note_unported` for set_ulycn at `js/eat.js:2746-2748`; the existing `set_uasmon()` implementation is at `js/polyself.js:539-616`.",
-    "C `potion.c:740-745` and `were.c:192-209` explain the separate step-77 screen: cursed water calls you_were() for an unpolymorphed lycanthrope, which changes the hero to u.ulycn through polymon(). JS `potion.js:1004-1009` skips this call using `note_unported(\"were.c you_were\")`. Recorded C step 77 contains d(2,6)=11, exercise RNG, then rn2(500)=112 and d(2,8)=12 in polymon and the “You turn into a wererat!” text; JS’s step-77 screen/cursor mismatch is therefore downstream of the new step-50 state/turn-roll cause.",
-    "Patch scope check: `nethack-c/patches/README.md` lists instrumentation changes for deterministic inputs, sorting, RNG logging, and captured screens. `rg -n \"ulycn|moveloop_core|set_ulycn|you_were\" nethack-c/patches` returned no matches, confirming the first-cause gameplay rules are from upstream C rather than a recorder patch."
+    "Saved evaluation challenges/evaluations/20261002152420-v17.json at 068504cf1fc7aac157918a9a81b3ce562f87cf42 reports 77/78 screens and cursors and 2682/2694 RNG calls. Its first RNG mismatch is segment 0, step 50, index 2682: C rn2(80)=73 @ moveloop_core(allmain.c:328), JS rn2(20)=13. The recording SHA-256 remains 70af4f5eb9759e70079659e627121d36a8b37b0bff0e19aa97b8839c08cc0d5e.",
+    "Immutable C step 50 key y displays “You consume dried wererat.” After monster movement and generation draws, it records rn2(80)=73 @ moveloop_core(allmain.c:328), then rn2(20)=4 @ gethungry(eat.c:3191). This orders the missing chance draw before the hunger draw consumed by JavaScript.",
+    "Root source read of the unchanged implementation measured at 068504cf1fc7aac157918a9a81b3ce562f87cf42 confirms JS eat.js:cpostfx() calls set_ulycn(catch_lycanthropy,state). JS were.js:set_ulycn() assigns u.ulycn and calls set_uasmon(), matching C were.c:232-237. Counterevidence to the old investigation: the setter is implemented and wired; it must not be treated as an outstanding prerequisite.",
+    "Root compared the complete C delayed-change block allmain.c:321-339 with JS finishElapsedTurnAfterTimeout(): teleport handling is immediately followed by automatic searching. Pending mvl_change, the Polymorph rn2(100) gate, the lycanthropy rn2(80 - 20 * night()) gate and their deferred dispatch are absent there.",
+    "Immutable C step 77 key p records d(2,6)=11 @ peffect_water(potion.c:742), exercise draws, rn2(500)=112 @ polymon(polyself.c:813), d(2,8)=12 @ polymon(polyself.c:868), and “You turn into a wererat!” C potion.c:740-745 calls you_were(); JS peffect_water() retains note_unported for that source site. This explains the later unmatched screen and does not change the first RNG owner.",
+    "Historical hunger diagnosis remains superseded: the complete tintxts nutrition and greasy metadata is restored, and current C/JS play reaches cpostfx before the first RNG difference. Git retains prior investigation versions."
   ]
 }
