@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 74126039,
+      "datetime": "20261002213500",
+      "nethackrc": "OPTIONS=name:TinCallerA79,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed tin opener\n\u0017blessed tin of homemade gnome\nap qy"
+    }
+  ],
+  "comment": "Corrected A79 C-first valid-tin route after preserving the wrong-slot attempt. Its exact seed and inventory screen showed the opener in slot p and the homemade gnome tin in slot q; applying p wields it, then a space dismisses the source message and exposes q as the tin-open prompt. The tin species and variety are derived from objnam.c:tin parsing, then eat.c:consume_tin calls cprefx before cpostfx. This verifies the generic caller, not the green-slime make_slimed branch."
+}

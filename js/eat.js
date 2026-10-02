@@ -282,10 +282,12 @@ import {
 import { change_luck } from './moveloop_preamble.js';
 import {
     dopotion, incr_itimeout, make_blinded, make_confused, make_deaf,
-    make_glib, make_hallucinated, make_sick, make_stoned, make_vomiting,
+    make_glib, make_hallucinated, make_sick, make_slimed, make_stoned,
+    make_vomiting,
     self_invis_message,
     set_itimeout,
 } from './potion.js';
+import { delayed_killer } from './end.js';
 import {
     carried,
     costly_alteration,
@@ -1156,9 +1158,9 @@ async function consume_tin(mesg, state = game, env = {}) {
         observe_object(tin, state);
         tin.known = true;
         tin = context.tin = costly_tin(COST_OPEN, state);
-        // C discards these void results. cprefx() remains an explicit gap;
-        // cpostfx() is ported below and still runs only if the tin survived it.
-        note_unported('eat.c cprefx');
+        // C calls cprefx after setting the opened tin's charge and before
+        // cpostfx; both are discarded-void calls in that source order.
+        await cprefx(monsterNumber, state, eatEnv);
         if (context.tin) await cpostfx(monsterNumber, state, eatEnv);
         if (!context.tin) return;
 
@@ -2191,7 +2193,7 @@ async function maybe_cannibal(pm, allowmsg, state) {
 // C ref: eat.c cprefx() (789-869), "called before a corpse is eaten": the
 // cannibalism penalty and the corpses that act before the first bite rather
 // than after the last one.
-async function cprefx(pm, state) {
+async function cprefx(pm, state, env = {}) {
     await maybe_cannibal(pm, true, state);
     if (flesh_petrifies(state.mons[pm])) {
         if (!propertyActive(state, STONE_RES)) {
@@ -2230,10 +2232,16 @@ async function cprefx(pm, state) {
         // side of life-saving exercise(A_WIS) and revive_corpse().
         throw new UnsupportedEatError('done(DIED) for a Rider corpse');
     case PM_GREEN_SLIME:
-        // C's arm needs make_slimed() and delayed_killer(); eatcorpse()'s
-        // `slimeable` stop covers every hero it runs for. What is left is a
-        // hero already sliming, Unchanging or slimeproof, and that is exactly
-        // when C's guard fails and control falls through to `default`.
+        if (!hungerProperty(state, SLIMED).intrinsic
+            && !propertyActive(state, UNCHANGING)
+            && !slimeproof(state.youmonst.data)) {
+            await (env.message ?? ttyPline)(
+                "You don't feel very well.", state,
+            );
+            await make_slimed(10, null, state, env);
+            delayed_killer(SLIMED, KILLED_BY_AN, '', state);
+        }
+        // C falls through after the green-slime effect.
         /* FALLTHROUGH */
     default:
         if (acidic(state.mons[pm])
@@ -2810,10 +2818,6 @@ async function eatcorpse(otmp, state, env = {}) {
         // ties that timer to the meal.
         throw new UnsupportedEatError('eatcorpse() for a glob');
     }
-    if (slimeable) {
-        // cprefx()'s green slime arm: make_slimed() and delayed_killer().
-        throw new UnsupportedEatError('make_slimed() for a green slime corpse');
-    }
     if (stoneable) {
         // cprefx() turns this hero to stone through done(STONING).
         throw new UnsupportedEatError('done(STONING) for a petrifying corpse');
@@ -3354,7 +3358,7 @@ async function start_eating(otmp, already_partly_eaten, state, env) {
     meal.eating = 1;
 
     if (otmp.otyp === CORPSE || otmp.globby) {
-        await cprefx(victual(state).piece.corpsenm, state);
+        await cprefx(victual(state).piece.corpsenm, state, env);
         // C ref: `if (!svc.context.victual.piece
         //           || !svc.context.victual.eating) return;`, the rider
         // revived or the hero died and was lifesaved. cprefx() stops on both

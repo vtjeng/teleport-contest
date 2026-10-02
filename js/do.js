@@ -316,7 +316,7 @@ import {
 } from './stairs.js';
 import { Punished, dismount_steed, stucksteed } from './steed.js';
 import { enexto, mnexto, safe_teleds } from './teleport.js';
-import { run_timers } from './timeout.js';
+import { burn_away_slime, run_timers } from './timeout.js';
 import {
     climb_pit,
     fill_pit,
@@ -772,7 +772,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
                 })}${fireResistant ? '.' : '!'}`,
                 state,
             );
-            note_unported('trap.c burn_away_slime');
+            await burn_away_slime(state, rawEnv);
             const damage = random.d
                 ? random.d(fireResistant ? 1 : 3, 6)
                 : Array.from({ length: fireResistant ? 1 : 3 },

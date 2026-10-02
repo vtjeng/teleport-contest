@@ -102,7 +102,7 @@ import { do_mapping, findit } from './detect.js';
 import { print_dungeon } from './dungeon.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
-    make_sick,
+    make_sick, make_slimed,
     make_stoned, make_vomiting,
 } from './potion.js';
 import { rn2 } from './rng.js';
@@ -425,8 +425,9 @@ export async function wiz_intrinsic(state = game, rawEnv = {}) {
         } else if (property === SLIMED) {
             const message = `You are${oldTimeout ? ' still' : ''} `
                 + 'turning into slime.';
-            void message;
-            if (state === game) note_unported('potion.c make_slimed');
+            await make_slimed(newTimeout, message, state, {
+                ...rawEnv, random, message: rawEnv.message ?? ttyPline,
+            });
         } else if (property === STONED) {
             const message = `You are${oldTimeout ? ' still' : ''} `
                 + 'turning into stone.';

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { ART_EXCALIBUR } from '../js/artifacts.js';
@@ -78,6 +79,63 @@ import {
     loadSitCommandRecipe,
     loadSitEggLayingRecipes,
 } from './run-sit-command.mjs';
+
+const C_SIT = readFileSync(
+    new URL('../nethack-c/upstream/src/sit.c', import.meta.url), 'utf8',
+);
+const JS_SIT = readFileSync(new URL('../js/sit.js', import.meta.url), 'utf8');
+
+test('sit.c dosit awaits burn_away_slime in both lava branches', () => {
+    const cStart = C_SIT.indexOf('dosit(void)');
+    const cEnd = C_SIT.indexOf('\n/* curse a few inventory items at random! */', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cSit = C_SIT.slice(cStart, cEnd);
+    const cTrappedOrder = [
+        'else if (u.utraptype == TT_LAVA)',
+        'You("sit in the %s!", hliquid("lava"));',
+        'if (Slimed)\n                    burn_away_slime();',
+        'u.utrap += rnd(4);',
+        'losehp(d(2, 10), "sitting in lava",',
+    ].map((text) => cSit.indexOf(text));
+    assert.ok(cTrappedOrder.every((index) => index >= 0));
+    assert.deepEqual(cTrappedOrder,
+        [...cTrappedOrder].sort((a, b) => a - b));
+    const cStandingStart = cSit.indexOf('else if (is_lava(u.ux, u.uy))');
+    const cStandingBranch = cSit.slice(cStandingStart);
+    const cStanding = [
+        'You(sit_message, hliquid("lava"));',
+        'burn_away_slime();',
+        'if (likes_lava(gy.youmonst.data))',
+    ].map((text) => cStandingBranch.indexOf(text));
+    assert.ok(cStanding.every((index) => index >= 0));
+    assert.deepEqual(cStanding, [...cStanding].sort((a, b) => a - b));
+
+    const jsStart = JS_SIT.indexOf('export async function dosit(');
+    const jsEnd = JS_SIT.indexOf('\n}\n\n// C ref: sit.c attrcurse', jsStart) + 3;
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsSit = JS_SIT.slice(jsStart, jsEnd);
+    const jsTrappedOrder = [
+        'if (u.utraptype === TT_LAVA)',
+        "await message(`You sit in the ${hliquid('lava', { ...rawEnv, state })}!`, state);",
+        'if (u.uprops?.[SLIMED]?.intrinsic)\n                    await burn_away_slime(state, rawEnv);',
+        'u.utrap += random.rnd(4);',
+        "await losehp(random.d(2, 10), 'sitting in lava', KILLED_BY,",
+    ].map((text) => jsSit.indexOf(text));
+    assert.ok(jsTrappedOrder.every((index) => index >= 0));
+    assert.deepEqual(jsTrappedOrder,
+        [...jsTrappedOrder].sort((a, b) => a - b));
+    const jsStandingStart = jsSit.indexOf('else if (is_lava(u.ux, u.uy, state))');
+    const jsStandingBranch = jsSit.slice(jsStandingStart);
+    const jsStanding = [
+        "await message(sit_message(hliquid('lava', { ...rawEnv, state })), state);",
+        'await burn_away_slime(state, rawEnv);',
+        'if (likes_lava(species))',
+    ].map((text) => jsStandingBranch.indexOf(text));
+    assert.ok(jsStanding.every((index) => index >= 0));
+    assert.deepEqual(jsStanding, [...jsStanding].sort((a, b) => a - b));
+    assert.doesNotMatch(jsSit,
+        /note_unported\(['"]timeout\.c burn_away_slime/u);
+});
 
 // gt.toplines, which pline.c writes whether or not the row was repainted. A
 // dosit() called outside moveloop_core() leaves its line here.
@@ -296,7 +354,7 @@ test('the terrain chain runs each selected arm in source order', async () => {
         if (typ === ALTAR)
             assert.ok(!game.unported.has('pray.c altar_wrath'));
         if (typ === LAVAPOOL)
-            assert.ok(game.unported.has('timeout.c burn_away_slime'));
+            assert.ok(!game.unported.has('timeout.c burn_away_slime'));
         if (typ === THRONE)
             assert.ok(!game.unported.has('sit.c throne_sit_effect'));
     }

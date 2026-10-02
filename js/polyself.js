@@ -208,6 +208,7 @@ import {
     control_teleport,
     defended,
     your_race,
+    flaming,
     name_to_monclass,
     name_to_monplus,
     num_horns,
@@ -244,7 +245,7 @@ import {
 } from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
 import {
-    make_blinded, make_glib, make_sick, set_itimeout,
+    make_blinded, make_glib, make_sick, make_slimed, set_itimeout,
 } from './potion.js';
 import { cantwield, untwoweapon, uwepgone, uswapwepgone } from './wield.js';
 import { _doWearInternals } from './do_wear.js';
@@ -1163,7 +1164,14 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         await make_sick(0, null, false, SICK_ALL, state, env);
         await message('You no longer feel sick.', state, env);
     }
-    // Slimed — not exercised for gnome
+    if (u.uprops[SLIMED].intrinsic) {
+        if (flaming(state.youmonst.data)) {
+            await make_slimed(0, 'The slime burns away!', state, env);
+        } else if (mntmp === M.PM_GREEN_SLIME) {
+            // C silently cures when polymorphing into a green slime.
+            await make_slimed(0, null, state, env);
+        }
+    }
 
     await check_strangling(false, state, env); // maybe stop strangling
 
@@ -1598,7 +1606,7 @@ export async function newman(state = game) {
         await ttyPline(
             'Your body transforms, but there is still slime on you.', state,
         );
-        note_unported('potion.c make_slimed');
+        await make_slimed(10, null, state);
     }
 
     state.disp ??= {};

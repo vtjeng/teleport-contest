@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 62058407,
+      "datetime": "20261002204500",
+      "nethackrc": "OPTIONS=name:SlimeTinA79Boiled2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed tin opener\n\u0017blessed tin of boiled green slime meat\nap eqy"
+    }
+  ],
+  "comment": "A79 boiled-tin variation, seed 62058407 at 2026-10-02 20:45 UTC C-first caller recipe. The newly selected seed/date and wizard identity are setup values; the source-selected interaction is to wish for a blessed tin opener and blessed tin of boiled green slime meat, apply the opener once (C wields it and returns from use_tin_opener), dismiss that message, then use e on the tin. The blessed opener makes start_tin immediate. Inputs are frozen before JavaScript comparison; the boiled tin is the cheap tin-variety variation."
+}

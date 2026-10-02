@@ -113,7 +113,7 @@ import { game } from './gstate.js';
 import { inv_weight, You_can_move_again, nomul, spoteffects } from './hack.js';
 import {
     incr_itimeout, make_blinded, make_confused, make_deaf, make_glib,
-    make_hallucinated, make_sick, make_vomiting, set_itimeout,
+    make_hallucinated, make_sick, make_slimed, make_vomiting, set_itimeout,
 } from './potion.js';
 import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
@@ -560,17 +560,11 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
 }
 
 // C ref: timeout.c burn_away_slime() (446-453). Fire cures green slime, and
-// zap.c zhitu()'s ZT_FIRE arm calls this before it burns any armor.
-//
-// youprop.h:113 Slimed is u.uprops[SLIMED].intrinsic, a countdown to turning
-// into a green slime. Nothing ported raises it -- AD_SLIM comes from a green
-// slime's attack or from eating its corpse, and neither is ported -- so the
-// arm below has never run. make_slimed() is what it needs: it clears the
-// timer, prints the message and repaints the hero's own glyph.
-export function burn_away_slime(state = game) {
+// calls make_slimed() only while its timeout is active.
+export async function burn_away_slime(state = game, env = {}) {
     if (state.u?.uprops?.[SLIMED]?.intrinsic) {
-        throw new UnsupportedHeroTimeoutBoundaryError(
-            'make_slimed() to burn the slime away', 'burn_away_slime',
+        await make_slimed(
+            0, 'The slime that covers you is burned away!', state, env,
         );
     }
 }

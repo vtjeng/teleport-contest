@@ -611,7 +611,7 @@ async function mcast_fire_pillar(mtmp, dmg, env = {}) {
         monstunseesu(M_SEEN_FIRE, state);
     }
     if (heroProperty(state, HALF_SPDAM)) dmg = Math.trunc((dmg + 1) / 2);
-    burn_away_slime(state);
+    await burn_away_slime(state, env);
     // C's item effects mutate the same hero clone and may print through their
     // own fallback operations.  Planning passes an explicit silent message
     // operation so those fallbacks cannot write to the live terminal.
