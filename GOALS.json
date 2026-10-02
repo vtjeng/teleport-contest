@@ -135760,15 +135760,15 @@
           "name": "charm_snakes",
           "line": 105,
           "endLine": 138,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "calm_nymphs",
           "line": 139,
           "endLine": 161,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -136543,7 +136543,142 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "charm_snakes",
+            "implementation": "js/music.js",
+            "symbol": "charm_snakes",
+            "sourceReview": "Read the complete music.c:charm_snakes definition (105-132) and its selected call arm in do_improvisation (WOODEN_FLUTE, 608). C iterates fmon in nmon order, skips DEADMONSTER before checking S_SNAKE, mcanmove, then strict mdistu(mtmp) < distance. hack.h defines mdistu -> distu -> dist2, so JS passes hero coordinates to dist2 and keeps the strict comparison. For each eligible snake, save pre-change mpeaceful; set peaceful, clear avenge and STRAT_WAITMASK; call canseemon before clearing mundetected; clear mundetected; call newsym; then call canseemon again. If newly visible, consume a_monnam in the You notice message; otherwise consume Monnam and the saved peacefulness in the freeze/sway message. The helper makes no RNG call. JS awaits its message before do_improvisation proceeds to exercise(A_DEX, TRUE). newsym, canseemon, a_monnam, Monnam, dist2 and ttyPline are existing implementations; no unported callee is invoked.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation WOODEN_FLUTE arm calls the selected helper after its instrument response and notes, before exercise(A_DEX, TRUE)"
+              },
+              {
+                "path": "js/music.js",
+                "symbol": "do_play_instrument",
+                "source": "music.c:do_play_instrument dispatches accepted instrument input to do_improvisation"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply wooden flute/harp cases dispatch to do_play_instrument"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 79,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_FLUTE) -> music.c:charm_snakes"
+              }
+            ],
+            "checkedAt": "a2c9e6096c3e7b8ff3820973dfba7c909a1759ef"
+          },
+          {
+            "name": "calm_nymphs",
+            "implementation": "js/music.js",
+            "symbol": "calm_nymphs",
+            "sourceReview": "Read the complete music.c:calm_nymphs definition (139-158) and its selected call arm in do_improvisation (WOODEN_HARP, 684-685). C iterates fmon in nmon order, skips DEADMONSTER before checking S_NYMPH, mcanmove, then strict mdistu(mtmp) < distance; hack.h maps mdistu through distu to squared dist2. For each eligible nymph, C clears msleeping, sets peaceful, clears avenge and STRAT_WAITMASK, then checks canseemon and consumes Monnam only for visible feedback. It does not redraw, call RNG, or use any return value from the message. JS awaits visible feedback before do_improvisation proceeds to exercise(A_DEX, TRUE). dist2, canseemon, Monnam and ttyPline are existing implementations; no unported callee is invoked.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation WOODEN_HARP arm calls the selected helper after its instrument response and notes, before exercise(A_DEX, TRUE)"
+              },
+              {
+                "path": "js/music.js",
+                "symbol": "do_play_instrument",
+                "source": "music.c:do_play_instrument dispatches accepted instrument input to do_improvisation"
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "doapply",
+                "source": "apply.c:doapply wooden flute/harp cases dispatch to do_play_instrument"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_HARP) -> music.c:calm_nymphs"
+              },
+              {
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 86,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_HARP) -> music.c:calm_nymphs"
+              }
+            ],
+            "checkedAt": "a2c9e6096c3e7b8ff3820973dfba7c909a1759ef"
+          }
+        ],
+        "entryPointReview": "C defines exactly two selected instrument-helper routes in music.c:do_improvisation: the special-effect WOODEN_FLUTE branch calls charm_snakes and the special-effect WOODEN_HARP branch calls calm_nymphs; both calls precede exercise(A_DEX, TRUE). The production chain is apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation. No other direct C call to either selected helper exists. The active flute route is matched by v17 wooden-flute-charms-moving-snake-slot-e-more-continued through segment 0 step 79. The active harp route is matched by v17 wooden-harp-calms-nymph-slot-e-corrected through step 85 and wooden-harp-calms-nymph-slot-e-more-continued through step 86. Other instrument helpers and do_pit/do_earthquake remain outside the selected source units; no whole do_improvisation credit is claimed.",
+        "entryPoints": [
+          {
+            "name": "Apply a wooden flute with the C special-effect gate satisfied",
+            "functions": [
+              "charm_snakes"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "wooden-flute-charms-moving-snake-slot-e-more-continued",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 79,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_FLUTE) -> music.c:charm_snakes"
+              }
+            ]
+          },
+          {
+            "name": "Apply a wooden harp with the C special-effect gate satisfied",
+            "functions": [
+              "calm_nymphs"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-corrected",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 85,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_HARP) -> music.c:calm_nymphs"
+              },
+              {
+                "batch": "v17",
+                "caseId": "wooden-harp-calms-nymph-slot-e-more-continued",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 86,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation(WOODEN_HARP) -> music.c:calm_nymphs"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
