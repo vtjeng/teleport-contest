@@ -1094,8 +1094,7 @@ async function Amulet_on(obj, state = game) {
 }
 
 // C ref: do_wear.c Amulet_off() (1090-1189). This callback clears the amulet
-// source before effects that depend on the remaining worn properties. C's
-// discarded spoteffects(TRUE) call stays an explicit void gap.
+// source before effects that depend on the remaining worn properties.
 export async function Amulet_off(state = game, env = {}) {
     const amul = state.uamul;
     // mhitu.c:mattacku supplies silent messages and redraw seams while it
@@ -1206,7 +1205,7 @@ export async function Amulet_off(state = game, env = {}) {
                 state,
             );
             makeKnown = true;
-            note_unported('hack.c spoteffects');
+            await spoteffects(true, state, env);
         }
         break;
     }

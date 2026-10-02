@@ -5,6 +5,7 @@ import {
     A_DEX,
     A_STR,
     ARTICLE_NONE,
+    ARTICLE_A,
     ARTICLE_THE,
     ARTICLE_YOUR,
     BLINDED,
@@ -98,6 +99,7 @@ import {
     POOL,
     RIGHT_SIDE,
     ROWNO,
+    RLOC_NOMSG,
     ROOM,
     ROOMOFFSET,
     RUN_CRAWL,
@@ -135,6 +137,7 @@ import {
     TT_PIT,
     Upolyd,
     VIBRATING_SQUARE,
+    WARNING,
     WATER,
     WEB,
     WOUNDED_LEGS,
@@ -207,6 +210,7 @@ import { clear_kickedloc } from './dokick.js';
 import { drag_ball, move_bc } from './ball.js';
 import { dig_typ, use_pick_axe2, watch_dig } from './dig.js';
 import {
+    Amonnam,
     a_monnam,
     capitalizedAlwaysVisibleMonsterName,
     hliquid,
@@ -218,6 +222,7 @@ import {
 } from './do_name.js';
 import {
     assign_level,
+    ceiling,
     Invocation_lev,
     on_level,
     surface,
@@ -338,8 +343,9 @@ import {
     seemimic,
     set_ustuck,
 } from './mon.js';
-import { m_next2u } from './mhitu.js';
+import { m_next2u, mdamageu } from './mhitu.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
+import { S_PIERCER } from './monsters.js';
 import { abuse_dog } from './dog.js';
 import {
     accessible,
@@ -370,9 +376,12 @@ import { maybe_adjust_hero_bubble, water_friction } from './mkmaze.js';
 import { is_db_wall } from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
-import { enexto, goodpos, rloc, rloc_to } from './teleport.js';
+import { enexto, goodpos, mnexto, rloc, rloc_to } from './teleport.js';
 import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
+import { hard_helmet } from './do_wear.js';
+import { helm_simple_name } from './objnam.js';
+import { is_ice } from './terrain.js';
 import {
     addtobill,
     block_door,
@@ -1452,6 +1461,11 @@ export function requireSimpleHeroDestination(
     const ordinaryDestination = location && (walkingLiquid
             || location.typ === ROOM
             || location.typ === CORR
+            // hack.c:test_move()'s obstacle chain only blocks IS_OBSTRUCTED
+            // terrain and iron bars. ICE therefore passes the same movement
+            // gate and reaches spoteffects(), which owns its melt timer and
+            // underfoot effects.
+            || location.typ === ICE
             || IS_AIR(location.typ)
             || IS_FURNITURE(location.typ)
             || doorway);
@@ -4897,14 +4911,15 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
     const { u } = state;
     const levitating = propertyActiveUnblocked(state, LEVITATION);
     const flying = heroIsFlying(state);
-    const waterWalking = propertyActiveUnblocked(state, WWALKING);
-    const swimming = propertyActiveUnblocked(state, SWIMMING)
+    const waterWalking = propertyPresent(state, WWALKING)
+        && !Is_waterlevel(u.uz);
+    const swimming = propertyPresent(state, SWIMMING)
         || Boolean(u.usteed && is_swimmer(u.usteed.data));
-    const breathlessHero = propertyActiveUnblocked(
-        state,
-        MAGICAL_BREATHING,
-    ) || breathless(state.youmonst?.data);
-    const amphibiousHero = breathlessHero || amphibious(state.youmonst?.data);
+    const hasMagicalBreathing = propertyPresent(state, MAGICAL_BREATHING);
+    const breathlessHero = hasMagicalBreathing
+        || breathless(state.youmonst?.data);
+    const amphibiousHero = hasMagicalBreathing
+        || amphibious(state.youmonst?.data);
 
     if (u.uinwater) {
         let stillInWater = false;
@@ -4984,92 +4999,212 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
     return false;
 }
 
-// C ref: hack.c spoteffects():3345-3347, the terrain test that guards
-// switch_terrain(). teleport.c teleds():551-552 has a test of its own with the
-// same call, so this one is written where spoteffects() has it rather than
-// folded into switch_terrain().
+// C's spottrap, spottraptyp, spotterrain, spotloc, and inspoteffects are
+// function statics. Keep one corresponding record per game state so nested
+// effect calls preserve C's recursion guard without leaking between tests.
+const spoteffectsStatics = new WeakMap();
+
+function spoteffectsStaticsFor(state) {
+    let record = spoteffectsStatics.get(state);
+    if (!record) {
+        record = {
+            depth: 0,
+            x: 0,
+            y: 0,
+            terrain: STONE,
+            trap: null,
+            traptyp: NO_TRAP_FLAGS,
+        };
+        spoteffectsStatics.set(state, record);
+    }
+    return record;
+}
+
+// C ref: hack.c spoteffects()'s terrain-transition gate (3329-3335). Keep it
+// as a small source-derived predicate so focused tests can pin both the
+// previous-square comparison and the forced MAX_TYPE refresh.
 export function terrain_changed_under_hero(state = game) {
     const { u } = state;
     const current = state.level?.at(u.ux, u.uy);
     const previous = state.level?.at(u.ux0, u.uy0);
-    if (!current || !previous) return false;
-    return current.typ !== previous.typ
-        || state.iflags?.terrain_typ === MAX_TYPE;
+    return Boolean(current && previous
+        && (current.typ !== previous.typ
+            || state.iflags?.terrain_typ === MAX_TYPE));
 }
 
-// C ref: hack.c spoteffects() (3312-3462), the arms an ordinary ROOM, CORR,
-// IS_AIR, IS_FURNITURE or open doorway square reaches, plus the trap arm at
-// 3373-3398.
-// Its two ported callers, domove() and teleport.c teleds(), each admit their
-// destination through requireSimpleHeroDestination() first, which refuses
-// every square that could reach the pool, lava or ice-warning arms and hands
-// the trap arm's admission to preflight_dotrap(); the recursion guard and the
-// iflags.in_lava_effects return are unreachable for the same reason. The
-// resident-monster arm at 3417-3455 is kept out by the callers instead:
-// domove() reaches this seam only when m_at() answered null, and teleds()
-// makes that test itself. The sink arm is the one an admitted destination can
-// now reach, so it is refused here rather than ahead of the move.
-//
-// gi.in_steed_dismounting is C's kludge for the one caller that needs the
-// pickup deferred: steed.c dismount_steed() sets it around its teleds() call
-// and then lets float_down() run pickup(1) exactly once.
+// C ref: hack.c spoteffects() (3312-3462). This owns the complete square
+// arrival order, including the recursive ICE->liquid path through pooleffects,
+// the fire-trap guard, the melt warning, and the resident-monster surprise.
+// gi.in_steed_dismounting suppresses only the trap/pickup tail; the preceding
+// terrain, pool and room effects still run on that C entry.
 export async function spoteffects(pick, state = game, rawEnv = {}) {
-    let trap = t_at(state.u.ux, state.u.uy, state);
+    const { u } = state;
+    const message = rawEnv.planning
+        ? async () => {}
+        : (rawEnv.message ?? ttyPline);
+    const random = { rn2, rnd, d, ...rawEnv.random };
+    const staticState = spoteffectsStaticsFor(state);
+    let trap = t_at(u.ux, u.uy, state);
     // C ref: hack.c:3322. untrap.c is not ported and nothing sets the flag, so
     // FAILEDUNTRAP never reaches dotrap() -- but the read belongs here, where
     // C makes it, rather than being written out as the constant 0.
     const trapflag = state.iflags?.failing_untrap ? FAILEDUNTRAP : 0;
-    if (await pooleffects(true, state, rawEnv)
-        // C's done() is non-returning.  The JS finalizer returns after setting
-        // gameover so that the segment can capture its terminal display; stop
-        // spoteffects here before its ordinary arrival tail redraws the map.
-        || state.program_state?.gameover) return;
-    if (terrain_changed_under_hero(state))
-        await switch_terrain(state, rawEnv);
-    await check_special_room(false, state);
-    // C ref: hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm. Nothing
-    // in this port grants levitation, so the arm is unreachable today, but
-    // admitting a sink as a destination is what makes it reachable in
-    // principle; sit.c dosinkfall() has no owner.
-    if (IS_SINK(state.level?.at(state.u.ux, state.u.uy)?.typ)
-        && propertyActiveUnblocked(state, LEVITATION)) {
-        await dosinkfall(state);
+    const location = state.level?.at(u.ux, u.uy);
+
+    // C ref: hack.c:3320-3326. Keep the guard before changing its saved
+    // terrain/coordinate: a same-square, same-terrain recursion is ignored
+    // unless the active trap itself changed type.
+    if (staticState.depth
+        && u_at(staticState.x, staticState.y, state)
+        && staticState.terrain === location?.typ
+        && (!staticState.trap || !trap
+            || trap.ttyp === staticState.traptyp)) {
+        return;
     }
-    if (!state.in_steed_dismounting) {
-        // C ref: hack.c:3362-3372. A levitation about to time out at the end
-        // of this turn would let the trap fire twice, so C spends an rn2(2) to
-        // move the timeout out of the way. float_down() handles the early
-        // landing; when it fires the trap and pickup itself, suppress this
-        // caller's second copy of those effects.
-        const levitation = state.u.uprops[LEVITATION];
-        if (trap && (levitation.intrinsic & TIMEOUT) === 1
-            && !levitation.extrinsic
-            && !(levitation.intrinsic & ~(I_SPECIAL | TIMEOUT))) {
-            if (rn2(2)) {
-                const { incr_itimeout } = await import('./potion.js');
-                incr_itimeout(levitation, 1);
-            } else {
-                const { float_down } = await import('./trap.js');
-                if (await float_down(I_SPECIAL | TIMEOUT, 0, state)) {
-                    trap = null;
-                    pick = false;
+    if (state.iflags?.in_lava_effects) return;
+
+    ++staticState.depth;
+    staticState.terrain = location?.typ ?? STONE;
+    staticState.x = u.ux;
+    staticState.y = u.uy;
+    try {
+        // C ref: hack.c:3329-3335. The terrain transition is first; liquid
+        // effects may then relocate the hero and jump to spotdone.
+        if (terrain_changed_under_hero(state)) {
+            await switch_terrain(state, rawEnv);
+        }
+        if (await pooleffects(true, state, rawEnv)
+            || state.program_state?.gameover) return;
+
+        await check_special_room(false, state);
+        if (IS_SINK(state.level?.at(u.ux, u.uy)?.typ)
+            && propertyActiveUnblocked(state, LEVITATION)) {
+            await dosinkfall(state);
+        }
+        if (!state.in_steed_dismounting) {
+            // C ref: hack.c:3362-3372. Preserve the one-point timeout check
+            // and consume rn2(2) only when the fire trap would otherwise run
+            // twice at the end of this turn.
+            const levitation = u.uprops[LEVITATION] ?? {};
+            if (trap && (levitation.intrinsic & TIMEOUT) === 1
+                && !levitation.extrinsic
+                && !(levitation.intrinsic & ~(I_SPECIAL | TIMEOUT))) {
+                if (random.rn2(2)) {
+                    const { incr_itimeout } = await import('./potion.js');
+                    incr_itimeout(levitation, 1);
+                } else {
+                    const { float_down } = await import('./trap.js');
+                    if (await float_down(
+                        I_SPECIAL | TIMEOUT, 0, state, rawEnv,
+                    )) {
+                        trap = null;
+                        pick = false;
+                    }
                 }
             }
+
+            // C ref: hack.c:3379-3398. Ordinary traps pick up before firing;
+            // pits fire before the pickup. A fire trap records its type across
+            // recursive melt_ice()/spoteffects() entry.
+            const pit = Boolean(trap && is_pit(trap.ttyp));
+            if (pick && !pit) await pickup(1, state);
+            if (trap && (!staticState.trap
+                || staticState.traptyp !== trap.ttyp)) {
+                staticState.trap = trap;
+                staticState.traptyp = trap.ttyp;
+                try {
+                    await dotrap(trap, trapflag, state);
+                } finally {
+                    staticState.trap = null;
+                    staticState.traptyp = NO_TRAP_FLAGS;
+                }
+            }
+            if (pick && pit) await pickup(1, state);
         }
-        //
-        // C ref: hack.c:3379-3398. Which of pickup(1) and dotrap() goes first
-        // is decided by is_pit() alone: the hero picks up what is lying on an
-        // ordinary trap before it fires, and falls into a pit before picking
-        // anything up from its floor. A bear trap is not a pit, which is why
-        // the object pile is described first and the trap line arrives on the
-        // next screen.
-        const pit = Boolean(trap && is_pit(trap.ttyp));
-        if (pick && !pit) await pickup(1, state);
-        // C's spottrap/spottraptyp statics at 3388-3396 guard against a fire
-        // trap re-entering spoteffects() through melt_ice(); no ported trap
-        // effect recurses, so the guard has nothing to suppress.
-        if (trap) await dotrap(trap, trapflag, state);
-        if (pick && pit) await pickup(1, state);
+
+        // C ref: hack.c:3402-3410. Warning reads the raw HWarning/EWarning
+        // fields (including blocked bits) and looks up this square's timer.
+        const warning = u.uprops[WARNING];
+        if ((warning?.intrinsic || warning?.extrinsic)
+            && is_ice(u.ux, u.uy, state)) {
+            const warnings = [
+                'The ice seems very soft and slushy.',
+                'You feel the ice shift beneath you!',
+                'The ice, is gonna BREAK!',
+            ];
+            const timeLeft = spot_time_left(
+                u.ux,
+                u.uy,
+                MELT_ICE_AWAY,
+                state,
+            );
+            if (timeLeft && timeLeft < 15) {
+                const index = timeLeft < 5 ? 2 : timeLeft < 10 ? 1 : 0;
+                await message(warnings[index], state);
+            }
+        }
+
+        // C ref: hack.c:3412-3455. The monster at the hero's square loses its
+        // hiding and sleep state before its species-specific surprise runs.
+        const monster = m_at(u.ux, u.uy, state);
+        if (monster && !u.uswallow) {
+            monster.mundetected = 0;
+            monster.msleeping = 0;
+            if (monster.data?.mlet === S_PIERCER) {
+                await message(
+                    `${Amonnam(monster, { ...rawEnv, state })} suddenly drops from the ${ceiling(u.ux, u.uy, state)}!`,
+                    state,
+                );
+                if (!monster.mtame) {
+                    if (hard_helmet(u.uarmh, state)) {
+                        await message(
+                            `Its blow glances off your ${helm_simple_name(u.uarmh, state)}.`,
+                            state,
+                        );
+                    } else if (u.uac + 3 <= random.rnd(20)) {
+                        await message(
+                            `You are almost hit by ${x_monnam(monster, ARTICLE_A, 'falling', 0, true, state, rawEnv)}!`,
+                            state,
+                        );
+                    } else {
+                        await message(
+                            `You are hit by ${x_monnam(monster, ARTICLE_A, 'falling', 0, true, state, rawEnv)}!`,
+                            state,
+                        );
+                        let damage = random.d(4, 6);
+                        if (propertyPresent(state, HALF_PHDAM))
+                            damage = Math.floor((damage + 1) / 2);
+                        await mdamageu(monster, damage, state, rawEnv);
+                    }
+                }
+            } else if (monster.mtame) {
+                await message(
+                    `${Amonnam(monster, { ...rawEnv, state })} jumps near you from the ${ceiling(u.ux, u.uy, state)}.`,
+                    state,
+                );
+            } else if (monster.mpeaceful) {
+                const name = heroIsBlind(state) && !sensesMonster(monster, state)
+                    ? 'something'
+                    : a_monnam(monster, { ...rawEnv, state });
+                await message(`You surprise ${name}!`, state);
+                monster.mpeaceful = 0;
+            } else {
+                await message(
+                    `${Amonnam(monster, { ...rawEnv, state })} attacks you by surprise!`,
+                    state,
+                );
+            }
+            await mnexto(monster, RLOC_NOMSG, { ...rawEnv, state });
+        }
+    } finally {
+        // C ref: hack.c:3457-3462. The statics reset only after the outermost
+        // spoteffects() invocation returns.
+        --staticState.depth;
+        if (!staticState.depth) {
+            staticState.terrain = STONE;
+            staticState.x = 0;
+            staticState.y = 0;
+        }
     }
 }
 

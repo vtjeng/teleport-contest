@@ -6,6 +6,7 @@
 import { game } from './gstate.js';
 import {
     decodeUtf8ByteString,
+    eos,
     encodeUtf8ByteString,
     encodeUtf8Text,
     strstri,
@@ -317,7 +318,9 @@ export function makeplural(oldstr) {
     const excess = split >= 0 ? original.slice(split) : '';
     let base = (split >= 0 ? original.slice(0, split) : original)
         .replace(/ +$/u, '');
-    const len = base.length;
+    // C's Strlen/eos count the bytes before the terminating NUL. Keep that
+    // buffer offset distinct from JS indexes used by the suffix operations.
+    const len = eos(base);
     const last = base.at(-1);
     // C's letter() intentionally treats '@' as a letter alongside A-Z/a-z.
     if (len === 1 || !/[A-Za-z@]/u.test(last))

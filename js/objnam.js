@@ -37,7 +37,7 @@ import { tin_details } from './eat.js';
 import { game } from './gstate.js';
 import { count_contents, currency } from './invent.js';
 import {
-    digit, dist2, encodeUtf8ByteString, highc, lowc, mungspaces, s_suffix,
+    digit, dist2, encodeUtf8ByteString, eos, highc, lowc, mungspaces, s_suffix,
     strcasecpy, strstri, truncateByteString,
 } from './hacklib.js';
 import { arti_light_description, find_mid, get_obj_location } from './light.js';
@@ -841,7 +841,7 @@ function xnameFreshWithOffset(obj, state) {
     let base = personalName
         ? String(displayedInstanceName)
         : xnameBase(obj, type, state, ident);
-    if (!personalName && encodeUtf8ByteString(base).length > BUFSZ - PREFIX - 1)
+    if (!personalName && eos(base) > BUFSZ - PREFIX - 1)
         throw new RangeError('xname: buffer overflow before appending name.');
     if (quantity !== 1) {
         base = obj.otyp === SLIME_MOLD
@@ -855,7 +855,7 @@ function xnameFreshWithOffset(obj, state) {
     // objnam.c:xname_flags() adds readable-object disclosure text after
     // pluralization; its nameit fast path rejoins before this block.
     if (state.program_state?.gameover && obj.o_id
-        && encodeUtf8ByteString(base).length < BUFSZ - PREFIX - 1) {
+        && eos(base) < BUFSZ - PREFIX - 1) {
         if (obj.otyp === T_SHIRT || obj.otyp === ALCHEMY_SMOCK) {
             const text = obj.otyp === T_SHIRT
                 ? tshirt_text(obj, state) : apron_text(obj, state);

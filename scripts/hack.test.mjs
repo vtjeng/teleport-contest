@@ -254,6 +254,9 @@ function terrainState(currentTyp, previousTyp = STAIRS) {
         level: {
             at: (x, y) => locations.get(`${x},${y}`),
             flags: {},
+            // C m_at() reads the initialized monster coordinate grid even
+            // when the square is empty.
+            monsters: Array.from({ length: COLNO }, () => []),
         },
         iflags: { terrain_typ: previousTyp },
         flags: { terrainstatus: true },
