@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Independent representative charged case just beyond the depleted-drum variation. Blocked by music.c do_earthquake, an explicit missing discarded-return callee of the whole do_improvisation owner. No passing recording is committed for this case.",
+  "comment": "Independent charged earthquake-drum case from before A73, retained with its original seed, clock and input. It reaches music.c:do_earthquake through the existing drum caller and now matches the C reference after the A73 port; the resulting recording is kept under recordings/music.c/charged-earthquake-blocked.session.json for regression coverage.",
   "segments": [
     {
       "seed": 8547721,
