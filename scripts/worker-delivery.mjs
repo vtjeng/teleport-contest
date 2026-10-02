@@ -247,18 +247,43 @@ function contextFreePatchId(root, commit, cache) {
     return cache.get(commit);
 }
 
+function replacedCacheDelivery(root, state, task) {
+    const latest = state.deliveries[task.deliveries.at(-1)];
+    const packet = readDelivery(latest);
+    const replacement = packet.context?.replacementPackaging;
+    if (!replacement) return null;
+    const original = state.deliveries[replacement.supersedesCommit];
+    check(original?.task === task.id && original !== latest
+        && original.receivedAt && original.feedbackAt && !original.acceptedAt,
+    'cache replacement must name a rejected delivery from this task');
+    readDelivery(original); // Verify its preserved immutable packet too.
+    check(replacement.supersedesPacketSha256 === basename(original.evidence, '.json'),
+        'cache replacement names a different original packet');
+    check(replacement.omittedPathPrefix === '.cache/' && original.base === latest.base,
+        'cache replacement must keep the original base and omit only private cache paths');
+    check(original.paths.some(path => path.startsWith('.cache/'))
+        && !latest.paths.some(path => path.startsWith('.cache/')),
+    'cache replacement must remove the original private cache edits');
+    const differences = lines(git(root, 'diff', '--no-renames', '--name-only',
+        original.delivery, latest.delivery));
+    check(differences.length > 0 && differences.every(path => path.startsWith('.cache/')),
+        'cache replacement changes non-cache source or test inputs');
+    return original.delivery;
+}
+
 function checkCandidate(root, state, task, commit, visited = new Set(), patchIds = new Map()) {
     if (visited.has(task.id)) return;
     visited.add(task.id);
-    // A correction can be cherry-picked independently of a worker's later task.
-    // The combined candidate must still include the original submission too.
+    const replaced = replacedCacheDelivery(root, state, task);
+    // Incremental corrections retain every earlier patch. A rejected cache-only
+    // packaging error can be replaced after Git verifies every other blob.
     for (const sha of task.deliveries) {
         const delivery = state.deliveries[sha];
         const packet = readDelivery(delivery);
         check(isDeepStrictEqual(deliveryGit(root, delivery.base, delivery.delivery), packet.git), 'delivery Git metadata changed');
         const missing = lines(git(root, 'cherry', commit, delivery.delivery, delivery.base))
             .filter(line => line.startsWith('+'));
-        if (missing.length) {
+        if (missing.length && sha !== replaced) {
             const candidates = lines(git(root, 'rev-list', '--no-merges', `${delivery.base}..${commit}`));
             const integrated = new Set(candidates.map(sha => contextFreePatchId(root, sha, patchIds)));
             for (const row of missing) {

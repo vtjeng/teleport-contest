@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first B82 hero-to-monster route corrected from run-zQIKc5: drop the +1 club, eat the C-observed boiled human-wererat tin, use #wizgenesis (the source wizard monster creation command) while still human, then shift into the corresponding wererat form and attack the adjacent newt. The prior `#monster` special-ability command is preserved as a setup miss. The artifact must show a natural AD_WERE attack through damageum/mhitm_ad_were before any parity claim.",
+  "segments": [
+    {
+      "seed": 7983552,
+      "datetime": "20360315082910",
+      "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n5\n   da \u0017blessed homemade tin of human wererat meat\nef  ydbdcdd#wizgenesis\nhostile newt\n#polyself\nwererat\n kk",
+      "comment": "B82 C-first hero-to-monster witness. Corrected9 reached the matching wererat form with the hostile newt directly north. In C, the first northward attack missed (hmonas rnd(20)=19); the second landed the natural wererat bite (rnd(20)=8, damageum d(1,4)=2) and killed the newt. This frozen input ends at that first completed source-confirmed bite, so the entire C recording can be strictly compared. Earlier setup and overload misses remain separate recipes. Strict comparison run-15ntY2 is retained as a blocked recipe: C reaches the natural bite at step 122, but C/JS first diverge at step 71 in allmain.c:moveloop_core lycanthropy elapsed-turn gate (C rn2(80)=71; JS follows with rn2(20)=11). Keep this C artifact in scratch, outside recordings, until a source-supported polymorphed setup avoids that gate and a complete replay matches."
+    }
+  ]
+}

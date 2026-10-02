@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "B82 source setup probe only, not runtime evidence: use a lawful human Caveman, raise to level 5, drop the source-observed +1 club, then display the remaining inventory before lycan transformation. Preserve this to identify what keeps the wererat form overloaded; it does not exercise mhitm_ad_were.",
+  "segments": [{
+    "seed": 7983552,
+    "datetime": "20360315082910",
+    "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": "#levelchange\n5\n   dai"
+  }]
+}

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation of the B82 hero-attacker setup, corrected only from the preceding C screen trace: this seed's blessed tin emits one More pager before 'Eat it?', so exactly one space advances to the prompt and y confirms. After eat.c:cpostfx assigns lycanthropy, #polyself requests the matching wererat beast; the later wizard genesis attempts to create a hostile newt for a hero melee attack. Keep the new C trace separate from the prior setup miss.",
+  "segments": [{
+    "seed": 8806440,
+    "datetime": "20340605070809",
+    "nethackrc": "OPTIONS=name:B82LycanHero,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!acoustics\n",
+    "moves": " \u0017blessed homemade tin of human wererat meat\nen y #polyself\nwererat\n #wizgenesis\nhostile newt\nh"
+  }]
+}

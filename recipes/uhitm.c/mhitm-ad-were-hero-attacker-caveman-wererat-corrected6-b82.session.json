@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Preserved B82 setup attempt after the overload observation. C accepted `d a` and dropped the +1 club; the tin was then eaten, but this recipe used `#monster`, which is the monster-special-ability command and printed 'You don't have a special ability in your normal form!' It did not create the target or attempt the form shift. The next correction uses `#wizgenesis` while human, then transforms and attacks.",
+  "segments": [{
+    "seed": 7983552,
+    "datetime": "20360315082910",
+    "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": "#levelchange\n5\n   da \u0017blessed homemade tin of human wererat meat\nef  y#monster\nhostile newt\n#polyself\nwererat\n hhhhhhhhhh"
+  }]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first setup miss: this Barbarian wish placed the homemade wererat tin in inventory slot e, but the recipe selected slot o after invoking eat, so inventory.c selection stopped before consume_tin/cpostfx. See the separate corrected-slot recipe for the source path; do not treat this artifact as runtime evidence.",
+  "segments": [
+    {
+      "seed": 83429173,
+      "datetime": "20281014162500",
+      "nethackrc": "OPTIONS=name:B82WaterSet,role:Barbarian,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017homemade tin of human wererat meat\neo y \u0017blessed potion of full healing\nqp\u0017blessed potion of water\nqq"
+    }
+  ]
+}

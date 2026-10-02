@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A70 C-first production route for trapeffect_rust_trap -> water_damage -> splash_lit -> snuff_lit -> snuff_candle. Seed 9400060 was selected earlier from a bounded C layout probe because the D:1 rust trap is five east steps from the Wizard start; this recipe changes the fixed date, hero name, wished lit object, and command sequence to exercise the candle splash. C, not JavaScript, determines whether the rust-trap arm splashes water. No target result is assumed.",
+  "segments": [
+    {
+      "seed": 9400060,
+      "datetime": "20310604103000",
+      "nethackrc": "OPTIONS=name:A70CandleSplash,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": " #wizwish\nlit wax candle\nlllll"
+    }
+  ]
+}

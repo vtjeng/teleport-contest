@@ -81,7 +81,7 @@ import { game } from './gstate.js';
 import { getpos } from './getpos.js';
 import { intrinsic_possible } from './eat.js';
 import {
-    dist2, encodeUtf8ByteString, online2, sgn, s_suffix, strncmpi,
+    dist2, encodeUtf8ByteString, online2, sgn, s_suffix, strncmpi, upstart,
 } from './hacklib.js';
 import { inv_cnt, nh_delay_output } from './hack.js';
 import {
@@ -2319,6 +2319,12 @@ export function shk_your(obj, state = game) {
     const monsterOwner = mon_owns(obj, state);
     if (monsterOwner) return monsterOwner + ' ';
     return the_your[carried(obj) ? 1 : 0] + ' ';
+}
+
+// C ref: shk.c Shk_Your() (5877-5882). Capitalize only the first byte of
+// shk_your()'s source-owned prefix; names such as "Ozzy's " retain their case.
+export function Shk_Your(obj, state = game) {
+    return upstart(shk_your(obj, state));
 }
 
 function heroIsInvisible(state) {

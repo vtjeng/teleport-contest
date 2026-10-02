@@ -460,6 +460,7 @@ import { Punished } from './steed.js';
 import { move_bc, drag_ball } from './ball.js';
 import { note_unported } from './unported.js';
 import { cutworm } from './worm.js';
+import { snuff_candle } from './apply_splash_lit.js';
 import { make_blinded, potionbreathe, potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
 
@@ -2410,10 +2411,10 @@ async function tmiss(obj, mon, maybeWakeup, state = game, env = {}) {
 // and leaves the object in gt.thrownobj; this wrapper performs the source's
 // bookkeeping before and after thitmonst().
 export async function throwit_mon_hit(mon, obj, state = game) {
-    if (mon?.isshk && obj?.where === OBJ_MINVENT && obj.ocarry === mon)
+    if (!mon) return false;
+    if (mon.isshk && obj?.where === OBJ_MINVENT && obj.ocarry === mon)
         return true;
-    if (obj?.lamplit)
-        note_unported('apply.c snuff_candle');
+    await snuff_candle(obj, { state });
     state.gn ??= {};
     state.gn.notonhead = state.gb.bhitpos.x !== mon.mx
         || state.gb.bhitpos.y !== mon.my;
@@ -2824,7 +2825,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         throwit_return(true, state);
         return;
     }
-    note_unported('apply.c snuff_candle');
+    await snuff_candle(obj, { state });
     if (!mon && await ship_object(obj, bx, by, false, { state })) {
         throwit_return(true, state);
         return;

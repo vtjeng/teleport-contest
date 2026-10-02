@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-matched C-first B82 monster-to-hero witness ending before were_summon. The C source trace shows Werebane in slot o and wielded, followed by hostile werejackal bites; rn2(4)=0 at two bites reaches defends(AD_WERE, uwep) and stops lycanthropy. The full route's later wait invokes were.c:were_summon while the message pager is pending, and B82 does not own that continuation; this recipe ends after the preceding matching bite. Retain only after strict replay matches.",
+  "segments": [
+    {
+      "seed": 19284017,
+      "datetime": "20340507103000",
+      "nethackrc": "OPTIONS=name:WerebaneBite,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n10\n        \u0017Werebane\nwo#wizgenesis\nhostile werejackal\n.........."
+    }
+  ]
+}

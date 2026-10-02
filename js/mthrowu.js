@@ -265,6 +265,7 @@ import {
     hliquid,
 } from './do_name.js';
 import { canSpotMonster } from './startup_a11y.js';
+import { snuff_candle } from './apply_splash_lit.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
  * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h. */
@@ -1356,7 +1357,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                 note_unported('mon.c monkilled');
         }
         if (notcaught) {
-            note_unported('apply.c snuff_candle'); /* (void) snuff_candle() */
+            await snuff_candle(otmp, env);
             if (!await ship_object(otmp, x, y, false, env)) {
                 if (await flooreffects(otmp, x, y, 'drop', env)) {
                     if (cansee(x, y, state)) {

@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Preserved B82 hero-attacker setup observation. This recipe still requests chaotic alignment for the human Caveman, but C's startup picker offers only lawful or neutral; the leading '#levelchange' text therefore starts by choosing lawful and its remaining letters are consumed as commands. Later the corrected f-slot/one-space input consumes dried wererat tin and #polyself succeeds, but carrying_too_much in hack.c prevents the hero's overloaded wererat form from moving or attacking. Keep as a source-named setup limitation, not AD_WERE runtime evidence.",
+  "segments": [{
+    "seed": 7983552,
+    "datetime": "20360315082910",
+    "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": "#levelchange\n5\n   \u0017blessed homemade tin of human wererat meat\nef y  #polyself\nwererat\n#wizgenesis\nhostile newt\nhhhhhhhhhh"
+  }]
+}

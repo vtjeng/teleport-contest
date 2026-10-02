@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "B82 independent C-first variation of the animal-form wererat pet route. Seed 6821438 and 2039-03-18 16:27:42 were chosen independently to generate a narrow hallway without the nearby scroll that drew the prior dog_move case into dog_invent. Wizard debug mode is required for #wizintrinsic/#wizgenesis. Conflict is set for 30 turns; the hostile newt is created before `tame rat wererat`, which mondata.c:name_to_monplus resolves to the animal form and read.c:create_particular_creation passes to tamedog. One wait checks whether the pet can attack the hostile target through dogmove.c:dog_move → mhitm.c:mattackm. Preserve outside recordings unless C reaches uhitm.c AD_WERE and strict JS matches.",
+  "segments": [{
+    "seed": 6821438,
+    "datetime": "20390318162742",
+    "nethackrc": "OPTIONS=name:B82PetLycanClear,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": " #wizintrinsic\na>>h\n #wizgenesis\nhostile newt\n#wizgenesis\ntame rat wererat."
+  }]
+}

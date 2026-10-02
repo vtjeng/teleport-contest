@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "B82 C-first continuation of the clean-neighborhood pet setup. Keep seed 6821438 and 2039-03-18 16:27:42 from the frozen corrected recipe; add a second wait because mon.c:movemon_singlemon documents that Conflict does not affect the first round. The first wait is retained so source order and any first-turn pet behavior remain visible. The next wait tests dogmove.c:dog_move → mhitm.c:mattackm after Conflict becomes active. This is not a JavaScript-selected endpoint; inspect the full C trace first and strict-replay only if it reaches AD_WERE.",
+  "segments": [{
+    "seed": 6821438,
+    "datetime": "20390318162742",
+    "nethackrc": "OPTIONS=name:B82PetLycanClear,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+    "moves": " #wizintrinsic\na>>h\n #wizgenesis\nhostile newt\n#wizgenesis\ntame rat wererat\n.."
+  }]
+}

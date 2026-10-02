@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first B82 monster-to-hero AD_WERE witness. This preserves the independently chosen character/seed/target and changes only the C-observed wield selector from n (magic marker) to o (Werebane). Source artilist.h:167 gives Werebane DFNS(AD_WERE), so a landed bite reaches mhitm_ad_were's hitmsg and rn2(4) gate, then stops at defends(AD_WERE, uwep) without infection. Keep the recording only if C shows the wielded artifact, the landed werejackal gate, and the full JS replay matches.",
+  "segments": [
+    {
+      "seed": 19284017,
+      "datetime": "20340507103000",
+      "nethackrc": "OPTIONS=name:WerebaneBite,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n10\n        \u0017Werebane\nwo#wizgenesis\nhostile werejackal\n...................."
+    }
+  ]
+}

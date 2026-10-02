@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first B82 caller witness candidate. Enter the independently selected non-were hill-orc form before eating wererat tin; C allmain.c:328 gates the elapsed-turn lycanthropy roll on !Upolyd, so this route tests eat.c:cpostfx and potion.c:peffect_water setter wiring without the separate human-form elapsed-turn mismatch. The chaotic orc wizard makes blessed water take the source acid/cure branch. Retain only if C reaches the water setter and the complete JS replay matches.",
+  "segments": [
+    {
+      "seed": 94821157,
+      "datetime": "20300723114500",
+      "nethackrc": "OPTIONS=name:FormCure,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nhill orc\n \u0017blessed homemade tin of human wererat meat\neg  y \u0017blessed potion of full healing\nqh \u0017blessed potion of water\nqi"
+    }
+  ]
+}

@@ -299,6 +299,94 @@ test('submission rejects evidence references found only in an uncommitted checko
     assert.deepEqual(f.success(['status']).deliveries, {});
 });
 
+test('a rejected private-cache delivery can be replaced without dropping source or dependency checks', async t => {
+    for (const scenario of ['identical source', 'changed source', 'new cache', 'wrong packet', 'unaccepted dependency']) {
+        await t.test(scenario, t => {
+            const f = fixture(t); f.assign(); f.artifacts();
+            let dependency;
+            if (scenario === 'unaccepted dependency') {
+                // The other reservation isolates the transport dependency fixture.
+                f.assign('B', 'B-1', ['source:sample.c:other']); f.artifacts('B');
+                const otherContext = join(f.workers.B, '.cache/context.json');
+                const otherEvidence = join(f.workers.B, '.cache/evidence.json');
+                const declaration = JSON.parse(readFileSync(otherContext, 'utf8'));
+                declaration.functions = ['other'];
+                writeFileSync(otherContext, JSON.stringify(declaration));
+                const evidence = JSON.parse(readFileSync(otherEvidence, 'utf8'));
+                evidence.functions[0].name = 'other';
+                writeFileSync(otherEvidence, JSON.stringify(evidence));
+                // The fixture C function other() returns 2; this independent
+                // declaration gives the transport dependency its reserved symbol.
+                writeFileSync(join(f.workers.B, 'js/sample.js'),
+                    'export function other() { return 2; }\nexport function caller() { return other(); }\n');
+                f.git(f.workers.B, 'add', 'js/sample.js');
+                f.git(f.workers.B, 'commit', '-qm', 'independent dependency fixture');
+                dependency = f.git(f.workers.B, 'rev-parse', 'HEAD');
+                f.success(f.submitArgs.map(arg => arg === 'A-1' ? 'B-1' : arg), f.workers.B);
+            }
+            const privatePath = '.cache/private.log';
+            const scope = f.success(['status']).tasks['A-1'];
+            f.event({ type: 'scope', task: 'A-1', reservations: scope.reservations,
+                allowedPaths: [...scope.allowedPaths, '.cache/'] }, f.workers.A);
+            const sourceHead = f.commit();
+            writeFileSync(join(f.workers.A, privatePath), 'Private transport diagnostic fixture.\n');
+            f.git(f.workers.A, 'add', '-f', privatePath);
+            f.git(f.workers.A, 'commit', '-qm', 'accidental private cache fixture');
+            const original = f.git(f.workers.A, 'rev-parse', 'HEAD');
+            const dependencies = dependency ? ['--dependencies', dependency] : ['--dependencies', 'none'];
+            const old = f.success([...f.submitArgs, ...dependencies], f.workers.A).deliveries[original];
+            f.event({ type: 'received', task: 'A-1', delivery: original });
+            f.event({ type: 'feedback', task: 'A-1', delivery: original, reason: 'Keep private cache artifacts untracked.' });
+            f.event({ type: 'resume', task: 'A-1' }, f.workers.A);
+
+            // Build the replacement off the original base, preserving worker A's
+            // submitted branch, packet, and private file in place.
+            f.git(f.workers.B, 'checkout', '--detach', sourceHead);
+            if (scenario === 'changed source') {
+                // Returning 2 changes the source fixture's result, unlike cache cleanup.
+                writeFileSync(join(f.workers.B, 'js/sample.js'),
+                    'export function sample() { return 2; }\nexport function caller() { return sample(); }\n');
+                f.git(f.workers.B, 'add', 'js/sample.js');
+                f.git(f.workers.B, 'commit', '-qm', 'changed source fixture');
+            }
+            if (scenario === 'new cache') {
+                writeFileSync(join(f.workers.B, privatePath), 'Still private.\n');
+                f.git(f.workers.B, 'add', '-f', privatePath);
+                f.git(f.workers.B, 'commit', '-qm', 'uncorrected private cache fixture');
+            }
+            // A distinct commit identifies this immutable replacement even if
+            // Git created identical source-only commits in both fixture worktrees.
+            f.git(f.workers.B, 'commit', '--allow-empty', '-qm', 'replacement fixture identity');
+            const replacement = f.git(f.workers.B, 'rev-parse', 'HEAD');
+            const contextPath = join(f.workers.A, '.cache/context.json');
+            const context = JSON.parse(readFileSync(contextPath, 'utf8'));
+            context.replacementPackaging = {
+                supersedesCommit: original,
+                supersedesPacketSha256: scenario === 'wrong packet' ? 'wrong-packet' : digest(readFileSync(old.evidence)),
+                omittedPathPrefix: '.cache/',
+            };
+            writeFileSync(contextPath, JSON.stringify(context));
+            f.success([...f.submitArgs, '--base', f.base, '--head', replacement, ...dependencies], f.workers.A);
+            f.event({ type: 'received', task: 'A-1', delivery: replacement });
+            f.git(f.root, 'merge', '--ff-only', replacement);
+            const result = f.run(['preflight', '--task', 'A-1']);
+            if (scenario === 'identical source') {
+                assert.equal(result.status, 0, result.stderr || result.stdout);
+                f.event({ type: 'integrating', task: 'A-1', integration: replacement });
+                assert.equal(f.git(f.root, 'ls-tree', 'HEAD', '--', privatePath), '');
+                assert.equal(readFileSync(join(f.workers.A, privatePath), 'utf8'), 'Private transport diagnostic fixture.\n');
+                assert.equal(JSON.parse(readFileSync(old.evidence, 'utf8')).git.head, original);
+            } else {
+                assert.equal(result.status, 1);
+                const expected = { 'changed source': /changes non-cache/, 'new cache': /remove.*private cache/,
+                    'wrong packet': /different original packet/, 'unaccepted dependency': /dependency is not accepted/ }[scenario];
+                assert.match(JSON.parse(result.stdout).issues.join('\n'), expected);
+                assert.throws(() => f.event({ type: 'integrating', task: 'A-1', integration: replacement }), expected);
+            }
+        });
+    }
+});
+
 test('a valid acceptance event remains coordinator-only', (t) => {
     const f = fixture(t); f.assign(); f.artifacts(); const head = f.commit();
     f.success(f.submitArgs, f.workers.A); f.event({ type: 'received', task: 'A-1', delivery: head });

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first B82 hero-to-monster route corrected from run-zQIKc5: drop the +1 club, eat the C-observed boiled human-wererat tin, use #wizgenesis (the source wizard monster creation command) while still human, then shift into the corresponding wererat form and attack the adjacent newt. The prior `#monster` special-ability command is preserved as a setup miss. The artifact must show a natural AD_WERE attack through damageum/mhitm_ad_were before any parity claim.",
+  "segments": [
+    {
+      "seed": 7983552,
+      "datetime": "20360315082910",
+      "nethackrc": "OPTIONS=name:B82CaveLycan,role:Caveman,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n5\n   #polyself\ndwarf\n da \u0017blessed homemade tin of human wererat meat\nef ydbdcdd#wizgenesis\nhostile newt\n#polyself\nwererat\n kk",
+      "comment": "B82 C-first source-supported alternative to the retained unpolymorphed corrected11 route, which diverges at allmain.c:moveloop_core lycanthropy chance. Enter a non-were dwarf form before the wererat tin; Upolyd suppresses that separate elapsed-turn gate while cpostfx can assign u.ulycn. This route drops the actual carried club, sling, flint, and rocks one at a time, wishes/consumes the human-wererat tin, creates a hostile newt, shifts to wererat, dismisses the form notice, and attacks north toward the adjacent target. The first C attempt run-oqCzCf missed the tin Eat-it prompt because the magically opened tin needs one pager dismissal followed by y; that setup miss remains in the sibling recipe. This corrected input is C-first and stays outside recordings unless its complete C trace reaches the source-confirmed bite and strict JS replay matches. Retained C direction miss from run-oAfeIO: after polymorph, the visible newt had moved northwest during setup; the northward k inputs walked past it and a later newt attack is not helper coverage."
+    }
+  ]
+}

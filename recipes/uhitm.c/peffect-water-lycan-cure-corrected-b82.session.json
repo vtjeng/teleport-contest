@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked human-route replay, retained as source evidence. The C input reaches the blessed holy-water setter, but strict JS comparison first diverges at step 50 in eat.c:maybe_cannibal (C rn2(4), JS rn2(5)) before cpostfx. The human-cannibal mismatch is outside B82; use the orc variation to satisfy CANNIBAL_ALLOWED and reach the setter without crossing that boundary. Its C artifact and failed differential receipt are retained in .cache/B82-scratch and .cache/B82-logs, not recordings/.",
+  "segments": [
+    {
+      "seed": 91827433,
+      "datetime": "20290617141000",
+      "nethackrc": "OPTIONS=name:B82WaterSet,role:Barbarian,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed homemade tin of human wererat meat\nee  y \u0017blessed potion of full healing\nqf \u0017blessed potion of water\nqg"
+    }
+  ]
+}
