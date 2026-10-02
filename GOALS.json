@@ -137350,15 +137350,15 @@
           "name": "do_pit",
           "line": 221,
           "endLine": 343,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         },
         {
           "name": "do_earthquake",
           "line": 344,
           "endLine": 477,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -137622,7 +137622,92 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "do_pit",
+            "implementation": "js/music.js",
+            "symbol": "do_pit",
+            "sourceReview": "Root compared whole music.c:do_pit (221–338): nullable maketrap return and seen state, boulder message/extraction and discarded flooreffects, consumed fillholetyp and trap recheck, monster trap/damage/death order, hero buried-chain/levitation/fall/jostle branches, footing short-circuit RNG and half-damage rounding, and final newsym. Source gaps at discarded calls: do.c flooreffects, dig.c liquid_flow, trap.c mselftouch/selftouch, mon.c xkilled. No placeholder remains in this helper. Existing consumed helpers and macros were source-checked; independent room-pit recordings establish production reachability.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_earthquake",
+                "source": "music.c:do_earthquake (344-475) calls do_pit for the terrain-specific earthquake results; the JavaScript awaits the helper at those same branches."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [
+              "recordings/music.c/earthquake-room-pit-force-two-a73.session.json",
+              "recordings/music.c/earthquake-room-pit-force-three-corrected-a73.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "6ef7d7c651888c75325b649a2b4703e62aead4e6"
+          },
+          {
+            "name": "do_earthquake",
+            "implementation": "js/music.js",
+            "symbol": "do_earthquake",
+            "sourceReview": "Root compared whole music.c:do_earthquake (344–475): pre-scan hero pit state, cap13 and clipped bounds, x-major/y-minor scan, wake/unhide/mimic before each rn2(14-force), and every terrain arm. Verified furniture and ordinary-floor pit calls, sanctum preservation and altar alignment message, secret corridor/door conversion, doorless pit handling, door redraw/message before shop repair. Discarded pray.c desecrate_altar and shk.c add_damage calls remain named gaps at exact C positions. Charged drum caller awaits quake after both source messages and before awaken_monsters/makeknown; no whole outer caller credit. Independent recordings establish pit calls and selected synthetic step39 establishes the scan.",
+            "callers": [
+              {
+                "path": "js/music.js",
+                "symbol": "do_improvisation",
+                "source": "music.c:do_improvisation (503-730), DRUM_OF_EARTHQUAKE case around 698, calls do_earthquake((u.ulevel - 1) / 3 + 1) after both messages and before awaken_monsters and makeknown."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/music.test.mjs"
+            ],
+            "recordings": [
+              "recordings/music.c/earthquake-room-pit-force-two-a73.session.json",
+              "recordings/music.c/earthquake-room-pit-force-three-corrected-a73.session.json",
+              "recordings/music.c/charged-earthquake-blocked.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "earthquake-drum-opens-pits-pager-corrected",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 39,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation DRUM_OF_EARTHQUAKE arm -> music.c:do_earthquake"
+              }
+            ],
+            "checkedAt": "6ef7d7c651888c75325b649a2b4703e62aead4e6"
+          }
+        ],
+        "entryPointReview": "The active production entry is using a charged drum of earthquake: apply.c:doapply dispatches to do_play_instrument, which reaches do_improvisation and its DRUM_OF_EARTHQUAKE branch. JavaScript follows js/apply.js:doapply -> js/music.js:do_play_instrument -> js/music.js:do_improvisation -> do_earthquake. The admitted v17 case earthquake-drum-opens-pits-pager-corrected matches through segment 0, zero-based step 39 and establishes the previously missing earthquake scan. Its force-one scan has three zero results, but map/source tracing places them below the room, on its southern wall, and beyond its eastern wall; none enters do_pit, so this range is not cited for do_pit. The independent force-two and force-three C-first room recordings both show newly created room pits and strictly match through their complete recordings; they establish do_earthquake -> do_pit runtime. The pre-existing charged recording also strictly matches and supplies another charged-drum caller route. The helper test pins force caps 13 and 14 and pure musicMaybeHalfPhys behavior; direct unit coverage is supplemental, not production evidence. Other terrain branches are translated and source-compared but lack separate runtime recordings. Named discarded-void callees remain unported and receive no completion credit. Whole do_improvisation, do_play_instrument, doapply, trap, dig, monster, prayer, and shop units are not claimed.",
+        "entryPoints": [
+          {
+            "name": "Use a charged drum of earthquake to scan terrain and create pits",
+            "functions": [
+              "do_earthquake",
+              "do_pit"
+            ],
+            "recordings": [
+              "recordings/music.c/earthquake-room-pit-force-two-a73.session.json",
+              "recordings/music.c/earthquake-room-pit-force-three-corrected-a73.session.json",
+              "recordings/music.c/charged-earthquake-blocked.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "earthquake-drum-opens-pits-pager-corrected",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 39,
+                "source": "apply.c:doapply -> music.c:do_play_instrument -> music.c:do_improvisation -> music.c:do_earthquake"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
