@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 C-observed slot correction for the frozen Priest variation: the wish confirmation showed the blessed unicorn horn in slot i, while the apply prompt listed g/h/i. The preserved g attempt selected a spellbook; this recipe changes only the inventory key to the C-observed i slot.",
+  "segments": [
+    {
+      "seed": 1376543129,
+      "datetime": "20341107142600",
+      "nethackrc": "OPTIONS=name:A80PriestCure,role:Priest,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017blessed unicorn horn\nai"
+    }
+  ]
+}

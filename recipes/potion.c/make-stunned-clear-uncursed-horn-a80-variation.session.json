@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 cheap source variation: a fresh seed/date and an uncursed horn retain the single stunned trouble while use_unicorn_horn uses d(2,2), rather than the blessed horn's d(2,4), before its zero-timeout make_stunned call. The wizard menu and item commands are C-observed; the space dismisses the setup stagger pager.",
+  "segments": [
+    {
+      "seed": 81270062,
+      "datetime": "20341104142600",
+      "nethackrc": "OPTIONS=name:A80CureNeutral,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017uncursed unicorn horn\nag"
+    }
+  ]
+}

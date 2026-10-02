@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 C-observed input correction to the frozen blessed-horn cure route: the previous C attempt's wish confirmation displayed the horn in inventory slot o, while this Wizard's apply prompt listed c/l/m/n/o. This recipe changes only the source-observed selection key from g to o; C will decide whether blessed d(2,4)/rn2 reaches the sole STUNNED cure.",
+  "segments": [
+    {
+      "seed": 410830281,
+      "datetime": "20341105142600",
+      "nethackrc": "OPTIONS=name:A80CureBlessed2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017blessed unicorn horn\nao"
+    }
+  ]
+}

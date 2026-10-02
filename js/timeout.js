@@ -119,7 +119,8 @@ import {
 import { highc, upstart } from './hacklib.js';
 import {
     incr_itimeout, make_blinded, make_confused, make_deaf, make_glib,
-    make_hallucinated, make_sick, make_slimed, make_vomiting, set_itimeout,
+    make_hallucinated, make_sick, make_slimed, make_stunned, make_vomiting,
+    set_itimeout,
 } from './potion.js';
 import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
@@ -789,12 +790,11 @@ async function vomiting_dialogue(state, env = {}) {
             text = text.replace(' confused', ' more confused');
         break;
     case 6: {
-        // C computes (HStun & TIMEOUT) before drawing d(2,4), then discards
-        // make_stunned's void result. Preserve the draw and name that gap.
+        // C computes the current timeout before the d(2,4) passed to the
+        // source helper, then continues with the Popeye/occupation branch.
         const stunTimeout = ((state.u.uprops?.[STUNNED]?.intrinsic ?? 0)
             & TIMEOUT) + random.d(2, 4);
-        void stunTimeout;
-        note_unported('potion.c make_stunned');
+        await make_stunned(stunTimeout, false, state, { ...env, random, message });
         if (!Popeye(VOMITING, state))
             await stop_occupation(state, { ...env, message });
         // C falls through to case 9 after the discarded make_stunned call.
@@ -971,7 +971,7 @@ async function decrement_property_timeouts(state, env) {
             break;
         case STUNNED:
             set_itimeout(property, 1);
-            if (!env.planning) note_unported('potion.c make_stunned');
+            await make_stunned(0, true, state, env);
             if (!property.intrinsic) await stop_occupation(state, env);
             break;
         case BLINDED: {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A80 C-observed correction to the fresh uncursed variation: its wish confirmation displayed the unicorn horn in slot p and the apply prompt offered c/l/p. The earlier o selection activated the blindfold and is preserved as a setup miss. This changes only that source-observed inventory key; the uncursed d(2,2) cure roll remains the variation.",
+  "segments": [
+    {
+      "seed": 1289047217,
+      "datetime": "20341106142600",
+      "nethackrc": "OPTIONS=name:A80CureUncursed2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizintrinsic\nf\n \u0017uncursed unicorn horn\nap"
+    }
+  ]
+}

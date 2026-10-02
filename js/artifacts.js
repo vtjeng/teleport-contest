@@ -235,7 +235,7 @@ import { spelleffects } from './spell.js';
 import { seffects } from './read.js';
 import { charge_ok, recharge } from './read.js';
 import {
-    healup, make_blinded, make_sick, make_slimed,
+    healup, make_blinded, make_sick, make_slimed, make_stunned,
 } from './potion.js';
 import { dropx, maybe_lvltport_feedback, goto_level } from './do.js';
 import { select_menu } from './windows.js';
@@ -1855,7 +1855,10 @@ export async function Mb_hit(
     /* stun if that was selected and a worse effect didn't occur */
     if (do_stun) {
         if (youdefend) {
-            note_unported('timeout.c make_stunned');
+            const stunTimeout = (
+                (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0) & TIMEOUT
+            ) + 3;
+            await make_stunned(stunTimeout, false, state);
         } else {
             mdef.mstun = 1;
         }

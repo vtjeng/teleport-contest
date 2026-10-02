@@ -337,7 +337,7 @@ test('potion glass is outside every non-food edibility material gate', () => {
     }
 });
 
-test('rustproof spit-back retains the caller stun-argument draw', async () => {
+test('rustproof spit-back draws before its source stun message', async () => {
     await runSegment({ ...segmentFor('ea'), moves: '.' });
     game.u.umonnum = PM_RUST_MONSTER;
     game.youmonst.data = game.mons[PM_RUST_MONSTER];
@@ -351,15 +351,16 @@ test('rustproof spit-back retains the caller stun-argument draw', async () => {
     assert.equal(await doeat(game, {
         message: (text) => { messages.push(text); },
     }), ECMD_TIME);
-    // eat.c:2888 evaluates rn2(10) before its currently unported
-    // make_stunned call. The welded weapon stays in hand, with no nutrition.
+    // eat.c:2888 evaluates rn2(10), then make_stunned reports the newly
+    // active wobble before the welded weapon's spit-back line.
     assert.match(getRngLog().join('\n'), /^rn2\(10\)=\d$/u);
     assert.equal(weapon.oerodeproof, 0);
     assert.equal(game.uwep, weapon);
     assert.equal(game.u.uhunger, hunger);
-    assert.equal(messages.length, 2);
+    assert.equal(messages.length, 3);
     assert.match(messages[0], /was rustproofed!/u);
-    assert.match(messages[1], /^You spit out /u);
+    assert.match(messages[1], /^You .+\.\.\.$/u);
+    assert.match(messages[2], /^You spit out /u);
 });
 
 test('the production eat command consumes an admitted fire-elemental weapon',
