@@ -135139,8 +135139,8 @@
           "name": "snuff_candle",
           "line": 1472,
           "endLine": 1496,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -135356,7 +135356,115 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "snuff_candle",
+            "implementation": "js/apply_splash_lit.js",
+            "symbol": "snuff_candle",
+            "sourceReview": "Read and ported the complete apply.c:snuff_candle definition, lines 1472-1494. Preserved the Is_candle/candelabrum plus lamplit guard; candle quan versus candelabrum spe plurality; discarded get_obj_location call before visibility; OBJ_MINVENT cansee(x,y) versus !Blind; capitalized Shk_Your prefix and exact two-part candle wording; visible message before end_burn; and TRUE/FALSE return order. Reused source-defined get_obj_location, cansee, heroIsBlind, end_burn, and shk_your. Implemented the consumed shk.c:Shk_Your wrapper over the existing shk_your instead of duplicating ownership text. Replaced the old candle refusal/adapter and routed source callers through this implementation. The parent trap splash adapter passes its caller environment to preserve message, visibility, redraw, and burn hooks.",
+            "callers": [
+              {
+                "path": "js/apply_splash_lit.js",
+                "symbol": "snuff_monster_light",
+                "source": "apply.c:snuff_lit calls snuff_candle for a lit non-lamp candle or candelabrum"
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "splash_hero_light",
+                "source": "apply.c:splash_lit -> apply.c:snuff_lit -> apply.c:snuff_candle; rust-trap default hero inventory splash is the JavaScript splash adapter"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit_mon_hit",
+                "source": "dothrow.c:throwit_mon_hit calls snuff_candle only after the non-null monster guard and shopkeeper-owned-object early return"
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "throwit",
+                "source": "dothrow.c:throwit calls snuff_candle before ship_object/place_object at the C source position"
+              },
+              {
+                "path": "js/mthrowu.js",
+                "symbol": "return_from_mtoss",
+                "source": "mthrowu.c:return_from_mtoss calls snuff_candle in the notcaught cleanup before ship_object and floor effects"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/apply-splash-lit.test.mjs",
+              "scripts/trap-water-damage.test.mjs"
+            ],
+            "recordings": [
+              "recordings/apply.c/snuff-candle-throw-hit-a70-independent.session.json",
+              "recordings/apply.c/snuff-candle-rust-trap-water-a70-independent.session.json",
+              "recordings/apply.c/snuff-candle-monster-rust-trap-search-turn-a70-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "dothrow.c:throwit -> apply.c:snuff_candle; C displays the extinguished-flame line before the following source boundary"
+              }
+            ],
+            "checkedAt": "802df71e959ca9f3a802ba5776e04f5feadd49fa"
+          }
+        ],
+        "entryPointReview": "The selected impure helper has matching execution through four active routes. The current post-A69 selection evaluation is challenges/evaluations/20261001230131-v15.json at tested source c842043c989d321c10404073a9cc57190a675d85; it reports 28/29 screens with all RNG and cursors matched, and the selected replay range is verified through segment 0 step 28, where dothrow.c:throwit reaches the extinguishing message. This supersedes the historical 20261001022926-v15 evaluation at 6d2c675. The independent A70 C-first throw-target recording enters dothrow.c:throwit_mon_hit and calls snuff_candle before thitmonst/tmiss reports that the candle misses the gremlin. The independent A70 hero rust-trap recording enters trap.c:trapeffect_rust_trap default hero inventory arm -> apply.c:splash_lit -> snuff_lit -> snuff_candle with a lit hero-inventory candle; it matches completely. A separate canonical Mines-End recording enters trap.c:trapeffect_rust_trap’s default arm, iterates monster inventory, and reaches splash_lit -> snuff_lit -> snuff_candle for a lit gnome-held candle. Zero-based steps 44-45 show the default trap roll (rn2(5)=4), then after the observed More acknowledgement the exact “The gnome’s candle’s flame is extinguished.” owner-prefix message; subsequent monster-turn RNG confirms the C trap/snuff caller returned. Its 4213 RNG calls, 46 screens/attributes, and 46 cursors strictly match JavaScript. The source-confirmed wand probe that identified a partly used lit candle is preserved by its exact recipe/recording hashes in task-local diagnostics. The previously existing recordings/trap.c/rust-trap-hero-seed9400060.session.json reaches the same caller family but has no lit candle and is not cited as helper execution. The hero adapter is also checked through scripts/trap-water-damage.test.mjs. C's OBJ_MINVENT visibility branch is pinned by visible and hidden carrier fixtures in scripts/apply-splash-lit.test.mjs; the separate monster-inventory recipe now supplies C runtime evidence for the OBJ_MINVENT branch. mthrowu.c:return_from_mtoss is wired only in its notcaught returning-weapon arm. C reaches it from m_throw only when autoreturn_weapon selects a return-flight path; weapon.c:autoreturn_weapon's current complete table contains AKLYS only, so a candle cannot enter that call. Existing mthrowu recordings exercise other missiles but cannot evidence a candle snuff there; no whole return_from_mtoss completion is claimed. dokick.c:really_kick_object is a direct C caller whose outer JavaScript path is unported, so it remains an explicit gap outside A70. The v15 magic-marker case is a non-candle control. Completion credit is limited to selected snuff_candle; no whole caller is claimed.",
+        "entryPoints": [
+          {
+            "name": "Throw a lit candle to the floor",
+            "functions": [
+              "snuff_candle"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v15",
+                "caseId": "wizard-throws-lit-wax-candle-o-slot-extinguishes-flame",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 28,
+                "source": "dothrow.c:throwit -> apply.c:snuff_candle"
+              }
+            ]
+          },
+          {
+            "name": "Throw a lit candle toward a monster",
+            "functions": [
+              "snuff_candle"
+            ],
+            "recordings": [
+              "recordings/apply.c/snuff-candle-throw-hit-a70-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Rust-trap water splashes a lit hero-inventory candle",
+            "functions": [
+              "snuff_candle"
+            ],
+            "recordings": [
+              "recordings/apply.c/snuff-candle-rust-trap-water-a70-independent.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Rust-trap water extinguishes a monster-inventory candle",
+            "functions": [
+              "snuff_candle"
+            ],
+            "recordings": [
+              "recordings/apply.c/snuff-candle-monster-rust-trap-search-turn-a70-independent.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
