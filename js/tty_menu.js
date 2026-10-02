@@ -831,7 +831,10 @@ export async function dismissTtyMenu(state = game, rendered) {
             display.rows,
             rendered.base.maxrow + 1,
         );
-        if (repairedEndRow > firstStatusRow) {
+        // C docorner() keys bottom-line damage off ymax reaching the status
+        // window, even when the half-open clear range ends exactly at its
+        // first row and therefore clears no status cells.
+        if (rendered.base.maxrow + 1 >= firstStatusRow) {
             for (let row = Math.max(0, firstStatusRow);
                 row < repairedEndRow; ++row) {
                 clearRowFrom(display, rendered.base.repairColumn, row);

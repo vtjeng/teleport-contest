@@ -622,6 +622,50 @@ test('gameplay corner dismissal keeps the C-cleared status suffix blank',
         assert.ok(redraw < bottomDamage && bottomDamage < update);
     });
 
+test('corner dismissal marks bottom damage when docorner ends at status origin',
+    async () => {
+        const state = menuState();
+        const statusRow = state.nhDisplay.rows - status_window_rows();
+        // Eighteen menu lines place the exclusive docorner end exactly at
+        // row 22 on the default 24-row, two-status-row TTY. C still sets
+        // disp.botlx at this equality even though it clears no status cell.
+        const spec = {
+            title: 'Inventory actions',
+            lines: Array.from({ length: 18 }, (_, index) => `action ${index}`),
+        };
+        const layout = ttyMenuLayout(state.nhDisplay, spec);
+        assert.equal(layout.maxrow + 1, statusRow);
+        assert.equal(layout.fullScreen, false);
+
+        // This marker begins at the first untouched status row; the equality
+        // boundary leaves its pixels alone while recording bottom damage. A
+        // nondefault color/attribute pair makes style preservation observable.
+        const statusMarkerColumn = layout.repairColumn + 3;
+        state.nhDisplay.setCell(statusMarkerColumn, statusRow, 'S', 4, 2);
+        state.gb = { bot_disabled: true };
+        state.disp = { botlx: false };
+        const rendered = renderTtyMenu(state, spec);
+
+        await dismissTtyMenu(state, rendered);
+
+        assert.deepEqual(
+            [
+                state.nhDisplay.grid[statusRow][statusMarkerColumn].ch,
+                state.nhDisplay.grid[statusRow][statusMarkerColumn].color,
+                state.nhDisplay.grid[statusRow][statusMarkerColumn].attr,
+            ],
+            ['S', 4, 2],
+        );
+        assert.equal(state.disp.botlx, true);
+
+        const cornerStart = WINTTY_C.indexOf('docorner(\n');
+        const cornerEnd = WINTTY_C.indexOf('\n}\n', cornerStart);
+        const corner = WINTTY_C.slice(cornerStart, cornerEnd);
+        assert.match(corner,
+            /ymax >= \(int\) wins\[WIN_STATUS\]->offy/u);
+        assert.match(corner, /disp\.botlx = TRUE;[\s\S]*?bot\(\);/u);
+    });
+
 test('a 24-row role menu becomes full-screen', () => {
     const state = menuState();
     const lines = Array.from({ length: 21 }, (_, index) => `line ${index}`);
