@@ -57,7 +57,7 @@ import {
 } from './dungeon.js';
 import { newsym } from './display.js';
 import {
-    capitalizedMonsterName, christen_monst, mon_pmname, Monnam,
+    christen_monst, mon_pmname, Monnam,
 } from './do_name.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { game } from './gstate.js';
@@ -102,7 +102,7 @@ import {
     S_LIGHT,
     S_DOG,
 } from './monsters.js';
-import { an, donameFresh, the, Tobjnam, xnameFresh } from './objnam.js';
+import { an, the, Tobjnam, xnameFresh } from './objnam.js';
 import { genders } from './roles.js';
 import { picked_container, set_residency } from './shk.js';
 import { place_object } from './obj.js';
@@ -532,18 +532,7 @@ export async function tamedog(
     if (monster.wormno) note_unported('worm.c redraw_worm');
     if (attacktype(monster.data, AT_WEAP)) {
         monster.weapon_check = NEED_HTH_WEAPON;
-        await mon_wield_item(monster, {
-            ...normalized,
-            canSeeMonster: (subject) => canSeeMonster(subject, state),
-            wieldMessage: async (subject, weapon, detail) => {
-                await ttyPline(
-                    `${capitalizedMonsterName(subject, state)} wields `
-                    + `${donameFresh(weapon, state)}`
-                    + `${detail.exclaim ? '!' : '.'}`,
-                    state,
-                );
-            },
-        });
+        await mon_wield_item(monster, normalized);
     }
     return true;
 }
