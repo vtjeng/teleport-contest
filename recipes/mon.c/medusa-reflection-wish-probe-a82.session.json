@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup probe for the A82 Medusa response route. A separately chosen Wizard seed/date and the source debug wish command establish the inventory slot for a ring of reflection; this prefix is not runtime evidence until an independent recipe equips the ring and reaches mon.c:m_respond_medusa -> mhitu.c:gazemu.",
+  "segments": [
+    {
+      "seed": 83082026,
+      "datetime": "20261002103000",
+      "nethackrc": "OPTIONS=name:A82Medusa,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  #wizwish\nring of reflection\n"
+    }
+  ]
+}

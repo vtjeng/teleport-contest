@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first minimal Medusa runtime record. The prior live C attempt showed the reflection message at the second m.-rest turn and paused at its More prompt; this fresh recipe answers the force-Medusa prompt, takes the two observed rest turns, and supplies one space to let C finish the reflection message and return from the pager.",
+  "segments": [
+    {
+      "seed": 83082028,
+      "datetime": "20261002110000",
+      "nethackrc": "OPTIONS=name:A82MedusaAmulet,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  #wizwish\namulet of reflection\nPo#wizgenesis\nhostile Medusa\nym.m. "
+    }
+  ]
+}

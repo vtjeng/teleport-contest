@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first Tourist role variation for the visible Medusa helper. C offers the wearable-item prompt at step 33, but the observed o response at step 34 is rejected with “That is a silly thing to put on.” This route does not equip or prove reflection. It continues to the unreflected lethal AD_STON branch at step 66 and the death prompt at step 67, providing an independent source-valid role variation for that branch and urgent output. The Wizard pager-cleared recipe is the separate reflected-Medusa witness.",
+  "segments": [
+    {
+      "seed": 43017269,
+      "datetime": "20261002131500",
+      "nethackrc": "OPTIONS=name:A82MedusaTourist,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  #wizwish\namulet of reflection\nPo#wizgenesis\nhostile Medusa\nym.m. "
+    }
+  ]
+}

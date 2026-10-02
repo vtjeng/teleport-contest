@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first Medusa response witness: the source object table defines a valid amulet of reflection, unlike the preserved ring wish miss. This independently chosen Wizard seed/date wishes the amulet, equips the C-observed inventory slot o, creates a hostile Medusa, and gives her up to twenty turns to reach the visible-player response path.",
+  "segments": [
+    {
+      "seed": 83082028,
+      "datetime": "20261002110000",
+      "nethackrc": "OPTIONS=name:A82MedusaAmulet,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen\n",
+      "moves": "  #wizwish\namulet of reflection\nPo#wizgenesis\nhostile Medusa\n...................."
+    }
+  ]
+}
