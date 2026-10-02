@@ -195,6 +195,7 @@ import {
     m_canseeu,
     vision_recalc,
 } from './vision.js';
+import { drain_item } from './zap.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
@@ -2339,7 +2340,8 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
         return M_ATTK_HIT;
     }
     case M.AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
-        if (env.mon_currwep) note_unported('zap.c drain_item');
+        if (env.mon_currwep)
+            drain_item(env.mon_currwep, true, state, env);
         return M_ATTK_HIT;
     default:
         break;

@@ -436,7 +436,7 @@ import {
     which_armor,
 } from './worn.js';
 import { bhit, boomhit, hit, miss } from './zap.js';
-import { hmon } from './uhitm.js';
+import { hmon, passive_obj } from './uhitm.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { minliquid, setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj, remove_worn_item } from './steal.js';
@@ -3066,10 +3066,9 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                 obfree(obj, null, operationEnv);
                 return 1;
             }
-            // C discards passive_obj()'s result. Its monster-target body is
-            // still partial, so keep the source call boundary explicit
-            // instead of swallowing a refusal through operationEnv.
-            note_unported('uhitm.c passive_obj');
+            // C discards passive_obj()'s result, but its source effects and
+            // any terminal messages still precede throwit's return.
+            await passive_obj(mon, obj, null, state, operationEnv);
         } else {
             await tmiss(obj, mon, true, state, operationEnv);
             if (hmode === HMON_APPLIED)

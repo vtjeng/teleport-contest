@@ -17974,5 +17974,117 @@
       "scope": "14 touched altar-mask bodies and six test files; shared state divergence only, no whole-source completion credit"
     },
     "recordedAt": "2026-10-01T09:25:46.492Z"
+  },
+  {
+    "kind": "review",
+    "head": "4cbe8b96f69838099113c6a4019c33ece5f2dff7",
+    "auditedRange": "fe5e37668847e65652ef10579a60d4055b7bff9b..4cbe8b96f69838099113c6a4019c33ece5f2dff7",
+    "level": "full",
+    "areas": [
+      "commands"
+    ],
+    "outcome": "changed",
+    "evidence": "Counts: 2 raw, 2 deduplicated, 2 confirmed, 2 applied, 0 deferred, 0 rejected, 0 unverified. The corner clear follows the exclusive C row boundary and the separate inclusive bottom-damage condition. Queued inventory adjustment preserves command result and input order. The corrected test rejects a clear shifted one column right. The selected continuation rejects its final towel letter and supplies no towel-use evidence.",
+    "auditMetrics": {
+      "wallTimeSeconds": 1611,
+      "counts": {
+        "raw": 2,
+        "deduplicated": 2,
+        "confirmed": 2,
+        "applied": 2,
+        "deferred": 0,
+        "rejected": 0,
+        "unverified": 0
+      },
+      "categories": {
+        "production": 0,
+        "tests": 1,
+        "clarity": 1,
+        "simplification": 0,
+        "other": 0
+      },
+      "productionDefects": [],
+      "rejections": [],
+      "deferrals": [],
+      "readiness": {
+        "boundary": "Frozen range fe5e37668847e65652ef10579a60d4055b7bff9b..b81bf97f0035f8d3d1ec859209dd7ea108464b62 covers the active corner status repair in js/tty_menu.js:dismissTtyMenu, queued doorganize dispatch in js/cmd.js:rhack, and the two changed test files. The immutable admitted v18 case segment0 through41 executes corner dismissal at25 and queued adjust/rename at27–28; both root and correction-worker synthetic-range checks match. Focused TTY tests cover clearing above/equal/past status origin and retained styles/map marker; cmd test enters actual itemactions, queue, and rhack/doorganize. This divergence fix makes no whole-source completion claim.",
+        "sourceReview": "Read C win/tty/wintty.c tty_dismiss_nhwindow, erase_menu_or_text, docorner and cmd.c rhack, including the full conditions and result handling. C clears half-open rows before marking botlx and calling bot when ymax>=status offy; select_menu suppresses bot during the menu. JS display.js bot preserves flags while disabled. Queued CMDQ_EXTCMD uses ef_funct after can_do_extcmd and ECMD result/reset/move order. Existing invent.c doorganize consumes queued letter and returns its existing doorganize_core result. No new PRNG call or return-valued gap is introduced. Existing outer rhack refusal sites are listed in A81-existing-rhack-gaps.json: counted command admission, teleport-trap interaction, unhandled bound command, and catch rethrow. No note_unported or Unsupported throw exists in the two added branches or dismissTtyMenu.",
+        "completeness": "Every consumed value in the repaired branches comes from real existing code: doorganize result is consumed in ECMD handling, layout/snapshot/status dimensions are initialized window data. bot is void. No note_unported supplies data. The current task repairs existing implemented behavior only; it does not claim unimplemented rhack arms or whole wintty/source-unit completion.",
+        "remainingGapsInChangedBranches": [],
+        "existingOuterRefusalInventory": ".cache/A81-existing-rhack-gaps.json",
+        "optionalFinders": {
+          "concurrency": "Enabled: shared terminal/status flags and asynchronous bot/doorganize calls alter the menu and queued-command lifecycle; examine suppression, ordering and cleanup against serialized input.",
+          "performance": "Disabled: the repair adds only C-required clear cells/status update and existing command dispatch; no amplified traversal or extra work beyond source behavior."
+        }
+      },
+      "mode": "full",
+      "finders": [
+        "correctness",
+        "readability",
+        "tests",
+        "concurrency",
+        "variable-trace"
+      ],
+      "optionalFinders": {
+        "concurrency": "Enabled: shared terminal/status flags and asynchronous bot/doorganize calls alter the menu and queued-command lifecycle; examine suppression, ordering and cleanup against serialized input.",
+        "performance": "Disabled: the repair adds only C-required clear cells/status update and existing command dispatch; no amplified traversal or extra work beyond source behavior."
+      },
+      "warnings": [],
+      "unverified": [],
+      "confirmedFindings": [
+        {
+          "file": "js/tty_menu.js",
+          "line": 823,
+          "summary": "The new docorner comment describes an inclusive end row, but the source loop excludes ymax",
+          "impact": "A maintainer following this comment could extend the clear through ymax and erase the untouched first status row at the equality boundary; it also obscures why the subsequent status-damage check is inclusive while the clear is half-open.",
+          "evidence": "The added comment says docorner() clears 'through its ymax row'. In nethack-c/upstream/win/tty/wintty.c:3684, the loop is `for (y = ystart; y < ymax; y++)`, so ymax is not cleared. The new JavaScript clear loop at js/tty_menu.js:839 also uses `< repairedEndRow`, and the next comment at lines 834-836 correctly calls that range half-open.",
+          "fix": "Change the comment to say that docorner clears rows below ymax, up to but excluding it, while the damage flag is set when ymax reaches the status window.",
+          "validation": "Inspect the C loop and keep the `corner dismissal marks bottom damage when docorner ends at status origin` test asserting that the status marker remains unchanged while botlx becomes true.",
+          "dimension": "readability",
+          "dimensions": [
+            "readability"
+          ],
+          "votes": [
+            "evidence keep: The added comment says docorner clears through ymax, but wintty.c uses y < ymax; the new JS loop is also half-open. The following inclusive ymax >= status-origin check sets botlx independently of which rows were cleared.",
+            "causality keep: The inaccurate source-contract comment is introduced in this diff and conflates the clear boundary with the separate inclusive damage test. At the equality boundary, following the comment could extend clearing into the first status row, contrary to the C loop and the adjacent regression test.",
+            "resolution keep: Changing the comment to describe the half-open range while retaining the separate inclusive damage condition resolves the contradiction. The C loop and equality-boundary test distinguish the correct behavior: the status marker remains unchanged while botlx becomes true."
+          ],
+          "cast": 3,
+          "evidenceCast": true,
+          "confirmed": true
+        },
+        {
+          "file": "scripts/tty-menu.test.mjs",
+          "line": 568,
+          "summary": "Corner-clear test misses a late start boundary",
+          "impact": "A clear that starts three columns to the right leaves the first three cells of the status suffix stale, yet this regression test still passes.",
+          "evidence": "The fixture writes and checks suffix markers only at `repairColumn + 3` (lines 568, 571–604); all other status cells begin blank in `menuState()`. Therefore a faulty `clearRowFrom(display, rendered.base.repairColumn + 3, row)` clears both checked markers and preserves the left marker, map marker, and botlx assertion. C `docorner()` positions at `xmin` and immediately calls `cl_end()`, so the first cell at `repairColumn` must also clear.",
+          "fix": "Seed styled sentinels at `repairColumn` and another interior suffix column on each repaired status row, plus one at `repairColumn - 1`; assert the suffix sentinels become blank with default style and the left sentinel remains unchanged.",
+          "validation": "Run the tty-menu test with the boundary sentinels. The correct start at `repairColumn` passes; a clear starting at `repairColumn + 1` or later must fail.",
+          "dimension": "tests",
+          "dimensions": [
+            "tests"
+          ],
+          "votes": [
+            "evidence keep: C docorner positions at xmin and calls cl_end() on each cleared row, so clearing begins at the mapped repairColumn. The new test seeds and checks status cells only at repairColumn + 3; its other status cells are blank, allowing a clear shifted right to pass.",
+            "causality keep: The added regression test is intended to verify the changed corner-clear behavior but does not assert the first cleared cell. A one-or-more-column start regression in the new branch would leave stale status cells without failing this test.",
+            "resolution keep: Styled sentinels at repairColumn, an interior suffix column, and repairColumn - 1 on each repaired row would pin both the clear start and preserved left boundary. A clear shifted right would leave the first sentinel, while the C source requires the repairColumn cell to clear."
+          ],
+          "cast": 3,
+          "evidenceCast": true,
+          "confirmed": true
+        }
+      ],
+      "validation": {
+        "checkpoint": "/home/vtjeng/development/vtjeng/teleport-contest/.git/checkpoint-results/b81bf97f0035f8d3d1ec859209dd7ea108464b62/run-3ct8K9/summary.json",
+        "focused": ".cache/A81-combined-focused.log",
+        "auditFixFocused": ".cache/A81-audit-fix-focused.log",
+        "boundaryMutation": ".cache/A81-audit-fix-shifted-start-mutant.log",
+        "lint": ".cache/A81-audit-fix-lint.log",
+        "synthetic": ".cache/A81-combined-synthetic.log"
+      },
+      "scope": "Active corner status repair and queued inventory-adjust dispatch; branch divergence fix, no whole-function completion credit"
+    },
+    "recordedAt": "2026-10-02T14:45:29.092Z"
   }
 ]

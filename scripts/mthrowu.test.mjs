@@ -1015,7 +1015,7 @@ test('ordinary dagger naming and settlement helpers take their no-effect arms',
         assert.equal(should_mulch_missile(dagger, state, {
             unsupported: (reason) => assert.fail(reason),
         }), false);
-        assert.equal(passive_obj(state.youmonst, dagger, null, state, {
+        assert.equal(await passive_obj(state.youmonst, dagger, null, state, {
             unsupported: (reason) => assert.fail(reason),
         }), undefined);
     });

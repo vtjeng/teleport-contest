@@ -336,7 +336,7 @@ export async function kickdmg(mon, clumsy, state = game) {
         }
     }
 
-    passive(mon, state.uarmf, true, mon.mhp >= 1, AT_KICK, false,
+    await passive(mon, state.uarmf, true, mon.mhp >= 1, AT_KICK, false,
         state, env);
     if (mon.mhp < 1 && !trapKilled)
         await killed(mon, state, env);
@@ -379,7 +379,7 @@ export async function kick_monster(mon, x, y, state = game) {
         && !is_flyer(mon.data)) {
         await ttyPline('Floating in the air, you miss wildly!', state);
         await exercise(A_DEX, false, state, env.random);
-        passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
+        await passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
         return;
     }
 
@@ -419,14 +419,14 @@ export async function kick_monster(mon, x, y, state = game) {
             if (hitRoll > dieroll) {
                 await ttyPline(`You kick ${mon_nam(mon, state)}.`, state);
                 const sum = await damageum(mon, uattk, specialDmg, state, env);
-                passive(mon, state.uarmf, sum !== M_ATTK_MISS,
+                await passive(mon, state.uarmf, sum !== M_ATTK_MISS,
                     !(sum & M_ATTK_DEF_DIED), AT_KICK, false, state, env);
                 if (sum & M_ATTK_DEF_DIED) break;
             } else {
                 await missum(mon, uattk,
                     hitRoll + counters.role_roll_penalty > dieroll,
                     state, env);
-                passive(mon, state.uarmf, false, true, AT_KICK, false,
+                await passive(mon, state.uarmf, false, true, AT_KICK, false,
                     state, env);
             }
         }
@@ -442,7 +442,7 @@ export async function kick_monster(mon, x, y, state = game) {
                 clumsy = false;
             } else {
                 await ttyPline('Your clumsy kick does no damage.', state);
-                passive(mon, state.uarmf, false, true, AT_KICK, false,
+                await passive(mon, state.uarmf, false, true, AT_KICK, false,
                     state, env);
                 return;
             }
@@ -468,7 +468,7 @@ export async function kick_monster(mon, x, y, state = game) {
                 `${Monnam(mon, state)} blocks your ${clumsy ? 'clumsy ' : ''}kick.`,
                 state,
             );
-            passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
+            await passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
             return;
         }
         maybe_mnexto(mon, state, env);
@@ -484,7 +484,7 @@ export async function kick_monster(mon, x, y, state = game) {
                 `${Monnam(mon, state)} ${movement}, ${clumsy ? 'easily' : 'nimbly'} evading your ${clumsy ? 'clumsy ' : ''}kick.`,
                 state,
             );
-            passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
+            await passive(mon, state.uarmf, false, true, AT_KICK, false, state, env);
             return;
         }
     }

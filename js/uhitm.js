@@ -15,7 +15,7 @@ import {
     shade_glare,
 } from './artifacts.js';
 import { adjalign, exercise } from './attrib.js';
-import { setwornEnv } from './do_wear.js';
+import { some_armor, setwornEnv } from './do_wear.js';
 import {
     A_CON,
     A_DEX,
@@ -435,7 +435,9 @@ import {
     stone_missile,
     weight,
 } from './obj.js';
-import { add_to_minv, carrying, freeinv, obfree, useup, useupall } from './invent.js';
+import {
+    add_to_minv, carrying, freeinv, obfree, update_inventory, useup, useupall,
+} from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
 import {
     an,
@@ -486,6 +488,7 @@ import {
     SILVER,
     SPBOOK_CLASS,
     VEGGY,
+    ARMOR_CLASS,
     WEAPON_CLASS,
     LOW_BOOTS,
     WHACK,
@@ -545,7 +548,9 @@ import { mintrap } from './trap_effects.js';
 import { mselftouch } from './trap_effects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { destroy_items } from './zap_destroy_items.js';
-import { Cold_resistance, exclam, hit, resist } from './zap.js';
+import {
+    Cold_resistance, drain_item, exclam, hit, resist,
+} from './zap.js';
 import { Finish_digestion, eating_conducts, is_fainted, newuhs } from './eat.js';
 import { note_unported } from './unported.js';
 import { m_useup } from './mthrowu.js';
@@ -4840,6 +4845,58 @@ async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
     }
 }
 
+// C ref: uhitm.c mhitm_ad_ench() (3602-3649). A disenchanter's blow has no
+// effect on the hero attacker or another monster. Against the hero, preserve
+// the magic-cancellation check, hit message, worn-armor selection, fallback
+// accessory draw, drain, and success-only message in source order.
+export async function mhitm_ad_ench(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    if (magr === state.youmonst || mdef !== state.youmonst) return;
+
+    const random = { rn2, ...(env.random ?? {}) };
+    const message = env.message
+        ?? (env.planning ? async () => {} : ttyPline);
+    const operationEnv = { ...env, random, message };
+    const negated = await mhitm_mgc_atk_negated(
+        magr, mdef, false, state, operationEnv,
+    );
+    await hitmsg(magr, mattk, state, operationEnv);
+    if (negated) return;
+
+    let obj = some_armor(mdef, state, random);
+    if (!obj) {
+        switch (random.rn2(5)) {
+        case 0:
+            break;
+        case 1:
+            obj = state.uright;
+            break;
+        case 2:
+            obj = state.uleft;
+            break;
+        case 3:
+            obj = state.uamul;
+            break;
+        case 4:
+            obj = state.ublindf;
+            break;
+        }
+    }
+    if (obj && drain_item(obj, false, state, operationEnv)) {
+        await message(
+            `${Yobjnam2(obj, 'seem', state)} less effective.`,
+            state,
+            operationEnv,
+        );
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -4914,7 +4971,9 @@ export async function mhitm_adtyping(
         break;
     case AD_SLEE: unported('mhitm_ad_slee'); break;
     case AD_SLIM: unported('mhitm_ad_slim'); break;
-    case AD_ENCH: unported('mhitm_ad_ench'); break;
+    case AD_ENCH:
+        await mhitm_ad_ench(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_SLOW: unported('mhitm_ad_slow'); break;
     case AD_CONF: unported('mhitm_ad_conf'); break;
     case AD_POLY: unported('mhitm_ad_poly'); break;
@@ -5235,13 +5294,9 @@ export async function mhitm_knockback(
 // whose damage type selects the arms below. A species whose attack list is
 // full has no such slot and returns at 5876-5877.
 //
-// Every damage type but AD_PHYS stops. The first switch (5893-6011) needs
-// passive_obj(), mdamageu(), erode_obj(), erode_armor() or done_in_by(); the
-// second (6014-6109) needs mdamageu(), nomul(), make_stunned(), healmon() or
-// split_mon(). AD_PHYS is the empty slot's own damage type and takes the
-// default arm of both, so an ordinary monster's whole live contribution is the
-// rn2(3) that guards the second switch, and only while it is alive.
-export function passive(
+// AD_ENCH also reaches passive_obj() under C's attack-type guards. The other
+// nonphysical first-switch and second-switch effects remain source boundaries.
+export async function passive(
     mon,
     weapon,
     mhitb,
@@ -5264,25 +5319,37 @@ export function passive(
     if (ptr.mattk[i].damn) random.d(ptr.mattk[i].damn, ptr.mattk[i].damd);
     else if (ptr.mattk[i].damd) random.d(mon.m_lev + 1, ptr.mattk[i].damd);
 
-    if (ptr.mattk[i].adtyp !== AD_PHYS)
+    const passiveAttack = ptr.mattk[i];
+    if (passiveAttack.adtyp === AD_ENCH) {
+        if (mhitb) {
+            const weaponlessKick = aatyp === AT_KICK && !weapon;
+            const objectlessAttack = aatyp !== AT_KICK
+                && (aatyp === AT_BITE || aatyp === AT_BUTT
+                    || (aatyp >= AT_STNG && aatyp < AT_WEAP));
+            if (!weaponlessKick && !objectlessAttack) {
+                await passive_obj(mon, weapon, passiveAttack, state, env);
+            }
+        }
+    } else if (passiveAttack.adtyp !== AD_PHYS) {
         requireAttackOperation(env, 'unsupported')('passive counter-attack');
+    }
 
-    /* 6013. C's guard is `malive && !mon->mcan && rn2(3)`, and with every
-       damage type but AD_PHYS stopped above, the switch it guards has only its
-       do-nothing default arm left. The draw happens exactly where C makes it
-       and its value decides nothing. */
+    /* 6013. C's guard is `malive && !mon->mcan && rn2(3)`. Its AD_PHYS and
+       AD_ENCH arms are empty. */
     if (maliveb && !mon.mcan) random.rn2(3);
 }
 
-// C ref: uhitm.c passive_obj() (6122-6190), the no-passive-attack arm used
-// when a monster-thrown ordinary weapon lands on the unpolymorphed hero. The
-// first AT_NONE slot is C's passive-attack slot; ordinary human form leaves its
-// damage type at AD_PHYS, whose switch arm changes neither object nor state.
-export function passive_obj(mon, obj, mattk, state = game, env = {}) {
-    if (!obj)
-        return requireAttackOperation(env, 'unsupported')(
-            'passive object lookup without an object',
-        );
+// C ref: uhitm.c passive_obj() (6122-6190). This handles both an ordinary
+// passive object's no-effect arm and the AD_ENCH drain/message arm. C callers
+// may supply the object and attack or let this helper select them.
+export async function passive_obj(mon, obj, mattk, state = game, env = {}) {
+    const random = { rn2, ...(env.random ?? {}) };
+    if (!obj) {
+        obj = (state.u?.twoweap && state.uswapwep && !random.rn2(2))
+            ? state.uswapwep : state.uwep;
+        if (!obj && mattk?.adtyp === AD_ENCH) obj = state.uarmg;
+        if (!obj) return;
+    }
     if (!mattk) {
         for (let i = 0; i < NATTK; ++i) {
             if (mon.data.mattk[i].aatyp === AT_NONE) {
@@ -5292,16 +5359,25 @@ export function passive_obj(mon, obj, mattk, state = game, env = {}) {
         }
         if (!mattk) return;
     }
-    if (mattk.adtyp !== AD_PHYS) {
+    if (mattk.adtyp === AD_ENCH) {
+        if (!mon.mcan
+            && drain_item(obj, true, state, env)
+            && carried(obj)
+            && (obj.known || obj.oclass === ARMOR_CLASS)) {
+            const message = env.message
+                ?? (env.planning ? async () => {} : ttyPline);
+            await message(
+                `${Yobjnam2(obj, 'seem', state)} less effective.`,
+                state,
+                env,
+            );
+        }
+    } else if (mattk.adtyp !== AD_PHYS) {
         return requireAttackOperation(env, 'unsupported')(
             'passive object damage',
         );
     }
-    // C calls update_inventory() only when the affected object is carried.
-    // The ranged-settlement caller has just placed it on the floor.
     if (carried(obj)) {
-        return requireAttackOperation(env, 'unsupported')(
-            'carried passive object inventory update',
-        );
+        update_inventory({ ...env, state });
     }
 }

@@ -130,7 +130,7 @@ import { find_mac, which_armor } from './worn.js';
 import { finish_meating } from './dogmove.js';
 import { place_worm_tail_randomly, remove_worm } from './worm.js';
 import { newsym, flush_screen, shieldeff } from './display.js';
-import { resist } from './zap.js';
+import { drain_item, resist } from './zap.js';
 import { ttyPline } from './tty_message.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
@@ -1131,9 +1131,7 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
 // rn2(3) that guards the second switch, and only while it is alive.
 //
 // AD_ENCH is the one other damage type this port follows. Its whole body is a
-// drain_item() call C guards on the aggressor's wielded weapon, which no path
-// mattackm() admits can supply, so the arm is a no-op and stopping on it would
-// cost a segment for nothing. The rest refuse: AD_ACID in the first switch
+// drain_item() call C guards on the aggressor's wielded weapon. The rest refuse: AD_ACID in the first switch
 // (1330-1348) needs erode_armor() and acid_damage(), and the second switch
 // (1362-1443) needs mon_reflects(), paralyze_monst(), golemeffects(),
 // healmon() and split_mon().
@@ -1163,14 +1161,8 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
         unsupported('an acid splash from the monster attacked');
         break;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
-        // C's body is one drain_item(mwep, FALSE) with its own "No message"
-        // comment, so the arm changes nothing else and never draws. `mwep` is
-        // null on every path mattackm() admits -- only the refused AT_WEAP
-        // case sets one -- so the body is unreachable and a pet clawing a
-        // disenchanter passes straight through this arm, as C does.
-        if (mhitb && !mdef.mcan && mwep) {
-            unsupported('a disenchanting monster draining a wielded weapon');
-        }
+        if (mhitb && !mdef.mcan && mwep)
+            drain_item(mwep, false, state, env);
         break;
     default:
         break;
