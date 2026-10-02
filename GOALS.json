@@ -139828,7 +139828,7 @@
     {
       "id": "fix-trap-dotrap-forced-seen-bypass-v18-20261002",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Admit forced seen traps before their effects",
       "cFile": "trap.c",
       "sessions": [
@@ -139842,8 +139842,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "dotrap",
       "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
       "step": 40,
@@ -140022,7 +140025,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

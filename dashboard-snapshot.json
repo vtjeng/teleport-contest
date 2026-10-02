@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T09:21:42.746Z",
+  "capturedAt": "2026-10-02T09:35:08.674Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -15300,12 +15300,52 @@
         "type": "accepted",
         "at": "2026-10-02T09:21:20.475Z",
         "task": "C60"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C60-published-dfc5024a",
+        "type": "published",
+        "at": "2026-10-02T09:21:56.934Z",
+        "task": "C60",
+        "commit": "dfc5024aa978cb9ac0b23054f7b62e0d8479a152"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A77-integrating-0fb2e0e3",
+        "type": "integrating",
+        "at": "2026-10-02T09:23:57.806Z",
+        "task": "A77",
+        "integration": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C62-v19-20261002-retry",
+        "type": "assign",
+        "at": "2026-10-02T09:29:26.110Z",
+        "task": "C62",
+        "worker": "C",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A77-validated-0fb2e0e3",
+        "type": "validated",
+        "at": "2026-10-02T09:34:48.118Z",
+        "task": "A77",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A77-accepted-0fb2e0e3",
+        "type": "accepted",
+        "at": "2026-10-02T09:34:48.558Z",
+        "task": "A77"
       }
     ]
   },
   "development": {
-    "executionCommit": "3465177a540639127708e67f2de7a7103b056b74",
-    "measuredAt": "2026-10-02T09:17:47.081Z",
+    "executionCommit": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+    "measuredAt": "2026-10-02T09:30:41.421Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
