@@ -139091,7 +139091,7 @@
     {
       "id": "port-timeout-learn-egg-type-v18-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Learn egg species through identification and polymorph",
       "cFile": "timeout.c",
       "sessions": [
@@ -139105,8 +139105,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "e1beae945a8ac244f44cc8625af9d552b3372da8",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "learn_egg_type",
@@ -139380,6 +139383,12 @@
         ],
         "entryPointReview": "Helper-only timeout.c:learn_egg_type. Active implemented callers are invent.c:fully_identify_obj, covered by v18 identification through segment0 step69, and both polyself.c:polymon calls after newsym, covered by the two independent red-dragon recordings at transformation step22. The missing timeout.c:hatch_egg callback remains an outer gap and receives no completion credit.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "e1beae945a8ac244f44cc8625af9d552b3372da8",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
