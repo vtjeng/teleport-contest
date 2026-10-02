@@ -136692,7 +136692,7 @@
     {
       "id": "port-potion-ghost-from-bottle-v17",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete ghost emergence from a milky potion",
       "cFile": "potion.c",
       "sessions": [
@@ -136706,8 +136706,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3f6c9800a3e8dbc0ac22fb7e793eefe88300ee9d",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "ghost_from_bottle",
@@ -137053,6 +137056,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3f6c9800a3e8dbc0ac22fb7e793eefe88300ee9d",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

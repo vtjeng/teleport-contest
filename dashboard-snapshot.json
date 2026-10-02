@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T03:13:32.907Z",
+  "capturedAt": "2026-10-02T03:43:14.299Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -14504,12 +14504,67 @@
         "type": "accepted",
         "at": "2026-10-02T03:12:09.652Z",
         "task": "A71"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A71-published-a15a1cc3",
+        "type": "published",
+        "at": "2026-10-02T03:13:45.760Z",
+        "task": "A71",
+        "commit": "a15a1cc3358b2ea43aed879ad72b8efa6a3c7fc7"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-053bb5ca3d849e60885fc3fc40f94dccd0c33d79",
+        "type": "ready",
+        "at": "2026-10-02T03:23:56.003Z",
+        "task": "A72",
+        "delivery": "053bb5ca3d849e60885fc3fc40f94dccd0c33d79"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A72-received-053bb5ca",
+        "type": "received",
+        "at": "2026-10-02T03:26:47.737Z",
+        "task": "A72",
+        "delivery": "053bb5ca3d849e60885fc3fc40f94dccd0c33d79"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A72-integrating-6cfea91a",
+        "type": "integrating",
+        "at": "2026-10-02T03:28:26.836Z",
+        "task": "A72",
+        "integration": "6cfea91a3881d15aaf1fb6b0dc9cfa55aa9f1735"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A72-integrating-3f6c9800",
+        "type": "integrating",
+        "at": "2026-10-02T03:30:28.122Z",
+        "task": "A72",
+        "integration": "3f6c9800a3e8dbc0ac22fb7e793eefe88300ee9d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A72-validated-3f6c9800",
+        "type": "validated",
+        "at": "2026-10-02T03:40:14.028Z",
+        "task": "A72",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A72-accepted-3f6c9800",
+        "type": "accepted",
+        "at": "2026-10-02T03:40:14.455Z",
+        "task": "A72"
       }
     ]
   },
   "development": {
-    "executionCommit": "3ccadef61f309bb3a696aca7e61937d124264826",
-    "measuredAt": "2026-10-02T03:07:49.218Z",
+    "executionCommit": "3f6c9800a3e8dbc0ac22fb7e793eefe88300ee9d",
+    "measuredAt": "2026-10-02T03:36:20.195Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
