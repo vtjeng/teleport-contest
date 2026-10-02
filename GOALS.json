@@ -142322,8 +142322,8 @@
           "name": "mhitm_ad_ench",
           "line": 3603,
           "endLine": 3651,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -142337,15 +142337,15 @@
           "endLine": 2656,
           "declared": true,
           "sourceFile": "do_wear.c",
-          "complete": false
+          "complete": true
         },
         {
           "name": "drain_item",
           "line": 1382,
           "endLine": 1457,
-          "declared": false,
+          "declared": true,
           "sourceFile": "zap.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -142899,7 +142899,179 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_ench",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_ench",
+            "sourceReview": "Compared full uhitm.c:3602-3649. Hero attacker and monster-versus-monster arms do no armor drainage. For monster-versus-hero, preserve C order: mhitm_mgc_atk_negated(FALSE), hitmsg, then on a non-negated attack some_armor; if no armor is returned draw one rn2(5) and choose the exact susceptible jewelry slot; call drain_item(obj,FALSE), and print the less-effective message only when it returns true.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:4818, AD_ENCH dispatch arm"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:1191 calls uhitm.c:mhitm_adtyping; outer route mattacku -> hitmu"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:1059 calls uhitm.c:mhitm_adtyping; outer route mattackm -> mdamagem"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:4854 calls uhitm.c:mhitm_adtyping"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-ench.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-ench-successful-leather-cloak-drain-wizard-b88.session.json",
+              "recordings/uhitm.c/mhitm-ad-ench-successful-studded-suit-drain-wizard-b88.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 35,
+                "source": "mhitu.c:mattacku -> uhitm.c:mhitm_adtyping(AD_ENCH) -> uhitm.c:mhitm_ad_ench -> do_wear.c:some_armor / zap.c:drain_item"
+              }
+            ],
+            "checkedAt": "5a062920312fa3e5f74488f5a23c28fc8ac3ca27"
+          },
+          {
+            "name": "some_armor",
+            "implementation": "js/do_wear.js",
+            "symbol": "some_armor",
+            "sourceReview": "Compared full do_wear.c:2630-2652. The hero branch checks cloak, suit, shirt, helmet, gloves, boots and shield in source order; later candidates draw rn2(4) only after a prior candidate has been selected. The nonhero branch uses existing which_armor with C masks. No extra draw or invented candidate is added.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ench",
+                "source": "uhitm.c:3619"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_enchant_armor",
+                "source": "read.c:1121; existing call forwards state/random"
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "seffect_destroy_armor",
+                "source": "read.c:1327; existing call forwards state/random"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/do-wear-some-armor.test.mjs",
+              "scripts/read-enchant-armor.test.mjs",
+              "scripts/read-destroy-armor.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-ench-successful-leather-cloak-drain-wizard-b88.session.json",
+              "recordings/uhitm.c/mhitm-ad-ench-successful-studded-suit-drain-wizard-b88.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 35,
+                "source": "uhitm.c:mhitm_ad_ench -> do_wear.c:some_armor"
+              }
+            ],
+            "checkedAt": "5a062920312fa3e5f74488f5a23c28fc8ac3ca27"
+          },
+          {
+            "name": "drain_item",
+            "implementation": "js/zap.js",
+            "symbol": "drain_item",
+            "sourceReview": "Compared full zap.c:1382-1455. Preserve object/spe guards, then short-circuit defends(AD_DRLI), defends_when_carried(AD_DRLI), and obj_resists(10,90). Keep billing at the by-you source point. Decrement spe once; update only the source-selected worn rings, helm and gloves; preserve disp.botl and status refresh at the explicit cases; then refresh carried inventory with update_inventory({ ...env, state }) before returning true. C zap.c:1450 only breaks in the default worn-armor arm, so ordinary armor does not gain an invented botl update. Existing source owners for consumed helpers are named in context.sourceReview.consumedDependencies.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_ench",
+                "source": "uhitm.c:3641"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "passive_obj",
+                "source": "uhitm.c:6181"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "passivemm",
+                "source": "mhitm.c:1352"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "passiveum",
+                "source": "mhitu.c:2512"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "bhito",
+                "source": "zap.c:2319"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/zap-drain-item.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-ench-successful-leather-cloak-drain-wizard-b88.session.json",
+              "recordings/uhitm.c/mhitm-ad-ench-successful-studded-suit-drain-wizard-b88.session.json",
+              "recordings/uhitm.c/passive-object-hero-melee-wizard-glove-drain-survival-b88.session.json",
+              "recordings/uhitm.c/passive-object-hero-melee-elf-glove-drain-survival-b88-final5.session.json",
+              "recordings/uhitm.c/passive-object-thrown-dagger-disenchanter-b88-corrected.session.json",
+              "recordings/uhitm.c/passive-object-kick-disenchanter-b88-final.session.json"
+            ],
+            "sourceFile": "zap.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+                "segment": 0,
+                "fromStep": 35,
+                "throughStep": 35,
+                "source": "uhitm.c:mhitm_ad_ench -> zap.c:drain_item"
+              },
+              {
+                "batch": "v17",
+                "caseId": "drain-life-spell-drains-positive-dagger-petless-slot-n",
+                "segment": 0,
+                "fromStep": 62,
+                "throughStep": 62,
+                "source": "zap.c:bhito -> zap.c:drain_item -> obj_resists"
+              },
+              {
+                "batch": "v17",
+                "caseId": "drain-life-spell-drains-positive-dagger-c-observed-route",
+                "segment": 0,
+                "fromStep": 63,
+                "throughStep": 63,
+                "source": "zap.c:bhito -> zap.c:drain_item -> obj_resists"
+              }
+            ],
+            "checkedAt": "5a062920312fa3e5f74488f5a23c28fc8ac3ca27"
+          }
+        ],
+        "entryPointReview": "Helper-only completion: mhitm_ad_ench, some_armor and drain_item are exercised by the monster-to-hero AD_ENCH route; the selected v18 case and two independent successful-drain recordings verify that path. Hero melee, thrown dagger and kick recordings exercise passive_obj -> drain_item through separate production callers. The two v17 bhito ranges exercise the floor drain-life caller. Source-wired passivemm and passiveum branches are listed in context but are not claimed as separately executed by the current recording set; the nonhero some_armor branch has no current production C caller and is covered by source-pinned tests. No whole-function credit is claimed for any supporting dispatcher, passive, throw, kick or monster-action caller. Existing read.c:1121 and read.c:1327 callers are seffect_enchant_armor and seffect_destroy_armor; their JS wiring is unchanged and focused caller tests run-R1x8Bg passed 5/5.",
+        "entryPoints": []
+      }
     }
   ]
 }
