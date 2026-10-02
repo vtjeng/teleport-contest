@@ -452,16 +452,25 @@ test('the pit worm branch follows the source segment count', async () => {
     await hero();
     game.level.worms = Array(MAX_NUM_WORMS).fill(null);
     const short = victimInPit(PM_JACKAL, 9, { wormno: 3 });
+    // A one-entry worm slot is only the co-located hidden head: C counts no
+    // tail segments, while worm_known() can still see the head at this tile.
+    game.level.worms[3] = {
+        segments: [{ x: short.x, y: short.y }],
+    };
     assert.equal(await mintrap(short.mon, 0, pitEnv([4])), Trap_Caught_Mon);
     assert.deepEqual(short.trap.tseen, true);
     assert.deepEqual(short.mon.mhp, 5);
 
     // C's hidden co-located head is the final entry, so seven entries make
-    // six counted segments and take the shared falling branch.
-    game.level.worms[3] = {
-        segments: Array.from({ length: 7 }, () => ({ x: 0, y: 0 })),
-    };
+    // six counted tails and take the shared falling branch. worm_known() also
+    // walks that final head entry, which must be at the monster's visible tile.
     const long = victimInPit(PM_JACKAL, 9, { wormno: 3 });
+    game.level.worms[3] = {
+        segments: [
+            ...Array.from({ length: 6 }, () => ({ x: 0, y: 0 })),
+            { x: long.x, y: long.y },
+        ],
+    };
     assert.equal(
         await mintrap(long.mon, 0, pitEnv()), Trap_Effect_Finished,
     );

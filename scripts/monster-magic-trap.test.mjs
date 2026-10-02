@@ -75,6 +75,14 @@ function victimOnMagicTrap() {
     throw new Error('no free square beside the hero');
 }
 
+// Copy the jackal's complete C-shaped mattk[NATTK] array, then change its
+// first slot for the attack selected by these trap tests.
+function withFirstAttack(monster, attack) {
+    const mattk = monster.data.mattk.map((slot) => ({ ...slot }));
+    mattk[0] = { ...mattk[0], ...attack };
+    return { ...monster.data, mattk };
+}
+
 function trapEnv(rolls = [], damage = 4) {
     const bounds = [];
     const lines = [];
@@ -181,10 +189,10 @@ test('an uncancelled magical attacker becomes lethargic', async () => {
     const { monster, trap } = victimOnMagicTrap();
     trap.ttyp = ANTI_MAGIC; // trap.c ANTI_MAGIC.
     monster.mspec_used = 3;
-    monster.data = {
-        ...monster.data,
-        mattk: [{ aatyp: AT_MAGC, adtyp: AD_PHYS }],
-    };
+    monster.data = withFirstAttack(monster, {
+        aatyp: AT_MAGC,
+        adtyp: AD_PHYS,
+    });
     const env = trapEnv([], 4);
 
     assert.equal(await mintrap(monster, 0, env), Trap_Effect_Finished);
@@ -198,10 +206,10 @@ test('a magic-resistant monster takes anti-magic damage', async () => {
     await hero();
     const { monster, trap } = victimOnMagicTrap();
     trap.ttyp = ANTI_MAGIC; // trap.c ANTI_MAGIC.
-    monster.data = {
-        ...monster.data,
-        mattk: [{ aatyp: AT_MAGC, adtyp: AD_MAGM }],
-    };
+    monster.data = withFirstAttack(monster, {
+        aatyp: AT_MAGC,
+        adtyp: AD_MAGM,
+    });
     const env = trapEnv([3]);
 
     assert.equal(await mintrap(monster, 0, env), Trap_Effect_Finished);
