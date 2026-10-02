@@ -137717,6 +137717,350 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-pray-water-prayer-v17-20261002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete prayer water blessing and cursing",
+      "cFile": "pray.c",
+      "sessions": [
+        "synthetic/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation"
+      ],
+      "selectionReason": "synthetic/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation, investigation investigations/synthetic/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.json, current evaluation challenges/evaluations/20261002045056-v17.json. Complete whole pray.c:water_prayer and its four existing prayer_done caller arms, including consumed FALSE return for p_type2. No whole prayer_done credit. Independent recordings establish p0, p1, p2 TRUE/FALSE; selected matching synthetic range establishes p3. Manifest challenges/manifests/v17.json SHA256 3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada; recording challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.session.json SHA256 69c64727010469c300a1284a33cd493fbd4cb08461d6af25e0c2dd17f2812b8f.",
+      "detail": "Root compared complete pray.c:water_prayer and four prayer_done arms: linked floor pile order, eligible water BUC/knowledge writes, long quantity total, other potion wording including already matching water, Blind/Hallucination gates, hcolor display-RNG, and consumed versus discarded returns. p0 and p2 TRUE penalties are source ordered; p1 lacks those penalties, p2 FALSE reaches pleased, p3 leaves the discarded pray_revive gap. Only water_prayer receives whole-function credit.",
+      "openedAt": "08462b9b2193235a99c583cf0387b75eabc0ef81",
+      "openStanding": {
+        "sha": "e44d89030161c871e467c85f4acc8072a3359460",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "03fd87c4d989cd5a9f3a731abe1f45442a0919e1",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "water_prayer",
+          "line": 1387,
+          "endLine": 1414,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1387,
+        "to": 1414
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation": {
+          "session": "synthetic/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.session.json",
+          "recordingSha256": "69c64727010469c300a1284a33cd493fbd4cb08461d6af25e0c2dd17f2812b8f",
+          "evaluationPath": "challenges/evaluations/20261002045056-v17.json",
+          "evaluationCommit": "e44d89030161c871e467c85f4acc8072a3359460"
+        }
+      },
+      "activeStanding": {
+        "sha": "e44d89030161c871e467c85f4acc8072a3359460",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+          "session": "synthetic/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.session.json",
+          "recordingPath": "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.session.json",
+          "recordingSha256": "69c64727010469c300a1284a33cd493fbd4cb08461d6af25e0c2dd17f2812b8f",
+          "recipe": "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.recipe.session.json",
+          "recipeSha256": "ffc79a3d22cb0b63f726f16f506775fa55f2006c45be2d6c80516f030919f82a",
+          "replayInputSha256": "939544910d7af011149cf6fedcfac2bec7f02e0a2037bcc4234c7e140b2d4222",
+          "evaluationPath": "challenges/evaluations/20261002045056-v17.json",
+          "evaluationCommit": "e44d89030161c871e467c85f4acc8072a3359460",
+          "evaluationArtifact": "challenges/evaluations/20261002045056-v17.json",
+          "evaluationUtc": "2026-10-02T04:51:39.724Z",
+          "remainingScreens": 1,
+          "recordedSteps": 55,
+          "previousScreensMatched": 54,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 54,
+              "total": 55
+            },
+            "rng": {
+              "matched": 2845,
+              "total": 2845
+            },
+            "cursors": {
+              "matched": 54,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 54,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": " "
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "T",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2845,
+              "cCaller": null,
+              "jsEntry": "rn2(3)=0",
+              "stepIndex": null
+            },
+            "cursor": {
+              "index": 54,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 54,
+                "key": " "
+              },
+              "cCursor": [
+                62,
+                0,
+                1
+              ],
+              "jsCursor": [
+                27,
+                4,
+                1
+              ]
+            }
+          },
+          "step": 54,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.json",
+            "result": {
+              "session": "synthetic/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingSha256": "69c64727010469c300a1284a33cd493fbd4cb08461d6af25e0c2dd17f2812b8f",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 1,
+              "recordedSteps": 55,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+                "session": "synthetic/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.session.json",
+                "recordingPath": "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.session.json",
+                "recordingSha256": "69c64727010469c300a1284a33cd493fbd4cb08461d6af25e0c2dd17f2812b8f",
+                "recipe": "challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.recipe.session.json",
+                "recipeSha256": "ffc79a3d22cb0b63f726f16f506775fa55f2006c45be2d6c80516f030919f82a",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 1,
+                "recordedSteps": 55,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 54,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 2845,
+                    "total": 2845
+                  },
+                  "cursors": {
+                    "matched": 54,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 54,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 54,
+                      "key": " "
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "T",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2845,
+                    "cCaller": null,
+                    "jsEntry": "rn2(3)=0",
+                    "stepIndex": null
+                  },
+                  "cursor": {
+                    "index": 54,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 54,
+                      "key": " "
+                    },
+                    "cCursor": [
+                      62,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      27,
+                      4,
+                      1
+                    ]
+                  }
+                },
+                "step": 54,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The remaining screen reaches pray.c prayer_done()’s co-aligned p_type-3 altar branch. C calls water_prayer(TRUE), which changes the ordinary water on the altar to holy water and emits “The potion on the altar glows light blue for a moment.” JS records note_unported(\"pray.c water_prayer\") and continues into pleased(), so its “You feel…” line appears at the space that C uses to continue the prior prayer-completion pager. This is a missing whole-function source port in pray.c, not a generic pager-rendering defect. The preceding pray_revive() return is discarded and no revival candidate is present. The water_prayer() Boolean is consumed by the separate p_type-2 prayer_done() branch and must remain part of any broader caller wiring.",
+              "source": {
+                "file": "pray.c",
+                "branch": "In prayer_done(), p_type == 3 (coaligned and good-standing), outside Gehennom and standing on an altar with visible eligible floor POT_WATER, the source invokes water_prayer(TRUE); that helper blesses the water, marks its blessing knowledge, and emits the light-blue glow message before pleased().",
+                "functions": [
+                  "water_prayer"
+                ],
+                "callers": [
+                  "cmd.c's pray command dispatches to pray.c dopray(); the recorded #pray command reaches the same production handler.",
+                  "pray.c dopray() installs prayer_done() as the after-move callback for the three-turn prayer; prayer_done() is the production caller of water_prayer().",
+                  "In prayer_done() p_type 3 on an altar, C discards pray_revive() and water_prayer(TRUE) results, then calls pleased(). This is the reached caller branch for this case.",
+                  "C prayer_done() also calls water_prayer(FALSE) in the p_type 0 and p_type 1 altar branches, discarding the result, and in the p_type 2 branch where its Boolean return selects the penalty path versus pleased().",
+                  "The JavaScript route is js/cmd.js dopray dispatch -> js/pray.js dopray() -> prayer_done(); its current p_type-3 branch records the water_prayer gap and then calls pleased()."
+                ],
+                "dependencies": [
+                  "pray.c water_prayer(boolean) at lines 1387-1412 scans level.objects[u.ux][u.uy], changes eligible POT_WATER blessed/cursed/bknown fields, prints only when visible water changed, and returns whether any water changed. The p_type-2 prayer_done() caller consumes that Boolean at pray.c:2327; p_type 0, 1, and 3 discard it. Preserve that return contract when wiring callers.",
+                  "Before water_prayer(TRUE), p_type 3 calls pray_revive() and discards its Boolean result. JS records note_unported(\"pray.c pray_revive\"). Its C body only revives a tame non-minion corpse/statue on the altar tile; this recording’s reached visible output is the water helper glow, and no corpse/statue candidate is introduced by the recipe.",
+                  "After water_prayer(TRUE), C calls pleased(alignment); JS has a ported pleased() whose first message starts “You feel that…”. Skipping the earlier water message advances to that page at step 54, explaining the Y-versus-T screen and pager cursor shift. The saved diagnostic also records the first unpaired JS RNG entry rn2(3)=0 after C has no further logged call at that boundary; treat that as a downstream continuation effect to remeasure after water_prayer is wired.",
+                  "js/pray.js currently has explicit UnsupportedPrayerError branches for p_type 0, 1, and 2. The p_type-2 consumed-return caller is not reached by this case; if broader prayer_done() wiring is selected, carry its water_prayer(FALSE) Boolean branch rather than dropping it.",
+                  "nethack-c/patches/README.md lists deterministic time/seed, stable sorting, RNG logging, and terminal capture patches; these recorder patches do not change prayer or altar-water gameplay behavior."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Source: nethack-c/upstream/src/pray.c:2276-2343 prayer_done() selects the p_type-3 co-aligned branch and, when on_altar(), calls (void) pray_revive() then (void) water_prayer(TRUE) before pleased(). The complete water_prayer() source is at pray.c:1387-1412.",
+                "C branch semantics: water_prayer(TRUE) scans the floor objects at the hero square; for an eligible POT_WATER it sets blessed=TRUE, cursed=FALSE, and bknown according to visibility. With changed water and an unblind hero it prints the altar potion glow. The saved recording shows exactly “The potion on the altar glows light blue for a moment.--More--”.",
+                "Recorded continuation: challenges/cases/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.session.json step 53 has key y and the prayer completion light/finish message followed by --More--; step 54 key space records the water-prayer glow line. This verifies the title’s pager continuation reaches the visible source effect.",
+                "Saved evaluation: challenges/evaluations/20261001190602-v17.json reports 54/55 screens matched and one remaining screen. At step 54 the first differing cell is C “T” versus JS “Y”, and cursor positions are C [62,0,1] versus JS [27,4,1]. The diagnostic .cache/synthetic-scans/v17/prayer-coaligned-neutral-water-prayer-glow-pager-continuation.json identifies the same boundary and records note_unported gaps pray_revive and water_prayer.",
+                "JavaScript source: js/pray.js:1469-1516 implements prayer_done(); its p_type-3 altar branch records note_unported(\"pray.c water_prayer\") at line 1514 then immediately invokes pleased(). pleased() at js/pray.js:1727 prints a first message beginning “You feel…”, matching the diagnostic’s JS Y cell. The missing water_prayer output, not the page renderer, is the first cause.",
+                "The helper returns whether it changed water. C discards the return for p_type 0, 1, and 3, but consumes it in p_type 2 at pray.c:2327 to choose penalties versus pleased(). Keep this consumed-return dependency explicit if the caller’s unsupported p_type-2 branch is included in the implementation task.",
+                "Historical context: the matching retainedCases row (id prayer-coaligned-neutral-water-prayer-glow-pager-continuation) records the same step-54 water_prayer(TRUE) result and independent C replay hash. The current immutable recording and the C source above independently verify that claim."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "water_prayer",
+            "implementation": "js/pray.js",
+            "symbol": "water_prayer",
+            "sourceReview": "Root compared complete pray.c:water_prayer and four prayer_done arms: linked floor pile order, eligible water BUC/knowledge writes, long quantity total, other potion wording including already matching water, Blind/Hallucination gates, hcolor display-RNG, and consumed versus discarded returns. p0 and p2 TRUE penalties are source ordered; p1 lacks those penalties, p2 FALSE reaches pleased, p3 leaves the discarded pray_revive gap. Only water_prayer receives whole-function credit.",
+            "callers": [
+              {
+                "path": "js/pray.js",
+                "symbol": "prayer_done",
+                "source": "pray.c:prayer_done (2316-2339), all four active water_prayer caller branches; see branch-specific source traces and recordings in entryPointReview."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/pray.test.mjs"
+            ],
+            "recordings": [
+              "recordings/pray.c/water-prayer-p0-neutral-lawful-altar-b84.session.json",
+              "recordings/pray.c/water-prayer-p1-knight-underfoot-terrain-wish-b84.session.json",
+              "recordings/pray.c/water-prayer-p2-true-neutral-underfoot-b84.session.json",
+              "recordings/pray.c/water-prayer-p2-false-empty-altar-b84.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v17",
+                "caseId": "prayer-coaligned-neutral-water-prayer-glow-pager-continuation",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 54,
+                "source": "cmd.c pray -> prayer_done p_type 3 -> pray_revive() discarded -> water_prayer(TRUE) -> pleased"
+              }
+            ],
+            "checkedAt": "0fc065dcca5977d62899412f5e83f4c73384148b"
+          }
+        ],
+        "entryPointReview": "Helper-only range: `entryPoints` is intentionally empty under validation.md. Production callers are `prayer_done` p_type 0 at pray.c:2316-2318 (FALSE result discarded before penalties), p_type 1 at 2323-2325 (FALSE result discarded before angrygods), p_type 2 at 2327-2335 (FALSE result consumed to select penalties versus pleased), and p_type 3 at 2336-2339 (TRUE result discarded after pray_revive). Matching caller evidence: p_type 0 recording step 53; p_type 1 recording steps 130 and 155; p_type 2 FALSE recording step 127 ending at pleased; p_type 2 TRUE recording steps 131/146/156 with rnz(250)=369 at prayer_done:2329; selected v17 p_type 3 range segment 0 steps 0-54. The helper is reached through cmd.c pray -> dopray -> prayer_done; p_type -2, -1 and Gehennom arms do not call it and remain outside scope.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "03fd87c4d989cd5a9f3a731abe1f45442a0919e1",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

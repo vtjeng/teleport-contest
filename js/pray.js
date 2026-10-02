@@ -13,11 +13,10 @@
 //        maybe_turn_mon_iter() (2347-2405), doturn() (2407-2489),
 //        u_gname() (2524), and align_gname() (2530).
 //
-// prayer_done() covers its head and the gp.p_type == 0 arm; angrygods() covers
-// cases 0 and 1 of its switch and the trailing rnz(300). water_prayer(),
-// pray_revive(), and everything the remaining angrygods() cases reach remain
-// source gaps. pleased() is ported below; its calls to source helpers that
-// still lack a running-game owner are recorded with note_unported().
+// prayer_done() wires water_prayer() in p_types 0 through 3. Its Moloch,
+// undead, and Gehennom arms remain explicit boundaries; pray_revive() and
+// the unported angrygods() cases remain source gaps. pleased() is ported below;
+// its calls to helpers without a running-game owner use note_unported().
 
 import {
     A_CHAOTIC,
@@ -179,6 +178,8 @@ import {
     AMULET_OF_YENDOR,
     CORPSE,
     FAKE_AMULET_OF_YENDOR,
+    POTION_CLASS,
+    POT_WATER,
     FUMBLE_BOOTS,
     GAUNTLETS_OF_FUMBLING,
     HELM_OF_OPPOSITE_ALIGNMENT,
@@ -1459,9 +1460,45 @@ export async function dopray(state = game) {
     return ECMD_TIME;
 }
 
+// C ref: pray.c water_prayer() (1387-1412). The helper mutates eligible
+// water in the hero-square floor pile and returns whether any quantity changed.
+export async function water_prayer(bless_water, state = game) {
+    const { u } = state;
+    const bcKnown = !heroIsBlind(state) && !Hallucination(state);
+    let changed = 0;
+    let other = false;
+
+    for (let otmp = state.level.objects[u.ux][u.uy]; otmp;
+        otmp = otmp.nexthere) {
+        if (otmp.otyp === POT_WATER
+            && (bless_water ? !otmp.blessed : !otmp.cursed)) {
+            otmp.blessed = bless_water;
+            otmp.cursed = !bless_water;
+            otmp.bknown = bcKnown;
+            changed += otmp.quan;
+        } else if (otmp.oclass === POTION_CLASS) {
+            other = true;
+        }
+    }
+
+    if (!heroIsBlind(state) && changed) {
+        const subject = other && changed > 1
+            ? 'Some of the'
+            : other ? 'One of the' : 'The';
+        const potionPlural = other || changed > 1 ? 's' : '';
+        const glowPlural = changed > 1 ? '' : 's';
+        const color = hcolor(bless_water ? 'light blue' : 'black', state);
+        await ttyPline(
+            `${subject} potion${potionPlural} on the altar glow${glowPlural} ${color} for a moment.`,
+            state,
+        );
+    }
+    return changed > 0;
+}
+
 // C ref: pray.c prayer_done() (2276-2343), the ga.afternmv callback dopray()
-// installs. The p_type 0 arm remains the only fully wired failure path here;
-// the p_type 3 arm reaches pleased(), whose complete source branch is below.
+// installs. This function wires all four water_prayer() caller arms; its
+// Moloch, undead, and Gehennom arms remain explicit boundaries.
 //
 // C's return value distinguishes the Inhell arm from the rest, and only
 // moveloop_core()'s occupation loop reads an afternmv result; unmul() discards
@@ -1484,34 +1521,31 @@ export async function prayer_done(state = game) {
     }
 
     if (state.gp.p_type === 0) {
-        // C guards water_prayer(FALSE) with `on_altar() && u.ualign.type !=
-        // alignment`. can_pray() only reaches p_type 0 by way of u.ublesscnt,
-        // so an altar-standing hero can arrive here; water_prayer() blesses
-        // and curses the potions underfoot and is not ported.
         if (on_altar(state) && state.u.ualign.type !== state.gp.p_aligntyp)
-            throw new UnsupportedPrayerError('water_prayer()');
+            await water_prayer(false, state);
         state.u.ublesscnt += rnz(250);
         change_luck(-3, state);
         await gods_upset(state.u.ualign.type, state);
     } else if (state.gp.p_type === 1) {
-        // "too naughty". pray.c:2323-2325 runs the same on_altar()
-        // water_prayer(FALSE) call the p_type 0 arm above does, then
-        // angrygods(u.ualign.type). What it skips relative to p_type 0 is the
-        // pair of penalties between them, u.ublesscnt += rnz(250) and
-        // change_luck(-3).
-        throw new UnsupportedPrayerError("prayer_done()'s p_type 1 arm");
+        // C calls water_prayer(FALSE) before angrygods() and skips p_type 0's
+        // prayer-delay and Luck penalties.
+        if (on_altar(state) && state.u.ualign.type !== state.gp.p_aligntyp)
+            await water_prayer(false, state);
+        await angrygods(state.u.ualign.type, state);
     } else if (state.gp.p_type === 2) {
-        // A coaligned hero on a cross-aligned altar: water_prayer() decides
-        // between the p_type 0 penalties and pleased().
-        throw new UnsupportedPrayerError("prayer_done()'s p_type 2 arm");
+        // C consumes the result to choose penalties versus a pleased response.
+        if (await water_prayer(false, state)) {
+            state.u.ublesscnt += rnz(250);
+            change_luck(-3, state);
+            await gods_upset(state.u.ualign.type, state);
+        } else {
+            await pleased(state.gp.p_aligntyp, state);
+        }
     } else {
-        // Coaligned and in good standing: pray_revive(), water_prayer(TRUE)
-        // and pleased(), which is the whole reward half of pray.c. The altar
-        // helpers return values that this arm discards, so retain their source
-        // gaps and continue to pleased().
+        // C discards pray_revive()'s result, then calls water_prayer(TRUE).
         if (on_altar(state)) {
             note_unported('pray.c pray_revive');
-            note_unported('pray.c water_prayer');
+            await water_prayer(true, state);
         }
         await pleased(state.gp.p_aligntyp, state);
     }

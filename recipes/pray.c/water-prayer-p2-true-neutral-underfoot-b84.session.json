@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91827364,
+      "datetime": "21460715091500",
+      "nethackrc": "OPTIONS=name:B84WaterP2True,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017neutral altar\n\u0017uncursed potion of water\nde\u0017red dragon corpse\n #offer\ny \u0017red dragon corpse\n #offer\ny \u0017red dragon corpse\n #offer\ny \u0017chaotic altar\n#pray\ny n   "
+    }
+  ],
+  "comment": "Independent C-first p_type 2 TRUE variation based on the already matching empty-water route for seed 91827364. It adds an uncursed water wish and drops the observed clear potion from slot e before the three same-alignment corpse sacrifices. After C reports final reconciliation, wish a chaotic altar underfoot; the feature wish returns hands_obj and does not restart ublesscnt. A neutral record on the mismatched chaotic altar should select p_type 2, and eligible water must make water_prayer(FALSE) return true. Keep as p_type 2 evidence only if C confirms the p_type 2 caller and strict JS replay matches."
+}

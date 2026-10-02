@@ -81,6 +81,8 @@ import {
     SADDLE,
     CORPSE,
     FOOD_CLASS,
+    POTION_CLASS,
+    POT_WATER,
 } from '../js/objects.js';
 import {
     TROUBLE_BLIND,
@@ -120,6 +122,7 @@ import {
     in_trouble,
     maybe_turn_mon_iter,
     prayer_done,
+    water_prayer,
     stuck_in_wall,
     worst_cursed_item,
 } from '../js/pray.js';
@@ -1234,16 +1237,104 @@ test('angrygods() raises u.ublesscnt to rnz(300) but never lowers it',
         assert.equal(game.u.ublesscnt, untouched);
     });
 
-// Every prayer_done() arm that remains outside this span still stops by name,
-// at the arm C would have taken. The successful p_type 3 arm now runs
-// pleased() through its production caller.
-test('prayer_done() runs pleased() and refuses the remaining arms', async () => {
+// pray.c:1387-1412 walks the hero-square nexthere pile, mutates only
+// water needing a BUC change, and counts its full quantity for the message.
+test('water_prayer() changes floor water and follows C pile wording', async () => {
+    await startedGame();
+    const { ux, uy } = game.u;
+    const changedQuantity = 2; // Two changed flasks select C's plural message.
+    const water = {
+        otyp: POT_WATER,
+        oclass: POTION_CLASS,
+        blessed: false,
+        cursed: false,
+        bknown: false,
+        quan: changedQuantity,
+        nexthere: null,
+    };
+    const alreadyBlessedWater = {
+        otyp: POT_WATER,
+        oclass: POTION_CLASS,
+        blessed: true,
+        cursed: false,
+        bknown: true,
+        quan: 1,
+        nexthere: null,
+    };
+    water.nexthere = alreadyBlessedWater;
+    game.level.objects[ux][uy] = water;
+
+    assert.equal(await water_prayer(true, game), true);
+    assert.equal(water.blessed, true);
+    assert.equal(water.cursed, false);
+    assert.equal(water.bknown, true);
+    assert.equal(alreadyBlessedWater.bknown, true);
+    assert.equal(
+        game._pending_message,
+        'Some of the potions on the altar glow light blue for a moment.',
+    );
+
+    // An already-cursed flask is not changed by FALSE; C's else-if still
+    // treats it as a potion for wording, but changed remains zero and no line
+    // is printed.
+    const cursedWater = {
+        otyp: POT_WATER,
+        oclass: POTION_CLASS,
+        blessed: false,
+        cursed: true,
+        bknown: false,
+        quan: 1,
+        nexthere: null,
+    };
+    game.level.objects[ux][uy] = cursedWater;
+    clearTtyMessageWindow(game);
+    assert.equal(await water_prayer(false, game), false);
+    assert.equal(cursedWater.bknown, false);
+    assert.equal(game._pending_message, '');
+});
+
+test('water_prayer() hides BUC knowledge under blindness or hallucination',
+    async () => {
+        for (const condition of ['blind', 'hallucinating']) {
+            await startedGame();
+            const { ux, uy } = game.u;
+            const water = {
+                otyp: POT_WATER,
+                oclass: POTION_CLASS,
+                blessed: false,
+                cursed: false,
+                bknown: true,
+                quan: 1,
+                nexthere: null,
+            };
+            game.level.objects[ux][uy] = water;
+            if (condition === 'blind') {
+                game.u.uprops[BLINDED].intrinsic = INTRINSIC;
+            } else {
+                game.u.uprops[HALLUC].intrinsic = INTRINSIC;
+            }
+
+            await water_prayer(true, game);
+            assert.equal(water.bknown, false, condition);
+            if (condition === 'blind') {
+                assert.equal(game._pending_message, '', condition);
+            } else {
+                // pray.c:1400 keeps the altar phrase even when hcolor randomizes the color.
+                assert.match(
+                    game._pending_message,
+                    /^The potion on the altar glows .+ for a moment\.$/u,
+                );
+            }
+        }
+    });
+
+// Every prayer_done() arm outside the four water callers still stops by name,
+// at the arm C would have taken. The successful p_type 3 arm runs pleased().
+test('prayer_done() runs pleased() and keeps the remaining source gaps', async () => {
     await startedGame();
     for (const [p_type, pattern] of [
         [-2, /Moloch arm/u],
         [-1, /undead arm/u],
-        [1, /p_type 1 arm/u],
-        [2, /p_type 2 arm/u],
     ]) {
         game.gp = { p_type, p_aligntyp: A_LAWFUL };
         game.u.uinvulnerable = true;
@@ -1276,15 +1367,69 @@ test('prayer_done() runs pleased() and refuses the remaining arms', async () => 
     game.u.uz = uz;
 
     // pray.c:2316 reaches water_prayer() only for a hero who is both standing
-    // on an altar and praying to another alignment. Neither half alone does
-    // it, so all three combinations are here.
+    // on an altar and praying to another alignment. This cross-aligned case
+    // changes uncursed water before the p_type 0 penalties and anger response.
     const here = game.level.at(game.u.ux, game.u.uy);
     const wasTyp = here.typ;
     const wasMask = here.flags;
     here.typ = ALTAR;
     here.flags = Align2amask(A_CHAOTIC);
     game.gp = { p_type: 0, p_aligntyp: A_CHAOTIC };
-    await assert.rejects(prayer_done(game), /water_prayer\(\)/u);
+    const crossAlignedWater = {
+        otyp: POT_WATER,
+        oclass: POTION_CLASS,
+        blessed: false,
+        cursed: false,
+        bknown: false,
+        quan: 1,
+        nexthere: null,
+    };
+    game.level.objects[game.u.ux][game.u.uy] = crossAlignedWater;
+    for (let i = 0; i < 128; ++i) game.nhDisplay.pushKey(32);
+    const crossAlignedError = await prayer_done(game).catch((error) => error);
+    assert.equal(crossAlignedWater.cursed, true);
+    if (crossAlignedError) {
+        assert.ok(
+            crossAlignedError instanceof UnsupportedPrayerError,
+            `${crossAlignedError.constructor?.name}: ${crossAlignedError.message}`,
+        );
+        assert.doesNotMatch(crossAlignedError.message, /water_prayer/u);
+        assert.match(crossAlignedError.message, /angrygods\(\)/u);
+    }
+
+    // p_type 1 calls the same helper before angrygods(), without p_type 0's
+    // delay or Luck penalties. Its specific helper path is reached despite any
+    // later angrygods() branch that remains outside this task.
+    const p1Water = {
+        otyp: POT_WATER,
+        oclass: POTION_CLASS,
+        blessed: false,
+        cursed: false,
+        bknown: false,
+        quan: 1,
+        nexthere: null,
+    };
+    game.level.objects[game.u.ux][game.u.uy] = p1Water;
+    game.gp = { p_type: 1, p_aligntyp: A_CHAOTIC };
+    for (let i = 0; i < 128; ++i) game.nhDisplay.pushKey(32);
+    const p1Error = await prayer_done(game).catch((error) => error);
+    assert.equal(p1Water.cursed, true);
+    if (p1Error) {
+        assert.ok(
+            p1Error instanceof UnsupportedPrayerError,
+            `${p1Error.constructor?.name}: ${p1Error.message}`,
+        );
+        assert.doesNotMatch(p1Error.message, /water_prayer|p_type 1 arm/u);
+        assert.match(p1Error.message, /angrygods\(\)/u);
+    }
+
+    // With no changeable water, p_type 2 consumes FALSE and reaches pleased().
+    game.level.objects[game.u.ux][game.u.uy] = null;
+    here.typ = wasTyp;
+    game.gp = { p_type: 2, p_aligntyp: game.u.ualign.type, p_trouble: 0 };
+    for (let i = 0; i < 128; ++i) game.nhDisplay.pushKey(32);
+    await prayer_done(game);
+    assert.match(game._pending_message, /^You feel that .* is /u);
 
     for (const [name, typ, aligntyp] of [
         ['a coaligned altar', ALTAR, game.u.ualign.type],
@@ -1302,6 +1447,7 @@ test('prayer_done() runs pleased() and refuses the remaining arms', async () => 
             // what must not happen is the water_prayer() stop.
             assert.ok(error instanceof UnsupportedPrayerError, name);
             assert.doesNotMatch(error.message, /water_prayer/u, name);
+            assert.match(error.message, /angrygods\(\)/u, name);
         }
     }
     here.typ = wasTyp;

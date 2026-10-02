@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 72648103,
+      "datetime": "21380617112200",
+      "nethackrc": "OPTIONS=name:B84WaterDelay,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017lawful altar\n\u0017uncursed potion of water\nde#pray\ny n  #pray\ny n  "
+    }
+  ],
+  "comment": "Independent C-first p_type 0 caller variation. A neutral Barbarian starts on a wished lawful altar with uncursed water on the floor. The first prayer should take p_type 2 and change that bottle to cursed water; its prayer delay makes the immediate second prayer p_type 0, so prayer_done invokes water_prayer(FALSE) again before the too-soon penalties. This checks the p_type 0 caller even though the second call has no water state left to change. Seed, date, name, and role were chosen independently."
+}
