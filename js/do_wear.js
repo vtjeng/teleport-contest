@@ -373,6 +373,7 @@ import {
     setuswapwep,
     setuwep,
     setworn,
+    which_armor,
 } from './worn.js';
 import { shk_your } from './shk.js';
 
@@ -3875,18 +3876,25 @@ export async function doremring(state = game) {
     return armor_or_accessory_off(otmp, state);
 }
 
-// C ref: do_wear.c some_armor() (2630-2652). The hero's seven armor globals are
-// kept in the same order as
-// C's uarm, uarmc, uarmu, uarmh, uarmg, uarmf and uarms selection. This slice
-// reaches only the hero arm; monster minvent selection belongs to its callers.
-export function some_armor(victim, state = game, random = { rn2 }) {
-    if (victim !== state.youmonst) {
-        throw new Error('some_armor() requires the hero victim');
-    }
-
-    let selected = state.uarmc ?? state.uarm ?? state.uarmu ?? null;
-    for (const field of ['uarmh', 'uarmg', 'uarmf', 'uarms']) {
-        const armor = state[field];
+// C ref: do_wear.c some_armor() (2630-2652). The hero's seven armor globals
+// and a monster's minvent are selected in the same source order.
+export function some_armor(victim, state = game, rawRandom = {}) {
+    const random = { rn2, ...rawRandom };
+    const hero = victim === state.youmonst;
+    const slot = (field, mask) => hero
+        ? state[field] ?? null
+        : which_armor(victim, mask, state);
+    let selected = slot('uarmc', W_ARMC)
+        ?? slot('uarm', W_ARM)
+        ?? slot('uarmu', W_ARMU)
+        ?? null;
+    for (const [field, mask] of [
+        ['uarmh', W_ARMH],
+        ['uarmg', W_ARMG],
+        ['uarmf', W_ARMF],
+        ['uarms', W_ARMS],
+    ]) {
+        const armor = slot(field, mask);
         if (armor && (!selected || !random.rn2(4))) selected = armor;
     }
     return selected;
