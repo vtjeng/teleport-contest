@@ -143085,7 +143085,7 @@
     {
       "id": "port-mhitu-gazemu-pyrolisk-and-medusa-gazes-v18-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port monster gazes and visible Medusa response",
       "cFile": "mhitu.c",
       "sessions": [
@@ -143099,8 +143099,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "5ceec4bfed9481e19baf3beb38e55eb8131f66dc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "gazemu",
@@ -143391,6 +143394,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5ceec4bfed9481e19baf3beb38e55eb8131f66dc",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
