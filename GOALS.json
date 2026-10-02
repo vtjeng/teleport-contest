@@ -142047,7 +142047,7 @@
     {
       "id": "fix-tty-corner-dismiss-and-queued-adjust-v18-20261002",
       "kind": "divergence-fix",
-      "status": "open",
+      "status": "closed",
       "summary": "Fix corner status dismissal and queued inventory adjustment",
       "cFile": "wintty.c",
       "sessions": [
@@ -142061,8 +142061,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "15f03a8d4e6a97037534f666b9b6c002a37c5d5b",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "function": "docorner",
       "session": "synthetic/v18/wizard-applies-wet-towel-clears-glib-c59-continuation",
       "step": 25,
@@ -142285,7 +142288,13 @@
             }
           }
         }
-      ]
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "15f03a8d4e6a97037534f666b9b6c002a37c5d5b",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
