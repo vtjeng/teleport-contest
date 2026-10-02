@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 retained C-first hero-to-monster variation, not a passing recording. It repeats the previous natural-ghoul/newt attack after one source-observed miss; the literal space dismisses C's attack-result More, and the final `l` is one additional adjacent attack. The input reaches uhitm.c:mhitm_ad_plys at step 45, but the later second attack stops strict parity at step 48 in the unported uhitm.c:passive path (C rn2(3), JS d(1,2)). The role, actor, weapon, seed and target stay fixed; this preserves the observed miss and downstream blocker without JavaScript-guided input tuning.",
+  "segments": [
+    {
+      "seed": 8806622,
+      "datetime": "20311014101010",
+      "nethackrc": "OPTIONS=name:PlysNewt,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "da#polyself\nghoul\n #wizgenesis\nhostile newt\nl l"
+    }
+  ]
+}

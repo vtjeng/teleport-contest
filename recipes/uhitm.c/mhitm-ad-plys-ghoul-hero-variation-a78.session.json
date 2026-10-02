@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 cheap C-first variation of the hostile-ghoul monster-to-hero route, using a Monk instead of a Wizard while keeping the source-selected attack and elapsed-turn input pattern. Role variation is chosen independently to check the shared mhitu.c:hitmu and uhitm.c:mhitm_ad_plys path under a distinct starting inventory. No JavaScript result informed the setup.",
+  "segments": [
+    {
+      "seed": 8806602,
+      "datetime": "20311011101010",
+      "nethackrc": "OPTIONS=name:PlysMonk,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile ghoul\n.........."
+    }
+  ]
+}

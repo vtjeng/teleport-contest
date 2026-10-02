@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 independent C-first monster-to-monster entry route. The source-checked #wizintrinsic menu input grants Conflict; a hostile ghoul and three hostile paper golems are then generated on the same level, so monmove.c's monster-turn conflict path can invoke mhitm.c:mattackm and uhitm.c:mhitm_ad_plys. Twenty bounded wait opportunities are frozen from that source route, not from JavaScript output. The selected recording must show a C annotation at uhitm.c:mhitm_ad_plys before it can be used as evidence.",
+  "segments": [
+    {
+      "seed": 8806631,
+      "datetime": "20311015101010",
+      "nethackrc": "OPTIONS=name:PlysConflict,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na>>h\n  #wizgenesis\nhostile ghoul\n #wizgenesis\n3 hostile paper golem\n .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . "
+    }
+  ]
+}
