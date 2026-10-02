@@ -37,6 +37,7 @@ import {
     OBJ_FREE,
     OBJ_INVENT,
     PASSES_WALLS,
+    PLNMSG_ONE_ITEM_HERE,
     REVIVE_MON,
     RIGHT_SIDE,
     ROT_CORPSE,
@@ -96,6 +97,7 @@ import {
     LUCKSTONE,
     MAGIC_LAMP,
     OIL_LAMP,
+    ROCK,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -117,6 +119,7 @@ import {
     start_timer,
     start_glob_timeout,
     start_corpse_timeout,
+    slip_or_trip,
     stop_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
@@ -617,6 +620,230 @@ test('plain on-foot fumbling expiry keeps C ordering and random draws',
         assert.equal(state.u.uprops[FUMBLING].extrinsic, 1);
     });
 
+test('slip_or_trip names the preceding floor item before fumbling cleanup',
+    async () => {
+        const state = plainFumblingState();
+        // A two-item sword stack must use the C last_msg pronoun "them".
+        const object = { nobj: null, quan: 2, otyp: LONG_SWORD };
+        state.level.objects[state.u.ux][state.u.uy] = object;
+        state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
+        const messages = [];
+        const draws = [];
+
+        await nh_timeout(state, {
+            random: {
+                rn2(bound) {
+                    draws.push(['rn2', bound]);
+                    throw new Error(`unexpected rn2(${bound})`);
+                },
+                rnd(bound) {
+                    draws.push(['rnd', bound]);
+                    return 5; // C extends the still-active fumbling timeout.
+                },
+            },
+            message: async (text) => messages.push(text),
+        });
+
+        // timeout.c uses iflags.last_msg == PLNMSG_ONE_ITEM_HERE to avoid
+        // naming an item already shown by the movement command.
+        assert.deepEqual(messages, [
+            'You trip over them.',
+            'You make a lot of noise!',
+        ]);
+        assert.deepEqual(draws, [['rnd', 20]]);
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], object);
+    });
+
+test('slip_or_trip keeps every plain-foot switch result on rn2(4)', async () => {
+    // These four draws select the default, foot-trip, near-fall, and flounder
+    // arms of timeout.c's source switch, respectively.
+    const cases = [
+        [0, 'You stumble.'],
+        [1, 'You trip over your own feet.'],
+        [2, 'You slip and nearly fall.'],
+        [3, 'You flounder.'],
+    ];
+
+    for (const [result, expected] of cases) {
+        const state = plainFumblingState();
+        const messages = [];
+        const draws = [];
+        await slip_or_trip(state, {
+            planning: true,
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    return result;
+                },
+            },
+            message: async (text) => messages.push(text),
+        });
+        assert.deepEqual(messages, [expected], `rn2(4)=${result}`);
+        assert.deepEqual(draws, [4], `rn2(4)=${result}`);
+    }
+});
+
+test('blind and hallucinating floor-object descriptions follow C predicates', async () => {
+    const blind = plainFumblingState();
+    // intrinsic:1 activates the source Blind predicate without blocking it.
+    blind.u.uprops[BLINDED] = { intrinsic: 1 };
+    // Two rocks make sobj_at(ROCK) choose C's plural fallback.
+    const rock = { otyp: ROCK, quan: 2, nexthere: null };
+    blind.level.objects[blind.u.ux][blind.u.uy] = {
+        otyp: LONG_SWORD, quan: 1, dknown: false, nexthere: rock,
+    };
+    const blindMessages = [];
+    await slip_or_trip(blind, {
+        planning: true,
+        random: { rn2() { throw new Error('blind object trip draws no RNG'); } },
+        message: async (text) => blindMessages.push(text),
+    });
+    assert.deepEqual(blindMessages, ['You trip over some rocks.']);
+
+    const hallucinatingState = plainFumblingState();
+    // intrinsic:1 enables Hallucination while PLNMSG_ONE_ITEM_HERE forces the
+    // already-named stack pronoun branch.
+    hallucinatingState.u.uprops[HALLUC] = { intrinsic: 1 };
+    hallucinatingState.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
+    hallucinatingState.level.objects[hallucinatingState.u.ux]
+        [hallucinatingState.u.uy] = {
+            otyp: LONG_SWORD, quan: 2, dknown: false,
+        };
+    const hallucinatingMessages = [];
+    await slip_or_trip(hallucinatingState, {
+        planning: true,
+        random: { rn2() { throw new Error('named item trip draws no RNG'); } },
+        message: async (text) => hallucinatingMessages.push(text),
+    });
+    // timeout.c passes body_part(FOOT) without makeplural in this branch.
+    assert.deepEqual(hallucinatingMessages, ['Egads!  They bite your foot!']);
+});
+
+test('ice fumbling preserves the C condition, verb, and dexterity draw order',
+    async () => {
+        const state = plainFumblingState();
+        state.level.at(state.u.ux, state.u.uy).typ = ICE;
+        const messages = [];
+        const draws = [];
+        // rn2(3)=0 activates ice slipping, rn2(2)=1 chooses "slip", and
+        // rn2(10 + A_DEX)=1 avoids the random-direction hurtle.
+        const results = [0, 1, 1];
+        const random = {
+            rn2(bound) {
+                draws.push(['rn2', bound]);
+                return results.shift();
+            },
+            rnd(bound) {
+                draws.push(['rnd', bound]);
+                return 7; // C increments the remaining Fumbling timeout.
+            },
+        };
+
+        await nh_timeout(state, {
+            random,
+            message: async (text) => messages.push(text),
+        });
+
+        // dbridge.c is_ice() succeeds, timeout.c draws rn2(3), chooses the
+        // slide/slip verb with rn2(2), and reaches rn2(10 + A_DEX). A nonzero
+        // dexterity result avoids confdir/hurtle in this bounded fixture.
+        assert.deepEqual(messages, [
+            'You slip on the ice.',
+            'You make a lot of noise!',
+        ]);
+        assert.deepEqual(draws, [
+            ['rn2', 3], ['rn2', 2], ['rn2', 20], ['rnd', 20],
+        ]);
+        assert.equal(state.multi, -2);
+        assert.equal(state.u.uprops[FUMBLING].intrinsic, 7);
+    });
+
+test('ice-direction slip passes the cloned RNG through confdir', async () => {
+    const state = plainFumblingState();
+    // dbridge.c:is_ice() selects the fumble branch on this wished terrain.
+    state.level.at(state.u.ux, state.u.uy).typ = ICE;
+    // C's prior move began one square south of the hero's current square.
+    // confdir result 3 selects south, so hurtle's origin guard skips movement.
+    state.u.ux0 = 10;
+    state.u.uy0 = 11;
+    const messages = [];
+    const draws = [];
+    // The values trigger the ice branch, choose "slip", force its direction
+    // subcall, and select the source dirs_ord[3] southward vector.
+    const results = [0, 1, 0, 3];
+
+    await slip_or_trip(state, {
+        planning: true,
+        random: {
+            rn2(bound) {
+                draws.push(bound);
+                return results.shift();
+            },
+        },
+        message: async (text) => messages.push(text),
+    });
+
+    assert.deepEqual(messages, ['You slip on the ice.']);
+    assert.deepEqual(draws, [3, 2, 20, 8]);
+    assert.deepEqual([state.u.dx, state.u.dy], [0, 1]);
+    assert.deepEqual(results, []);
+});
+
+test('ordinary mounted fumbling keeps the four source messages in order',
+    async () => {
+        const cases = [
+            [0, 'You slide to one side of the saddle.'], // C switch default.
+            [1, 'Your feet slip out of the stirrups.'], // C case 1.
+            [2, 'You let go of the reins.'], // C case 2.
+            [3, 'You bang into the saddle-horn.'], // C case 3.
+        ];
+
+        for (const [result, expected] of cases) {
+            // A minimal mounted object has no minvent saddle, selecting the
+            // source's non-cursed-or-absent-saddle branch.
+            const state = plainFumblingState();
+            state.u.usteed = {};
+            const messages = [];
+            const draws = [];
+            await slip_or_trip(state, {
+                planning: true,
+                random: {
+                    rn2(bound) {
+                        draws.push(bound);
+                        return result;
+                    },
+                },
+                message: async (text) => messages.push(text),
+            });
+            // `result` is the corresponding timeout.c rn2(4) switch arm.
+            assert.deepEqual(messages, [expected], `rn2(4)=${result}`);
+            assert.deepEqual(draws, [4], `rn2(4)=${result}`);
+        }
+    });
+
+test('slip_or_trip mirrors the complete source-owned branch sequence', () => {
+    const cStart = C_TIMEOUT.indexOf('\nslip_or_trip(void)\n{') + 1;
+    const cEnd = C_TIMEOUT.indexOf('\n}', cStart) + 2;
+    const cFunction = C_TIMEOUT.slice(cStart, cEnd);
+    const jsStart = JS_TIMEOUT.indexOf('export async function slip_or_trip(');
+    const jsEnd = JS_TIMEOUT.indexOf('\n}', jsStart) + 2;
+    const jsFunction = JS_TIMEOUT.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+
+    // Match the source order that selects a floor object, then ice/outside,
+    // then the on-foot or mounted four-way message.
+    assert.match(cFunction,
+        /vobj_at\(u\.ux, u\.uy\)[\s\S]*?is_pool\(u\.ux, u\.uy\)[\s\S]*?PLNMSG_ONE_ITEM_HERE[\s\S]*?is_ice\(u\.ux, u\.uy\)[\s\S]*?NODIAG\(u\.umonnum\)[\s\S]*?hurtle\(u\.dx, u\.dy, 1, FALSE\)[\s\S]*?switch \(rn2\(4\)\)/u,
+    );
+    assert.match(jsFunction,
+        /vobj_at\(u\.ux, u\.uy, state\)[\s\S]*?is_pool\(u\.ux, u\.uy, state\)[\s\S]*?PLNMSG_ONE_ITEM_HERE[\s\S]*?is_ice\(u\.ux, u\.uy, state\)[\s\S]*?NODIAG\(u\.umonnum\)[\s\S]*?await hurtle\(u\.dx, u\.dy, 1, false, state/u,
+    );
+    assert.match(jsFunction, /note_unported\('trap\.c instapetrify'\)/u);
+    assert.match(jsFunction, /note_unported\('steed\.c dismount_steed'\)/u);
+    assert.match(jsFunction, /random\.rn2\(10 \+ acurr\(state, A_DEX\)\)/u);
+});
+
 test('stationary fumbling expiry clears outside and only draws extension',
     async () => {
         const state = plainFumblingState();
@@ -651,7 +878,7 @@ test('stationary fumbling expiry clears outside and only draws extension',
         assert.equal(state.u.uprops[FUMBLING].extrinsic, 1);
     });
 
-test('fumbling expiry preserves its caller around unported slip branches', async () => {
+test('fumbling expiry preserves its caller across object, ice, and rider branches', async () => {
     const cases = [
         ['while mounted', (state) => { state.u.usteed = {}; }],
         ['while levitating', (state) => {
@@ -662,12 +889,23 @@ test('fumbling expiry preserves its caller around unported slip branches', async
         }],
         ['from outside', (state) => {
             state.u.uprops[FUMBLING].intrinsic = FROMOUTSIDE | 1;
+            // The fixture's first confdir choice is west, the square the
+            // hero just left, so C skips its hurtle call.
+            state.u.ux0 = 9;
+            state.u.uy0 = 10;
         }],
         ['on ice', (state) => {
             state.level.at(state.u.ux, state.u.uy).typ = ICE;
+            // The fixture's first confdir choice is west, the square the
+            // hero just left, so C skips its hurtle call.
+            state.u.ux0 = 9;
+            state.u.uy0 = 10;
         }],
         ['over an object', (state) => {
-            state.level.objects[state.u.ux][state.u.uy] = { nobj: null };
+            state.level.objects[state.u.ux][state.u.uy] = {
+                nobj: null, quan: 1,
+            };
+            state.iflags.last_msg = PLNMSG_ONE_ITEM_HERE;
         }],
         ['with deferred decoration', (state) => {
             state.iflags.defer_decor = true;

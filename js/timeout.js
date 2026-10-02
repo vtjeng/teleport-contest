@@ -9,18 +9,17 @@
 import {
     ACID_RES,
     A_CON,
+    A_DEX,
     A_STR,
     BURN_OBJECT,
     BURIED_TOO,
     BLINDED,
+    ARTICLE_THE,
     CONFUSION,
     CONTAINED_TOO,
-    DB_ICE,
-    DB_UNDER,
     DEAF,
     DETECT_MONSTERS,
     DISPLACED,
-    DRAWBRIDGE_UP,
     FIG_TRANSFORM,
     FIRE_RES,
     FOOT,
@@ -35,18 +34,17 @@ import {
     HALLUC,
     HALLUC_RES,
     GLIB,
-    ICE,
     INTRINSIC,
     INVIS,
     I_SPECIAL,
     Is_waterlevel,
-    isok,
     LEVITATION,
     KILLED_BY,
     KILLED_BY_AN,
     MAGICAL_BREATHING,
     NECK,
     NEUTRAL,
+    PLNMSG_ONE_ITEM_HERE,
     MAX_EGG_HATCH_TIME,
     MV_KNOWS_EGG,
     NUM_TIME_FUNCS,
@@ -74,6 +72,8 @@ import {
     SLEEP_RES,
     SLEEPY,
     SEE_INVIS,
+    SUPPRESS_SADDLE,
+    something,
     STONED,
     STONE_RES,
     STRANGLED,
@@ -91,15 +91,18 @@ import {
     VOMITING,
     WARN_OF_MON,
     WT_NOISY_INV,
+    W_SADDLE,
     WOUNDED_LEGS,
     WWALKING,
     ZOMBIFY_MON,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
-import { artifact_light } from './artifacts.js';
+import { confdir } from './cmd.js';
+import { Stone_resistance, artifact_light } from './artifacts.js';
 import { acurr, adjattrib, exercise, stone_luck } from './attrib.js';
-import { newsym, see_monsters } from './display.js';
-import { hcolor, Monnam } from './do_name.js';
+import { newsym, see_monsters, vobj_at } from './display.js';
+import { hcolor, Monnam, x_monnam } from './do_name.js';
+import { hurtle } from './dothrow.js';
 import { toggle_displacement } from './do_wear.js';
 import {
     Popeye, eating_dangerous_corpse, morehungry,
@@ -108,9 +111,12 @@ import { dealloc_killer, find_delayed_killer } from './end.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
 import { heal_legs } from './do.js';
 import { makeplural } from './fruit.js';
-import { carrying, update_inventory, useup } from './invent.js';
+import { carrying, sobj_at, update_inventory, useup } from './invent.js';
 import { game } from './gstate.js';
-import { inv_weight, You_can_move_again, nomul, spoteffects } from './hack.js';
+import {
+    inv_weight, NODIAG, You_can_move_again, nomul, spoteffects,
+} from './hack.js';
+import { highc, upstart } from './hacklib.js';
 import {
     incr_itimeout, make_blinded, make_confused, make_deaf, make_glib,
     make_hallucinated, make_sick, make_vomiting, set_itimeout,
@@ -118,7 +124,7 @@ import {
 import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
 import { region_danger } from './region.js';
-import { the } from './objnam.js';
+import { an, donameFresh, the, vtense } from './objnam.js';
 import {
     candle_light_range,
     arti_light_radius,
@@ -128,12 +134,14 @@ import {
 } from './light.js';
 import {
     breathless, cantvomit, is_flyer, is_rider, is_were, name_to_mon,
-    type_is_pname, zombie_form, little_to_big,
+    touch_petrifies, type_is_pname, zombie_form, little_to_big,
 } from './mondata.js';
 import { body_part, rehumanize } from './polyself.js';
 import { restartcham, wake_nearby } from './mon.js';
 import { note_unported } from './unported.js';
-import { float_down, unconscious } from './trap.js';
+import { float_down, is_pool, unconscious } from './trap.js';
+import { is_ice } from './terrain.js';
+import { which_armor } from './worn.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import {
     PM_DEATH,
@@ -150,10 +158,12 @@ import {
     BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
     FEDORA,
+    CORPSE,
     LUCKSTONE,
     MAGIC_LAMP,
     OIL_LAMP,
     POT_OIL,
+    ROCK,
     TALLOW_CANDLE,
     WAX_CANDLE,
 } from './objects.js';
@@ -464,37 +474,6 @@ function heroPropertyActive(state, propertyIndex) {
         && !property?.blocked;
 }
 
-// C ref: dbridge.c is_ice(). Keep its drawbridge-under-ice arm beside the
-// timeout preflight so an expiring Fumbling property is admitted only when the
-// plain on-foot branch of slip_or_trip() is certain to run.
-function heroIsOnIce(state) {
-    const u = state.u ?? {};
-    const location = isok(u.ux, u.uy)
-        ? state.level?.at?.(u.ux, u.uy)
-        : null;
-    return location?.typ === ICE
-        || (location?.typ === DRAWBRIDGE_UP
-            && ((location.flags ?? 0) & DB_UNDER) === DB_ICE);
-}
-
-// timeout.c::slip_or_trip() has several source-heavy branches. This span admits
-// the four-way plain on-foot switch after a move and the no-move expiry arm,
-// whose movement effects are skipped by nh_timeout(); object, ice and mounted
-// slip_or_trip calls remain recorded gaps. FROMOUTSIDE is safe on the
-// no-move arm because slip_or_trip() is not called, but a moved hero with that
-// bit reaches its unported ice branch.
-function plainOnFootFumbleAdmitted(state) {
-    const u = state.u ?? {};
-    const fumbling = u.uprops?.[FUMBLING];
-    const fromOutside = Boolean((fumbling?.intrinsic ?? 0) & FROMOUTSIDE);
-    return !u.usteed
-        && !heroPropertyActive(state, LEVITATION)
-        && !heroPropertyActive(state, FLYING)
-        && (!u.umoved || !fromOutside)
-        && !heroIsOnIce(state)
-        && !state.level?.objects?.[u.ux]?.[u.uy];
-}
-
 function hallucinating(state) {
     const hallucination = state.u?.uprops?.[HALLUC];
     const resistance = state.u?.uprops?.[HALLUC_RES];
@@ -517,30 +496,145 @@ function unaware(state) {
         && (unconscious(state) || state.u?.uhs === FAINTED);
 }
 
-// C ref: timeout.c slip_or_trip() (1300-1317), the plain on-foot arm. The
-// random choice precedes its message, as in C's switch (rn2(4)).
-async function slipOrTripPlainOnFoot(state, random, message) {
-    switch (random.rn2(4)) {
-    case 1:
+// C ref: timeout.c slip_or_trip() (1222-1341). This is called only after the
+// Fumbling property has been decremented, so FROMOUTSIDE and ice-only checks
+// observe the same post-decrement value and all movement draws stay in C order.
+export async function slip_or_trip(state = game, env = {}) {
+    const u = state.u;
+    const random = env.random ?? { rn2, rnd };
+    const message = env.message ?? ttyPline;
+    const displayEnv = {
+        ...env,
+        displayRandom: env.displayRandom ?? (state === game
+            ? rn2_on_display_rng
+            : createCoreRandom(state.displayCtx, state).rn2),
+    };
+    const onFoot = !u.usteed;
+    let object = vobj_at(u.ux, u.uy, state);
+    let otherObject;
+    let saddle;
+    let what;
+
+    if (object && onFoot && !u.uinwater && is_pool(u.ux, u.uy, state))
+        object = null;
+
+    if (object && onFoot) {
+        // iflags.last_msg remembers that the preceding movement already named
+        // a single floor item, so the timeout refers to it by pronoun.
+        if (state.iflags?.last_msg === PLNMSG_ONE_ITEM_HERE) {
+            what = object.quan === 1
+                ? 'it' : hallucinating(state) ? 'they' : 'them';
+        } else if (object.dknown || !heroPropertyActive(state, BLINDED)) {
+            what = donameFresh(object, state);
+        } else {
+            otherObject = sobj_at(ROCK, u.ux, u.uy, state);
+            what = otherObject
+                ? otherObject.quan === 1 ? 'a rock' : 'some rocks'
+                : something;
+        }
+
+        if (hallucinating(state)) {
+            what = highc(what[0]) + what.slice(1);
+            await message(
+                `Egads!  ${what} bite${object.quan === 1 ? 's' : ''} `
+                    + `your ${body_part(FOOT, state.youmonst)}!`,
+                state,
+            );
+        } else {
+            await message(`You trip over ${what}.`, state);
+        }
+
+        if (!state.uarmf && object.otyp === CORPSE
+            && touch_petrifies(state.mons[object.corpsenm])
+            && !Stone_resistance(state)) {
+            state.killer ??= {};
+            state.killer.name = `tripping over ${an(
+                state.mons[object.corpsenm].pmnames[NEUTRAL],
+            )} corpse`;
+            if (!env.planning) note_unported('trap.c instapetrify');
+        }
+    } else if ((u.uprops?.[FUMBLING]?.intrinsic & FROMOUTSIDE)
+        || (is_ice(u.ux, u.uy, state) && !random.rn2(3))) {
+        const fumbling = u.uprops[FUMBLING];
+        const iceOnly = !(fumbling.extrinsic
+            || (fumbling.intrinsic & ~FROMOUTSIDE));
         await message(
-            `You trip over your own ${hallucinating(state)
-                ? 'elbow'
-                : makeplural(body_part(FOOT, state.youmonst))}.`,
+            `${u.usteed
+                ? upstart(x_monnam(
+                    u.usteed, ARTICLE_THE, null, SUPPRESS_SADDLE, false,
+                    state, displayEnv,
+                ))
+                : 'You'} ${vtense(
+                u.usteed ? 'steed' : 'you', random.rn2(2) ? 'slip' : 'slide',
+            )} ${is_ice(u.ux, u.uy, state) ? 'on' : 'off'} the ice.`,
             state,
         );
-        break;
-    case 2:
-        await message(
-            `You slip ${hallucinating(state) ? 'on a banana peel' : 'and nearly fall'}.`,
-            state,
-        );
-        break;
-    case 3:
-        await message('You flounder.', state);
-        break;
-    default:
-        await message('You stumble.', state);
-        break;
+
+        if (!onFoot
+            && ((saddle = which_armor(u.usteed, W_SADDLE, state)) === null
+                || !saddle.cursed)
+            && (!iceOnly || !random.rn2(3))) {
+            await message('You lose your balance.', state);
+            // steed.c dismount_steed() is a void caller whose other reasons
+            // remain unported. Preserve the source call boundary without
+            // inventing a fall, damage, or landing transition.
+            if (!env.planning) note_unported('steed.c dismount_steed');
+        } else if (!random.rn2(10 + acurr(state, A_DEX))) {
+            if (!NODIAG(u.umonnum))
+                confdir(true, state, { random });
+            if (u.ux + u.dx !== u.ux0 || u.uy + u.dy !== u.uy0) {
+                await hurtle(u.dx, u.dy, 1, false, state, {
+                    planning: Boolean(env.planning),
+                    random,
+                    planningDeath: env.planningDeath,
+                    isolateVision: env.isolateVision,
+                });
+            }
+        }
+    } else if (onFoot) {
+        switch (random.rn2(4)) {
+        case 1:
+            await message(
+                `You trip over your own ${hallucinating(state)
+                    ? 'elbow'
+                    : makeplural(body_part(FOOT, state.youmonst))}.`,
+                state,
+            );
+            break;
+        case 2:
+            await message(
+                `You slip ${hallucinating(state)
+                    ? 'on a banana peel' : 'and nearly fall'}.`, state,
+            );
+            break;
+        case 3:
+            await message('You flounder.', state);
+            break;
+        default:
+            await message('You stumble.', state);
+            break;
+        }
+    } else if ((saddle = which_armor(u.usteed, W_SADDLE, state)) === null
+        || !saddle.cursed) {
+        switch (random.rn2(4)) {
+        case 1:
+            await message(
+                `Your ${makeplural(body_part(FOOT, state.youmonst))} slip `
+                    + 'out of the stirrups.',
+                state,
+            );
+            break;
+        case 2:
+            await message('You let go of the reins.', state);
+            break;
+        case 3:
+            await message('You bang into the saddle-horn.', state);
+            break;
+        default:
+            await message('You slide to one side of the saddle.', state);
+            break;
+        }
+        if (!env.planning) note_unported('steed.c dismount_steed');
     }
 }
 
@@ -1023,10 +1117,7 @@ async function decrement_property_timeouts(state, env) {
             break;
         case FUMBLING:
             if (u.umoved && !(heroPropertyActive(state, LEVITATION) || Flying(state))) {
-                if (plainOnFootFumbleAdmitted(state))
-                    await slipOrTripPlainOnFoot(state, random, message);
-                else if (!env.planning)
-                    note_unported('timeout.c slip_or_trip');
+                await slip_or_trip(state, { ...env, random, message });
                 nomul(-2, state);
                 state.multi_reason = 'fumbling';
                 state.nomovemsg = '';
