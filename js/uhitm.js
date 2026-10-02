@@ -103,6 +103,7 @@ import {
     STUNNED,
     TIMEOUT,
     FIRE_RES,
+    FREE_ACTION,
     TEST_MOVE,
     LEG,
     LOW_PM,
@@ -190,6 +191,7 @@ import {
     nomul,
     overexertion,
     test_move,
+    You_can_move_again,
 } from './hack.js';
 import { in_rooms } from './rooms.js';
 import { dopay, tended_shop } from './shk.js';
@@ -411,7 +413,7 @@ import {
     S_ORC,
     S_ZOMBIE,
 } from './monsters.js';
-import { engulf_target, failed_grab } from './mhitm.js';
+import { engulf_target, failed_grab, paralyze_monst } from './mhitm.js';
 import { set_ulycn } from './were.js';
 import {
     carried,
@@ -4725,6 +4727,78 @@ export async function mhitm_ad_curs(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_plys() (3431-3476). Preserve the three attack
+// orientations and their separate paralysis gates. The hero-defender arm
+// consumes dynamic_multi_reason's discarded void result as a named gap.
+export async function mhitm_ad_plys(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2, rnd };
+    const message = env.message ?? ttyPline;
+
+    if (magr === state.youmonst) {
+        // uhitm.c hero-polymorph arm checks damage before the magic gate.
+        if (!random.rn2(3)
+            && mhm.damage < mdef.mhp
+            && !(await mhitm_mgc_atk_negated(
+                magr, mdef, true, state, { ...env, random, message },
+            ))) {
+            if (!heroIsBlind(state)) {
+                await message(
+                    `${Monnam(mdef, state, env)} is frozen by you!`,
+                    state,
+                    env,
+                );
+            }
+            paralyze_monst(mdef, random.rnd(10));
+        }
+    } else if (mdef === state.youmonst) {
+        // mhitu.c prints the physical hit message before checking paralysis.
+        await hitmsg(magr, mattk, state, { ...env, random, message });
+        if (state.multi >= 0
+            && !random.rn2(3)
+            && !(await mhitm_mgc_atk_negated(
+                magr, mdef, true, state, { ...env, random, message },
+            ))) {
+            if (state.u?.uprops?.[FREE_ACTION]?.extrinsic) {
+                await message('You momentarily stiffen.', state, env);
+            } else {
+                if (heroIsBlind(state)) {
+                    await message('You are frozen!', state, env);
+                } else {
+                    await message(
+                        `You are frozen by ${mon_nam(magr, state, env)}!`,
+                        state,
+                        env,
+                    );
+                }
+                state.nomovemsg = You_can_move_again;
+                nomul(-random.rnd(10), state);
+                note_unported('uhitm.c dynamic_multi_reason');
+                await exercise(A_DEX, false, state, random);
+            }
+        }
+    } else if (mdef.mcanmove
+        && !random.rn2(3)
+        && !(await mhitm_mgc_atk_negated(
+            magr, mdef, true, state, { ...env, random, message },
+        ))) {
+        if (state.gv?.vis && canSpotMonster(mdef, state)) {
+            await message(
+                `${Monnam(mdef, state, env)} is frozen by ${mon_nam(magr, state, env)}.`,
+                state,
+                env,
+            );
+        }
+        paralyze_monst(mdef, random.rnd(10));
+    }
+}
+
 // C ref: uhitm.c mhitm_ad_were() (4265-4293). The hero's own blow and a
 // monster-versus-monster blow delegate to physical damage; a monster's hit on
 // the hero prints its hit message before the ordered lycanthropy gates.
@@ -4833,7 +4907,9 @@ export async function mhitm_adtyping(
     case AD_DRIN: unported('mhitm_ad_drin'); break;
     case AD_STCK: unported('mhitm_ad_stck'); break;
     case AD_WRAP: unported('mhitm_ad_wrap'); break;
-    case AD_PLYS: unported('mhitm_ad_plys'); break;
+    case AD_PLYS:
+        await mhitm_ad_plys(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_SLEE: unported('mhitm_ad_slee'); break;
     case AD_SLIM: unported('mhitm_ad_slim'); break;
     case AD_ENCH: unported('mhitm_ad_ench'); break;

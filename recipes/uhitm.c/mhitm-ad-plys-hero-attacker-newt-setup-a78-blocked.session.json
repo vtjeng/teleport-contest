@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 C-first setup probe, not passing evidence. The prior C attack record reached uhitm.c:hmon with an orc target but its natural-attack hit check missed before uhitm.c:damageum; this source-input variation substitutes a low-AC newt and preserves the dropped weapon. It stops after the C creation screen to observe the new target position before choosing an attack direction.",
+  "segments": [
+    {
+      "seed": 8806622,
+      "datetime": "20311014101010",
+      "nethackrc": "OPTIONS=name:PlysNewt,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "da#polyself\nghoul\n #wizgenesis\nhostile newt\n "
+    }
+  ]
+}

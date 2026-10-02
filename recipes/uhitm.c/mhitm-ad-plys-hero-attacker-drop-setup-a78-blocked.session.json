@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 C-first corrected setup probe, not passing evidence. The C inventory probe established that slot a is the blessed quarterstaff in the Wizard's hands; the `da` command drops that weapon before ghoul polymorph so the source hmonas path can use the form's first AD_PLYS attack instead of selecting a weapon. This input stops at the target-creation screen before uhitm.c:damageum, so it records setup state only.",
+  "segments": [
+    {
+      "seed": 8806621,
+      "datetime": "20311013101010",
+      "nethackrc": "OPTIONS=name:PlysGhoul,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "da#polyself\nghoul\n #wizgenesis\nhostile orc\n "
+    }
+  ]
+}
