@@ -135118,7 +135118,7 @@
     {
       "id": "port-apply-snuff-candle-lit-throw-v15-20261001",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete candle extinguishing and source callers",
       "cFile": "apply.c",
       "sessions": [
@@ -135132,8 +135132,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ce951eab2ffcfb81dead927ea16565c4bd9da62c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "snuff_candle",
@@ -135464,6 +135467,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ce951eab2ffcfb81dead927ea16565c4bd9da62c",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
