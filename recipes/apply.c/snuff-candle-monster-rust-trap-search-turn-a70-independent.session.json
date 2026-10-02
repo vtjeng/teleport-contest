@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A70 corrected C-first source-command variation for the probe-confirmed lit-candle gnome in Mines-End seed 1000099. OPTIONS=!safe_wait disables do.c:cmd_safety_prevention's monster-nearby search refusal, so the 1 explicit s key(s) can reach detect.c:dosearch0 and consume real turns before the single rust trap at ordinary floor (52,8). The saved C map confirms the south retreat square (52,9) is ordinary floor. Search count is frozen from the source-owned branch before recording; no second trap or wait loop. This completion-only continuation preserves the frozen search-1 setup and appends exactly one space to dismiss the final C-observed --More-- after the generic water-hit message; it does not add a search, movement, wait, or seed variation.",
+  "segments": [
+    {
+      "seed": 1000099,
+      "datetime": "20310604131300",
+      "nethackrc": "OPTIONS=name:A70GnomeWater,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\nOPTIONS=!safe_wait\n",
+      "moves": " \u0016?\n x#wizmap\n\u0014  hhjjj.s#wizwish\nrust trap\nj "
+    }
+  ]
+}
