@@ -272,7 +272,7 @@ import { shop_keeper, stolen_value, subfrombill, alter_cost } from './shk.js';
 import { water_damage } from './trap_water_damage.js';
 import { aobjnam, an } from './objnam.js';
 import { m_at } from './monst.js';
-import { monster_detect } from './detect.js';
+import { monster_detect, object_detect } from './detect.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
 // ported, such as an unported potion type.
@@ -1835,6 +1835,15 @@ async function peffect_monster_detection(otmp, state = game) {
     return 0;
 }
 
+// C ref: potion.c peffect_object_detection() (955-963). The 1/0 result from
+// object_detect() controls peffects()'s short-circuit; Wisdom is exercised
+// only after it reports that something was found.
+async function peffect_object_detection(otmp, state = game) {
+    if (await object_detect(otmp, 0, state)) return 1;
+    await exercise(A_WIS, true, state);
+    return 0;
+}
+
 // C ref: potion.c peffects() (1333-1425). Dispatch the effect of a quaffed
 // potion or spell. Returns >=0 if the effect short-circuits dopotion()'s tail
 // (0 = no time, 1 = time), -1 to continue to the tail.
@@ -1882,7 +1891,8 @@ export async function peffects(otmp, state = game, env = {}) {
         break;
     case POT_OBJECT_DETECTION:
     case SPE_DETECT_TREASURE:
-        throw new UnsupportedQuaffError('peffect_object_detection()');
+        if (await peffect_object_detection(otmp, state)) return 1;
+        break;
     case POT_SICKNESS:
         await peffect_sickness(otmp, state, potionEffectEnvironment(env));
         break;

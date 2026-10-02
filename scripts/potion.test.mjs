@@ -30,7 +30,7 @@ import { runSegment } from '../js/jsmain.js';
 import { discover_object } from '../js/o_init.js';
 import { addinv } from '../js/invent.js';
 import { planningState } from '../js/unported_monster_actions.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj, place_object } from '../js/obj.js';
 import { dist2 } from '../js/hacklib.js';
 import { begin_burn, peek_timer } from '../js/timeout.js';
 import {
@@ -61,6 +61,7 @@ import {
     POT_SPEED,
     POT_WATER,
     MUMMY_WRAPPING,
+    DAGGER,
     SPBOOK_CLASS,
     SPE_INVISIBILITY,
     SPE_RESTORE_ABILITY,
@@ -68,6 +69,7 @@ import {
     COIN_CLASS,
     RING_CLASS,
     SPE_DETECT_MONSTERS,
+    SPE_DETECT_TREASURE,
 } from '../js/objects.js';
 import {
     UnsupportedQuaffError,
@@ -2947,6 +2949,77 @@ test('direct blessed detection spell starts with C-zeroed potion flags',
         assert.equal(game.gp.potion_nothing, 0);
         assert.ok(Number.isInteger(game.gp.potion_unkn));
     });
+
+test('object detection keeps the C helper and dispatcher return order', () => {
+    const c = potionSource();
+    const helperStart = c.indexOf('peffect_object_detection(struct obj *otmp)');
+    const helperEnd = c.indexOf('\n}', helperStart);
+    assert.ok(helperStart > 0 && helperEnd > helperStart);
+    const helper = c.slice(helperStart, helperEnd);
+    assert.match(helper,
+        /if \(object_detect\(otmp, 0\)\)\s*return 1;[\s\S]*exercise\(A_WIS, TRUE\);\s*return 0;/u);
+
+    const js = readFileSync(new URL('../js/potion.js', import.meta.url), 'utf8');
+    const jsHelperStart = js.indexOf('async function peffect_object_detection(');
+    const jsHelperEnd = js.indexOf('\n}', jsHelperStart);
+    assert.ok(jsHelperStart > 0 && jsHelperEnd > jsHelperStart);
+    assert.match(js.slice(jsHelperStart, jsHelperEnd),
+        /if \(await object_detect\(otmp, 0, state\)\) return 1;[\s\S]*await exercise\(A_WIS, true, state\);\s*return 0;/u);
+
+    const cDispatchStart = c.indexOf('peffects(struct obj *otmp)');
+    assert.ok(cDispatchStart > 0);
+    assert.match(c.slice(cDispatchStart),
+        /case POT_OBJECT_DETECTION:\s*case SPE_DETECT_TREASURE:\s*if \(peffect_object_detection\(otmp\)\)\s*return 1;\s*break;/u);
+    const jsDispatchStart = js.indexOf('export async function peffects(');
+    const jsDispatchEnd = js.indexOf('\n// C ref: potion.c dopotion', jsDispatchStart);
+    assert.ok(jsDispatchStart > 0 && jsDispatchEnd > jsDispatchStart);
+    assert.match(js.slice(jsDispatchStart, jsDispatchEnd),
+        /case POT_OBJECT_DETECTION:\s+case SPE_DETECT_TREASURE:\s+if \(await peffect_object_detection\(otmp, state\)\) return 1;\s+break;/u);
+});
+
+test('object detection potion and spell inspect objects underfoot', async () => {
+    for (const [name, otyp, oclass, seed] of [
+        // Distinct fixed starts keep the potion and pseudo-book invocations
+        // independent while both take detect.c's countHere early return.
+        ['ObjectDetectPotion', POT_OBJECT_DETECTION, undefined, 260927268],
+        ['ObjectDetectSpell', SPE_DETECT_TREASURE, SPBOOK_CLASS, 260927269],
+    ]) {
+        await startedGame(seed, name, 'Wizard');
+        // Startup populates distant level objects, which would take
+        // detect.c's later browse_map branch. The source target here is
+        // countHere: retain an otherwise empty world so the nearby-object
+        // return is the branch under test.
+        game.level.objlist = null;
+        game.level.buriedobjlist = null;
+        for (const column of game.level.objects) column.fill(null);
+        game.level.monlist = null;
+        const x = game.u.ux;
+        const y = game.u.uy;
+        // A floor dagger on the hero's square increments countHere, exercising
+        // C's nearby-object message without entering the later browse_map gap.
+        const dagger = mksobj(DAGGER, false, false, { state: game });
+        place_object(dagger, x, y, { state: game });
+        game.u.aexe[A_WIS] = 0;
+        const wisdom = game.u.acurr.a[A_WIS];
+        const detector = oclass === undefined
+            ? vaporPotion(otyp)
+            : { otyp, oclass, blessed: 0, cursed: 0 };
+        clearTopline();
+        enableRngLog();
+
+        assert.equal(await peffects(detector, game), -1);
+        // C's countHere-only arm uses this message and returns detected=0.
+        assert.equal(toplines(), 'You sense objects nearby.');
+        const draws = getRngLog();
+        // With AEXE(WIS) cleared, exercise(A_WIS, TRUE) makes one rn2(19).
+        assert.equal(draws.length, 1);
+        const exerciseRoll = Number(/^rn2\(19\)=(\d+)$/u
+            .exec(draws[0])?.[1]);
+        assert.ok(Number.isInteger(exerciseRoll), draws[0]);
+        // attrib.c raises AEXE(WIS) only when the draw exceeds ACURR(WIS).
+        assert.equal(game.u.aexe[A_WIS], exerciseRoll > wisdom ? 1 : 0);
+    }
+});
 
 test('peffect_invisibility blessed permanence uses C HInvis threshold',
     async () => {

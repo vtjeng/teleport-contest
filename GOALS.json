@@ -137063,6 +137063,268 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-object-detection-v16-20261002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete potion and spell object detection",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v16/wizard-quaffs-object-detection-near-dagger"
+      ],
+      "selectionReason": "synthetic/v16/wizard-quaffs-object-detection-near-dagger, investigation investigations/synthetic/v16/wizard-quaffs-object-detection-near-dagger.json, current evaluation challenges/evaluations/20261002033649-v16.json. Complete potion.c:peffect_object_detection and wire its POT_OBJECT_DETECTION and SPE_DETECT_TREASURE peffects callers. Manifest challenges/manifests/v16.json SHA256 d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d; recording challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.session.json SHA256 e8de6eb33efd232646f7760dbf7c2a453aaae9170d90889266097632db1052d6. Root verified whole-source coverage, production callers, and matching independent spell recordings; detect.c:browse_map remains separate.",
+      "detail": "Root compared whole potion.c:peffect_object_detection (955–963) and peffects POT_OBJECT_DETECTION/SPE_DETECT_TREASURE (1371–1375). Await existing object_detect(otmp,0,state); short-circuit 1 without exercise on nonzero; otherwise await exercise(A_WIS,true,state), return 0, and preserve dispatcher break/tail. Return-valued object_detect and exercise have existing source owners. Removed UnsupportedQuaffError at both selected cases; no new gap in the helper. Existing detect.c:browse_map void gap remains separate, with no completion credit.",
+      "openedAt": "3666c9d7275dcd7cdf95a61cbbe1e8131b358d79",
+      "openStanding": {
+        "sha": "3f6c9800a3e8dbc0ac22fb7e793eefe88300ee9d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "126406c2f937916811ea50d146414a88ffa5e730",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "peffect_object_detection",
+          "line": 955,
+          "endLine": 963,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 955,
+        "to": 963
+      },
+      "syntheticProvenance": {
+        "synthetic/v16/wizard-quaffs-object-detection-near-dagger": {
+          "session": "synthetic/v16/wizard-quaffs-object-detection-near-dagger",
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-quaffs-object-detection-near-dagger",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recordingPath": "challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.session.json",
+          "recordingSha256": "e8de6eb33efd232646f7760dbf7c2a453aaae9170d90889266097632db1052d6",
+          "evaluationPath": "challenges/evaluations/20261002033649-v16.json",
+          "evaluationCommit": "3f6c9800a3e8dbc0ac22fb7e793eefe88300ee9d"
+        }
+      },
+      "activeStanding": {
+        "sha": "3f6c9800a3e8dbc0ac22fb7e793eefe88300ee9d",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v16",
+          "caseId": "wizard-quaffs-object-detection-near-dagger",
+          "session": "synthetic/v16/wizard-quaffs-object-detection-near-dagger",
+          "manifestPath": "challenges/manifests/v16.json",
+          "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+          "recording": "challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.session.json",
+          "recordingPath": "challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.session.json",
+          "recordingSha256": "e8de6eb33efd232646f7760dbf7c2a453aaae9170d90889266097632db1052d6",
+          "recipe": "challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.recipe.session.json",
+          "recipeSha256": "0b8a77a1b43d304b85282c1666ab7b9398ee80a206f8e99129ef3f044b4e909f",
+          "replayInputSha256": "0e136b6bd9d6f5ab48f439ebe1c784860706e52a9d44ad3dee42dad258fcc6d4",
+          "evaluationPath": "challenges/evaluations/20261002033649-v16.json",
+          "evaluationCommit": "3f6c9800a3e8dbc0ac22fb7e793eefe88300ee9d",
+          "evaluationArtifact": "challenges/evaluations/20261002033649-v16.json",
+          "evaluationUtc": "2026-10-02T03:37:26.617Z",
+          "remainingScreens": 1,
+          "recordedSteps": 70,
+          "previousScreensMatched": 69,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 69,
+              "total": 70
+            },
+            "rng": {
+              "matched": 2329,
+              "total": 2329
+            },
+            "cursors": {
+              "matched": 69,
+              "total": 70
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_object_detection()",
+            "step": 69
+          },
+          "step": 69,
+          "kind": "stop",
+          "sourceFile": "potion.c",
+          "function": "peffect_object_detection",
+          "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_object_detection()",
+          "cFile": "potion.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v16/wizard-quaffs-object-detection-near-dagger.json",
+            "result": {
+              "session": "synthetic/v16/wizard-quaffs-object-detection-near-dagger",
+              "corpus": "synthetic",
+              "batch": "v16",
+              "caseId": "wizard-quaffs-object-detection-near-dagger",
+              "manifestPath": "challenges/manifests/v16.json",
+              "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+              "recordingSha256": "e8de6eb33efd232646f7760dbf7c2a453aaae9170d90889266097632db1052d6",
+              "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+              "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+              "remainingScreens": 1,
+              "recordedSteps": 70,
+              "status": "complete",
+              "commit": "fa7aad456f8e2071d96ec4f804c9ecdae6a898d2",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v16",
+                "caseId": "wizard-quaffs-object-detection-near-dagger",
+                "session": "synthetic/v16/wizard-quaffs-object-detection-near-dagger",
+                "manifestPath": "challenges/manifests/v16.json",
+                "manifestSha256": "d528ae55cbfb316928bf9ab04d1e64b3811356151fb29d3c21a96b0ba2aa120d",
+                "recording": "challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.session.json",
+                "recordingPath": "challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.session.json",
+                "recordingSha256": "e8de6eb33efd232646f7760dbf7c2a453aaae9170d90889266097632db1052d6",
+                "recipe": "challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.recipe.session.json",
+                "recipeSha256": "0b8a77a1b43d304b85282c1666ab7b9398ee80a206f8e99129ef3f044b4e909f",
+                "replayInputSha256": "b9f3f7efac0b87b0ab0ad38383c195b3dedf3c94e3ff26900e18ecc54f9808e4",
+                "evaluationPath": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationCommit": "452fff60d85992524c72a8282fbae13a5e32a906",
+                "evaluationArtifact": "challenges/evaluations/20261001125731-v16.json",
+                "evaluationUtc": "2026-10-01T12:57:41.763Z",
+                "remainingScreens": 1,
+                "recordedSteps": 70,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 69,
+                    "total": 70
+                  },
+                  "rng": {
+                    "matched": 2329,
+                    "total": 2329
+                  },
+                  "cursors": {
+                    "matched": 69,
+                    "total": 70
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_object_detection()",
+                  "step": 69
+                },
+                "step": 69,
+                "kind": "stop",
+                "sourceFile": "potion.c",
+                "function": "peffect_object_detection",
+                "message": "unsupported hero command: an unported branch of this command: quaffing requires peffect_object_detection()",
+                "cFile": "potion.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The quaff stops at the unported potion.c:peffect_object_detection() arm. C calls object_detect() for all object classes; it returns early when nothing is found, otherwise exercises Wisdom and lets dopotion() continue its knowledge and useup tail. The saved case detects an object, so C takes detect.c:object_detect()’s browse_map branch; js/detect.js currently skips that call with a named unported gap, a possible follow-on screen mismatch after the potion arm is wired.",
+              "source": {
+                "file": "potion.c",
+                "branch": "For POT_OBJECT_DETECTION and SPE_DETECT_TREASURE, peffect_object_detection(otmp) calls object_detect(otmp, 0). A true result means nothing was detected and returns 1 immediately; otherwise it calls exercise(A_WIS, TRUE) and returns 0. peffects() converts the true result into its early return 1, which makes dopotion() return ECMD_TIME before its ordinary knowledge and useup tail; a false result falls through to that tail.",
+                "functions": [
+                  "peffect_object_detection"
+                ],
+                "callers": [
+                  "nethack-c/upstream/src/potion.c:peffects() cases POT_OBJECT_DETECTION and SPE_DETECT_TREASURE (1371-1375) call peffect_object_detection(otmp); js/potion.js:peffects() has both cases at 1754-1756 but currently throws UnsupportedQuaffError.",
+                  "The synthetic #quaff path is nethack-c/upstream/src/cmd.c:quaff row (1809-1810) -> potion.c:dodrink() -> dopotion() -> peffects(); JavaScript command === quaff dispatch (js/cmd.js:5776-5784) calls runQuaffCommand() (3394-3395), then js/potion.js:dodrink(), dopotion(), and peffects().",
+                  "nethack-c/upstream/src/spell.c:spelleffects() sends SPE_DETECT_TREASURE to peffects(pseudo) (1535-1545); js/spell.js routes the same spell case through peffects(pseudo, state) (1463-1471). This is the second active entry path for the same helper.",
+                  "nethack-c/upstream/src/end.c:fuzzer_savelife() also calls peffects(), but only with temporary POT_WATER and POT_RESTORE_ABILITY objects (967-974), so it does not reach peffect_object_detection()."
+                ],
+                "dependencies": [
+                  "detect.c:object_detect(detector, 0) returns 1 when nothing is detected and 0 when objects are found; the result controls peffect_object_detection() and must be retained. Its JavaScript implementation is js/detect.js:object_detect() (833-1009), and potion.js already imports monster_detect from detect.js, so importing the sibling helper follows an existing module dependency.",
+                  "attrib.c:exercise(A_WIS, TRUE) runs only after object_detect() reports found objects; js/potion.js already imports exercise from js/attrib.js.",
+                  "The saved C screen says “You detect the presence of objects.”; in detect.c:object_detect(), that means ct is nonzero and selects browse_map(TER_DETECT | TER_OBJ, \"object\") at 782-785. js/detect.js:object_detect() currently records note_unported('detect.c browse_map') at 1005-1007 instead of calling it. js/detect.js:browse_map() and js/getpos.js:getpos() already exist, so preserve this as a concrete downstream gap to verify after the potion effect is wired.",
+                  "For the no-object branch, detect.c:object_detect() may call strange_feeling(detector, ...), which consumes the detector; JS detect.js already routes through potion.js:strange_feeling(). For the found-object branch, peffects() returns -1 and dopotion() continues its discovery/useup tail. Keep both existing source order and consumption paths."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261001125731-v16.json records a stop at zero-based segment 0 step 69, with 69/70 screens and cursors matched and all 2329 PRNG calls matched. The stop is UnsupportedQuaffError for peffect_object_detection().",
+                "The immutable recording challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.session.json ends at step 69, key f, with “You detect the presence of objects.--More--”. The recipe challenges/cases/v16/wizard-quaffs-object-detection-near-dagger.recipe.session.json independently sets up an uncursed object-detection potion and a dagger before quaffing.",
+                "nethack-c/upstream/src/potion.c:955-961 contains the whole impure helper: object_detect(otmp, 0), early return 1 for no detection, exercise(A_WIS, TRUE) after a detection, return 0. potion.c:1371-1375 wires it for both potion and spell effects; the effect must be implemented in js/potion.js and remove the refusal at 1754-1756.",
+                "potion.c:dopotion() (618-640) returns immediately for peffects() results >= 0; when the object effect returns 0, peffects() falls through and dopotion() continues to identification and useup. The matching JS branch is js/potion.js:dopotion() (1834-1840).",
+                "The C output “presence” selects detect.c:object_detect()’s count-positive browse_map branch (780-787). JS js/detect.js:object_detect() currently substitutes note_unported('detect.c browse_map') for this call (1005-1007), despite an existing js/detect.js:browse_map() (391-410) and js/getpos.js:getpos() (894 onward). This can produce a later divergence after the current stop is removed.",
+                "The C potion/spell caller paths are cmd.c:quaff (1809-1810), potion.c:dodrink()->dopotion()->peffects(), and spell.c:spelleffects() (1535-1545); JavaScript dispatches command === quaff through cmd.js:5776-5784 and runQuaffCommand() (3394-3395), and spell.js sends SPE_DETECT_TREASURE through peffects() (1463-1471). end.c’s direct peffects callers pass only water or restore-ability potions.",
+                "Patch search `rg -n \"peffect_object_detection|object_detect|browse_map\" nethack-c/patches` returned no matches; the behavior comes from upstream potion.c and detect.c."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "peffect_object_detection",
+            "implementation": "js/potion.js",
+            "symbol": "peffect_object_detection",
+            "sourceReview": "Compared the complete potion.c:peffect_object_detection definition (955-963): it calls object_detect(otmp, 0), returns 1 immediately when that helper reports nothing, otherwise exercises Wisdom with A_WIS and TRUE and returns 0. The JavaScript awaits and preserves the same 1/0 result, then awaits exercise(A_WIS, true) only on the found branch. potion.c:peffects (1371-1375) dispatches POT_OBJECT_DETECTION and SPE_DETECT_TREASURE through this helper and immediately returns 1 for the no-detection result; the JavaScript dispatcher has the same short-circuit and continues its ordinary tail only for result 0. object_detect's consumed return and exercise's state/RNG effect use their existing owners. The broader detect.c:browse_map operation remains a named note_unported boundary in js/detect.js outside this B83 scope; it did not prevent the selected synthetic route or either independent spell recording from matching fully. No downstream browse_map completion is claimed.",
+            "callers": [
+              {
+                "path": "js/potion.js",
+                "symbol": "peffects",
+                "source": "potion.c:peffects directly calls peffect_object_detection for POT_OBJECT_DETECTION and SPE_DETECT_TREASURE, then returns 1 when the helper reports no detection."
+              },
+              {
+                "path": "js/potion.js",
+                "symbol": "dopotion",
+                "source": "potion.c:dopotion calls peffects for quaffed potions; the cmd.c q command reaches this path through potion.c:dodrink."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects routes SPE_DETECT_TREASURE to peffects(pseudo); spell.c:dowizcast reaches spelleffects for the selected menu entry."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/spell.c/object-detection-wizcast-b83-independent.session.json",
+              "recordings/spell.c/object-detection-wizcast-elf-variation-b83-independent.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v16",
+                "caseId": "wizard-quaffs-object-detection-near-dagger",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "cmd.c q command -> potion.c:dodrink -> potion.c:dopotion -> potion.c:peffects(POT_OBJECT_DETECTION) -> potion.c:peffect_object_detection"
+              }
+            ],
+            "checkedAt": "9b5551c1f14c74b6e7cc25d667527d3b1a88a61e"
+          }
+        ],
+        "entryPointReview": "This is a helper-only source range, so entryPoints is empty. The potion production route is cmd.c's q command -> potion.c:dodrink -> potion.c:dopotion -> potion.c:peffects(POT_OBJECT_DETECTION) -> peffect_object_detection; the admitted v16 case wizard-quaffs-object-detection-near-dagger strictly matches through segment 0 step 69 at current HEAD. The spell production route is spell.c:dowizcast -> spell.c:spelleffects(SPE_DETECT_TREASURE) -> potion.c:peffects -> peffect_object_detection; two independent C-first recordings (human Wizard and Elf Wizard) execute the helper at segment 0 step 12 and strictly match all screens, RNG calls and cursor positions. end.c:fuzzer_savelife also calls peffects, but its object types are POT_WATER and POT_RESTORE_ABILITY, so it cannot reach this helper. The pre-existing detect.c:browse_map note_unported remains a separate broader source boundary; these three cited runtime records match completely and no browse_map unit completion is claimed.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "126406c2f937916811ea50d146414a88ffa5e730",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
