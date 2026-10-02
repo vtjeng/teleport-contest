@@ -3863,8 +3863,13 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
             );
         }
     }
-    if (trap.tseen && trap.ttyp !== WEB && trap.ttyp !== LANDMINE
-        && trap.ttyp !== ROCKTRAP
+    // trap.c:dotrap() treats FORCETRAP, FAILEDUNTRAP, and fixed tele traps
+    // as forcetrap before the seen-trap escape gate. This preflight runs before
+    // nomul(0), so compute the same pure predicate without applying that write.
+    const forcetrap = (trflags & (FORCETRAP | FAILEDUNTRAP)) !== 0
+        || fixed_tele_trap(trap);
+    if (trap.tseen && !forcetrap && trap.ttyp !== WEB
+        && trap.ttyp !== LANDMINE && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== STATUE_TRAP
         && !pitTrap && !is_hole(trap.ttyp)) {
         throw new UnsupportedHeroMoveBoundaryError(
