@@ -1835,9 +1835,9 @@ async function peffect_monster_detection(otmp, state = game) {
     return 0;
 }
 
-// C ref: potion.c peffect_object_detection() (955-963). The detected
-// object count controls peffects()'s short-circuit; Wisdom is exercised only
-// after object_detect() reports that something was found.
+// C ref: potion.c peffect_object_detection() (955-963). The 1/0 result from
+// object_detect() controls peffects()'s short-circuit; Wisdom is exercised
+// only after it reports that something was found.
 async function peffect_object_detection(otmp, state = game) {
     if (await object_detect(otmp, 0, state)) return 1;
     await exercise(A_WIS, true, state);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B83 independent spell.c:dowizcast -> spell.c:spelleffects -> potion.c:peffects -> peffect_object_detection production route. Seed 83008301 and the 2042-10-02 clock were selected for this separate Wizard witness. The C wizard spell menu places detect treasure on page two at letter h; > opens that page before h selects SPE_DETECT_TREASURE.",
+  "segments": [
+    {
+      "seed": 83008301,
+      "datetime": "20421002090100",
+      "nethackrc": "OPTIONS=name:B83Spell,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizcast\n>h"
+    }
+  ]
+}

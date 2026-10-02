@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "B83 cheap role-route variation for potion.c:peffect_object_detection through the wizard spell command. The Elf race, seed 83008302, and 2042-11-03 clock were independently selected; the menu still selects detect treasure on page two with > then h.",
+  "segments": [
+    {
+      "seed": 83008302,
+      "datetime": "20421103090200",
+      "nethackrc": "OPTIONS=name:B83Elf,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizcast\n>h"
+    }
+  ]
+}
