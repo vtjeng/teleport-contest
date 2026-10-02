@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 87409312,
+      "datetime": "21461027110500",
+      "nethackrc": "OPTIONS=name:B84KnightUnderfoot,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017lawful altar\n\u0017uncursed potion of water\ndi\u0017red dragon corpse\n #offer\ny \u0017red dragon corpse\n #offer\ny \u0017red dragon corpse\n #offer\ny \u0017chaotic altar\n#pray\ny n   "
+    }
+  ],
+  "comment": "Independent C-first p_type 1 probe using the source-confirmed underfoot terrain-wish route. The Knight starts on a wished lawful altar, wishes and drops uncursed water there before three same-alignment dragon-corpse wishes/offers, and waits until C reports the final reconciliation. Only then, wizard-wish a chaotic altar underfoot. objnam.c:readobjnam writes the current tile and returns hands_obj, so zap.c:makewish returns before its object-wish ublesscnt increment; the water stays in the altar floor pile. The Knight’s positive initial alignment record makes the opposite-chaotic alignment negative after the delay is clear. Keep as p_type 1 evidence only if C confirms water changes before angrygods and the complete replay matches."
+}
