@@ -139112,8 +139112,8 @@
           "name": "learn_egg_type",
           "line": 1193,
           "endLine": 1203,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -139335,7 +139335,52 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "learn_egg_type",
+            "implementation": "js/timeout.js",
+            "symbol": "learn_egg_type",
+            "sourceReview": "Compared all of timeout.c:learn_egg_type against C: normalize through the existing little_to_big, OR MV_KNOWS_EGG into canonical svm.mvitals, then invoke update_inventory. Existing reset_mvitals and restore keep the mvitals alias on the same storage; no new state is added. Compared invent.c:fully_identify_obj and polyself.c:polymon exact caller branches: egg knowledge follows object flags, and both polymorph calls follow newsym in source order, with force_ordinary skipping offspring RNG. The helper is impure because it writes game state and refreshes inventory. Existing caller gaps are removed. The absent hatch_egg timer callback remains an outer gap and receives no completion credit. Whole helper and both implemented caller families have matching runtime evidence; enclosing caller functions receive no whole-function credit.",
+            "callers": [
+              {
+                "path": "js/invent.js",
+                "symbol": "fully_identify_obj",
+                "source": "invent.c:fully_identify_obj at 2646 calls learn_egg_type(otmp->corpsenm) after setting the egg object knowledge flags."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon at 907-910 calls learn_egg_type(u.umonnum), then learn_egg_type(egg_type_from_parent(u.umonnum, TRUE)) after newsym when lays_eggs is true."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/invent.test.mjs",
+              "scripts/polyself.test.mjs"
+            ],
+            "recordings": [
+              "recordings/sit.c/egg-laying-red-dragon-independent.session.json",
+              "recordings/sit.c/egg-laying-red-dragon-role-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-learns-egg-type-from-identification-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 69,
+                "source": "wizcmds.c:wiz_identify -> invent.c:identify_pack -> invent.c:fully_identify_obj -> timeout.c:learn_egg_type"
+              }
+            ],
+            "checkedAt": "748daddfb38002a54a8b72ac24d07c3290b150d1"
+          }
+        ],
+        "entryPointReview": "Helper-only timeout.c:learn_egg_type. Active implemented callers are invent.c:fully_identify_obj, covered by v18 identification through segment0 step69, and both polyself.c:polymon calls after newsym, covered by the two independent red-dragon recordings at transformation step22. The missing timeout.c:hatch_egg callback remains an outer gap and receives no completion credit.",
+        "entryPoints": []
+      }
     }
   ]
 }
