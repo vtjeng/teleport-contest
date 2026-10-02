@@ -143405,7 +143405,7 @@
     {
       "id": "port-uhitm-mhitm-ad-slee-v18-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Sleep attacks and their complete resistance and visibility dependencies",
       "cFile": "uhitm.c",
       "sessions": [
@@ -143419,8 +143419,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c52fd696d861d2e016e2944a5bb99c4afc032971",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_slee",
@@ -144535,6 +144538,12 @@
         ],
         "entryPointReview": "Helper-only primary range: entryPoints is empty. The active production AD_SLEE dispatcher is uhitm.c:mhitm_adtyping (JS js/uhitm.js); it is reached in all three C directions. Monster-to-hero evidence is the independent Tourist route, strictly matched through all 43 screens/cursors and 2894 RNG calls. Hero-to-monster evidence is the independent Pauper-versus-lichen route, strictly matched through all 51 screens/cursors and 2664 RNG calls. Monster-to-monster evidence is the independent Conflict pair route, strictly matched through 122 screens/cursors and 3145 RNG calls; the second sleep_monst call returns false because the first successful call freezes the defender. The Kobold variation independently matches 111 screens/cursors, 5265 RNG calls, and two frames. The admitted v18 case only demonstrates the false rn2(5) gate at segment 0 step 33, not a positive sleep effect. The yellow-light recording exercises the source resists_blnd caller. Selected v18 continuation blocked outside this source range by the later armed mattackm AT_WEAP branch; its preserved diagnostic is not counted as AD_SLEE evidence. The conditional zap.c:resist call is not reached by these sleep_monst invocations because B89 passes how=-1; its existing whole-function completion is reused from port-zap-resist-lethal-synthetic-v5-20260926, not claimed as a B89 unit. Supporting cmd.c/dbridge.c/display.c/dungeon.c/worm.c predicate units are pure helpers, so the helper-only entryPoints array remains empty. Their complete C ranges, migrated production caller links and source-pinned tests are recorded per function; active impure coverage remains the three AD_SLEE directions already listed.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c52fd696d861d2e016e2944a5bb99c4afc032971",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

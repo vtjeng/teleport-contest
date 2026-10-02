@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T18:39:01.299Z",
+  "capturedAt": "2026-10-02T22:06:14.655Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -15922,12 +15922,139 @@
         "task": "C63",
         "worker": "C",
         "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-490218e2ac8cc0eb35d77a8e3d604dc1288b277f",
+        "type": "ready",
+        "at": "2026-10-02T19:00:03.413Z",
+        "task": "B89",
+        "delivery": "490218e2ac8cc0eb35d77a8e3d604dc1288b277f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-received-490218e2",
+        "type": "received",
+        "at": "2026-10-02T19:07:32.781Z",
+        "task": "B89",
+        "delivery": "490218e2ac8cc0eb35d77a8e3d604dc1288b277f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-feedback-visibility-return-closure-490218e2",
+        "type": "feedback",
+        "at": "2026-10-02T19:07:33.227Z",
+        "task": "B89",
+        "delivery": "490218e2ac8cc0eb35d77a8e3d604dc1288b277f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-resume-visibility-closure-correction-20261002",
+        "type": "resume",
+        "at": "2026-10-02T19:09:32.344Z",
+        "task": "B89"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-a132cf35039c5ea367e1602c19d384ce338a2265",
+        "type": "ready",
+        "at": "2026-10-02T20:53:26.752Z",
+        "task": "B89",
+        "delivery": "a132cf35039c5ea367e1602c19d384ce338a2265"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-received-a132cf35",
+        "type": "received",
+        "at": "2026-10-02T20:54:02.683Z",
+        "task": "B89",
+        "delivery": "a132cf35039c5ea367e1602c19d384ce338a2265"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-integrating-23a4be03",
+        "type": "integrating",
+        "at": "2026-10-02T21:05:33.158Z",
+        "task": "B89",
+        "integration": "23a4be03c583b9e38b09a89ad9d549d0a37925a9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-failed-23a4be03",
+        "type": "validated",
+        "at": "2026-10-02T21:16:07.813Z",
+        "task": "B89",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-feedback-full-suite-10",
+        "type": "feedback",
+        "at": "2026-10-02T21:16:08.308Z",
+        "task": "B89",
+        "delivery": "a132cf35039c5ea367e1602c19d384ce338a2265"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-resume-full-suite-10",
+        "type": "resume",
+        "at": "2026-10-02T21:16:08.754Z",
+        "task": "B89"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0be72398796d04f4b19e45f0f079db641d3bac68",
+        "type": "ready",
+        "at": "2026-10-02T21:35:03.593Z",
+        "task": "B89",
+        "delivery": "0be72398796d04f4b19e45f0f079db641d3bac68"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-received-0be72398",
+        "type": "received",
+        "at": "2026-10-02T21:36:04.588Z",
+        "task": "B89",
+        "delivery": "0be72398796d04f4b19e45f0f079db641d3bac68"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-integrating-c52fd696",
+        "type": "integrating",
+        "at": "2026-10-02T21:41:36.595Z",
+        "task": "B89",
+        "integration": "c52fd696d861d2e016e2944a5bb99c4afc032971"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-validated-c52fd696",
+        "type": "validated",
+        "at": "2026-10-02T21:49:02.060Z",
+        "task": "B89",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B90-ring-on-v19-20261002T2204Z",
+        "type": "assign",
+        "at": "2026-10-02T22:03:04.000Z",
+        "task": "B90",
+        "worker": "B",
+        "goal": "port-do-wear-ring-on-v19-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B89-accepted-c52fd696",
+        "type": "accepted",
+        "at": "2026-10-02T22:05:15.534Z",
+        "task": "B89"
       }
     ]
   },
   "development": {
-    "executionCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
-    "measuredAt": "2026-10-02T17:56:58.818Z",
+    "executionCommit": "c52fd696d861d2e016e2944a5bb99c4afc032971",
+    "measuredAt": "2026-10-02T21:47:11.820Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
