@@ -4,6 +4,8 @@ import test from 'node:test';
 import {
     A_DEX,
     BEAR_TRAP,
+    FAILEDUNTRAP,
+    FORCETRAP,
     BOTH_SIDES,
     FLYING,
     HALF_PHDAM,
@@ -14,6 +16,7 @@ import {
     TIMEOUT,
     OBJ_INVENT,
     TOOKPLUNGE,
+    TELEP_TRAP,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_NONE,
@@ -806,6 +809,38 @@ test('preflight_dotrap keeps bear refusal and admits a pit after dismount',
         // blanket activation refusal was removed when that source arm landed.
         assert.doesNotThrow(
             () => preflight_dotrap({ ...trap, ttyp: PIT }, game),
+        );
+    });
+
+test('preflight_dotrap admits seen traps when C forces their effect',
+    async () => {
+        await heroOnLevelOne();
+        // trap.c:2999-3000 sets forcetrap for either bit; fixed_tele_trap()
+        // at trap.c:3009-3012 also sets it before the seen-trap gate. A plain
+        // seen bear trap still uses the existing named boundary.
+        const seenBearTrap = { tx: game.u.ux, ty: game.u.uy,
+            ttyp: BEAR_TRAP, tseen: true, madeby_u: 0 };
+        assert.throws(
+            () => preflight_dotrap(seenBearTrap, game),
+            (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason === 'a trap the hero has already seen',
+        );
+        for (const [name, flags] of [
+            ['FORCETRAP', FORCETRAP],
+            ['FAILEDUNTRAP', FAILEDUNTRAP],
+        ]) {
+            assert.doesNotThrow(
+                () => preflight_dotrap(seenBearTrap, game, flags), name,
+            );
+        }
+
+        // trap.h:125 defines a fixed tele trap by its valid destination;
+        // once:true isolates that predicate from the occupied-destination
+        // preflight branch while C still derives forcetrap from the macro.
+        const seenFixedTeleport = { ttyp: TELEP_TRAP, tseen: true, once: true,
+            teledest: { x: 1, y: 1 } };
+        assert.doesNotThrow(
+            () => preflight_dotrap(seenFixedTeleport, game),
         );
     });
 

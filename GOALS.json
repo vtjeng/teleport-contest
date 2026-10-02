@@ -139824,6 +139824,214 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-trap-dotrap-forced-seen-bypass-v18-20261002",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Admit forced seen traps before their effects",
+      "cFile": "trap.c",
+      "sessions": [
+        "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected"
+      ],
+      "selectionReason": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected, investigation investigations/synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.json, current evaluation challenges/evaluations/20261002091800-v18.json. Correct the narrow trap.c:dotrap forced seen-trap preflight predicate. No whole dotrap completion credit. Manifest challenges/manifests/v18.json SHA256 ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30; recording challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json SHA256 b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa.",
+      "detail": "Compared selected trap.c:dotrap forced predicate and seen escape gate with the two-file correction. FORCETRAP, FAILEDUNTRAP and fixed_tele_trap bypass the ordinary seen escape path; JS preflight now admits those conditions before writes, while existing dotrap applies flags/state in source order. No effect caller or RNG order changes. Existing ordinary seen, mounted and iron-shoe boundaries remain outside the narrow divergence. Root corrected packet prose: C has no JS-style preflight call before nomul; preflight is the JS refusal guard. Source-pinned forced fixtures and v18 step40 verify selected failed-disarm branch. This is a narrow divergence with no whole dotrap completion claim. Rechecked at accepted C60 main before integration.",
+      "openedAt": "dfc5024aa978cb9ac0b23054f7b62e0d8479a152",
+      "openStanding": {
+        "sha": "3465177a540639127708e67f2de7a7103b056b74",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "dotrap",
+      "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+      "step": 40,
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected": {
+          "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-untraps-wished-floor-bear-trap-c59-detected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+          "recordingSha256": "b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa",
+          "evaluationPath": "challenges/evaluations/20261002091800-v18.json",
+          "evaluationCommit": "3465177a540639127708e67f2de7a7103b056b74"
+        }
+      },
+      "activeStanding": {
+        "sha": "3465177a540639127708e67f2de7a7103b056b74",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-untraps-wished-floor-bear-trap-c59-detected",
+          "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+          "recordingSha256": "b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa",
+          "recipe": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.recipe.session.json",
+          "recipeSha256": "97611d7962f241bd668c24a90b3cbcef29de065ee85a162c9bf33287bae67f4c",
+          "replayInputSha256": "6f41704fc44ccca3468b755266e10844c89e5636c476230c5fe6a9ecdc6de33e",
+          "evaluationPath": "challenges/evaluations/20261002091800-v18.json",
+          "evaluationCommit": "3465177a540639127708e67f2de7a7103b056b74",
+          "evaluationArtifact": "challenges/evaluations/20261002091800-v18.json",
+          "evaluationUtc": "2026-10-02T09:18:50.309Z",
+          "remainingScreens": 1,
+          "recordedSteps": 41,
+          "previousScreensMatched": 40,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 40,
+              "total": 41
+            },
+            "rng": {
+              "matched": 2564,
+              "total": 2578
+            },
+            "cursors": {
+              "matched": 40,
+              "total": 41
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: a trap the hero has already seen",
+            "step": 40
+          },
+          "step": 40,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "unsupported hero move: a trap the hero has already seen",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.json",
+            "result": {
+              "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-untraps-wished-floor-bear-trap-c59-detected",
+              "remainingScreens": 1,
+              "recordedSteps": 41,
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingPath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+              "recordingSha256": "b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa",
+              "recipePath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.recipe.session.json",
+              "recipeSha256": "97611d7962f241bd668c24a90b3cbcef29de065ee85a162c9bf33287bae67f4c",
+              "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "status": "complete",
+              "summary": "The current mismatch is an overbroad JavaScript preflight refusal, not a missing bear-trap effect and not FAILEDUNTRAP itself. At segment 0, step 40, the detected floor bear trap is targeted with #untrap and direction “.” (the hero square). C try_disarm() consumes the failed untrap roll and rnl(5), then calls dotrap(ttmp, FAILEDUNTRAP). C dotrap() treats FAILEDUNTRAP as forcetrap and bypasses the already-seen trap escape gate; JavaScript has already consumed the corresponding untrap_prob and rnl draws, but preflight_dotrap() rejects tseen without checking trflags, before the existing forced bear-trap effect can draw damage. Fix that gate to honor the source forcetrap condition. The ordinary unmounted hero bear-trap arm is already implemented; mounted and iron-shoe branches remain outside this case.",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-untraps-wished-floor-bear-trap-c59-detected",
+                "session": "synthetic/v18/wizard-untraps-wished-floor-bear-trap-c59-detected",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json",
+                "recordingSha256": "b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa",
+                "recipe": "challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.recipe.session.json",
+                "recipeSha256": "97611d7962f241bd668c24a90b3cbcef29de065ee85a162c9bf33287bae67f4c",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 1,
+                "recordedSteps": 41,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 40,
+                    "total": 41
+                  },
+                  "rng": {
+                    "matched": 2564,
+                    "total": 2578
+                  },
+                  "cursors": {
+                    "matched": 40,
+                    "total": 41
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: a trap the hero has already seen",
+                  "step": 40
+                },
+                "step": 40,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "unsupported hero move: a trap the hero has already seen",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "source": {
+                "file": "trap.c",
+                "functions": [
+                  "dotrap"
+                ],
+                "branch": "At step 40 the wizard has already revealed the floor BEAR_TRAP with #wizdetect, then uses #untrap and “.” to target the hero square. trap.c:try_disarm() reaches its failed-attempt branch and calls dotrap(ttmp, FAILEDUNTRAP) (5512-5514). dotrap() computes forcetrap from FORCETRAP || FAILEDUNTRAP (2999-3000); because forcetrap is true, its !forcetrap block skips both check_in_air handling and the ordinary already_seen escape check (3025-3045), and it dispatches the bear-trap effect. The JavaScript try_disarm() reaches the same call after matching the recorded untrap_prob and rnl draws, but dotrap() calls preflight_dotrap() first; preflight_dotrap() rejects trap.tseen without consulting trflags, so it throws before the already-implemented forced hero effect. Correct the seen-trap preflight to preserve C’s forced-call bypass, including FAILEDUNTRAP (and FORCETRAP where the same C condition applies). This case is the ordinary unmounted, non-iron-shod hero arm only.",
+                "callers": [
+                  "nethack-c/upstream/src/cmd.c:1915-1916 maps the “untrap” extended command to trap.c:dountrap(); js/cmd.js:5278-5280 dispatches the production command to dountrap().",
+                  "trap.c:dountrap() (5248-5254) consumes could_untrap() as its entry guard and the return from untrap() to select ECMD_TIME/ECMD_OK; js/trap.js:2256-2260 mirrors this command path.",
+                  "trap.c:untrap() (5848 onward) consumes getdir() and targets u_at(x,y) when “.” sets zero direction, keeps the detected t_at() result, checks can_reach_floor(), then dispatches BEAR_TRAP to disarm_holdingtrap() at 5965-5968; js/trap.js:2772-2878 is the corresponding live path.",
+                  "trap.c:disarm_holdingtrap() calls try_disarm() at 5557; trap.c:try_disarm() calls dotrap(ttmp, FAILEDUNTRAP) when under_u at 5512-5514. JavaScript js/trap.js:2529-2532 and :2424-2495 carry the same call path.",
+                  "trap.c:dotrap() passes the hero and flags to trapeffect_selector() at 3059; js/trap_effects.js:3901-3905 calls preflight_dotrap() before its existing forcetrap dispatch. The selector maps BEAR_TRAP to trapeffect_bear_trap() (trap.c:2948-2952; js/trap_effects.js:3778-3784)."
+                ],
+                "dependencies": [
+                  "Control returns consumed on the actual route: could_untrap() gates dountrap(); getdir() can abort and its u.dx/u.dy values select the target; t_at() supplies the seen trap; can_reach_floor() admits the floor-trap arm; m_at(), the boulder and reachability checks in try_disarm() can return early; try_disarm() returns 1 and disarm_holdingtrap() consumes that value with fails < 2 and returns without disarming.",
+                  "At recorded step 40, untrap_prob() returns rn2(3)=1, selecting failure, and rnl(5) returns 2, selecting “Whoops...” and the under_u dotrap(ttmp, FAILEDUNTRAP) call. The flag is consumed by dotrap()’s forcetrap boolean. That true value skips the ordinary floor_trigger()/check_in_air() and already_seen escape gates (and the latter gate’s rn2(5)); fixed_tele_trap(), conjoined_pits(), and adj_nonconjoined_pit() are also return-valued dotrap predicates evaluated before dispatch.",
+                  "After preflight admits the forced route, trapeffect_bear_trap() consumes d(2,4)=2 as damage, rn1(4,4) (recorded internal rn2(4)=3) as bear-trap duration, rn2(2)=0 to select the left leg, and rn1(10,10) (recorded internal rn2(10)=3) as wounded-leg duration. Maybe_Half_Phys() supplies the damage consumed by losehp(); the recorded exercise() path consumes rn2(2)=0. trap.c:dotrap() explicitly discards trapeffect_selector()’s return value."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20261002065911-v18.json, examined against commit 04b79edc2bcff3a4c2d70efba937608818f85b53, records the current stop at zero-based segment 0, step 40: 40/41 screens, 2564/2578 RNG calls, and 40/41 cursors match; the message is “unsupported hero move: a trap the hero has already seen”.",
+                "Immutable recording challenges/cases/v18/wizard-untraps-wished-floor-bear-trap-c59-detected.session.json has 41 steps. After step 31’s “You reveal 2 traps!” screen, step 39 asks “In what direction?” and step 40’s key “.” records rn2(3)=1 at untrap_prob(trap.c:5336), rnl(5)=2 at try_disarm(trap.c:5481), then d(2,4)=2 at trapeffect_bear_trap(trap.c:1490). Its output says “Whoops... A bear trap closes on your foot!” and status HP 10(12), confirming the failed underfoot untrap and forced hero effect.",
+                "This traces the earlier route beyond the manifest’s downstream causal label: trap.c:dountrap() -> untrap() -> disarm_holdingtrap() -> try_disarm() -> dotrap(ttmp, FAILEDUNTRAP). The hero’s “.” choice selects the already-detected trap underfoot; try_disarm() consumes the first two matching RNG calls and then enters dotrap(). JavaScript preflight_dotrap() is the throw site because its seen-trap guard ignores trflags; the stop is before C’s next call, d(2,4), not before all step-40 RNG.",
+                "The source itself proves the flag is not the defect: trap.c:dotrap() sets forcetrap for FAILEDUNTRAP and encloses the seen-trap escape gate within else if (!forcetrap). Existing js/trap_effects.js:3901-3955 already computes the same forcetrap condition and skips those gates; only the earlier preflight check rejects this source-valid route. Existing js/trap_effects.js:1149-1260 contains the ordinary hero bear-trap effect, including FAILEDUNTRAP in its force condition. This makes the actionable change a narrow divergence fix in preflight_dotrap(), not a new bear-trap effect port.",
+                "Historical counter-evidence: the manifest’s exact comparison at c279bd556876e7c8494dbe37aea914412f8e75a3 reported C 41 screens/2578 RNG versus JS 40 screens/2564 RNG; its first observed missing C entry was d(2,4)=2 at trapeffect_bear_trap(trap.c:1490), step 40. That observation is the first downstream effect draw omitted after the JavaScript stop, not the causing function. The current saved evaluation now supplies the exact refusal message and the source route explains it.",
+                "The same-batch hidden-bear-trap case and the preceding v17 drum case are distinct according to challenges/manifests/v18.json: those paths miss a hidden trap and do not reach try_disarm()/FAILEDUNTRAP. Here #wizdetect reveals the floor trap and the next #untrap “.” targets it directly. C replay reproducibility is already recorded in the manifest: run-k2rjWn exited 0 and matched the immutable recording SHA-256 b40d6a04c33bfb835ab34e17b832c975886a75744d4c45223abd4012f6d79aaa.",
+                "Unresolved scope: preflight_dotrap() still explicitly refuses the mounted bear-trap arm and iron-shoes branch; the historical trap-activation scope also leaves other trap types and monster arms incomplete. This recording uses an unmounted wizard without those branches, so those boundaries neither cause nor invalidate this one-step diagnosis."
+              ]
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "0fb2e0e32c99af13762fb9ac7fd5b6328a1b1866",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
