@@ -58,7 +58,7 @@ import { lined_up } from './mthrowu.js';
 import { rn2, rnd, d } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { couldsee, canseemon } from './vision.js';
-import { has_aggravatables, nasty } from './wizard.js';
+import { aggravate, has_aggravatables, nasty } from './wizard.js';
 import { mon_adjust_speed } from './worn.js';
 import { burn_away_slime } from './timeout.js';
 import { burnarmor } from './trap_erode_obj.js';
@@ -773,7 +773,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     case MCAST_AGGRAVATION:
         if (typeof env.message === 'function')
             await env.message('You feel that monsters are aware of your presence.', state);
-        recordMcastGap('wizard.c aggravate', env);
+        aggravate(state, env.random);
         break;
     case MCAST_CURSE_ITEMS:
         if (typeof env.message === 'function')

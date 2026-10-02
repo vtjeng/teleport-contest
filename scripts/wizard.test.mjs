@@ -5,13 +5,16 @@ import {
     NO_MM_FLAGS,
     RLOC_MSG,
     ROOM,
+    STRAT_APPEARMSG,
     STRAT_HEAL,
     STRAT_PLAYER,
+    STRAT_WAITFORU,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { AT_MAGC } from '../js/monsters.js';
 import {
     choose_stairs,
+    aggravate,
     mon_has_arti,
     on_ground,
     other_mon_has_arti,
@@ -83,6 +86,99 @@ function nastyRandom(values) {
 const M3_WANTSBELL = 0x0002;
 const M3_WANTSARTI = 0x0010;
 const M3_WIZARD = 31;
+
+test('aggravate follows tower, dead-monster, sleep, and thaw order', () => {
+    // C wizard.c:aggravate (494-511) compares the hero and each monster's
+    // Wizard's Tower membership, skips DEADMONSTER (mhp < 1), clears only
+    // STRAT_WAITFORU|STRAT_APPEARMSG, then draws rn2(5) only for immobile
+    // same-region monsters. Bounds 5..15 include the hero at (10,10) and the
+    // two test monsters at (9,9)/(12,9), but exclude the target at x=20.
+    // Scripted results 2 and 0 exercise both non-thaw and thaw outcomes while
+    // keeping the expected two-call source order explicit.
+    const towerLevel = { dnum: 0, dlevel: 10 };
+    const dead = {
+        mhp: 0,
+        mx: 8,
+        my: 8,
+        mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG,
+        msleeping: 1,
+        mcanmove: false,
+        mfrozen: 4,
+    };
+    const outside = {
+        mhp: 8,
+        mx: 20,
+        my: 9,
+        mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG,
+        msleeping: 1,
+        mcanmove: false,
+        mfrozen: 3,
+    };
+    const immobileStaysFrozen = {
+        mhp: 8,
+        mx: 9,
+        my: 9,
+        mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG | STRAT_HEAL,
+        msleeping: 1,
+        mcanmove: false,
+        mfrozen: 3,
+    };
+    const mobileWakesWithoutDraw = {
+        mhp: 8,
+        mx: 11,
+        my: 9,
+        mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG,
+        msleeping: 1,
+        mcanmove: true,
+        mfrozen: 0,
+    };
+    const immobileThaws = {
+        mhp: 8,
+        mx: 12,
+        my: 9,
+        mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG,
+        msleeping: 1,
+        mcanmove: false,
+        mfrozen: 2,
+    };
+    dead.nmon = outside;
+    outside.nmon = immobileStaysFrozen;
+    immobileStaysFrozen.nmon = mobileWakesWithoutDraw;
+    mobileWakesWithoutDraw.nmon = immobileThaws;
+    const state = {
+        u: { ux: 10, uy: 10, uz: towerLevel },
+        wiz1_level: towerLevel,
+        wiz2_level: { dnum: 0, dlevel: 11 },
+        wiz3_level: { dnum: 0, dlevel: 12 },
+        dndest: { nlx: 5, nly: 5, nhx: 15, nhy: 15 },
+        level: { monlist: dead },
+    };
+    const draws = [];
+    const scripted = [2, 0];
+    const random = {
+        rn2(bound) {
+            draws.push(bound);
+            return scripted[draws.length - 1];
+        },
+    };
+
+    assert.equal(aggravate(state, random), undefined);
+    assert.deepEqual(draws, [5, 5]);
+    assert.equal(dead.mstrategy, STRAT_WAITFORU | STRAT_APPEARMSG);
+    assert.equal(dead.msleeping, 1);
+    assert.equal(outside.mstrategy, STRAT_WAITFORU | STRAT_APPEARMSG);
+    assert.equal(outside.msleeping, 1);
+    assert.equal(immobileStaysFrozen.mstrategy, STRAT_HEAL);
+    assert.equal(immobileStaysFrozen.msleeping, false);
+    assert.equal(immobileStaysFrozen.mfrozen, 3);
+    assert.equal(immobileStaysFrozen.mcanmove, false);
+    assert.equal(mobileWakesWithoutDraw.mstrategy, 0);
+    assert.equal(mobileWakesWithoutDraw.msleeping, false);
+    assert.equal(immobileThaws.mstrategy, 0);
+    assert.equal(immobileThaws.msleeping, false);
+    assert.equal(immobileThaws.mfrozen, 0);
+    assert.equal(immobileThaws.mcanmove, true);
+});
 
 function stateForWizard() {
     return {

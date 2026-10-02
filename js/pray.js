@@ -204,6 +204,7 @@ import {
 import { region_danger } from './region.js';
 import { losexp, pluslvl } from './exper.js';
 import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
+import { aggravate } from './wizard.js';
 import { Punished } from './steed.js';
 import {
     Flying,
@@ -1678,7 +1679,7 @@ export async function doturn(state = game, env = {}) {
         await message(
             `For some reason, ${Gname} seems to ignore you.`, state, env,
         );
-        note_unported('wizard.c aggravate');
+        aggravate(state, random);
         await exercise(A_WIS, false, state, random);
         return ECMD_TIME;
     }
@@ -1690,7 +1691,7 @@ export async function doturn(state = game, env = {}) {
             state,
             env,
         );
-        note_unported('wizard.c aggravate');
+        aggravate(state, random);
         return ECMD_TIME;
     }
 

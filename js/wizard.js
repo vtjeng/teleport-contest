@@ -110,6 +110,30 @@ export function has_aggravatables(mon, state = game) {
     return false;
 }
 
+// C ref: wizard.c aggravate() (494-511). Scan the live monster chain in
+// source order, waking every living monster in the hero's Wizard's Tower
+// region. C only consumes RNG for an immobile monster after clearing its
+// strategy and sleeping state; a zero rn2(5) result thaws it.
+export function aggravate(state = game, random = { rn2 }) {
+    const in_w_tower = In_W_tower(
+        state.u.ux, state.u.uy, state.u.uz, state,
+    );
+    const roll = random.rn2 ?? rn2;
+
+    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1) continue; /* DEADMONSTER() */
+        if (in_w_tower !== In_W_tower(mtmp.mx, mtmp.my, state.u.uz, state))
+            continue;
+
+        mtmp.mstrategy &= ~(STRAT_WAITFORU | STRAT_APPEARMSG);
+        mtmp.msleeping = false;
+        if (!mtmp.mcanmove && !roll(5)) {
+            mtmp.mfrozen = 0;
+            mtmp.mcanmove = true;
+        }
+    }
+}
+
 function creationEnv(state, rawEnv) {
     const env = { state };
     if (rawEnv.random) env.random = rawEnv.random;

@@ -17,7 +17,7 @@ import {
     GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE, GETOBJ_EXCLUDE_INACCESS, GETOBJ_SUGGEST,
     HALLUC_RES, INVIS, LEVITATION, NOT_HUNGRY, POTHIT_HERO_THROW,
     OBJ_DELETED, POTHIT_MONST_THROW, SEE_INVIS,
-    SATIATED, SICK, SLEEP_RES, WEAK,
+    SATIATED, SICK, SLEEP_RES, WEAK, STRAT_APPEARMSG, STRAT_WAITFORU,
     KILLED_BY, STONED, TELEPAT, TIMEOUT, UNCHANGING, VOMITING,
     WOUNDED_LEGS, W_RINGL,
 } from '../js/const.js';
@@ -3109,7 +3109,7 @@ test('SPE_INVISIBILITY spell cannot pass mummy wrapping', async () => {
     assert.equal(game.gp.potion_nothing, 0);
 });
 
-test('cursed invisibility preserves its source-owned aggravate gap', async () => {
+test('cursed invisibility aggravates after its known-presence message', async () => {
     await startedGame(8470214, 'CursedPotionInvisibility');
     const property = game.u.uprops[INVIS];
     property.intrinsic = FROMOUTSIDE;
@@ -3117,6 +3117,20 @@ test('cursed invisibility preserves its source-owned aggravate gap', async () =>
     property.blocked = 0;
     const potion = vaporPotion(POT_INVISIBILITY);
     potion.cursed = true;
+    // A mobile sleeping monster wakes without C's conditional rn2(5) thaw
+    // draw. On this ordinary dungeon level, the hero and monster both have
+    // false Wizard's Tower membership, so this pins the source comparison.
+    const waiting = {
+        mhp: 8,
+        mx: game.u.ux + 1,
+        my: game.u.uy,
+        mstrategy: STRAT_WAITFORU | STRAT_APPEARMSG,
+        msleeping: 1,
+        mcanmove: true,
+        mfrozen: 0,
+        nmon: null,
+    };
+    game.level.monlist = waiting;
     clearTopline();
     enableRngLog();
 
@@ -3125,8 +3139,12 @@ test('cursed invisibility preserves its source-owned aggravate gap', async () =>
     assert.match(getRngLog()[0], /^d\(9,100\)=\d+$/u,
         'cursed bcsign changes the source dice count before aggravate');
     assert.equal(property.intrinsic & FROMOUTSIDE, 0,
-        'the cursed tail removes permanent invisibility after the void gap');
-    assert.ok(game.unported.has('wizard.c aggravate'));
+        'C clears FROMOUTSIDE after aggravating the monster chain');
+    assert.equal(waiting.msleeping, false,
+        'C wakes a living same-region monster before the potion tail ends');
+    assert.equal(waiting.mstrategy, 0,
+        'C clears only the two aggravation strategy bits');
+    assert.ok(!game.unported.has('wizard.c aggravate'));
     assert.ok(toplines().includes(
         'For some reason, you feel your presence is known.'));
 });
