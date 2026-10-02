@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first correction from the preserved Abbot startup-pager target miss. C stored steps showed the welcome --More-- consumed #wizgenesis until newline step12; this independently frozen input adds a leading Space to dismiss that page before the command. It uses the same seed/date only to avoid changing unrelated startup randomness. No JavaScript result informed this recipe.",
+  "segments": [
+    {
+      "seed": 261002047,
+      "datetime": "20481207091500",
+      "nethackrc": "OPTIONS=name:AbbotProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile abbot\n...."
+    }
+  ]
+}

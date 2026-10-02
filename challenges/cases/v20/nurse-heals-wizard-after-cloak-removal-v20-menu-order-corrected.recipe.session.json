@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation from the recorded inventory/action prompts: `i` opens the inventory selector, `b` selects C-observed worn cloak of magic resistance, then `T` chooses the displayed “Take off this armor” action. The earlier frozen iTb attempt is retained unchanged and showed that T while the list is open is ignored. This corrected order is frozen before C recording; it does not predict whether the Nurse reaches or completes healing.",
+  "segments": [
+    {
+      "seed": 261002051,
+      "datetime": "20491023082500",
+      "nethackrc": "OPTIONS=name:NurseProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " ibTw-#wizgenesis\nhostile nurse\n. . . . . . .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . "
+    }
+  ]
+}

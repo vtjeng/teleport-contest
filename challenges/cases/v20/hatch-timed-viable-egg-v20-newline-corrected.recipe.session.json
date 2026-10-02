@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent timer probe frozen before recording/comparison. This corrected recipe uses actual newline delimiters for the #wizwish command and object wish; the prior literal-backslash-n attempt is preserved but was caught before C recording. The Wizard wishes an egg of jackal, then waits in place for the source-selected 151–200-turn hatch timer. Preserve a failed egg wish, timer suppression, or competing event as a valid target miss; only C timer/message/state evidence establishes hatch_egg.",
+  "segments": [
+    {
+      "seed": 73169021,
+      "datetime": "21160302123000",
+      "nethackrc": "OPTIONS=name:C63Egg,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\negg of jackal\n............................................................................................................................................................................................................................"
+    }
+  ]
+}

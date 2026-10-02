@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first force-unique correction frozen from run-CUlPJ9. C at zero-based step31 asked “Creating doppelganger instead; force Pestilence? [yn] (n)”; this input answers y before elapsed turns. The original prompt miss and its recording remain unchanged as valid target-miss provenance.",
+  "segments": [
+    {
+      "seed": 81923077,
+      "datetime": "21131115102012",
+      "nethackrc": "OPTIONS=name:C63Pest,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile Pestilence\ny...................."
+    }
+  ]
+}

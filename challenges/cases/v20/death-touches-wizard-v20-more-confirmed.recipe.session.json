@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen from the original Death recording run-i4FJgt: its stored step30 shows --More-- after the deadly-touch line and rn2(20)=6. This adds one Space at that observed C pager boundary before any JavaScript comparison, to expose the queued life-force message; the original exact recipe/recording remain preserved.",
+  "segments": [
+    {
+      "seed": 800113670,
+      "datetime": "21211122094500",
+      "nethackrc": "OPTIONS=name:C63Death,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile Death\ny.. "
+    }
+  ]
+}

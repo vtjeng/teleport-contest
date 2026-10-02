@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen from run-1q2kuC only: the first two Space keys produced `Unknown command ' '` and no RNG before the first movement, so this recipe removes those two non-actions and keeps the same independently chosen seed/date and terrain route. Move west to A, create a pit, move west to B, create a pool, wish a digging wand, return east into the pit, and zap west toward the pool. C source establishes the intended route: trapped TT_PIT sets pitdig; the adjacent pool yields a non-ROOM fillholetyp(..., TRUE); zap_dig calls pit_flow, which sets the square's liquid terrain and invokes liquid_flow. The C recording must confirm each actual step; this frozen recipe makes no claim about the later branch before recording.",
+  "segments": [
+    {
+      "seed": 92730461,
+      "datetime": "20490821130711",
+      "nethackrc": "OPTIONS=name:PitFlowProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "h\u0017pit\nh\u0017pool\n\u0017wand of digging\nlzoh"
+    }
+  ]
+}

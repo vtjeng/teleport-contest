@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first frozen correction for the alignment-menu setup miss. The original cursed-apple-sleep-pre-effect-v20 recipe remains unchanged as a valid C target-miss record. C showed the initial wizard alignment/creed menu; this independent input accepts its lawful default before the wizard wish command. Require C to confirm the cursed apple is selected and fprefx reaches the APPLE branch.",
+  "segments": [
+    {
+      "seed": 73022301,
+      "datetime": "20461109141723",
+      "nethackrc": "OPTIONS=name:C63Apple,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": "\n\u0017cursed apple\n ee"
+    }
+  ]
+}

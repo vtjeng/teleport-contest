@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first frozen v20 probe for eat.c:fprefx APPLE. Independently chosen debug Wizard/date/seed; wish one cursed apple, then begin eating and select the wished item. Intended source observation: cursed-apple pre-effect and fall_asleep before nutrition. Freeze before C recording and before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 73022301,
+      "datetime": "20461109141723",
+      "nethackrc": "OPTIONS=name:C63Apple,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": ".\u0017cursed apple\n ee"
+    }
+  ]
+}

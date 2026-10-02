@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first pager continuation frozen from run-KXzSEf before JavaScript comparison. After forcing Pestilence, C steps33-34 advance two periods and step34 displays its wand self-zap followed by --More--; this input inserts a space at that observed pager boundary, then continues with elapsed turns. Earlier genesis/force-prompt records remain unchanged.",
+  "segments": [
+    {
+      "seed": 81923077,
+      "datetime": "21131115102012",
+      "nethackrc": "OPTIONS=name:C63Pest,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile Pestilence\ny.. ............"
+    }
+  ]
+}
