@@ -48,6 +48,7 @@ import {
     NECK,
     NEUTRAL,
     MAX_EGG_HATCH_TIME,
+    MV_KNOWS_EGG,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
     NO_KILLER_PREFIX,
@@ -107,7 +108,7 @@ import { dealloc_killer, find_delayed_killer } from './end.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
 import { heal_legs } from './do.js';
 import { makeplural } from './fruit.js';
-import { carrying, useup } from './invent.js';
+import { carrying, update_inventory, useup } from './invent.js';
 import { game } from './gstate.js';
 import { inv_weight, You_can_move_again, nomul, spoteffects } from './hack.js';
 import {
@@ -127,7 +128,7 @@ import {
 } from './light.js';
 import {
     breathless, cantvomit, is_flyer, is_rider, is_were, name_to_mon,
-    type_is_pname, zombie_form,
+    type_is_pname, zombie_form, little_to_big,
 } from './mondata.js';
 import { body_part, rehumanize } from './polyself.js';
 import { restartcham, wake_nearby } from './mon.js';
@@ -1628,6 +1629,15 @@ export function attach_egg_hatch_timeout(egg, when = 0, env = {}) {
     }
     if (delay)
         start_timer(delay, TIMER_OBJECT, HATCH_EGG, egg, state);
+}
+
+// C ref: timeout.c learn_egg_type() (1193-1200). The species-wide flag
+// belongs to svm.mvitals; update_inventory() runs after the bit is set so
+// carried eggs can be renamed. env is only the existing inventory hook seam.
+export function learn_egg_type(mnum, state = game, env = {}) {
+    mnum = little_to_big(mnum);
+    state.svm.mvitals[mnum].mvflags |= MV_KNOWS_EGG;
+    update_inventory({ ...env, state });
 }
 
 // C ref: timeout.c attach_fig_transform_timeout().
