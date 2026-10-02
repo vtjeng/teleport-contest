@@ -139394,7 +139394,7 @@
     {
       "id": "port-disturb-grave-callers-v17-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Disturb graves through engraving and kicking",
       "cFile": "engrave.c",
       "sessions": [
@@ -139408,8 +139408,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3465177a540639127708e67f2de7a7103b056b74",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "disturb_grave",
@@ -139814,6 +139817,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3465177a540639127708e67f2de7a7103b056b74",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T08:37:40.692Z",
+  "capturedAt": "2026-10-02T09:21:42.746Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -15156,12 +15156,156 @@
         "type": "accepted",
         "at": "2026-10-02T08:37:07.165Z",
         "task": "A76"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A76-published-cc3deafa",
+        "type": "published",
+        "at": "2026-10-02T08:37:53.450Z",
+        "task": "A76",
+        "commit": "cc3deafadc73eab0af4edbed7cd7315eae465350"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-388e5f501f0bdb9ca4661eec40e5c752af06f9d9",
+        "type": "ready",
+        "at": "2026-10-02T08:40:01.408Z",
+        "task": "A77",
+        "delivery": "388e5f501f0bdb9ca4661eec40e5c752af06f9d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C60-integrating-2374c264",
+        "type": "integrating",
+        "at": "2026-10-02T08:40:20.903Z",
+        "task": "C60",
+        "integration": "2374c264390df636e53edfd66cf20a297f7e59c6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-A77-388e5f50-20261002",
+        "type": "received",
+        "at": "2026-10-02T08:41:13.062Z",
+        "task": "A77",
+        "delivery": "388e5f501f0bdb9ca4661eec40e5c752af06f9d9"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C60-integrating-b7a5ce2f",
+        "type": "integrating",
+        "at": "2026-10-02T08:42:27.726Z",
+        "task": "C60",
+        "integration": "b7a5ce2f9c7cc3075e757e68d5995771b68ecd1f"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "C-C61-assign-mhitm-ad-slee-20261002",
+        "type": "assign",
+        "at": "2026-10-02T08:46:52.287Z",
+        "task": "C61",
+        "worker": "C",
+        "goal": "port-uhitm-mhitm-ad-slee-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-C61-for-C60-court-correction-20261002",
+        "type": "park",
+        "at": "2026-10-02T08:47:31.497Z",
+        "task": "C61"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C60-validation-failed-b7a5ce2f-20261002",
+        "type": "validated",
+        "at": "2026-10-02T08:51:15.281Z",
+        "task": "C60",
+        "passed": false
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C60-court-feedback-20261002",
+        "type": "feedback",
+        "at": "2026-10-02T08:51:15.821Z",
+        "task": "C60",
+        "delivery": "c67654288eede0e471359118559d3b9d3d6eacd2"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C60-court-special-room-20261002",
+        "type": "resume",
+        "at": "2026-10-02T08:52:01.776Z",
+        "task": "C60"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A78-mhitm-ad-plys-20261002",
+        "type": "assign",
+        "at": "2026-10-02T08:55:24.509Z",
+        "task": "A78",
+        "worker": "A2",
+        "goal": "port-uhitm-mhitm-ad-plys-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2b6e27891c903747d74578b633eec9bc2b5aba61",
+        "type": "ready",
+        "at": "2026-10-02T09:00:15.802Z",
+        "task": "C60",
+        "delivery": "2b6e27891c903747d74578b633eec9bc2b5aba61"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "received-C60-2b6e2789-20261002",
+        "type": "received",
+        "at": "2026-10-02T09:01:07.457Z",
+        "task": "C60",
+        "delivery": "2b6e27891c903747d74578b633eec9bc2b5aba61"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C60-integrating-fcd7a5a2",
+        "type": "integrating",
+        "at": "2026-10-02T09:03:58.186Z",
+        "task": "C60",
+        "integration": "fcd7a5a2344a1d15884d1702abdcf726943cb6ba"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C60-integrating-3465177a",
+        "type": "integrating",
+        "at": "2026-10-02T09:05:45.132Z",
+        "task": "C60",
+        "integration": "3465177a540639127708e67f2de7a7103b056b74"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "park-B85-for-slip-or-trip-B87-20261002",
+        "type": "park",
+        "at": "2026-10-02T09:12:51.810Z",
+        "task": "B85"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C60-validated-3465177a",
+        "type": "validated",
+        "at": "2026-10-02T09:21:20.076Z",
+        "task": "C60",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C60-accepted-3465177a",
+        "type": "accepted",
+        "at": "2026-10-02T09:21:20.475Z",
+        "task": "C60"
       }
     ]
   },
   "development": {
-    "executionCommit": "e1beae945a8ac244f44cc8625af9d552b3372da8",
-    "measuredAt": "2026-10-02T08:32:52.765Z",
+    "executionCommit": "3465177a540639127708e67f2de7a7103b056b74",
+    "measuredAt": "2026-10-02T09:17:47.081Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
