@@ -1464,7 +1464,11 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         || explicitCoordinateRuntimeCall
         || cloneuCall || minionSummonCall
         || familiarCall || wereSummonCall
-        || explicitCoordinateNoFlagsRuntimeCall
+        // sp_lev.c finalizes topology before filling special rooms.  Those
+        // explicit-coordinate calls still belong to level generation and
+        // use the dedicated special-room tail below, not ordinary runtime
+        // continuation admission.
+        || (explicitCoordinateNoFlagsRuntimeCall && !specialRoomCall)
         || (!state.in_mklev && statueInventoryCall)
         || nastyCall;
     if (runtimeCall

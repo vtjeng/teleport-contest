@@ -2939,6 +2939,16 @@ test('makemon admits the explicit hero-square NO_MM_FLAGS pointer from C',
 
         const jsContract = /const explicitCoordinateNoFlagsRuntimeCall = !state\.in_mklev[\s\S]*?Boolean\(ptr\)[\s\S]*?!randomCoordinates[\s\S]*?isok\(x, y\)[\s\S]*?mmflags === NO_MM_FLAGS/u;
         assert.match(MAKEMON_JS_SOURCE, jsContract);
+        const runtimeCallStart = MAKEMON_JS_SOURCE.indexOf('const runtimeCall =');
+        const runtimeCallEnd = MAKEMON_JS_SOURCE.indexOf(';', runtimeCallStart);
+        assert.ok(runtimeCallStart >= 0 && runtimeCallEnd > runtimeCallStart);
+        const runtimeCallSource = MAKEMON_JS_SOURCE.slice(
+            runtimeCallStart, runtimeCallEnd,
+        );
+        assert.match(
+            runtimeCallSource,
+            /\(explicitCoordinateNoFlagsRuntimeCall && !specialRoomCall\)/u,
+        );
 
         const state = initialLevelState();
         state.in_mklev = false;
