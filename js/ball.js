@@ -24,6 +24,9 @@ import {
     is_hole,
     is_pit,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { exercise } from './attrib.js';
 import { canletgo, flooreffects } from './do.js';
 import { game } from './gstate.js';
@@ -50,7 +53,10 @@ import {
     spoteffects,
     weight_cap,
 } from './hack.js';
-import { Levitation, is_pool, t_at } from './trap.js';
+import {
+    Levitation,
+    t_at,
+} from './trap.js';
 import { find_mac } from './worn.js';
 import { hmon } from './uhitm.js';
 import { miss } from './zap.js';

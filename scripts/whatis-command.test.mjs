@@ -359,6 +359,12 @@ test('worm_known remains the worm.c visibility owner', () => {
     assert.equal(worm_known({ wormno: 2 }, state), true);
     state.viz_array[5][6] = 0;
     assert.equal(worm_known({ wormno: 2 }, state), false);
+
+    // C wseg coordinates have one x/y representation; obsolete wx/wy fields
+    // do not create a visible segment.
+    state.level.worms[3] = { segments: [{ wx: 6, wy: 5 }] };
+    state.viz_array[5][6] = IN_SIGHT;
+    assert.equal(worm_known({ wormno: 3 }, state), false);
 });
 
 test('the getpos tip is shown once and records TIP_GETPOS', async () => {

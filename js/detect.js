@@ -72,9 +72,9 @@ import {
     has_mcorpsenm,
     SVALL,
     WM_MASK,
-    isok,
     u_at,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { SPFX_SEARCH } from './artifacts.js';
 import {
     DEF_OC_SYMS_NAMES,
@@ -208,7 +208,7 @@ import {
     SYM_OFF_X,
 } from './symbols.js';
 import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
-import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
+import { heroIsBlind } from './startup_a11y.js';
 import {
     openfallingtrap, openholdingtrap, t_at, trapname,
 } from './trap.js';
@@ -229,6 +229,7 @@ import {
 } from './vision.js';
 import { GLYPH_SWALLOW_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import { NO_COLOR } from './terminal.js';
+import { canspotmon, sensemon } from './display.js';
 
 /** An explicit-search branch whose effects are still unported. */
 export class UnsupportedSearchError extends Error {
@@ -1279,7 +1280,7 @@ async function furniture_detect(state = game) {
                 ++found;
                 if (monster && M_AP_TYPE(monster) === M_AP_FURNITURE)
                     monSeemimic(monster, state);
-                if (!monster || !canSpotMonster(monster, state))
+                if (!monster || !canspotmon(monster, state))
                     map_invisible(x, y, state);
             }
             if (glyph_at(x, y, state) !== glyph) ++revealed;
@@ -2159,7 +2160,7 @@ async function mfind0(monster, via_warning, env) {
     } else {
         // This is intentionally sampled before mundetected is cleared, as in
         // C's `found_something = !canspotmon(mtmp)`.
-        foundSomething = !canSpotMonster(monster, state);
+        foundSomething = !canspotmon(monster, state);
         if (monster.mundetected
             && (is_hider(monster.data) || hides_under(monster.data)
                 || monster.data?.mlet === S_EEL)) {
@@ -2184,7 +2185,7 @@ async function mfind0(monster, via_warning, env) {
 
     if (!foundSomething) return 0;
 
-    const spotted = canSpotMonster(monster, state);
+    const spotted = canspotmon(monster, state);
     if (!spotted && glyph_is_invisible(
         state.level.at(x, y).remembered_glyph?.glyph,
     )) return -1;
@@ -2193,7 +2194,7 @@ async function mfind0(monster, via_warning, env) {
     if (!spotted) {
         await env.mapInvisible(x, y, env);
         await env.message('You feel an unseen monster!', x, y, env);
-    } else if (!sensesMonster(monster, state)) {
+    } else if (!sensemon(monster, state)) {
         const name = monster.mtame
             ? y_monnam(monster, state, env)
             : a_monnam(monster, { ...env, state });
@@ -2373,7 +2374,7 @@ export async function findone(x, y, found, state) {
         await detect_obj_traps(state.invent, true, false, found, state);
 
     const appearance = monster ? M_AP_TYPE(monster) : 0;
-    if (monster && (!canSpotMonster(monster, state)
+    if (monster && (!canspotmon(monster, state)
         || monster.mundetected || appearance)) {
         if (appearance) {
             const displayRandom = (bound) => rn2_on_display_rng(bound, state);
@@ -2396,7 +2397,7 @@ export async function findone(x, y, found, state) {
             found.num_mons++;
         }
         if (!glyph_is_invisible(location.remembered_glyph?.glyph)) {
-            if (!canSpotMonster(monster, state)) {
+            if (!canspotmon(monster, state)) {
                 await flash_glyph_at(
                     x, y, GLYPH_INVISIBLE, FOUND_FLASH_COUNT, state,
                 );

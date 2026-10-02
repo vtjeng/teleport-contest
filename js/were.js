@@ -25,8 +25,9 @@ import {
     PM_WOLF,
 } from './monsters.js';
 import { rn2, rnd } from './rng.js';
-import { canseemon } from './vision.js';
+
 import { set_uasmon } from './polyself.js';
+import { canseemon } from './display.js';
 
 // C ref: were.c set_ulycn() (232-237). Keep u.ulycn in its canonical state
 // field, then refresh form-derived properties such as drain resistance.

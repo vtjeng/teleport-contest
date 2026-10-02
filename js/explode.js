@@ -48,9 +48,9 @@ import {
     ydir,
     Upolyd,
     engulfing_u,
-    isok,
     u_at,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { exercise } from './attrib.js';
 import {
     curs_on_u,
@@ -94,7 +94,7 @@ import {
     dmgtype_fromattack,
     is_demon,
     is_vampshifter,
-    monster_resists_element,
+    Resists_Elem,
     monstseesu,
     monstunseesu,
     nonliving,
@@ -171,7 +171,7 @@ import {
 } from './shk.js';
 import { deltrap, t_at } from './trap.js';
 import { Tobjnam } from './objnam.js';
-import { canSpotMonster } from './startup_a11y.js';
+
 import { cansee } from './vision.js';
 import { destroy_items } from './zap_destroy_items.js';
 import {
@@ -189,6 +189,7 @@ import { d, rn1, rn2, rnl, rnd, rne } from './rng.js';
 import { note_unported } from './unported.js';
 import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
+import { canspotmon } from './display.js';
 
 // Note: C's table is column first while the screen is row first.  These are
 // the cmap indices for S_expl_tl through S_expl_br in C's explosion[3][3].
@@ -259,16 +260,16 @@ function monsterResists(monster, adtyp, olet, state) {
     switch (adtyp) {
     case AD_PHYS: return false;
     case AD_MAGM: return resists_magm(monster, state);
-    case AD_FIRE: return monster_resists_element(monster, FIRE_RES, state);
-    case AD_COLD: return monster_resists_element(monster, COLD_RES, state);
+    case AD_FIRE: return Resists_Elem(monster, FIRE_RES, state);
+    case AD_COLD: return Resists_Elem(monster, COLD_RES, state);
     case AD_DISN:
         return olet === WAND_CLASS
             ? (nonliving(monster.data) || is_demon(monster.data)
                 || is_vampshifter(monster))
-            : monster_resists_element(monster, DISINT_RES, state);
-    case AD_ELEC: return monster_resists_element(monster, SHOCK_RES, state);
-    case AD_DRST: return monster_resists_element(monster, POISON_RES, state);
-    case AD_ACID: return monster_resists_element(monster, ACID_RES, state);
+            : Resists_Elem(monster, DISINT_RES, state);
+    case AD_ELEC: return Resists_Elem(monster, SHOCK_RES, state);
+    case AD_DRST: return Resists_Elem(monster, POISON_RES, state);
+    case AD_ACID: return Resists_Elem(monster, ACID_RES, state);
     default:
         note_unported(`explode.c explosionmask() for adtyp ${adtyp}`);
         return false;
@@ -493,7 +494,7 @@ export async function explode(
             if (monster) mask |= explosionmask(monster, adtyp, olet, state);
             masks[i][j] = mask;
 
-            if (monster && cansee(xx, yy, state) && !canSpotMonster(monster, state))
+            if (monster && cansee(xx, yy, state) && !canspotmon(monster, state))
                 map_invisible(xx, yy, state);
             else if (!monster)
                 unmap_invisible(xx, yy, state);
@@ -602,9 +603,9 @@ export async function explode(
                     }
                     if (grabbed && monster === state.u?.ustuck && next2u(x, y, state))
                         mdam *= 2;
-                    if (monster_resists_element(monster, COLD_RES, state)
+                    if (Resists_Elem(monster, COLD_RES, state)
                         && adtyp === AD_FIRE) mdam *= 2;
-                    else if (monster_resists_element(monster, FIRE_RES, state)
+                    else if (Resists_Elem(monster, FIRE_RES, state)
                         && adtyp === AD_COLD) mdam *= 2;
                     monster.mhp -= mdam + itemdmg;
                 }
@@ -624,7 +625,7 @@ export async function explode(
                         );
                     } else if (mdef && monster === mdef) {
                         if (cansee(monster.mx, monster.my, state)
-                            || canSpotMonster(monster, state)) {
+                            || canspotmon(monster, state)) {
                             await messageLine(`${Monnam(monster, state, env)} is ${xkillFlags
                                 ? 'burned completely' : nonliving(monster.data)
                                     ? 'destroyed' : 'killed'}!`, state, env);

@@ -65,8 +65,11 @@ import {
     I_SPECIAL,
     TIMEOUT,
     helpless,
-    isok,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import { newsym } from './display.js';
 import { finish_meating } from './dogmove.js';
@@ -130,7 +133,11 @@ import { encumber_msg, u_handsy } from './pickup.js';
 import { body_part, polymon, steed_vs_stealth } from './polyself.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { teleds } from './teleport.js';
-import { float_down, is_lava, is_pool, t_at } from './trap.js';
+import {
+    float_down,
+    is_lava,
+    t_at,
+} from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { use_skill } from './weapon.js';
 import {
@@ -139,12 +146,13 @@ import {
     which_armor,
 } from './worn.js';
 import { freeinv, fully_identify_obj } from './invent.js';
-import { canSpotMonster } from './startup_a11y.js';
+
 import { mpickobj, remove_worn_item } from './steal.js';
 import { objdescr_is } from './o_init.js';
 import { P_SKILL } from './startup_skills.js';
 import { exercise } from './attrib.js';
 import { note_unported } from './unported.js';
+import { canspotmon } from './display.js';
 
 // A steed path this port has not reached yet.
 export class UnsupportedSteedError extends Error {
@@ -340,7 +348,7 @@ export async function use_saddle(otmp, state = game, env = {}) {
     const x = state.u.ux + state.u.dx;
     const y = state.u.uy + state.u.dy;
     const mtmp = isok(x, y) ? m_at(x, y, state) : null;
-    if (!mtmp || !canSpotMonster(mtmp, state)) {
+    if (!mtmp || !canspotmon(mtmp, state)) {
         await ttyPline('I see nobody there.', state);
         return ECMD_TIME;
     }

@@ -19,8 +19,8 @@ import {
     SINK,
     STAIRS,
     STONE,
-    isok,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
 import { obj_ice_effects } from './obj.js';
 import { spot_stop_timers } from './timeout.js';

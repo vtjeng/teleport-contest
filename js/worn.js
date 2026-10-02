@@ -159,7 +159,7 @@ import {
 import { learnwand } from './zap.js';
 import { ttyPline } from './tty_message.js';
 import { messageAt } from './startup_a11y.js';
-import { cansee, canseemon, vision_recalc } from './vision.js';
+import { cansee, vision_recalc } from './vision.js';
 import { arti_light_description } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { begin_burn, end_burn } from './timeout.js';
@@ -178,6 +178,7 @@ import {
     otense,
     Yname2,
 } from './objnam.js';
+import { canseemon } from './display.js';
 
 const WORN_SLOTS = Object.freeze([
     Object.freeze({ mask: W_ARM, field: 'uarm' }),

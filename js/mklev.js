@@ -6,6 +6,7 @@
 // Uses the real game PRNG (not a separate layout PRNG) for bit-exact parity.
 
 import { game } from './gstate.js';
+import { isok } from './cmd_isok.js';
 import { GameMap } from './game.js';
 import {
     Can_dig_down,
@@ -243,8 +244,7 @@ import {
     DUST, ENGRAVE, BURN, ENGR_BLOOD,
     DIR_N, DIR_S, DIR_E, DIR_W, DIR_180,
     IS_WALL, IS_STWALL, IS_DOOR, IS_ROOM, IS_OBSTRUCTED, IS_FURNITURE, IS_POOL,
-    IS_LAVA,
-    isok, SPACE_POS, W_NONDIGGABLE, W_NONPASSWALL,
+    IS_LAVA, SPACE_POS, W_NONDIGGABLE, W_NONPASSWALL,
     W_RANDOM, W_NORTH, W_SOUTH, W_EAST, W_WEST, W_ANY,
     FILL_NONE, FILL_NORMAL,
     G_GONE,
@@ -5151,12 +5151,12 @@ function mkmap(init_lev, state) {
 // faces east, and the reverse.
 function flip_dbridge_horizontal(lev) {
     if (IS_DRAWBRIDGE(lev.typ)) {
-        if ((lev.drawbridgemask & DB_DIR) === DB_WEST) {
-            lev.drawbridgemask &= ~DB_WEST;
-            lev.drawbridgemask |= DB_EAST;
-        } else if ((lev.drawbridgemask & DB_DIR) === DB_EAST) {
-            lev.drawbridgemask &= ~DB_EAST;
-            lev.drawbridgemask |= DB_WEST;
+        if ((lev.flags & DB_DIR) === DB_WEST) {
+            lev.flags &= ~DB_WEST;
+            lev.flags |= DB_EAST;
+        } else if ((lev.flags & DB_DIR) === DB_EAST) {
+            lev.flags &= ~DB_EAST;
+            lev.flags |= DB_WEST;
         }
     }
 }
@@ -5165,12 +5165,12 @@ function flip_dbridge_horizontal(lev) {
 // faces south, and the reverse.
 function flip_dbridge_vertical(lev) {
     if (IS_DRAWBRIDGE(lev.typ)) {
-        if ((lev.drawbridgemask & DB_DIR) === DB_NORTH) {
-            lev.drawbridgemask &= ~DB_NORTH;
-            lev.drawbridgemask |= DB_SOUTH;
-        } else if ((lev.drawbridgemask & DB_DIR) === DB_SOUTH) {
-            lev.drawbridgemask &= ~DB_SOUTH;
-            lev.drawbridgemask |= DB_NORTH;
+        if ((lev.flags & DB_DIR) === DB_NORTH) {
+            lev.flags &= ~DB_NORTH;
+            lev.flags |= DB_SOUTH;
+        } else if ((lev.flags & DB_DIR) === DB_SOUTH) {
+            lev.flags &= ~DB_SOUTH;
+            lev.flags |= DB_NORTH;
         }
     }
 }

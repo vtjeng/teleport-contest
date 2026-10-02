@@ -79,9 +79,12 @@ import {
     W_WEP,
     WT_IRON_BALL_INCR,
     XKILL_NOMSG,
-    isok,
     u_at,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import { acurr, acurrstr, poisoned } from './attrib.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
@@ -117,7 +120,7 @@ import {
     mhim,
     mhis,
     mon_hates_silver,
-    monster_resists_element,
+    Resists_Elem,
     monstseesu,
     monstunseesu,
     nohands,
@@ -233,7 +236,7 @@ import {
 } from './objnam.js';
 import { rn2, rnd } from './rng.js';
 import { note_unported } from './unported.js';
-import { cansee, canseemon, clear_path, couldsee } from './vision.js';
+import { cansee, clear_path, couldsee } from './vision.js';
 import {
     autoreturn_weapon,
     dmgval,
@@ -253,7 +256,9 @@ import { dropy, flooreffects } from './do.js';
 import { makeplural } from './fruit.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
-import { is_lava, is_pool } from './trap.js';
+import {
+    is_lava,
+} from './trap.js';
 import { obj_sheds_light } from './light.js';
 import {
     capitalizedMonsterName,
@@ -263,8 +268,9 @@ import {
     mon_nam,
     hliquid,
 } from './do_name.js';
-import { canSpotMonster } from './startup_a11y.js';
+
 import { snuff_candle } from './apply_splash_lit.js';
+import { canseemon, canspotmon } from './display.js';
 
 /* C ref: mthrowu.c:24-28. Breath weapon names indexed by BZ_OFS_AD(typ).
  * Keep consistent with breath weapons in zap.c, and AD_* in monattk.h. */
@@ -682,7 +688,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
 
         damage = dmgval(otmp, mtmp, state, env);
         if (otmp.otyp === ACID_VENOM
-            && monster_resists_element(mtmp, ACID_RES, state))
+            && Resists_Elem(mtmp, ACID_RES, state))
             damage = 0;
 
         if (ismimic)
@@ -713,7 +719,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
                 + `${Monnam(mtmp, state, env)} is hit${exclam(damage)}`, state, env);
 
         if (otmp.opoisoned && isPoisonable(otmp, state)) {
-            if (monster_resists_element(mtmp, POISON_RES, state)) {
+            if (Resists_Elem(mtmp, POISON_RES, state)) {
                 if (vis)
                     await message(`The poison doesn't seem to affect ${mon_nam(mtmp, state, env)}.`, state, env);
             } else {
@@ -741,7 +747,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
             }
         }
         if (otmp.otyp === ACID_VENOM && cansee(mtmp.mx, mtmp.my, state)) {
-            if (monster_resists_element(mtmp, ACID_RES, state)) {
+            if (Resists_Elem(mtmp, ACID_RES, state)) {
                 if (vis || (verbose && !state.gm?.mtarget))
                     await message(`${Monnam(mtmp, state, env)} is unaffected.`, state, env);
             } else {
@@ -755,7 +761,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
             && touch_petrifies(state.mons[otmp.corpsenm])) {
             if (!await munstone(mtmp, false, state, env))
                 note_unported('trap.c minstapetrify'); /* minstapetrify(mtmp, FALSE) */
-            if (monster_resists_element(mtmp, STONE_RES, state))
+            if (Resists_Elem(mtmp, STONE_RES, state))
                 damage = 0;
         }
 
@@ -766,7 +772,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
                 if (vis || (verbose && !state.gm?.mtarget)) {
                     const fate = nonliving(mtmp.data)
                         || is_vampshifter(mtmp)
-                        || !canSpotMonster(mtmp, state)
+                        || !canspotmon(mtmp, state)
                         ? 'destroyed' : 'killed';
                     const killMessage = `${Monnam(mtmp, state, env)}`
                         + ` is ${fate}!`;

@@ -29,6 +29,7 @@
 // functions, after module initialization; neither belongs in a module-scope
 // value initializer while the cycle remains.
 import { acurr, adjattrib, minuhpmax, setuhpmax } from './attrib.js';
+import { isok } from './cmd_isok.js';
 import { getnow, midnight, night } from './calendar.js';
 import { can_make_bones, savebones } from './bones.js';
 import { yyyymmdd } from './calendar.js';
@@ -66,7 +67,6 @@ import {
     G_GENOD,
     GENOCIDED,
     IN_SIGHT,
-    isok,
     IS_GRAVE,
     LEAVESTATUE,
     KILLED_BY,
@@ -183,7 +183,7 @@ import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
 } from './tty_menu.js';
-import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { formatkiller, topten as toptenDisplay } from './topten.js';
 import { In_endgame, In_quest, Is_astralevel, plur } from './const.js';
 import {
@@ -211,6 +211,7 @@ import { make_sick, set_itimeout } from './potion.js';
 import { rn2 } from './rng.js';
 import { d } from './rng.js';
 import { timet_delta } from './allmain.js';
+import { canspotmon } from './display.js';
 
 export class UnsupportedEndOfGameError extends Error {
     constructor(message) {
@@ -457,7 +458,7 @@ export async function done_in_by(mtmp, how, state = game) {
         && !(state.u?.uprops?.[24]?.intrinsic  // HALLUC_RES = 24
             || state.u?.uprops?.[24]?.extrinsic),
     );
-    const distorted = hallucinating && canSpotMonster(mtmp, state);
+    const distorted = hallucinating && canspotmon(mtmp, state);
     const mimicker = M_AP_TYPE(mtmp) === M_AP_MONSTER;
     const imitator = mptr !== champtr || mimicker;
 

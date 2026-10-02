@@ -63,12 +63,13 @@ import {
     helm_simple_name,
     xnameFresh,
 } from './objnam.js';
-import { canSeeMonster, heroIsBlind } from './startup_a11y.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { which_armor } from './worn.js';
 import { cansee } from './vision.js';
 import { dist2 } from './hacklib.js';
+import { canseemon } from './display.js';
 
 // C ref: trap.c erode_obj()'s three static tables (177-182), one row per
 // ERODE_* value, together with the `vulnerable` predicate and the `is_primary`
@@ -201,13 +202,13 @@ export async function erode_obj(obj, description, type, flags, env) {
     const vismon = monsterVictim && erosionOperation(
         env,
         'canSeeMonster',
-        canSeeMonster,
+        canseemon,
     )(monsterVictim, state);
     const hit = state.gb?.bhitpos;
     let pool = false;
     if (floorVictim && hit) {
         const poolAt = env.poolAt
-            ?? (await import('./trap.js')).is_pool;
+            ?? (await import('./dbridge.js')).is_pool;
         pool = await poolAt(hit.x, hit.y, state);
     }
     const visibleAtObject = floorVictim

@@ -12,18 +12,25 @@ import { m_at } from './monst.js';
 import { perceives } from './mondata.js';
 import {
     BLINDED, CLOUD, COLNO, COULD_SEE, DB_MOAT, DB_UNDER, DRAWBRIDGE_UP,
-    IN_SIGHT, INFRAVISION, INVIS, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR,
+    IN_SIGHT, INVIS, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR,
     POOL, WATER,
     D_CLOSED, D_LOCKED, D_TRAPPED,
     MAX_RADIUS,
     M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK, SEE_INVIS,
-    DETECT_MONSTERS, WARN_OF_MON,
+    DETECT_MONSTERS,
     MONSEEN_NORMAL, MONSEEN_SEEINVIS, MONSEEN_INFRAVIS,
     MONSEEN_TELEPAT, MONSEEN_XRAYVIS, MONSEEN_DETECT, MONSEEN_WARNMON,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7, SVALL,
     IS_WALL, TEMP_LIT, TT_PIT,
 } from './const.js';
-import { newsym, tp_sensemon } from './display.js';
+import {
+    canseemon,
+    mon_visible,
+    newsym,
+    see_with_infrared,
+    tp_sensemon,
+    warningMatches,
+} from './display.js';
 import {
     S_hcdoor,
     S_ndoor,
@@ -181,7 +188,7 @@ function blocksVisionAt(x, y, state) {
         const mask = loc.flags || loc.doormask || 0;
         if (mask & (D_CLOSED | D_LOCKED | D_TRAPPED)) return true;
     }
-    const drawbridgeMask = loc.flags || loc.drawbridgemask || 0;
+    const drawbridgeMask = loc.flags ?? 0;
     const moat = !on_level(state.u?.uz, state.juiblex_level)
         && (typ === MOAT
             || (typ === DRAWBRIDGE_UP
@@ -952,50 +959,10 @@ export function m_canseeu(mon, state = game) {
         && couldsee(mon.mx, mon.my, state);
 }
 
-// C ref: display.h _mon_visible(mon). True when the monster is not invisible
-// (or the hero has See_invisible) and not an undetected hider.
-export function mon_visible(mon, state = game) {
-    const seeInvis = state.u?.uprops?.[SEE_INVIS];
-    const hasSeeInvis = Boolean(seeInvis?.intrinsic || seeInvis?.extrinsic);
-    return (!mon.minvis || hasSeeInvis) && !mon.mundetected;
-}
-
-// C ref: display.h _see_with_infrared(mon).
-export function see_with_infrared(mon, state = game) {
-    if (heroIsBlind(state.u)) return false;
-    const infra = state.u?.uprops?.[INFRAVISION];
-    if (!Boolean(infra?.intrinsic || infra?.extrinsic)) return false;
-    if (!(mon.data?.mflags3 & 0x0200)) return false; // M3_INFRAVISIBLE
-    return couldsee(mon.mx, mon.my, state);
-}
-
-// C ref: display.h _canseemon(mon) / display.c canseemon().
-// True when the hero can see the monster at its position.
-// Worms use worm_known() instead of cansee/infrared, as in the C macro.
-export function canseemon(mon, state = game) {
-    const locationVisible = mon.wormno
-        ? worm_known(mon, state)
-        : (cansee(mon.mx, mon.my, state) || see_with_infrared(mon, state));
-    return locationVisible && mon_visible(mon, state);
-}
-
 // C ref: vision.c howmonseen() (2152-2186), using display.c's tp_sensemon()
 // together with this source owner's MATCH_WARN_OF_MON() predicate. The
 // bitmask is consumed by pager.c:look_at_monster() to explain why a displayed
 // monster is known.
-function warningMatches(mon, state) {
-    const hero = state.u ?? {};
-    const warning = hero.uprops?.[WARN_OF_MON];
-    if (!Boolean(warning?.intrinsic || warning?.extrinsic)
-        || mon?.data == null) return false;
-    const warned = state.context?.warntype ?? {};
-    const flags = mon.data.mflags2 ?? 0;
-    return Boolean((warned.obj & flags) || (warned.polyd & flags)
-        || (warned.species && warned.species === mon.data)
-        || (warned.speciesidx != null
-            && state.mons?.[warned.speciesidx] === mon.data));
-}
-
 // C ref: vision.c howmonseen(). The state argument preserves the focused
 // clone contract used by the display/pager callers; no live singleton is
 // consulted while inspecting a planning state.

@@ -92,7 +92,6 @@ import {
     ZOO,
     has_emin,
     helpless,
-    isok,
     nothing_happens,
     PLINE_SPEECH,
     PLINE_VERBALIZE,
@@ -105,6 +104,7 @@ import {
     voice_talking_artifact,
     Upolyd,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { getdir } from './cmd.js';
 import {
     glyph_at,
@@ -204,15 +204,16 @@ import { demon_talk } from './minion.js';
 import { rn1, rn2 } from './rng.js';
 import { aggravate } from './wizard.js';
 import { genders } from './roles.js';
-import { canSpotMonster } from './startup_a11y.js';
+
 import { noisy_shop, shop_object, tended_shop } from './shk.js';
 import { SOUND_EFFECT_BASE_FILENAMES } from './sound_effects_data.js';
 import { ttyPline } from './tty_message.js';
-import { cansee, canseemon, couldsee } from './vision.js';
+import { cansee, couldsee } from './vision.js';
 import { vault_occupied } from './vault.js';
 import { which_armor } from './worn.js';
 import { t_at } from './trap.js';
 import { note_unported } from './unported.js';
+import { canseemon, canspotmon } from './display.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
     'bubbling water.',
@@ -866,7 +867,7 @@ export async function whimper(mtmp, rawEnv = {}) {
 export async function beg(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
-    const spotMonster = rawEnv.canSpotMonster ?? canSpotMonster;
+    const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
     const markInvisible = rawEnv.mapInvisible ?? map_invisible;
     if (helpless(mtmp)
         || !(carnivorous(mtmp.data) || herbivorous(mtmp.data))) {
@@ -1015,7 +1016,7 @@ export async function domonnoise(mtmp, state = game) {
         msound = MS_SELL;
     }
 
-    if (!canSpotMonster(mtmp, state))
+    if (!canspotmon(mtmp, state))
         map_invisible(mtmp.mx, mtmp.my, state);
 
     let plineMsg = null;
@@ -1577,7 +1578,7 @@ async function dochat(state) {
     // sounds.c:1379-1385. A helpless non-priest is not woken by #chat; the
     // message is omitted when the hero cannot spot that monster.
     if (helpless(mtmp) && !mtmp.ispriest) {
-        if (canSpotMonster(mtmp, state)) {
+        if (canspotmon(mtmp, state)) {
             await ttyPline(
                 `${capitalizedMonsterName(mtmp, state)} seems not to notice you.`,
                 state,
@@ -1590,7 +1591,7 @@ async function dochat(state) {
     // monster makes noise instead of entering its sound-specific arm.
     mtmp.mstrategy &= ~STRAT_WAITMASK;
     if (!Deaf(state) && mtmp.mtame && mtmp.meating) {
-        if (!canSpotMonster(mtmp, state))
+        if (!canspotmon(mtmp, state))
             map_invisible(mtmp.mx, mtmp.my, state);
         await ttyPline(
             `${capitalizedMonsterName(mtmp, state)} is eating noisily.`,
@@ -1604,7 +1605,7 @@ async function dochat(state) {
     if (Deaf(state)) {
         const xresponse = humanoid(state.youmonst.data)
             ? 'falls on deaf ears' : 'is inaudible';
-        const name = canSpotMonster(mtmp, state)
+        const name = canspotmon(mtmp, state)
             ? ` from ${monsterCommonName(mtmp, state)}` : '';
         await ttyPline(`Any response${name} ${xresponse}.`, state);
         return ECMD_OK;
@@ -1666,7 +1667,7 @@ export async function tiphat(state = game, rawEnv = {}) {
     const couldSee = rawEnv.couldsee ?? couldsee;
     const displayedGlyph = rawEnv.glyph_at ?? glyph_at;
     const monsterNoise = rawEnv.domonnoise ?? domonnoise;
-    const spotMonster = rawEnv.canSpotMonster ?? canSpotMonster;
+    const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
 
     await message(
         `You briefly doff your ${helm_simple_name(helmet, state)}.`,

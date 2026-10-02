@@ -3,6 +3,7 @@
 // Data ref: dat/dungeon.lua, translated in dungeon_data.js.
 
 import { game } from './gstate.js';
+import { isok } from './cmd_isok.js';
 import { rn2, rnd } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
 import {
@@ -65,7 +66,6 @@ import {
     Upolyd,
     VAULT,
     VISITED,
-    isok,
     plur,
 } from './const.js';
 import {
@@ -97,7 +97,8 @@ import { is_ice } from './terrain.js';
 import { dmgtype_fromattack, is_animal } from './mondata.js';
 // js/trap.js imports on_level() from this file. Both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
-import { is_lava, is_pool } from './trap.js';
+import { is_lava } from './trap.js';
+import { is_pool } from './dbridge.js';
 import { ttyPline } from './tty_message.js';
 // js/windows.js does not import from this file, so there is no cycle.
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -1704,7 +1705,7 @@ function db_under_typ(mask) {
 // closed drawbridge rather than a surface, so it reports what lies beneath.
 export function surface_typ(location) {
     if (location?.typ !== DRAWBRIDGE_UP) return location?.typ;
-    return db_under_typ(location.flags || location.drawbridgemask || 0);
+    return db_under_typ(location.flags ?? 0);
 }
 
 // C ref: dungeon.c ceiling() (1713-1746). Names what is overhead at <x,y> for

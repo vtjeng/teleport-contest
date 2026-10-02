@@ -47,12 +47,12 @@ import { getlin } from './windows.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { show_transient_light, transient_light_cleanup } from './light.js';
 import { rloc, tele_restrict } from './teleport.js';
-import { canSeeMonster, canSpotMonster, heroIsBlind }
-    from './startup_a11y.js';
-import { canseemon, vision_recalc } from './vision.js';
+import { heroIsBlind } from './startup_a11y.js';
+import { vision_recalc } from './vision.js';
 import { livelog_printf, verbalize } from './pline.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
+import { canseemon, canspotmon } from './display.js';
 
 const defaultSelectorRandom = { rn1, rn2, rnd };
 
@@ -68,7 +68,7 @@ function transientLightEnv(state) {
         }),
         flushScreen: (mode) => flush_screen(mode),
         canSeeMonster: (monster) => canseemon(monster, state),
-        canSpotMonster: (monster) => canSpotMonster(monster, state),
+        canSpotMonster: (monster) => canspotmon(monster, state),
         mapInvisible: (x, y) => map_invisible(x, y, state),
     };
 }
@@ -115,10 +115,10 @@ export async function demon_talk(mtmp, state = game, env = {}) {
     }
 
     if (is_dprince(mtmp.data) && mtmp.minvis) {
-        const wasUnseen = !canSpotMonster(mtmp, state);
+        const wasUnseen = !canspotmon(mtmp, state);
         mtmp.minvis = 0;
         mtmp.perminvis = 0;
-        if (wasUnseen && canSpotMonster(mtmp, state)) {
+        if (wasUnseen && canspotmon(mtmp, state)) {
             await message(`${Amonnam(mtmp, state)} appears before you.`, state);
             mtmp.mstrategy &= ~STRAT_APPEARMSG;
         }
@@ -236,7 +236,7 @@ export async function bribe(mtmp, prompt, state = game, env = {}) {
 // clone-local predicate so planning never consults live display state.
 export function monster_census(spotted = false, env = {}) {
     const state = env?.state ?? (env?.level ? env : game);
-    const canSpot = env?.canSpotMonster ?? env?.canspotmon ?? canSpotMonster;
+    const canSpot = env?.canSpotMonster ?? env?.canspotmon ?? canspotmon;
     let count = 0;
     for (let monster = state.level?.monlist; monster; monster = monster.nmon) {
         if ((monster.mhp ?? 0) < 1) continue;
@@ -358,14 +358,14 @@ export async function msummon(mon = null, rawEnv = {}) {
     const message = rawEnv.planning
         ? async () => {}
         : (rawEnv.message ?? ttyPline);
-    const seeMonster = rawEnv.canSeeMonster ?? canSeeMonster;
+    const seeMonster = rawEnv.canSeeMonster ?? canseemon;
     const env = {
         ...rawEnv,
         state,
         random,
         message,
         canSeeMonster: seeMonster,
-        canSpotMonster: rawEnv.canSpotMonster ?? canSpotMonster,
+        canSpotMonster: rawEnv.canSpotMonster ?? canspotmon,
     };
     const ptr = mon?.data ?? state.mons?.[M.PM_WIZARD_OF_YENDOR];
     if (!ptr) return 0;

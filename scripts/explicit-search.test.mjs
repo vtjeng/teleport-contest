@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+import { isok } from '../js/cmd_isok.js';
 import test from 'node:test';
 
-import { SDOOR, isok } from '../js/const.js';
+import { SDOOR} from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { t_at } from '../js/trap.js';

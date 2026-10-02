@@ -872,7 +872,7 @@ test('terrain conversion covers source backgrounds omitted by the old switch', (
         assert.equal(
             terrainGlyphAt({
                 typ: DRAWBRIDGE_UP,
-                drawbridgemask: underlay,
+                flags: underlay,
             }, 7, 4, state).ch,
             expected,
             `drawbridge underlay ${underlay}`,

@@ -31,7 +31,6 @@ import {
     LOOK_VERBOSE,
     ROWNO,
     IS_DOOR,
-    isok,
     TER_DETECT,
     TER_MAP,
     TER_MON,
@@ -40,6 +39,7 @@ import {
     VIBRATING_SQUARE,
     quitchars,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import {
     createCommandBindingModel,
     keyForCommand,

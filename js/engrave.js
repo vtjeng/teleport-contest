@@ -43,6 +43,9 @@ import {
     ECMD_TIME,
     DEAF,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { exercise_nonphysical } from './attrib.js';
 import { ART_FIRE_BRAND, is_art } from './artifacts.js';
 import { ceiling, on_level, surface, surface_typ } from './dungeon.js';
@@ -145,7 +148,6 @@ import {
 import { is_ice } from './terrain.js';
 import {
     is_lava,
-    is_pool,
     t_at,
     uescaped_shaft,
     uteetering_at_seen_pit,

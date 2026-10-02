@@ -132,11 +132,12 @@ import {
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
 import { create_region } from '../js/region.js';
-import { canSpotMonster } from '../js/startup_a11y.js';
+
 import { ATR_INVERSE, CLR_WHITE } from '../js/terminal.js';
 import {
     enableBrowserGlyphProjection,
 } from './browser-projection-test-support.mjs';
+import { canspotmon } from '..//js/display.js';
 
 function searchState() {
     const locations = new Map();
@@ -298,7 +299,7 @@ function monsterDetectionFixture() {
 test('monster_detect makes remote names perceptible only during map browsing', async () => {
     const { state, monster, env } = monsterDetectionFixture();
     const name = () => distant_monnam(monster, ARTICLE_NONE, undefined, state);
-    assert.equal(canSpotMonster(monster, state), false);
+    assert.equal(canspotmon(monster, state), false);
     assert.equal(name(), 'it');
     const events = [];
     env.message = async () => {
@@ -310,7 +311,7 @@ test('monster_detect makes remote names perceptible only during map browsing', a
         // detect.c:854-856 sets EDetect_monsters before browse_map; the
         // display.h canspotmon predicate and do_name.c both consume it.
         assert.equal(state.u.uprops[DETECT_MONSTERS].extrinsic, I_SPECIAL);
-        assert.equal(canSpotMonster(monster, state), true);
+        assert.equal(canspotmon(monster, state), true);
         assert.equal(name(), 'newt');
     };
     env.mapRedisplay = async () => {

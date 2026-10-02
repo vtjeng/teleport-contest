@@ -22,8 +22,8 @@ import {
     PLNMSG_ENVELOPED_IN_GAS,
     POISON_RES,
     ROWNO,
-    isok,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
 import { Monnam } from './do_name.js';
 import { losehp } from './hack.js';
@@ -33,7 +33,7 @@ import { game } from './gstate.js';
 import {
     haseyes,
     is_silent,
-    monster_resists_element,
+    Resists_Elem,
     monstseesu,
     monstunseesu,
     breathless,
@@ -445,7 +445,7 @@ export async function inside_gas_cloud(region, monster = null, rawEnv = {}) {
             monster.mblinded = 1;
             monster.mcansee = 0;
         }
-        if (monster_resists_element(monster, POISON_RES, state))
+        if (Resists_Elem(monster, POISON_RES, state))
             return false;
         monster.mhp -= env.random.rnd(damage) + 5;
         if (monster.mhp < 1) {
@@ -855,7 +855,7 @@ export function valid_cloud_pos(x, y, state = game) {
     const terrain = location?.typ;
     if (!Number.isInteger(terrain)) return false;
     const drawbridgeUnder =
-        (location.flags || location.drawbridgemask || 0) & DB_UNDER;
+        (location.flags ?? 0) & DB_UNDER;
     const pool = terrain === DRAWBRIDGE_UP
         ? drawbridgeUnder === DB_MOAT
             && !on_level(state.u?.uz, state.juiblex_level)

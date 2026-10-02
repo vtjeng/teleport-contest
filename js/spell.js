@@ -152,7 +152,7 @@ import { zapyourself, weffects } from './zap.js';
 import { fall_asleep } from './timeout.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { body_part } from './polyself.js';
-import { cansee, canseemon } from './vision.js';
+import { cansee } from './vision.js';
 import { On_stairs } from './stairs.js';
 import { make_familiar, tamedog } from './dog.js';
 import { set_malign } from './makemon.js';
@@ -166,6 +166,7 @@ import { note_unported } from './unported.js';
 // bindings are used only inside function bodies, so the cycle is deferred
 // until gameplay.
 import { seffects } from './read.js';
+import { canseemon } from './display.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
 // indices while swapping two spells; SPELLMENU_DUMP (-3) belongs to

@@ -94,10 +94,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import { A_CHA } from '../js/const.js';
-import {
-    canSeeMonster,
-    canSpotMonster,
-} from '../js/startup_a11y.js';
+
 import { acurr } from '../js/attrib.js';
 import { make_engr_at, sengr_at } from '../js/engrave.js';
 import { online2 } from '../js/hacklib.js';
@@ -217,6 +214,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { S_poisoncloud } from '../js/symbols.js';
+import { canseemon, canspotmon } from '..//js/display.js';
 
 test('mon_track_add shifts older positions toward the tail', () => {
     const monster = newMonster();
@@ -1178,8 +1176,8 @@ test('postmov separates the dart line gate from the seetrap gate', async () => {
     // inferred from the output: the monster cannot be seen, so seetrap() is
     // skipped, but it can be spotted, so C's Monnam() gives the species name
     // rather than "It".
-    assert.equal(canSeeMonster(monster, state), false);
-    assert.equal(canSpotMonster(monster, state), true);
+    assert.equal(canseemon(monster, state), false);
+    assert.equal(canspotmon(monster, state), true);
     // cansee() of the square is true, so thitm() writes its line.
     assert.deepEqual(
         messages,
@@ -4546,8 +4544,8 @@ test('accessible uses closed-door and raised-drawbridge surface rules', () => {
     const { locations, state } = makeState();
     locations.set('1,1', { typ: ROOM, flags: 0 });
     locations.set('2,1', { typ: DOOR, flags: D_CLOSED });
-    locations.set('3,1', { typ: DRAWBRIDGE_UP, drawbridgemask: DB_ICE });
-    locations.set('4,1', { typ: DRAWBRIDGE_UP, drawbridgemask: DB_MOAT });
+    locations.set('3,1', { typ: DRAWBRIDGE_UP, flags: DB_ICE });
+    locations.set('4,1', { typ: DRAWBRIDGE_UP, flags: DB_MOAT });
 
     assert.equal(accessible(1, 1, state), true);
     assert.equal(accessible(2, 1, state), false);

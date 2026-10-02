@@ -22,7 +22,6 @@ import {
     has_emin,
     has_mcorpsenm,
     has_mgivenname,
-    isok,
     LS_MONSTER,
     M_AP_MONSTER,
     M_AP_NOTHING,
@@ -36,6 +35,7 @@ import {
     nothing_happens,
     nothing_seems_to_happen,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { newsym } from './display.js';
 import { christen_monst } from './do_name.js';
 import { tamedog } from './dog.js';
@@ -127,13 +127,14 @@ import {
     monst_globals_init,
     monsterClassSymbol,
 } from './monsters.js';
-import { sensesMonster } from './startup_a11y.js';
+
 import { MAXMCLASSES } from './symbols.js';
 import { enexto } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { consume_obj_charge, update_inventory } from './invent.js';
-import { canseemon } from './vision.js';
+
+import { canseemon, sensemon } from './display.js';
 
 function generationState(env = {}) {
     const state = env.state ?? game;
@@ -694,7 +695,7 @@ export async function create_critters(cnt, mptr, neverask, state = game,
         if ((canseemon(mon, state)
                 && (M_AP_TYPE(mon) === M_AP_NOTHING
                     || M_AP_TYPE(mon) === M_AP_MONSTER))
-            || sensesMonster(mon, state))
+            || sensemon(mon, state))
             known = true;
     }
     return known;
@@ -1259,7 +1260,7 @@ export async function bagotricks(bag, tipping, state = game) {
                 if ((canseemon(mtmp, state)
                         && (M_AP_TYPE(mtmp) === M_AP_NOTHING
                             || M_AP_TYPE(mtmp) === M_AP_MONSTER))
-                    || sensesMonster(mtmp, state))
+                    || sensemon(mtmp, state))
                     ++seecount;
             }
         } while (--creatcnt > 0);

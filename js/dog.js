@@ -47,8 +47,11 @@ import {
     TELEPAT,
     Upolyd,
     helpless,
-    isok,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import {
     depth,
     ledger_no,
@@ -115,12 +118,7 @@ import {
 } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { P_SKILL, spell_skilltype } from './startup_skills.js';
-import {
-    canSeeMonster,
-    canSpotMonster,
-    messageAt,
-    sensesMonster,
-} from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { night } from './calendar.js';
 import { acurr } from './attrib.js';
 import { mnexto, rloc_to } from './teleport.js';
@@ -129,10 +127,11 @@ import { mon_wield_item } from './weapon.js';
 import { mon_has_amulet } from './wizard.js';
 import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
-import { cansee, canseemon } from './vision.js';
+import { cansee } from './vision.js';
 import { note_unported } from './unported.js';
-import { is_pool } from './trap.js';
+
 import { has_oname, ONAME } from './const.js';
+import { canseemon, canspotmon, sensemon } from './display.js';
 
 export { christen_monst } from './do_name.js';
 // Re-export for existing dog-related callers. The source implementations live
@@ -396,7 +395,7 @@ export async function tamedog(
     if (monster.iswiz || monster.data.pmidx === PM_MEDUSA
         || (monster.data.mflags3 & M3_WANTSARTI)) return false;
 
-    if (giveMessage && !monster.mpeaceful && canSpotMonster(monster, state)) {
+    if (giveMessage && !monster.mpeaceful && canspotmon(monster, state)) {
         await message(
             messageAt(
                 `${Monnam(monster, state)} seems `
@@ -516,7 +515,7 @@ export async function tamedog(
         if (eaten === 2) return true;
     }
 
-    if (giveMessage && canSpotMonster(monster, state)) {
+    if (giveMessage && canspotmon(monster, state)) {
         await message(
             messageAt(
                 `${Monnam(monster, state)} seems `
@@ -663,9 +662,9 @@ export function see_nearby_monsters(state = game, env = {}) {
             const mndx = appearance === M_AP_MONSTER
                 ? monster.mappearance : monster.data.pmidx;
             if (state.mvitals?.[mndx]?.seen_close) continue;
-            if (!canSeeMonster(monster, state)
+            if (!canseemon(monster, state)
                 && !(monster.mundetected
-                    && sensesMonster(monster, state))) {
+                    && sensemon(monster, state))) {
                 continue;
             }
             setMonsterObservationPosition(monster, { x, y }, state);
@@ -673,7 +672,7 @@ export function see_nearby_monsters(state = game, env = {}) {
                 ...env,
                 state,
                 observedAt: { x, y },
-                sensemon: (subject) => sensesMonster(subject, state),
+                sensemon: (subject) => sensemon(subject, state),
             })) {
                 seen++;
             }

@@ -174,7 +174,7 @@ import { makemon_runtime } from './makemon_create.js';
 import {
     breathless, dmgtype, has_head, haseyes, is_human, is_silent,
     is_vampshifter, is_were, likes_fire, mon_hates_blessings, stagger,
-    defended, monster_resists_element,
+    defended, Resists_Elem,
 } from './mondata.js';
 import {
     AD_ACID, AD_DISE, AD_PEST,
@@ -205,7 +205,7 @@ import { fix_petrification } from './eat.js';
 import { monstseesu, monstunseesu } from './mondata.js';
 import { d, rn1, rn2, rnl, rnd, rne, rnz } from './rng.js';
 import { aggravate } from './wizard.js';
-import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { cloneu } from './mhitu.js';
 import {
     burn_away_slime, fall_asleep, obj_stop_timers,
@@ -217,7 +217,7 @@ import {
     surface,
 } from './dungeon.js';
 import { stairway_at } from './stairs.js';
-import { cansee, canseemon, vision_recalc } from './vision.js';
+import { cansee, vision_recalc } from './vision.js';
 import {
     bhitm, Cold_resistance, do_enlightenment_effect, Fire_resistance, makewish,
     resist,
@@ -279,6 +279,7 @@ import { water_damage } from './trap_water_damage.js';
 import { aobjnam, an } from './objnam.js';
 import { m_at } from './monst.js';
 import { monster_detect, object_detect } from './detect.js';
+import { canseemon, canspotmon } from './display.js';
 
 // Thrown where dodrink/dopotion/peffects reaches a branch this port has not
 // ported, such as an unported potion type.
@@ -333,7 +334,7 @@ export async function split_mon(mon, attacker = null, rawEnv = {}) {
         // clone_mon()'s half-current-HP operation establish that invariant.
         clone.mhpmax = Math.trunc(mon.mhpmax / 2);
         mon.mhpmax -= clone.mhpmax;
-        if (canSpotMonster(mon, state)) {
+        if (canspotmon(mon, state)) {
             await message(
                 `${Monnam(mon, state, rawEnv)} multiplies${reason}!`,
                 state,
@@ -428,7 +429,7 @@ export async function djinni_from_bottle(obj, state = game, env = {}) {
         break;
     case 3:
         await message('"It is about time!"', state);
-        if (canSpotMonster(monster, state)) {
+        if (canspotmon(monster, state)) {
             await message(
                 `${capitalizedMonsterName(monster, state)} vanishes.`,
                 state,
@@ -2598,7 +2599,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
                 break;
             }
             if (dmgtype(mon.data, AD_DISE) || dmgtype(mon.data, AD_PEST)
-                || monster_resists_element(mon, POISON_RES, state)) {
+                || Resists_Elem(mon, POISON_RES, state)) {
                 if (canseemon(mon, state))
                     await message(`${Monnam(mon, state, env)} looks unharmed.`, state);
                 break;
@@ -2613,11 +2614,11 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             }
             break;
         case POT_INVISIBILITY: {
-            const sawit = canSpotMonster(mon, state);
+            const sawit = canspotmon(mon, state);
             const cursedPotion = Boolean(obj.cursed);
             angermon = Boolean(mon.minvis && cursedPotion);
             mon_set_minvis(mon, cursedPotion, state);
-            if (sawit && !canSpotMonster(mon, state)) {
+            if (sawit && !canspotmon(mon, state)) {
                 if (cansee(mon.mx, mon.my, state))
                     (env.planning && state !== game
                         ? map_invisible_planning : map_invisible)(
@@ -2625,7 +2626,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
                     );
             } else if (sawit && cursedPotion) {
                 await message(`${Monnam(mon, state, env)} briefly seems to be transparent.`, state);
-            } else if (!sawit && canSpotMonster(mon, state)) {
+            } else if (!sawit && canspotmon(mon, state)) {
                 await message(`${Monnam(mon, state, env)} appears!`, state);
             }
             break;
@@ -2702,7 +2703,7 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             if (state.program_state?.gameover) return;
             break;
         case POT_ACID:
-            if (!monster_resists_element(mon, ACID_RES, state)
+            if (!Resists_Elem(mon, ACID_RES, state)
                 && !await resist(mon, POTION_CLASS, 0, NOTELL,
                     state, random, env)) {
                 await message(
@@ -3068,7 +3069,7 @@ export async function dodip(state = game) {
     const message = ttyPline;
     const hero = state.u;
     const here = state.level.at(hero.ux, hero.uy).typ;
-    const at_pool = (await import('./trap.js')).is_pool(hero.ux, hero.uy, state);
+    const at_pool = (await import('./dbridge.js')).is_pool(hero.ux, hero.uy, state);
     const at_fountain = IS_FOUNTAIN(here);
     const at_sink = IS_SINK(here);
     const at_here = !state.iflags.menu_requested

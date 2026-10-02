@@ -1762,7 +1762,8 @@ export async function Boots_off(state = game) {
                 || (state.u?.usteed && is_flyer(state.u.usteed.data)))
             && !flying.blocked,
         );
-        const { is_pool, is_lava } = await import('./trap.js');
+        const { is_pool } = await import('./dbridge.js');
+        const { is_lava } = await import('./trap.js');
         if ((is_pool(state.u.ux, state.u.uy, state)
              || is_lava(state.u.ux, state.u.uy, state))
             && !hasLevitation && !hasFlying

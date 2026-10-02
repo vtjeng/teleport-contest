@@ -2,7 +2,8 @@
 // C refs: include/monst.h struct monst, decl.c zeromonst, rm.h m_at(), and
 // steed.c place_monster(). Species records remain in monsters.js.
 
-import { isok, MON_FLOOR } from './const.js';
+import { MON_FLOOR } from './const.js';
+import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
 import { update_monster_region } from './region.js';
 

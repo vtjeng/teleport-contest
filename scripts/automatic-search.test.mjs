@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+import { isok } from '../js/cmd_isok.js';
 import test from 'node:test';
 
-import { SCORR, SDOOR, SEARCHING, isok } from '../js/const.js';
+import { SCORR, SDOOR, SEARCHING} from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { loadAutomaticSearchRecipe } from './run-automatic-search.mjs';

@@ -28,7 +28,6 @@ import {
     IS_DOOR,
     IS_OBSTRUCTED,
     IS_ROOM,
-    isok,
     MAGIC_PORTAL,
     MANFOOD,
     M_AP_NOTHING,
@@ -52,6 +51,10 @@ import {
     UNDEF,
     W_ARMS,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import { glyph_is_object, newsym, vobj_at } from './display.js';
 import {
     alwaysVisibleMonsterName,
@@ -169,9 +172,7 @@ import {
     TRIPE_RATION,
 } from './objects.js';
 import { rn1, rn2, rnd, rne } from './rng.js';
-import {
-    canSpotMonster, messageAt, monsterVisible,
-} from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_sink } from './symbols.js';
 import { mpickobj, relobj } from './steal.js';
@@ -179,7 +180,6 @@ import { gettrack } from './track.js';
 import { dismissPendingTtyMessage, ttyPline } from './tty_message.js';
 import {
     is_lava,
-    is_pool,
     t_at,
 } from './trap.js';
 import {
@@ -190,6 +190,7 @@ import {
 } from './vision.js';
 import { which_armor } from './worn.js';
 import { unpaid_cost } from './shk.js';
+import { canspotmon, mon_visible } from './display.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
@@ -569,9 +570,9 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     const inPool = is_pool(mtmp.mx, mtmp.my, state) && !state.u?.uinwater;
     const seeobj = !inPool && cansee(mtmp.mx, mtmp.my, state);
     const sawpet = !inPool && cansee(x, y, state)
-        && monsterVisible(mtmp, state);
+        && mon_visible(mtmp, state);
     const message = rawEnv.message ?? ttyPline;
-    if (sawpet || (seeobj && canSpotMonster(mtmp, state))) {
+    if (sawpet || (seeobj && canspotmon(mtmp, state))) {
         const objName = distant_name(obj, donameFresh, state);
         const action = tunnels(mtmp.data) ? 'digs in'
             : `${devour ? 'devours' : 'eats'} ${objName}`;
@@ -681,13 +682,13 @@ export async function quickmimic(mtmp, rawEnv = {}) {
     if (trycnt === 0) idx = QUICK_MIMIC_CHOICES.length - 1;
 
     const oldName = alwaysVisibleMonsterName(mtmp, state);
-    const spotted = canSpotMonster(mtmp, state);
+    const spotted = canspotmon(mtmp, state);
     const seeloc = cansee(mtmp.mx, mtmp.my, state);
     const [, , appearance, appearanceType] = QUICK_MIMIC_CHOICES[idx];
     mtmp.m_ap_type = appearanceType;
     mtmp.mappearance = appearance;
 
-    if (spotted || seeloc || canSpotMonster(mtmp, state)) {
+    if (spotted || seeloc || canspotmon(mtmp, state)) {
         const location = state.level.at(mtmp.mx, mtmp.my);
         // display.h glyph_at() reads the transient glyph buffer, not
         // levl[x][y].glyph.  M_AP_MONSTER deliberately leaves the underlying

@@ -56,8 +56,8 @@ import { STRANGE_OBJECT } from './objects.js';
 import { body_part } from './polyself.js';
 import { lined_up } from './mthrowu.js';
 import { rn2, rnd, d } from './rng.js';
-import { canSpotMonster } from './startup_a11y.js';
-import { couldsee, canseemon } from './vision.js';
+
+import { couldsee } from './vision.js';
 import { aggravate, has_aggravatables, nasty } from './wizard.js';
 import { mon_adjust_speed } from './worn.js';
 import { burn_away_slime } from './timeout.js';
@@ -69,6 +69,7 @@ import { note_unported } from './unported.js';
 import { buzz, flash_str, flashburn } from './zap.js';
 import { verbalize as plineVerbalize } from './pline.js';
 import { ttyPline } from './tty_message.js';
+import { canseemon, canspotmon } from './display.js';
 
 // ---- Spell enum (mcastu.h MONSPELL order) ----
 // These must match the C enum values (0-based, order from mcastu.h).
@@ -430,9 +431,9 @@ export async function castmu(
         return M_ATTK_MISS;
     }
 
-    if (canSpotMonster(mtmp, state) || !is_undirected_spell(spellnum)) {
+    if (canspotmon(mtmp, state) || !is_undirected_spell(spellnum)) {
         if (message) {
-            const casterName = canSpotMonster(mtmp, state)
+            const casterName = canspotmon(mtmp, state)
                 ? (env.monsterName?.(mtmp)
                     ?? capitalizedMonsterNameFallback(mtmp, state))
                 : 'Something';

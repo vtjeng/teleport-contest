@@ -78,7 +78,6 @@ import {
     little_to_big,
     locomotion,
     mon_knows_traps,
-    monster_resists_element,
     Resists_Elem,
     name_to_mon,
     name_to_monclass,
@@ -856,11 +855,11 @@ test('monster elemental resistance includes source equipment defenses', () => {
         mw: null,
     };
 
-    assert.equal(monster_resists_element(monster, POISON_RES, state), false);
+    assert.equal(Resists_Elem(monster, POISON_RES, state), false);
 
     // mon_resistancebits combines the species, acquired, and worn masks.
     monster.mintrinsics = 1 << (POISON_RES - 1);
-    assert.equal(monster_resists_element(monster, POISON_RES, state), true);
+    assert.equal(Resists_Elem(monster, POISON_RES, state), true);
     monster.mintrinsics = 0;
 
     monster.minvent = {
@@ -868,7 +867,7 @@ test('monster elemental resistance includes source equipment defenses', () => {
         owornmask: W_RINGL,
         nobj: null,
     };
-    assert.equal(monster_resists_element(monster, POISON_RES, state), true);
+    assert.equal(Resists_Elem(monster, POISON_RES, state), true);
 
     // A worn alchemy smock grants both poison and acid resistance even
     // though its object definition can encode only one property.
@@ -877,12 +876,12 @@ test('monster elemental resistance includes source equipment defenses', () => {
         owornmask: W_ARMC,
         nobj: null,
     };
-    assert.equal(monster_resists_element(monster, ACID_RES, state), true);
+    assert.equal(Resists_Elem(monster, ACID_RES, state), true);
 
     // Grimtooth's defn field grants poison resistance while wielded.
     monster.minvent = null;
     monster.mw = { oartifact: ART_GRIMTOOTH };
-    assert.equal(monster_resists_element(monster, POISON_RES, state), true);
+    assert.equal(Resists_Elem(monster, POISON_RES, state), true);
 
     // The Mitre's cary field grants fire resistance from any inventory slot.
     monster.mw = null;
@@ -891,7 +890,7 @@ test('monster elemental resistance includes source equipment defenses', () => {
         owornmask: 0,
         nobj: null,
     };
-    assert.equal(monster_resists_element(monster, FIRE_RES, state), true);
+    assert.equal(Resists_Elem(monster, FIRE_RES, state), true);
 });
 
 test('defended uses the source artifact and adult-dragon armor rules', () => {

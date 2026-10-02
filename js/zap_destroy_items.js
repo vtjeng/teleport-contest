@@ -37,7 +37,7 @@ import {
 import {
     breathless,
     haseyes,
-    monster_resists_element,
+    Resists_Elem,
 } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { isMetallic, objectType, weight } from './obj.js';
@@ -67,12 +67,13 @@ import {
     WAN_LIGHTNING,
     WAND_CLASS,
 } from './objects.js';
-import { canSeeMonster, heroIsBlind } from './startup_a11y.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { Fire_resistance, inventory_resistance_check } from './zap.js';
 import { Ring_gone } from './do_wear.js';
 import { setnotworn } from './worn.js';
 import { recharge } from './read.js';
+import { canseemon } from './display.js';
 
 // Thrown where the destruction path reaches an arm this port has not ported.
 export class UnsupportedItemDestructionError extends Error {
@@ -223,7 +224,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
     const message = env.message
         ?? (env.planning ? async () => {} : ttyPline);
     const u_carry = carrier === state.youmonst;
-    const vis = !u_carry && canSeeMonster(carrier, state);
+    const vis = !u_carry && canseemon(carrier, state);
 
     let xresist = false;
     let skip = false;
@@ -242,7 +243,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                    && obj.otyp !== GLOB_OF_GREEN_SLIME
                    && (u_carry
                        ? Fire_resistance(state)
-                       : monster_resists_element(carrier, FIRE_RES, state)));
+                       : Resists_Elem(carrier, FIRE_RES, state)));
         if (obj.otyp === SPE_BOOK_OF_THE_DEAD) {
             skip = true;
             if (u_carry ? !heroIsBlind(state) : vis) {
@@ -302,7 +303,7 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
             && (u_carry
                 ? Boolean(state.u?.uprops?.[SHOCK_RES]?.intrinsic
                     || state.u?.uprops?.[SHOCK_RES]?.extrinsic)
-                : monster_resists_element(carrier, SHOCK_RES, state));
+                : Resists_Elem(carrier, SHOCK_RES, state));
         quan = Math.trunc(obj.quan);
         if (obj.oclass === RING_CLASS) {
             if (((obj.owornmask & W_RING) && state.uarmg
