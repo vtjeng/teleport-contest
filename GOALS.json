@@ -135474,6 +135474,210 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-were-synthetic-v17-20261001",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Complete lycanthropy attack helper and state callers",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests"
+      ],
+      "selectionReason": "The selected v17 werejackal case exposed a monster-action planning boundary after B81 summonmu work. B82 is the independently source-traced next active helper, uhitm.c:mhitm_ad_were; the selected case replay is retained as a pager diagnostic and is not used as helper runtime evidence. The task separately records actual C-first hero-to-monster, monster-to-hero, and monster-to-monster helper executions. Root verified the whole helper, three attack directions and independent supporting setter/cure runtime evidence. Supporting callee plumbing receives no whole-function credit.",
+      "detail": "Read-only preview of exact 7c7d535c diff: complete uhitm.c:mhitm_ad_were agrees with the three source direction arms, pa snapshot before hitmsg yields, ordered rn2(4)/NON_PM/protection/defends/MC guards, urgent message, exercise, canonical set_ulycn and named discarded retouch gap. Supporting setter matches were.c:232-237 and C potion/cpostfx call sites. Three attack directions and supporting setter/cure have matching independent C evidence. Selected v17 replay is only a held-pager diagnostic, explicitly excluded from helper runtime credit. Replacement 992c8555 contains no private cache paths and its 49 non-cache blobs are identical to the reviewed original. Root rechecked clean accepted main 3b569136.",
+      "openedAt": "3b5691368cc659fd6a201d428c9e874c672cebb5",
+      "openStanding": {
+        "sha": "ce951eab2ffcfb81dead927ea16565c4bd9da62c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "mhitm_ad_were",
+          "line": 4265,
+          "endLine": 4295,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 4265,
+        "to": 4295
+      },
+      "syntheticProvenance": {
+        "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests": {
+          "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+          "evaluationPath": "challenges/evaluations/20261002022447-v17.json",
+          "evaluationCommit": "ce951eab2ffcfb81dead927ea16565c4bd9da62c"
+        }
+      },
+      "activeStanding": {
+        "sha": "ce951eab2ffcfb81dead927ea16565c4bd9da62c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+          "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+          "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+          "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+          "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+          "replayInputSha256": "5b70195785bea26509c1709abe797cb14b68dac7b2bc686c9b10281a9cdc884a",
+          "evaluationPath": "challenges/evaluations/20261002022447-v17.json",
+          "evaluationCommit": "ce951eab2ffcfb81dead927ea16565c4bd9da62c",
+          "evaluationArtifact": "challenges/evaluations/20261002022447-v17.json",
+          "evaluationUtc": "2026-10-02T02:25:34.313Z",
+          "remainingScreens": 37,
+          "recordedSteps": 109,
+          "previousScreensMatched": 72,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 72,
+              "total": 109
+            },
+            "rng": {
+              "matched": 2229,
+              "total": 2338
+            },
+            "cursors": {
+              "matched": 72,
+              "total": 109
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_were()",
+            "step": 72
+          },
+          "step": 72,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_were",
+          "message": "simple monster action requires uhitm.c mhitm_ad_were()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests.json",
+            "result": {
+              "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+              "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+              "recipePath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+              "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+              "replayInputSha256": "0d1c104fbf79536e6932d034b987fff44ca65f6b3d9cbccfcbbc40abd9de1894",
+              "evaluationPath": "challenges/evaluations/20261001233847-v17.json",
+              "evaluationCommit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+              "remainingScreens": 37,
+              "recordedSteps": 109,
+              "status": "complete",
+              "commit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "werejackal-infects-wizard-on-bite-forced-rests",
+                "session": "synthetic/v17/werejackal-infects-wizard-on-bite-forced-rests",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+                "recordingPath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.session.json",
+                "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
+                "recipe": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
+                "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
+                "replayInputSha256": "0d1c104fbf79536e6932d034b987fff44ca65f6b3d9cbccfcbbc40abd9de1894",
+                "evaluationPath": "challenges/evaluations/20261001233847-v17.json",
+                "evaluationCommit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
+                "evaluationArtifact": "challenges/evaluations/20261001233847-v17.json",
+                "evaluationUtc": "2026-10-01T23:39:46.336Z",
+                "remainingScreens": 37,
+                "recordedSteps": 109,
+                "previousScreensMatched": 72,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 72,
+                    "total": 109
+                  },
+                  "rng": {
+                    "matched": 2229,
+                    "total": 2338
+                  },
+                  "cursors": {
+                    "matched": 72,
+                    "total": 109
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_were()",
+                  "step": 72
+                },
+                "step": 72,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_were",
+                "message": "simple monster action requires uhitm.c mhitm_ad_were()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The whole mhitu.c:summonmu helper and its planner-owned random/creation wiring are now verified. This case still matches through zero-based step 71, then the planned monster attack stops at the explicit uhitm.c:mhitm_ad_were boundary before committing the next screen. The actionable source scope is the complete mhitm_ad_were function: its hero-target arm prints hitmsg, preserves the rn2(4) and lycanthropy/protection/artifact-negation gates, prints the feverish message, exercises constitution, and sets lycanthropy before the discarded retouch_equipment call. Its other two arms delegate to mhitm_ad_phys. The consumed state update needs were.c:set_ulycn, which assigns u.ulycn and refreshes innate Drain_resistance through set_uasmon. The later distfleeck RNG annotation identifies the first missing draw, rather than the source refusal.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "mhitm_adtyping dispatches AD_WERE to mhitm_ad_were for the were creature bite; the monster-target and hero-as-attacker arms use physical damage, while the hero-target arm conditionally applies lycanthropy in source order.",
+                "functions": [
+                  "mhitm_ad_were"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_adtyping; mhitu.c:hitmu; uhitm.c:damageum; mhitm.c:mdamagem"
+                ],
+                "dependencies": [
+                  "were.c:set_ulycn consumed state update; polyself.c:set_uasmon existing innate-property refresh",
+                  "artifact.c:retouch_equipment(2) is void and remains a named unported call",
+                  "Existing mhitm_ad_phys, mhitm_mgc_atk_negated, defends, hitmsg and exercise"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "GOALS.json records complete mhitu.c:summonmu evidence. Independent werewolf and water-demon recordings execute the helper through mattacku; supporting runtime creation and random plumbing receive no extra whole-function credit.",
+                "challenges/evaluations/20261001233847-v17.json retains 72/109 matching screens/cursors and 2229/2338 matching RNG calls for this case; first missing screen is zero-based step 72.",
+                "Saved exact worker boundary diagnostic .cache/B82-logs/run-SyYPwi-stdout.log at /tmp/teleport-loop-worker-b-20260925 identifies UnsupportedTurnBoundaryError: uhitm.c mhitm_ad_were(). The C screen at step 72 contains the werejackal summon/help pager. Planned attack output is not committed when the later effect remains unported; no selected synthetic range is claimed for B81.",
+                "uhitm.c:4265–4291 defines all three mhitm_ad_were arms and the rn2(4), NON_PM, Protection_from_shape_changers, defends(AD_WERE,uwep) and mhitm_mgc_atk_negated gates. were.c:232–237 assigns u.ulycn then calls set_uasmon; youprop.h derives the innate property.",
+                "Supporting caller-only set_ulycn gaps also occur in potion.c:peffect_water and eat.c:cpostfx; the setter and these existing sites belong to the same state owner. No whole caller function is included.",
+                "The existing new_were weapon.c:possibly_unwield gap remains conditional and outside this bite-effect port. The recorded selected summon branch does not transform (rn2(30)=23). Preserve that gap rather than using it as the current step-72 cause."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
