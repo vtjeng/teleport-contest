@@ -47,6 +47,41 @@ import { skillSlot } from '../js/startup_skills.js';
 const SPELL_C = readFileSync(
     new URL('../nethack-c/upstream/src/spell.c', import.meta.url), 'utf8',
 );
+const READ_C = readFileSync(
+    new URL('../nethack-c/upstream/src/read.c', import.meta.url), 'utf8',
+);
+const JS_READ = readFileSync(new URL('../js/read.js', import.meta.url), 'utf8');
+
+test('read.c fire scroll awaits burn_away_slime in source order', () => {
+    const cStart = READ_C.indexOf('seffect_fire(struct obj **sobjp)');
+    const cEnd = READ_C.indexOf('\nstaticfn void\nseffect_earth(', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cFire = READ_C.slice(cStart, cEnd);
+    const cOrder = [
+        'if (u_at(cc.x, cc.y))',
+        'pline_The("scroll erupts in a tower of flame!");',
+        'iflags.last_msg = PLNMSG_TOWER_OF_FLAME;',
+        'burn_away_slime();',
+        'explode(cc.x, cc.y, ZT_SPELL_O_FIRE, dam, SCROLL_CLASS, EXPL_FIERY);',
+    ].map((text) => cFire.indexOf(text));
+    assert.ok(cOrder.every((index) => index >= 0));
+    assert.deepEqual(cOrder, [...cOrder].sort((a, b) => a - b));
+
+    const jsStart = JS_READ.indexOf('export async function seffect_fire(');
+    const jsEnd = JS_READ.indexOf('\n}\n', jsStart) + 3;
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsFire = JS_READ.slice(jsStart, jsEnd);
+    const jsOrder = [
+        'if (u_at(cc.x, cc.y, state))',
+        "await ttyPline('The scroll erupts in a tower of flame!', state);",
+        'state.iflags.last_msg = PLNMSG_TOWER_OF_FLAME;',
+        'await burn_away_slime(state);',
+        'await explode(',
+    ].map((text) => jsFire.indexOf(text));
+    assert.ok(jsOrder.every((index) => index >= 0));
+    assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
+    assert.doesNotMatch(jsFire, /note_unported\(['"]timeout\.c burn_away_slime/u);
+});
 
 async function replayGenocideRecipe(name, gender) {
     const recipe = JSON.parse(readFileSync(new URL(

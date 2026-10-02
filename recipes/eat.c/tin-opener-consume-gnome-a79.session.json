@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 74126039,
+      "datetime": "20261002213500",
+      "nethackrc": "OPTIONS=name:TinCallerA79,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u0017blessed tin opener\n\u0017blessed tin of homemade gnome\nao py"
+    }
+  ],
+  "comment": "A79 gnome tin production witness; seed 74126039 at 2026-10-02 21:35 UTC. C-first caller evidence for eat.c:consume_tin -> cprefx using a valid gnome tin, not a green-slime tin. objnam.c:5207-5213` accepts gnome because its species has a corpse; green slime has G_NOCORPSE so C makes those tins empty and cannot reach its CPREFX slime branch. The frozen input uses the C-observed opener slot o, applies it once (C wields and returns), dismisses the wield message, selects the tin from the displayed [p] getobj prompt, and answers the eat prompt. The boiled tin is the cheap tin-variety variation. These recipes do not claim make_slimed reachability."
+}

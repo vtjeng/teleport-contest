@@ -312,7 +312,7 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { trap_to_defsym } from './symbols.js';
 import { halu_trapnames } from './trap_names_data.js';
 import { is_ice, set_levltyp } from './terrain.js';
-import { spot_stop_timers } from './timeout.js';
+import { burn_away_slime, spot_stop_timers } from './timeout.js';
 import {
     dofiretrap, dotrap, feeltrap, mintrap, m_easy_escape_pit,
 } from './trap_effects.js';
@@ -1475,10 +1475,7 @@ export async function lava_effects(state = game) {
     }
 
     feel_newsym(u.ux, u.uy, state);
-    // This source call discards its result. The timeout owner still refuses
-    // make_slimed(), so keep the exact gap rather than invoking a partial
-    // implementation and swallowing its refusal.
-    note_unported('timeout.c burn_away_slime');
+    await burn_away_slime(state);
     if (likes_lava(state.youmonst?.data)) return false;
 
     let fireResistant = heroLavaProperty(state, FIRE_RES);

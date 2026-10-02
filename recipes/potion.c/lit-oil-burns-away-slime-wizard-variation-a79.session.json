@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 74028020,
+      "datetime": "20261002141300",
+      "nethackrc": "OPTIONS=name:A79BurnCureVar,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " #wizintrinsic\nc\n #wizwish\nblessed lit potion of oil\nqp"
+    }
+  ],
+  "_comment": "Cheap independent role/beatitude variation for the source-defined lit-oil cure route. C's potion.c:peffect_oil tests lamplit before cursed/ordinary taste and always calls burn_away_slime in that branch; this Wizard uses blessed oil to verify the same cure path under a second valid starting role. Seed 74028020 and clock were selected independently before any JavaScript comparison. C displayed the wished blessed lit oil under its randomized inventory description in slot p; qp selects that recorded object through the ordinary quaff command."
+}

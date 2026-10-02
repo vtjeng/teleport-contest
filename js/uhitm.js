@@ -495,7 +495,7 @@ import {
 import { acurr } from './attrib.js';
 import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
-import { make_blinded, potionhit } from './potion.js';
+import { make_blinded, make_slimed, potionhit } from './potion.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { night } from './calendar.js';
 import {
@@ -1440,7 +1440,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                         // not displayed.
                         if (turns !== 0) state.nomovemsg = slimeMessage;
                         if (!heroUnchanging(state))
-                            note_unported('potion.c make_slimed');
+                            await make_slimed(5, null, state, env);
                     } else {
                         await exercise(A_CON, true, state, random, env);
                     }

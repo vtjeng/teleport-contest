@@ -651,7 +651,7 @@ export async function explode(
             if (doHallu) str = hallucinatoryExplosion(state, env);
             await messageLine(`You are caught in the ${str}!`, state, env);
         }
-        if (adtyp === AD_FIRE) await burn_away_slime(state);
+        if (adtyp === AD_FIRE) await burn_away_slime(state, env);
         if (propertyActive(state, INVULNERABLE)) {
             damu = 0;
             await messageLine('You are unharmed!', state, env);

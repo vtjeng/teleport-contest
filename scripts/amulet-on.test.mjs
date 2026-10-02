@@ -6,10 +6,12 @@
 // and the constants they reference.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
     FLYING,
+    SLIMED,
     SLEEPY,
     STRANGLED,
     TIMEOUT,
@@ -269,15 +271,25 @@ test('Amulet_on throws for MAGICAL_BREATHING', async () => {
     );
 });
 
-test('Amulet_on throws for UNCHANGING', async () => {
+test('Amulet_on clears Slimed for UNCHANGING', async () => {
     await initGame('amulet of unchanging');
     game.uamul = null;
 
     const amul = syntheticAmulet(AMULET_OF_UNCHANGING);
-    await assert.rejects(
-        () => Amulet_on(amul, game),
-        refusal(UnsupportedAccessoryOnError, 'AMULET_OF_UNCHANGING'),
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/do_wear.c', import.meta.url),
+        'utf8',
     );
+    assert.match(cSource,
+        /case AMULET_OF_UNCHANGING:\s*if \(Slimed\)\s*make_slimed\(0L, \(char \*\) 0\);/u);
+    game.u.uprops[SLIMED].intrinsic = 17;
+    game.disp.botl = false;
+
+    await Amulet_on(amul, game);
+
+    assert.equal(game.u.uprops[SLIMED].intrinsic & TIMEOUT, 0,
+        'the worn amulet cures the active slime timer');
+    assert.equal(game.uamul, amul, 'the unchanging amulet stays worn');
 });
 
 test('Amulet_on throws for CHANGE', async () => {

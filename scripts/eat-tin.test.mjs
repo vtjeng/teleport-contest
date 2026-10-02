@@ -14,9 +14,10 @@ import {
     OBJ_FLOOR,
     ROTTEN_TIN,
     RANDOM_TIN,
-    SICK,
     SLIMED,
+    SICK,
     STONED,
+    TIMEOUT,
     VOMITING,
 } from '../js/const.js';
 import {
@@ -34,6 +35,7 @@ import {
     PM_GENETIC_ENGINEER,
     PM_KOBOLD,
     PM_LIZARD,
+    PM_GREEN_SLIME,
     monst_globals_init,
 } from '../js/monsters.js';
 import { GameMap } from '../js/game.js';
@@ -41,6 +43,8 @@ import { init_objects } from '../js/o_init.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { newObject } from '../js/obj.js';
 import { objects_globals_init, AXE, DAGGER, TIN, TIN_OPENER } from '../js/objects.js';
+import { find_delayed_killer } from '../js/end.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 
 const EAT_C = readFileSync(
     new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
@@ -200,6 +204,59 @@ test('start_tin names carried openers with eat.c yobjnam wording', async () => {
         ['Using your axe you try to open the tin.']);
     assert.deepEqual(axe.randomBounds, []);
 });
+
+test('consume_tin runs green-slime cprefx after charge and before cpostfx',
+    async () => {
+        const source = EAT_C.slice(
+            EAT_C.indexOf('consume_tin(const char *mesg)'),
+            EAT_C.indexOf('\n}\n', EAT_C.indexOf('consume_tin(const char *mesg)')),
+        );
+        assert.match(source,
+            /tin\s*=\s*svc\.context\.tin\.tin\s*=\s*costly_tin\(COST_OPEN\)[\s\S]*?cprefx\(mnum\);[\s\S]*?if \(svc\.context\.tin\.tin\)[\s\S]*?cpostfx\(mnum\);/u);
+        const jsSource = readFileSync(
+            new URL('../js/eat.js', import.meta.url), 'utf8',
+        );
+        const jsStart = jsSource.indexOf('async function consume_tin(');
+        const jsEnd = jsSource.indexOf('\n}\n', jsStart);
+        const jsBody = jsSource.slice(jsStart, jsEnd);
+        assert.ok(jsBody.indexOf('costly_tin(COST_OPEN, state)')
+            < jsBody.indexOf('await cprefx(monsterNumber, state, eatEnv)'));
+        assert.ok(jsBody.indexOf('await cprefx(monsterNumber, state, eatEnv)')
+            < jsBody.indexOf('await cpostfx(monsterNumber, state, eatEnv)'));
+
+        const { state, opener } = tinOpenerState(TIN_OPENER);
+        // The blessed homemade tin removes tin-variety randomness. C's
+        // cpostfx still runs corpse_intrinsic after cprefx; seed that existing
+        // global RNG owner so its source-order draw can be pinned separately.
+        initRng(6600);
+        enableRngLog();
+        state.u.uhunger = 800;
+        state.u.uprops[SLIMED] = { intrinsic: 0, extrinsic: 0 };
+        const tin = opener.nobj;
+        tin.corpsenm = PM_GREEN_SLIME;
+        tin.blessed = true;
+        // A blessed tin opener opens the blessed food tin immediately; the
+        // blessed homemade variety avoids the spoilage draw in tin_variety.
+        opener.blessed = true;
+        set_tin_variety(tin, HOMEMADE_TIN, { state });
+        cmdq_add_key(CQ_CANNED, 'y'.charCodeAt(0), state);
+        const messages = [];
+        await use_tin_opener(opener, state, {
+            message: async (line) => messages.push(line),
+            statusRefresh: async () => {},
+        });
+
+        assert.equal(state.u.uprops[SLIMED].intrinsic & TIMEOUT, 10);
+        assert.equal(find_delayed_killer(SLIMED, state)?.name, '');
+        assert.ok(messages.includes("You don't feel very well."));
+        assert.ok(messages.indexOf(
+            "You don't feel very well.",
+        ) > messages.findIndex((line) => line.includes('You consume')));
+        assert.equal(state.context.tin.tin, null);
+        assert.deepEqual(getRngLog(), [
+            'rn2(1)=0', 'rn2(2)=1', 'rn2(15)=10', 'rn2(3)=1', 'd(3,6)=15',
+        ], 'cprefx precedes the C cpostfx corpse-intrinsic draw chain');
+    });
 
 function popeyeState({
     corpsenm = NON_PM,
