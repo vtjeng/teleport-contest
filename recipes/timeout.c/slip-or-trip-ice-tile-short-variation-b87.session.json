@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Retained non-covering B87 variation: debug-mode Valkyrie, seed 364277, and clock 20540705080000 were chosen independently to vary the role and setup. The C recording matches, but Valkyrie's level-one cold resistance makes hack.c:slippery_ice_fumbling() skip its cold check; the final eastward step has no slip_or_trip RNG or call. Keep this as a documented no-op, not helper-runtime evidence.",
+  "segments": [
+    {
+      "seed": 364277,
+      "datetime": "20540705080000",
+      "nethackrc": "OPTIONS=name:B87IceShortVariation,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nice\nl"
+    }
+  ]
+}

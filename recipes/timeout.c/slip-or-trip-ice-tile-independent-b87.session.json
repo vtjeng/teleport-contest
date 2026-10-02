@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked B87 continuation: the C recording reaches timeout.c:slip_or_trip, but its final return move stops in JavaScript at the existing hack.c:test_move() door or special-terrain boundary. Keep the original C/JS mismatch in scratch evidence; this is not a passing recording. A debug-mode Valkyrie wishes ice, steps west, arms Fumbling, then tries to return east.",
+  "segments": [
+    {
+      "seed": 901453,
+      "datetime": "20471106081315",
+      "nethackrc": "OPTIONS=name:B87IceFumble,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nice\nh#wizintrinsic\n>1s\n l"
+    }
+  ]
+}

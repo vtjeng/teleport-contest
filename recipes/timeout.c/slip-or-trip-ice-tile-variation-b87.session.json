@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked B87 continuation: this independently chosen Samurai recording reaches timeout.c:slip_or_trip, but its final return move stops in JavaScript at the existing hack.c:test_move() door or special-terrain boundary. Keep the original C/JS mismatch in scratch evidence; this is not a passing recording. The original inputs wish ice, move east, arm Fumbling, then try to return west.",
+  "segments": [
+    {
+      "seed": 346901,
+      "datetime": "20510214092741",
+      "nethackrc": "OPTIONS=name:B87IceFumbleVariation,role:Samurai,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nice\nl#wizintrinsic\n>1s\n h"
+    }
+  ]
+}

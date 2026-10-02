@@ -1145,10 +1145,12 @@ export function redraw_cmd(c, state = game) {
 // C ref: cmd.c confdir() (4300-4310). Cardinal directions occupy the first
 // half of dirs_ord[], which preserves the distinct draw range for NODIAG
 // forms.
-export function confdir(force_impairment, state = game) {
+export function confdir(force_impairment, state = game, { random = null } = {}) {
     if (force_impairment || u_maybe_impaired(state)) {
         const kmax = NODIAG(state.u.umonnum) ? N_DIRS / 2 : N_DIRS;
-        const k = dirs_ord[rn2(kmax)];
+        // cmd.c confdir() uses the active game RNG. Planners can supply their
+        // cloned RNG while ordinary callers keep the existing live owner.
+        const k = dirs_ord[random ? random.rn2(kmax) : rn2(kmax)];
         state.u.dx = xdir[k];
         state.u.dy = ydir[k];
     }

@@ -6,7 +6,7 @@ import { closeSync, existsSync, fsyncSync, mkdirSync, openSync,
     readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
-import { validatePortEvidence } from './port-evidence.mjs';
+import { sourceUnitKey, validatePortEvidence } from './port-evidence.mjs';
 import { BOOKKEEPING_FILES, executionTree } from './checkpoint-reuse.mjs';
 import { validInvestigation } from './investigation-cache.mjs';
 import { corpusDigest, validateEvaluation } from './challenge-results.mjs';
@@ -138,40 +138,50 @@ function scopeEvidence(root, commit, task, packet) {
     if (task.kind === 'challenge-preparation') return challengeEvidence(root, commit, task, packet);
     const context = packet.context;
     check(context?.goal === task.goal, 'task context names a different goal');
-    check(Array.isArray(context.functions) && context.functions.length > 0
+    check(Array.isArray(context.functions)
+        && (context.functions.length > 0 || context.requiredFunctions?.length > 0)
         && context.functions.every(name => typeof name === 'string'), 'context needs planned source functions');
     check(typeof packet.entryPointReview === 'string' && packet.entryPointReview.trim(), 'missing entryPointReview');
     check(Array.isArray(packet.entryPoints), 'missing entryPoints array');
     const lua = context.kind === 'lua-port';
     check(['lua-port', 'file-port', 'divergence-fix'].includes(context.kind), 'unsupported context kind');
     const file = lua ? context.luaFile : context.cFile;
-    for (const name of context.functions) check(task.reservations.includes(lua
-        ? `source:${file}` : `source:${file}:${name}`), `unreserved source function: ${file}:${name}`);
     const goal = { kind: lua ? 'lua-port' : 'file-port', cFile: context.cFile,
-        luaFile: context.luaFile, functions: context.functions.map(name => ({ name })) };
+        luaFile: context.luaFile, functions: context.functions.map(name => ({ name })),
+        requiredFunctions: context.requiredFunctions ?? [] };
+    check(Array.isArray(goal.requiredFunctions), 'requiredFunctions must be an array');
+    const planned = new Set([
+        ...context.functions.map(name => sourceUnitKey(goal, { name })),
+        ...goal.requiredFunctions.map(entry => sourceUnitKey(goal, entry)),
+    ]);
+    for (const key of planned) check(task.reservations.includes(lua
+        ? `source:${file}` : `source:${key}`), `unreserved source function: ${key}`);
     const evidence = validatePortEvidence(goal, packet, { root, commit });
-    const verified = new Set(evidence.functions.map(entry => entry.name));
+    const verified = new Set(evidence.functions.map(entry => sourceUnitKey(goal, entry)));
     const incomplete = packet.incompleteFunctions ?? [];
     check(Array.isArray(incomplete), 'incompleteFunctions must be an array');
     const blocked = new Set();
     for (const entry of incomplete) {
-        check(typeof entry?.name === 'string' && context.functions.includes(entry.name)
-            && !verified.has(entry.name) && !blocked.has(entry.name),
+        const key = sourceUnitKey(goal, entry ?? {});
+        check(typeof entry?.name === 'string' && planned.has(key)
+            && !verified.has(key) && !blocked.has(key),
         'incomplete function must name one unverified planned source function');
         check(typeof entry.reason === 'string' && entry.reason.trim(),
             `${entry.name} needs a source-based blocker reason`);
         const recipe = entry.blockedRecipe;
-        const recipePrefix = `recipes/${file}/`;
+        const owner = entry.sourceFile ?? file;
+        const recipePrefix = `recipes/${owner}/`;
         check(typeof recipe === 'string' && recipe.startsWith(recipePrefix)
             && /^[A-Za-z0-9][A-Za-z0-9._-]*\.session\.json$/u.test(recipe.slice(recipePrefix.length))
             && git(root, 'ls-tree', commit, '--', recipe).startsWith('100644 blob '),
-        `${entry.name} needs a committed blocked recipe under recipes/${file}/`);
-        blocked.add(entry.name);
+        `${entry.name} needs a committed blocked recipe under recipes/${owner}/`);
+        blocked.add(key);
     }
-    check(isDeepStrictEqual(context.functions.filter(name => !verified.has(name)).sort(),
+    check(isDeepStrictEqual([...planned].filter(key => !verified.has(key)).sort(),
         [...blocked].sort()), 'every unverified planned source function needs a blocker record');
     const evidencedEntry = packet.entryPoints.some(entry =>
-        entry.functions?.some(name => blocked.has(name))
+        entry.functions?.some(unit => blocked.has(sourceUnitKey(goal,
+            typeof unit === 'string' ? { name: unit } : unit)))
         && ((entry.recordings?.length ?? 0) > 0
             || (entry.synthetic?.length ?? 0) > 0));
     const freshReplay = packet.checks.some(item =>

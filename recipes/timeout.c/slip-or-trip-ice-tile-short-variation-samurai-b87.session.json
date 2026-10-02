@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B87 cheap role variation: debug-mode Samurai, seed 364277, and clock 20540705080000 vary the role from the Monk witness while keeping an independently chosen setup. attrib.c:sam_abil gives Samurai level-one speed, not cold resistance, so the trace reaches hack.c:slippery_ice_fumbling() and timeout.c:slip_or_trip() on wished ice. Stop after one eastward step, before the later hack.c:test_move() special-terrain boundary.",
+  "segments": [
+    {
+      "seed": 364277,
+      "datetime": "20540705080000",
+      "nethackrc": "OPTIONS=name:B87IceSamurai,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!debug_mongen\n",
+      "moves": " #wizwish\nice\nl"
+    }
+  ]
+}

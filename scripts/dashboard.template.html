@@ -1161,17 +1161,21 @@ document.getElementById('stats').innerHTML = [
   const files = new Map();
   work.forEach(goal => {
     if (!goal.sourceFile) return;
-    if (!files.has(goal.sourceFile)) {
-      files.set(goal.sourceFile, { sourceFile: goal.sourceFile, goalsClosed: 0,
-        active: 0, paused: 0, queued: 0, units: new Map() });
-    }
-    const file = files.get(goal.sourceFile);
-    if (goal.status === 'closed') file.goalsClosed += 1;
-    if (goal.status === 'open') file.active += 1;
-    if (goal.status === 'parked') file.paused += 1;
-    if (goal.status === 'queued') file.queued += 1;
-    goal.units.forEach(unit => file.units.set(unit.name,
-      Boolean(file.units.get(unit.name) || unit.verified)));
+    const owners = new Set([goal.sourceFile, ...goal.units.map(unit => unit.sourceFile || goal.sourceFile)]);
+    owners.forEach(owner => {
+      if (!files.has(owner)) {
+        files.set(owner, { sourceFile: owner, goalsClosed: 0,
+          active: 0, paused: 0, queued: 0, units: new Map() });
+      }
+      const file = files.get(owner);
+      if (goal.status === 'closed') file.goalsClosed += 1;
+      if (goal.status === 'open') file.active += 1;
+      if (goal.status === 'parked') file.paused += 1;
+      if (goal.status === 'queued') file.queued += 1;
+      goal.units.filter(unit => (unit.sourceFile || goal.sourceFile) === owner)
+        .forEach(unit => file.units.set(unit.name,
+          Boolean(file.units.get(unit.name) || unit.verified)));
+    });
   });
   const table = document.getElementById('sourceWorkTable');
   document.getElementById('sourceWorkLegend').innerHTML = '';

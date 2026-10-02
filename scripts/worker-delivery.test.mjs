@@ -30,7 +30,9 @@ function fixture(t) {
     mkdirSync(join(cRoot, 'src'));
     // A second source function lets partial deliveries keep an honest blocked unit.
     writeFileSync(join(cRoot, 'src/sample.c'), 'int\nsample(void)\n{\n    return 1;\n}\nint\nother(void)\n{\n    return 2;\n}\n');
-    git(cRoot, 'add', 'src/sample.c'); git(cRoot, 'commit', '-qm', 'source fixture');
+    // A same-named function from a second file exposes owner collisions.
+    writeFileSync(join(cRoot, 'src/foreign.c'), 'int\nsample(void)\n{\n    return 3;\n}\n');
+    git(cRoot, 'add', 'src/sample.c', 'src/foreign.c'); git(cRoot, 'commit', '-qm', 'source fixture');
     git(root, '-c', 'protocol.file.allow=always', 'submodule', 'add', '-q', cRoot, 'nethack-c/upstream');
     for (const dir of ['js', 'scripts', 'sessions']) mkdirSync(join(root, dir));
     writeFileSync(join(root, '.gitignore'), '.cache/\n');
@@ -804,4 +806,35 @@ test('repairing an earlier submission excludes the next task and unblocks its de
     f.git(f.root, 'cherry-pick', repair);
     assert.equal(f.success(['preflight', '--task', 'A-2']).passed, true);
     f.event({ type: 'integrating', task: 'A-2', integration: f.git(f.root, 'rev-parse', 'HEAD') });
+});
+
+test('required functions need their own source reservation and blocked recipe owner', (t) => {
+    const f = fixture(t); f.assign(); f.artifacts(); f.commit();
+    const contextPath = join(f.workers.A, '.cache/context.json');
+    const context = JSON.parse(readFileSync(contextPath, 'utf8'));
+    context.requiredFunctions = [{ sourceFile: 'foreign.c', name: 'sample' }];
+    writeFileSync(contextPath, JSON.stringify(context));
+    const evidencePath = join(f.workers.A, '.cache/evidence.json');
+    const evidence = JSON.parse(readFileSync(evidencePath, 'utf8'));
+    evidence.functions.push({ ...evidence.functions[0], sourceFile: 'foreign.c' });
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    assert.match(f.run(f.submitArgs, f.workers.A).stderr, /unreserved source function: foreign.c:sample/u);
+    f.event({ type: 'scope', task: 'A-1', reservations: ['source:sample.c:sample', 'source:foreign.c:sample'],
+        allowedPaths: ['js/sample.js', 'scripts/sample.test.mjs', 'recipes/sample.c/', 'recipes/foreign.c/'] }, f.workers.A);
+    evidence.functions.pop();
+    evidence.incompleteFunctions = [{ sourceFile: 'foreign.c', name: 'sample',
+        reason: 'Foreign caller stops before the helper.', blockedRecipe: 'recipes/sample.c/blocked.session.json' }];
+    for (const owner of ['sample.c', 'foreign.c']) {
+        mkdirSync(join(f.workers.A, 'recipes', owner), { recursive: true });
+        writeFileSync(join(f.workers.A, 'recipes', owner, 'blocked.session.json'),
+            JSON.stringify({ seed: 73, moves: '.' })); // Independent fixture recipe, not corpus input.
+    }
+    f.git(f.workers.A, 'add', 'recipes/sample.c/blocked.session.json', 'recipes/foreign.c/blocked.session.json');
+    f.git(f.workers.A, 'commit', '-qm', 'blocked foreign fixture');
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    assert.match(f.run(f.submitArgs, f.workers.A).stderr, /recipes\/foreign.c\//u);
+    evidence.incompleteFunctions[0].blockedRecipe = 'recipes/foreign.c/blocked.session.json';
+    writeFileSync(evidencePath, JSON.stringify(evidence));
+    const submitted = f.success(f.submitArgs, f.workers.A);
+    assert.equal(submitted.tasks['A-1'].status, 'ready');
 });

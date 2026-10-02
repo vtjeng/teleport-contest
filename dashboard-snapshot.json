@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T10:24:04.943Z",
+  "capturedAt": "2026-10-02T11:18:47.948Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -15397,12 +15397,69 @@
         "type": "accepted",
         "at": "2026-10-02T10:23:44.308Z",
         "task": "A78"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A78-published-11b45fa6",
+        "type": "published",
+        "at": "2026-10-02T10:24:19.799Z",
+        "task": "A78",
+        "commit": "11b45fa6ca544059fc4b6fc3e724917a34e79823"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-A79-make-slimed-v18-20261002",
+        "type": "assign",
+        "at": "2026-10-02T10:31:30.090Z",
+        "task": "A79",
+        "worker": "A2",
+        "goal": "port-potion-make-slimed-v18-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-835e6808a574fb17597fdb6fc4cf04618f4b2661",
+        "type": "ready",
+        "at": "2026-10-02T11:01:54.749Z",
+        "task": "B87",
+        "delivery": "835e6808a574fb17597fdb6fc4cf04618f4b2661"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-received-B87-835e6808",
+        "type": "received",
+        "at": "2026-10-02T11:03:11.650Z",
+        "task": "B87",
+        "delivery": "835e6808a574fb17597fdb6fc4cf04618f4b2661"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B87-integrating-1c3a2e71",
+        "type": "integrating",
+        "at": "2026-10-02T11:06:23.411Z",
+        "task": "B87",
+        "integration": "1c3a2e71ab9691a383e5b52a24e5243a07620bb5"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B87-validated-1c3a2e71",
+        "type": "validated",
+        "at": "2026-10-02T11:18:25.929Z",
+        "task": "B87",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B87-accepted-1c3a2e71",
+        "type": "accepted",
+        "at": "2026-10-02T11:18:26.369Z",
+        "task": "B87"
       }
     ]
   },
   "development": {
-    "executionCommit": "35c50b07a51f3af4d84690b160c36db5ec874540",
-    "measuredAt": "2026-10-02T10:19:00.464Z",
+    "executionCommit": "1c3a2e71ab9691a383e5b52a24e5243a07620bb5",
+    "measuredAt": "2026-10-02T11:13:24.742Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
