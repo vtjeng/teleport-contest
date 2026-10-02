@@ -144549,7 +144549,7 @@
     {
       "id": "port-do-wear-ring-on-v19-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete ring-on effects and source-ordered worn-ring callbacks",
       "cFile": "do_wear.c",
       "sessions": [
@@ -144564,8 +144564,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "c96e70bb677da6dc746034cab4f517fd9487de30",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "Ring_on",
@@ -144973,6 +144976,12 @@
         ],
         "entryPointReview": "Helper-only primary unit: entryPoints is empty. The production #wear/#puton dispatcher calls Ring_on from accessory_or_armor_on after setworn; the two admitted v19 cases execute this path at segment 0 steps 51-53 and 52-54, respectively, and cover the below-threshold and warning-threshold monster cases. Startup moveloop_preamble calls set_wear(NULL); ordinary role inventories do not begin with worn rings, while the source-ordered ring dispatch and initial_don lifetime are pinned by scripts/wear-armor.test.mjs. read.c:recharge also calls Ring_on after restoring a worn ring; its pre-existing charging-worn-adornment-ring recording is cited above. zap.c:poly_obj calls set_wear after transforming an item; B90 wires only the target W_RING arm and the focused source/runtime test calls poly_obj directly. The outer potion.c:potion_dip JavaScript path is still unported, so the test does not claim that production entry path. mhitu.c:doseduce is another C caller, but its JavaScript entry remains blocked by the existing AD_SSEX/seduction gaps; no completion is claimed for those callers. The existing see_monsters warning-artifact count-change limitation and the discarded display.c:set_mimic_blocking call remain precisely bounded gaps; B90 claims no display.c completion. Current implemented planning callers cannot replace a worn ring with a levitation ring: bhito polymorph production callers provide floor objects; carried stone-to-flesh rings become MEAT_RING; polymorph-trap callers convert footwear. The bhito impossible-location diagnostic continues and is not an early refusal. Random worn-ring replacement through potion_dip and seduction doseduce remain unimplemented outer paths. Before enabling those planning paths, route float_up output through the proper planning environment: planningState currently shares nhDisplay, and ttyPlineCore guards only live vision/flush, not direct display writes. No general float_up planning-safety claim is made.",
         "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c96e70bb677da6dc746034cab4f517fd9487de30",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
