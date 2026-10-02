@@ -268,7 +268,7 @@ import {
     remove_worm,
     wormgone,
 } from './worm.js';
-import { expels, m_next2u } from './mhitu.js';
+import { expels, gazemu, m_next2u } from './mhitu.js';
 import {
     always_hostile,
     amphibious,
@@ -3648,13 +3648,13 @@ async function m_respond_shrieker(monster, rawEnv = {}) {
     aggravate(state, random);
 }
 
-// C ref: mon.c m_respond_medusa(). gazemu() is outside this span and returns
-// a value that C explicitly discards; recording the gap preserves the call
-// boundary without inventing its gaze damage or random draws.
-function m_respond_medusa(monster) {
+// C ref: mon.c m_respond_medusa() (4109-4120). The first gaze slot is run in
+// attack order; C discards gazemu()'s result but completes its effects before
+// m_respond() continues to the Erinys branch.
+async function m_respond_medusa(monster, rawEnv = {}) {
     for (const attack of monster.data?.mattk ?? []) {
         if (attack.aatyp === AT_GAZE) {
-            note_unported('mhitu.c gazemu');
+            await gazemu(monster, attack, rawEnv);
             break;
         }
     }
@@ -3670,7 +3670,7 @@ export async function m_respond(monster, rawEnv = {}) {
     }
     if (monster.data === state.mons?.[PM_MEDUSA]
         && couldsee(monster.mx, monster.my, state)) {
-        m_respond_medusa(monster);
+        await m_respond_medusa(monster, rawEnv);
     }
     if (monster.data === state.mons?.[PM_ERINYS]
         && !monster.mpeaceful && m_canseeu(monster, state)) {

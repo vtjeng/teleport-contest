@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first correction frozen from the prior C-only map: C showed a hostile Trapper next to the Wizard, and the prior `y` action moved the Wizard northwest away. This input keeps the independently chosen seed/options and waits one turn in place so C can execute the adjacent AT_ENGL/AD_WRAP route through mhitu.c:mattacku -> mhitu.c:gulpmu. This correction was selected before JavaScript comparison; record the actual source outcome or target miss.",
+  "segments": [
+    {
+      "seed": 347199232,
+      "datetime": "21121007091500",
+      "nethackrc": "OPTIONS=name:C62Trapper,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile Trapper\n."
+    }
+  ]
+}

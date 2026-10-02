@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    INVIS,
     MS_SHRIEK,
+    REFLECTING,
     STRAT_APPEARMSG,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
@@ -21,6 +23,7 @@ import {
     G_UNIQ,
     PM_GNOME,
     PM_JACKAL,
+    PM_MEDUSA,
     PM_SHRIEKER,
     PM_WATCHMAN,
 } from '../js/monsters.js';
@@ -163,15 +166,28 @@ test('peacefuls_respond warns a watch guard and angers the watch', async () => {
     assert.ok(!game.unported.has('mon.c angry_guards'));
 });
 
-test('m_respond_medusa records gazemu without inventing gaze effects', async () => {
+test('m_respond awaits a reflected Medusa gaze before continuing', async () => {
     await hero();
-    const medusa = prepend(monster(game.mons[284].pmidx));
+    // NewMonster's source test fixture exposes the named proper-name gender
+    // bit explicitly; C's PMFEMALE Medusa is referred to as "her" by mhis().
+    const medusa = prepend(monster(PM_MEDUSA, { female: true }));
+    // A source-valid invisible hero can reflect an on-screen Medusa gaze
+    // without the Medusa perceiving the hero, selecting C's no-notice branch.
+    game.u.uprops[INVIS].intrinsic = 1;
+    game.u.uprops[REFLECTING].intrinsic = 1;
+    const lines = [];
+    const draws = [];
     await m_respond(medusa, {
         state: game,
-        random: { rn2: () => 1 },
-        message: async () => {},
+        random: { rn2: (bound) => { draws.push(bound); return 1; } },
+        message: async (line) => lines.push(line),
     });
-    assert.ok(game.unported.has('mhitu.c gazemu'));
+
+    assert.deepEqual(lines, [
+        "Medusa doesn't seem to notice that her gaze was reflected.",
+    ]);
+    assert.deepEqual(draws, []);
+    assert.ok(!game.unported.has('mhitu.c gazemu'));
 });
 
 test('wake_nearto_core clears sleep and wait strategy, including pet whistle state', async () => {

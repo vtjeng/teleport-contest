@@ -80,7 +80,6 @@ import { losehp } from '../js/hack.js';
 import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    AT_CLAW,
     AT_GAZE,
     AT_NONE,
     AT_WEAP,
@@ -4267,67 +4266,41 @@ test('the planning clone gives each monster its own pack and weapon',
         assert.equal(dagger.ocarry, target.monster);
     });
 
-test('an in-range monster with a ranged attack stops the scan', async () => {
+test('an in-range gazing monster reaches gazemu through the planned scan', async () => {
     // C ref: monmove.c:965-975 with mhitu.c mattacku(). A monster that only
     // believes it is near the hero still reaches mattacku(), where the range2
     // arms are AT_BREA's breamu(), AT_SPIT's spitmu() and AT_GAZE's gazemu().
-    // Gaze remains unported, while spit now reaches mthrowu.c's venom path.
-    // dochug()'s gate used to admit an adjacent attacker only, so the ranged
-    // arms previously passed through in silence.
-    // `slot` is the mattk index the ranged attack occupies. The first three
-    // rows put it at index 0, where mattacku()'s loop finds it on its first
-    // pass. The fourth puts it in the last slot, which is what makes the
-    // six-slot fixture below load-bearing: the loop has to walk every slot
-    // C allocates to reach it.
-    // AT_BREA and AT_SPIT are now ported (breamu/spitmu) through their
-    // missile paths; AT_GAZE still rejects at its own source seam.
-    for (const [name, aatyp, reason, slot] of [
-        ['gaze', AT_GAZE, 'a monster gazing at the hero', 0],
-    ]) {
-        const target = await prepareSelectedAction();
-        // The fixture leaves exactly one legal step. Closing it makes
-        // mfndpos() find no candidate, so m_move() returns MMOVE_NOMOVES and
-        // dochug() reaches its standard-attack gate with the monster at a
-        // ranged distance from the hero: in range, and not adjacent.
-        const step = game.level.at(target.destinationX, target.heroY);
-        step.typ = STONE;
-        step.flags = step.doormask = 0;
-        // permonst.h:48 gives every species NATTK slots and mhitu.c
-        // mattacku():581 indexes all six through getmattk(), so the unused
-        // ones are spelled out rather than left off the end. A fixture that
-        // stops at the attack under test hands getmattk() an undefined slot
-        // the moment the loop steps past it, and the case then reports a
-        // TypeError in place of the refusal it asserts.
-        const mattk = Array.from({ length: NATTK }, () => (
-            { aatyp: AT_NONE, adtyp: 0, damn: 0, damd: 0 }
-        ));
-        // damn 1 and damd 2 are the smallest dice that make this a real
-        // attack; nothing on the path to the refusal rolls them.
-        mattk[slot] = { aatyp, adtyp: 0, damn: 1, damd: 2 };
-        // A hand-to-hand attack in slot 0, which is where the catalog puts
-        // one on the species that carry both. mattacku():613 gates the
-        // AT_CLAW arm on !range2, so at three squares it does nothing and
-        // refuses nothing, leaving the loop to carry on to the ranged attack.
-        if (slot > 0) {
-            mattk[0] = { aatyp: AT_CLAW, adtyp: 0, damn: 1, damd: 2 };
-        }
-        target.monster.data = { ...target.monster.data, mattk };
-        const before = completeSecondTurnSnapshot(game, target.replay);
+    // A gazing monster now reaches whole mhitu.c:gazemu. AD_TYP 255 is an
+    // intentionally out-of-domain synthetic value with no switch arm, so the
+    // C default calls discarded pline.c:impossible and returns M_ATTK_MISS;
+    // this checks the planner no longer refuses at the former gazemu stub.
+    const target = await prepareSelectedAction();
+    // The fixture leaves exactly one legal step. Closing it makes
+    // mfndpos() find no candidate, so m_move() returns MMOVE_NOMOVES and
+    // dochug() reaches the standard attack gate at range two.
+    const step = game.level.at(target.destinationX, target.heroY);
+    step.typ = STONE;
+    step.flags = step.doormask = 0;
+    // NATTK comes from permonst.h:48; fill all six slots because mattacku()
+    // calls getmattk() for each slot after the first synthetic gaze.
+    const mattk = Array.from({ length: NATTK }, () => (
+        { aatyp: AT_NONE, adtyp: 0, damn: 0, damd: 0 }
+    ));
+    // The synthetic AD_TYP 255 value leaves the source default branch as the
+    // target; its one die of two sides is not rolled by that branch.
+    mattk[0] = { aatyp: AT_GAZE, adtyp: 255, damn: 1, damd: 2 };
+    target.monster.data = { ...target.monster.data, mattk };
+    const before = completeSecondTurnSnapshot(game, target.replay);
 
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => (
-                error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === reason
-            ),
-            name,
-        );
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-            name,
-        );
-    }
+    game.unported = new Set();
+    await preflightSimpleMonsterActions(game);
+    assert.ok(game.unported.has('pline.c impossible'),
+        'gazemu records its discarded diagnostic at the source default');
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, target.replay),
+        before,
+        'planning keeps the live game and RNG unchanged',
+    );
 });
 
 test('the planning clone keeps the object catalog answering its aliases',

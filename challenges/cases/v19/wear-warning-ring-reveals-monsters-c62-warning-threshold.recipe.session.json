@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source-gate variation frozen after the slot-f/orc record reached Ring_on but the invisible orc failed display.h:mon_warning because m_lev/4=0 < svc.context.warnlevel=1. This input keeps the seed, date, role, ring wish, selector and other actions; it uses an invisible hostile ogre (C monst table LVL 5) so the integer condition is 5/4=1 and can pass. No JS result influenced the setup.",
+  "segments": [
+    {
+      "seed": 602101409,
+      "datetime": "20261002141000",
+      "nethackrc": "OPTIONS=name:C62RingAlert,role:Valkyrie,race:human,gender=female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017uncursed ring of warning\n\u0007invisible hostile ogre\nPfl"
+    }
+  ]
+}

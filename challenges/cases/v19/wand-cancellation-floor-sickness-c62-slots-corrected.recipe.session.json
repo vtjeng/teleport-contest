@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after the preceding C inventory and ray prompts: the wished cancellation wand is slot o and the smoky potion of sickness is slot p. Drop p, step north, then zap wand o south toward the potion square. These selector corrections come from C observations, not JavaScript output; preserve actual bhito/cancel_item reach or miss.",
+  "segments": [
+    {
+      "seed": 723098411,
+      "datetime": "21121010040700",
+      "nethackrc": "OPTIONS=name:C62FloorZap,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n\u0017wand of cancellation\n\u0017potion of sickness\ndpkzoj"
+    }
+  ]
+}

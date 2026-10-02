@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen before the corrected C recording and before any JavaScript comparison. The prior C attempt showed that the newline after choosing `a` selects temporary invulnerability and then produces `Timeout for invulnerable set to 30.--More--`; the next Control-G was swallowed by that pager. This recipe adds one newline at that C-observed boundary, then uses Control-G (cmd.c:1961 wizgenesis) to create hostile Yeenoghu. Debug mode, not the Valkyrie role, enables the WIZMODECMD. Preserve the actual source action and any further C pager observation.",
+  "segments": [
+    {
+      "seed": 915837241,
+      "datetime": "21110406081100",
+      "nethackrc": "OPTIONS=name:C62ConfW,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n\n\u0007hostile Yeenoghu\n...."
+    }
+  ]
+}

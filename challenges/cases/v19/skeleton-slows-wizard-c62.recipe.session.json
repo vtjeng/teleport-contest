@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 Skeleton candidate frozen before recording or JavaScript comparison. Create a hostile Skeleton through the debug Wizard genesis prompt and take eight source-approved wait actions with safe_wait disabled. The target is its second AT_TUCH/AD_SLOW attack in monsters.h:2495 through mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_SLOW) -> mhitm_ad_slow; preserve the actual weapon-hit prefix, resistance/negation gates, slow state or target miss.",
+  "segments": [
+    {
+      "seed": 741293608,
+      "datetime": "21121104102030",
+      "nethackrc": "OPTIONS=name:C62Skeleton,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile skeleton\n. . . . . . . ."
+    }
+  ]
+}

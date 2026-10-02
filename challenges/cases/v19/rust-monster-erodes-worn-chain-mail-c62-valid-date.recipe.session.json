@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first Rust Monster retry frozen before new recording or JS comparison. The prior recipe used invalid month 16 and its first control-W was consumed by the C welcome pager; this retry uses a valid fixed date and first dismisses that observed pager. Then wish uncursed +0 iron chain mail, remove the Wizard cloak, wear the suit, create a hostile Rust Monster, and wait with !safe_wait. Source target: mhitu.c:hitmu -> uhitm.c:mhitm_adtyping AD_RUST -> mhitm_ad_rust; verify the worn item and actual C erosion branch.",
+  "segments": [
+    {
+      "seed": 508147263,
+      "datetime": "21111210153000",
+      "nethackrc": "OPTIONS=name:C62RustArmor,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed +0 chain mail\nTbWo#wizgenesis\nhostile rust monster\n........"
+    }
+  ]
+}

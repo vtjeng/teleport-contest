@@ -1,7 +1,7 @@
 // mhitu.js -- Monsters attacking the hero.
 // C ref: mhitu.c -- hitmsg(), missmu(), mswings_verb(), mswings(), getmattk(),
 // calc_mattacku_vars(), mtrapped_in_pit(), mattacku(), magic_negation(),
-// could_seduce(), hitmu(), mdamageu(), ranged_attk_available(),
+// could_seduce(), hitmu(), gazemu(), mdamageu(), ranged_attk_available(),
 // passiveum(), and gulp_blnd_check().
 
 import {
@@ -11,6 +11,7 @@ import {
     BLINDED,
     COLD_RES,
     CONFLICT,
+    CONFUSION,
     DETECT_MONSTERS,
     DISPLACED,
     DIED,
@@ -30,6 +31,7 @@ import {
     MM_EDOG,
     MM_NOMSG,
     M_SEEN_COLD,
+    M_SEEN_FIRE,
     NATTK,
     NO_MINVENT,
     NEED_HTH_WEAPON,
@@ -39,10 +41,13 @@ import {
     P_WHIP,
     RLOC_NOMSG,
     SEE_INVIS,
+    STONING,
+    STUNNED,
     SHOCK_RES,
     STONE_RES,
     IS_WATERWALL,
     TT_PIT,
+    TIMEOUT,
     FAST,
     W_AMUL,
     W_ACCESSORY,
@@ -53,6 +58,11 @@ import {
     Upolyd,
     is_pit,
     u_at,
+    HALLUC,
+    HALLUC_RES,
+    REFLECTING,
+    KILLED_BY,
+    BOLT_LIM,
 } from './const.js';
 import { exercise, minuhpmax } from './attrib.js';
 // js/unported_monster_actions.js already imports allmain.js across the same
@@ -64,6 +74,7 @@ import {
     ART_SNICKERSNEE,
     ART_STORMBRINGER,
     ART_VORPAL_BLADE,
+    Stone_resistance,
     is_art,
     protects,
 } from './artifacts.js';
@@ -89,7 +100,7 @@ import {
 } from './do_name.js';
 import { initedog } from './dog.js';
 import { In_hell, on_level } from './dungeon.js';
-import { done_in_by } from './end.js';
+import { done, done_in_by } from './end.js';
 import { game } from './gstate.js';
 import { nomul, showdamage, spoteffects } from './hack.js';
 import { dist2, distmin, upstart } from './hacklib.js';
@@ -104,6 +115,7 @@ import {
 } from './mhitm.js';
 import {
     golemeffects,
+    killed,
     mon_to_stone,
     new_were,
     set_ustuck,
@@ -129,6 +141,7 @@ import {
     gender,
     mhis,
     monsndx,
+    monstseesu,
     monstunseesu,
     mon_hates_blessings,
     perceives,
@@ -140,11 +153,12 @@ import {
     unsolid,
     attacktype_fordmg,
     can_blnd,
+    resists_blnd,
 } from './mondata.js';
 import { monnear } from './monmove.js';
 import * as M from './monsters.js';
 import { find_offensive } from './muse.js';
-import { mon_reflects } from './muse.js';
+import { mon_reflects, ureflects } from './muse.js';
 import { makeplural } from './fruit.js';
 import { is_weptool, is_wet_towel, objectType, sobj_at } from './obj.js';
 import { place_monster, remove_monster } from './monst.js';
@@ -173,13 +187,29 @@ import {
     ttyUrgentPline,
 } from './tty_message.js';
 import { mhitm_adtyping, mhitm_knockback } from './uhitm.js';
-import { Cold_resistance, drain_item } from './zap.js';
-import { cansee, vision_recalc } from './vision.js';
+import { Cold_resistance, Fire_resistance, drain_item } from './zap.js';
+import {
+    cansee,
+    canseemon,
+    couldsee,
+    m_canseeu,
+    vision_recalc,
+} from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
 import { mnexto } from './teleport.js';
-import { poly_gender, rehumanize } from './polyself.js';
+import {
+    polymon,
+    poly_gender,
+    rehumanize,
+    ugolemeffects,
+} from './polyself.js';
+import { make_blinded, make_confused, make_stunned } from './potion.js';
+import { burnarmor } from './trap_erode_obj.js';
+import { destroy_items } from './zap_destroy_items.js';
+import { ignite_items } from './apply_catch_lit.js';
+import { burn_away_slime } from './timeout.js';
 import { note_unported } from './unported.js';
 import { heroDeaf, heroUnaware } from './pline.js';
 import { growl_sound } from './sounds.js';
@@ -204,11 +234,11 @@ export async function u_slow_down(state = game) {
 // carries the source DIED result across the atomic planning/live seam; it is
 // consumed by unported_monster_actions.js and is never a gameplay boundary.
 export class MonsterDeathPlanningError extends Error {
-    constructor(monster) {
+    constructor(monster, how = DIED) {
         super('the hero dying of a monster attack');
         this.name = 'MonsterDeathPlanningError';
         this.monsterId = monster.m_id;
-        this.how = DIED;
+        this.how = how;
     }
 }
 
@@ -935,15 +965,16 @@ export function mtrapped_in_pit(mtmp, state = game) {
 // C ref: mhitu.c mattacku() (491-951). "monster attacks you; returns 1 if
 // monster dies (e.g. 'yellow light'), 0 otherwise".
 //
-// The result is TRUE where C returns 1, which nothing reachable here can
-// produce: hitmu() answers M_ATTK_HIT on both of its paths, and gulpmu(),
-// explmu() and gazemu() all refuse. So every reachable exit answers false,
-// including the steed's own arm, which mhitu.c:532 returns 0 from.
+// This slice's AT_GAZE arm now calls gazemu(), but C excludes Medusa there:
+// mon.c:m_respond handles the only compiled AD_STON attacker first. The
+// reflected lethal gaze therefore remains in m_respond_medusa, not this
+// function's return. Other reachable exits in this partial port still answer
+// false, including the steed's own arm, which mhitu.c:532 returns 0 from.
 //
-// No ported caller reads the value today. dochug() awaits it and discards it,
-// which is faithful to C only because C's callers act on a bit this port
-// cannot yet set; the value is kept rather than dropped so that the arm which
-// will set it has somewhere to report.
+// C dochug() consumes mattacku()'s result to stop after attacker death. The
+// current JS dochug adapter still awaits and discards that separate result;
+// this task only fixes dochug's preceding response/death order seam and does
+// not claim the whole caller contract.
 //
 // Ported: the preamble, including the invulnerable-hero early return, the
 // u.usteed arm, the armor-class differential, the eel-reveal, the
@@ -1203,7 +1234,7 @@ export async function mattacku(monster, rawEnv = {}) {
             /* Medusa gaze already operated through m_respond in
                dochug(); don't gaze more than once per round. */
             if (mdat !== state.mons?.[M.PM_MEDUSA])
-                unsupported('a monster gazing at the hero');
+                sum[i] = await gazemu(monster, mattk, env);
             break;
 
         case M.AT_EXPL: /* automatic hit if next to, and aimed at you */
@@ -1790,6 +1821,313 @@ async function hitmu(mtmp, mattk, env) {
         res = M_ATTK_HIT;
     await mattackuStopOccupation(env);
     return res;
+}
+
+// C ref: mhitu.c:gazemu() (1668-1898). The ordinary compiled gaze effects
+// share their source resistance, cancellation, visible-reaction and occupation
+// order here. The #ifdef PM_BEHOLDER cases remain excluded just as upstream.
+export async function gazemu(monster, attack, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { d, rn1, rn2, rnd };
+    const message = rawEnv.message
+        ?? (rawEnv.planning ? async () => {} : ttyPline);
+    const urgentMessage = rawEnv.planning
+        ? async () => {}
+        : (rawEnv.urgentMessage ?? ttyUrgentPline);
+    const env = {
+        ...rawEnv,
+        state,
+        random,
+        message,
+        urgentMessage,
+        canSpotMonster: rawEnv.canSpotMonster ?? canSpotMonster,
+    };
+    const draw = (name, ...args) => {
+        if (typeof random[name] !== 'function')
+            throw new TypeError(`mhitu.c gazemu requires random.${name}`);
+        return random[name](...args);
+    };
+    const reactions = [
+        'confused', 'stunned', 'puzzled', 'dazzled',
+        'irritated', 'inflamed', 'tired', 'dulled',
+    ];
+    let react = -1;
+    let already = false;
+    const cancelledInitially = Boolean(monster.mcan);
+    const mcanseeu = canseemon(monster, state)
+        && couldsee(monster.mx, monster.my, state)
+        && monster.mcansee;
+
+    if ((monster.seen_resistance
+        & cvt_adtyp_to_mseenres(attack.adtyp)) !== 0) {
+        return M_ATTK_MISS;
+    }
+
+    const isMedusa = monster.data === state.mons?.[M.PM_MEDUSA];
+    const reflecting = state.u?.uprops?.[REFLECTING];
+    const reflectable = Boolean(reflecting?.intrinsic || reflecting?.extrinsic)
+        && couldsee(monster.mx, monster.my, state)
+        && isMedusa;
+    const hallucination = () => {
+        const property = state.u?.uprops?.[HALLUC];
+        const resistance = state.u?.uprops?.[HALLUC_RES];
+        return Boolean(property?.intrinsic)
+            && !(resistance?.intrinsic || resistance?.extrinsic);
+    };
+    let cancelled = cancelledInitially;
+    if ((hallucination() && draw('rn2', 4))
+        || (heroUnaware(state) && !reflectable)) {
+        cancelled = true;
+    }
+
+    switch (attack.adtyp) {
+    case M.AD_STON:
+        if (cancelled || !monster.mcansee) {
+            if (!canseemon(monster, state)) break;
+            if (heroUnaware(state)) {
+                react = isMedusa ? 4 : 2;
+                break;
+            }
+            if (isMedusa && hallucination() && !draw('rn2', 3)) {
+                await message(
+                    'Someone seems overdue for a serpent cut.', state, env,
+                );
+            } else {
+                await message(
+                    `${Monnam(monster, state, env)} gazes ineffectually.`,
+                    state,
+                    env,
+                );
+            }
+            break;
+        }
+        if (reflectable) {
+            const useeit = canseemon(monster, state);
+            if (useeit) {
+                await ureflects(
+                    '%s gaze is reflected by your %s.',
+                    monsterPossessive(monster, state, true, env),
+                    state,
+                    env,
+                );
+            }
+            if (await mon_reflects(
+                monster,
+                !useeit
+                    ? null
+                    : 'The gaze is reflected away by %s %s!',
+                state,
+                env,
+            )) {
+                break;
+            }
+            if (!m_canseeu(monster, state)) {
+                if (useeit) {
+                    await message(
+                        `${Monnam(monster, state, env)} doesn't seem to notice `
+                            + `that ${mhis(monster, env)} gaze was reflected.`,
+                        state,
+                        env,
+                    );
+                }
+                break;
+            }
+            if (useeit) {
+                await message(
+                    `${Monnam(monster, state, env)} is turned to stone!`,
+                    state,
+                    env,
+                );
+            }
+            state.gs ??= {};
+            state.gs.stoned = true;
+            await killed(monster, state, env);
+            if (monster.mhp > 0) break;
+            return M_ATTK_AGR_DIED;
+        }
+        if (canseemon(monster, state)
+            && couldsee(monster.mx, monster.my, state)
+            && !Stone_resistance(state)
+            && !heroUnaware(state)) {
+            await message(
+                `You meet ${monsterPossessive(monster, state)} gaze.`,
+                state,
+                env,
+            );
+            await mattackuStopOccupation(env);
+            if (poly_when_stoned(state.youmonst.data, state)
+                && await polymon(M.PM_STONE_GOLEM, state, env)) {
+                break;
+            }
+            await urgentMessage('You turn to stone...', state, env);
+            state.killer ??= {};
+            state.killer.format = KILLED_BY;
+            state.killer.name = pmname(monster.data, gender(monster));
+            if (rawEnv.planning)
+                throw new MonsterDeathPlanningError(monster, STONING);
+            await done(STONING, state, { ...env, fromMonster: true });
+        }
+        break;
+
+    case M.AD_CONF: {
+        if (mcanseeu && !monster.mspec_used && draw('rn2', 5)) {
+            if (cancelled) {
+                react = 0;
+                already = Boolean(monster.mconf);
+            } else {
+                const confusion = draw('d', 3, 4);
+                monster.mspec_used = (monster.mspec_used ?? 0)
+                    + confusion + draw('rn2', 6);
+                const property = state.u?.uprops?.[CONFUSION];
+                // include/youprop.h:84 defines Confusion as HConfusion only;
+                // an extrinsic property does not suppress this source message.
+                if (!property?.intrinsic) {
+                    await message(
+                        `${monsterPossessive(monster, state, true, env)} gaze `
+                        + 'confuses you!',
+                        state,
+                        env,
+                    );
+                } else {
+                    await message(
+                        'You are getting more and more confused.', state, env,
+                    );
+                }
+                await make_confused(
+                    (state.u?.uprops?.[CONFUSION]?.intrinsic ?? 0)
+                        + confusion,
+                    false,
+                    state,
+                    env,
+                );
+                await mattackuStopOccupation(env);
+            }
+        }
+        break;
+    }
+
+    case M.AD_STUN:
+        if (mcanseeu && !monster.mspec_used && draw('rn2', 5)) {
+            if (cancelled) {
+                react = 1;
+                already = Boolean(monster.mstun);
+            } else {
+                const stun = draw('d', 2, 6);
+                monster.mspec_used = (monster.mspec_used ?? 0)
+                    + stun + draw('rn2', 6);
+                await message(
+                    `${Monnam(monster, state, env)} stares piercingly at you!`,
+                    state,
+                    env,
+                );
+                const property = state.u?.uprops?.[STUNNED];
+                await make_stunned(
+                    ((property?.intrinsic ?? 0) & TIMEOUT) + stun,
+                    true,
+                    state,
+                    env,
+                );
+                await mattackuStopOccupation(env);
+            }
+        }
+        break;
+
+    case M.AD_BLND:
+        if (canseemon(monster, state)
+            && !resists_blnd(state.youmonst, state)
+            && mdistu(monster, state) <= BOLT_LIM * BOLT_LIM) {
+            if (cancelled) {
+                react = draw('rn1', 2, 2);
+                already = !monster.mcansee;
+                if (monster.mcan
+                    && monster.data === state.mons?.[M.PM_ARCHON]
+                    && draw('rn2', 5)) {
+                    react = -1;
+                }
+            } else {
+                const blinded = draw('d', attack.damn, attack.damd);
+                await message(
+                    `You are blinded by ${monsterPossessive(monster, state)}`
+                    + ' radiance!',
+                    state,
+                    env,
+                );
+                await make_blinded(blinded, false, state, env);
+                await mattackuStopOccupation(env);
+                if (!heroIsBlind(state)) {
+                    await message('Your vision clears.', state, env);
+                } else {
+                    const oldStun = (state.u?.uprops?.[STUNNED]?.intrinsic ?? 0)
+                        & TIMEOUT;
+                    await make_stunned(
+                        Math.max(oldStun, draw('rnd', 3)), true, state, env,
+                    );
+                }
+            }
+        }
+        break;
+
+    case M.AD_FIRE:
+        if (mcanseeu && !monster.mspec_used && draw('rn2', 5)) {
+            if (cancelled) {
+                react = draw('rn1', 2, 4);
+            } else {
+                const originalDamage = draw('d', 2, 6);
+                let damage = originalDamage;
+                const level = monster.m_lev;
+                await message(
+                    `${Monnam(monster, state, env)} attacks you`
+                    + ' with a fiery gaze!',
+                    state,
+                    env,
+                );
+                await mattackuStopOccupation(env);
+                if (Fire_resistance(state)) {
+                    await shieldeff(state.u.ux, state.u.uy, state);
+                    await message("The fire doesn't feel hot!", state, env);
+                    monstseesu(M_SEEN_FIRE, state);
+                    await ugolemeffects(M.AD_FIRE, draw('d', 12, 6), state);
+                    damage = 0;
+                } else {
+                    monstunseesu(M_SEEN_FIRE, state);
+                }
+                await burn_away_slime(state, env);
+                if (level > draw('rn2', 20))
+                    await burnarmor(state.youmonst, { ...env, random });
+                if (level > draw('rn2', 20)) {
+                    await destroy_items(
+                        state.youmonst, M.AD_FIRE, originalDamage,
+                        { ...env, random },
+                    );
+                    await ignite_items(state.invent, { ...env, random });
+                }
+                if (damage)
+                    await mdamageu(monster, damage, state, env);
+            }
+        }
+        break;
+
+    default:
+        // mhitu.c discards impossible()'s result; it is diagnostic-only.
+        note_unported('pline.c impossible');
+        break;
+    }
+
+    if (react >= 0) {
+        if (hallucination() && draw('rn2', 3))
+            react = draw('rn2', reactions.length);
+        const adjective = !draw('rn2', 3)
+            ? ''
+            : already ? 'quite '
+                : (!draw('rn2', 2) ? 'a bit ' : 'somewhat ');
+        await message(
+            `${Monnam(monster, state, env)} looks ${adjective}`
+                + `${reactions[react]}.`,
+            state,
+            env,
+        );
+    }
+    return M_ATTK_MISS;
 }
 
 // C ref: mhitu.c mdamageu() (1902-1927). "mtmp hits you for n points damage".

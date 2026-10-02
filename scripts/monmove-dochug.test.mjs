@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -1294,6 +1295,36 @@ test('dochug does not attack after m_move spends the action', async () => {
 });
 
 // ---- hostile mflee (monmove.c:745-760) ----
+
+test('dochug responds after the optional flee teleport and before item use', () => {
+    const cSource = readFileSync(new URL(
+        '../nethack-c/upstream/src/monmove.c', import.meta.url,
+    ), 'utf8');
+    const jsSource = readFileSync(new URL('../js/monmove.js', import.meta.url), 'utf8');
+    const cStart = cSource.indexOf('\ndochug(struct monst *mtmp)\n{');
+    const jsStart = jsSource.indexOf(
+        'export async function dochug(monster, rawEnv = {}) {',
+    );
+    assert.notEqual(cStart, -1, 'C source must contain the selected dochug definition');
+    assert.notEqual(jsStart, -1, 'JavaScript source must contain dochug');
+
+    const cRespond = cSource.indexOf('    m_respond(mtmp);', cStart);
+    const cDeathCheck = cSource.indexOf('    if (DEADMONSTER(mtmp))', cRespond);
+    const cRecovery = cSource.indexOf(
+        '    if (mtmp->mflee && !mtmp->mfleetim', cDeathCheck,
+    );
+    assert.ok(cRespond < cDeathCheck && cDeathCheck < cRecovery,
+        'monmove.c:dochug responds, checks death, then considers flee recovery');
+
+    const jsDochug = jsSource.slice(jsStart);
+    const jsResponse = jsDochug.indexOf('await m_respond(monster, env);');
+    const jsDeathCheck = jsDochug.indexOf('if (monster.mhp < 1) return 1;', jsResponse);
+    const jsItemUse = jsDochug.indexOf('if (await usePreMoveItems(monster, env))', jsDeathCheck);
+    assert.ok(jsResponse < jsDeathCheck && jsDeathCheck < jsItemUse,
+        'JavaScript responds and checks for death before pre-move item use');
+    assert.match(jsDochug, /if \(monster\.mflee\) \{[\s\S]*?\n    \}\n\n    \/\/ C ref: monmove\.c:753-755[\s\S]*?await m_respond\(monster, env\);/u,
+        'response must follow, rather than sit inside, the optional fleeing block');
+});
 
 test('dochug consumes rn2(40) for a fleeing hostile monster', async () => {
     // C ref: monmove.c:745.  Every fleeing monster draws rn2(40) for the

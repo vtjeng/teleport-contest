@@ -143081,6 +143081,326 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-mhitu-gazemu-pyrolisk-and-medusa-gazes-v18-20261002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port monster gazes and visible Medusa response",
+      "cFile": "mhitu.c",
+      "sessions": [
+        "synthetic/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time"
+      ],
+      "selectionReason": "Select whole mhitu.c:gazemu for synthetic/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time, which retains its missing non-Medusa gaze refusal at step32 in challenges/evaluations/20261002152420-v18.json. Port required mon.c:m_respond_medusa and wire both direct gaze callers plus the source-ordered dochug response/death seam. Root verified the complete C units, current canonical manifest and record hashes, two independently recorded Medusa paths, all immutable checks, and five additional full recording replays. The Wizard reflects the gaze and kills Medusa; the Tourist variation reaches unreflected lethal stoning after its rejected amulet selection. No whole mattacku, m_respond or dochug completion credit.",
+      "detail": "",
+      "openedAt": "47369a41ba712de0fec9a1ed6f906dfcb2c4836b",
+      "openStanding": {
+        "sha": "068504cf1fc7aac157918a9a81b3ce562f87cf42",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "5ceec4bfed9481e19baf3beb38e55eb8131f66dc",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "gazemu",
+          "line": 1668,
+          "endLine": 1901,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1668,
+        "to": 1901
+      },
+      "requiredFunctions": [
+        {
+          "name": "m_respond_medusa",
+          "line": 4109,
+          "endLine": 4121,
+          "declared": true,
+          "sourceFile": "mon.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time": {
+          "session": "synthetic/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.session.json",
+          "recordingSha256": "94201c2ad2fe39dceef576abc3e9ed9913d1ff4608826b37174920eeb8afb1b0",
+          "evaluationPath": "challenges/evaluations/20261002152420-v18.json",
+          "evaluationCommit": "068504cf1fc7aac157918a9a81b3ce562f87cf42"
+        }
+      },
+      "activeStanding": {
+        "sha": "068504cf1fc7aac157918a9a81b3ce562f87cf42",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+          "session": "synthetic/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.session.json",
+          "recordingSha256": "94201c2ad2fe39dceef576abc3e9ed9913d1ff4608826b37174920eeb8afb1b0",
+          "recipe": "challenges/cases/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.recipe.session.json",
+          "recipeSha256": "d8ac64547cfc7d490487bd5d0e982c080d80b544f11be5ed9bee7b35ac4bf120",
+          "replayInputSha256": "69a536ecca9937e822b8a62f827a5cceef05530fa8efa8249d794879b44bda50",
+          "evaluationPath": "challenges/evaluations/20261002152420-v18.json",
+          "evaluationCommit": "068504cf1fc7aac157918a9a81b3ce562f87cf42",
+          "evaluationArtifact": "challenges/evaluations/20261002152420-v18.json",
+          "evaluationUtc": "2026-10-02T15:25:09.096Z",
+          "remainingScreens": 2,
+          "recordedSteps": 34,
+          "previousScreensMatched": 32,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 32,
+              "total": 34
+            },
+            "rng": {
+              "matched": 3472,
+              "total": 3480
+            },
+            "cursors": {
+              "matched": 32,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a monster gazing at the hero",
+            "step": 32
+          },
+          "step": 32,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a monster gazing at the hero",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.json",
+            "result": {
+              "session": "synthetic/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "94201c2ad2fe39dceef576abc3e9ed9913d1ff4608826b37174920eeb8afb1b0",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "remainingScreens": 2,
+              "recordedSteps": 34,
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+                "session": "synthetic/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.session.json",
+                "recordingSha256": "94201c2ad2fe39dceef576abc3e9ed9913d1ff4608826b37174920eeb8afb1b0",
+                "recipe": "challenges/cases/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.recipe.session.json",
+                "recipeSha256": "d8ac64547cfc7d490487bd5d0e982c080d80b544f11be5ed9bee7b35ac4bf120",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 2,
+                "recordedSteps": 34,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 32,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 3472,
+                    "total": 3480
+                  },
+                  "cursors": {
+                    "matched": 32,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a monster gazing at the hero",
+                  "step": 32
+                },
+                "step": 32,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a monster gazing at the hero",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The pyrolisk reaches mhitu.c:mattacku() AT_GAZE/AD_FIRE, but js/mhitu.js refuses every non-Medusa gaze instead of calling the missing C helper. Port the whole mhitu.c:gazemu() function and wire that caller branch; this does not complete the surrounding mattacku() function.",
+              "source": {
+                "file": "mhitu.c",
+                "branch": "For this case, pyrolisk attack slot 0 is AT_GAZE/AD_FIRE 2d6, the monster is hostile and not Medusa, and mattacku() dispatches the gaze regardless of range2. In gazemu(), the active AD_FIRE effect requires mcanseeu, mspec_used == 0, and a successful rn2(5); mcan, hallucination, or Unaware can select cancellation/reaction behavior. The recorded C message confirms this active fiery-gaze path.",
+                "functions": [
+                  "gazemu"
+                ],
+                "callers": [
+                  "mhitu.c:mattacku() AT_GAZE at 832-837 calls gazemu() except for Medusa and assigns its returned attack status to sum[i].",
+                  "Current JS production route: allmain.js:1376-1379 movemon() -> mon.js:movemon_singlemon() -> unported_monster_actions.js:runSimpleMonsterAction() -> dochug() -> attackHeroWithMattacku() at 1482-1485 -> mhitu.js:mattacku().",
+                  "C outer callers of mattacku() include monmove.c:954,971; dogmove.c:911,1286; priest.c:202; shk.c:4900; and worm.c:359."
+                ],
+                "dependencies": [
+                  "mhitu.c:mattacku() consumes gazemu() return values via sum[i], then tests M_ATTK_AGR_DIED and M_ATTK_AGR_DONE at 945-948.",
+                  "mondata.c:cvt_adtyp_to_mseenres() return feeds monst.h:m_seenres() bit-mask macro; both behaviors are already represented in js/mondata.js/js/mhitu.js.",
+                  "display.c:canseemon(), vision.c:couldsee(), vision.h:m_canseeu(), muse.c:mon_reflects(), mondata.c:resists_blnd(), mhitu.c:mdistu(), mondata.c:poly_when_stoned(), and polyself.c:polymon() have consumed returns in gazemu() branches and current JS implementations.",
+                  "rn2(), rn1(), d(), and rnd() return values determine gate/effect order. burnarmor() and destroy_items() return values are explicitly discarded in AD_FIRE; preserve their side effects or record an allowed unported gap."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved queue/evaluation challenges/evaluations/20261002065911-v18.json: 32/34 screens, 3472/3480 RNG calls, and 32/34 cursors; first mismatch is the exact simple-monster-action refusal at step 32. The queue entry records remainingScreens=2 and recordedSteps=34.",
+                "Examined-commit snapshot .cache/synthetic-scans/v18/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time.json records 32 emitted of 34 screens, the repeated wait input, the C message “The pyrolisk attacks you with a fiery gaze!”, and stop context “simple monster action requires a monster gazing at the hero”. js/mhitu.js:1202-1207 throws for non-Medusa AT_GAZE; unported_monster_actions.js:214-224 creates the observed error.",
+                "nethack-c/upstream/include/monsters.h:187-194 defines pyrolisk with hostile M2_HOSTILE and AT_GAZE/AD_FIRE/2d6. nethack-c/upstream/src/mhitu.c:832-837 dispatches all non-Medusa AT_GAZE slots to gazemu() without a range2 gate; the complete helper spans :1666-1898, with the AD_FIRE branch at :1824-1852 and the caller consuming its return at :945-948.",
+                "C59 immutable preparation evidence in challenges/manifests/v18.json identifies sourcePointers mhitu.c:mattacku and mhitu.c:gazemu and an independent C replay identical to the admitted recording hash. Its prior comparison at c279bd556876e7c8494dbe37aea914412f8e75a3 tagged the next RNG call rn2(5) as distfleeck(monmove.c:538), but also had JS-missing screen/cursor at the same boundary; that later RNG tag does not explain the refusal. The current saved evaluation exposes the refusal directly.",
+                "C runtime route is monmove.c:965-972 dochug() standard-attack phase -> mattacku(); the existing JS route is allmain.js:1376-1379 -> mon.js:movemon_singlemon() -> unported_monster_actions.js:runSimpleMonsterAction()/attackHeroWithMattacku() -> mhitu.js:mattacku(). Other C outer call sites are dogmove.c:911,1286; priest.c:202; shk.c:4900; and worm.c:359.",
+                "The exact source unit is whole mhitu.c:gazemu(); the AT_GAZE change in mhitu.c:mattacku() is caller wiring, not evidence that the outer mattacku() is complete. Separate downstream gap: C monmove.c:971 reads mattacku()'s death result, while the current JS dochug() action adapter awaits and discards it. This does not affect this AD_FIRE case because gazemu() returns M_ATTK_MISS and the pyrolisk survives. Supporting trace: .cache/v18-investigations/wizard-hostile-pyrolisk-fire-gaze-c59-valid-time/trace.json."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "gazemu",
+            "implementation": "js/mhitu.js",
+            "symbol": "gazemu",
+            "sourceReview": "Ported the whole mhitu.c:gazemu definition (1668-1898) for every default-compiled branch: source seen-resistance return; hallucination and Unaware cancellation; AD_STON cancellation, visible reflection, monster reflection, lethal stoning, golem polymorph and death handling; AD_CONF proc, intrinsic-only Confusion message selection, cooldown and confusion state; AD_STUN proc/damage/cooldown/status; AD_BLND range/resistance, cancellation, blindness, occupation and optional stun; AD_FIRE proc, resistance/golem observation, slime, armor, inventory and damage effects; final reaction feedback. Preserves expression short-circuit and draw/output/state order, awaits impure effects, and routes C urgent_pline to urgentMessage including planning silence. The reference #ifdef PM_BEHOLDER AD_SLEE/AD_SLOW blocks remain excluded. The source default calls pline.c:impossible and discards its result; JavaScript records note_unported(\"pline.c impossible\") and returns M_ATTK_MISS without gameplay output.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku AT_GAZE (832-838) calls gazemu for non-Medusa gaze attackers and assigns its result to sum[i]; the Medusa attack is excluded here because mon.c:m_respond handles it."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond_medusa",
+                "source": "mon.c:m_respond_medusa (4109-4120) calls gazemu for the first AT_GAZE slot and discards its return, preserving the helper call completion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/medusa-reflection-amulet-a82-pager-cleared.session.json",
+              "recordings/mon.c/medusa-reflection-amulet-a82-tourist.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_GAZE -> mhitu.c:gazemu AD_FIRE"
+              }
+            ],
+            "checkedAt": "e4e33727a6a6e1a8cf7496dccf3da09b2f119643"
+          },
+          {
+            "name": "m_respond_medusa",
+            "implementation": "js/mon.js",
+            "symbol": "m_respond_medusa",
+            "sourceReview": "Ported the complete mon.c:m_respond_medusa helper (4109-4120): scan attack slots in order, await gazemu for the first AT_GAZE, then stop scanning and discard gazemu’s return as C does. This is supporting required source coverage; no whole mon.c or m_respond completion is claimed.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond",
+                "source": "mon.c:m_respond (4122-4130) reaches m_respond_medusa for a visible Medusa after the shrieker branch and before Erinys; JavaScript awaits it in the same order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-response.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/medusa-reflection-amulet-a82-pager-cleared.session.json",
+              "recordings/mon.c/medusa-reflection-amulet-a82-tourist.session.json"
+            ],
+            "sourceFile": "mon.c",
+            "checkedAt": "e4e33727a6a6e1a8cf7496dccf3da09b2f119643"
+          }
+        ],
+        "entryPointReview": "Two selected production paths execute the whole gazemu helper. The admitted v18 pyrolisk case exercises the non-Medusa mhitu.c:mattacku AT_GAZE arm; its source-traced range matches through segment 0 step 33. The pager-cleared Wizard record exercises monmove.c:dochug -> mon.c:m_respond -> mon.c:m_respond_medusa -> mhitu.c:gazemu for a visible reflected Medusa response, including the resulting returned stoning and kill. The Tourist role variation reaches the same visible Medusa response path but its C-observed o put-on input is rejected as a silly object; it is not reflection evidence. It independently matches the unreflected lethal AD_STON message and death prompt at steps 66-67. C has only these two direct gazemu call sites: mhitu.c:mattacku and mon.c:m_respond_medusa. mon.c:m_respond is also called from monmove.c:dochug and two zap.c sites; the existing JavaScript zap.js callers already await m_respond, while this task only repairs the dochug response/death order seam. No whole mattacku, m_respond, dochug, or zap.c completion credit is claimed. Source-pinned tests cover unrecorded compiled AD_CONF, AD_STUN, and AD_BLND order; the task also pins urgent_pline for lethal AD_STON. The failed ring wish probe is preserved but does not establish reflection: it produced a brass ring, and the reference object table has no reflecting ring. The longer live recipe is retained as pager-blocked history. The Tourist recipe comment was corrected after its C recording: its old recipe hash and the unchanged recording hash remain recorded in A82-context.json. Reference-build #ifdef PM_BEHOLDER effects remain disabled; the default discarded diagnostic is named note_unported(pline.c impossible).",
+        "entryPoints": [
+          {
+            "name": "Non-Medusa gaze attack through the ordinary monster-turn attack dispatcher",
+            "functions": [
+              "gazemu"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_GAZE -> mhitu.c:gazemu AD_FIRE"
+              }
+            ]
+          },
+          {
+            "name": "Visible Medusa response after the optional monster fleeing teleport, through reflected and unreflected lethal paths",
+            "functions": [
+              "gazemu",
+              {
+                "sourceFile": "mon.c",
+                "name": "m_respond_medusa"
+              }
+            ],
+            "recordings": [
+              "recordings/mon.c/medusa-reflection-amulet-a82-pager-cleared.session.json",
+              "recordings/mon.c/medusa-reflection-amulet-a82-tourist.session.json"
+            ]
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "5ceec4bfed9481e19baf3beb38e55eb8131f66dc",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

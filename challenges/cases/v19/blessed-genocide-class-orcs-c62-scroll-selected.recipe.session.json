@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after C showed the blessed genocide scroll in inventory slot m. The earlier l selection read the Wizard’s starting magic marker and reached read.c:doread’s non-scroll object path instead. This sequence dismisses the welcome page, wishes the same blessed genocide scroll, selects its observed slot m, and supplies the valid orc class at the class-genocide prompt; C will establish whether any message More must be dismissed first.",
+  "segments": [
+    {
+      "seed": 761204983,
+      "datetime": "21111215082000",
+      "nethackrc": "OPTIONS=name:C62Genocide,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nblessed scroll of genocide\nrmo\n"
+    }
+  ]
+}

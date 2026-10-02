@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 candidate frozen before recording and JavaScript comparison. Tourist initialization sets starting money with rnd(1000) in u_init.c:PM_TOURIST (756), so the hero enters with carried gold without a wished-money setup. The initial newline dismisses the welcome pager; Control-G opens wizgenesis in debug mode and requests a hostile leprechaun. With safe_wait disabled, six periods are intended as elapsed turns. Observe the actual creation position, carried purse and mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_SGLD) -> uhitm.c:mhitm_ad_sgld -> steal.c:stealgold path; retain a valid target miss or matching result as recorded.",
+  "segments": [
+    {
+      "seed": 981735204,
+      "datetime": "21120110150100",
+      "nethackrc": "OPTIONS=name:C62GoldHeist,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n#wizgenesis\nhostile leprechaun\n......"
+    }
+  ]
+}

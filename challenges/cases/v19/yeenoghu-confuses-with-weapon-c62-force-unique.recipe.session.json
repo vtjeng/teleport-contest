@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen after run-2A8cka showed the exact C prompt “Creating doppelganger instead; force Yeenoghu? [yn] (n)”. This continuation changes only the next response to y, from C output before any JavaScript comparison. Earlier `#wizintrinsic` timeout/pager correction is unchanged. Control-G is cmd.c:1961 wizgenesis; debug mode enables WIZMODECMD independently of the Valkyrie role. Preserve whether C creates the monster and reaches the planned AD_CONF attack.",
+  "segments": [
+    {
+      "seed": 915837241,
+      "datetime": "21110406081100",
+      "nethackrc": "OPTIONS=name:C62ConfW,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n\n\u0007hostile Yeenoghu\ny...."
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "session": "synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date",
+  "corpus": "synthetic",
+  "batch": "v19",
+  "caseId": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+  "manifestPath": "challenges/manifests/v19.json",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "recordingPath": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+  "recordingSha256": "a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284",
+  "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "remainingScreens": 7,
+  "recordedSteps": 71,
+  "status": "complete",
+  "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v19",
+    "caseId": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+    "session": "synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date",
+    "manifestPath": "challenges/manifests/v19.json",
+    "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+    "recording": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+    "recordingPath": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+    "recordingSha256": "a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284",
+    "recipe": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.recipe.session.json",
+    "recipeSha256": "1bc12e2f94a9e60e1877f19b0226ea41eda2a0d109ceb117c1d5816133d86173",
+    "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+    "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+    "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationUtc": "2026-10-02T18:07:42.516Z",
+    "remainingScreens": 7,
+    "recordedSteps": 71,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 64,
+        "total": 71
+      },
+      "rng": {
+        "matched": 3162,
+        "total": 3170
+      },
+      "cursors": {
+        "matched": 64,
+        "total": 71
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_rust()",
+      "step": 64
+    },
+    "step": 64,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_rust",
+    "message": "simple monster action requires uhitm.c mhitm_ad_rust()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The exact-commit evaluation stops at step 64 because JavaScript refuses the landed AD_RUST attack in uhitm.c:mhitm_adtyping(). The C route reaches uhitm.c:mhitm_ad_rust() for a hostile Rust Monster touching a human Wizard in worn chain mail, then erode_armor() selects the body armor and trap.c:erode_obj() rusts it. The actionable whole-function source group is uhitm.c:erode_armor() and mhitm_ad_rust(), wired through the existing AD_RUST dispatcher. C executes distfleeck before the attack in this turn; the comparator reports it as the first missing draw because the JavaScript preflight refusal aborts the whole turn. That is a stop-boundary symptom, not the source cause. Seven recorded screens remain after the refusal.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "The debug recipe equips the human Wizard with uncursed +0 chain mail and creates a hostile Rust Monster adjacent to the hero. On step 64 the monster lands its touch attack: C records rnd(20)=15 in mattacku() and d(0,0)=0 in hitmu(), but still dispatches mattk->adtyp == AD_RUST. In mhitm_ad_rust(), mdef is the hero, the active monster is not cancelled, and the hero is not a form that completely rusts. C calls erode_armor(&youmonst, ERODE_RUST); its rn2(5)=1 selects the body slot after no cloak is present, and erode_obj() rusts the worn chain mail. The accepted JS dispatcher instead stops at its named mhitm_ad_rust refusal before hitmsg(), armor selection, erosion, knockback, or the recorded step boundary.",
+    "functions": [
+      "erode_armor",
+      "mhitm_ad_rust"
+    ],
+    "callers": [
+      "C monmove.c:dochug() dispatches to mhitu.c:mattacku() (monmove.c:954). A landed close-range attack enters mhitu.c:hitmu() from mattacku() (mhitu.c:812); hitmu() calls uhitm.c:mhitm_adtyping() at mhitu.c:1191, whose AD_RUST arm calls mhitm_ad_rust() at uhitm.c:4805. In the hero-target branch, mhitm_ad_rust() calls erode_armor() at uhitm.c:2311.",
+      "The accepted JS path follows js/monmove.js dochug() to js/mhitu.js:mattacku()/hitmu(); hitmu() calls js/uhitm.js:mhitm_adtyping() at 1738. Its AD_RUST arm at uhitm.js:4957 invokes the unsupported-action boundary with “uhitm.c mhitm_ad_rust()”, producing the saved stop message.",
+      "erode_armor() is a shared helper: C also calls it from uhitm.c corrosion/decay/acid effects, mhitu.c:2478, mhitm.c:1346, and zap.c:4382/4545. These callers are outside the recorded AD_RUST path and must remain visible when wiring this whole helper."
+    ],
+    "dependencies": [
+      "erode_armor() (uhitm.c:126-185) must preserve its rn2(5) loop and armor-slot order. For result 1 it checks W_ARMC first, then W_ARM, then W_ARMU; this recording has no cloak and its worn W_ARM target is chain mail. Cases 0, 2, 3 and 4 consume erode_obj() results to retry when no armor or no erosion was possible.",
+      "The current JS body at js/trap_erode_obj.js:186-353 handles the ERODE_RUST hero-carried object path and, with EF_GREASE | EF_VERBOSE, the chain-mail mutation and “Your chain mail rusts!” message. Verify whole-source completion evidence for trap.c:erode_obj() before treating that C source function as complete. The current JS body at js/worn.js:457 provides which_armor() for armor selection here; verify whole-source completion evidence for worn.c:which_armor() before treating that source function as closed.",
+      "mhitm_ad_rust() (uhitm.c:2281-2335) has three source arms (hero hits monster, monster hits hero, monster hits monster); port the whole function. Its hero-target arm calls hitmsg(), returns early for a cancelled attacker, and tests completelyrusts() before erosion. Other arms depend on existing source helpers mlifesaver(), xkilled(), monkilled(), grow_up(), and rehumanize(); preserve their flags and early returns.",
+      "After mhitm_adtyping() returns, mhitu.c:hitmu() calls mhitm_knockback() before applying damage (1193 onward). This C step records its subsequent rn2(3)=1 and rn2(6)=1 draws; preserve the current JS ordering so the rust call does not replace or bypass knockback.",
+      "Accepted JS has no erode_armor() implementation. The pinned search `git grep -n -E 'mhitm_ad_rust|erode_armor' 8583a972f66a872a8ad73c888a24dd01075481f4 -- js` finds the AD_RUST refusal at js/uhitm.js:4957 and named erode_armor skips at js/mhitu.js:2310 and js/zap.js:2277, plus comments; it finds no implementation. Reconcile those shared-helper call sites when selecting the implementation extent."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The assigned capsule .cache/v19-investigation-capsules/6.json and its queue entry identify synthetic/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date, batch v19, manifest digest ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007, recording digest a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284, evaluation challenges/evaluations/20261002180737-v19.json, and examined/evaluated commit 8583a972f66a872a8ad73c888a24dd01075481f4. The complete saved evaluation reports passed=false, 64/71 screens, 3162/3170 RNG calls, 64/71 cursors, remainingScreens=7, and stop at zero-based step 64: “simple monster action requires uhitm.c mhitm_ad_rust()”.",
+    "The immutable recording challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json (SHA-256 a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284) and input recipe challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.recipe.session.json (SHA-256 1bc12e2f94a9e60e1877f19b0226ea41eda2a0d109ceb117c1d5816133d86173) normalize to 71 recorded steps. The recipe is a Wizard/human/female debug game dated 21111210153000; it wishes uncursed +0 chain mail, creates a hostile Rust Monster next to the hero, then waits. At step 64 (key \".\"), C records rnd(20)=15 @ mattacku(mhitu.c:806), d(0,0)=0 @ hitmu(mhitu.c:1187), rn2(5)=1 @ erode_armor(uhitm.c:137), and then the rn2(3) and rn2(6) knockback draws; its screen says “The rust monster touches you! Your chain mail rusts!”.",
+    "Frozen upstream source is submodule commit 16ff59115315917b93185d026aeefea06db9b0f4, the gitlink in examined commit 8583a972f66a872a8ad73c888a24dd01075481f4. monmove.c:954 reaches mattacku(); mhitu.c:812 calls hitmu() for the landed attack and :1191 dispatches its AD_RUST type through uhitm.c:mhitm_adtyping() to mhitm_ad_rust(). In the hero-target branch at uhitm.c:2299-2312, the uncancelled Rust Monster calls erode_armor(); uhitm.c:126-185 chooses armor with rn2(5).",
+    "C62 source and receipt evidence is immutable: independently replayed C run-Y1CzTl produced a byte-identical recording (reported in the capsule); retained comparison run-MBjKDG uses receipt /tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-MBjKDG/receipt.json (SHA-256 005c8804f7675249cbeee7fe8ff0766c38569531dc49696ced03edf1e79f0718) and stdout.log (SHA-256 13c4c85cb6c8f682b978c5d4907e9b646579991dd3fb943a12da26e709a1b5cb). Its raw comparator reports distfleeck(monmove.c:538) as the first missing draw at the same zero-based input step, although C executes distfleeck before the Rust Monster attack in that turn. The JS preflight refusal aborts the whole turn, so this reported missing draw is a stop-boundary symptom; it does not supersede the exact-commit evaluation’s causal stop at mhitm_ad_rust().",
+    "Accepted JS source at js/uhitm.js:4917-4918 makes unsupported damage-type arms throw the injected refusal; its AD_RUST switch arm at :4957 names mhitm_ad_rust(). js/mhitu.js:1733-1742 confirms that hitmu() dispatches the type before knockback. A pinned `git grep` for `mhitm_ad_rust|erode_armor` in JS finds only this refusal, named erosion skips, and comments, not either source implementation.",
+    "The action differs from the capsule’s nearest prior cases: AD_ENCH drains enchantment, AD_FIRE and AD_DRLI use distinct damage effects, and the v17 drain-life case targets a held dagger through a spell. This case’s first C behavior is AD_RUST eroding worn chain mail in a monster-to-hero touch attack. C’s distfleeck call precedes that attack; the comparator reports it missing because JS preflight refusal aborts the whole turn."
+  ]
+}

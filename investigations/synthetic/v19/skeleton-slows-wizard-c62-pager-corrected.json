@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v19/skeleton-slows-wizard-c62-pager-corrected",
+  "corpus": "synthetic",
+  "batch": "v19",
+  "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+  "manifestPath": "challenges/manifests/v19.json",
+  "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+  "recordingSha256": "426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a",
+  "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+  "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "remainingScreens": 13,
+  "recordedSteps": 46,
+  "status": "complete",
+  "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v19",
+    "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+    "session": "synthetic/v19/skeleton-slows-wizard-c62-pager-corrected",
+    "manifestPath": "challenges/manifests/v19.json",
+    "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+    "recording": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json",
+    "recordingPath": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json",
+    "recordingSha256": "426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a",
+    "recipe": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.recipe.session.json",
+    "recipeSha256": "fef62e53d1d883a8f9abf3998693948128fde01b0e2b80182523ab3f48ef2f2a",
+    "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+    "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+    "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+    "evaluationUtc": "2026-10-02T18:07:42.516Z",
+    "remainingScreens": 13,
+    "recordedSteps": 46,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 33,
+        "total": 46
+      },
+      "rng": {
+        "matched": 2944,
+        "total": 3002
+      },
+      "cursors": {
+        "matched": 33,
+        "total": 46
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_slow()",
+      "step": 33
+    },
+    "step": 33,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_slow",
+    "message": "simple monster action requires uhitm.c mhitm_ad_slow()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The recorded monster turn stops in JS planning because AD_SLOW reaches the unported mhitm_ad_slow() branch in js/uhitm.js:mhitm_adtyping(). In C, distfleeck runs before mattacku/hitmu in that turn; the helper then prints hitmsg, while HFast=false prevents slowing or its rn2(4) draw. The comparator’s first missing draw is distfleeck’s rn2(5), a reporting symptom of JS preflight refusing the whole turn, not a chronologically later event. Port the whole uhitm.c:mhitm_ad_slow() function and wire its existing AD_SLOW dispatch.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "mhitm_adtyping() dispatches AD_SLOW. mhitm_ad_slow() first checks magic negation, then returns if defended(AD_SLOW); it otherwise branches for hero attacker, hero defender, or monster-versus-monster. In the reproduced monster-versus-hero branch, magr is not gy.youmonst and mdef is gy.youmonst: hitmsg runs even when negated, while HFast=false short-circuits before rn2(4) and u_slow_down().",
+    "functions": [
+      "mhitm_ad_slow()"
+    ],
+    "callers": [
+      "uhitm.c:damageum() -> mhitm_adtyping() AD_SLOW arm (hero attacks monster)",
+      "mhitu.c:hitmu() -> mhitm_adtyping() AD_SLOW arm (monster attacks hero; reproduced path)",
+      "mhitm.c:mdamagem() -> mhitm_adtyping() AD_SLOW arm (monster attacks monster)"
+    ],
+    "dependencies": [
+      "mhitm_mgc_atk_negated() is evaluated before defended() and supplies the effect gate.",
+      "defended() gates the complete effect after the negation check.",
+      "Hero-attacker and monster-versus-monster branches use mon_adjust_speed(); the monster-versus-monster branch also clears STRAT_WAITFORU.",
+      "The hero-defender branch uses hitmsg(), then HFast, rn2(4), and u_slow_down() in that order.",
+      "Visible speed-change messages use Monnam(), pline()/pline_mon(), canseemon(), and gv.vis/canspotmon()."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Upstream nethack-c/upstream/src/uhitm.c:3652-3687 defines the entire mhitm_ad_slow() unit: it evaluates mhitm_mgc_atk_negated() before defended(); for a hero defender it always calls hitmsg() after the defense check, then calls u_slow_down() only when !negated && HFast && !rn2(4). Port this whole source function, preserving the three attacker/defender branches and call/RNG order.",
+    "Upstream nethack-c/upstream/src/uhitm.c:4782-4832 dispatches AD_SLOW directly to mhitm_ad_slow(). Its production entry callers are damageum() at uhitm.c:4854, hitmu() at mhitu.c:1191, and mdamagem() at mhitm.c:1059; keep all three routes wired through the existing dispatcher.",
+    "At the frozen recording zero-based step 33, a Skeleton reaches AT_TUCH/AD_SLOW against a normal Wizard (HFast=false); C records the hit/touch message and completes the boundary. js/uhitm.js:4977 instead calls unported(\"mhitm_ad_slow\"), causing JS preflight to refuse the planned turn. Capsule C62 reports the comparator’s first missing C draw as rn2(5) in distfleeck(monmove.c:538), one-based step 34. That is a first-mismatch reporting symptom, not a later C event: distfleeck occurs before mattacku/hitmu in the C turn, while the JS refusal prevents the entire turn boundary.",
+    "Capsule 2 links the exact frozen recording challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json (SHA-256 426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a) and C62 accepted-main per-case receipt/stdout with verified hashes a290965d8cc615081185dbbdea7a5d360244521da14e35f64b1361217b85c8ec and 1cb9d87a0e82122f05f87cf8c0ab6ab1a2f0edbb8e82c36d167bc94e590b54df. Their causal diagnosis is uhitm.c:mhitm_adtyping(AD_SLOW) -> mhitm_ad_slow hero-defender branch; HFast=false proves branch reach but no speed mutation."
+  ]
+}

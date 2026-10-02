@@ -8,9 +8,11 @@ import {
     HALLUC,
     COLD_RES,
     CONFLICT,
+    CONFUSION,
     CQ_CANNED,
     DETECT_MONSTERS,
     DISPLACED,
+    FIRE_RES,
     FLYING,
     HALF_PHDAM,
     INVIS,
@@ -24,6 +26,7 @@ import {
     NO_WEAPON_WANTED,
     PIT,
     PROTECTION,
+    REFLECTING,
     PROT_FROM_SHAPE_CHANGERS,
     FROMOUTSIDE,
     ROOM,
@@ -31,6 +34,7 @@ import {
     SHOCK_RES,
     SPIKED_PIT,
     STRAT_WAITFORU,
+    STUNNED,
     STONE,
     TIMEOUT,
     TT_PIT,
@@ -57,6 +61,7 @@ import { near_capacity, spoteffects, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
+    gazemu,
     getmattk,
     hitmsg,
     magic_negation,
@@ -76,6 +81,8 @@ import { sticks, thick_skinned } from '../js/mondata.js';
 import { newMonster, place_monster, remove_monster } from '../js/monst.js';
 import {
     monst_globals_init,
+    AD_CONF,
+    AD_FIRE,
     AD_ACID,
     AD_BLND,
     AD_COLD,
@@ -118,12 +125,15 @@ import {
     PM_CLERIC,
     PM_COBRA,
     PM_COCKATRICE,
+    PM_MEDUSA,
     PM_GIANT_EEL,
     PM_CAVE_SPIDER,
     PM_GIANT_ANT,
     PM_BABY_GRAY_DRAGON,
     PM_GOBLIN,
     PM_PURPLE_WORM,
+    PM_PYROLISK,
+    PM_UMBER_HULK,
     PM_SHRIEKER,
     PM_GRID_BUG,
     PM_FLOATING_EYE,
@@ -189,6 +199,9 @@ const UHITM_C = readFileSync(
 );
 const MHITU_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
+);
+const MHITU_JS = readFileSync(
+    new URL('../js/mhitu.js', import.meta.url), 'utf8',
 );
 const YOUPROP_H = readFileSync(
     new URL('../nethack-c/upstream/include/youprop.h', import.meta.url),
@@ -499,6 +512,255 @@ function meleeEnv(state, rolls, extra = {}) {
         },
     };
 }
+
+test('gazemu keeps cancelled AD_CONF reaction draws in source order', async () => {
+    const state = await meleeHero();
+    const hulk = meleeAttacker(state, PM_UMBER_HULK, 1, 0, {
+        mcan: 1,
+        mconf: 1,
+        mspec_used: 0,
+    });
+    const draws = [];
+    const lines = [];
+    const answers = [1, 1];
+    const result = await gazemu(
+        hulk,
+        { aatyp: AT_GAZE, adtyp: AD_CONF, damn: 3, damd: 4 },
+        {
+            state,
+            random: {
+                rn2(bound) {
+                    draws.push(`rn2(${bound})`);
+                    return answers.shift();
+                },
+            },
+            message: async (line) => lines.push(line),
+        },
+    );
+
+    // mhitu.c:1770-1779 and 1878-1887. The first draw admits a canceled
+    // gaze; the second chooses the not-hallucinatory reaction feedback text.
+    assert.deepEqual(draws, ['rn2(5)', 'rn2(3)']);
+    assert.deepEqual(lines, ['The umber hulk looks quite confused.']);
+    assert.equal(result, M_ATTK_MISS);
+    assert.equal(hulk.mspec_used, 0);
+});
+
+test('gazemu uses the intrinsic-only Confusion macro for AD_CONF text', async () => {
+    // include/youprop.h:83-84 defines Confusion as HConfusion; an extrinsic
+    // flag alone must not select the already-confused message.
+    assert.match(YOUPROP_H, /^#define Confusion HConfusion$/mu);
+    const state = await meleeHero();
+    const hulk = meleeAttacker(state, PM_UMBER_HULK, 1, 0, {
+        mcansee: true,
+        mspec_used: 0,
+    });
+    // This synthetic extrinsic-only property distinguishes Confusion from
+    // the intrinsic+extrinsic macros used by the neighboring gaze branches.
+    state.u.uprops[CONFUSION] = { intrinsic: 0, extrinsic: 1 };
+    const draws = [];
+    const lines = [];
+    await gazemu(
+        hulk,
+        { aatyp: AT_GAZE, adtyp: AD_CONF, damn: 3, damd: 4 },
+        {
+            state,
+            random: {
+                rn2(bound) { draws.push(`rn2(${bound})`); return 1; },
+                d(count, sides) { draws.push(`d(${count},${sides})`); return 2; },
+            },
+            message: async (line) => lines.push(line),
+        },
+    );
+
+    assert.deepEqual(draws, ['rn2(5)', 'd(3,4)', 'rn2(6)']);
+    assert.deepEqual(lines, ["The umber hulk's gaze confuses you!"]);
+});
+
+test('gazemu AD_STUN draws cooldown before its piercing-stare effects', async () => {
+    const gazemuStart = MHITU_C.indexOf('gazemu(struct monst *mtmp');
+    const cBlock = MHITU_C.slice(
+        MHITU_C.indexOf('    case AD_STUN:', gazemuStart),
+        MHITU_C.indexOf('    case AD_BLND:', gazemuStart),
+    );
+    const jsBlock = MHITU_JS.slice(MHITU_JS.indexOf('    case M.AD_STUN:'));
+    assert.ok(cBlock.indexOf('rn2(5)') < cBlock.indexOf('d(2, 6)')
+        && cBlock.indexOf('d(2, 6)') < cBlock.indexOf('rn2(6)')
+        && cBlock.indexOf('rn2(6)') < cBlock.indexOf('make_stunned('),
+    'C consumes the proc, damage, cooldown and status update in order');
+    assert.ok(jsBlock.indexOf("const stun = draw('d', 2, 6);")
+        < jsBlock.indexOf("+ stun + draw('rn2', 6)")
+        && jsBlock.indexOf("+ stun + draw('rn2', 6)")
+            < jsBlock.indexOf('await make_stunned('),
+    'JavaScript keeps the C damage/cooldown/status order');
+
+    const state = await meleeHero();
+    const hulk = meleeAttacker(state, PM_UMBER_HULK, 1, 0, {
+        mcansee: true,
+        mspec_used: 0,
+    });
+    // A preexisting five-turn timeout makes C's HStun & TIMEOUT addition
+    // observable; the scripted 4 and 2 exercise d(2,6) and rn2(6).
+    state.u.uprops[STUNNED] = { intrinsic: 5, extrinsic: 0 };
+    const draws = [];
+    const lines = [];
+    await gazemu(
+        hulk,
+        { aatyp: AT_GAZE, adtyp: AD_STUN, damn: 2, damd: 6 },
+        {
+            state,
+            random: {
+                rn2(bound) { draws.push(`rn2(${bound})`); return bound === 5 ? 1 : 2; },
+                d(count, sides) { draws.push(`d(${count},${sides})`); return 4; },
+            },
+            message: async (line) => lines.push(line),
+        },
+    );
+
+    assert.deepEqual(draws, ['rn2(5)', 'd(2,6)', 'rn2(6)']);
+    assert.deepEqual(lines, ['The umber hulk stares piercingly at you!']);
+    assert.equal(hulk.mspec_used, 6);
+    assert.equal(state.u.uprops[STUNNED].intrinsic & TIMEOUT, 9);
+});
+
+test('gazemu AD_BLND applies blindness before the source stun draw', async () => {
+    const gazemuStart = MHITU_C.indexOf('gazemu(struct monst *mtmp');
+    const cBlock = MHITU_C.slice(
+        MHITU_C.indexOf('    case AD_BLND:', gazemuStart),
+        MHITU_C.indexOf('    case AD_FIRE:', gazemuStart),
+    );
+    assert.ok(cBlock.indexOf('make_blinded(') < cBlock.indexOf('stop_occupation()')
+        && cBlock.indexOf('You("are blinded by %s radiance!")')
+            < cBlock.indexOf('make_blinded(')
+        && cBlock.indexOf('stop_occupation()') < cBlock.indexOf('long oldstun')
+        && cBlock.indexOf('long oldstun') < cBlock.indexOf('rnd(3)')
+        && cBlock.indexOf('rnd(3)') < cBlock.indexOf('make_stunned('),
+    'C applies blindness, stops the occupation, then rolls and applies stun');
+    const gazemuJsStart = MHITU_JS.indexOf('export async function gazemu(');
+    const jsBlock = MHITU_JS.slice(
+        MHITU_JS.indexOf('    case M.AD_BLND:', gazemuJsStart),
+        MHITU_JS.indexOf('    case M.AD_FIRE:', gazemuJsStart),
+    );
+    assert.ok(jsBlock.indexOf('await message(')
+        < jsBlock.indexOf('await make_blinded(')
+        && jsBlock.indexOf('await make_blinded(')
+            < jsBlock.indexOf('await mattackuStopOccupation(')
+        && jsBlock.indexOf('await mattackuStopOccupation(')
+            < jsBlock.indexOf('const oldStun =')
+        && jsBlock.indexOf('const oldStun =') < jsBlock.indexOf("draw('rnd', 3)")
+        && jsBlock.indexOf('await make_stunned(')
+            < jsBlock.indexOf("draw('rnd', 3)"),
+    'JavaScript preserves the source message, blindness, occupation and stun order');
+
+    const state = await meleeHero();
+    const hulk = meleeAttacker(state, PM_UMBER_HULK, 1, 0, {
+        mcansee: true,
+        mspec_used: 0,
+    });
+    // Four blind turns and an existing one-turn stun make both source status
+    // writes visible; rnd(3)=2 raises the stun timeout to two turns.
+    state.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0 };
+    state.u.uprops[STUNNED] = { intrinsic: 1, extrinsic: 0 };
+    const draws = [];
+    const lines = [];
+    await gazemu(
+        hulk,
+        { aatyp: AT_GAZE, adtyp: AD_BLND, damn: 2, damd: 6 },
+        {
+            state,
+            random: {
+                d(count, sides) { draws.push(`d(${count},${sides})`); return 4; },
+                rnd(bound) { draws.push(`rnd(${bound})`); return 2; },
+            },
+            message: async (line) => lines.push(line),
+        },
+    );
+
+    assert.deepEqual(draws, ['d(2,6)', 'rnd(3)']);
+    assert.deepEqual(lines, ["You are blinded by the umber hulk's radiance!"]);
+    assert.equal(state.u.uprops[BLINDED].intrinsic & TIMEOUT, 4);
+    assert.equal(state.u.uprops[STUNNED].intrinsic & TIMEOUT, 2);
+});
+
+test('gazemu sends lethal AD_STON feedback through urgent_pline', async () => {
+    // C uses urgent_pline before setting the stoning killer and calling done;
+    // make the callback throw to observe its channel without running end-game.
+    assert.ok(MHITU_C.includes('urgent_pline("You turn to stone...");'));
+    const state = await meleeHero();
+    const medusa = meleeAttacker(state, PM_MEDUSA, 1, 0, { mcansee: true });
+    state.u.uprops[REFLECTING] = { intrinsic: 0, extrinsic: 0 };
+    const gaze = medusa.data.mattk.find(attack => attack.aatyp === AT_GAZE);
+    const events = [];
+    const stopBeforeDone = new Error('stop after urgent source message');
+    await assert.rejects(
+        gazemu(medusa, gaze, {
+            state,
+            message: async (line) => events.push(`ordinary:${line}`),
+            urgentMessage: async (line) => {
+                events.push(`urgent:${line}`);
+                throw stopBeforeDone;
+            },
+        }),
+        error => error === stopBeforeDone,
+    );
+
+    assert.deepEqual(events, [
+        "ordinary:You meet Medusa's gaze.",
+        'urgent:You turn to stone...',
+    ]);
+});
+
+test('gazemu AD_FIRE resistance records what the attacker observes', async () => {
+    // C mhitu.c:1827 passes Monnam(mtmp) followed by this exact suffix to
+    // pline_mon(); pin the source string separately from the rendered result.
+    assert.ok(MHITU_C.includes(
+        'pline_mon(mtmp, "%s attacks you with a fiery gaze!",',
+    ));
+    const state = await meleeHero();
+    const pyrolisk = meleeAttacker(state, PM_PYROLISK, 1, 0, {
+        m_lev: 0,
+        mspec_used: 0,
+    });
+    const fireResistance = state.u.uprops[FIRE_RES] ??= {
+        intrinsic: 0,
+        extrinsic: 0,
+    };
+    fireResistance.intrinsic = 1;
+    const calls = [];
+    const lines = [];
+    const result = await gazemu(
+        pyrolisk,
+        { aatyp: AT_GAZE, adtyp: AD_FIRE, damn: 2, damd: 6 },
+        {
+            state,
+            random: {
+                rn2(bound) {
+                    calls.push(`rn2(${bound})`);
+                    return bound === 5 ? 1 : 19;
+                },
+                d(count, sides) {
+                    calls.push(`d(${count},${sides})`);
+                    return count;
+                },
+            },
+            message: async (line) => lines.push(line),
+        },
+    );
+
+    // mhitu.c:1834-1861. Damage is rolled first; resistance then rolls the
+    // golem-healing amount, marks M_SEEN_FIRE, and only then checks armor/item
+    // burns with both level comparisons evaluated in order.
+    assert.deepEqual(calls, [
+        'rn2(5)', 'd(2,6)', 'd(12,6)', 'rn2(20)', 'rn2(20)',
+    ]);
+    assert.deepEqual(lines, [
+        'The pyrolisk attacks you with a fiery gaze!',
+        "The fire doesn't feel hot!",
+    ]);
+    assert.equal(result, M_ATTK_MISS);
+    assert.ok(pyrolisk.seen_resistance & M_SEEN_FIRE);
+    assert.equal(state.u.uhp, state.u.uhpmax);
+});
 
 test('mhitm_ad_blnd follows the hero and monster-to-hero source arms',
     async () => {

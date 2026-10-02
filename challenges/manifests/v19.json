@@ -1,0 +1,1765 @@
+{
+  "version": 1,
+  "batch": "v19",
+  "status": "prepared, unadmitted and unscored",
+  "comparisonBase": "Per-case exact worker comparison HEADs are recorded in each entry comparisonEvidence; see source/crosswalk artifact.",
+  "comparisonBases": [
+    {
+      "workerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+      "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+      "cases": [
+        "energy-vortex-engulfs-and-drains-energy-c62-more",
+        "python-wraps-with-hug-attack-c62",
+        "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+        "black-pudding-corrosion-on-worn-chain-mail-c62",
+        "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+        "quantum-mechanic-teleports-hero-c62",
+        "skeleton-slows-wizard-c62-pager-corrected",
+        "spotted-jelly-acid-passive-c62-west-attack",
+        "large-mimic-sticks-valkyrie-c62-pager-corrected"
+      ]
+    },
+    {
+      "workerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+      "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+      "cases": [
+        "cancellation-reveals-hostile-large-mimic-c62",
+        "energy-vortex-engulfs-and-drains-energy-c62-more",
+        "python-wraps-with-hug-attack-c62",
+        "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+        "black-pudding-corrosion-on-worn-chain-mail-c62",
+        "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+        "quantum-mechanic-teleports-hero-c62",
+        "skeleton-slows-wizard-c62-pager-corrected",
+        "spotted-jelly-acid-passive-c62-west-attack",
+        "large-mimic-sticks-valkyrie-c62-pager-corrected",
+        "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+        "leprechaun-steals-carried-gold-c62",
+        "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+        "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+        "archeologist-whip-snags-floor-ration-c62-drop-pager-corrected",
+        "blessed-genocide-class-orcs-c62-completed",
+        "blessed-genocide-class-orcs-c62-welcome-corrected",
+        "trapper-engulfs-with-wrap-c62",
+        "trapper-engulfs-with-wrap-c62-stay-put",
+        "blessed-genocide-class-orcs-c62",
+        "blessed-genocide-class-orcs-c62-welcome-corrected",
+        "brown-pudding-decays-worn-leather-armor-c62",
+        "genetic-engineer-polymorphs-wizard-c62",
+        "skeleton-slows-wizard-c62",
+        "spotted-jelly-acid-passive-c62",
+        "wand-cancellation-floor-sickness-c62",
+        "large-mimic-sticks-valkyrie-c62",
+        "wear-warning-ring-reveals-monsters-c62"
+      ]
+    },
+    {
+      "workerHead": "39c0e17393bd2990bdf69e7d03e0f6d70f2cc6e3",
+      "cases": [
+        "wand-cancellation-floor-sickness-c62-slots-corrected"
+      ]
+    }
+  ],
+  "sourcePlan": {
+    "path": ".cache/C62-v19-source-plan-corrected.json",
+    "sha256": "b39cd978ab81cc0a535e8eb3251005a2d846f0c2c5eec3e395550e5642d197b7"
+  },
+  "cases": [
+    {
+      "id": "energy-vortex-engulfs-and-drains-energy-c62-more",
+      "title": "Energy vortex engulfs and drains energy c62 more",
+      "recipe": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.recipe.session.json",
+      "recipeSha256": "a12789cc7b7515d1e474e2839b04e744547dd21c27172c4e419616a3ba513ce2",
+      "recording": "challenges/cases/v19/energy-vortex-engulfs-and-drains-energy-c62-more.session.json",
+      "recordingSha256": "5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62",
+      "sourcePointers": [
+        "uhitm.c:passive(AD_ELEC)",
+        "mhitu.c:gulpmu(AD_DREN)"
+      ],
+      "reachedBehavior": "C records the hero-hit passive electricity branch first (step 35), then on the continued trace reaches Energy Vortex engulf/drain energy at step 43. The AD_DREN continuation is retained but not counted as the first mismatch.",
+      "cOutcome": "C first reaches uhitm.c:passive(AD_ELEC) on a hero hit at zero-based step 35, recording rn2(3)=1 and the passive electricity effect. After the More continuation it reaches mhitu.c:gulpmu(AD_DREN) at step 43; that later continuation is retained but is not the first mismatch.",
+      "targetStatus": "source-traced first mismatch",
+      "reproducibility": "Independent patched-C replay run-0OMBFI completed successfully; output 5e05a3bbfe84e3b21eb98d75c8630b84f806486bd6c1d6f408ddbd7a9b83cc62 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+        "measuredWorkerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "runId": "run-NgqNgG",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-NgqNgG/receipt.json",
+        "receiptSha256": "93633a26de6430d7da428f5afbacfdb85f1d1f2b52c170c701658d11ce38806b",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-NgqNgG/stdout.log",
+        "stdoutSha256": "9dc2cae636082e29d28f4b62a8d4e1c8d9a3af393bc6147361b6edfa00b3adf6",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-NgqNgG/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "B88 accepted-main per-case refresh",
+        "result": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:passive AD_ELEC",
+          "sourceDiagnosis": "The C-only rn2(3) call is the first mismatch itself.",
+          "rawComparator": {
+            "cRngCall": "passive(uhitm.c:6019)",
+            "cValue": "rn2(3)=1",
+            "key": "y",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 36,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 35,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=2731, JS=2704\nFirst PRNG mismatch at call 2705 (segment 1, step 36, key \"y\"):\n  C: rn2(3)=1\n  C caller: passive(uhitm.c:6019)\n  JS: <missing>\nScreen length mismatch: C=44, JS=35\nFirst screen mismatch at boundary 36 (segment 1, step 36, key \"y\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=44, JS=35\nFirst cursor mismatch at boundary 36 (segment 1, step 36, key \"y\"):\n  C: [69,0,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        }
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "Hero-hit passive AD_ELEC effect from the Energy Vortex; C records rn2(3)=1 at zero-based input step 35 before its later AD_DREN engulf branch.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-fire-ant-ad-fire-c59",
+          "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+          "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+          "synthetic/v18/wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+          "synthetic/v17/drain-life-spell-drains-positive-dagger-petless-slot-n",
+          "synthetic/v17/drain-life-spell-drains-positive-dagger-c-observed-route"
+        ],
+        "comparisonNote": "The v18 monster cases reach different monster-to-hero AD effects. The v17 drain-life cases cast Drain Life and use a zap ray against a dropped floor dagger via zap.c:drain_item; they do not use a read effect. None reproduces this Energy Vortex hero-hit passive AD_ELEC branch at zero-based step 35."
+      },
+      "firstMismatch": {
+        "bucketId": "passive-ad-elec",
+        "causalOwner": "uhitm.c:passive",
+        "causalBehavior": "Hero-hit passive AD_ELEC effect from the Energy Vortex; C records rn2(3)=1 at zero-based input step 35 before its later AD_DREN engulf branch.",
+        "cZeroBasedStep": 35,
+        "cObservation": "At zero-based input step 35, C reaches uhitm.c:passive(AD_ELEC) and records rn2(3)=1 before the passive electricity effect and its screen/cursor boundary. The later AD_DREN continuation at step 43 is not the first mismatch.",
+        "jsFirstStop": "The accepted-base JS simple-turn path refuses the passive AD_ELEC effect before the matching C call and screen/cursor boundary; later mhitu.c:gulpmu AD_DREN is not the first cause.",
+        "measuredComparisonHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "comparisonRunId": "run-NgqNgG",
+        "comparatorReportedResult": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:passive AD_ELEC",
+          "sourceDiagnosis": "The C-only rn2(3) call is the first mismatch itself.",
+          "rawComparator": {
+            "cRngCall": "passive(uhitm.c:6019)",
+            "cValue": "rn2(3)=1",
+            "key": "y",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 36,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 35,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=2731, JS=2704\nFirst PRNG mismatch at call 2705 (segment 1, step 36, key \"y\"):\n  C: rn2(3)=1\n  C caller: passive(uhitm.c:6019)\n  JS: <missing>\nScreen length mismatch: C=44, JS=35\nFirst screen mismatch at boundary 36 (segment 1, step 36, key \"y\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=44, JS=35\nFirst cursor mismatch at boundary 36 (segment 1, step 36, key \"y\"):\n  C: [69,0,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        },
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "trapper-engulfs-with-wrap-c62",
+      "title": "Trapper engulfs with wrap c62",
+      "recipe": "challenges/cases/v19/trapper-engulfs-with-wrap-c62.recipe.session.json",
+      "recipeSha256": "16463986423cb20796e7d1bca7aff6bbdd034ecfc48b93fb8d7ce9f9c9b0dbc9",
+      "recording": "challenges/cases/v19/trapper-engulfs-with-wrap-c62.session.json",
+      "recordingSha256": "ae114cab4cab5d26475b6d43494566a43da55e5e3d478c33eb4c1015e1565494",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon",
+        "monmove.c:dochug"
+      ],
+      "reachedBehavior": "C creates an adjacent hostile Trapper. The frozen y moves the hero northwest off its square, then the record ends after ordinary movement without mattacku/gulpmu; this is a valid target miss.",
+      "cOutcome": "C creates the hostile Trapper adjacent (“A trapper appears next to you”). The recipe then sends y, moving the Wizard northwest away from its square; subsequent dots produce monster pathing but no mattacku/gulpmu attack. This is a valid setup miss.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-axCYp3 completed successfully; output ae114cab4cab5d26475b6d43494566a43da55e5e3d478c33eb4c1015e1565494 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-qSHU0P",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-qSHU0P/receipt.json",
+        "receiptSha256": "2560933c4e20ed4e3e53474f7d8f7da16e0c88b2a82b458cd3a0b54bb411e0aa",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-qSHU0P/stdout.log",
+        "stdoutSha256": "858a612069fa45256c8afa97719287ce2b8e9cd8c254f8f4457466afc5c0545b",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-qSHU0P/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 3000 RNG,41 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C creates an adjacent hostile Trapper. The frozen y moves the hero northwest off its square, then the record ends after ordinary movement without mattacku/gulpmu; this is a valid target miss.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-c59",
+          "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59"
+        ],
+        "comparisonNote": "These prior rows create different hostile species and either stop before or reach their named attack. This C route moves away before any Trapper AT_ENGL/AD_WRAP action; it does not duplicate their attack history."
+      }
+    },
+    {
+      "id": "trapper-engulfs-with-wrap-c62-stay-put",
+      "title": "Trapper engulfs with wrap c62 stay put",
+      "recipe": "challenges/cases/v19/trapper-engulfs-with-wrap-c62-stay-put.recipe.session.json",
+      "recipeSha256": "f270f53b07a2a6dae420cdac76490ba70a045db6af829f594befff6c3f18ef16",
+      "recording": "challenges/cases/v19/trapper-engulfs-with-wrap-c62-stay-put.session.json",
+      "recordingSha256": "b930a0f3bf2bd1bebd8e313974eeed481d368fb33a52b3cb51b7dc021411c9a0",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon",
+        "monmove.c:dochug"
+      ],
+      "reachedBehavior": "C creates the adjacent hostile Trapper and processes one frozen wait; the recording ends at ordinary turn tail with no mattacku/gulpmu attack.",
+      "cOutcome": "C creates the hostile Trapper adjacent and the frozen input waits once without moving. The recording ends at the ordinary turn tail; C does not enter mattacku/gulpmu during this turn.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-6JIPte completed successfully; output b930a0f3bf2bd1bebd8e313974eeed481d368fb33a52b3cb51b7dc021411c9a0 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-GWxw2Y",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GWxw2Y/receipt.json",
+        "receiptSha256": "93b850435131bbc73d37a42f0cc3873701978d661ef1a9526eb935a1e9344f78",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GWxw2Y/stdout.log",
+        "stdoutSha256": "b4165b04cd3b28cb1252f93716649036260fc45ac5a92d16b6287aa62091ae05",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GWxw2Y/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2872 RNG,30 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C creates the adjacent hostile Trapper and processes one frozen wait; the recording ends at ordinary turn tail with no mattacku/gulpmu attack.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-c59",
+          "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59"
+        ],
+        "comparisonNote": "This distinct no-move wait history does not reach AT_ENGL/AD_WRAP; the earlier trapper route moves away. Prior ghoul/flayer cases use other monster types/effects and do not repeat this exact action/state."
+      }
+    },
+    {
+      "id": "python-wraps-with-hug-attack-c62",
+      "title": "Python wraps with hug attack c62",
+      "recipe": "challenges/cases/v19/python-wraps-with-hug-attack-c62.recipe.session.json",
+      "recipeSha256": "58386c4a0a8652ec52464ff8a08f270972dd9a1d2bea49e3258a0e216257e2f4",
+      "recording": "challenges/cases/v19/python-wraps-with-hug-attack-c62.session.json",
+      "recordingSha256": "7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7",
+      "sourcePointers": [
+        "mhitu.c:mattacku",
+        "mhitu.c:hitmu",
+        "uhitm.c:mhitm_adtyping(AD_WRAP)",
+        "uhitm.c:mhitm_ad_wrap"
+      ],
+      "reachedBehavior": "C processes Python AT_BITE and AT_TUCH, then third-slot AT_HUGS/AD_WRAP; rn2(10)=5 fails wrap at step 30. JS first refuses the missing AD_WRAP action before later distfleeck.",
+      "cOutcome": "C reaches the Python third-slot AT_HUGS/AD_WRAP attempt at zero-based stored step 30 after AT_BITE and AT_TUCH both succeed. C records rn2(10)=5 at mhitm_ad_wrap(uhitm.c:3379), so the wrap gate fails; the session is on More.",
+      "targetStatus": "source-traced first mismatch",
+      "reproducibility": "Independent patched-C replay run-uiX8EY completed successfully; output 7d8ca059afaf74d1092d4b0ef8eb918d8c2f529dac626e8c935afcc4bb78fed7 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+        "measuredWorkerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "runId": "run-EUtuUZ",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-EUtuUZ/receipt.json",
+        "receiptSha256": "2a0dafbe419b44194656e32848359af38cebee46062dedcbe0a9f371b5c267c4",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-EUtuUZ/stdout.log",
+        "stdoutSha256": "f6251bb93b30c07d2f0d173a9e16ecc9824c62ac0b9ec8a2f762039b0c941e51",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-EUtuUZ/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "B88 accepted-main per-case refresh",
+        "result": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_WRAP) -> uhitm.c:mhitm_ad_wrap hero-defender branch",
+          "sourceDiagnosis": "JS still refuses this source action in the elapsed-turn callback; the raw comparator first reports the later C distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 31,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 30,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=3747, JS=3736\nFirst PRNG mismatch at call 3737 (segment 1, step 31, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=40, JS=30\nFirst screen mismatch at boundary 31 (segment 1, step 31, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=40, JS=30\nFirst cursor mismatch at boundary 31 (segment 1, step 31, key \".\"):\n  C: [50,0,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        }
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "Python AT_HUGS/AD_WRAP hero-defender third slot after AT_BITE and AT_TUCH; C reaches rn2(10)=5 and the wrap gate fails at zero-based step 30.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+          "synthetic/v18/wizard-hostile-fire-ant-ad-fire-c59",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "synthetic/v18/wizard-hostile-homunculus-ad-slee-c59",
+          "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+          "synthetic/v18/wizard-hostile-wraith-ad-drli-c59"
+        ],
+        "comparisonNote": "Those prior monster-to-hero paths use other AD effects. Their shared hitmu/mhitm_adtyping dispatch is not the Python’s later AT_HUGS/AD_WRAP third-slot branch."
+      },
+      "firstMismatch": {
+        "bucketId": "monster-hit-ad-wrap",
+        "causalOwner": "uhitm.c:mhitm_adtyping(AD_WRAP) -> uhitm.c:mhitm_ad_wrap",
+        "causalBehavior": "Python AT_HUGS/AD_WRAP hero-defender third slot after AT_BITE and AT_TUCH; C reaches rn2(10)=5 and the wrap gate fails at zero-based step 30.",
+        "cZeroBasedStep": 30,
+        "cObservation": "C reaches the Python third-slot AT_HUGS/AD_WRAP attempt at zero-based stored step 30 after AT_BITE and AT_TUCH both succeed. C records rn2(10)=5 at mhitm_ad_wrap(uhitm.c:3379), so the wrap gate fails; the session is on More.",
+        "jsFirstStop": "The JS simple monster action path still refuses AD_WRAP before C’s helper/gate; the raw comparator next reports a later distfleeck draw, which is downstream.",
+        "measuredComparisonHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "comparisonRunId": "run-EUtuUZ",
+        "comparatorReportedResult": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_WRAP) -> uhitm.c:mhitm_ad_wrap hero-defender branch",
+          "sourceDiagnosis": "JS still refuses this source action in the elapsed-turn callback; the raw comparator first reports the later C distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 31,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 30,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=3747, JS=3736\nFirst PRNG mismatch at call 3737 (segment 1, step 31, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=40, JS=30\nFirst screen mismatch at boundary 31 (segment 1, step 31, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=40, JS=30\nFirst cursor mismatch at boundary 31 (segment 1, step 31, key \".\"):\n  C: [50,0,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        },
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "blessed-genocide-class-orcs-c62",
+      "title": "Blessed genocide class orcs c62",
+      "recipe": "challenges/cases/v19/blessed-genocide-class-orcs-c62.recipe.session.json",
+      "recipeSha256": "6ad34b468e98bcb55a73868936167c7915983fccb7402a27b3e0287d929518bc",
+      "recording": "challenges/cases/v19/blessed-genocide-class-orcs-c62.session.json",
+      "recordingSha256": "3f726c5ce67986f0f84ed50c4d5448a6cd94b4edb4c413de297939fc64bb230a",
+      "sourcePointers": [
+        "wizcmds.c:wiz_wish",
+        "invent.c:getobj",
+        "read.c:doread"
+      ],
+      "reachedBehavior": "C’s initial welcome More consumes the wish input; after dismissal, the remaining selector letters end at “You don’t have that object.” No genocide scroll action is reached.",
+      "cOutcome": "The initial key sequence omits the welcome More dismissal, so #wizwish is consumed by that page. After the welcome screen clears, the remaining letters trigger ordinary commands; the final r/o selection produces “You don’t have that object.” at the read selector. This is a valid C target miss, not a reached genocide effect.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-0YYrSt completed successfully; output 3f726c5ce67986f0f84ed50c4d5448a6cd94b4edb4c413de297939fc64bb230a is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-o8msSZ",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-o8msSZ/receipt.json",
+        "receiptSha256": "5c68455aad62cd3411bac23a600373fc11ab1262d55b7b7251a10c04742d23bd",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-o8msSZ/stdout.log",
+        "stdoutSha256": "a84e06cf7941827d1143a0f85e28834181cc9e9c377f2091030a4f27c16245a9",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-o8msSZ/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2779 RNG,39 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C’s initial welcome More consumes the wish input; after dismissal, the remaining selector letters end at “You don’t have that object.” No genocide scroll action is reached.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-reads-confuse-monster-scroll-c59-corrected-slot",
+          "synthetic/v18/wizard-probes-hostile-orc-c59-more-continued",
+          "synthetic/v17/read-create-monster-scroll-selects-orc-after-more"
+        ],
+        "comparisonNote": "The prior read cases perform confuse-monster or probe effects, and the v17 scroll creates a monster. This route never reaches a read effect; its actual C outcome is the wrong-object selector refusal."
+      }
+    },
+    {
+      "id": "blessed-genocide-class-orcs-c62-welcome-corrected",
+      "title": "Blessed genocide class orcs c62 welcome corrected",
+      "recipe": "challenges/cases/v19/blessed-genocide-class-orcs-c62-welcome-corrected.recipe.session.json",
+      "recipeSha256": "575a39ae700c7312247c06657ee6e73f07abace6e99b59695c328ddfadc1cfd9",
+      "recording": "challenges/cases/v19/blessed-genocide-class-orcs-c62-welcome-corrected.session.json",
+      "recordingSha256": "1f4c5bdad4aa81111979e53be28a0a4476d3a4d53de3f34c496fe00eac19bb49",
+      "sourcePointers": [
+        "wizcmds.c:wiz_wish",
+        "invent.c:getobj",
+        "read.c:doread"
+      ],
+      "reachedBehavior": "After dismissing welcome and wishing the scroll, C assigns it slot m; the frozen l selection reads the Wizard’s magic marker and displays marker text at step 41. It does not enter seffect_genocide.",
+      "cOutcome": "After the welcome dismissal and successful #wizwish, C puts the blessed genocide scroll in slot m. This frozen attempt selects l, reads the Wizard’s magic marker, and displays its marker text (record step 41); it does not enter seffect_genocide. This is a valid source-target miss.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-00PAO9 completed successfully; output 1f4c5bdad4aa81111979e53be28a0a4476d3a4d53de3f34c496fe00eac19bb49 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-A2C5ME",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-A2C5ME/receipt.json",
+        "receiptSha256": "75034060c16cc3aecb51c22302af7a7af744f8a1cb6a9207fff5a62f989f8836",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-A2C5ME/stdout.log",
+        "stdoutSha256": "043bb27de4fe10a8239456a494c4dcf88ef7025a285819ca3125dfff806bd7bc",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-A2C5ME/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2755 RNG,42 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "After dismissing welcome and wishing the scroll, C assigns it slot m; the frozen l selection reads the Wizard’s magic marker and displays marker text at step 41. It does not enter seffect_genocide.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-reads-confuse-monster-scroll-c59-corrected-slot",
+          "synthetic/v18/wizard-probes-hostile-orc-c59-more-continued",
+          "synthetic/v17/read-create-monster-scroll-selects-orc-after-more"
+        ],
+        "comparisonNote": "Prior read routes use another scroll effect or apply a probe after a separate creation. C reads the marker here, not genocide; the completed same-batch case later selects class o."
+      }
+    },
+    {
+      "id": "blessed-genocide-class-orcs-c62-completed",
+      "title": "Blessed genocide class orcs c62 completed",
+      "recipe": "challenges/cases/v19/blessed-genocide-class-orcs-c62-completed.recipe.session.json",
+      "recipeSha256": "c859d09ec94c8f198ffe8565df79e86251f44d7bc2578092c569bd1001683493",
+      "recording": "challenges/cases/v19/blessed-genocide-class-orcs-c62-completed.session.json",
+      "recordingSha256": "779b80d1ca70a69a1ec3ac5dcb4078fe985ad2caab10c7ed32b4e294bf0405c8",
+      "sourcePointers": [
+        "read.c:seffect_genocide",
+        "read.c:do_class_genocide",
+        "mon.c:kill_genocided_monsters"
+      ],
+      "reachedBehavior": "C accepts class o and reports goblins, hobgoblins, and orcs wiped out at step 44; it sets G_GENOD/G_NOCORPSE for eligible members and runs the named kill continuation. Strict JS match.",
+      "cOutcome": "After the observed class prompt, entering o reaches read.c:do_class_genocide and reports “Wiped out all goblins. Wiped out all hobgoblins. Wiped out all orcs.” at zero-based stored step 44. C sets G_GENOD/G_NOCORPSE for each eligible member of the o monster class and reaches its named kill_genocided_monsters continuation.",
+      "targetStatus": "source-reaching action; strict JS match",
+      "reproducibility": "Independent patched-C replay run-DlV9dy completed successfully; output 779b80d1ca70a69a1ec3ac5dcb4078fe985ad2caab10c7ed32b4e294bf0405c8 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-7hPH0j",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-7hPH0j/receipt.json",
+        "receiptSha256": "7efbf59b6a2cc009fb898e50fb6271c7d45959998d184f2c4d7e0336f54e30c9",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-7hPH0j/stdout.log",
+        "stdoutSha256": "a32692c28bfd231df9fe5b90c13f6c1c32254ed8537f72b6d80a402e389eb751",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-7hPH0j/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2749 RNG,45 screens/cursors"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C accepts class o and reports goblins, hobgoblins, and orcs wiped out at step 44; it sets G_GENOD/G_NOCORPSE for eligible members and runs the named kill continuation. Strict JS match.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-reads-confuse-monster-scroll-c59-corrected-slot",
+          "synthetic/v18/wizard-probes-hostile-orc-c59-more-continued",
+          "synthetic/v17/read-create-monster-scroll-selects-orc-after-more"
+        ],
+        "comparisonNote": "Prior scroll actions set confusion, inspect an inventory, or create an orc. C class genocide updates a monster class and its live members; the actual source/state action is distinct."
+      }
+    },
+    {
+      "id": "cancellation-reveals-hostile-large-mimic-c62",
+      "title": "Cancellation reveals hostile large mimic c62",
+      "recipe": "challenges/cases/v19/cancellation-reveals-hostile-large-mimic-c62.recipe.session.json",
+      "recipeSha256": "e4435adac79cfd8375d6e45bbf75649ae0135f4f7de033c6d3225d8543cc917a",
+      "recording": "challenges/cases/v19/cancellation-reveals-hostile-large-mimic-c62.session.json",
+      "recordingSha256": "3c212fddee0b53b2484f0a4e0a56302bf4eeb43b24b67ce34106077eb52f445c",
+      "sourcePointers": [
+        "wizcmds.c:wiz_wish",
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon",
+        "zap.c:bhitm",
+        "zap.c:cancel_monst"
+      ],
+      "reachedBehavior": "C creates a Large Mimic disguised as a yellow potion, aims a cancellation wand at it, reaches zap.c:bhitm’s disguised_mimic reveal before cancel_monst, and strictly matches.",
+      "cOutcome": "The first space is an ordinary unknown-command step. ^W then wishes the cancellation wand; its randomized appearance is a spiked wand at slot o. #wizgenesis creates a hostile Large Mimic disguised as a yellow potion at the square east of the hero (C says “A yellow potion appears next to you”). The frozen z?o l sequence selects that wand and targets east. At zero-based stored step 59, C records rn2(105)=68 at resist(zap.c:6141); cancellation is not resisted, and the yellow-potion glyph becomes the Large Mimic glyph m. zap.c:bhitm lines 335-340 enters disguised_mimic -> seemimic before cancel_monst; cancel_monst sets mcan and normal_shape. Final trailing space is an unknown-command step after the effect.",
+      "targetStatus": "source-reaching action; strict JS match",
+      "reproducibility": "Independent patched-C replay run-ztTiDk completed successfully; output 3c212fddee0b53b2484f0a4e0a56302bf4eeb43b24b67ce34106077eb52f445c is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-QJuBbx",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-QJuBbx/receipt.json",
+        "receiptSha256": "c9126273ba1822aece8a3bf8af7f680ae5da5c9cf20365f6da8336457f30e5d5",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-QJuBbx/stdout.log",
+        "stdoutSha256": "7393dcc5e210aab00b4382b513716249e604c02411bb0a8e0addb86d1136e318",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-QJuBbx/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2672 RNG,61 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C creates a Large Mimic disguised as a yellow potion, aims a cancellation wand at it, reaches zap.c:bhitm’s disguised_mimic reveal before cancel_monst, and strictly matches.",
+        "nearestPriorCases": [
+          "synthetic/v12/cancellation-wand-neutralizes-monster",
+          "synthetic/v18/wizard-probes-hostile-orc-c59-more-continued",
+          "synthetic/v17/read-create-monster-scroll-selects-orc-after-more"
+        ],
+        "comparisonNote": "The extra v12 comparator cancels an undisguised Grid Bug; here C reveals a disguised Large Mimic before cancellation. The v18 probe and v17 creation cases are non-cancellation effects."
+      }
+    },
+    {
+      "id": "rust-monster-erodes-worn-chain-mail-c62-valid-date",
+      "title": "Rust monster erodes worn chain mail c62 valid date",
+      "recipe": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.recipe.session.json",
+      "recipeSha256": "1bc12e2f94a9e60e1877f19b0226ea41eda2a0d109ceb117c1d5816133d86173",
+      "recording": "challenges/cases/v19/rust-monster-erodes-worn-chain-mail-c62-valid-date.session.json",
+      "recordingSha256": "a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284",
+      "sourcePointers": [
+        "monmove.c:dochug",
+        "mhitu.c:mattacku",
+        "mhitu.c:hitmu",
+        "uhitm.c:mhitm_adtyping(AD_RUST)",
+        "uhitm.c:mhitm_ad_rust",
+        "uhitm.c:erode_armor"
+      ],
+      "reachedBehavior": "C Rust Monster touches worn chain mail, reaches ERODE_RUST at step 64, and prints rusting. JS refuses the AD_RUST branch before later distfleeck.",
+      "cOutcome": "At zero-based step64, after creation of the hostile Rust Monster at the hero-adjacent square, C logs rn2(5)=1 @ erode_armor(uhitm.c:137) and prints “The rust monster touches you! Your chain mail rusts!” followed by More. Prior to it the monster turns include rn2(5) @ distfleeck(monmove.c:538), rnd(20) @ mattacku(mhitu.c:806), and d(0,0) @ hitmu(mhitu.c:1187); the worn chain-mail target is evidenced by C output.",
+      "targetStatus": "source-traced first mismatch",
+      "reproducibility": "Independent patched-C replay run-Y1CzTl completed successfully; output a9c160316c3108c5627862eae63024e3270bf04e3efee3195a98023f06fa8284 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+        "measuredWorkerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "runId": "run-MBjKDG",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-MBjKDG/receipt.json",
+        "receiptSha256": "005c8804f7675249cbeee7fe8ff0766c38569531dc49696ced03edf1e79f0718",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-MBjKDG/stdout.log",
+        "stdoutSha256": "13c4c85cb6c8f682b978c5d4907e9b646579991dd3fb943a12da26e709a1b5cb",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-MBjKDG/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "B88 accepted-main per-case refresh",
+        "result": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_RUST) -> uhitm.c:mhitm_ad_rust -> erode_armor(ERODE_RUST)",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_RUST precedes the raw comparator’s later distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 65,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 64,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=3170, JS=3162\nFirst PRNG mismatch at call 3163 (segment 1, step 65, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=71, JS=64\nFirst screen mismatch at boundary 65 (segment 1, step 65, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=71, JS=64\nFirst cursor mismatch at boundary 65 (segment 1, step 65, key \".\"):\n  C: [61,0,1]\n  JS: <missing>\nAnimation frame length: C=1, JS=1\nAnimation frames: match\nRESULT: FAIL"
+        }
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "A Rust Monster touches worn chain mail; C reaches erode_armor and prints rusting at zero-based step 64. The reported distfleeck mismatch is later.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+          "synthetic/v18/wizard-hostile-fire-ant-ad-fire-c59",
+          "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "synthetic/v17/drain-life-spell-drains-positive-dagger-petless-slot-n"
+        ],
+        "comparisonNote": "Disenchanter AD_ENCH drains enchantment via a separate effect; other v18 attack rows use other damage types. The v17 drain-life action targets a hero-held dagger through a scroll, not worn chain mail through AD_RUST."
+      },
+      "firstMismatch": {
+        "bucketId": "monster-hit-ad-rust",
+        "causalOwner": "uhitm.c:mhitm_adtyping(AD_RUST) -> uhitm.c:mhitm_ad_rust -> erode_armor(ERODE_RUST)",
+        "causalBehavior": "A Rust Monster touches worn chain mail; C reaches erode_armor and prints rusting at zero-based step 64. The reported distfleeck mismatch is later.",
+        "cZeroBasedStep": 64,
+        "cObservation": "At zero-based step64, after creation of the hostile Rust Monster at the hero-adjacent square, C logs rn2(5)=1 @ erode_armor(uhitm.c:137) and prints “The rust monster touches you! Your chain mail rusts!” followed by More. Prior to it the monster turns include rn2(5) @ distfleeck(monmove.c:538), rnd(20) @ mattacku(mhitu.c:806), and d(0,0) @ hitmu(mhitu.c:1187); the worn chain-mail target is evidenced by C output.",
+        "jsFirstStop": "JS refuses the AD_RUST monster-to-hero helper before the later turn-tail draw; the causal first source gap is the Rust erosion attack branch.",
+        "measuredComparisonHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "comparisonRunId": "run-MBjKDG",
+        "comparatorReportedResult": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_RUST) -> uhitm.c:mhitm_ad_rust -> erode_armor(ERODE_RUST)",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_RUST precedes the raw comparator’s later distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 65,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 64,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=3170, JS=3162\nFirst PRNG mismatch at call 3163 (segment 1, step 65, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=71, JS=64\nFirst screen mismatch at boundary 65 (segment 1, step 65, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=71, JS=64\nFirst cursor mismatch at boundary 65 (segment 1, step 65, key \".\"):\n  C: [61,0,1]\n  JS: <missing>\nAnimation frame length: C=1, JS=1\nAnimation frames: match\nRESULT: FAIL"
+        },
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "black-pudding-corrosion-on-worn-chain-mail-c62",
+      "title": "Black pudding corrosion on worn chain mail c62",
+      "recipe": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.recipe.session.json",
+      "recipeSha256": "fc66ddae14747cae59e529ef7456340ad7538bde14dd627189c22905e223dc76",
+      "recording": "challenges/cases/v19/black-pudding-corrosion-on-worn-chain-mail-c62.session.json",
+      "recordingSha256": "ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4",
+      "sourcePointers": [
+        "monmove.c:dochug",
+        "mhitu.c:mattacku",
+        "mhitu.c:hitmu",
+        "uhitm.c:mhitm_adtyping(AD_CORR)",
+        "uhitm.c:mhitm_ad_corr",
+        "uhitm.c:erode_armor"
+      ],
+      "reachedBehavior": "C Black Pudding bites worn chain mail; at step 67 it reaches ERODE_CORRODE and prints corrosion. JS refuses AD_CORR before later distfleeck.",
+      "cOutcome": "At zero-based steps64–66, C records the intervening fox attack/monster turns. At step67 the hostile Black Pudding’s AT_BITE/AD_CORR hits the hero: “The black pudding bites! Your chain mail corrodes!--More--”; C records rnd(20)=5 @ mattacku(mhitu.c:806), d(3,8)=17 @ hitmu(mhitu.c:1187), then rn2(5)=1 @ erode_armor(uhitm.c:137). This confirms the worn chain-mail target and actual ERODE_CORRODE call.",
+      "targetStatus": "source-traced first mismatch",
+      "reproducibility": "Independent patched-C replay run-IxrdsO completed successfully; output ffdf61ad58abeae5028bab03d3c258ccafa6a78d1cc9f41dafdbabfa128fd5f4 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+        "measuredWorkerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "runId": "run-GaSwWj",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GaSwWj/receipt.json",
+        "receiptSha256": "2afbf154c8630b41383e7ad73b7fb14719ea7aeae531fe06dcbc49dbabb36ca9",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GaSwWj/stdout.log",
+        "stdoutSha256": "2ffa5b4223a247b6081b38631669eab9ab825872d499dacd2954a404a610262d",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GaSwWj/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "B88 accepted-main per-case refresh",
+        "result": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_CORR) -> uhitm.c:mhitm_ad_corr -> erode_armor(ERODE_CORRODE)",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_CORR precedes the raw comparator’s later distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 68,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 67,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=2698, JS=2692\nFirst PRNG mismatch at call 2693 (segment 1, step 68, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=72, JS=67\nFirst screen mismatch at boundary 68 (segment 1, step 68, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=72, JS=67\nFirst cursor mismatch at boundary 68 (segment 1, step 68, key \".\"):\n  C: [59,0,1]\n  JS: <missing>\nAnimation frame length: C=1, JS=1\nAnimation frames: match\nRESULT: FAIL"
+        }
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "A Black Pudding bites the hero’s worn chain mail and reaches the corrosion retry/effect at zero-based step 67.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+          "synthetic/v18/wizard-hostile-fire-ant-ad-fire-c59",
+          "synthetic/v17/drain-life-spell-drains-positive-dagger-c-observed-route"
+        ],
+        "comparisonNote": "The old enchant-armor state case concerns hero reading a scroll and changing a cloak; AD_ENCH is a different monster source/effect, and v17 drain-life removes dagger enchantment via read.c rather than armor corrosion."
+      },
+      "firstMismatch": {
+        "bucketId": "monster-hit-ad-corr",
+        "causalOwner": "uhitm.c:mhitm_adtyping(AD_CORR) -> uhitm.c:mhitm_ad_corr -> erode_armor(ERODE_CORRODE)",
+        "causalBehavior": "A Black Pudding bites the hero’s worn chain mail and reaches the corrosion retry/effect at zero-based step 67.",
+        "cZeroBasedStep": 67,
+        "cObservation": "At zero-based steps64–66, C records the intervening fox attack/monster turns. At step67 the hostile Black Pudding’s AT_BITE/AD_CORR hits the hero: “The black pudding bites! Your chain mail corrodes!--More--”; C records rnd(20)=5 @ mattacku(mhitu.c:806), d(3,8)=17 @ hitmu(mhitu.c:1187), then rn2(5)=1 @ erode_armor(uhitm.c:137). This confirms the worn chain-mail target and actual ERODE_CORRODE call.",
+        "jsFirstStop": "JS refuses the AD_CORR monster-to-hero helper before the later distfleeck comparator call; distinguish the actual corrosion owner from that downstream draw.",
+        "measuredComparisonHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "comparisonRunId": "run-GaSwWj",
+        "comparatorReportedResult": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_CORR) -> uhitm.c:mhitm_ad_corr -> erode_armor(ERODE_CORRODE)",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_CORR precedes the raw comparator’s later distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 68,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 67,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=2698, JS=2692\nFirst PRNG mismatch at call 2693 (segment 1, step 68, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=72, JS=67\nFirst screen mismatch at boundary 68 (segment 1, step 68, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=72, JS=67\nFirst cursor mismatch at boundary 68 (segment 1, step 68, key \".\"):\n  C: [59,0,1]\n  JS: <missing>\nAnimation frame length: C=1, JS=1\nAnimation frames: match\nRESULT: FAIL"
+        },
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "brown-pudding-decays-worn-leather-armor-c62",
+      "title": "Brown pudding decays worn leather armor c62",
+      "recipe": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62.recipe.session.json",
+      "recipeSha256": "ade867a6adac9e1bfa18b2156606d72441d0420b258f948db4afb646f46663d5",
+      "recording": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62.session.json",
+      "recordingSha256": "b05b749e6f43414d14177eedb8b84add974d5f17409821e7680d088078d49389",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon",
+        "do_wear.c:dowear",
+        "invent.c:getobj",
+        "monmove.c:dochug"
+      ],
+      "reachedBehavior": "C’s pre-frozen wear selector chooses the starting blindfold instead of wished leather armor; it creates a hostile Brown Pudding but eight recorded waits contain no mattacku/AD_DCAY/erode_armor. Strict match; valid target miss.",
+      "cOutcome": "At zero-based step28 C offers p - a leather armor. The frozen sequence removes the cloak, opens wear, then selects o; step32 says “You are now wearing a blindfold. You can't see any more.” The later #wizgenesis prompt creates a hostile Brown Pudding at zero-based step66. Across all 75 steps there is no mattacku, hitmu, mhitm_ad_dcay, or erode_armor RNG/source line; the eight subsequent wait commands do not reach the attack. The remaining C path is ordinary monster movement and end-of-turn work.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-VJZU9b completed successfully; output b05b749e6f43414d14177eedb8b84add974d5f17409821e7680d088078d49389 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-ghl1jS",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ghl1jS/receipt.json",
+        "receiptSha256": "5f3dc60ee3bc1882f80a7dcb28818d7185764b2a257fc658c8cdb482c153d0b6",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ghl1jS/stdout.log",
+        "stdoutSha256": "6d90e2edfa066287d52a0ad0a02c0121025a740e86eddd13c091423e8cdb13f0",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ghl1jS/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2649 RNG,75 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C’s pre-frozen wear selector chooses the starting blindfold instead of wished leather armor; it creates a hostile Brown Pudding but eight recorded waits contain no mattacku/AD_DCAY/erode_armor. Strict match; valid target miss.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-c59",
+          "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation"
+        ],
+        "comparisonNote": "This route does not reach the armor effect and differs from the same-batch corrected-slot attack that actually rots worn leather. Prior monster attacks use other species/effects; no duplicate armor state change occurs."
+      }
+    },
+    {
+      "id": "brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation",
+      "title": "Brown pudding decays worn leather armor c62 slot p continuation",
+      "recipe": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.recipe.session.json",
+      "recipeSha256": "810a5260638d0f2f7837eaca80820ae44889402ec28e56480bef4dab87f49c1c",
+      "recording": "challenges/cases/v19/brown-pudding-decays-worn-leather-armor-c62-slot-p-continuation.session.json",
+      "recordingSha256": "ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484",
+      "sourcePointers": [
+        "mhitu.c:mattacku",
+        "mhitu.c:hitmu",
+        "uhitm.c:mhitm_adtyping(AD_DCAY)",
+        "uhitm.c:mhitm_ad_dcay",
+        "uhitm.c:erode_armor"
+      ],
+      "reachedBehavior": "C Brown Pudding attacks worn leather armor and reaches ERODE_ROT at step 72 (and later steps); JS refuses the AD_DCAY branch before distfleeck.",
+      "cOutcome": "The hostile Brown Pudding is created at zero-based step66. At step72, C reaches the monster-to-hero attack: rnd(20)=16 at mhitu.c:mattacku, d(0,0)=0 at mhitu.c:hitmu, then four erode_armor(ERODE_ROT) retry draws rn2(5)=3,3,3,1 at uhitm.c:erode_armor. C reports “The brown pudding bites! Your leather armor rots!” at step72. Further Brown Pudding hits rot the armor at steps80 and89. The intended leather armor is confirmed in the C inventory/effect; this route exercises worn armor, not a carried object.",
+      "targetStatus": "source-traced first mismatch",
+      "reproducibility": "Independent patched-C replay run-Yhia6Z completed successfully; output ef1e74d81540b4bd4e2a3b650905760942a09ccc212d85f39e73c8be0850b484 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+        "measuredWorkerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "runId": "run-GTCVFa",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GTCVFa/receipt.json",
+        "receiptSha256": "a910d13af1f5ac45bfb339ed70f660f6967ee1e2848b4a9659789339a4a3cea9",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GTCVFa/stdout.log",
+        "stdoutSha256": "45a537cb6b88c17972005e8c58c26d02a60de24fa1c72ccafbe55566fc02d0df",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-GTCVFa/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "B88 accepted-main per-case refresh",
+        "result": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_DCAY) -> uhitm.c:mhitm_ad_dcay -> erode_armor(ERODE_ROT)",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_DCAY precedes the raw comparator’s later distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=2",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 73,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 72,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=2999, JS=2646\nFirst PRNG mismatch at call 2647 (segment 1, step 73, key \".\"):\n  C: rn2(5)=2\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=91, JS=72\nFirst screen mismatch at boundary 73 (segment 1, step 73, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=91, JS=72\nFirst cursor mismatch at boundary 73 (segment 1, step 73, key \".\"):\n  C: [5,8,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        }
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "A Brown Pudding bites worn leather armor and reaches the ERODE_ROT retries/effect at zero-based step 72.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+          "synthetic/v18/wizard-hostile-fire-ant-ad-fire-c59",
+          "synthetic/v17/drain-life-spell-drains-positive-dagger-petless-slot-n"
+        ],
+        "comparisonNote": "The v18 attack rows select AD_ENCH/AD_FIRE on a hero and different effects; v17 drain-life acts on a carried weapon. The earlier C62 Brown-Pudding case never selected the leather armor or reached attack."
+      },
+      "firstMismatch": {
+        "bucketId": "monster-hit-ad-dcay",
+        "causalOwner": "uhitm.c:mhitm_adtyping(AD_DCAY) -> uhitm.c:mhitm_ad_dcay -> erode_armor(ERODE_ROT)",
+        "causalBehavior": "A Brown Pudding bites worn leather armor and reaches the ERODE_ROT retries/effect at zero-based step 72.",
+        "cZeroBasedStep": 72,
+        "cObservation": "The hostile Brown Pudding is created at zero-based step66. At step72, C reaches the monster-to-hero attack: rnd(20)=16 at mhitu.c:mattacku, d(0,0)=0 at mhitu.c:hitmu, then four erode_armor(ERODE_ROT) retry draws rn2(5)=3,3,3,1 at uhitm.c:erode_armor. C reports “The brown pudding bites! Your leather armor rots!” at step72. Further Brown Pudding hits rot the armor at steps80 and89. The intended leather armor is confirmed in the C inventory/effect; this route exercises worn armor, not a carried object.",
+        "jsFirstStop": "JS refuses AD_DCAY in the cloned elapsed-turn callback before the later distfleeck; the earlier Brown Pudding setup miss never reaches this branch.",
+        "measuredComparisonHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "comparisonRunId": "run-GTCVFa",
+        "comparatorReportedResult": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_DCAY) -> uhitm.c:mhitm_ad_dcay -> erode_armor(ERODE_ROT)",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_DCAY precedes the raw comparator’s later distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=2",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 73,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 72,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=2999, JS=2646\nFirst PRNG mismatch at call 2647 (segment 1, step 73, key \".\"):\n  C: rn2(5)=2\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=91, JS=72\nFirst screen mismatch at boundary 73 (segment 1, step 73, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=91, JS=72\nFirst cursor mismatch at boundary 73 (segment 1, step 73, key \".\"):\n  C: [5,8,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        },
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "quantum-mechanic-teleports-hero-c62",
+      "title": "Quantum mechanic teleports hero c62",
+      "recipe": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.recipe.session.json",
+      "recipeSha256": "1040cc28ed417e38c3b3ee1a5320c27ddc1533f2e9ff38008332cd3a6a4154d3",
+      "recording": "challenges/cases/v19/quantum-mechanic-teleports-hero-c62.session.json",
+      "recordingSha256": "bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922",
+      "sourcePointers": [
+        "mhitu.c:mattacku",
+        "mhitu.c:hitmu",
+        "uhitm.c:mhitm_adtyping(AD_TLPT)",
+        "uhitm.c:mhitm_ad_tlpt",
+        "teleport.c:tele"
+      ],
+      "reachedBehavior": "C reaches the Quantum Mechanic AD_TLPT selector at step 40 and repeatedly selects the hero’s current location; coordinates remain unchanged. JS refuses the helper before the later turn tail.",
+      "cOutcome": "The hostile Quantum Mechanic appears at zero-based step37. Its first attack at step40 logs rnd(20)=8 at mhitu.c:mattacku, d(1,4)=4 at mhitu.c:hitmu, rn2(10)=7 at uhitm.c:mhitm_mgc_atk_negated, then enters the AD_TLPT response with “Your position suddenly seems very uncertain!” and the controlled-teleport prompt. The input reaches the map selector and chooses the current square, producing “You materialize in the same location!” at step48. Further attacks reach the same branch at steps50 and56 and select the same square at steps54 and60. No coordinate change is claimed. The deliberately interspersed spaces also produce “Unknown command” no-op observations at steps39/49/55; they are preserved as part of the frozen valid input.",
+      "targetStatus": "source-traced first mismatch",
+      "reproducibility": "Independent patched-C replay run-9Y13ai completed successfully; output bba42c7bc0af0cb19257439f57b65e5de23ea90f687fc5dc68b4f4bf5a3f4922 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+        "measuredWorkerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "runId": "run-ppCadc",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ppCadc/receipt.json",
+        "receiptSha256": "f8ab7945d23fa41a51df2457f2c1912fbff0753971dbbcf23affcd95611b1cb2",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ppCadc/stdout.log",
+        "stdoutSha256": "5c998a7e26634c8c7a811bb1bfdefe7d03f8b9639e5eebf5cc33aa5bbd586dfb",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ppCadc/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "B88 accepted-main per-case refresh",
+        "result": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_TLPT) -> uhitm.c:mhitm_ad_tlpt -> tele()",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_TLPT precedes the raw comparator’s later distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 41,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 40,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=6297, JS=6259\nFirst PRNG mismatch at call 6260 (segment 1, step 41, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=61, JS=40\nFirst screen mismatch at boundary 41 (segment 1, step 41, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=61, JS=40\nFirst cursor mismatch at boundary 41 (segment 1, step 41, key \".\"):\n  C: [34,0,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        }
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "Quantum Mechanic reaches the hero teleport selector at zero-based step 40; the chosen same-location destination leaves coordinates unchanged and is not credited as relocation.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+          "synthetic/v18/wizard-hostile-fire-ant-ad-fire-c59",
+          "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+          "synthetic/v17/wizard-fire-ray-melts-wished-ice"
+        ],
+        "comparisonNote": "The v18 rows are non-teleport attack effects; the v17 ray targets floor ice, not hero relocation. This records a same-location selector result, not actual movement."
+      },
+      "firstMismatch": {
+        "bucketId": "monster-hit-ad-tlpt",
+        "causalOwner": "uhitm.c:mhitm_adtyping(AD_TLPT) -> uhitm.c:mhitm_ad_tlpt -> teleport.c:tele",
+        "causalBehavior": "Quantum Mechanic reaches the hero teleport selector at zero-based step 40; the chosen same-location destination leaves coordinates unchanged and is not credited as relocation.",
+        "cZeroBasedStep": 40,
+        "cObservation": "The hostile Quantum Mechanic appears at zero-based step37. Its first attack at step40 logs rnd(20)=8 at mhitu.c:mattacku, d(1,4)=4 at mhitu.c:hitmu, rn2(10)=7 at uhitm.c:mhitm_mgc_atk_negated, then enters the AD_TLPT response with “Your position suddenly seems very uncertain!” and the controlled-teleport prompt. The input reaches the map selector and chooses the current square, producing “You materialize in the same location!” at step48. Further attacks reach the same branch at steps50 and56 and select the same square at steps54 and60. No coordinate change is claimed. The deliberately interspersed spaces also produce “Unknown command” no-op observations at steps39/49/55; they are preserved as part of the frozen valid input.",
+        "jsFirstStop": "JS refuses the AD_TLPT branch before C’s selector and later turn-tail boundary.",
+        "measuredComparisonHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "comparisonRunId": "run-ppCadc",
+        "comparatorReportedResult": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_TLPT) -> uhitm.c:mhitm_ad_tlpt -> tele()",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_TLPT precedes the raw comparator’s later distfleeck call.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 41,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 40,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=6297, JS=6259\nFirst PRNG mismatch at call 6260 (segment 1, step 41, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=61, JS=40\nFirst screen mismatch at boundary 41 (segment 1, step 41, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=61, JS=40\nFirst cursor mismatch at boundary 41 (segment 1, step 41, key \".\"):\n  C: [34,0,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        },
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "genetic-engineer-polymorphs-wizard-c62",
+      "title": "Genetic engineer polymorphs wizard c62",
+      "recipe": "challenges/cases/v19/genetic-engineer-polymorphs-wizard-c62.recipe.session.json",
+      "recipeSha256": "2b2920e8604a328ae50453fd26dbcec993060f035c5f59cd8839873dec8f970f",
+      "recording": "challenges/cases/v19/genetic-engineer-polymorphs-wizard-c62.session.json",
+      "recordingSha256": "d1abe73f370ff21f278cf23af11248f5f0154031a9749e34c6849629d2bd07d2",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon",
+        "monmove.c:dochug",
+        "muse.c:use_misc",
+        "muse.c:mzapwand",
+        "worn.c:mon_set_minvis"
+      ],
+      "reachedBehavior": "C creates a hostile Genetic Engineer. Eight waits observe its MUSE_WAN_MAKE_INVISIBLE misc action: it zaps itself with a balsa wand and briefly turns transparent. No AD_POLY attack occurs; strict JS match.",
+      "cOutcome": "C creates a hostile Genetic Engineer at step37. On each of the eight wait turns, `monmove.c:dochug` reaches the monster miscellaneous-item action; C says “The genetic engineer zaps herself with a balsa wand!” and “The genetic engineer briefly seems to be transparent.” This follows muse.c:use_misc(MUSE_WAN_MAKE_INVISIBLE) -> muse.c:mzapwand -> mon_set_minvis. There is no mhitu.c:hitmu or uhitm.c:mhitm_ad_poly in these 53 steps; the intended attack is not reached.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-2Rjacg completed successfully; output d1abe73f370ff21f278cf23af11248f5f0154031a9749e34c6849629d2bd07d2 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-iHviQC",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-iHviQC/receipt.json",
+        "receiptSha256": "7b70fdddc49cb6731730a602ec774ce44302cbf28cc2191c9edb71b0717d6ab6",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-iHviQC/stdout.log",
+        "stdoutSha256": "60bbdbf6aa098e6cf53d7bf19ddfc9b130dbb4456be5d0da6578c8818aa01f15",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-iHviQC/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2883 RNG,53 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C creates a hostile Genetic Engineer. Eight waits observe its MUSE_WAN_MAKE_INVISIBLE misc action: it zaps itself with a balsa wand and briefly turns transparent. No AD_POLY attack occurs; strict JS match.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-c59",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59"
+        ],
+        "comparisonNote": "The prior ghoul/flayer cases exercise or target monster-to-hero attack effects; C’s actual engineer route is a monster misc-wand action, not an attack."
+      }
+    },
+    {
+      "id": "skeleton-slows-wizard-c62",
+      "title": "Skeleton slows wizard c62",
+      "recipe": "challenges/cases/v19/skeleton-slows-wizard-c62.recipe.session.json",
+      "recipeSha256": "da93a4b369628e9db0a464d4ea217a52e51064810f961c0b9ea09c188437f528",
+      "recording": "challenges/cases/v19/skeleton-slows-wizard-c62.session.json",
+      "recordingSha256": "4e981d82ede727e8e3250c258d9120c0cb78384f2f3cd1455527e22c3fcdc4de",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon"
+      ],
+      "reachedBehavior": "The welcome More consumes the frozen monster-creation command; C never creates a Skeleton or reaches AD_SLOW. It is a valid matching setup miss.",
+      "cOutcome": "Valid C recording, but the source target is not reached. The startup screen is “Hello wizard, welcome to NetHack! … --More--”; keys 1–11 spell #wizgenesis while the welcome page remains, and key 12 (newline) dismisses it. C then interprets the remaining “hostile skeleton” text as ordinary gameplay commands: h moves, o asks for a direction, s reports no loot, t opens the throw selector, and later inputs yield ordinary movement/unknown-command prompts. The C recording contains no genesis prompt, Skeleton, or AD_SLOW attack. This is a valid pager/setup miss, not evidence for mhitm_ad_slow.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-58t1v2 completed successfully; output 4e981d82ede727e8e3250c258d9120c0cb78384f2f3cd1455527e22c3fcdc4de is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-Qi1ain",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-Qi1ain/receipt.json",
+        "receiptSha256": "618558a6074636ec28fe95f629b5b32496449aefe4cc00ad249a9414da4a2696",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-Qi1ain/stdout.log",
+        "stdoutSha256": "5f0a0d0cad3d63a8e2642a339c82012573e2bed1cc174aa9dbec867d349d368f",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-Qi1ain/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2922 RNG,45 screens/cursors,4 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "The welcome More consumes the frozen monster-creation command; C never creates a Skeleton or reaches AD_SLOW. It is a valid matching setup miss.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-homunculus-ad-slee-c59",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-c59"
+        ],
+        "comparisonNote": "Those prior rows create/observe different monsters, and the homunculus AD_SLEE is a monster sleep effect against the hero. This C case stops at a startup pager before any monster action."
+      }
+    },
+    {
+      "id": "skeleton-slows-wizard-c62-pager-corrected",
+      "title": "Skeleton slows wizard c62 pager corrected",
+      "recipe": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.recipe.session.json",
+      "recipeSha256": "fef62e53d1d883a8f9abf3998693948128fde01b0e2b80182523ab3f48ef2f2a",
+      "recording": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json",
+      "recordingSha256": "426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon",
+        "mhitu.c:mattacku",
+        "mhitu.c:hitmu",
+        "uhitm.c:mhitm_adtyping(AD_SLOW)",
+        "uhitm.c:mhitm_ad_slow"
+      ],
+      "reachedBehavior": "C creates a hostile Skeleton, reaches its AT_TUCH/AD_SLOW slot at step 33, but HFast=false prevents speed mutation or a slowing message. JS refuses the helper before later distfleeck.",
+      "cOutcome": "C reaches the source route: the welcome pager is dismissed by the leading newline; the genesis prompt appears at step13, and a hostile Skeleton appears at step30. At step33, `mhitu.c:mattacku` processes AT_WEAP/AD_PHYS (`rnd(20)=16`, `d(2,6)=6`), then AT_TUCH/AD_SLOW (`rnd(21)=16`, `d(1,6)=4`), and C prints “The skeleton hits! The skeleton touches you!” The Wizard is not HFast, so the source helper’s HFast gate prevents a slowing state/message. The recording contains later turn attempts and preserves all pager boundaries.",
+      "targetStatus": "source-traced first mismatch; effect gate fails",
+      "reproducibility": "Independent patched-C replay run-Yp4Ggg completed successfully; output 426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+        "measuredWorkerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "runId": "run-R1KvJn",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-R1KvJn/receipt.json",
+        "receiptSha256": "a290965d8cc615081185dbbdea7a5d360244521da14e35f64b1361217b85c8ec",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-R1KvJn/stdout.log",
+        "stdoutSha256": "1cb9d87a0e82122f05f87cf8c0ab6ab1a2f0edbb8e82c36d167bc94e590b54df",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-R1KvJn/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "B88 accepted-main per-case refresh",
+        "result": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_SLOW) -> uhitm.c:mhitm_ad_slow hero-defender branch",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_SLOW precedes the raw comparator’s later distfleeck call; HFast=false means C does not change speed.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 34,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 33,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=3002, JS=2944\nFirst PRNG mismatch at call 2945 (segment 1, step 34, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=46, JS=33\nFirst screen mismatch at boundary 34 (segment 1, step 34, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=46, JS=33\nFirst cursor mismatch at boundary 34 (segment 1, step 34, key \".\"):\n  C: [33,6,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        }
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "A Skeleton reaches AD_SLOW at zero-based step 33; HFast=false blocks any speed reduction, so the case proves branch reach only, not a slowing state change.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-homunculus-ad-slee-c59",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59"
+        ],
+        "comparisonNote": "The homunculus touches with AD_SLEE and changes hero sleep; this Skeleton touches with AD_SLOW and C HFast=false suppresses the effect. The ghoul attacks with AD_PLYS. These are separate attack properties/states."
+      },
+      "firstMismatch": {
+        "bucketId": "monster-hit-ad-slow",
+        "causalOwner": "uhitm.c:mhitm_adtyping(AD_SLOW) -> uhitm.c:mhitm_ad_slow",
+        "causalBehavior": "A Skeleton reaches AD_SLOW at zero-based step 33; HFast=false blocks any speed reduction, so the case proves branch reach only, not a slowing state change.",
+        "cZeroBasedStep": 33,
+        "cObservation": "C reaches the source route: the welcome pager is dismissed by the leading newline; the genesis prompt appears at step13, and a hostile Skeleton appears at step30. At step33, `mhitu.c:mattacku` processes AT_WEAP/AD_PHYS (`rnd(20)=16`, `d(2,6)=6`), then AT_TUCH/AD_SLOW (`rnd(21)=16`, `d(1,6)=4`), and C prints “The skeleton hits! The skeleton touches you!” The Wizard is not HFast, so the source helper’s HFast gate prevents a slowing state/message. The recording contains later turn attempts and preserves all pager boundaries.",
+        "jsFirstStop": "JS refuses the AD_SLOW helper before the later distfleeck boundary; HFast=false remains explicit C counterevidence to a speed-change claim.",
+        "measuredComparisonHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "comparisonRunId": "run-R1KvJn",
+        "comparatorReportedResult": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_SLOW) -> uhitm.c:mhitm_ad_slow hero-defender branch",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_SLOW precedes the raw comparator’s later distfleeck call; HFast=false means C does not change speed.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 34,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 33,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=3002, JS=2944\nFirst PRNG mismatch at call 2945 (segment 1, step 34, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=46, JS=33\nFirst screen mismatch at boundary 34 (segment 1, step 34, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=46, JS=33\nFirst cursor mismatch at boundary 34 (segment 1, step 34, key \".\"):\n  C: [33,6,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        },
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "spotted-jelly-acid-passive-c62",
+      "title": "Spotted jelly acid passive c62",
+      "recipe": "challenges/cases/v19/spotted-jelly-acid-passive-c62.recipe.session.json",
+      "recipeSha256": "4fcb237d381a2f6bf02deb85309dd402fc02d9903bb18e721d16e2058e39cbda",
+      "recording": "challenges/cases/v19/spotted-jelly-acid-passive-c62.session.json",
+      "recordingSha256": "f628a380fe7f998587bdbe39ab7ed56397736b3995fd19f02352e97d5f45a457",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon"
+      ],
+      "reachedBehavior": "C creates a hostile Spotted Jelly immediately west of the hero; six frozen eastward l keys face a wall, so there is no attack/passive call. Strict match; valid target miss.",
+      "cOutcome": "The welcome pager is dismissed by the leading newline. C accepts #wizgenesis and creates the requested hostile Spotted Jelly at zero-based step35, immediately west of the hero. Each of the six subsequent `l` keys points east into the room wall; the screen and cursor remain unchanged and no RNG/source line or attack occurs. This is a valid source-target miss. The first freeze’s stated intention to attack was not achieved; preserve the miss unchanged.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-7nvzLr completed successfully; output f628a380fe7f998587bdbe39ab7ed56397736b3995fd19f02352e97d5f45a457 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-943VuP",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-943VuP/receipt.json",
+        "receiptSha256": "11bca0e3e6c102815140e6c8746d3ff2f84ae6e5bb77a6903d186c9245966216",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-943VuP/stdout.log",
+        "stdoutSha256": "880e80d27d3eeaa81e36e5cfabbb0850b86750a150e39d0d874d551e05081d05",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-943VuP/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 3079 RNG,42 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C creates a hostile Spotted Jelly immediately west of the hero; six frozen eastward l keys face a wall, so there is no attack/passive call. Strict match; valid target miss.",
+        "nearestPriorCases": [
+          "spotted-jelly-acid-passive-c62-west-attack",
+          "synthetic/v18/wizard-wields-silver-saber-hits-succubus-c59"
+        ],
+        "comparisonNote": "The later same-batch corrected case attacks the jelly from the west; this original case only creates it and attempts movement into the wall. The prior succubus case is a hero melee miss, not jelly passive acid."
+      }
+    },
+    {
+      "id": "spotted-jelly-acid-passive-c62-west-attack",
+      "title": "Spotted jelly acid passive c62 west attack",
+      "recipe": "challenges/cases/v19/spotted-jelly-acid-passive-c62-west-attack.recipe.session.json",
+      "recipeSha256": "c1aec9c084f2cf21a5d2d99360bb0995baef9fc20297eaec2f23b883567dbb1f",
+      "recording": "challenges/cases/v19/spotted-jelly-acid-passive-c62-west-attack.session.json",
+      "recordingSha256": "74fff48656e1780f3cb48dc59014b1edead682f710e83fe76f8eb33c4f064334",
+      "sourcePointers": [
+        "uhitm.c:hitum",
+        "uhitm.c:known_hitum",
+        "mhitu.c:hitmu",
+        "uhitm.c:passive(AD_ACID)",
+        "uhitm.c:passive_obj"
+      ],
+      "reachedBehavior": "First hero hit reaches passive AD_ACID gate rn2(2)=0 at step 36 (no splash); next hit takes rn2(2)=1. JS misses the first passive call, which is the counted earliest behavior.",
+      "cOutcome": "The welcome pager is dismissed; #wizgenesis creates a hostile Spotted Jelly immediately west of the hero. At zero-based step36 the first `h` hits: `uhitm.c:passive` rolls d(5,6)=16, `rn2(2)=0` at the AD_ACID gate (no splash), then passive_obj checks the weapon with rn2(6)=3. At step37 the second `h` hits: d(5,6)=24 and rn2(2)=1 enters the AD_ACID splash path. The on-screen “You hit the spotted jelly.--More--” is pending through steps38–41; those four h keys dismiss More rather than making four new attacks. The target branch is reached; first-mismatch attribution awaits independent replay and exact-base JS comparison.",
+      "targetStatus": "source-traced first mismatch",
+      "reproducibility": "Independent patched-C replay run-w0WLZe completed successfully; output 74fff48656e1780f3cb48dc59014b1edead682f710e83fe76f8eb33c4f064334 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+        "measuredWorkerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "runId": "run-ot8cZJ",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ot8cZJ/receipt.json",
+        "receiptSha256": "7e20ab9289ded4b2b960200157cf02706ee13d309b7e6b6926cadf36b2fdc932",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ot8cZJ/stdout.log",
+        "stdoutSha256": "9d589a2a480b3484e7d525d445b94b36c42ba9dd5657849e0653a9926e2f5e34",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-ot8cZJ/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "B88 accepted-main per-case refresh",
+        "result": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:passive AD_ACID hero-hit branch",
+          "sourceDiagnosis": "The C-only rn2(2) call is the first mismatch itself; rn2(2)=0 is the no-splash arm.",
+          "rawComparator": {
+            "cRngCall": "passive(uhitm.c:5907)",
+            "cValue": "rn2(2)=0",
+            "key": "h",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 37,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 36,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=3111, JS=3088\nFirst PRNG mismatch at call 3089 (segment 1, step 37, key \"h\"):\n  C: rn2(2)=0\n  C caller: passive(uhitm.c:5907)\n  JS: <missing>\nScreen length mismatch: C=42, JS=36\nFirst screen mismatch at boundary 37 (segment 1, step 37, key \"h\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=42, JS=36\nFirst cursor mismatch at boundary 37 (segment 1, step 37, key \"h\"):\n  C: [39,6,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        }
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "On the first westward hero hit of the Spotted Jelly, C reaches the passive gate rn2(2)=0 at zero-based step 36, taking the no-splash arm; the next hit’s rn2(2)=1 is later.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-wields-silver-saber-hits-succubus-c59",
+          "synthetic/v18/wizard-flashes-hostile-orc-with-camera-c59",
+          "synthetic/v18/wizard-hostile-fire-ant-ad-fire-c59"
+        ],
+        "comparisonNote": "The v18 succubus action is hero melee through hitum but misses before defender effects; camera flashes an orc; AD_FIRE is monster-to-hero. None reaches uhitm.c:passive AD_ACID."
+      },
+      "firstMismatch": {
+        "bucketId": "passive-ad-acid",
+        "causalOwner": "uhitm.c:passive AD_ACID hero-hit branch",
+        "causalBehavior": "On the first westward hero hit of the Spotted Jelly, C reaches the passive gate rn2(2)=0 at zero-based step 36, taking the no-splash arm; the next hit’s rn2(2)=1 is later.",
+        "cZeroBasedStep": 36,
+        "cObservation": "The welcome pager is dismissed; #wizgenesis creates a hostile Spotted Jelly immediately west of the hero. At zero-based step36 the first `h` hits: `uhitm.c:passive` rolls d(5,6)=16, `rn2(2)=0` at the AD_ACID gate (no splash), then passive_obj checks the weapon with rn2(6)=3. At step37 the second `h` hits: d(5,6)=24 and rn2(2)=1 enters the AD_ACID splash path. The on-screen “You hit the spotted jelly.--More--” is pending through steps38–41; those four h keys dismiss More rather than making four new attacks. The target branch is reached; first-mismatch attribution awaits independent replay and exact-base JS comparison.",
+        "jsFirstStop": "JS lacks the passive AD_ACID call at the first hit; do not classify the later splash roll as the first behavior.",
+        "measuredComparisonHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "comparisonRunId": "run-ot8cZJ",
+        "comparatorReportedResult": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:passive AD_ACID hero-hit branch",
+          "sourceDiagnosis": "The C-only rn2(2) call is the first mismatch itself; rn2(2)=0 is the no-splash arm.",
+          "rawComparator": {
+            "cRngCall": "passive(uhitm.c:5907)",
+            "cValue": "rn2(2)=0",
+            "key": "h",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 37,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 36,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=3111, JS=3088\nFirst PRNG mismatch at call 3089 (segment 1, step 37, key \"h\"):\n  C: rn2(2)=0\n  C caller: passive(uhitm.c:5907)\n  JS: <missing>\nScreen length mismatch: C=42, JS=36\nFirst screen mismatch at boundary 37 (segment 1, step 37, key \"h\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=42, JS=36\nFirst cursor mismatch at boundary 37 (segment 1, step 37, key \"h\"):\n  C: [39,6,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        },
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "wand-cancellation-floor-sickness-c62",
+      "title": "Wand cancellation floor sickness c62",
+      "recipe": "challenges/cases/v19/wand-cancellation-floor-sickness-c62.recipe.session.json",
+      "recipeSha256": "7954c002d615f46e1a28368b88202d1be9e1c36f16ccb2cc4fa3131a3401d70f",
+      "recording": "challenges/cases/v19/wand-cancellation-floor-sickness-c62.session.json",
+      "recordingSha256": "873e7029cfcba3d1fedcd38ece0f842633bb937a7419e8739dfe48c6c3d1a6c3",
+      "sourcePointers": [
+        "wizcmds.c:wiz_wish",
+        "invent.c:getobj",
+        "zap.c:dozap"
+      ],
+      "reachedBehavior": "C drops the cancellation wand rather than the potion, then the frozen zap selector chooses absent slot n and says “That is a silly thing to zap.” No cancellation ray reaches a floor item. Strict match; valid target miss.",
+      "cOutcome": "The welcome page is dismissed. The first #wizwish creates the cancellation wand, shown at zero-based step23 as `o - an iridium wand.`; the potion wish creates a smoky potion at step43 as `p - a smoky potion.`. At step45 the frozen `o` drop selection drops the cancellation wand, not the potion. The recipe also has an extra literal space, which C reports as an unknown command. After the north move, `z` lists only slot c as a zap candidate; the frozen slot n is rejected with “That is a silly thing to zap.” The final j acts as movement, and C says “You see here an iridium wand.” No WAN_CANCELLATION ray hits a floor item; bhito/cancel_item is not reached. Retain this valid selector/setup miss unchanged.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-2PgMg2 completed successfully; output 873e7029cfcba3d1fedcd38ece0f842633bb937a7419e8739dfe48c6c3d1a6c3 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-nLf8xx",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-nLf8xx/receipt.json",
+        "receiptSha256": "e8303e716a9ffad999989eab9f6fe9447dcef91fdec29a3363393602f2679c09",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-nLf8xx/stdout.log",
+        "stdoutSha256": "0ba97401249d9f3509b2241dd2abb0e100e5132e110b0aadeafe2ae17828e4fa",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-nLf8xx/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2588 RNG,51 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C drops the cancellation wand rather than the potion, then the frozen zap selector chooses absent slot n and says “That is a silly thing to zap.” No cancellation ray reaches a floor item. Strict match; valid target miss.",
+        "nearestPriorCases": [
+          "synthetic/v12/cancellation-wand-neutralizes-monster",
+          "synthetic/v17/wizard-fire-ray-melts-wished-ice",
+          "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o"
+        ],
+        "comparisonNote": "v12 cancels a monster through bhitm, and v17 directs fire at ice; this frozen C input drops the wrong object and fails getobj before any floor-object zap path."
+      }
+    },
+    {
+      "id": "wand-cancellation-floor-sickness-c62-slots-corrected",
+      "title": "Wand cancellation floor sickness c62 slots corrected",
+      "recipe": "challenges/cases/v19/wand-cancellation-floor-sickness-c62-slots-corrected.recipe.session.json",
+      "recipeSha256": "7235df246a830c7b29f0c0e015de37fa08e7114fbc76e2043749e891b818ece4",
+      "recording": "challenges/cases/v19/wand-cancellation-floor-sickness-c62-slots-corrected.session.json",
+      "recordingSha256": "e35e2d20604cab71483d0c84977cc3f32c1ce3ad8d1d3bb4e7894b3ca40caea8",
+      "sourcePointers": [
+        "zap.c:dozap",
+        "zap.c:weffects",
+        "zap.c:bhit",
+        "zap.c:bhito",
+        "zap.c:cancel_item"
+      ],
+      "reachedBehavior": "C drops the wished sickness potion south of the hero, selects the cancellation wand, and fires south. The wand ray reaches the floor potion via bhito/cancel_item; the exact JS comparison strictly matches. This records the C effect path without claiming an unobserved post-zap potion-type value.",
+      "cOutcome": "C confirms the corrected inventory: the cancellation wand is at o and the smoky potion at p. Step45 drops p; step46 moves north, leaving the potion glyph `!` in the tile immediately south of the hero. At step47 z lists [c or ?*] (the cancellation wand o is held); step48 o selects it. Step49 j chooses south and C logs `rn2(8)=6 @ weffects(zap.c:3448)`, the immediate wand ray. The potion is directly on the first floor square south and no wall/monster intervenes, so source order is dozap -> weffects -> bhit -> bhito -> cancel_item(POT_SICKNESS), which changes it to POT_FRUIT_JUICE without a distinctive glyph/message. The post-zap boundary alone does not expose the resulting object type; a separately frozen C observation continuation can confirm it before claiming the changed item result.",
+      "targetStatus": "source-reaching action; strict JS match",
+      "reproducibility": "Independent patched-C replay run-4cH16s completed successfully; output e35e2d20604cab71483d0c84977cc3f32c1ce3ad8d1d3bb4e7894b3ca40caea8 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": null,
+        "measuredWorkerHead": "39c0e17393bd2990bdf69e7d03e0f6d70f2cc6e3",
+        "runId": "run-1PyywG",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-1PyywG/receipt.json",
+        "receiptSha256": "28f466724445dccba270222ef9f120bb0001bed23a36622def688d0eb99eb02d",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-1PyywG/stdout.log",
+        "stdoutSha256": "1a552cf07eb8ece40524fa9ab650876a4aabf3b3ec6aa41a62646d881223846d",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-1PyywG/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "original C62 exact-base comparison",
+        "result": "Strict match: 2,590/2,590 RNG values, 50/50 screens, 50/50 cursors, 0/0 animation frames."
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C drops the wished sickness potion south of the hero, selects the cancellation wand, and fires south. The wand ray reaches the floor potion via bhito/cancel_item; the exact JS comparison strictly matches. This records the C effect path without claiming an unobserved post-zap potion-type value.",
+        "nearestPriorCases": [
+          "synthetic/v12/cancellation-wand-neutralizes-monster",
+          "synthetic/v17/wizard-fire-ray-melts-wished-ice",
+          "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o"
+        ],
+        "comparisonNote": "The v12 route targets a monster; v17 fire rays hit ice. C62’s ray reaches a floor potion item and cancel_item, a different ray target/effect even though the zap source is shared."
+      }
+    },
+    {
+      "id": "large-mimic-sticks-viking-c62",
+      "title": "Large mimic sticks viking c62",
+      "recipe": "challenges/cases/v19/large-mimic-sticks-viking-c62.recipe.session.json",
+      "recipeSha256": "cda99c1fe6a71dbc5b7d7cf926f6a1edc3b73e7590454a82191c1c596e260ba2",
+      "recording": "challenges/cases/v19/large-mimic-sticks-viking-c62.session.json",
+      "recordingSha256": "fad167987d66230782355bb115ae838e0d814985cd5b1840e13bae9d3b7cd1e9",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon"
+      ],
+      "reachedBehavior": "This Valkyrie debug recipe’s leading newline dismisses welcome, but underfoot-items More consumes the #wizgenesis command through step 12; trap-door rock follows. No mimic or AD_STCK is reached. Strict match; actual alias/file ID is “viking”.",
+      "cOutcome": "The frozen recipe sets playmode:debug, so #wizgenesis availability depends on C wizard/debug mode, not the Valkyrie character role. At zero-based input step 1, the leading newline dismisses the welcome page and reveals “Things that are here: a rogue corpse, a blue gem, 11 rocks --More--”. Input steps 2–12 (the full #wizgenesis command) are consumed while that floor-items pager remains active. The next newline at step 13 dismisses it; only then C reports “A trap door in the ceiling opens and a rock falls on your head!” The Large Mimic command never reaches cmd.c:doextcmd or wizgenesis, and no monster, mhitu.c attack, or AD_STCK branch occurs. This is a valid pager/setup miss, not evidence of a role restriction or of the AD_STCK source target.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-dGXlwv completed successfully; output fad167987d66230782355bb115ae838e0d814985cd5b1840e13bae9d3b7cd1e9 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-UPuYOw",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-UPuYOw/receipt.json",
+        "receiptSha256": "4072ecd617f4ce5112276ee47c8cbddb463bbaa9830a6f57a7619e4d643fbd59",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-UPuYOw/stdout.log",
+        "stdoutSha256": "cb4005e00e74867948fe1334096133261eb263845a7128787d3c1da49d82a61f",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-UPuYOw/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2103 RNG,40 screens/cursors,0 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "This Valkyrie debug recipe’s leading newline dismisses welcome, but underfoot-items More consumes the #wizgenesis command through step 12; trap-door rock follows. No mimic or AD_STCK is reached. Strict match; actual alias/file ID is “viking”.",
+        "nearestPriorCases": [
+          "large-mimic-sticks-valkyrie-c62-pager-corrected",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-c59",
+          "synthetic/v18/wizard-probes-hostile-orc-c59-more-continued"
+        ],
+        "comparisonNote": "The same-batch corrected pager case dismisses the floor pager and does create a disguised Large Mimic. The v18 ghoul and probe cases create other hostiles and reach different actions. The role is Valkyrie; debug mode, not role, controls wizgenesis."
+      }
+    },
+    {
+      "id": "large-mimic-sticks-valkyrie-c62-pager-corrected",
+      "title": "Large mimic sticks valkyrie c62 pager corrected",
+      "recipe": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.recipe.session.json",
+      "recipeSha256": "93b08d0cb425731274a53ff080c1136fbf67f56c322509c21a9d9fecbc348117",
+      "recording": "challenges/cases/v19/large-mimic-sticks-valkyrie-c62-pager-corrected.session.json",
+      "recordingSha256": "3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon",
+        "makemon.c:set_mimic_sym",
+        "monmove.c:dochug",
+        "mhitu.c:mattacku",
+        "mhitu.c:hitmu",
+        "uhitm.c:mhitm_adtyping(AD_STCK)",
+        "uhitm.c:mhitm_ad_stck"
+      ],
+      "reachedBehavior": "C creates a disguised Large Mimic, but the first attack at step 40 is a separate Lichen touch through AD_STCK. JS refuses that branch. No Large Mimic attack or stuck effect is claimed.",
+      "cOutcome": "The second leading newline at zero-based step 2 dismisses the floor-items pager; it also advances the game, and C reports the trap-door rock hit. The subsequent #wizgenesis input reaches “Create what kind of monster?” and accepts “hostile large mimic”. At zero-based step 34 C reports “A strange object appears next to you”; the map shows `]` immediately north of the hero, and `set_mimic_sym(makemon.c:2488)` runs, so C creates the Large Mimic in an object disguise. The six following `.` turns do not exercise AD_STCK. At step 40 the only `mattacku`/`hitmu` event is “The lichen touches you!” (`d(0,0)=0 @ hitmu(mhitu.c:1187)`), from the separate lichen south of the hero; no `mhitm_ad_stck` or stuck state is recorded. Preserve as a valid source-reaching creation/wait target miss, not a source hit.",
+      "targetStatus": "source-traced first mismatch; planned actor not first",
+      "reproducibility": "Independent patched-C replay run-3lVhyn completed successfully; output 3e97e43c47ddc21e91bd8e1045a0a891b1e8ea6e1c6392f2827adc9261be536b is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "239a521a71a7b303178861b23c55711d6ba8a483",
+        "measuredWorkerHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "runId": "run-o0cldm",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-o0cldm/receipt.json",
+        "receiptSha256": "be59f2668f77ab017367ef41de99a672b6249d6056065372c24d35929f1b0f0a",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-o0cldm/stdout.log",
+        "stdoutSha256": "164da47f6fac2510d81a910e32d4b65839f3fa8dababa0b66c5290929b90ed3c",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-o0cldm/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "B88 accepted-main per-case refresh",
+        "result": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_STCK) -> uhitm.c:mhitm_ad_stck hero-defender branch; actual first attacker is the separate hostile Lichen",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_STCK precedes the raw comparator’s later distfleeck call; the Large Mimic is not the attacker.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 41,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 40,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=2224, JS=2207\nFirst PRNG mismatch at call 2208 (segment 1, step 41, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=41, JS=40\nFirst screen mismatch at boundary 41 (segment 1, step 41, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=41, JS=40\nFirst cursor mismatch at boundary 41 (segment 1, step 41, key \".\"):\n  C: [54,16,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        }
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "The first attacker is the separate Lichen, not the Large Mimic. C reaches Lichen AD_STCK at zero-based step 40 before the planned mimic attacks.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "synthetic/v18/wizard-hostile-homunculus-ad-slee-c59",
+          "large-mimic-sticks-viking-c62"
+        ],
+        "comparisonNote": "Prior monster attacks use AD_PLYS/AD_SLEE; C62’s AD_STCK first attacker is Lichen. The paired setup miss never passes the underfoot pager, while this one does."
+      },
+      "firstMismatch": {
+        "bucketId": "monster-hit-ad-stck",
+        "causalOwner": "uhitm.c:mhitm_adtyping(AD_STCK) -> uhitm.c:mhitm_ad_stck",
+        "causalBehavior": "The first attacker is the separate Lichen, not the Large Mimic. C reaches Lichen AD_STCK at zero-based step 40 before the planned mimic attacks.",
+        "cZeroBasedStep": 40,
+        "cObservation": "The second leading newline at zero-based step 2 dismisses the floor-items pager; it also advances the game, and C reports the trap-door rock hit. The subsequent #wizgenesis input reaches “Create what kind of monster?” and accepts “hostile large mimic”. At zero-based step 34 C reports “A strange object appears next to you”; the map shows `]` immediately north of the hero, and `set_mimic_sym(makemon.c:2488)` runs, so C creates the Large Mimic in an object disguise. The six following `.` turns do not exercise AD_STCK. At step 40 the only `mattacku`/`hitmu` event is “The lichen touches you!” (`d(0,0)=0 @ hitmu(mhitu.c:1187)`), from the separate lichen south of the hero; no `mhitm_ad_stck` or stuck state is recorded. Preserve as a valid source-reaching creation/wait target miss, not a source hit.",
+        "jsFirstStop": "JS refuses the AD_STCK monster-to-hero helper at the Lichen hit; the Large Mimic creation is reached but is not the cause of this first mismatch.",
+        "measuredComparisonHead": "3b30ca493456d7d79d49c1bf3ca79d9d32addf15",
+        "comparisonRunId": "run-o0cldm",
+        "comparatorReportedResult": {
+          "status": "expected C/JavaScript mismatch",
+          "causalFirstBehavior": "uhitm.c:mhitm_adtyping(AD_STCK) -> uhitm.c:mhitm_ad_stck hero-defender branch; actual first attacker is the separate hostile Lichen",
+          "sourceDiagnosis": "JS turn-boundary refusal for AD_STCK precedes the raw comparator’s later distfleeck call; the Large Mimic is not the attacker.",
+          "rawComparator": {
+            "cRngCall": "distfleeck(monmove.c:538)",
+            "cValue": "rn2(5)=1",
+            "key": ".",
+            "oneBasedSegment": 1,
+            "oneBasedStep": 41,
+            "zeroBasedSegmentIndex": 0,
+            "zeroBasedInputStepIndex": 40,
+            "jsCall": "missing",
+            "cScreenAndCursorAtBoundary": "present",
+            "jsScreenAndCursorAtBoundary": "missing"
+          },
+          "rawStdout": "PRNG length mismatch: C=2224, JS=2207\nFirst PRNG mismatch at call 2208 (segment 1, step 41, key \".\"):\n  C: rn2(5)=1\n  C caller: distfleeck(monmove.c:538)\n  JS: <missing>\nScreen length mismatch: C=41, JS=40\nFirst screen mismatch at boundary 41 (segment 1, step 41, key \".\"):\n  C: screen present\n  JS: <missing>\nCursor length mismatch: C=41, JS=40\nFirst cursor mismatch at boundary 41 (segment 1, step 41, key \".\"):\n  C: [54,16,1]\n  JS: <missing>\nAnimation frame length: C=0, JS=0\nAnimation frames: match\nRESULT: FAIL"
+        },
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "yeenoghu-confuses-with-weapon-c62",
+      "title": "Yeenoghu confuses with weapon c62",
+      "recipe": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62.recipe.session.json",
+      "recipeSha256": "8969e32c2fd9a8bd566d955ae4b42e92a7ddef8608bfecd4c00d4cf57fdcd406",
+      "recording": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62.session.json",
+      "recordingSha256": "fb42488b2111e4a31b51f2715290de0378d1db63ac9dd3ac0b92d9093ea5a2ce",
+      "sourcePointers": [
+        "wizcmds.c:wiz_intrinsic",
+        "invent.c:getobj"
+      ],
+      "reachedBehavior": "C completes invulnerability menu and leaves a timeout More; Control-G and the Yeenoghu description are consumed by that pager, then keys reach an eat selector and wrong-object refusals. No wizgenesis/attack/AD_CONF is reached.",
+      "cOutcome": "At zero-based step 17, selecting `a` completes #wizintrinsic and C says “Timeout for invulnerable set to 30.--More--”. The immediately following Control-G and the letters `hostile Yeenoghu` are consumed by this More screen; after the page dismisses, ordinary gameplay keys enter an eat selector and C repeatedly says “You don’t have that object.” No wizgenesis prompt, Yeenoghu, mhitu.c attack, or AD_CONF source call occurs. This is a valid pager/setup miss, not evidence of the planned monster branch.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-EFG3B3 completed successfully; output fb42488b2111e4a31b51f2715290de0378d1db63ac9dd3ac0b92d9093ea5a2ce is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-dSzXxX",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-dSzXxX/receipt.json",
+        "receiptSha256": "41abc2b898837fc9354489f1fa63d012bfe1b65588f144a5323c6f91df1f6f74",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-dSzXxX/stdout.log",
+        "stdoutSha256": "e71cbd229665fa6c714166dea4e7c463f29acd7090173155a7188b0521b25c3b",
+        "stderr": null,
+        "stderrSha256": null,
+        "exitCode": 0,
+        "measuredBy": "A81 exact accepted-source comparison",
+        "result": "Strict match: 2309/2309 RNG values, 40/40 screens and cursors, 0/0 animation frames."
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C completes invulnerability menu and leaves a timeout More; Control-G and the Yeenoghu description are consumed by that pager, then keys reach an eat selector and wrong-object refusals. No wizgenesis/attack/AD_CONF is reached.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-sets-stunned-intrinsic-c59",
+          "synthetic/v18/wizard-sets-slimed-intrinsic-c59",
+          "synthetic/v17/read-create-monster-scroll-selects-orc-after-more"
+        ],
+        "comparisonNote": "The actual output is the timed-intrinsic More followed by selector refusal; prior intrinsic actions set different statuses and the v17 create-monster scroll is a read effect. This input never creates a monster."
+      }
+    },
+    {
+      "id": "yeenoghu-confuses-with-weapon-c62-pager-corrected",
+      "title": "Yeenoghu confuses with weapon c62 pager corrected",
+      "recipe": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-pager-corrected.recipe.session.json",
+      "recipeSha256": "91cf64655fe9000dfe3d4effc4fea86e466478002e33cafa80fc43e3d3e73eb7",
+      "recording": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-pager-corrected.session.json",
+      "recordingSha256": "c3fad2a537c40b9002f6d56f0ee29b2492b273c0ac6c1139633203b49b827fc3",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "makemon.c:makemon"
+      ],
+      "reachedBehavior": "After dismissing the invulnerability More, Control-G opens wizgenesis and C reaches the force-unique Yeenoghu prompt, but the frozen periods never answer yes. No monster attack/AD_CONF is reached.",
+      "cOutcome": "After the extra newline dismisses the invulnerability More, Control-G opens `Create what kind of monster?`. The input `hostile Yeenoghu` reaches the prompt; at zero-based step 36 C says “Creating doppelganger instead; force Yeenoghu? [yn] (n)”. The subsequent four `.` keys do not choose yes, so the prompt persists and no Yeenoghu, mattacku, hitmu, or AD_CONF branch is recorded. This is a valid C target miss.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-pG5rvS completed successfully; output c3fad2a537c40b9002f6d56f0ee29b2492b273c0ac6c1139633203b49b827fc3 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-x5SKky",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-x5SKky/receipt.json",
+        "receiptSha256": "e5b8eeb2381fb9b8819c04cf654c5a53d9db724a33fd63aeda57600e5ba38ff0",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-x5SKky/stdout.log",
+        "stdoutSha256": "1abeec22deaab6b1934c2f071ebb352ea4294d48ea46e4ce2d05040090e4d966",
+        "stderr": null,
+        "stderrSha256": null,
+        "exitCode": 0,
+        "measuredBy": "A81 exact accepted-source comparison",
+        "result": "Strict match: 2305/2305 RNG values, 41/41 screens and cursors, 0/0 animation frames."
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "After dismissing the invulnerability More, Control-G opens wizgenesis and C reaches the force-unique Yeenoghu prompt, but the frozen periods never answer yes. No monster attack/AD_CONF is reached.",
+        "nearestPriorCases": [
+          "synthetic/v17/read-create-monster-scroll-selects-orc-after-more",
+          "synthetic/v18/wizard-probes-hostile-orc-c59-more-continued",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-c59"
+        ],
+        "comparisonNote": "The prior v17 route creates an orc with a scroll, the v18 route probes an already created orc, and the v18 ghoul route attacks; this prompt remains unanswered and no Yeenoghu action occurs."
+      }
+    },
+    {
+      "id": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+      "title": "Yeenoghu confuses with weapon c62 force unique pager continued",
+      "recipe": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.recipe.session.json",
+      "recipeSha256": "74766c0776725a72ef70d51599d7f600d7d3279c9b8664a990e88bd4862fcac2",
+      "recording": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.session.json",
+      "recordingSha256": "94dd3eba9eb357304d87278f5498c3f625c3240a0971bc36987b41515e474089",
+      "sourcePointers": [
+        "monmove.c:dochug",
+        "wizard.c:tactics",
+        "mhitu.c:mattacku",
+        "mhitu.c:hitmu",
+        "uhitm.c:mhitm_adtyping(AD_CONF)",
+        "uhitm.c:mhitm_ad_conf"
+      ],
+      "reachedBehavior": "C creates unique Yeenoghu and reaches its tactics-before-attack STRAT_NONE call at step 39; later at step 42 AD_CONF rn2(4)=1 leaves confusion unchanged. JS first differs at tactics ordering, not AD_CONF.",
+      "cOutcome": "After C-observed unique confirmation and teleport/flail More continuation, zero-based step 42 starts Yeenoghu’s turn: `rnd(21)=4 @ mattacku(mhitu.c:912)`, `d(2,8)=10 @ hitmu(mhitu.c:1187)`, then `rn2(4)=1 @ mhitm_ad_conf(uhitm.c:3704)`. C prints “Yeenoghu swings his flail. Yeenoghu hits! Yeenoghu hits!--More--”. The rn2(4) result is nonzero, so the attempt reaches the helper but does not change hero confusion state. The final physical-claw hit is downstream and recorded; preserve the More boundary.",
+      "targetStatus": "source-traced first mismatch",
+      "reproducibility": "Independent patched-C replay run-8jTjMT completed successfully; output 94dd3eba9eb357304d87278f5498c3f625c3240a0971bc36987b41515e474089 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-I2wgum",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-I2wgum/receipt.json",
+        "receiptSha256": "26ab1437e09c09c178d2fe79f44acf5169e4d1fccee02a850152d5366a8be95b",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-I2wgum/stdout.log",
+        "stdoutSha256": "420eceff77b6b759d46f7c7a37aca0fc66ad752de21ad6a94ad9e0b6bdbcb8a2",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-I2wgum/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "first C-only wizard.c:tactics STRAT_NONE rn2(5)=0 at zero-based step39; later AD_CONF rn2(4)=1 does not confuse"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "At zero-based step 39 C calls tactics before distfleeck/attack for full-HP covetous Yeenoghu with STRAT_NONE; rn2(5)=0 takes mnexto. The later AD_CONF rn2(4)=1 does not confuse and is not a separate bucket.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "synthetic/v18/wizard-hostile-mind-flayer-ad-drin-c59-two-waits",
+          "synthetic/v18/wizard-hostile-homunculus-ad-slee-c59",
+          "synthetic/v17/read-create-monster-scroll-selects-orc-after-more"
+        ],
+        "comparisonNote": "The v18 attack rows use different ordinary attack/source effects and no M3_COVETOUS tactics actor; the v17 orc is read-created. Full-HP Yeenoghu has only M3_WANTSAMUL and takes STRAT_NONE; later AD_CONF gate fails and is not separately counted."
+      },
+      "firstMismatch": {
+        "bucketId": "dochug-covetous-tactics",
+        "causalOwner": "monmove.c:dochug -> wizard.c:tactics",
+        "causalBehavior": "At zero-based step 39 C calls tactics before distfleeck/attack for full-HP covetous Yeenoghu with STRAT_NONE; rn2(5)=0 takes mnexto. The later AD_CONF rn2(4)=1 does not confuse and is not a separate bucket.",
+        "cZeroBasedStep": 39,
+        "cObservation": "After C-observed unique confirmation and teleport/flail More continuation, zero-based step 42 starts Yeenoghu’s turn: `rnd(21)=4 @ mattacku(mhitu.c:912)`, `d(2,8)=10 @ hitmu(mhitu.c:1187)`, then `rn2(4)=1 @ mhitm_ad_conf(uhitm.c:3704)`. C prints “Yeenoghu swings his flail. Yeenoghu hits! Yeenoghu hits!--More--”. The rn2(4) result is nonzero, so the attempt reaches the helper but does not change hero confusion state. The final physical-claw hit is downstream and recorded; preserve the More boundary.",
+        "jsFirstStop": "JS schedules tactics only from m_move after the direct simple-monster attack path; the C tactics-before-attack draw/message is absent at the first differing boundary.",
+        "measuredComparisonHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "comparisonRunId": "run-I2wgum",
+        "comparatorReportedResult": "first C-only wizard.c:tactics STRAT_NONE rn2(5)=0 at zero-based step39; later AD_CONF rn2(4)=1 does not confuse",
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "leprechaun-steals-carried-gold-c62",
+      "title": "Leprechaun steals carried gold c62",
+      "recipe": "challenges/cases/v19/leprechaun-steals-carried-gold-c62.recipe.session.json",
+      "recipeSha256": "5f1eb4b3744cf1796d4a97a1e8a2edc7793c0361b56e17e6611bb03856089d4c",
+      "recording": "challenges/cases/v19/leprechaun-steals-carried-gold-c62.session.json",
+      "recordingSha256": "fe3f36ced179ff7795440bfa3fba0af450bc68c74c420a23feb32bb0eba25073",
+      "sourcePointers": [
+        "makemon.c:makemon",
+        "monmove.c:dochug",
+        "monmove.c:disturb"
+      ],
+      "reachedBehavior": "C creates a visible adjacent sleeping leprechaun beside carried gold; step 34 reaches disturb’s rn2(50)=27 hard-to-wake gate and does not wake. No AD_SGLD/stealgold occurs.",
+      "cOutcome": "C creates a leprechaun next to the Tourist at zero-based step32; HUD shows $773 carried gold. C then processes six period waits (steps33–38) without an AD_SGLD hit or theft. Source explains this target miss: makemon.c sets every leprechaun asleep (S_LEPRECHAUN case), and monmove.c:disturb has the extra leprechaun wake gate (!rn2(50)); no wake or AD_SGLD/stealgold call occurs in this trace.",
+      "targetStatus": "source-traced first mismatch; wake target miss",
+      "reproducibility": "Independent patched-C replay run-LMCIaO completed successfully; output fe3f36ced179ff7795440bfa3fba0af450bc68c74c420a23feb32bb0eba25073 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-4d3bfR",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4d3bfR/receipt.json",
+        "receiptSha256": "f67b1bae469ea6d1e7487319ecfbcc4052df1a70ac81aa7de0c7b3e9b00662a3",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4d3bfR/stdout.log",
+        "stdoutSha256": "ebf7cb376ff8f3e03ee0cf976745a7a3c7523ac9d1e93b426df1918b25253557",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4d3bfR/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "first C-only monmove.c:disturb leprechaun wake rn2(50)=27 at zero-based step34; AD_SGLD not reached"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "Visible adjacent sleeping leprechaun reaches the hard-to-wake rn2(50)=27 gate at zero-based step 34; it stays asleep and never reaches AD_SGLD/stealgold.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-c59",
+          "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+          "synthetic/v18/wizard-hostile-homunculus-ad-slee-c59"
+        ],
+        "comparisonNote": "These prior rows concern attacks or hero sleep and have no leprechaun hard-to-wake gate or gold theft. C62’s theft target is not reached; the distinct behavior is the pre-attack disturb chance."
+      },
+      "firstMismatch": {
+        "bucketId": "disturb-sleeping-leprechaun",
+        "causalOwner": "monmove.c:disturb",
+        "causalBehavior": "Visible adjacent sleeping leprechaun reaches the hard-to-wake rn2(50)=27 gate at zero-based step 34; it stays asleep and never reaches AD_SGLD/stealgold.",
+        "cZeroBasedStep": 34,
+        "cObservation": "C creates a leprechaun next to the Tourist at zero-based step32; HUD shows $773 carried gold. C then processes six period waits (steps33–38) without an AD_SGLD hit or theft. Source explains this target miss: makemon.c sets every leprechaun asleep (S_LEPRECHAUN case), and monmove.c:disturb has the extra leprechaun wake gate (!rn2(50)); no wake or AD_SGLD/stealgold call occurs in this trace.",
+        "jsFirstStop": "JS simple-action preflight rejects the sleeping leprechaun before the C disturb chance. The no-wake result and absent theft are preserved.",
+        "measuredComparisonHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "comparisonRunId": "run-4d3bfR",
+        "comparatorReportedResult": "first C-only monmove.c:disturb leprechaun wake rn2(50)=27 at zero-based step34; AD_SGLD not reached",
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "wear-warning-ring-reveals-monsters-c62",
+      "title": "Wear warning ring reveals monsters c62",
+      "recipe": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62.recipe.session.json",
+      "recipeSha256": "321caab8536b8acb4d2042e5bff4d5cbb091dda389f5379de19b34cc3ff9b074",
+      "recording": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62.session.json",
+      "recordingSha256": "cae79d1b392af605f408af886014c1c64ab3be8bc9b9f8439dc97912445cc009",
+      "sourcePointers": [
+        "wizcmds.c:wiz_genesis",
+        "invent.c:getobj"
+      ],
+      "reachedBehavior": "C creates an invisible level-1 orc, but the frozen o selection is rejected because the warning ring is in slot f; Ring_on/see_monsters is not reached. Strict match; valid selector target miss.",
+      "cOutcome": "The recipe creates an invisible hostile level-1 orc, but C selector key o rejects the wished ring, assigned slot f. The case stops at the ordinary getobj refusal/More path; Ring_on and see_monsters are not reached. Strict C/JS comparison matches.",
+      "targetStatus": "valid target miss; strict JS match",
+      "reproducibility": "Independent patched-C replay run-3bMnSM completed successfully; output cae79d1b392af605f408af886014c1c64ab3be8bc9b9f8439dc97912445cc009 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-48EV3Z",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-48EV3Z/receipt.json",
+        "receiptSha256": "5bfbcfeb34251aa8eba3db0b9a856ca14e9c8382166a6a74bab2835810e8997d",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-48EV3Z/stdout.log",
+        "stdoutSha256": "88c1a80378067e255b92f0f56a5d2e6586835ccf91fa8fbfa6677df1bef6eb0a",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-48EV3Z/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 2826 RNG,54 screens/cursors,16 frames"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "C creates an invisible level-1 orc, but the frozen o selection is rejected because the warning ring is in slot f; Ring_on/see_monsters is not reached. Strict match; valid selector target miss.",
+        "nearestPriorCases": [
+          "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+          "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+          "synthetic/v18/wizard-reads-uncursed-enchant-armor-scroll-c59-inventory-continued"
+        ],
+        "comparisonNote": "The same-batch corrected cases select/wear the warning ring; this case stops at getobj. The v18 row only displays inventory for a different read action."
+      }
+    },
+    {
+      "id": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+      "title": "Wear warning ring reveals monsters c62 slot f corrected",
+      "recipe": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.recipe.session.json",
+      "recipeSha256": "b89f98d12e0c4c8cbbc8093aa6cd50a393c56f036c0647631f89d1537e86eb78",
+      "recording": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.session.json",
+      "recordingSha256": "043e228144da907d0453b55427976cae61bf67f4440017b820553b89657388b2",
+      "sourcePointers": [
+        "do_wear.c:accessory_or_armor_on",
+        "do_wear.c:Ring_on(RIN_WARNING)",
+        "display.c:see_monsters",
+        "display.c:display_warning"
+      ],
+      "reachedBehavior": "C wears warning ring from slot f and enters see_monsters. Against the level-1 orc the warning-level gate is false; Ring_on JS refusal is the first gap at step 53.",
+      "cOutcome": "The corrected C-observed selector f wears the ring on the left finger and calls see_monsters. The invisible hostile orc has m_lev=1, so integer m_lev/4=0 is below allmain.c warnlevel=1; no warning glyph is produced. C completes the turn boundary.",
+      "targetStatus": "source-traced first mismatch; shared ring bucket",
+      "reproducibility": "Independent patched-C replay run-FR64MW completed successfully; output 043e228144da907d0453b55427976cae61bf67f4440017b820553b89657388b2 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-4FKawW",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4FKawW/receipt.json",
+        "receiptSha256": "df903b9648caa5ccde8380082ee59b02412f8eb86331017aa11a71c507fdcb79",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4FKawW/stdout.log",
+        "stdoutSha256": "7eedd996cb9226fd83cea637d0e5c758d632849ea14d08f79213314b10f2501f",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4FKawW/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "same Ring_on(RIN_WARNING) stop; no C warning at orc level-1 threshold; C-only next-turn rn2(12) at zero-based step53"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "The slot-f warning-ring route enters Ring_on and calls see_monsters before the orc misses the warning level gate; first missing JS boundary is before C’s next-turn mcalcmove at zero-based step 53.",
+        "nearestPriorCases": [
+          "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+          "synthetic/v18/wizard-reads-uncursed-enchant-armor-scroll-c59-inventory-continued",
+          "synthetic/v18/wizard-kicks-hostile-orc-with-kicking-boots-c59-southwest"
+        ],
+        "comparisonNote": "Threshold-ogre row is the same first Ring_on/see_monsters behavior and is counted once; v18 inventory and kick routes use separate source actions and do not wear a warning ring."
+      },
+      "firstMismatch": {
+        "bucketId": "ring-on-warning-see-monsters",
+        "causalOwner": "do_wear.c:Ring_on(RIN_WARNING) -> display.c:see_monsters",
+        "causalBehavior": "The slot-f warning-ring route enters Ring_on and calls see_monsters before the orc misses the warning level gate; first missing JS boundary is before C’s next-turn mcalcmove at zero-based step 53.",
+        "cZeroBasedStep": 53,
+        "cObservation": "The corrected C-observed selector f wears the ring on the left finger and calls see_monsters. The invisible hostile orc has m_lev=1, so integer m_lev/4=0 is below allmain.c warnlevel=1; no warning glyph is produced. C completes the turn boundary.",
+        "jsFirstStop": "JS refuses RIN_WARNING before C calls see_monsters; this and the threshold-ogre case are one source bucket, not two.",
+        "measuredComparisonHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "comparisonRunId": "run-4FKawW",
+        "comparatorReportedResult": "same Ring_on(RIN_WARNING) stop; no C warning at orc level-1 threshold; C-only next-turn rn2(12) at zero-based step53",
+        "countsTowardDistinctFirstMismatchTarget": true
+      }
+    },
+    {
+      "id": "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+      "title": "Wear warning ring reveals monsters c62 warning threshold",
+      "recipe": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.recipe.session.json",
+      "recipeSha256": "d1d911ca427c192f75d1ea21aa32ccbedfd82edfab51694ca74168ef33508b0f",
+      "recording": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.session.json",
+      "recordingSha256": "abe24900655387cc4ca256901f970f476e17bb24267b8626466538848b9ae330",
+      "sourcePointers": [
+        "do_wear.c:accessory_or_armor_on",
+        "do_wear.c:Ring_on(RIN_WARNING)",
+        "display.c:see_monsters",
+        "display.c:display_warning"
+      ],
+      "reachedBehavior": "C wears warning ring and renders the warning glyph for a threshold-level ogre. The first JS stop is the same Ring_on refusal as slot-f; this is a second state outcome of one source behavior.",
+      "cOutcome": "The C-observed selector f wears the ring on the left finger. The invisible hostile ogre has LVL 5, so integer 5/4=1 satisfies allmain.c warnlevel=1. C see_monsters shows the red warning glyph 1 next to the hero in the final step-54 screen.",
+      "targetStatus": "source-traced first mismatch; shared ring bucket",
+      "reproducibility": "Independent patched-C replay run-rSBBfW completed successfully; output abe24900655387cc4ca256901f970f476e17bb24267b8626466538848b9ae330 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-cwIaME",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-cwIaME/receipt.json",
+        "receiptSha256": "ea8ec6d83062044046826ebbb199610753f950a985437f4c53d5b9342cd682af",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-cwIaME/stdout.log",
+        "stdoutSha256": "8528a4ba813d1a4e5d8e95774fa2b89482f5e1f7ae1d70742f2a51cd03c929fc",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-cwIaME/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 1,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "same Ring_on(RIN_WARNING) stop; C displays warning glyph for threshold ogre; C-only next-turn rn2(12) at zero-based step54"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "The threshold-ogre variation reaches the same Ring_on/see_monsters path; C renders the warning glyph and its first missing JS turn boundary is zero-based step 54.",
+        "nearestPriorCases": [
+          "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+          "synthetic/v18/wizard-reads-uncursed-enchant-armor-scroll-c59-state-continued",
+          "synthetic/v18/wizard-kicks-hostile-orc-with-kicking-boots-c59-southwest"
+        ],
+        "comparisonNote": "The level-1 slot-f case shares the same unsupported Ring_on boundary but its monster misses C’s display_warning threshold. The displayed ogre warning is a distinct C result, not a second first-mismatch owner."
+      },
+      "firstMismatch": {
+        "bucketId": "ring-on-warning-see-monsters",
+        "causalOwner": "do_wear.c:Ring_on(RIN_WARNING) -> display.c:see_monsters",
+        "causalBehavior": "The threshold-ogre variation reaches the same Ring_on/see_monsters path; C renders the warning glyph and its first missing JS turn boundary is zero-based step 54.",
+        "cZeroBasedStep": 54,
+        "cObservation": "The C-observed selector f wears the ring on the left finger. The invisible hostile ogre has LVL 5, so integer 5/4=1 satisfies allmain.c warnlevel=1. C see_monsters shows the red warning glyph 1 next to the hero in the final step-54 screen.",
+        "jsFirstStop": "Same UnsupportedRingOnError/RIN_WARNING first stop as slot-f; its different C glyph threshold outcome does not establish a second behavior bucket.",
+        "measuredComparisonHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "comparisonRunId": "run-cwIaME",
+        "comparatorReportedResult": "same Ring_on(RIN_WARNING) stop; C displays warning glyph for threshold ogre; C-only next-turn rn2(12) at zero-based step54",
+        "countsTowardDistinctFirstMismatchTarget": false
+      }
+    },
+    {
+      "id": "archeologist-whip-snags-floor-ration-c62-drop-pager-corrected",
+      "title": "Archeologist whip snags floor ration c62 drop pager corrected",
+      "recipe": "challenges/cases/v19/archeologist-whip-snags-floor-ration-c62-drop-pager-corrected.recipe.session.json",
+      "recipeSha256": "5b4c5392eab9f20aa52f5be68df0ccad30e8db2d77f0bf1786cd0d7da915165e",
+      "recording": "challenges/cases/v19/archeologist-whip-snags-floor-ration-c62-drop-pager-corrected.session.json",
+      "recordingSha256": "84de97dddd0b625bbc0008f5e62888f10971a24d24bce596202c94b3ba1d7f04",
+      "sourcePointers": [
+        "apply.c:doapply",
+        "apply.c:use_whip"
+      ],
+      "reachedBehavior": "After both observed pagers are dismissed, C applies the bullwhip downward; use_whip reaches rnl(6)=2 and wraps a ration on the stairs, then slips free. Strict JS match.",
+      "cOutcome": "Valid source-reaching C recording. After dismissing both observed pagers, C applies the already-wielded bullwhip downward; the floor-snag branch reaches rnl(6)=2 at apply.c:3052 and prints that the whip wraps around a food ration on the stairs, then slips free. This strict JavaScript match is eligible if the full prior/source-action review finds no overlap; it does not count toward the distinct first-mismatch target.",
+      "targetStatus": "source-reaching action; strict JS match",
+      "reproducibility": "Independent patched-C replay run-cVj3xX completed successfully; output 84de97dddd0b625bbc0008f5e62888f10971a24d24bce596202c94b3ba1d7f04 is byte-identical to the frozen C recording.",
+      "comparisonEvidence": {
+        "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+        "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+        "runId": "run-gNRjVT",
+        "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-gNRjVT/receipt.json",
+        "receiptSha256": "c6bd52a897536fa7a834ecd24f70e7d2fb703b1d51e838134f8444e4fb597e22",
+        "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-gNRjVT/stdout.log",
+        "stdoutSha256": "fbb393e64207e279453993a92d32eac84d7e52dd5338c172d60119abf3e640db",
+        "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-gNRjVT/stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitCode": 0,
+        "measuredBy": "A81 accepted-main per-case refresh",
+        "result": "strict match; 1762 RNG,27 screens/cursors"
+      },
+      "sourceActionCrosswalk": {
+        "firstCBehavior": "After both observed pagers are dismissed, C applies the bullwhip downward; use_whip reaches rnl(6)=2 and wraps a ration on the stairs, then slips free. Strict JS match.",
+        "nearestPriorCases": [
+          "synthetic/v18/wizard-kicks-hostile-orc-with-kicking-boots-c59-southwest",
+          "synthetic/v18/wizard-searches-wished-secret-door-c59",
+          "synthetic/v16/wizard-applies-tin-opener-to-spinach-tin"
+        ],
+        "comparisonNote": "The earlier C56 probes stop at levitation/drop More prefixes and never call use_whip; the v18 kick action is boots on an adjacent monster, while this is a downward bullwhip floor snag. Tin-opener application is a different apply family."
+      }
+    }
+  ]
+}

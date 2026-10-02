@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first v19 Python sequence frozen before JavaScript comparison. Create a hostile Python with the debug Wizard's ^G/#wizgenesis command; use only source-approved wait turns, not a JS-targeted adjustment. C must show its first AT_BITE/AD_PHYS and AT_TUCH/AD_PHYS outcomes, and only if both preceding sums permit, AT_HUGS/AD_WRAP then its second AT_HUGS attack in mhitu.c:mattacku. Preserve the actual C gate result or a valid miss.",
+  "segments": [
+    {
+      "seed": 925714360,
+      "datetime": "21120817091000",
+      "nethackrc": "OPTIONS=name:C62Python,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile python\n............"
+    }
+  ]
+}
