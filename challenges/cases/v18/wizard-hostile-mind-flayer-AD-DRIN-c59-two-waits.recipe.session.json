@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the independently replayed C59 hostile mind-flayer setup. C showed the monster adjacent and the first wait consumed a turn without an attack, so this frozen input gives the same creation path two wait turns to observe its attack cadence. It does not change setup or select inputs from JavaScript.",
+  "segments": [
+    {
+      "seed": 603101117,
+      "datetime": "21110312131600",
+      "nethackrc": "OPTIONS=name:SynapseProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile mind flayer\n.."
+    }
+  ]
+}

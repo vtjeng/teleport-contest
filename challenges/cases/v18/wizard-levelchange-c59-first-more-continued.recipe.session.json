@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 752419063,
+      "datetime": "20340612165329",
+      "nethackrc": "OPTIONS=name:C59SkillGate,role:Wizard,race:human,gender=male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "n#levelchange\n30\n ",
+      "recorderIsDst": true
+    }
+  ]
+}

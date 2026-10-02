@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 167892031,
+      "datetime": "20261001140500",
+      "nethackrc": "OPTIONS=name:C59WetTowel,role:Wizard,race:human,gender=male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017wet uncursed towel\ni\u001b#wizintrinsic\n1l\n an",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first distinct attack-arm candidate for C59: hostile monster turn enters mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_ENCH) -> mhitm_ad_ench. A Wizard-mode source-created disenchanter uses its claw, not a wished/eaten disenchanter corpse; two waits allow its C-observed adjacent hostile turn. The v17 drain-life-spell cases reach read.c:seffect_drain_life -> drain_item and change a wielded dagger; they do not reach this monster-to-hero AD_ENCH arm. No JS comparison has informed these inputs. This C-first correction preserves the seed, role, options, and move sequence, but uses 23:00 instead of invalid hour 29 because diff-fresh rejects the original YYYYMMDDHHMMSS value before comparison.",
+  "segments": [
+    {
+      "seed": 603101119,
+      "datetime": "21110512230000",
+      "nethackrc": "OPTIONS=name:DrainGuard,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile disenchanter\n.."
+    }
+  ]
+}

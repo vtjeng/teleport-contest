@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C59 source-led candidate for wizcmds.c:wiz_intrinsic STUNNED selection. A fresh debug Wizard commits the first-page “stunned” row (menu key f) to reach potion.c:make_stunned; inputs are frozen before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 276941805,
+      "datetime": "20500304113700",
+      "nethackrc": "OPTIONS=name:V18Stun,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizintrinsic\nf\n"
+    }
+  ]
+}

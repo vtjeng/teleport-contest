@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C59 C-first read.c:seffect_enchant_armor route. The Wizard’s starting cloak of magic resistance is worn at +0; reading the wished uncursed enchant-armor scroll reaches some_armor on that cloak. Selector p is a C-first hypothesis for the first wished object, based on prior C wizard inventory menus; the recorded C prompt determines whether that target is reached.",
+  "segments": [
+    {
+      "seed": 177733751,
+      "datetime": "21110309141200",
+      "nethackrc": "OPTIONS=name:C59Armor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nuncursed scroll of enchant armor\nrp",
+      "recorderIsDst": true
+    }
+  ]
+}

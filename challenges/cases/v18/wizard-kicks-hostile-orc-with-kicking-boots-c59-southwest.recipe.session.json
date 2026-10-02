@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only direction correction frozen from the prior recordings: after the observed n-slot boots are worn, the C map and first attempted direction show the orc southwest, not south. This same-seed/date recipe selects the observed target direction b before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 37164028,
+      "datetime": "21060712151800",
+      "nethackrc": "OPTIONS=name:C59Kick,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizgenesis\norc\n#wizwish\nuncursed kicking boots\nWn\u0004b"
+    }
+  ]
+}

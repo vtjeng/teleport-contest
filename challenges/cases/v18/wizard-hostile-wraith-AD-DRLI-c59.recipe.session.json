@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-distinct monster-to-hero life-drain candidate. monsters.h defines a wraith AT_TUCH/AD_DRLI 1d6; mhitu.c:hitmu routes a landed attack through uhitm.c:mhitm_adtyping to mhitm_ad_drli, whose monster-to-hero branch may call losexp after rn2(3) and Drain_resistance checks. The v17 drain-life scroll cases instead enter read.c:seffect_drain_life -> drain_item and drain a wielded object. Current B81 unresolved cases contain no wraith attack. The recipe is independently designed and frozen before JS comparison; C must establish whether the wraith reaches its touch attack.",
+  "segments": [
+    {
+      "seed": 603101123,
+      "datetime": "21110513161500",
+      "nethackrc": "OPTIONS=name:WraithDrain,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile wraith\n..."
+    }
+  ]
+}

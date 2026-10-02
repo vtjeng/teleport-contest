@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only continuation frozen from the previous dog-food recording: C showed the dog could not reach the floor ration while the hero occupied the drop square. Moving north into the empty mapped square frees that floor tile; the action is selected from the C screen/source path before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 66409271,
+      "datetime": "21021215121700",
+      "nethackrc": "OPTIONS=name:C59DogFood,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nuncursed tripe ration\ndok"
+    }
+  ]
+}
