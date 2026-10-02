@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup probe only, not passing evidence. It uses the source-defined #polyself species prompt to make the Wizard a gelatinous cube (whose first attack is AT_TUCH/AD_PLYS) and creates a hostile ghoul. The frozen input ends with a literal space that C reports as an unknown command, before uhitm.c:damageum can select an attack; the scratch recording is retained only as setup provenance, not a completed helper witness.",
+  "segments": [
+    {
+      "seed": 8806611,
+      "datetime": "20311012101010",
+      "nethackrc": "OPTIONS=name:PlysCube,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#polyself\ngelatinous cube\n #wizgenesis\nhostile ghoul\n "
+    }
+  ]
+}

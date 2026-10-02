@@ -5,11 +5,13 @@ import test from 'node:test';
 
 import { moveloop_core } from '../js/allmain.js';
 import {
+    A_DEX,
     ALTAR,
     BLINDED,
     DETECT_MONSTERS,
     DRAIN_RES,
     FIRE_RES,
+    FREE_ACTION,
     FROMFORM,
     FOUNTAIN,
     GRAVE,
@@ -33,19 +35,25 @@ import {
     W_ARM,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
+import {
+    UnsupportedHeroMoveBoundaryError,
+    You_can_move_again,
+} from '../js/hack.js';
 import { poisoned as applyPoison } from '../js/attrib.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at, place_monster, remove_monster } from '../js/monst.js';
 import { monflee } from '../js/monmove.js';
 import {
     AD_CURS,
+    AD_PLYS,
     AD_STON,
     AD_DRST,
     AD_WERE,
     AT_BITE,
     AT_CLAW,
     AT_WEAP,
+    PM_GELATINOUS_CUBE,
+    PM_GHOUL,
     PM_GREMLIN,
     PM_COCKATRICE,
     PM_DWARF_LEADER,
@@ -106,6 +114,9 @@ const MHITU_C = readFileSync(
 );
 const MHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitm.c', import.meta.url), 'utf8',
+);
+const YOU_PROP_C = readFileSync(
+    new URL('../nethack-c/upstream/include/youprop.h', import.meta.url), 'utf8',
 );
 const POTION_C = readFileSync(
     new URL('../nethack-c/upstream/src/potion.c', import.meta.url), 'utf8',
@@ -864,6 +875,251 @@ test('mhitm_ad_were preserves all three source direction arms and infection orde
     assert.equal(game.u.uprops[DRAIN_RES].intrinsic & FROMFORM, FROMFORM);
     assert.ok(game.unported.has('artifact.c retouch_equipment'));
 });
+
+function plysTestEnv(plan, events) {
+    const draw = (method, bound) => {
+        const next = plan.shift();
+        assert.ok(next, 'the source made no unplanned random call');
+        assert.equal(next.method, method);
+        assert.equal(next.bound, bound);
+        events.push(method + '(' + bound + ')');
+        return next.value;
+    };
+    return {
+        random: {
+            rn2: (bound) => draw('rn2', bound),
+            rnd: (bound) => draw('rnd', bound),
+        },
+        message: async (line) => { events.push('message:' + line); },
+        unsupported: (reason) => assert.fail(reason),
+    };
+}
+
+test('mhitm_ad_plys preserves the complete C branch and caller order', () => {
+    const definition = UHITM_C.match(
+        /void\s+mhitm_ad_plys\([\s\S]*?\n\}\n/u,
+    )?.[0];
+    assert.ok(definition, 'uhitm.c defines the selected whole helper');
+    assert.match(definition,
+        /magr == &gy\.youmonst[\s\S]*?!rn2\(3\)[\s\S]*?mhm->damage < mdef->mhp[\s\S]*?!mhitm_mgc_atk_negated/u);
+    assert.match(definition,
+        /else if \(mdef == &gy\.youmonst\)[\s\S]*?hitmsg\(magr, mattk\)[\s\S]*?gm\.multi >= 0 && !rn2\(3\)[\s\S]*?!mhitm_mgc_atk_negated/u);
+    const heroDefender = definition.slice(
+        definition.indexOf('else if (mdef == &gy.youmonst)'),
+        definition.lastIndexOf('} else {'),
+    );
+    const sourceOrder = [
+        'hitmsg(magr, mattk)',
+        'gm.multi >= 0 && !rn2(3)',
+        'mhitm_mgc_atk_negated',
+        'Free_action',
+        'gn.nomovemsg = You_can_move_again',
+        'nomul(-rnd(10))',
+        'dynamic_multi_reason',
+        'exercise(A_DEX, FALSE)',
+    ];
+    let previous = -1;
+    for (const token of sourceOrder) {
+        const position = heroDefender.indexOf(token);
+        assert.ok(position > previous, token + ' remains in the source order');
+        previous = position;
+    }
+    assert.match(definition,
+        /mdef->mcanmove && !rn2\(3\)\s*&& !mhitm_mgc_atk_negated/u);
+    assert.match(definition, /gv\.vis && canspotmon\(mdef\)/u);
+    assert.match(UHITM_C,
+        /case AD_PLYS:\s*mhitm_ad_plys\(magr, mattk, mdef, mhm\); break;/u);
+    assert.match(UHITM_C,
+        /mhitm_adtyping\(&gy\.youmonst, mattk, mdef, &mhm\);/u);
+    assert.match(MHITU_C,
+        /mhitm_adtyping\(mtmp, mattk, &gy\.youmonst, &mhm\);/u);
+    assert.match(MHITM_C,
+        /mhitm_adtyping\(magr, mattk, mdef, &mhm\);/u);
+    assert.match(MHITM_C,
+        /paralyze_monst\(struct monst \*mon, int amt\)[\s\S]*?mon->mcanmove = 0;[\s\S]*?mon->mfrozen = amt;[\s\S]*?mon->meating = 0;[\s\S]*?mon->mstrategy &= ~STRAT_WAITFORU;/u);
+    assert.match(YOU_PROP_C,
+        /^#define Free_action u\.uprops\[FREE_ACTION\]\.extrinsic/mu);
+});
+
+test('mhitm_ad_plys dispatches the hero and monster-pair paralysis arms', async () => {
+    // This seed starts a clean human Wizard; all attack and paralysis rolls
+    // below are scripted from the C calls, not selected from the seed.
+    await runSegment({
+        seed: 8806521, datetime: DATETIME,
+        nethackrc: petRc({ role: 'Wizard', pettype: 'none' }), moves: '',
+    });
+    // PM_GELATINOUS_CUBE has the source AT_TUCH/AD_PLYS hero attack; the
+    // temporary form selects the real hero-attacker orientation of damageum.
+    game.u.umonnum = PM_GELATINOUS_CUBE;
+    game.youmonst.data = game.mons[PM_GELATINOUS_CUBE];
+    const cubeAttack = game.youmonst.data.mattk[0];
+    assert.equal(cubeAttack.adtyp, AD_PLYS);
+    // ID 94101 separates the synthetic sewer-rat defender from game monsters.
+    const heroTarget = {
+        data: game.mons[PM_SEWER_RAT], m_id: 94101,
+        mx: game.u.ux + 1, my: game.u.uy,
+        mhp: 20, mcanmove: true, mfrozen: 0, meating: 5,
+        mstrategy: STRAT_WAITFORU,
+    };
+    const heroEvents = [];
+    const heroPlan = [
+        { method: 'rn2', bound: 3, value: 0 }, // C's 1-in-3 paralysis gate admits the effect.
+        { method: 'rn2', bound: 10, value: 9 }, // An unarmored rat has zero magic negation.
+        { method: 'rnd', bound: 10, value: 4 }, // C stores this paralysis duration.
+    ];
+    const heroBlow = { damage: 3, specialdmg: 0, hitflags: 0, done: false };
+    await mhitm_adtyping(
+        game.youmonst, cubeAttack, heroTarget, heroBlow, game,
+        plysTestEnv(heroPlan, heroEvents),
+    );
+    assert.deepEqual(heroPlan, []);
+    assert.deepEqual(heroEvents.slice(0, 2), ['rn2(3)', 'rn2(10)']);
+    assert.match(heroEvents[2], /^message:.*is frozen by you!$/u);
+    assert.equal(heroEvents[3], 'rnd(10)');
+    assert.equal(heroTarget.mcanmove, false);
+    assert.equal(heroTarget.mfrozen, 4);
+    assert.equal(heroTarget.meating, 0);
+    assert.equal(heroTarget.mstrategy & STRAT_WAITFORU, 0);
+
+    // A fresh state and distinct synthetic IDs exercise the C monster-pair
+    // branch. Visibility is false, so its conditional message is suppressed.
+    await runSegment({
+        seed: 8806522, datetime: DATETIME,
+        nethackrc: petRc({ role: 'Wizard', pettype: 'none' }), moves: '',
+    });
+    game.gv.vis = false;
+    const pairAttacker = {
+        data: game.mons[PM_GHOUL], m_id: 94102,
+        mx: game.u.ux - 1, my: game.u.uy,
+        mcan: false,
+    };
+    const pairDefender = {
+        data: game.mons[PM_SEWER_RAT], m_id: 94103,
+        mx: game.u.ux + 1, my: game.u.uy,
+        mcan: false, mcanmove: true, mfrozen: 0, meating: 6,
+        mstrategy: STRAT_WAITFORU,
+    };
+    const pairEvents = [];
+    const pairPlan = [
+        { method: 'rn2', bound: 3, value: 0 }, // Movable defender passes C's 1-in-3 gate.
+        { method: 'rn2', bound: 10, value: 9 }, // The rat has no magic-cancellation gear.
+        { method: 'rnd', bound: 10, value: 2 }, // C assigns the rolled frozen duration.
+    ];
+    await mhitm_adtyping(
+        pairAttacker, pairAttacker.data.mattk[0], pairDefender,
+        { damage: 1, specialdmg: 0, hitflags: 0, done: false }, game,
+        plysTestEnv(pairPlan, pairEvents),
+    );
+    assert.deepEqual(pairPlan, []);
+    assert.deepEqual(pairEvents, ['rn2(3)', 'rn2(10)', 'rnd(10)']);
+    assert.equal(pairDefender.mcanmove, false);
+    assert.equal(pairDefender.mfrozen, 2);
+    assert.equal(pairDefender.meating, 0);
+    assert.equal(pairDefender.mstrategy & STRAT_WAITFORU, 0);
+});
+
+test('mhitm_ad_plys keeps hit-before-gate, Free_action, Blind and hero timeout order',
+    async () => {
+        // This independent fixture seed initializes a normal human Wizard;
+        // the C ghoul attack and each random answer are selected below.
+        await runSegment({
+            seed: 8806523, datetime: DATETIME,
+            nethackrc: petRc({ role: 'Wizard', pettype: 'none' }), moves: '',
+        });
+        const ghoul = {
+            data: game.mons[PM_GHOUL], m_id: 94104,
+            mx: game.u.ux + 1, my: game.u.uy, mcan: false,
+        };
+        const attack = ghoul.data.mattk[0];
+        assert.equal(attack.adtyp, AD_PLYS);
+        game.multi = 0;
+        const events = [];
+        const plan = [
+            { method: 'rn2', bound: 3, value: 0 }, // C admits this one-in-three chance.
+            { method: 'rn2', bound: 10, value: 9 }, // No hero armor means magic negation 0.
+            { method: 'rnd', bound: 10, value: 4 }, // C uses the result in nomul(-rnd(10)).
+            { method: 'rn2', bound: 2, value: 1 }, // exercise(A_DEX,FALSE) applies one point.
+        ];
+        await mhitm_adtyping(
+            ghoul, attack, game.youmonst,
+            { damage: 1, specialdmg: 0, hitflags: 0, done: false }, game,
+            plysTestEnv(plan, events),
+        );
+        assert.deepEqual(plan, []);
+        assert.match(events[0], /^message:.*ghoul hits!/u);
+        assert.equal(events[1], 'rn2(3)');
+        assert.equal(events[2], 'rn2(10)');
+        assert.match(events[3], /^message:You are frozen by the ghoul!$/u);
+        assert.equal(events[4], 'rnd(10)');
+        assert.equal(events[5], 'rn2(2)');
+        assert.equal(game.multi, -4);
+        assert.equal(game.nomovemsg, You_can_move_again);
+        assert.equal(game.u.aexe[A_DEX], -1);
+        assert.ok(game.unported.has('uhitm.c dynamic_multi_reason'));
+
+        // The source Free_action macro reads only the worn extrinsic field.
+        // This property value suppresses paralysis after the same two gates.
+        await runSegment({
+            seed: 8806524, datetime: DATETIME,
+            nethackrc: petRc({ role: 'Wizard', pettype: 'none' }), moves: '',
+        });
+        const freeActionGhoul = {
+            data: game.mons[PM_GHOUL], m_id: 94105,
+            mx: game.u.ux + 1, my: game.u.uy, mcan: false,
+        };
+        game.u.uprops[FREE_ACTION] = { intrinsic: 0, extrinsic: 1 };
+        game.multi = 0;
+        const freeEvents = [];
+        const freePlan = [
+            { method: 'rn2', bound: 3, value: 0 }, // C reaches the status attack.
+            { method: 'rn2', bound: 10, value: 9 }, // C's magic-cancellation roll succeeds.
+        ];
+        await mhitm_adtyping(
+            freeActionGhoul, freeActionGhoul.data.mattk[0], game.youmonst,
+            { damage: 1, specialdmg: 0, hitflags: 0, done: false }, game,
+            plysTestEnv(freePlan, freeEvents),
+        );
+        assert.deepEqual(freePlan, []);
+        assert.match(freeEvents[0], /^message:.*ghoul hits!/u);
+        assert.deepEqual(freeEvents.slice(1), [
+            'rn2(3)', 'rn2(10)', 'message:You momentarily stiffen.',
+        ]);
+        assert.equal(game.multi, 0);
+        assert.equal(game.nomovemsg ?? null, null);
+        assert.equal(game.unported.has('uhitm.c dynamic_multi_reason'), false);
+
+        // Blind suppresses the attacker name in C's second message but leaves
+        // both random gates, nomul, dynamic reason, and Dexterity exercise in order.
+        await runSegment({
+            seed: 8806525, datetime: DATETIME,
+            nethackrc: petRc({ role: 'Wizard', pettype: 'none' }), moves: '',
+        });
+        const blindGhoul = {
+            data: game.mons[PM_GHOUL], m_id: 94106,
+            mx: game.u.ux + 1, my: game.u.uy, mcan: false,
+        };
+        game.u.uprops[BLINDED] = { intrinsic: TIMEOUT, extrinsic: 0 };
+        game.multi = 0;
+        const blindEvents = [];
+        const blindPlan = [
+            { method: 'rn2', bound: 3, value: 0 }, // C's paralysis chance succeeds.
+            { method: 'rn2', bound: 10, value: 9 }, // The unarmored hero is not cancelled.
+            { method: 'rnd', bound: 10, value: 3 }, // Duration stored by nomul.
+            { method: 'rn2', bound: 2, value: 0 }, // Dexterity exercise remains source ordered.
+        ];
+        await mhitm_adtyping(
+            blindGhoul, blindGhoul.data.mattk[0], game.youmonst,
+            { damage: 1, specialdmg: 0, hitflags: 0, done: false }, game,
+            plysTestEnv(blindPlan, blindEvents),
+        );
+        assert.deepEqual(blindPlan, []);
+        assert.match(blindEvents[0], /^message:.*ghoul hits!/u);
+        assert.equal(blindEvents[3], 'message:You are frozen!');
+        assert.equal(blindEvents[4], 'rnd(10)');
+        assert.equal(blindEvents[5], 'rn2(2)');
+        assert.equal(game.multi, -3);
+        assert.equal(game.nomovemsg, You_can_move_again);
+    });
 
 test('mhitm_ad_curs follows all three uhitm.c direction arms', async () => {
     assert.match(UHITM_C, /magr == &gy\.youmonst\)\s*\{\s*\/\* uhitm \*\//u);

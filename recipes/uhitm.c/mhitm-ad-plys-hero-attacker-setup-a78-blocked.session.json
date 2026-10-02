@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 C-first setup probe only. The source makes ghoul form a valid polyable hero attacker with a first AT_CLAW/AD_PLYS attack and eyes, then the Wizard creates a hostile orc. This input stops at the creation screen; it does not reach uhitm.c:damageum, so it is setup provenance rather than runtime evidence.",
+  "segments": [
+    {
+      "seed": 8806621,
+      "datetime": "20311013101010",
+      "nethackrc": "OPTIONS=name:PlysGhoul,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#polyself\nghoul\n #wizgenesis\nhostile orc\n "
+    }
+  ]
+}

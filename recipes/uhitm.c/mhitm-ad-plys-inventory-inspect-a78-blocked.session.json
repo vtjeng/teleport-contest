@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A78 C-only inventory probe. The preceding hero-attacker C record showed the Wizard's ghoul form still wielding its starting item; this source-selected inventory command records the actual slot before freezing a corrected no-weapon attack recipe. It exercises C inventory display but stops before uhitm.c:damageum and makes no mhitm_ad_plys coverage claim.",
+  "segments": [
+    {
+      "seed": 8806622,
+      "datetime": "20311014101010",
+      "nethackrc": "OPTIONS=name:PlysInventory,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "i"
+    }
+  ]
+}
