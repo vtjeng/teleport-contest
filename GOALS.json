@@ -135737,7 +135737,7 @@
     {
       "id": "port-music-monster-charm-and-calm-v17",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete flute snake charm and harp nymph calm",
       "cFile": "music.c",
       "sessions": [
@@ -135753,8 +135753,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "3ccadef61f309bb3a696aca7e61937d124264826",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "charm_snakes",
@@ -136678,6 +136681,12 @@
             ]
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "3ccadef61f309bb3a696aca7e61937d124264826",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
