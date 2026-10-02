@@ -157,7 +157,7 @@ import {
     create_region,
     inside_region,
 } from '../js/region.js';
-import { canSeeMonster } from '../js/startup_a11y.js';
+
 import {
     clear_path,
     recalc_block_point,
@@ -166,6 +166,7 @@ import {
 import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
+import { canseemon } from '..//js/display.js';
 
 const DATETIME = '20260725120000';
 const REGION_SOURCE = readFileSync(
@@ -2975,7 +2976,7 @@ test('a planned escape line writes nothing to the live display', async () => {
     // C:3766 writes nothing for a monster the hero cannot watch, so a fixture
     // that failed this would assert the silence of a turn that was silent
     // anyway.
-    assert.equal(canSeeMonster(target.monster, game), true);
+    assert.equal(canseemon(target.monster, game), true);
     const before = completeSecondTurnSnapshot(game, target.replay);
     const written = [];
 

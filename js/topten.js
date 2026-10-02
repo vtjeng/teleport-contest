@@ -32,8 +32,9 @@ import { christen_monst } from './do_name.js';
 import { vfsReadFile, vfsWriteFile } from './storage.js';
 import { tty_raw_print, tty_raw_print_bold } from './tty_rawprint.js';
 import { rn1, rn2, rnd } from './rng.js';
-import { canseemon } from './vision.js';
+
 import { note_unported } from './unported.js';
+import { canseemon } from './display.js';
 
 // C ref: topten.c:96-105 killed_by_prefix[].  Indexed by game_end_types
 // (hack.h:483-498): DIED, CHOKING, POISONING, STARVING, DROWNING, BURNING,

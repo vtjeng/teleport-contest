@@ -47,7 +47,7 @@ test('drawbridge lookup preserves four directions, negative failure, and in/out 
         const map = new Map();
         const state = { level: { at: (x, y) => map.get(`${x},${y}`) ?? { typ: ROOM } } };
         map.set('10,10', { typ: DOOR }); // Interior position permits all neighbours.
-        map.set(`${10 + dx},${10 + dy}`, { typ: DRAWBRIDGE_DOWN, drawbridgemask: dir });
+        map.set(`${10 + dx},${10 + dy}`, { typ: DRAWBRIDGE_DOWN, flags: dir });
         assert.equal(is_drawbridge_wall(10, 10, state), dir);
         const position = { x: 10, y: 10 };
         assert.equal(find_drawbridge(position, state), true);

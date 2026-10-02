@@ -41,7 +41,6 @@ import {
     DB_FLOOR,
     DB_ICE,
     DB_LAVA,
-    DB_MOAT,
     DB_UNDER,
     DISMOUNT_FELL,
     DROWNING,
@@ -77,7 +76,6 @@ import {
     IS_DOOR,
     IS_FURNITURE,
     IS_LAVA,
-    IS_POOL,
     IS_ROOM,
     IS_WALL,
     IS_WATERWALL,
@@ -193,15 +191,16 @@ import {
     is_hole,
     is_pit,
     is_xport,
-    isok,
     undestroyable_trap,
     xdir,
     ydir,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { is_art, ART_STING, attacks, has_magic_key, Stone_resistance } from './artifacts.js';
 import { exercise, adjalign, acurr, poisoned } from './attrib.js';
 import { obj_resists, unearth_objs } from './bury.js';
 import { buried_ball } from './dig.js';
+import { drawbridgeFlags, drawbridgeUnder, is_pool } from './dbridge.js';
 import { getdir, xytodir } from './cmd.js';
 import {
     Monnam, capitalizedMonsterName, mon_nam, monsterCommonName, mon_pmname,
@@ -234,7 +233,7 @@ import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
-import { canSpotMonster } from './startup_a11y.js';
+
 import {
     near_capacity, calc_capacity, check_capacity, inv_cnt, inv_weight, weight_cap,
     test_move, spoteffects, bad_rock, crawl_destination, set_uinwater,
@@ -259,7 +258,7 @@ import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
     ceiling_hider, is_clinger, is_floater,
     is_animal, is_flyer, is_whirly, nohands, resists_magm, unsolid, webmaker, sticks,
-    bigmonst, is_swimmer, likes_lava, mindless, monster_resists_element,
+    bigmonst, is_swimmer, likes_lava, mindless, Resists_Elem,
     touch_petrifies, unique_corpstat, poly_when_stoned, is_golem,
     is_vampshifter, nonliving, hides_under, is_unicorn,
 } from './mondata.js';
@@ -323,9 +322,7 @@ import {
 import { stumble_onto_mimic } from './uhitm.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
-import {
-    unblock_point, recalc_block_point, vision_recalc, cansee, canseemon,
-} from './vision.js';
+import { unblock_point, recalc_block_point, vision_recalc, cansee } from './vision.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
 import { newsym, bot, shieldeff } from './display.js';
@@ -334,6 +331,7 @@ import { destroy_items } from './zap_destroy_items.js';
 import { costly_spot, shop_keeper, shk_your } from './shk.js';
 import { quest_info } from './questpgr.js';
 import { mon_has_amulet } from './wizard.js';
+import { canspotmon } from './display.js';
 
 // Env object for poisoned() calls inside chest_trap and other trap functions.
 function poisonedEnv(state) {
@@ -358,33 +356,10 @@ function capability(env, name) {
     return env[name] ?? env.hooks?.[name] ?? DEFAULT_CAPABILITIES[name];
 }
 
-function drawbridgeFlags(location) {
-    // `flags` is the live struct-rm union slot; drawbridgemask is retained as
-    // a compatibility input for older state fixtures.
-    return location.flags || location.drawbridgemask || 0;
-}
-
-function drawbridgeUnder(location) {
-    return drawbridgeFlags(location) & DB_UNDER;
-}
-
-// C refs: dbridge.c is_pool(), is_lava(), and is_pool_or_lava(). A raised
-// drawbridge's tile type describes the closed span, not the terrain below it.
-function isPoolAt(location, state) {
-    if (location.typ !== DRAWBRIDGE_UP) return IS_POOL(location.typ);
-    return drawbridgeUnder(location) === DB_MOAT
-        && !on_level(state.u?.uz, state.juiblex_level);
-}
-
 function isLavaAt(location) {
     return IS_LAVA(location.typ)
         || (location.typ === DRAWBRIDGE_UP
             && drawbridgeUnder(location) === DB_LAVA);
-}
-
-export function is_pool(x, y, state = game) {
-    const location = state.level?.at?.(x, y);
-    return Boolean(location && isPoolAt(location, state));
 }
 
 export function is_lava(x, y, state = game) {
@@ -476,7 +451,11 @@ function findRandomLaunchCoordinate(trap, env) {
             trap.ty + distance * dy,
         );
         let success = endpoint
-            && !isPoolAt(endpoint, env.state)
+            && !is_pool(
+                trap.tx + distance * dx,
+                trap.ty + distance * dy,
+                env.state,
+            )
             && !isLavaAt(endpoint)
             && clearLaunchPath(launch, distance, dx, dy, env);
         const opposite = { x: trap.tx, y: trap.ty };
@@ -933,7 +912,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         if (undestroyable_trap(trap.ttyp)) return null;
     } else if ((!state.iflags?.debug_overwrite_stairs
         && (location.typ === LADDER || location.typ === STAIRS))
-        || isPoolAt(location, state) || isLavaAt(location)
+        || is_pool(x, y, state) || isLavaAt(location)
         || (IS_FURNITURE(location.typ) && typ !== PIT && typ !== HOLE)
         || (location.typ === DRAWBRIDGE_UP && typ === MAGIC_PORTAL)
         || (IS_AIR(location.typ) && typ !== MAGIC_PORTAL)
@@ -2130,7 +2109,7 @@ export function immune_to_trap(mon, ttype, state = game) {
         return TRAP_NOT_IMMUNE;
     case SLP_GAS_TRAP:
         if (breathless(pm)) return TRAP_CLEARLY_IMMUNE;
-        if (!isYou && monster_resists_element(mon, SLEEP_RES, state))
+        if (!isYou && Resists_Elem(mon, SLEEP_RES, state))
             return TRAP_CLEARLY_IMMUNE;
         if (isYou && heroProperty(state, SLEEP_RES))
             return TRAP_HIDDEN_IMMUNE;
@@ -2178,7 +2157,7 @@ export function immune_to_trap(mon, ttype, state = game) {
     case FIRE_TRAP: {
         const fireproof = isYou
             ? heroProperty(state, FIRE_RES)
-            : monster_resists_element(mon, FIRE_RES, state);
+            : Resists_Elem(mon, FIRE_RES, state);
         if (!fireproof) return TRAP_NOT_IMMUNE;
         for (let obj = isYou ? state.invent : mon.minvent;
             obj;
@@ -3320,7 +3299,7 @@ export async function animate_statue(
     // warning, and related properties).  Use the canonical display owner so
     // the statue's message follows the same visibility contract as the rest
     // of the game.
-    const spotted = canSpotMonster(monster, state);
+    const spotted = canspotmon(monster, state);
     const comesToLife = !spotted ? 'disappears'
         : golemXform ? 'turns into flesh'
             : (nonliving(monster.data) || is_vampshifter(monster))
@@ -3417,12 +3396,6 @@ function Shock_resistance(state) {
 function Halluc_resistance(state) {
     const p = state.u?.uprops?.[HALLUC_RES];
     return Boolean(p?.intrinsic || p?.extrinsic);
-}
-
-// Local helper: canspotmon. C ref: display.h canspotmon().
-// Full version is canseemon || sensemon; sensemon is not ported.
-function canspotmon(mon, state) {
-    return canseemon(mon, state);
 }
 
 // C ref: trap.c chest_trap() (6294-6501). Handles a trapped chest:

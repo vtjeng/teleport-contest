@@ -87,8 +87,8 @@ import {
     has_mcorpsenm,
     MCORPSENM,
     u_at,
-    isok,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import {
     Mgender,
     hliquid,
@@ -98,7 +98,10 @@ import {
     y_monnam,
 } from './do_name.js';
 import { on_level, surface_typ } from './dungeon.js';
-import { is_drawbridge_wall } from './dbridge.js';
+import {
+    is_drawbridge_wall,
+    is_pool,
+} from './dbridge.js';
 import { altarmask_at } from './pray.js';
 import { align_str, trap_predicament } from './insight.js';
 import { trapped_chest_at, trapped_door_at } from './detect.js';
@@ -249,7 +252,12 @@ import {
 } from './tty_menu.js';
 import { ttyPline, ttyPutmixed } from './tty_message.js';
 import { doextversion } from './version.js';
-import { is_lava, is_pool, t_at, trapname, Levitation } from './trap.js';
+import {
+    is_lava,
+    t_at,
+    trapname,
+    Levitation,
+} from './trap.js';
 import { cansee, couldsee, howmonseen } from './vision.js';
 import { spot_time_left } from './timeout.js';
 import { getlin, select_menu } from './windows.js';

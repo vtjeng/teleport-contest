@@ -32,7 +32,7 @@ import {
 import { set_malign } from '../js/makemon.js';
 import { emits_light, is_neuter } from '../js/mondata.js';
 import { new_light_source } from '../js/light.js';
-import { canSpotMonster } from '../js/startup_a11y.js';
+
 import { accessible } from '../js/monmove.js';
 import { maketrap } from '../js/trap.js';
 import { PIT, WEB } from '../js/const.js';
@@ -126,6 +126,7 @@ import { newedog } from '../js/dog.js';
 import { glyph_is_invisible, map_invisible } from '../js/display.js';
 import { block_point } from '../js/vision.js';
 import { planningState } from '../js/unported_monster_actions.js';
+import { canspotmon } from '..//js/display.js';
 
 // A Valkyrie on a plain first level. Any seed that reaches the first prompt
 // will do; 7710044 is the base row of the kill matrix, so this is the hero
@@ -430,10 +431,10 @@ test('the graveyard term draws only for undead in a graveyard', async () => {
 test('canspotmon still sees a monster with no hit points left', async () => {
     await hero();
     const mon = spawn(PM_NEWT);
-    assert.equal(canSpotMonster(mon, game), true, 'alive');
+    assert.equal(canspotmon(mon, game), true, 'alive');
     mon.mhp = 0;
-    assert.equal(canSpotMonster(mon, game), true, 'at zero');
-    assert.equal(canSpotMonster(null, game), false, 'no monster at all');
+    assert.equal(canspotmon(mon, game), true, 'at zero');
+    assert.equal(canspotmon(null, game), false, 'no monster at all');
 });
 
 // mon.c zombie_maker() (361-380).

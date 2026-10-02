@@ -97,9 +97,10 @@ import { incr_itimeout } from './potion.js';
 import { livelog_printf, verbalize } from './pline.js';
 import { mpickobj } from './steal.js';
 import { ttyPline } from './tty_message.js';
-import { canseemon } from './vision.js';
+
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
+import { canseemon } from './display.js';
 
 // C ref: priest.c local constants.
 const ALGN_SINNED = -4;

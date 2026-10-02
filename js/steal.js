@@ -104,11 +104,7 @@ import { rn2, rnd } from './rng.js';
 import { obj_resists } from './bury.js';
 import { is_quest_artifact } from './questpgr.js';
 import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
-import {
-    canSeeMonster as canSeeMonsterOnMap,
-    canSpotMonster,
-    messageAt,
-} from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { attach_fig_transform_timeout } from './timeout.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { cansee } from './vision.js';
@@ -133,6 +129,7 @@ import { mwepgone } from './weapon.js';
 import { rloc, tele_restrict } from './teleport.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
+import { canseemon, canspotmon } from './display.js';
 
 export class UnsupportedMonsterPickupOperationError extends Error {
     constructor(operation, obj = null) {
@@ -158,7 +155,7 @@ function pickupEnv(rawEnv = {}) {
         ?? hooks.canSeeMonster;
     const canSeeMonster = suppliedVisibility
         ? (monster, env) => suppliedVisibility(monster, env)
-        : (monster) => canSeeMonsterOnMap(monster, state);
+        : (monster) => canseemon(monster, state);
     return { ...rawEnv, state, hooks, canSeeMonster };
 }
 
@@ -533,7 +530,7 @@ export async function steal(
     if (objnambuf) objnambuf.value = '';
 
     const monkey_business = is_animal(mtmp.data);
-    const seen = canSpotMonster(mtmp, state);
+    const seen = canspotmon(mtmp, state);
     const was_punished = Boolean(state.uball);
 
     // The following is true if successful on first of two attacks.
@@ -778,7 +775,7 @@ export async function steal(
             break;
         }
         // hero's blindfold might have just been stolen
-        if (!seen && canSpotMonster(mtmp, state))
+        if (!seen && canspotmon(mtmp, state))
             Monnambuf = Monnam(mtmp, state);
     } else if (otmp.owornmask) {
         // weapon or ball&chain

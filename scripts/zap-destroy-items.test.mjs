@@ -31,7 +31,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { AD_COLD, AD_ELEC, AD_FIRE, PM_NEWT } from '../js/monsters.js';
 import {
-    breathless, haseyes, monster_resists_element,
+    breathless, haseyes, Resists_Elem,
 } from '../js/mondata.js';
 import { discover_object } from '../js/o_init.js';
 import {
@@ -938,7 +938,7 @@ test('a fire-resistant carrier loses the scroll but takes no damage',
     // glob, and zap.c:5942-5943 turns it into a zero return for a monster.
     const resistant = game.mons.findIndex(
         (species) => species
-            && monster_resists_element({ data: species }, FIRE_RES, game),
+            && Resists_Elem({ data: species }, FIRE_RES, game),
     );
     assert.ok(resistant > 0);
     monster.data = game.mons[resistant];

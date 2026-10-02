@@ -23,7 +23,8 @@ import {
     PM_JACKAL,
 } from '../js/monsters.js';
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
-import { canSeeMonster } from '../js/startup_a11y.js';
+
+import { canseemon } from '..//js/display.js';
 
 const DATETIME = '20260214031500';
 const RC = [
@@ -126,7 +127,7 @@ test('a zero monster magic-trap roll returns the fire-trap result',
     async () => {
         await hero();
         const { monster, trap, x, y } = victimOnMagicTrap();
-        assert.equal(canSeeMonster(monster, game), true);
+        assert.equal(canseemon(monster, game), true);
         // trap.c:2315's rn2(21) selects fire. The following draws are the
         // fire damage, thitm()'s mhpmax adjustment, burnarmor()'s empty torso
         // selection, and destroy_items()'s limit remainder check.

@@ -93,7 +93,6 @@ import {
     KILLED_BY,
     has_mcorpsenm,
     IS_TREE,
-    isok,
     MCORPSENM,
     M_AP_FURNITURE,
     M_AP_MONSTER,
@@ -189,6 +188,10 @@ import {
     xdir,
     ydir,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import {
     cmdq_add_ec,
     cmdq_add_key,
@@ -503,7 +506,7 @@ import {
     make_vomiting,
     set_itimeout,
 } from './potion.js';
-import { canSpotMonster, heroIsBlind, messageAt, sensesMonster } from './startup_a11y.js';
+import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
@@ -515,20 +518,20 @@ import {
     spot_stop_timers,
 } from './timeout.js';
 import {
-    activate_statue_trap, deltrap, fill_pit, is_lava, is_pool, is_pool_or_lava,
-    Levitation, maketrap, reset_utrap, t_at, trapname,
+    activate_statue_trap,
+    deltrap,
+    fill_pit,
+    is_lava,
+    is_pool_or_lava,
+    Levitation,
+    maketrap,
+    reset_utrap,
+    t_at,
+    trapname,
 } from './trap.js';
 import { dotrap, feeltrap, mintrap } from './trap_effects.js';
 import { ttyPline } from './tty_message.js';
-import {
-    cansee,
-    canseemon,
-    couldsee,
-    howmonseen,
-    recalc_block_point,
-    unblock_point,
-    vision_recalc,
-} from './vision.js';
+import { cansee, couldsee, howmonseen, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
 import { bimanual, is_pole, mon_adjust_speed, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
 import { encumber_msg, pickup_object, use_container } from './pickup.js';
@@ -609,6 +612,7 @@ import {
     arti_speak,
     retouch_object,
 } from './artifacts.js';
+import { canseemon, canspotmon, sensemon } from './display.js';
 
 function applyPropertyActive(property, state = game) {
     const value = state.u?.uprops?.[property];
@@ -730,7 +734,7 @@ export function could_pole_mon(state = game) {
     const pos = { x: state.u.ux, y: state.u.uy };
     if (find_poleable_mon(pos, state)) return true;
     const hitmon = polearmContext(state).hitmon;
-    if (hitmon && hitmon.mhp > 0 && sensesMonster(hitmon, state)) {
+    if (hitmon && hitmon.mhp > 0 && sensemon(hitmon, state)) {
         const distance = dist2(hitmon.mx, hitmon.my, state.u.ux, state.u.uy);
         if (distance <= maxRange && distance >= minRange) return true;
     }
@@ -847,7 +851,7 @@ export async function use_whip(obj, state = game, env = {}) {
         let wrappedWhat = sobj_at(BOULDER, rx, ry, state)
             ? 'a boulder' : IS_FURNITURE(tile.typ) ? 'something' : null;
         if (monster) {
-            if (bigmonst(monster.data) && canSpotMonster(monster, state))
+            if (bigmonst(monster.data) && canspotmon(monster, state))
                 wrappedWhat = mon_nam(monster, state);
             if (!wrappedWhat) wrappedWhat = null;
         }
@@ -886,9 +890,9 @@ export async function use_whip(obj, state = game, env = {}) {
 // when no boulder, furniture, or visible big monster can be used to escape.
 async function whipattack(monster, rx, ry, proficient, state, env) {
         let object = null;
-        if (!canSpotMonster(monster, state)) {
+        if (!canspotmon(monster, state)) {
             monster.mundetected = 0;
-            const spotItNow = canSpotMonster(monster, state);
+            const spotItNow = canspotmon(monster, state);
             const rememberedGlyph = glyph_at(rx, ry, state);
             if (spotItNow || !glyph_is_invisible(rememberedGlyph)) {
                 await ttyPline(
@@ -964,7 +968,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
         } else {
             let doSnap = true;
             if (M_AP_TYPE(monster) && !applyPropertyActive(PROT_FROM_SHAPE_CHANGERS, state)
-                && !sensesMonster(monster, state)) {
+                && !sensemon(monster, state)) {
                 await stumble_onto_mimic(monster, state);
                 doSnap = false;
             } else {
@@ -1002,7 +1006,7 @@ export async function use_pole(obj, autohit, state = game) {
     if (!autohit) await ttyPline('Where do you want to hit?', state);
     const target = { x: state.u.ux, y: state.u.uy };
     if (!find_poleable_mon(target, state) && hitmon && hitmon.mhp > 0
-        && sensesMonster(hitmon, state)) {
+        && sensemon(hitmon, state)) {
         const distance = dist2(hitmon.mx, hitmon.my, state.u.ux, state.u.uy);
         if (distance <= maxRange && distance >= minRange) {
             target.x = hitmon.mx;
@@ -1151,7 +1155,7 @@ async function use_leash(obj, state = game, env = {}) {
     }
 
     await use_leash_core(obj, monster, cc,
-        canSpotMonster(monster, state) ? 1 : 0, state, env);
+        canspotmon(monster, state) ? 1 : 0, state, env);
     return ECMD_TIME;
 }
 
@@ -1452,7 +1456,7 @@ function cameraTransientLightEnv(state) {
             redraw: (x, y) => newsym(x, y, state),
         }),
         flushScreen: (mode) => flush_screen(mode),
-        canSpotMonster: (monster) => canSpotMonster(monster, state),
+        canSpotMonster: (monster) => canspotmon(monster, state),
         mapInvisible: (x, y) => map_invisible(x, y, state),
     };
 }
@@ -2516,7 +2520,7 @@ async function use_stethoscope(obj, state = game) {
         state.gn.notonhead = (mtmp.mx !== rx || mtmp.my !== ry);
 
         if (mtmp.mundetected) {
-            if (!canSpotMonster(mtmp, state))
+            if (!canspotmon(mtmp, state))
                 await ttyPline(`There is ${mnm} hidden there.`, state);
             mtmp.mundetected = 0;
             newsym(mtmp.mx, mtmp.my);
@@ -2558,12 +2562,12 @@ async function use_stethoscope(obj, state = game) {
                 + `${use_plural ? 'are' : 'is'} really ${mnm}.`,
                 state,
             );
-        } else if (state.flags.verbose && !canSpotMonster(mtmp, state)) {
+        } else if (state.flags.verbose && !canspotmon(mtmp, state)) {
             await ttyPline(`There is ${mnm} there.`, state);
         }
 
         await mstatusline(mtmp, state);
-        if (!canSpotMonster(mtmp, state))
+        if (!canspotmon(mtmp, state))
             map_invisible(rx, ry, state);
         return res;
     }
@@ -4409,7 +4413,7 @@ export async function magic_whistled(obj, state = game, env = {}) {
                 note_unported('trap.c fill_pit');
             }
 
-            const oldSeen = canSpotMonster(monster, state);
+            const oldSeen = canspotmon(monster, state);
             let monsterName = oldSeen ? y_monnam(monster, state, env) : '';
             if (M_AP_TYPE(monster)) seemimic(monster, state, env);
             const oldX = monster.mx;
@@ -4445,7 +4449,7 @@ export async function magic_whistled(obj, state = game, env = {}) {
                     continue;
                 }
                 const newSeen = monster.mhp < 1
-                    ? false : canSpotMonster(monster, state);
+                    ? false : canspotmon(monster, state);
                 if (newSeen) {
                     monsterName = y_monnam(monster, state, env);
                     if (oldSeen) {

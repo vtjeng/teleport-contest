@@ -29,6 +29,8 @@ export const SCORER_DEC_MAP = {
 };
 
 import { game } from './gstate.js';
+import { isok } from './cmd_isok.js';
+import { is_pool } from './dbridge.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { acurr } from './attrib.js';
 import { near_capacity, nh_delay_output } from './hack.js';
@@ -36,7 +38,7 @@ import {
     In_hell, depth, dunlev, endgamelevelname, on_level, update_lastseentyp,
 } from './dungeon.js';
 import { money_cnt } from './invent.js';
-import { cansee, seenv_matrix } from './vision.js';
+import { cansee, couldsee, seenv_matrix } from './vision.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
 import {
@@ -49,7 +51,7 @@ import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BLINDED, BOLT_LIM, CONFUSION, DEAF, DETECT_MONSTERS, FLYING,
-    HALLUC, HALLUC_RES, SEE_INVIS,
+    HALLUC, HALLUC_RES, INFRAVISION, SEE_INVIS,
     H_IBM, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
@@ -69,8 +71,7 @@ import {
     DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER,
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
     BC_BALL, BC_CHAIN,
-    IS_DOOR, IS_OBSTRUCTED, IS_POOL, IS_ROOM, IS_STWALL,
-    isok, u_at, Ugender, Upolyd,
+    IS_DOOR, IS_OBSTRUCTED, IS_POOL, IS_ROOM, IS_STWALL, u_at, Ugender, Upolyd,
     BEAR_TRAP, NO_TRAP, WEB, is_pit,
     TT_LAVA,
     In_endgame, In_mines, In_quest, In_sokoban, Is_knox_level,
@@ -295,28 +296,19 @@ import { visible_region_at } from './region.js';
 import {
     M1_HUMANOID,
     M1_MINDLESS,
+    M3_INFRAVISIBLE,
     NON_PM,
     NUMMONS,
     PM_LONG_WORM_TAIL,
     PM_TENGU,
 } from './monsters.js';
 import { rn2_on_display_rng } from './rng.js';
-import {
-    canSeeMonster,
-    heroIsBlind,
-    monsterVisible,
-    noteGlyphBufferMutation,
-    queueGlyphUpdateNotice,
-    sensesMonster,
-    sensesMonsterWithoutDetection,
-} from './startup_a11y.js';
+import { heroIsBlind, noteGlyphBufferMutation, queueGlyphUpdateNotice } from './startup_a11y.js';
+import { worm_known } from './worm.js';
 
 // C ref: display.c tp_sensemon() (166-168), through display.h's
-// _tp_sensemon() macro.  This is intentionally only the telepathy predicate;
-// Warning, underwater, swallowed, and Detect_monsters gates belong to the
-// wider sensemon() wrapper and must not suppress callers that ask whether
-// telepathy sensed a monster. The C helper is pure: it only reads the hero
-// and monster fields and returns the telepathy result.
+// _tp_sensemon() macro. This is only the telepathy predicate; underwater,
+// swallowed, warning and detection checks belong to sensemon().
 export function tp_sensemon(mon, state = game) {
     const hero = state.u ?? {};
     const data = mon?.data;
@@ -331,6 +323,73 @@ export function tp_sensemon(mon, state = game) {
     const dy = (mon.my ?? 0) - (hero.uy ?? 0);
     return dx * dx + dy * dy
         <= Math.trunc(hero.unblind_telepat_range ?? 0);
+}
+
+// C ref: display.h _mon_visible(). The caller supplies physical visibility of
+// the monster's square; invisibility and undetected-hider state remain here.
+export function mon_visible(mon, state = game) {
+    return Boolean(mon
+        && (!mon.minvis || _propertyActive(state.u, SEE_INVIS))
+        && !mon.mundetected);
+}
+
+// C ref: display.h _see_with_infrared(). Its callers separately apply
+// _mon_visible(), so infrared does not reveal an invisible monster by itself.
+export function see_with_infrared(mon, state = game) {
+    return Boolean(mon
+        && !heroIsBlind(state)
+        && _propertyActive(state.u, INFRAVISION)
+        && (mon.data?.mflags3 & M3_INFRAVISIBLE)
+        && couldsee(mon.mx, mon.my, state));
+}
+
+// C ref: hack.h MATCH_WARN_OF_MON(). Shared by display.c sensemon() and
+// vision.c howmonseen(); keep the one predicate implementation here.
+export function warningMatches(mon, state = game) {
+    const hero = state.u ?? {};
+    if (!_propertyActive(hero, WARN_OF_MON) || !mon?.data) return false;
+    const warned = state.context?.warntype ?? {};
+    const flags = mon.data.mflags2 ?? 0;
+    return Boolean((warned.obj & flags) || (warned.polyd & flags)
+        || (warned.species && warned.species === mon.data));
+}
+
+// C ref: display.h _sensemon(), including its swallowed and underwater gates.
+function sensemonCore(mon, state, includeDetection) {
+    const hero = state.u ?? {};
+    if ((hero.uswallow && mon !== hero.ustuck)
+        || (hero.uinwater
+            && !(dist2(mon.mx, mon.my, hero.ux, hero.uy) <= 2
+                && is_pool(mon.mx, mon.my, state)))) {
+        return false;
+    }
+    if (includeDetection && _propertyActive(hero, DETECT_MONSTERS))
+        return true;
+    return tp_sensemon(mon, state) || warningMatches(mon, state);
+}
+
+export function sensemon(mon, state = game) {
+    return Boolean(mon && sensemonCore(mon, state, true));
+}
+
+// display.c newsym() needs the same sensemon expression without its
+// Detect_monsters operand when it chooses PHYSICALLY_SEEN versus DETECTED.
+export function sensemonWithoutDetection(mon, state = game) {
+    return Boolean(mon && sensemonCore(mon, state, false));
+}
+
+// C ref: display.h _canseemon() and canspotmon().
+export function canseemon(mon, state = game) {
+    if (!mon) return false;
+    const locationVisible = mon.wormno
+        ? worm_known(mon, state)
+        : (cansee(mon.mx, mon.my, state)
+            || see_with_infrared(mon, state));
+    return locationVisible && mon_visible(mon, state);
+}
+
+export function canspotmon(mon, state = game) {
+    return Boolean(mon && (canseemon(mon, state) || sensemon(mon, state)));
 }
 
 // C ref: display.c knowninvisible() (208-212), used by zap.c:bhitm after
@@ -860,9 +919,8 @@ function genderedMonsterGlyph(mnum, female, maleOffset, femaleOffset) {
 }
 
 function drawbridgeMask(loc) {
-    // drawbridgemask aliases struct rm's flags.  Keep the compatibility
-    // field for state written by the earlier JS map representation.
-    return loc.flags || loc.drawbridgemask || 0;
+    // C stores drawbridgemask in the rm union; JS owns the value in flags.
+    return loc.flags ?? 0;
 }
 
 function accessibilityOverridesEnabled(state) {
@@ -919,7 +977,7 @@ export function display_self(state = game) {
     if (state !== game)
         throw new TypeError('display_self() draws the global game state');
     const steed = game.u?.usteed;
-    const hero = (steed && monsterVisible(steed, game))
+    const hero = (steed && mon_visible(steed, game))
         ? riddenMonsterGlyphInfo(steed, game)
         : hero_glyph_info(game);
     show_glyph_cell(game.u.ux, game.u.uy, hero);
@@ -1301,7 +1359,7 @@ function display_monster(x, y, monster, sightflags, wormTail, state = game) {
     const monMimic = appearanceType !== M_AP_NOTHING;
     const sensed = monMimic && (
         _propertyActive(state.u, PROT_FROM_SHAPE_CHANGERS)
-        || sensesMonster(monster, state)
+        || sensemon(monster, state)
     );
 
     // C checks physical sight before the real monster. Each mimic appearance
@@ -3172,7 +3230,7 @@ export function feel_location(x, y, state = game) {
     // punishment bits are already updated when the sensed monster floats over
     // the square. sensemon() excludes direct sight, matching the C macro.
     const monster = !u_at(x, y, state) ? m_at(x, y, state) : null;
-    if (monster && sensesMonster(monster, state)) {
+    if (monster && sensemon(monster, state)) {
         const sightflags = tp_sensemon(monster, state)
             || monsterWarnsHero(monster, state)
             ? DISPLAY_PHYSICALLY_SEEN : DISPLAY_DETECTED;
@@ -3238,7 +3296,7 @@ export function map_location(x, y, show, state) {
         map_background(x, y, show, state);
     }
     update_lastseentyp(x, y, state, {
-        canSeeMonster: (subject) => canSeeMonster(subject, state),
+        canSeeMonster: (subject) => canseemon(subject, state),
     });
     if (show && !_propertyActiveUnblocked(state.u, BLINDED)) {
         const region = visible_region_at(x, y, state);
@@ -3502,7 +3560,7 @@ export function magic_map_background(x, y, show, state = game) {
     }
     if (show) show_glyph_cell(x, y, glyph);
     update_lastseentyp(x, y, state, {
-        canSeeMonster: (subject) => canSeeMonster(subject, state),
+        canSeeMonster: (subject) => canseemon(subject, state),
     });
 }
 
@@ -3673,19 +3731,19 @@ export function newsym(x, y) {
     const monster = visible ? m_at(x, y, game) : null;
     const wormTail = is_worm_tail_at(monster, x, y);
     const monsterDirectlyVisible = Boolean(
-        monster && monsterVisible(monster, game),
+        monster && mon_visible(monster, game),
     );
     if (visible) {
         update_lastseentyp(x, y, game, {
-            canSeeMonster: (subject) => monsterVisible(subject, game),
+            canSeeMonster: (subject) => mon_visible(subject, game),
         });
     }
     const sensedWithoutDetection = Boolean(
-        monster && sensesMonsterWithoutDetection(monster, game),
+        monster && sensemonWithoutDetection(monster, game),
     );
     const monsterSensed = Boolean(
         monster
-        && (sensedWithoutDetection || sensesMonster(monster, game)),
+        && (sensedWithoutDetection || sensemon(monster, game)),
     );
     const detectedOnly = monsterSensed
         && !monsterDirectlyVisible
@@ -3823,14 +3881,14 @@ export function newsym(x, y) {
     // adds Detect_monsters.
     const outOfSightSeeIt = Boolean(
         outOfSightMon
-        && (sensesMonsterWithoutDetection(outOfSightMon, game)
-            || canSeeMonster(outOfSightMon, game)),
+        && (sensemonWithoutDetection(outOfSightMon, game)
+            || canseemon(outOfSightMon, game)),
     );
     const outOfSightWormTail = is_worm_tail_at(outOfSightMon, x, y);
     const outOfSightSensed = Boolean(
         outOfSightSeeIt
         || (outOfSightMon && !outOfSightWormTail
-            && sensesMonster(outOfSightMon, game)),
+            && sensemon(outOfSightMon, game)),
     );
     // C ref: display.c newsym() (1055-1056). mon_warning fires only when
     // the monster was not already handled by the sensed path above.

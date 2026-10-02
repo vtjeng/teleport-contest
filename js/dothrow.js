@@ -119,7 +119,6 @@ import {
     is_pit,
     u_at,
     has_mgivenname,
-    isok,
     ismnum,
     LOST_THROWN,
     P_CROSSBOW,
@@ -172,6 +171,10 @@ import {
     helpless,
     Upolyd,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import {
     ART_MJOLLNIR, artifact_hit, is_art, spec_abon,
 } from './artifacts.js';
@@ -423,12 +426,11 @@ import {
     Levitation,
     drown,
     is_lava,
-    is_pool,
     t_at,
     trapname,
 } from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { cansee, canseemon, vision_recalc } from './vision.js';
+import { cansee, vision_recalc } from './vision.js';
 import { doquiver_core, welded } from './wield.js';
 import { could_pole_mon, use_pole, use_whip } from './apply.js';
 import {
@@ -445,7 +447,7 @@ import { is_quest_artifact } from './questpgr.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { explode_oil } from './explode.js';
 import { align_gname } from './pray.js';
-import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { in_out_region, m_in_out_region } from './region.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import {
@@ -463,6 +465,7 @@ import { cutworm } from './worm.js';
 import { snuff_candle } from './apply_splash_lit.js';
 import { make_blinded, potionbreathe, potionhit } from './potion.js';
 import { unsplitobj } from './obj.js';
+import { canseemon, canspotmon } from './display.js';
 
 // C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
 // Stone_resistance (65). Each is the union of the intrinsic and extrinsic
@@ -632,7 +635,7 @@ function isMoat(x, y, state) {
     if (!location || on_level(state.u?.uz, state.juiblex_level)) return false;
     if (location.typ === MOAT) return true;
     return location.typ === DRAWBRIDGE_UP
-        && ((location.flags ?? location.drawbridgemask ?? 0) & DB_UNDER) === DB_MOAT;
+        && ((location.flags ?? 0) & DB_UNDER) === DB_MOAT;
 }
 
 function rangePointer(arg) {
@@ -644,7 +647,7 @@ function noitMhim(monster, state) {
     const gender = pronoun_gender(
         monster,
         PRONOUN_NO_IT | PRONOUN_HALLU,
-        { state, canSpotMonster },
+        { state, canSpotMonster: canspotmon },
     );
     return genders[gender].him;
 }
@@ -966,7 +969,7 @@ export async function hurtle_step(arg, x, y) {
             (has_mgivenname(mon) ? SUPPRESS_SADDLE : 0) | AUGMENT_IT,
             false,
             state,
-            { canSpotMonster },
+            { canSpotMonster: canspotmon },
         );
         if (!glyph_is_monster(glyph) && !glyph_is_invisible(glyph)) {
             const pronoun = noitMhim(mon, state);
@@ -975,7 +978,7 @@ export async function hurtle_step(arg, x, y) {
             await message(`You bump into ${mnam}.`, state);
         }
         await wakeup(mon, false, { state, random, message });
-        if (!canSpotMonster(mon, state)) map_invisible(mon.mx, mon.my, state);
+        if (!canspotmon(mon, state)) map_invisible(mon.mx, mon.my, state);
         await setmangry(mon, false, { state, random, message });
         if (touch_petrifies(mon.data) && !state.uarmu && !state.uarm
             && !state.uarmc) {

@@ -57,6 +57,9 @@ import {
     STEALTH,
     Upolyd,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { game } from './gstate.js';
 import {
@@ -102,11 +105,18 @@ import { d, rn1, rn2, rne, rnd } from './rng.js';
 import { aggravate } from './wizard.js';
 import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
 import { is_ice } from './terrain.js';
-import { Flying, is_lava, is_pool, t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
+import {
+    Flying,
+    is_lava,
+    t_at,
+    uescaped_shaft,
+    uteetering_at_seen_pit,
+} from './trap.js';
 import { Monnam, hliquid, mon_nam } from './do_name.js';
-import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
 import { burn_away_slime } from './timeout.js';
+import { canspotmon } from './display.js';
 
 // youprop.h:120 Hallucination: intrinsic only, unless resisted.
 function Hallucination(state) {
@@ -678,7 +688,7 @@ export async function dosit(state = game, rawEnv = {}) {
             await message(
                 `${Monnam(u.ustuck, state, rawEnv)} won't offer ${mhis(
                     u.ustuck,
-                    { ...rawEnv, state, canSpotMonster },
+                    { ...rawEnv, state, canSpotMonster: rawEnv.canSpotMonster ?? canspotmon },
                 )} lap.`,
                 state,
             );

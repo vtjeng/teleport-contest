@@ -41,8 +41,8 @@ import {
     VAULT,
     VAULT_GUARD_TIME,
     VWALL,
-    isok,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import {
     map_invisible, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
@@ -76,10 +76,9 @@ import {
     displayPendingTtyMessageWindow,
     ttyPline,
 } from './tty_message.js';
-import {
-    block_point, canseemon, cansee, couldsee, recalc_block_point, unblock_point,
-} from './vision.js';
+import { block_point, cansee, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { getlin } from './windows.js';
+import { canspotmon } from './display.js';
 
 // Thrown where vault.c reaches vault-guard handling this port has not ported.
 export class UnsupportedVaultGuardError extends Error {
@@ -809,10 +808,6 @@ function Blind(state) {
 function Strangled(state) {
     return propertyActive(state.u, STRANGLED);
 }
-function canspotmon(mon, state) {
-    return canseemon(mon, state);
-}
-
 // C ref: vault.c invault() (317-629). Called once per turn from moveloop when
 // the hero is in a vault. After VAULT_GUARD_TIME turns, creates a guard who
 // asks the hero's name and demands any gold be dropped.

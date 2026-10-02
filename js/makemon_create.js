@@ -37,7 +37,6 @@ import {
     Is_earthlevel,
     Is_knox_level,
     Is_stronghold,
-    isok,
     is_pit,
     LS_MONSTER,
     MM_NOTAIL,
@@ -99,6 +98,10 @@ import {
     IS_WALL,
     ZOO,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
@@ -560,13 +563,7 @@ import { newepri } from './priest.js';
 import { newegd } from './vault.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { enexto_core, goodpos, noteleport_level } from './teleport.js';
-import {
-    canSeeMonster,
-    canSpotMonster,
-    mhidden_description,
-    messageAt,
-    sensesMonster,
-} from './startup_a11y.js';
+import { mhidden_description, messageAt } from './startup_a11y.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { block_point, cansee, couldsee, does_block } from './vision.js';
 import { get_shop_item } from './shknam.js';
@@ -584,13 +581,16 @@ import {
     S_vwall,
 } from './symbols.js';
 import { begin_burn, stop_timer } from './timeout.js';
-import { is_pool, t_at } from './trap.js';
+import {
+    t_at,
+} from './trap.js';
 import {
     m_dowear,
     mon_set_minvis,
     update_mon_extrinsics,
     which_armor,
 } from './worn.js';
+import { canseemon, canspotmon, sensemon } from './display.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOWAIT
@@ -798,15 +798,15 @@ function runtimeAppearanceMessage(monster, mmflags, normalized) {
     let exclaim = !(mmflags & MM_NOEXCLAM);
     const appearance = M_AP_TYPE(monster);
     let name = null;
-    if ((canSeeMonster(monster, state)
+    if ((canseemon(monster, state)
             && (appearance === M_AP_NOTHING
                 || appearance === M_AP_MONSTER))
-        || sensesMonster(monster, state)) {
+        || sensemon(monster, state)) {
         name = Amonnam(monster, {
             state,
             displayRandom: normalized.displayRandom,
         });
-    } else if (canSeeMonster(monster, state)) {
+    } else if (canseemon(monster, state)) {
         // This condition is retained to mirror makemon.c's `else if
         // (canseemon())`, even though canSeeMonster() is also the first
         // condition's left operand. Furniture and object appearances are the
@@ -2884,7 +2884,7 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
         await dochugw(monster, false, {
             ...normalized,
             state,
-            canSpotMonster: (subject) => canSpotMonster(subject, state),
+            canSpotMonster: (subject) => canspotmon(subject, state),
             couldSee: (x, y) => couldsee(x, y, state),
             stopOccupation: () => normalized.hooks.stopOccupation(
                 monster,

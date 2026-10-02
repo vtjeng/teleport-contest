@@ -32,6 +32,11 @@ import {
     defends_when_carried,
 } from './artifacts.js';
 import {
+    is_moat,
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
+import {
     ACID_RES,
     A_INT,
     A_STR,
@@ -250,7 +255,6 @@ import {
     xdir,
     ydir,
     engulfing_u,
-    isok,
     u_at,
     uhim,
     Upolyd,
@@ -294,7 +298,10 @@ import { get_mtraits } from './corpstat.js';
 import { eaten_stat, fix_petrification, vegetarian } from './eat.js';
 import { cvt_sdoor_to_door, findit, show_map_spot } from './detect.js';
 import {
-    adj_pit_checks, dighole, fillholetyp, is_moat, watch_dig,
+    adj_pit_checks,
+    dighole,
+    fillholetyp,
+    watch_dig,
 } from './dig.js';
 import { dropx, dropy } from './do.js';
 import {
@@ -366,7 +373,7 @@ import {
     is_swimmer,
     amphibious,
     breathless,
-    monster_resists_element,
+    Resists_Elem,
     resists_magm,
     resists_blnd,
     resists_blnd_by_arti,
@@ -689,7 +696,7 @@ import {
     stolen_value,
 } from './shk.js';
 import { Shknam, shkname } from './shknam.js';
-import { canSeeMonster, canSpotMonster, messageAt } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import {
     S_digbeam, S_flashbeam, S_hcdoor, S_vodoor,
 } from './symbols.js';
@@ -701,20 +708,26 @@ import { stairway_at } from './stairs.js';
 import { is_ice } from './terrain.js';
 import { burnarmor } from './trap_erode_obj.js';
 import {
-    conjoined_pits, delfloortrap, fill_pit, is_lava, is_pool,
-    is_pool_or_lava, maketrap, openholdingtrap, closeholdingtrap,
+    conjoined_pits,
+    delfloortrap,
+    fill_pit,
+    is_lava,
+    is_pool_or_lava,
+    maketrap,
+    openholdingtrap,
+    closeholdingtrap,
     openfallingtrap,
     animate_statue,
     activate_statue_trap,
-    reset_utrap, set_utrap, t_at, trapname,
+    reset_utrap,
+    set_utrap,
+    t_at,
+    trapname,
 } from './trap.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import { flash_hits_mon, m_is_steadfast, shade_miss } from './uhitm.js';
 import { enexto, rloco, tele, u_teleport_mon } from './teleport.js';
-import {
-    block_point, cansee, canseemon, couldsee, does_block,
-    recalc_block_point, unblock_point, vision_recalc,
-} from './vision.js';
+import { block_point, cansee, couldsee, does_block, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
 import {
     bimanual,
     bypass_obj,
@@ -754,6 +767,7 @@ import { waterbody_name } from './pager.js';
 import { fix_wall_spines } from './mklev.js';
 import { boxlock, doorlock, picking_at, reset_pick } from './lock.js';
 import { breaks, breakobj, hero_breaks, mhurtle } from './dothrow.js';
+import { canseemon, canspotmon } from './display.js';
 
 // Thrown where zap.c reaches a wand effect this port has not ported.
 export class UnsupportedZapError extends Error {
@@ -789,7 +803,7 @@ function bhitTransientLightEnv(state, random, rawEnv = {}) {
         }),
         flushScreen: (mode) => flush_screen(mode),
         canSeeMonster: (monster) => canseemon(monster, state),
-        canSpotMonster: (monster) => canSpotMonster(monster, state),
+        canSpotMonster: (monster) => canspotmon(monster, state),
         mapInvisible: (x, y) => map_invisible(x, y, state),
         placeObject: (obj, x, y) => place_object(obj, x, y, objectEnv),
         removeObject: (obj) => remove_object(obj, objectEnv),
@@ -2006,7 +2020,7 @@ export async function hit(str, mtmp, force, state = game, rawEnv = {}) {
     const verbosely = (mtmp === state.youmonst
         || (state.flags?.verbose
             && (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
-                || canSpotMonster(mtmp, state)
+                || canspotmon(mtmp, state)
                 || (state.u.uswallow && state.u.ustuck === mtmp))));
     const message = rawEnv.message ?? ttyPline;
     await message(
@@ -2023,7 +2037,7 @@ export async function miss(str, mtmp, state = game, env = {}) {
     await message(
         `${The(str, state)} ${vtense(str, 'miss')} `
         + `${((cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
-               || canSpotMonster(mtmp, state))
+               || canspotmon(mtmp, state))
               && state.flags?.verbose)
             ? monsterCommonName(mtmp, state, 0, env) : 'it'}.`,
         state,
@@ -2145,7 +2159,7 @@ export async function zhitm(
         if (spellcaster) tmp = spell_damage_bonus(tmp, state);
         break;
     case ZT_FIRE:
-        if (monster_resists_element(mon, FIRE_RES, state)
+        if (Resists_Elem(mon, FIRE_RES, state)
             || defended(mon, AD_FIRE, state)) {
             sho_shieldeff = true;
             break;
@@ -2155,7 +2169,7 @@ export async function zhitm(
         /* includes spell bonus but not monster vuln to fire */
         {
             const orig_dmg = tmp;
-            if (monster_resists_element(mon, COLD_RES, state))
+            if (Resists_Elem(mon, COLD_RES, state))
                 tmp += 7;
             if (await burnarmor(mon, { ...env })) {
                 if (!random.rn2(3)) {
@@ -2167,7 +2181,7 @@ export async function zhitm(
         }
         break;
     case ZT_COLD:
-        if (monster_resists_element(mon, COLD_RES, state)
+        if (Resists_Elem(mon, COLD_RES, state)
             || defended(mon, AD_COLD, state)) {
             sho_shieldeff = true;
             break;
@@ -2177,7 +2191,7 @@ export async function zhitm(
         /* includes spell bonus but not monster vuln to cold */
         {
             const orig_dmg = tmp;
-            if (monster_resists_element(mon, FIRE_RES, state))
+            if (Resists_Elem(mon, FIRE_RES, state))
                 tmp += random.d(nd, 3);
             if (!random.rn2(3))
                 tmp += await destroy_items(mon, AD_COLD, orig_dmg,
@@ -2214,7 +2228,7 @@ export async function zhitm(
             // zap.c:4340. An ordinary death ray kills a living, non-resistant
             // monster by applying mhp + 1 after the source type is cleared.
             tmp = mon.mhp + 1;
-        } else if (monster_resists_element(mon, DISINT_RES, state)
+        } else if (Resists_Elem(mon, DISINT_RES, state)
                    || defended(mon, AD_DISN, state)) {
             sho_shieldeff = true;
         } else if (mon.misc_worn_check & W_ARMS) {
@@ -2239,7 +2253,7 @@ export async function zhitm(
         tmp = random.d(nd, 6);
         if (spellcaster) tmp = spell_damage_bonus(tmp, state);
         const orig_dmg = tmp;
-        if (monster_resists_element(mon, SHOCK_RES, state)
+        if (Resists_Elem(mon, SHOCK_RES, state)
             || defended(mon, AD_ELEC, state)) {
             sho_shieldeff = true;
             tmp = 0;
@@ -2258,7 +2272,7 @@ export async function zhitm(
     }
 
     case ZT_POISON_GAS:
-        if (monster_resists_element(mon, POISON_RES, state)
+        if (Resists_Elem(mon, POISON_RES, state)
             || defended(mon, AD_DRST, state)) {
             sho_shieldeff = true;
             break;
@@ -2267,7 +2281,7 @@ export async function zhitm(
         break;
 
     case ZT_ACID:
-        if (monster_resists_element(mon, ACID_RES, state)
+        if (Resists_Elem(mon, ACID_RES, state)
             || defended(mon, AD_ACID, state)) {
             sho_shieldeff = true;
             break;
@@ -3704,7 +3718,7 @@ export async function bhito(obj, wand, state = game,
                                 await message('You hear a defibrillator.', state, rawEnv);
                             learn_it = byHero ? true : Boolean(state.gz?.zap_oseen);
                         }
-                        if (canSpotMonster(monster, state))
+                        if (canspotmon(monster, state))
                             await message(`${Monnam(monster, state)} appears.`, state, rawEnv);
                     }
                     if (learn_it) exercise(A_WIS, true, state);
@@ -3870,7 +3884,7 @@ export async function bhitm(monster, wand, state = game,
                     ...rawEnv,
                     state,
                     random,
-                    canSeeMonster: (target) => canSeeMonster(target, state),
+                    canSeeMonster: (target) => canseemon(target, state),
                     fleeMessage: (target, detail, env) =>
                         monfleeMessage(target, detail, env),
                 });
@@ -3881,7 +3895,7 @@ export async function bhitm(monster, wand, state = game,
         reveal_invis = !await u_teleport_mon(monster, true, {
             ...bhitmRelocationEnv(state, random, rawEnv),
         });
-        learn_it = canSpotMonster(monster, state);
+        learn_it = canspotmon(monster, state);
     } else if (otyp === WAN_MAKE_INVISIBLE) {
         const oldInvis = Boolean(monster.minvis);
         const couldSee = canseemon(monster, state);
@@ -4133,7 +4147,7 @@ export async function bhitm(monster, wand, state = game,
                             let name = `${s_suffix(Monnam(monster, state, rawEnv))} `
                                 + distant_name(saddle, xnameFresh, state);
                             if (cansee(monster.mx, monster.my, state)) {
-                                if (!canSpotMonster(monster, state)) {
+                                if (!canspotmon(monster, state)) {
                                     name = upstart(
                                         an(distant_name(
                                             saddle, xnameFresh, state,
@@ -4147,7 +4161,7 @@ export async function bhitm(monster, wand, state = game,
                                     state,
                                     rawEnv,
                                 );
-                            } else if (canSpotMonster(monster, state)) {
+                            } else if (canspotmon(monster, state)) {
                                 await ttyPline(`${name} falls off.`, state, rawEnv);
                             }
                             await mdrop_obj(monster, saddle, false, {
@@ -4212,7 +4226,7 @@ export async function bhitm(monster, wand, state = game,
                     );
                 }
                 if (changed && give_msg
-                    && (canSpotMonster(monster, state)
+                    && (canspotmon(monster, state)
                         || engulfing_u(monster, state)))
                     learn_it = true;
             }
@@ -4241,7 +4255,7 @@ export async function bhitm(monster, wand, state = game,
     }
     if (reveal_invis && monster.mhp >= 1
         && cansee(hitpos.x, hitpos.y, state)
-        && !canSpotMonster(monster, state))
+        && !canspotmon(monster, state))
         map_invisible(hitpos.x, hitpos.y, state);
     if (learn_it) learnwand(wand, state);
     return ret;
@@ -4575,7 +4589,7 @@ export async function bhit(
                 || is_swimmer(mtmp.data)
                 || amphibious(mtmp.data)
                 || breathless(mtmp.data))) {
-                if (!heroIsBlind(state) && canSpotMonster(mtmp, state)) {
+                if (!heroIsBlind(state) && canspotmon(mtmp, state)) {
                     await ttyPline(
                         `${Yname2(obj, state)} ${otense(obj, 'pass')} over `
                             + `${mon_nam(mtmp, state)}.`, state,
@@ -4650,7 +4664,7 @@ export async function bhit(
                 state.gn ??= {};
                 state.gn.notonhead = x !== mtmp.mx || y !== mtmp.my;
                 if (!tetheredWeapon) await tmp_at(DISP_END, 0, state);
-                if (cansee(x, y, state) && !canSpotMonster(mtmp, state))
+                if (cansee(x, y, state) && !canspotmon(mtmp, state))
                     map_invisible(x, y, state);
                 await bhitTransientLightCleanup(
                     weapon, tetheredWeapon, state, random, rawEnv,
@@ -5412,11 +5426,10 @@ export async function zap_over_floor(
                 // the string is specifically needed for a moat.
                 const buf = waterbody_name(x, y, state, env);
                 rangemod -= 3;
-                const underMask = lev.flags ?? lev.drawbridgemask ?? 0;
+                const underMask = lev.flags ?? 0;
                 if (lev.typ === DRAWBRIDGE_UP) {
                     lev.flags = (underMask & ~DB_UNDER)
                         | (lava ? DB_FLOOR : DB_ICE);
-                    lev.drawbridgemask = lev.flags;
                 } else {
                     lev.icedpool = lava ? 0
                         : lev.typ === POOL ? ICED_POOL : ICED_MOAT;
@@ -5974,7 +5987,7 @@ export async function dobuzz(
             let mon = m_at(sx, sy, state);
             if (cansee(sx, sy, state)) {
                 /* reveal/unreveal invisible monsters before tmp_at() */
-                if (mon && !canSpotMonster(mon, state))
+                if (mon && !canspotmon(mon, state))
                     markInvisible(sx, sy, state);
                 else if (!mon)
                     unmarkInvisible(sx, sy, state);

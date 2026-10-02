@@ -75,7 +75,6 @@ import {
     IS_FOUNTAIN,
     IS_FURNITURE,
     IS_ROOM,
-    isok,
     IS_OBSTRUCTED,
     IS_GRAVE,
     IS_SINK,
@@ -118,6 +117,7 @@ import {
     TAINT_AGE,
     Amask2align,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
 import { objectGenerationEnv } from './object_generation.js';
 // js/hack.js imports dig_typ(); both crossings occur only inside function
@@ -173,14 +173,24 @@ import {
     remove_object,
     sobj_at,
 } from './obj.js';
-import { cansee, canseemon, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
+import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { set_voice } from './sounds.js';
 import {
-    Flying, Levitation, conjoined_pits, deltrap, is_lava, is_pool,
-    is_pool_or_lava, maketrap, reset_utrap, set_utrap, t_at, trapname,
+    Flying,
+    Levitation,
+    conjoined_pits,
+    deltrap,
+    is_lava,
+    is_pool_or_lava,
+    maketrap,
+    reset_utrap,
+    set_utrap,
+    t_at,
+    trapname,
     delfloortrap,
-    uteetering_at_seen_pit, uescaped_shaft,
+    uteetering_at_seen_pit,
+    uescaped_shaft,
 } from './trap.js';
 import { feeltrap, seetrap } from './trap_effects.js';
 import { bimanual } from './worn.js';
@@ -210,9 +220,17 @@ import {
     PM_DWARF, PM_EARTH_ELEMENTAL, PM_ELF, PM_RANGER, PM_XORN,
 } from './monsters.js';
 import { dogushforth, dryup, breaksink } from './fountain.js';
-import { find_drawbridge, is_db_wall, is_drawbridge_wall } from './dbridge.js';
+import {
+    find_drawbridge,
+    is_db_wall,
+    is_drawbridge_wall,
+    is_moat,
+    is_pool,
+} from './dbridge.js';
+
 import { hliquid, mon_nam } from './do_name.js';
 import { align_str } from './insight.js';
+import { canseemon } from './display.js';
 
 // C ref: youprop.h Unaware. The draft-message random roll is skipped while a
 // negative multi represents unconsciousness or fainting.
@@ -1099,23 +1117,6 @@ function maybeHalfPhysical(damage, state) {
         ? Math.trunc((damage + 1) / 2) : damage;
 }
 
-// C ref: dbridge.c is_moat() (100-112). is_pool() deliberately remains a
-// separate predicate: on Juiblex's level C still calls MOAT terrain a pool,
-// but is_moat() excludes it when fillholetyp() chooses a liquid.
-export function is_moat(x, y, state) {
-    const location = state.level?.at(x, y);
-    const current = state.u?.uz;
-    const juiblex = state.juiblex_level;
-    const onJuiblex = Boolean(current && juiblex
-        && current.dnum === juiblex.dnum
-        && current.dlevel === juiblex.dlevel);
-    if (!location || onJuiblex) return false;
-    return location.typ === MOAT
-        || (location.typ === DRAWBRIDGE_UP
-            && ((location.flags || location.drawbridgemask || 0) & DB_UNDER)
-                === DB_MOAT);
-}
-
 // C ref: dig.c fillholetyp() (606-637). Count the liquid around a square in
 // x-major/y-minor order, reduce ordinary pools when not forced, then preserve
 // C's short-circuit order for the three rn2() choices. This helper is impure
@@ -1453,8 +1454,8 @@ export async function dighole(
         if (liquidType === ROOM) {
             await message(`The ${surface(x, y, state)} ${x !== state.u.ux || y !== state.u.uy ? 't' : ''}here is too hard to dig in.`, state, rawEnv);
         } else {
-            location.drawbridgemask &= ~DB_UNDER;
-            location.drawbridgemask |= liquidType === LAVAPOOL
+            location.flags &= ~DB_UNDER;
+            location.flags |= liquidType === LAVAPOOL
                 ? DB_LAVA : DB_MOAT;
             note_unported('dig.c liquid_flow');
             retval = true;

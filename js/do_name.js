@@ -28,7 +28,6 @@ import {
     HALLUC,
     HALLUC_RES,
     HAND,
-    INFRAVISION,
     LL_ARTIFACT,
     LL_CONDUCT,
     ismnum,
@@ -64,11 +63,11 @@ import {
     has_mgivenname,
     has_oname,
     helpless,
-    isok,
     u_at,
     SEE_INVIS,
     DEAF,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import {
     artifact_exists,
     artifact_name,
@@ -85,7 +84,7 @@ import {
 } from './display.js';
 import { getpos } from './getpos.js';
 import { body_part, poly_gender } from './polyself.js';
-import { cansee, couldsee } from './vision.js';
+import { cansee } from './vision.js';
 import { priestname } from './priest.js';
 import { shkname } from './shknam.js';
 import { alter_cost } from './shk.js';
@@ -159,13 +158,10 @@ import { hides_under } from './mondata.js';
 // C apply.c:beautiful() is shared with do_mgivenname(); apply.js already
 // imports naming helpers from this file, so this is a deferred-use module cycle.
 import { beautiful } from './apply.js';
-// display.h canspotmon() (129). js/startup_a11y.js owns it and imports
-// capitalizedMonsterName() from this file, so the two modules form a cycle.
-// Neither uses the other's binding while its module body evaluates, which is
-// what an ES module cycle requires; js/obj.js and this file already form one.
-import { canSpotMonster, heroIsBlind, sensesMonster } from './startup_a11y.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
+import { canspotmon, see_with_infrared, sensemon } from './display.js';
+import { heroIsBlind } from './startup_a11y.js';
 
 const GHOST_NAMES = Object.freeze([
     'Adri',
@@ -511,13 +507,6 @@ export async function alreadynamed(monster, monnambuf, usrbuf, state = game) {
     return false;
 }
 
-function see_with_infrared(monster, state) {
-    if (heroIsBlind(state) || !namingPropertyActive(state, INFRAVISION))
-        return false;
-    if (!(monster.data?.mflags3 & 0x0200)) return false;
-    return couldsee(monster.mx, monster.my, state);
-}
-
 // C ref: do_name.c do_mgivenname() (199-282).
 export async function do_mgivenname(state = game) {
     if (namingPropertyActive(state, HALLUC)
@@ -533,7 +522,7 @@ export async function do_mgivenname(state = game) {
     let monster = null;
     let doSwallow = false;
     if (u_at(cc.x, cc.y, state)) {
-        if (state.u.usteed && canSpotMonster(state.u.usteed, state)) {
+        if (state.u.usteed && canspotmon(state.u.usteed, state)) {
             monster = state.u.usteed;
         } else {
             await ttyPline(
@@ -560,7 +549,7 @@ export async function do_mgivenname(state = game) {
     const seeInvisible = namingPropertyActive(state, SEE_INVIS);
     const appearance = monster ? M_AP_TYPE(monster) : 0;
     if (!doSwallow && (!monster
-        || (!sensesMonster(monster, state)
+        || (!sensemon(monster, state)
             && (!(cansee(cc.x, cc.y, state)
                 || see_with_infrared(monster, state))
                 || monster.mundetected
@@ -968,7 +957,7 @@ function hallucinationActive(state) {
 function x_monnam_do_it(monster, article, suppress, state, env = {}) {
     const spotMonster = env.canSpotMonster
         ?? env.canSeeMonster
-        ?? canSpotMonster;
+        ?? canspotmon;
     return !spotMonster(monster, state)
         && article !== ARTICLE_YOUR
         && !state.program_state?.gameover
@@ -1495,7 +1484,7 @@ export function mon_nam_too(mon, other_mon, state = game, env = {}) {
     // do_name.c takes a fresh nextmbuf() slot for the reflexive result.
     nextmbuf();
     switch (pronoun_gender(mon, PRONOUN_HALLU, {
-        canSpotMonster,
+        canSpotMonster: canspotmon,
         ...env,
         state,
     })) {

@@ -122,11 +122,7 @@ import {
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
-import {
-    canSeeMonster,
-    emitGlyphUpdateNotices,
-    emitStartupA11yNotices,
-} from './startup_a11y.js';
+import { emitGlyphUpdateNotices, emitStartupA11yNotices } from './startup_a11y.js';
 import { u_wipe_engr } from './engrave.js';
 import { check_special_room } from './rooms.js';
 import { mnexto, rloc } from './teleport.js';
@@ -193,6 +189,7 @@ import { settrack } from './track.js';
 import { clear_splitobjs } from './obj.js';
 import { makewish } from './zap.js';
 import { clear_bypasses } from './worn.js';
+import { canseemon } from './display.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
 // allmain.c:newgame() calls mklev(). Asynchronous only because u_init_misc()
@@ -1214,7 +1211,7 @@ async function moveElapsedTurnMonster(monster, env) {
                 },
             }),
         }),
-        canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        canSeeMonster: (subject) => canseemon(subject, env.state),
         // C ref: mon.c movemon_singlemon():1295-1303 and hideunder():4726-4801.
         // The planning scan binds the same function, so the two passes take
         // the same branches. This live binding is the one that owes the

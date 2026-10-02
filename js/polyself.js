@@ -145,6 +145,9 @@ import {
     thats_enough_tries,
 } from './const.js';
 import {
+    is_pool,
+} from './dbridge.js';
+import {
     acurr, adjabil, exercise, newhp, redist_attr, setuhpmax,
 } from './attrib.js';
 import { game } from './gstate.js';
@@ -184,7 +187,7 @@ import {
     lays_eggs,
     eggs_in_water,
     mindless,
-    monster_resists_element,
+    Resists_Elem,
     nohands,
     nonliving,
     unsolid,
@@ -240,7 +243,11 @@ import { getlin } from './windows.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import {
-    deltrap, is_pool, is_pool_or_lava, maketrap, set_utrap, t_at,
+    deltrap,
+    is_pool_or_lava,
+    maketrap,
+    set_utrap,
+    t_at,
     unconscious,
 } from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
@@ -302,7 +309,7 @@ import {
 } from './light.js';
 import { has_ceiling, surface } from './dungeon.js';
 import { On_stairs } from './stairs.js';
-import { canseemon, couldsee } from './vision.js';
+import { couldsee } from './vision.js';
 import { throwit } from './dothrow.js';
 import { in_rooms } from './rooms.js';
 import { destroy_items } from './zap_destroy_items.js';
@@ -314,6 +321,7 @@ import { were_beastie, were_summon } from './were.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
+import { canseemon } from './display.js';
 
 // Boundary error for polyself branches that fall outside the current goal.
 // failClosedCommand() in cmd.js converts this to an
@@ -405,9 +413,9 @@ function Free_action(state) {
 }
 
 // monst.h:272 resists_fire(mon) is Resists_Elem(mon, FIRE_RES), whose
-// monster arm mondata.js ports as monster_resists_element().
+// monster arm mondata.js ports as Resists_Elem().
 function resists_fire(mon, state) {
-    return monster_resists_element(mon, FIRE_RES, state);
+    return Resists_Elem(mon, FIRE_RES, state);
 }
 
 // mondata.h:71 digests: an AT_ENGL attack that deals AD_DGST.

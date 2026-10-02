@@ -95,7 +95,6 @@ import {
     Is_rogue_level,
     Is_waterlevel,
     engulfing_u,
-    isok,
     ismnum,
     OBJ_AT,
     u_at,
@@ -108,6 +107,7 @@ import {
     Ugender,
     plur,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import {
     PM_SAMURAI,
     PM_NINJA,
@@ -389,7 +389,7 @@ import {
     block_point, cansee, do_clear_area, does_block, unblock_point,
     vision_recalc,
 } from './vision.js';
-import { canSpotMonster } from './startup_a11y.js';
+
 import { m_at } from './monst.js';
 import { hard_helmet } from './do_wear.js';
 import { dmgval, drain_weapon_skill } from './weapon.js';
@@ -429,6 +429,7 @@ import { create_gas_cloud, valid_cloud_pos } from './region.js';
 import { burn_away_slime, end_burn } from './timeout.js';
 import { encumber_msg } from './pickup.js';
 import { remove_worn_item } from './steal.js';
+import { canspotmon } from './display.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
 // source-ordered doread() and seffects() dispatches use note_unported() for
@@ -1190,7 +1191,7 @@ export async function seffect_taming(scroll, state = game) {
                 ++candidates;
                 const result = await maybe_tame(monster, scroll, state);
                 results += result;
-                if (canSpotMonster(monster, state))
+                if (canspotmon(monster, state))
                     visResults += result;
             }
         }
@@ -2318,7 +2319,7 @@ export async function seffect_light(scroll, state = game) {
         initedog(monster, true, { state });
         monster.msleeping = false;
         monster.mcan = true;
-        if (canSpotMonster(monster, state)) sawLights = true;
+        if (canspotmon(monster, state)) sawLights = true;
         newsym(monster.mx, monster.my);
     }
     if (sawLights) {
@@ -2503,7 +2504,7 @@ export async function drop_boulder_on_monster(
                     + `${donameFresh(rock, state)}!`,
                 state,
             );
-            if (monster.minvis && !canSpotMonster(monster, state))
+            if (monster.minvis && !canspotmon(monster, state))
                 map_invisible(monster.mx, monster.my, state);
         } else if (engulfing_u(monster, state)) {
             const line = youHear(
@@ -2518,7 +2519,7 @@ export async function drop_boulder_on_monster(
         damage = Math.trunc(dmgval(rock, monster, state, env) * rock.quan);
         if (helmet) {
             if (hard_helmet(helmet, state)) {
-                if (canSpotMonster(monster, state)) {
+                if (canspotmon(monster, state)) {
                     await ttyPline(
                         `Fortunately, ${mon_nam(monster, state)} is wearing `
                             + 'a hard helmet.',
@@ -2529,7 +2530,7 @@ export async function drop_boulder_on_monster(
                     if (line) await ttyPline(line, state);
                 }
                 if (damage > 2) damage = 2;
-            } else if (canSpotMonster(monster, state)) {
+            } else if (canspotmon(monster, state)) {
                 await ttyPline(
                     `${Monnam(monster, state)}'s ${xnameFresh(helmet, state)} `
                         + `does not protect ${mhim(monster, { state })}.`,
@@ -3754,7 +3755,7 @@ async function create_particular_creation(d, state = game) {
             mtmp.mundetected = 1;
         }
         if (d.sleeping) mtmp.msleeping = 1;
-        if ((d.hidden || d.invisible) && !canSpotMonster(mtmp, state))
+        if ((d.hidden || d.invisible) && !canspotmon(mtmp, state))
             await flash_mon(mtmp, state);
         madeany = true;
         if (mtmp.cham !== NON_PM && firstchoice !== NON_PM

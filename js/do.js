@@ -118,6 +118,9 @@ import {
     something,
     st_all,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
 import { obj_resists } from './bury.js';
@@ -321,7 +324,6 @@ import {
     climb_pit,
     fill_pit,
     is_lava,
-    is_pool,
     is_pool_or_lava,
     Flying,
     Levitation,
@@ -334,13 +336,7 @@ import { seetrap } from './trap_effects.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { heroIsBlind } from './startup_a11y.js';
 import { note_unported } from './unported.js';
-import {
-    cansee,
-    canseemon,
-    recalc_block_point,
-    vision_recalc,
-    vision_reset,
-} from './vision.js';
+import { cansee, recalc_block_point, vision_recalc, vision_reset } from './vision.js';
 import { welded } from './wield.js';
 import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
 import { resurrect } from './wizard.js';
@@ -350,6 +346,7 @@ import {
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { done } from './end.js';
 import { tutorial } from './nhlua.js';
+import { canseemon } from './display.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
 // staircase descent and positive-decimal level teleport ports.
@@ -701,10 +698,8 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
     if (fillsUp) {
         const trap = t_at(rx, ry, state);
         if (location?.typ === DRAWBRIDGE_UP) {
-            const mask = ((location.flags ?? location.drawbridgemask ?? 0)
-                & ~DB_UNDER) | DB_FLOOR;
+            const mask = ((location.flags ?? 0) & ~DB_UNDER) | DB_FLOOR;
             location.flags = mask;
-            location.drawbridgemask = mask;
         } else {
             location.typ = ROOM;
             location.flags = 0;

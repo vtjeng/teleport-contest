@@ -14,9 +14,9 @@ import {
     W_WEP,
     has_ebones,
     has_oname,
-    isok,
     ismnum,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { christen_monst } from './do_name.js';
 import {
     In_hell,

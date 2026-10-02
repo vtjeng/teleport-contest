@@ -712,9 +712,6 @@ export function Resists_Elem(monster, property, state = game) {
     return false;
 }
 
-// Existing callers use the descriptive alias; keep one implementation owner
-// for the source function rather than a second monster-only predicate.
-export const monster_resists_element = Resists_Elem;
 
 // C ref: mondata.c resists_magm() (215-244). Hero and monster inventory
 // traversal share the C slot-mask rules, including the hero's conditional
@@ -1823,8 +1820,7 @@ export function dmgtype_fromattack(species, dtyp, atyp) {
 }
 
 // C ref: mondata.c max_passive_dmg(). resists_acid() and its siblings are the
-// monst.h macros for Resists_Elem(), ported above; legacy call sites use its
-// monster_resists_element alias.
+// monst.h resistance macros delegate to the canonical Resists_Elem owner.
 export function max_passive_dmg(mdef, magr, state = game) {
     let multi2 = 0;
     // Each of magr's attacks can draw passive damage.
@@ -1850,13 +1846,13 @@ export function max_passive_dmg(mdef, magr, state = game) {
             || (adtyp === M.AD_RUST && completelyrusts(magr.data))) {
             dmg = magr.mhp;
         } else if ((adtyp === M.AD_ACID
-                && !monster_resists_element(magr, ACID_RES, state))
+                && !Resists_Elem(magr, ACID_RES, state))
             || (adtyp === M.AD_COLD
-                && !monster_resists_element(magr, COLD_RES, state))
+                && !Resists_Elem(magr, COLD_RES, state))
             || (adtyp === M.AD_FIRE
-                && !monster_resists_element(magr, FIRE_RES, state))
+                && !Resists_Elem(magr, FIRE_RES, state))
             || (adtyp === M.AD_ELEC
-                && !monster_resists_element(magr, SHOCK_RES, state))
+                && !Resists_Elem(magr, SHOCK_RES, state))
             || adtyp === M.AD_PHYS) {
             dmg = attack.damn;
             if (!dmg) dmg = mdef.data.mlevel + 1;

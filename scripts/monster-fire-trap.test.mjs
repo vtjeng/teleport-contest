@@ -12,7 +12,7 @@ import { runSegment } from '../js/jsmain.js';
 import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { PM_FIRE_ELEMENTAL } from '../js/monsters.js';
-import { monster_resists_element } from '../js/mondata.js';
+import { Resists_Elem } from '../js/mondata.js';
 import { trapeffect_selector } from '../js/trap_effects.js';
 
 test('a visible fire-resistant monster gets the shield animation before text',
@@ -59,7 +59,7 @@ test('a visible fire-resistant monster gets the shield animation before text',
         game.level.monlist = monster;
         game.viz_array[y][x] |= IN_SIGHT;
         game.flags.sparkle = true;
-        assert.equal(monster_resists_element(monster, FIRE_RES, game), true,
+        assert.equal(Resists_Elem(monster, FIRE_RES, game), true,
             'monst.c marks fire elementals as fire resistant');
 
         const trap = {

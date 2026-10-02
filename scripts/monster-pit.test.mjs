@@ -32,9 +32,10 @@ import {
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
 import { CORPSE, EGG } from '../js/objects.js';
-import { canSeeMonster } from '../js/startup_a11y.js';
+
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
 import { loadMonsterPitRecipe } from './run-monster-pit.mjs';
+import { canseemon } from '..//js/display.js';
 
 // The same Valkyrie scripts/trap-thitm.test.mjs and scripts/mon-kill.test.mjs
 // use, so all three read the same hero, the same lit starting room and the
@@ -195,7 +196,7 @@ test('grounded excludes flyers, floaters and clingers under a ceiling',
 test('a pit in sight catches its victim and reports the fall', async () => {
     await hero();
     const { mon, trap, x, y } = victimInPit(PM_JACKAL, 9);
-    assert.equal(canSeeMonster(mon, game), true, 'the hero watches');
+    assert.equal(canseemon(mon, game), true, 'the hero watches');
 
     // rnd(6) of 4 leaves the jackal standing with 5 hit points.
     const env = pitEnv([4]);
@@ -275,7 +276,7 @@ test('a pit out of sight is silent and stays off the map', async () => {
     await hero();
     const { mon, trap, x, y } = victimInPit(PM_JACKAL, 9);
     game.viz_array[y][x] &= ~(COULD_SEE | IN_SIGHT);
-    assert.equal(canSeeMonster(mon, game), false, 'the hero cannot watch');
+    assert.equal(canseemon(mon, game), false, 'the hero cannot watch');
 
     const env = pitEnv([4]);
     assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);

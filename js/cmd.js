@@ -11,6 +11,7 @@ import {
     updateRestOnSpaceModel,
     visibleCommandKey,
 } from './command_bindings.js';
+import { isok } from './cmd_isok.js';
 import {
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
@@ -96,7 +97,6 @@ import {
     TER_MAP,
     VIBRATING_SQUARE,
     Upolyd,
-    isok,
     quitchars,
     u_at,
     dirs_ord,
@@ -401,7 +401,7 @@ import {
     selection_new,
     set_selection_floodfillchk,
 } from './themerooms.js';
-import { canSpotMonster, collectLookaroundMessages, messageAt } from './startup_a11y.js';
+import { collectLookaroundMessages, messageAt } from './startup_a11y.js';
 import { cansee, vision_reset } from './vision.js';
 import { m_at } from './monst.js';
 import { linedup } from './mthrowu.js';
@@ -413,6 +413,7 @@ import { check_special_room } from './rooms.js';
 import { maybe_reset_pick } from './lock.js';
 import { set_uinwater } from './hack.js';
 import { GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
+import { canspotmon } from './display.js';
 
 export const MAX_COMMAND_COUNT = 32767;
 // C ref: cmd.c extcmd_via_menu()'s choices[MAX_EXT_CMD + 1].
@@ -4574,7 +4575,7 @@ export function there_cmd_menu_next2u(win, x, y, mod, act, state = game) {
         add(MCMD.MOVE_DIR, 'Push the boulder');
 
     let mtmp = m_at(x, y, state);
-    if (mtmp && !canSpotMonster(mtmp, state)) mtmp = null;
+    if (mtmp && !canspotmon(mtmp, state)) mtmp = null;
     if (mtmp && which_armor(mtmp, W_SADDLE, state)) {
         const mnam = x_monnam(mtmp, ARTICLE_THE, null, SUPPRESS_SADDLE, false, state);
         if (!state.u?.usteed) add(MCMD.RIDE, `Ride ${mnam}`);

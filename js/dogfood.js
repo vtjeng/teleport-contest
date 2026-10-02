@@ -33,7 +33,7 @@ import {
     likes_fire,
     metallivorous,
     mon_hates_silver,
-    monster_resists_element,
+    Resists_Elem,
     poisonous,
     same_race,
     slimeproof,
@@ -148,19 +148,19 @@ function normalizedDogfoodEnv(rawEnv, requireRandom = true) {
         state,
         random,
         resistsPoison: rawEnv.resistsPoison
-            ?? ((monster) => monster_resists_element(
+            ?? ((monster) => Resists_Elem(
                 monster,
                 POISON_RES,
                 state,
             )),
         resistsAcid: rawEnv.resistsAcid
-            ?? ((monster) => monster_resists_element(
+            ?? ((monster) => Resists_Elem(
                 monster,
                 ACID_RES,
                 state,
             )),
         resistsStone: rawEnv.resistsStone
-            ?? ((monster) => monster_resists_element(
+            ?? ((monster) => Resists_Elem(
                 monster,
                 STONE_RES,
                 state,

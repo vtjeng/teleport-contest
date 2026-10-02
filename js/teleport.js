@@ -78,8 +78,8 @@ import {
     is_pit,
     is_hole,
     engulfing_u,
-    isok,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import {
     In_hell,
     assign_level,
@@ -183,12 +183,7 @@ import {
 import { within_bounded_area } from './rect.js';
 import { update_monster_region, update_player_regions } from './region.js';
 import { rn1, rn2, rnd, rnl } from './rng.js';
-import {
-    canSeeMonster,
-    canSpotMonster,
-    messageAt,
-    sensesMonster,
-} from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { getpos } from './getpos.js';
 import { in_out_region } from './region.js';
 import { make_blinded } from './potion.js';
@@ -212,7 +207,8 @@ import { search_special } from './mkroom.js';
 import { settrack } from './track.js';
 import { ttyPline } from './tty_message.js';
 import { vault_occupied } from './vault.js';
-import { canseemon, couldsee, vision_recalc } from './vision.js';
+import { couldsee, vision_recalc } from './vision.js';
+import { canseemon, canspotmon, sensemon } from './display.js';
 
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
@@ -308,8 +304,8 @@ async function relocateWithMessages(monster, x, y, oldX, oldY, appearmsgInit,
     let telemsg = false;
 
     // C ref: teleport.c:1662-1672 -- pre-move message
-    if (canSpotMonster(monster, state)) {
-        if (couldsee(x, y, state) || sensesMonster(monster, state)) {
+    if (canspotmon(monster, state)) {
+        if (couldsee(x, y, state) || sensemon(monster, state)) {
             telemsg = true;
         } else {
             await message(
@@ -329,14 +325,14 @@ async function relocateWithMessages(monster, x, y, oldX, oldY, appearmsgInit,
     // C ref: teleport.c:1703-1726 -- post-placement messaging.
     // The u.ustuck condition and its "You and <monster> teleport together."
     // branch are omitted: preflightOrdinaryRloc() refuses ustuck monsters.
-    if (canSpotMonster(monster, state) || appearmsg) {
+    if (canspotmon(monster, state) || appearmsg) {
         const du = dist2(x, y, state.u.ux, state.u.uy);
         const next = du <= 2 ? ' next to you' : null;
         const nearu = du <= BOLT_LIM * BOLT_LIM ? ' close by' : null;
 
         monster.mstrategy &= ~STRAT_APPEARMSG;
         if (telemsg
-            && (couldsee(x, y, state) || sensesMonster(monster, state))) {
+            && (couldsee(x, y, state) || sensemon(monster, state))) {
             const olddu = dist2(oldX, oldY, state.u.ux, state.u.uy);
             await message(
                 `${capitalizedMonsterName(monster, state)}`
@@ -570,7 +566,7 @@ function closedDoor(location) {
 }
 
 function drawbridgeMask(location) {
-    return (location.flags || location.drawbridgemask || 0) & DB_UNDER;
+    return (location.flags ?? 0) & DB_UNDER;
 }
 
 function isPoolAt(location, state) {
@@ -694,8 +690,8 @@ async function relocateToFixedDestination(monster, x, y, env) {
     // monster the hero cannot spot where it stands but can spot where it
     // lands is named "It" before the move and by its species after it.
     let appearMessage = Boolean(monster.mstrategy & STRAT_APPEARMSG);
-    const oldSpotted = canSpotMonster(monster, state);
-    const sensedAtOldSquare = sensesMonster(monster, state);
+    const oldSpotted = canspotmon(monster, state);
+    const sensedAtOldSquare = sensemon(monster, state);
     let teleportMessage = false;
 
     if (oldSpotted) {
@@ -715,8 +711,8 @@ async function relocateToFixedDestination(monster, x, y, env) {
     redraw(monster.mx, monster.my, env);
     setApparxy(monster, env);
 
-    const newSpotted = canSpotMonster(monster, state);
-    const sensedAtNewSquare = sensesMonster(monster, state);
+    const newSpotted = canspotmon(monster, state);
+    const sensedAtNewSquare = sensemon(monster, state);
     if (newSpotted || appearMessage) {
         monster.mstrategy &= ~STRAT_APPEARMSG;
         if (teleportMessage
@@ -845,7 +841,7 @@ export async function mtele_trap(
 
     if (inSight) {
         await message(
-            canSeeMonster(monster, state)
+            canseemon(monster, state)
                 ? `${name} seems disoriented.`
                 : `${name} suddenly disappears!`,
             state,
@@ -1359,10 +1355,10 @@ export function rloc_to_flag(monster, x, y, rlocflags = RLOC_NOMSG,
     if (x === oldx && y === oldy && m_at(x, y, state) === monster)
         return monster;
     let telemsg = false;
-    const oldSpotted = Boolean(oldx) && canSpotMonster(monster, state);
+    const oldSpotted = Boolean(oldx) && canspotmon(monster, state);
     if (oldSpotted) appearmsg = false;
     const before = oldSpotted
-        ? (couldsee(x, y, state) || sensesMonster(monster, state)
+        ? (couldsee(x, y, state) || sensemon(monster, state)
             ? (telemsg = true, null)
             : message(
                 `${capitalizedMonsterName(monster, state, env)} vanishes!`,
@@ -1372,14 +1368,14 @@ export function rloc_to_flag(monster, x, y, rlocflags = RLOC_NOMSG,
         : null;
     const finish = () => {
         rloc_to_core(monster, x, y, env);
-        if (canSpotMonster(monster, state) || appearmsg) {
+        if (canspotmon(monster, state) || appearmsg) {
             const distance = dist2(x, y, state.u.ux, state.u.uy);
             const next = distance <= 2 ? ' next to you' : null;
             const near = distance <= BOLT_LIM * BOLT_LIM
                 ? ' close by' : null;
             monster.mstrategy &= ~STRAT_APPEARMSG;
             if (telemsg
-                && (couldsee(x, y, state) || sensesMonster(monster, state))) {
+                && (couldsee(x, y, state) || sensemon(monster, state))) {
                 const oldDistance = dist2(oldx, oldy, state.u.ux, state.u.uy);
                 return message(
                     `${capitalizedMonsterName(monster, state, env)}`

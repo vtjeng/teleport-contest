@@ -1,10 +1,47 @@
 // dbridge.c — drawbridge creation and portcullis lookup predicates.
 import {
-    DB_DIR, DB_EAST, DB_NORTH, DB_SOUTH, DB_WEST, DBWALL, DOOR,
-    DB_LAVA, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, D_NODOOR, IS_WALL,
-    IS_DRAWBRIDGE, LAVAPOOL, W_NONDIGGABLE, isok,
+    DB_DIR, DB_EAST, DB_MOAT, DB_NORTH, DB_SOUTH, DB_UNDER, DB_WEST,
+    DBWALL, DOOR, DB_LAVA, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, D_NODOOR,
+    IS_WALL, IS_DRAWBRIDGE, LAVAPOOL, MOAT, POOL, WATER, W_NONDIGGABLE,
 } from './const.js';
+import { isok } from './cmd_isok.js';
+import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
+
+// C refs: dbridge.c is_pool() (46-60) and is_moat() (100-112). The `flags`
+// field is the live JavaScript owner of drawbridgemask on map records.
+export function drawbridgeFlags(location) {
+    return location?.flags ?? 0;
+}
+
+export function drawbridgeUnder(location) {
+    return drawbridgeFlags(location) & DB_UNDER;
+}
+
+export function is_moat(x, y, state = game) {
+    if (!isok(x, y)) return false;
+    const location = state.level?.at?.(x, y);
+    const juiblexLevel = state.juiblex_level;
+    const assignedJuiblexLevel = Boolean(
+        juiblexLevel?.dlevel || juiblexLevel?.dnum,
+    );
+    if (!location
+        || (assignedJuiblexLevel && on_level(state.u?.uz, juiblexLevel))) {
+        return false;
+    }
+    return location.typ === MOAT
+        || (location.typ === DRAWBRIDGE_UP
+            && drawbridgeUnder(location) === DB_MOAT);
+}
+
+export function is_pool(x, y, state = game) {
+    if (!isok(x, y)) return false;
+    const location = state.level?.at?.(x, y);
+    if (!location) return false;
+    const typ = location.typ;
+    return typ === POOL || typ === MOAT || typ === WATER
+        || is_moat(x, y, state);
+}
 
 // C ref: dbridge.c is_drawbridge_wall() (137-162). Return the direction,
 // including DB_NORTH=0, or -1; callers must not test JavaScript truthiness.
@@ -20,8 +57,9 @@ export function is_drawbridge_wall(x, y, state = game) {
         const neighbor = state.level.at(x + dx, y + dy);
         if (!neighbor) continue;
         if (IS_DRAWBRIDGE(neighbor.typ)
-            && ((neighbor.flags || neighbor.drawbridgemask || 0) & DB_DIR)
-                === direction) return direction;
+            && (drawbridgeFlags(neighbor) & DB_DIR) === direction) {
+            return direction;
+        }
     }
     return -1;
 }
@@ -94,8 +132,8 @@ export function create_drawbridge(x, y, dir, flag, state = game) {
     }
     loc.horizontal = !horiz;
     loc2.horizontal = horiz;
-    loc.drawbridgemask = dir;
+    loc.flags = dir;
     if (lava)
-        loc.drawbridgemask |= DB_LAVA;
+        loc.flags |= DB_LAVA;
     return true;
 }

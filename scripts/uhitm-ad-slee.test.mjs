@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {
+    isok,
+} from '../js/cmd_isok.js';
 import test from 'node:test';
 
 import {
-    isok,
     SLEEP_RES,
     STRAT_WAITFORU,
 } from '../js/const.js';

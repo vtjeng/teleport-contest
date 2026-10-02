@@ -51,17 +51,7 @@ import {
     PM_GHOST,
     monst_globals_init,
 } from '../js/monsters.js';
-import {
-    _startupA11yInternals,
-    collectLookaroundMessages,
-    collectMonsterMovementMessage,
-    collectMonsterNoticeMessage,
-    collectMonsterNoticeMessages,
-    describeMonster,
-    emitStartupA11yNotices,
-    sensesMonster,
-    sensesMonsterWithoutDetection,
-} from '../js/startup_a11y.js';
+import { _startupA11yInternals, collectLookaroundMessages, collectMonsterMovementMessage, collectMonsterNoticeMessage, collectMonsterNoticeMessages, describeMonster, emitStartupA11yNotices } from '../js/startup_a11y.js';
 import { cmap_to_glyph, monster_glyph_info } from '../js/display.js';
 import {
     S_corr,
@@ -71,6 +61,7 @@ import {
     S_sink,
     S_stone,
 } from '../js/symbols.js';
+import { sensemon, sensemonWithoutDetection } from '../js/display.js';
 
 // Keep the hero away from map edges so room flood-fill and coordinate
 // descriptions can be exercised without boundary effects.
@@ -132,12 +123,12 @@ test('monster sensing shares swallowed and underwater display gates', () => {
         const expectedWithoutDetection = mode === 'blind telepathy';
         const assertSensing = (expected, label) => {
             assert.equal(
-                sensesMonster(monster, state),
+                sensemon(monster, state),
                 expected,
                 `${mode}: ${label}: sensemon`,
             );
             assert.equal(
-                sensesMonsterWithoutDetection(monster, state),
+                sensemonWithoutDetection(monster, state),
                 expected && expectedWithoutDetection,
                 `${mode}: ${label}: non-detection senses`,
             );
