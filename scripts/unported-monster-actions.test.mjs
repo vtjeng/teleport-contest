@@ -80,6 +80,7 @@ import { losehp } from '../js/hack.js';
 import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
 import {
+    AD_PHYS,
     AT_GAZE,
     AT_NONE,
     AT_WEAP,
@@ -167,6 +168,17 @@ import { start_timer } from '../js/timeout.js';
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { canseemon } from '..//js/display.js';
+
+// C permonst.h:48 has NATTK attack slots; AD_PHYS (include/monattk.h) and
+// AT_NONE describe an unused slot without shortening that fixed array.
+function sourceInertAttacks() {
+    return Array.from({ length: NATTK }, () => ({
+        aatyp: AT_NONE,
+        adtyp: AD_PHYS,
+        damn: 0,
+        damd: 0,
+    }));
+}
 
 const DATETIME = '20260725120000';
 const REGION_SOURCE = readFileSync(
@@ -2723,19 +2735,21 @@ test('simple preflight rejects each remaining excluded action atomically',
     async () => {
         const cases = [
             {
-                // The homunculus's AT_BITE/AD_SLEE attack reaches the source
-                // branch that this planner still leaves unsupported. A high
-                // monster level makes the blow land deterministically, so
-                // this fixture checks the sleep-damage refusal rather than a
-                // hidden-attacker gate.
-                name: 'sleeping hero',
-                reason: 'uhitm.c mhitm_ad_slee()',
+                // C monmove.c's scan now reaches the remaining unsupported
+                // trap escape when this ordinary monster is held by a PIT.
+                // Keep the repeated-attempt assertion against this genuine
+                // source boundary instead of the completed AD_SLEE branch.
+                name: 'trapped monster',
+                reason: 'a trapped monster',
                 prepare: async () => {
-                    const target = await prepareSelectedAction({
-                        adjacentHero: true,
-                        pmidx: PM_HOMUNCULUS,
+                    const target = await prepareSelectedAction();
+                    target.monster.mtrapped = true;
+                    game.level.traps.push({
+                        tx: target.monsterX,
+                        ty: target.heroY,
+                        ttyp: PIT,
+                        tseen: false,
                     });
-                    target.monster.m_lev = 100;
                     return target;
                 },
             },
@@ -3023,7 +3037,7 @@ test('simple preflight admits source-inert monster inventory', async () => {
     const target = await prepareSelectedAction();
     target.monster.data = {
         ...game.mons[PM_ORC_SHAMAN],
-        mattk: [],
+        mattk: sourceInertAttacks(),
     };
     target.monster.mnum = PM_ORC_SHAMAN;
     target.monster.minvent = monsterObject(
@@ -3748,7 +3762,7 @@ test('simple ordinary monster and starting pet can land in a corridor',
         }
     });
 
-test('a starting pony targets at range and later refusal stays retryable',
+test('a starting pony targets at range and later sleep planning stays isolated',
     async () => {
     const target = await prepareStartingPetAction(PM_PONY);
     const { monster: pony } = target;
@@ -3779,7 +3793,7 @@ test('a starting pony targets at range and later refusal stays retryable',
 
     // Distinct sentinels make each omitted planning clone observable. The
     // pony writes all four owners during its distant miss; the later ordinary
-    // monster then refuses while adjacent to the hero.
+    // monster completes the supported AD_SLEE path against the clone.
     (game.gb ??= {}).bhitpos = { x: 1, y: 2 };
     (game.gn ??= {}).notonhead = true;
     (game.gs ??= {}).skipdrin = true;
@@ -3793,16 +3807,11 @@ test('a starting pony targets at range and later refusal stays retryable',
     });
 
     for (let attempt = 0; attempt < 2; ++attempt) {
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                // The later attacker's AT_BITE/AD_SLEE slot stops at the
-                // still-unported sleep-damage branch.
-                && error.reason === 'uhitm.c mhitm_ad_slee()',
-        );
+        await preflightSimpleMonsterActions(game);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
+            `sleep planning attempt ${attempt + 1}`,
         );
         assert.deepEqual({
             gb: game.gb,
@@ -5488,7 +5497,10 @@ test('covetous floor-artifact pickup uses the production extraction adapter',
         target.monster.mcansee = true;
         // Keep the fixture at wizard.c tactics() after the pickup; the
         // downstream substituted attack family is outside this source span.
-        target.monster.data = { ...target.monster.data, mattk: [] };
+        target.monster.data = {
+            ...target.monster.data,
+            mattk: sourceInertAttacks(),
+        };
         game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
         const book = floorObject(
             target.monsterX,
@@ -5524,10 +5536,10 @@ test('planned covetous relocation isolates flagged naming and position',
         });
         target.monster.data = {
             ...target.monster.data,
-            // Keep the covetous species flags but remove spell slots so this
-            // fixture ends after tactics() and does not enter a later spell
-            // boundary unrelated to the relocation contract.
-            mattk: [],
+            // Keep the covetous species flags but give it six source-shaped
+            // AT_NONE slots so this fixture ends after tactics() and does not
+            // enter a later spell boundary unrelated to relocation.
+            mattk: sourceInertAttacks(),
         };
         target.monster.mhp = target.monster.mhpmax;
         target.monster.mstrategy = 0;

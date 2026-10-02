@@ -27,14 +27,22 @@ import {
     valid_vampshiftform,
     resists_drli,
 } from '../js/mondata.js';
-import { character_race } from '../js/roles.js';
+import { aligns, character_race, roles } from '../js/roles.js';
 import { uasmon_maxStr, set_uasmon } from '../js/polyself.js';
+import { init_artifacts } from '../js/artifacts.js';
 import { set_mon_data } from '../js/makemon_create.js';
 import { make_glib } from '../js/potion.js';
 import { uwepgone, uswapwepgone } from '../js/wield.js';
 import { objects_globals_init } from '../js/objects.js';
 import { GLIB, W_WEP, W_SWAPWEP } from '../js/const.js';
 import { weight_cap } from '../js/hack.js';
+
+// C role_init's Wizard row and neutral alignment let init_artifacts() build
+// the real per-game artifact table used by defended() and resists_drli().
+const TEST_WIZARD_ROLE = roles.find(({ filecode }) => filecode === 'Wiz');
+const TEST_NEUTRAL_ALIGNMENT = aligns.findIndex(
+    ({ name }) => name === 'neutral',
+);
 
 // Build a mons array once; all tests share it read-only.
 let _mons;
@@ -51,7 +59,7 @@ function minimalState(mnum = PM_GNOME) {
     const mons = testMons();
     const uprops = {};
     for (let i = 0; i < 70; i++) uprops[i] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    return {
+    const state = {
         mons,
         u: {
             umonnum: mnum,
@@ -66,7 +74,8 @@ function minimalState(mnum = PM_GNOME) {
             ux: 1, uy: 1,
         },
         youmonst: { data: mons[mnum], cham: -1, mnum: mnum, m_id: 1 },
-        flags: { female: false },
+        flags: { female: false, initalign: TEST_NEUTRAL_ALIGNMENT },
+        urole: { ...TEST_WIZARD_ROLE },
         uwep: null,
         uarm: null,
         uarmc: null,
@@ -84,8 +93,9 @@ function minimalState(mnum = PM_GNOME) {
         svm: { mvitals: new Array(NUMMONS).fill(0).map(() => ({ mvflags: 0 })) },
         urace: { mnum: PM_HUMAN, selfmask: M2_HUMAN },
         program_state: {},
-        artilist: [],
     };
+    init_artifacts(state);
+    return state;
 }
 
 // Shared mons reference for tests that pass a permonst directly.

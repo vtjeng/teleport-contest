@@ -11,6 +11,7 @@ import {
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
     MS_BRIBE,
+    NATTK,
     M_SEEN_SLEEP,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
@@ -24,6 +25,7 @@ import { monst_globals_init, PM_ASMODEUS, PM_HUMAN, PM_VROCK }
     from '../js/monsters.js';
 import {
     AD_BLND,
+    AD_PHYS,
     AD_RBRE,
     AD_SPEL,
     AT_BREA,
@@ -616,9 +618,19 @@ test('dochug rolls a random breath where C rolls it, before the attack phase',
         // arrangement in which the draw is visible and the attack is not.
         const state = makeState();
         const events = [];
+        // permonst.h:48 gives every C species exactly NATTK slots. The five
+        // unused slots keep their ordinary AT_NONE/AD_PHYS values; slot zero
+        // carries this test's random-breath attack.
+        const mattk = Array.from({ length: NATTK }, () => ({
+            aatyp: AT_NONE,
+            adtyp: AD_PHYS,
+            damn: 0,
+            damd: 0,
+        }));
+        mattk[0] = { aatyp: AT_BREA, adtyp: AD_RBRE, damn: 0, damd: 0 };
         const monster = makeMonster({
             data: {
-                mattk: [{ aatyp: AT_BREA, adtyp: AD_RBRE }],
+                mattk,
                 mflags2: 0,
                 mflags3: 0,
             },

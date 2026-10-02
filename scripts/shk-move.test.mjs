@@ -11,6 +11,10 @@ import {
 } from '../js/const.js';
 import { shk_move, UnsupportedShopError } from '../js/shk.js';
 import { m_move } from '../js/monmove.js';
+import { monst_globals_init, PM_SHOPKEEPER } from '../js/monsters.js';
+
+// C's special shopkeeper form has the full fixed-size permonst attack array.
+const TEST_MONSTERS = monst_globals_init({});
 
 // A shopkeeper at its guard position in a shop it owns, with no bill,
 // no robbery, no debit, peaceful, and not following.  This is the
@@ -18,11 +22,8 @@ import { m_move } from '../js/monmove.js';
 function makeStationaryShopkeeper(overrides = {}) {
     const roomno = ROOMOFFSET;
     return {
-        data: {
-            mflags2: 0,
-            mflags3: 0,
-            mmove: 12,
-        },
+        data: TEST_MONSTERS[PM_SHOPKEEPER],
+        mnum: PM_SHOPKEEPER,
         isshk: true,
         isgd: false,
         ispriest: false,
@@ -76,6 +77,7 @@ function makeShopState({ ux = 10, uy = 10 } = {}) {
             typ: ROOM,
         })));
     return {
+        mons: TEST_MONSTERS,
         u: {
             ux,
             uy,
