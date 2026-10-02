@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C59 cheap source variation for wizcmds.c:wiz_intrinsic SLIMED: use the menu count prefix 5 before “becoming slime” (key c) to exercise the non-default timeout amount passed to potion.c:make_slimed. Independently chosen setup, frozen before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 794821305,
+      "datetime": "20500208162300",
+      "nethackrc": "OPTIONS=name:V18Slime5,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizintrinsic\n5c\n"
+    }
+  ]
+}

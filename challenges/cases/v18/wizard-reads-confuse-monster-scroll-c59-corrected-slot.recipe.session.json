@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-corrected C-first continuation, frozen after reading the selector record and before JavaScript comparison. The wished item is inventory slot o and C exposes `What do you want to read? [i-mo or ?*]`; select that observed slot. C read.c:seffect_confuse_monster updates the human Wizard’s umconf state; it does not select an orc directly.",
+  "segments": [
+    {
+      "seed": 753108421,
+      "datetime": "20510718122000",
+      "nethackrc": "OPTIONS=name:C59Confuse,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizgenesis\norc\n#wizwish\nuncursed scroll of confuse monster\nro"
+    }
+  ]
+}

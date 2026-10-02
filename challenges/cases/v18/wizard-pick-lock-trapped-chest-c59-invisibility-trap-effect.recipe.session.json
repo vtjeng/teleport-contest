@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-frozen continuation after step 67 showed `You succeed in picking the lock. You trigger a trap!--More--` and the lock.c:picklock roll. This adds one space to clear that observed pager and capture the completed C trap outcome; no JavaScript comparison has informed it.",
+  "segments": [
+    {
+      "seed": 204138769,
+      "datetime": "21160702184500",
+      "nethackrc": "OPTIONS=name:V18PickTrapShade,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizintrinsic\n>b\n \u0017trapped locked chest\n\u0017uncursed lock pick\ndnao.y "
+    }
+  ]
+}

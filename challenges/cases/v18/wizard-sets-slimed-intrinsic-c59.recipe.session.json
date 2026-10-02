@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C59 source-led candidate for wizcmds.c:wiz_intrinsic SLIMED selection. A fresh debug Wizard selects and commits “becoming slime” (menu key c) to reach potion.c:make_slimed; inputs are frozen before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 485132907,
+      "datetime": "20500111091500",
+      "nethackrc": "OPTIONS=name:V18Slime,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizintrinsic\nc\n"
+    }
+  ]
+}

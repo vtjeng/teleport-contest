@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source correction to the retained hidden-trap target miss. Keep the independently frozen seed/date/options and `trapped bear trap` wish; after the wish, invoke wizard `#wizdetect`, whose C owner wizcmds.c:wiz_detect calls detect.c:findit and marks floor traps seen, then #untrap at the current square. This tests trap.c:dountrap -> untrap -> disarm_holdingtrap only if C confirms the trap is visible and selection reaches that branch. No JavaScript result informed this recipe.",
+  "segments": [
+    {
+      "seed": 371924568,
+      "datetime": "20351022154000",
+      "nethackrc": "OPTIONS=name:C59Disarm,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "n\u0017trapped bear trap\n#wizdetect\n#untrap\n."
+    }
+  ]
+}

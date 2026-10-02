@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-only pager continuation for wizard-reads-uncursed-enchant-weapon-scroll-c59. The frozen source recipe ended at the actual C --More-- after reading the wished scroll. This adds one space to acknowledge that observed pager and i to inspect the resulting inventory/state; the added input was frozen before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 80716302,
+      "datetime": "21210708163500",
+      "nethackrc": "OPTIONS=name:C59Enchant,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nuncursed scroll of enchant weapon\nrp ",
+      "recorderIsDst": true
+    }
+  ]
+}

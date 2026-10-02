@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C59 C-first recipe for read.c:seffect_enchant_weapon -> wield.c:chwepon. The Wizard starts with the ordinary +1 quarterstaff wielded; the uncursed scroll exercises the normal positive-enchantment path. The first wished object is expected in the first free inventory slot from prior C menu observations, but the C run—not any JavaScript result—will determine whether selector p reaches the scroll.",
+  "segments": [
+    {
+      "seed": 80716302,
+      "datetime": "21210708163500",
+      "nethackrc": "OPTIONS=name:C59Enchant,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#wizwish\nuncursed scroll of enchant weapon\nrp",
+      "recorderIsDst": true
+    }
+  ]
+}

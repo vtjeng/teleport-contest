@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first final armor-enchantment route. The preceding C inventory continuation showed that the wished scroll merged into the existing stack at j and that the Wizard wears an uncursed +0 cloak of magic resistance. This frozen input clears the observed merge --More-- with one space, then reads item j. No JavaScript result informed the selector or input.",
+  "segments": [
+    {
+      "seed": 177733751,
+      "datetime": "21110309141200",
+      "nethackrc": "OPTIONS=name:C59Armor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of enchant armor\n rj",
+      "recorderIsDst": true
+    }
+  ]
+}

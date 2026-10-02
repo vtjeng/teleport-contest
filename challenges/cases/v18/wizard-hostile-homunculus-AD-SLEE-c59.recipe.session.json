@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-distinct monster-to-hero sleep candidate. monsters.h:PM_HOMUNCULUS defines AT_BITE/AD_SLEE 1d3; mhitu.c:hitmu dispatches a landed attack through uhitm.c:mhitm_adtyping to mhitm_ad_slee, whose monster-to-hero branch can call fall_asleep after rn2(5), magic-negation, and Sleep_resistance checks. The v17 aggravate case wakes a sleeping monster, while this path can put the hero to sleep; direct make_stunned is a different effect. The recipe uses debug monster genesis followed by three elapsed waits so C can establish whether a bite reaches AD_SLEE. Inputs frozen before C or JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 603101127,
+      "datetime": "21110514201500",
+      "nethackrc": "OPTIONS=name:SleepProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile homunculus\n..."
+    }
+  ]
+}

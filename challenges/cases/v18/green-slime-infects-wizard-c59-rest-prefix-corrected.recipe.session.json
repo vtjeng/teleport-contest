@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84621403,
+      "datetime": "21200811134700",
+      "nethackrc": "OPTIONS=name:C59Slime,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " .#levelchange\n20\n                   \u0007hostile green slime\nm.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m.m."
+    }
+  ]
+}

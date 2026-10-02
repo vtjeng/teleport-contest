@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-distinct monster-to-hero fire attack candidate. monsters.h:PM_FIRE_ANT defines a physical bite followed by AT_BITE/AD_FIRE 2d4; a landed fire bite routes mhitu.c:hitmu through uhitm.c:mhitm_adtyping AD_FIRE to mhitm_ad_fire. This differs from zap.c fire rays/lava object damage and direct potion slime curing. The debug-created hostile fire ant and four elapsed waits allow C to establish whether the fire bite is reached. Preserve actual hit/gate outcome; no JavaScript comparison or result-informed input changes before this frozen C recording.",
+  "segments": [
+    {
+      "seed": 603101129,
+      "datetime": "21110514211500",
+      "nethackrc": "OPTIONS=name:FireBiteProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile fire ant\n...."
+    }
+  ]
+}

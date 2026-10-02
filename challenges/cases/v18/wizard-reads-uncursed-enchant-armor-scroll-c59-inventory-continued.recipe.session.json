@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-only inventory continuation for the corrected armor-scroll setup. The preceding C recording ended with --More-- after addinv merged the wished scroll into an existing stack. One space acknowledges that exact page; i then inspects the actual carried-letter mapping so the next read selector can be frozen from C rather than guessed.",
+  "segments": [
+    {
+      "seed": 177733751,
+      "datetime": "21110309141200",
+      "nethackrc": "OPTIONS=name:C59Armor,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " #wizwish\nuncursed scroll of enchant armor\nrp i",
+      "recorderIsDst": true
+    }
+  ]
+}
