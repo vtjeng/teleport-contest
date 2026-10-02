@@ -819,6 +819,27 @@ export async function dismissTtyMenu(state = game, rendered) {
             rendered.base.repairColumn,
             rendered.snapshot,
         );
+
+        // C ref: wintty.c docorner() clears through its `ymax` row, then
+        // calls bot() when that repair reaches WIN_STATUS. The snapshot
+        // restores the base map covered by the corner menu, but C does not
+        // restore the status suffix that docorner() cleared. Keep the cells
+        // left of the menu's repair column and let bot() redraw the status
+        // only when its caller has not disabled bot updates.
+        const firstStatusRow = display.rows - status_window_rows();
+        const repairedEndRow = Math.min(
+            display.rows,
+            rendered.base.maxrow + 1,
+        );
+        if (repairedEndRow > firstStatusRow) {
+            for (let row = Math.max(0, firstStatusRow);
+                row < repairedEndRow; ++row) {
+                clearRowFrom(display, rendered.base.repairColumn, row);
+            }
+            state.disp ??= {};
+            state.disp.botlx = true;
+            await bot();
+        }
     }
 }
 
