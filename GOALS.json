@@ -140366,8 +140366,8 @@
           "name": "slip_or_trip",
           "line": 1222,
           "endLine": 1344,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -140652,7 +140652,37 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "slip_or_trip",
+            "implementation": "js/timeout.js",
+            "symbol": "slip_or_trip",
+            "sourceReview": "Compared the complete static timeout.c:slip_or_trip definition (1222–1341), including top floor-pile selection and the pool exception; prior-item pronouns, visible naming, Blind rock fallback and anonymous fallback; hallucinated highc string; cockatrice corpse condition and killer text; FROMOUTSIDE/ice short-circuit, ice_only derivation, output and random order; mounted saddle and fall conditions; NODIAG/confdir direction mutation and the origin-square hurtle guard; and both source rn2(4) switches. The C function is void. The JavaScript preserves source order and awaits the existing hurtle operation. It replaces the prior plain-foot-only guard/refusal. At C discarded-void boundaries whose effects remain unported, it calls note_unported('trap.c instapetrify') and note_unported('steed.c dismount_steed') rather than inventing death, lifesaving or dismount effects. Consumed results retain their existing owners: display.vobj_at, trap.is_pool, terrain.is_ice, objnam.donameFresh, invent.sobj_at, fruit.makeplural, hacklib.highc/upstart, objnam.an/vtense, polyself.body_part, mondata.touch_petrifies, artifacts.Stone_resistance, worn.which_armor, do_name.x_monnam, attrib.acurr, and hack.NODIAG. The supporting cmd.c:confdir change keeps its live RNG default and accepts the caller-owned planner RNG; the source-pinned direction test verifies the optional contract without claiming a recording enters that rare random-direction branch.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "decrement_property_timeouts",
+                "source": "timeout.c:nh_timeout case FUMBLING (902–930) awaits slip_or_trip after a moved turn when the hero is neither levitating nor flying. It then preserves nomul(-2), multi_reason, nomovemsg, noise/wake, FROMOUTSIDE clearing, timeout renewal and deferred-decoration order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs",
+              "scripts/ride-direction.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/slip-or-trip-ice-tile-short-b87.session.json",
+              "recordings/timeout.c/slip-or-trip-ice-tile-short-variation-samurai-b87.session.json"
+            ],
+            "synthetic": [],
+            "checkedAt": "2858e32512de5ef79155b0f343bbfda4ae7dd6ee"
+          }
+        ],
+        "entryPointReview": "This is a helper-only range; entryPoints is empty. The active path is hack.c:domove_core -> hack.c:slippery_ice_fumbling, then allmain.c:moveloop_core -> timeout.c:nh_timeout FUMBLING expiry -> timeout.c:slip_or_trip. In both matching independent recordings, segment 0 step 15 reaches the source helper: the Monk C trace logs rn2(2)=0 at hack.c:slippery_ice_fumbling, then rn2(2)=1 and rn2(25)=16 at timeout.c:slip_or_trip; the Samurai trace logs the same slippery transition, then rn2(2)=1 and rn2(25)=6 at slip_or_trip. Each recording matches all 16 boundaries, every RNG call, screens/cells and cursors (Monk 2823 RNG; Samurai 2210 RNG). The selected helper caller is therefore production-wired and both independent role cases execute it. The matched Valkyrie short variation is retained as non-covering evidence: attrib.c:val_abil grants level-one Cold_resistance, so hack.c:slippery_ice_fumbling skips its ice chance and the final step has no slip_or_trip call. The rare confdir branch is not reached by the two short runtime cases; scripts/timeout.test.mjs pins slip_or_trip’s planner-RNG handoff to cmd.c:confdir, and scripts/ride-direction.test.mjs pins confdir’s optional RNG contract, without claiming C runtime for that subbranch. The longer route remains blocked after the helper by hack.c:test_move’s door/special-terrain path; it does not establish fire-trap entry.",
+        "entryPoints": []
+      }
     }
   ]
 }
