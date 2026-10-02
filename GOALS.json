@@ -143106,8 +143106,8 @@
           "name": "gazemu",
           "line": 1668,
           "endLine": 1901,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -143121,7 +143121,7 @@
           "endLine": 4121,
           "declared": true,
           "sourceFile": "mon.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -143293,7 +143293,105 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "gazemu",
+            "implementation": "js/mhitu.js",
+            "symbol": "gazemu",
+            "sourceReview": "Ported the whole mhitu.c:gazemu definition (1668-1898) for every default-compiled branch: source seen-resistance return; hallucination and Unaware cancellation; AD_STON cancellation, visible reflection, monster reflection, lethal stoning, golem polymorph and death handling; AD_CONF proc, intrinsic-only Confusion message selection, cooldown and confusion state; AD_STUN proc/damage/cooldown/status; AD_BLND range/resistance, cancellation, blindness, occupation and optional stun; AD_FIRE proc, resistance/golem observation, slime, armor, inventory and damage effects; final reaction feedback. Preserves expression short-circuit and draw/output/state order, awaits impure effects, and routes C urgent_pline to urgentMessage including planning silence. The reference #ifdef PM_BEHOLDER AD_SLEE/AD_SLOW blocks remain excluded. The source default calls pline.c:impossible and discards its result; JavaScript records note_unported(\"pline.c impossible\") and returns M_ATTK_MISS without gameplay output.",
+            "callers": [
+              {
+                "path": "js/mhitu.js",
+                "symbol": "mattacku",
+                "source": "mhitu.c:mattacku AT_GAZE (832-838) calls gazemu for non-Medusa gaze attackers and assigns its result to sum[i]; the Medusa attack is excluded here because mon.c:m_respond handles it."
+              },
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond_medusa",
+                "source": "mon.c:m_respond_medusa (4109-4120) calls gazemu for the first AT_GAZE slot and discards its return, preserving the helper call completion."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/medusa-reflection-amulet-a82-pager-cleared.session.json",
+              "recordings/mon.c/medusa-reflection-amulet-a82-tourist.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_GAZE -> mhitu.c:gazemu AD_FIRE"
+              }
+            ],
+            "checkedAt": "e4e33727a6a6e1a8cf7496dccf3da09b2f119643"
+          },
+          {
+            "name": "m_respond_medusa",
+            "implementation": "js/mon.js",
+            "symbol": "m_respond_medusa",
+            "sourceReview": "Ported the complete mon.c:m_respond_medusa helper (4109-4120): scan attack slots in order, await gazemu for the first AT_GAZE, then stop scanning and discard gazemu’s return as C does. This is supporting required source coverage; no whole mon.c or m_respond completion is claimed.",
+            "callers": [
+              {
+                "path": "js/mon.js",
+                "symbol": "m_respond",
+                "source": "mon.c:m_respond (4122-4130) reaches m_respond_medusa for a visible Medusa after the shrieker branch and before Erinys; JavaScript awaits it in the same order."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mon-response.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mon.c/medusa-reflection-amulet-a82-pager-cleared.session.json",
+              "recordings/mon.c/medusa-reflection-amulet-a82-tourist.session.json"
+            ],
+            "sourceFile": "mon.c",
+            "checkedAt": "e4e33727a6a6e1a8cf7496dccf3da09b2f119643"
+          }
+        ],
+        "entryPointReview": "Two selected production paths execute the whole gazemu helper. The admitted v18 pyrolisk case exercises the non-Medusa mhitu.c:mattacku AT_GAZE arm; its source-traced range matches through segment 0 step 33. The pager-cleared Wizard record exercises monmove.c:dochug -> mon.c:m_respond -> mon.c:m_respond_medusa -> mhitu.c:gazemu for a visible reflected Medusa response, including the resulting returned stoning and kill. The Tourist role variation reaches the same visible Medusa response path but its C-observed o put-on input is rejected as a silly object; it is not reflection evidence. It independently matches the unreflected lethal AD_STON message and death prompt at steps 66-67. C has only these two direct gazemu call sites: mhitu.c:mattacku and mon.c:m_respond_medusa. mon.c:m_respond is also called from monmove.c:dochug and two zap.c sites; the existing JavaScript zap.js callers already await m_respond, while this task only repairs the dochug response/death order seam. No whole mattacku, m_respond, dochug, or zap.c completion credit is claimed. Source-pinned tests cover unrecorded compiled AD_CONF, AD_STUN, and AD_BLND order; the task also pins urgent_pline for lethal AD_STON. The failed ring wish probe is preserved but does not establish reflection: it produced a brass ring, and the reference object table has no reflecting ring. The longer live recipe is retained as pager-blocked history. The Tourist recipe comment was corrected after its C recording: its old recipe hash and the unchanged recording hash remain recorded in A82-context.json. Reference-build #ifdef PM_BEHOLDER effects remain disabled; the default discarded diagnostic is named note_unported(pline.c impossible).",
+        "entryPoints": [
+          {
+            "name": "Non-Medusa gaze attack through the ordinary monster-turn attack dispatcher",
+            "functions": [
+              "gazemu"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-pyrolisk-fire-gaze-c59-valid-time",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 33,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku AT_GAZE -> mhitu.c:gazemu AD_FIRE"
+              }
+            ]
+          },
+          {
+            "name": "Visible Medusa response after the optional monster fleeing teleport, through reflected and unreflected lethal paths",
+            "functions": [
+              "gazemu",
+              {
+                "sourceFile": "mon.c",
+                "name": "m_respond_medusa"
+              }
+            ],
+            "recordings": [
+              "recordings/mon.c/medusa-reflection-amulet-a82-pager-cleared.session.json",
+              "recordings/mon.c/medusa-reflection-amulet-a82-tourist.session.json"
+            ]
+          }
+        ]
+      }
     }
   ]
 }
