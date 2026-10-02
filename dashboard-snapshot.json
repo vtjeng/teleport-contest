@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T07:17:32.545Z",
+  "capturedAt": "2026-10-02T07:35:08.341Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -14995,6 +14995,29 @@
         "at": "2026-10-02T07:17:22.979Z",
         "task": "B85",
         "delivery": "514d8dd5e72e8f9ab77ebc54a85d4a9dd54df543"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B85-received-514d8dd5",
+        "type": "received",
+        "at": "2026-10-02T07:19:23.592Z",
+        "task": "B85",
+        "delivery": "514d8dd5e72e8f9ab77ebc54a85d4a9dd54df543"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B85-root-north-bridge-feedback-20261002",
+        "type": "feedback",
+        "at": "2026-10-02T07:30:47.199Z",
+        "task": "B85",
+        "delivery": "514d8dd5e72e8f9ab77ebc54a85d4a9dd54df543"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-B85-drawbridge-correction-20261002",
+        "type": "resume",
+        "at": "2026-10-02T07:33:46.294Z",
+        "task": "B85"
       }
     ]
   },

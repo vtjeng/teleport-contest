@@ -1,0 +1,96 @@
+{
+  "corpus": "synthetic",
+  "batch": "v18",
+  "caseId": "wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+  "session": "synthetic/v18/wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+  "manifestPath": "challenges/manifests/v18.json",
+  "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+  "recordingSha256": "24506f6c6117cac9c0765b30baa3425588f1cbf28d57c2d3ddc4a13f86ccfde4",
+  "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+  "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+  "remainingScreens": 1,
+  "recordedSteps": 36,
+  "status": "complete",
+  "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v18",
+    "caseId": "wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+    "session": "synthetic/v18/wizard-hostile-disenchanter-ad-ench-c59-valid-time",
+    "manifestPath": "challenges/manifests/v18.json",
+    "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+    "recording": "challenges/cases/v18/wizard-hostile-disenchanter-AD-ENCH-c59-valid-time.session.json",
+    "recordingPath": "challenges/cases/v18/wizard-hostile-disenchanter-AD-ENCH-c59-valid-time.session.json",
+    "recordingSha256": "24506f6c6117cac9c0765b30baa3425588f1cbf28d57c2d3ddc4a13f86ccfde4",
+    "recipe": "challenges/cases/v18/wizard-hostile-disenchanter-AD-ENCH-c59-valid-time.recipe.session.json",
+    "recipeSha256": "5d83089b0611f63b9f45933a41747cba7596888fc31981e6073be870c22ba346",
+    "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+    "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+    "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+    "evaluationUtc": "2026-10-02T06:59:12.293Z",
+    "remainingScreens": 1,
+    "recordedSteps": 36,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 35,
+        "total": 36
+      },
+      "rng": {
+        "matched": 2360,
+        "total": 2376
+      },
+      "cursors": {
+        "matched": 35,
+        "total": 36
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_ench()",
+      "step": 35
+    },
+    "step": 35,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_ench",
+    "message": "simple monster action requires uhitm.c mhitm_ad_ench()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The current stop is the missing monster-to-hero AD_ENCH arm in uhitm.c:mhitm_ad_ench(). Whole-function implementation requires its consumed do_wear.c:some_armor() object selector and zap.c:drain_item() boolean result, so the actionable source scope spans uhitm.c, do_wear.c and zap.c. The assigned Wizard case passes magic negation but selects its spe=0 cloak; drain_item() returns FALSE at its positive-enchantment guard, so C prints no “less effective” message. The current goal schema records one C file per goal, so this three-file scope remains a scope blocker; preserve both consumed helpers as whole-function work. The case proves this failed drain gate only, not successful object drainage or the fallback selector.",
+  "source": {
+    "file": "uhitm.c",
+    "functions": [
+      "mhitm_ad_ench",
+      "do_wear.c:some_armor",
+      "zap.c:drain_item"
+    ],
+    "branch": "Whole uhitm.c:mhitm_ad_ench() at :3602-3649: a hero attacker and a monster-vs-monster target take the source no-op “just do damage” branches; for a monster attacking the hero, C first consumes mhitm_mgc_atk_negated() and then calls hitmsg(). If the attack is not negated, some_armor() selects cloak, suit or shirt first and may use rn2(4) to choose among helmet, gloves, boots and shield; if no armor exists, rn2(5) selects right ring, left ring, amulet or blindfold (or no object). C calls drain_item(obj,FALSE), and only its TRUE return causes the “less effective” message. drain_item() rejects null, ineligible or spe<=0 items before artifact defenses, carried defenses or obj_resists(); successful objects lose one spe and receive source-specific attribute/status/inventory updates. The assigned Wizard branch reaches the nonnegated arm, selects its uarmc cloak, and fails spe>0. Preserve source order, return use and all three mhitm_ad_ench() modes.",
+    "callers": [
+      "C owner route: mhitu.c:hitmu() calls uhitm.c:mhitm_adtyping() at :1191; that dispatcher calls mhitm_ad_ench() for AD_ENCH at uhitm.c:4818. JS route: js/mhitu.js:hitmu() calls js/uhitm.js:mhitm_adtyping() at :1707, where AD_ENCH still refuses at :4839. Other dispatcher callers are uhitm.c:damageum() at :4854 and mhitm.c:mdamagem() at :1059; JS calls the shared dispatcher at js/uhitm.js:4886 and js/mhitm.js:1057.",
+      "Other direct some_armor() callers are read.c:seffect_enchant_armor() at :1121 and read.c:seffect_destroy_armor() at :1327; their JS counterparts call js/do_wear.js:some_armor() from js/read.js:1636 and :1841.",
+      "Other direct drain_item() callers are uhitm.c:passive_obj() at :6181 (return consumed by carried()/known/class checks), mhitm.c:passivemm() at :1352 (return discarded behind mhitb, !mdef->mcan and mwep), mhitu.c:passiveum() at :2512 (return discarded), and zap.c:bhito() at :2319 (return discarded). Current JS marks/refuses these separate branches as detailed in .cache/v18-investigations/wizard-hostile-disenchanter-ad-ench-c59-valid-time/c-ad-ench-step-35.json."
+    ],
+    "dependencies": [
+      "mhitm_mgc_atk_negated() at uhitm.c:75-99 returns the boolean mhitm_ad_ench() consumes. It calls magic_negation() at mhitu.c:1088-1137 and uses that integer in 3*armpro; it also consumes rn2(10). Existing JS implementations are js/uhitm.js:776 and js/mhitu.js:1566.",
+      "some_armor() at do_wear.c:2630-2652 returns the object pointer consumed by mhitm_ad_ench(). The helper also consumes rn2(4) in its armor selection; nonhero selection calls worn.c:which_armor() and consumes its object pointer. Existing js/worn.js:457 implements which_armor(), but js/do_wear.js:3882 throws for nonhero victims and therefore does not cover the full C helper.",
+      "drain_item() at zap.c:1382-1455 returns the boolean mhitm_ad_ench() consumes. It consumes is_weptool() at :1389, artifact.c:defends() and defends_when_carried() at :1392, zap.c:obj_resists() at :1393 when earlier guards fail, and obj.h:carried() at :1452. JS counterparts are js/obj.js:1231-1237, js/artifacts.js:1460/1487, and js/bury.js:97; artifact.c helper completion is recorded in GOALS.json. No JS drain_item() definition exists; zap.js and mhitu.js currently retain note_unported() sites.",
+      "If some_armor() returns null, mhitm_ad_ench() consumes rn2(5) to choose an eligible ring/accessory. On successful drain only, it consumes objnam.c:Yobjnam2() at uhitm.c:3642 for the message; js/objnam.js:1609 implements the returned string. hitmsg() and pline() are side-effect calls with no consumed result.",
+      "The current whole-function scope is cross-file. .agents/selection.md:384-393 queues a file port with one --c-file; scripts/goal-log.mjs:205-206 stores one sourceFile, and :219-225 filters verified evidence by that file. The source model therefore cannot represent all three required functions in a single file-port goal. Keep the consumed drain_item() and some_armor() helpers in source.functions rather than recording only their callers."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved v18 evaluation challenges/evaluations/20261002065911-v18.json at d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d records 35/36 matching screens, 2360/2376 matching RNG calls and 35/36 matching cursors. It stops at zero-based step 35 with “simple monster action requires uhitm.c mhitm_ad_ench()”; remainingScreens is 1. js/uhitm.js dispatches AD_ENCH to unported('mhitm_ad_ench') at :4839, so this is a missing-function refusal, not a divergence inside a completed AD_ENCH implementation.",
+    "The immutable C recording step 35 has key ., screen text “The disenchanter hits! The kobold throws a dart!--More--” and cursor [57,0,1]. Its attack RNG sequence includes rnd(20)=3 at mhitu.c:806, d(4,4)=7 at mhitu.c:1187 and rn2(10)=7 at uhitm.c:87. The preceding rn2(5)=3 is tagged distfleeck(monmove.c:538) before the attack and is not the cause; there is no later obj_resists() rn2(100) call in the AD_ENCH arm.",
+    "C source explains why this witness drains nothing: u_init.c:167-170 gives the Wizard a CLOAK_OF_MAGIC_RESISTANCE with spe 0; ini_inv_use_obj() wears a starting cloak into uarmc at :1252-1277. objects.h:431-433 and :644-646 pass a_can=1 for that cloak. mhitu.c:magic_negation() reads the worn armor a_can at :1100-1105; uhitm.c:mhitm_mgc_atk_negated() returns !(rn2(10) >= 3*armpro), so the recorded 7 against armpro 1 passes negation. some_armor() selects uarmc first at do_wear.c:2634-2638. zap.c:drain_item() then returns FALSE at :1386-1391 because spe<=0, before defense checks or obj_resists(); uhitm.c:mhitm_ad_ench() consequently skips its :3642 “less effective” message.",
+    "Whole-source comparison identifies three required functions: uhitm.c:mhitm_ad_ench() :3602-3649 owns the missing arm, do_wear.c:some_armor() :2630-2652 supplies the consumed object pointer and zap.c:drain_item() :1382-1455 supplies the consumed boolean. The existing JS some_armor() throws on nonhero victims, and a search for drain_item() finds no JS definition. This scope cannot be reduced to caller-only work because both helper returns control the owner branch.",
+    "The source-goal blocker remains: .agents/selection.md:384-393 and scripts/goal-log.mjs:205-225 model each file-port and its completion evidence with one C source file. The requested whole-function scope crosses three files; retain all three function obligations until the central schema can represent them. Other drain_item() consumers remain separate pending routes and this assigned case does not prove those callers complete."
+  ]
+}
