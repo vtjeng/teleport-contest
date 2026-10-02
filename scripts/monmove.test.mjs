@@ -3235,6 +3235,10 @@ test('dochug gives Conflict monsters the source movement turn', async () => {
         mcanmove: true,
         mspec_used: 1,
         mpeaceful: false,
+        // newMonster defaults to zero HP; these equal positive values keep
+        // the fixture alive through C's post-m_respond DEADMONSTER check.
+        mhp: 5,
+        mhpmax: 5,
     });
     const movement = [];
     const attacks = [];
@@ -3293,6 +3297,10 @@ test('dochug applies the phase-four Conflict roll to peaceful wizards', async ()
         mpeaceful: true,
         iswiz: true,
         m_lev: 1,
+        // newMonster defaults to zero HP; these equal positive values keep
+        // the fixture alive through C's post-m_respond DEADMONSTER check.
+        mhp: 5,
+        mhpmax: 5,
     });
     const movement = [];
     const attacks = [];
