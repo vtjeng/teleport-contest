@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-01T23:45:59.616Z",
+  "capturedAt": "2026-10-02T02:28:25.350Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -14270,12 +14270,114 @@
         "type": "accepted",
         "at": "2026-10-01T23:44:17.178Z",
         "task": "B81"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B81-published-8bf425f5",
+        "type": "published",
+        "at": "2026-10-01T23:46:14.110Z",
+        "task": "B81",
+        "commit": "8bf425f5b986ed156e1747d93bfd4135349772ef"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-2d840e6a22b3d0c440fe336d4d56e83e83a55135",
+        "type": "ready",
+        "at": "2026-10-02T02:07:00.394Z",
+        "task": "A70",
+        "delivery": "2d840e6a22b3d0c440fe336d4d56e83e83a55135"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A70-received-2d840e6a",
+        "type": "received",
+        "at": "2026-10-02T02:15:19.324Z",
+        "task": "A70",
+        "delivery": "2d840e6a22b3d0c440fe336d4d56e83e83a55135"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A70-integrating-802df71e",
+        "type": "integrating",
+        "at": "2026-10-02T02:16:44.061Z",
+        "task": "A70",
+        "integration": "802df71e959ca9f3a802ba5776e04f5feadd49fa"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A70-integrating-ce951eab",
+        "type": "integrating",
+        "at": "2026-10-02T02:18:17.256Z",
+        "task": "A70",
+        "integration": "ce951eab2ffcfb81dead927ea16565c4bd9da62c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-7c7d535c8f5f73362334670c0f579477434f8ef6",
+        "type": "ready",
+        "at": "2026-10-02T02:19:46.537Z",
+        "task": "B82",
+        "delivery": "7c7d535c8f5f73362334670c0f579477434f8ef6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B82-received-7c7d535c",
+        "type": "received",
+        "at": "2026-10-02T02:21:32.400Z",
+        "task": "B82",
+        "delivery": "7c7d535c8f5f73362334670c0f579477434f8ef6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B82-feedback-cache-paths",
+        "type": "feedback",
+        "at": "2026-10-02T02:21:32.805Z",
+        "task": "B82",
+        "delivery": "7c7d535c8f5f73362334670c0f579477434f8ef6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B82-feedback-cache-paths-count-corrected",
+        "type": "feedback",
+        "at": "2026-10-02T02:22:18.963Z",
+        "task": "B82",
+        "delivery": "7c7d535c8f5f73362334670c0f579477434f8ef6"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "B82-resume-cache-packaging-correction-20261002",
+        "type": "resume",
+        "at": "2026-10-02T02:24:28.368Z",
+        "task": "B82"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A70-validated-ce951eab",
+        "type": "validated",
+        "at": "2026-10-02T02:27:58.933Z",
+        "task": "A70",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A70-accepted-ce951eab",
+        "type": "accepted",
+        "at": "2026-10-02T02:27:59.383Z",
+        "task": "A70"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-992c855599e3ea392c543d86e7476c9dc0d46943",
+        "type": "ready",
+        "at": "2026-10-02T02:28:03.731Z",
+        "task": "B82",
+        "delivery": "992c855599e3ea392c543d86e7476c9dc0d46943"
       }
     ]
   },
   "development": {
-    "executionCommit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
-    "measuredAt": "2026-10-01T23:38:00.849Z",
+    "executionCommit": "ce951eab2ffcfb81dead927ea16565c4bd9da62c",
+    "measuredAt": "2026-10-02T02:24:21.558Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

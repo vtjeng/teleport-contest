@@ -9,7 +9,7 @@
   "recordingSha256": "4240c23c664e2d821b712d1c97078415aa271a8509ab2f9ebdaac77d98f11baa",
   "recipePath": "challenges/cases/v17/werejackal-infects-wizard-on-bite-forced-rests.recipe.session.json",
   "recipeSha256": "959b13ffcc2c4c2f5d48c8ab4d4e49320d3281db3b52f4c40aa9002c4897a889",
-  "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+  "replayInputSha256": "0d1c104fbf79536e6932d034b987fff44ca65f6b3d9cbccfcbbc40abd9de1894",
   "evaluationPath": "challenges/evaluations/20261001233847-v17.json",
   "evaluationCommit": "11734140d3b2715e0b1ffc9a82b5fa32d1398fd1",
   "remainingScreens": 37,
@@ -85,7 +85,7 @@
   },
   "goalKind": "file-port",
   "evidence": [
-    "B81 checkpoint at 11734140d3b2715e0b1ffc9a82b5fa32d1398fd1 passes all 44 fixed sessions and 801 regression recordings. Independent werewolf and water-demon play execute summonmu through mattacku; the complete helper receives source credit, with supporting runtime creation and random plumbing only.",
+    "GOALS.json records complete mhitu.c:summonmu evidence. Independent werewolf and water-demon recordings execute the helper through mattacku; supporting runtime creation and random plumbing receive no extra whole-function credit.",
     "challenges/evaluations/20261001233847-v17.json retains 72/109 matching screens/cursors and 2229/2338 matching RNG calls for this case; first missing screen is zero-based step 72.",
     "Saved exact worker boundary diagnostic .cache/B82-logs/run-SyYPwi-stdout.log at /tmp/teleport-loop-worker-b-20260925 identifies UnsupportedTurnBoundaryError: uhitm.c mhitm_ad_were(). The C screen at step 72 contains the werejackal summon/help pager. Planned attack output is not committed when the later effect remains unported; no selected synthetic range is claimed for B81.",
     "uhitm.c:4265–4291 defines all three mhitm_ad_were arms and the rn2(4), NON_PM, Protection_from_shape_changers, defends(AD_WERE,uwep) and mhitm_mgc_atk_negated gates. were.c:232–237 assigns u.ulycn then calls set_uasmon; youprop.h derives the innate property.",
