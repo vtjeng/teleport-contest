@@ -40,9 +40,9 @@ import {
     SDOOR,
     S_LRING,
     UNCHANGING,
-    isok,
     nothing_seems_to_happen,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { acurr, adjattrib, exercise, poison_strdmg } from './attrib.js';
 import { monster_detect } from './detect.js';
 import {
@@ -66,7 +66,7 @@ import {
 import { get_iter_mons } from './mon.js';
 import { onscary, set_apparxy, youHear } from './monmove.js';
 import { m_at } from './monst.js';
-import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
+import { heroIsBlind } from './startup_a11y.js';
 import {
     PM_KNIGHT, PM_SEWER_RAT, PM_WATER_DEMON, PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN, PM_WATER_NYMPH,
@@ -98,6 +98,7 @@ import {
     POT_GAIN_LEVEL, POT_LEVITATION, POT_MONSTER_DETECTION,
     POT_OBJECT_DETECTION, POT_OIL, POT_POLYMORPH, POT_WATER, RING_CLASS,
 } from './objects.js';
+import { canspotmon } from './display.js';
 
 // ── Fail-closed error ──
 // Thrown when a fountain function reaches a branch this port has not ported.
@@ -493,7 +494,7 @@ export function watchman_warn_fountain(mtmp, state = game, env = {}) {
         pendingMessages.push(() => message(
             `${name} earnestly ${gesture} ${mhis(mtmp, {
                 state,
-                canSpotMonster,
+                canSpotMonster: env.canSpotMonster ?? canspotmon,
             })} ${bodyPart}!`,
             state,
         ));
@@ -1217,7 +1218,7 @@ export async function drinksink(state = game, env = {}) {
             const monster = await makeMonster(state.mons[PM_SEWER_RAT],
                 x, y, MM_NOMSG, { ...env, state, random });
             if (monster) {
-                const name = heroIsBlind(state) || !canSpotMonster(monster, state)
+                const name = heroIsBlind(state) || !canspotmon(monster, state)
                     ? 'something squirmy' : a_monnam(monster, { state });
                 await message(`Eek!  There's ${name} in the sink!`, state);
             }

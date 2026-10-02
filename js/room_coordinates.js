@@ -31,8 +31,8 @@ import {
     SP_COORD_Y,
     WATER,
     WET,
-    isok,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { sobj_at } from './obj.js';

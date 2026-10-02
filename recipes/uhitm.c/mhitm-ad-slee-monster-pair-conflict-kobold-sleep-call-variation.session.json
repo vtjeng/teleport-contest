@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap independent variation of the Conflict monster-to-monster sleep path: gnome Wizard and a hostile kobold, with a hostile homunculus as the AD_SLEE attacker. The frozen C trace (run-kjAXtK) shows the first positive M-to-M call at boundary 110: C-generated jackal is the actual defender, and mhitm_ad_slee consumes rnd(10)=6 then rnd(10)=7; the first call freezes it, so the second returns false. The 15 source-bounded turn opportunities end at this observed call, not at a JavaScript-selected point. Source path: mon.c:movemon_singlemon -> mhitm.c:fightm -> mhitm.c:mattackm -> uhitm.c:mhitm_ad_slee.",
+  "segments": [
+    {
+      "seed": 711204,
+      "datetime": "20320422091500",
+      "nethackrc": "OPTIONS=name:SleepPairGnome,role:Wizard,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\na>>h\n \n#wizgenesis\nhostile kobold\n #wizgenesis\nhostile homunculus\n. . . . . . . . . . . . . . . "
+    }
+  ]
+}

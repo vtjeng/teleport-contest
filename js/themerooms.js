@@ -15,8 +15,8 @@ import {
     W_RANDOM,
     W_SOUTH,
     W_WEST,
-    isok,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { rn2 } from './rng.js';
 
 function inSelectionBounds(x, y) {

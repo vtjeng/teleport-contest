@@ -2,6 +2,9 @@
 // C refs: apply.c snuff_candle(), snuff_lit(), and splash_lit().
 
 import { OBJ_MINVENT } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { game } from './gstate.js';
 import { get_obj_location } from './light.js';
 import {
@@ -23,7 +26,7 @@ import {
 import { xnameFresh } from './objnam.js';
 import { Shk_Your } from './shk.js';
 import { end_burn } from './timeout.js';
-import { is_pool } from './trap.js';
+
 import { heroIsBlind } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { cansee, couldsee } from './vision.js';

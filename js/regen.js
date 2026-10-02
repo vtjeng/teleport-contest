@@ -15,13 +15,16 @@ import {
     SLEEPY,
     Upolyd,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { acurr } from './attrib.js';
 import { game } from './gstate.js';
 import { breathless } from './mondata.js';
 import { PM_WIZARD, S_EEL } from './monsters.js';
 import { rehumanize } from './polyself.js';
 import { rn1, rn2 } from './rng.js';
-import { is_pool } from './trap.js';
+
 
 function propertyActive(hero, index) {
     const property = hero?.uprops?.[index];

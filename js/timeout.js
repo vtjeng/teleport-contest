@@ -96,6 +96,9 @@ import {
     WWALKING,
     ZOMBIFY_MON,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { stop_occupation } from './allmain.js';
 import { confdir } from './cmd.js';
 import { Stone_resistance, artifact_light } from './artifacts.js';
@@ -140,7 +143,10 @@ import {
 import { body_part, rehumanize } from './polyself.js';
 import { restartcham, wake_nearby } from './mon.js';
 import { note_unported } from './unported.js';
-import { float_down, is_pool, unconscious } from './trap.js';
+import {
+    float_down,
+    unconscious,
+} from './trap.js';
 import { is_ice } from './terrain.js';
 import { which_armor } from './worn.js';
 import { find_ac } from './u_init_inventory_attrs.js';

@@ -276,6 +276,7 @@
         "js/apply.js",
         "js/cmd.js",
         "js/cmd_autocomplete.js",
+        "js/cmd_isok.js",
         "js/command_bindings.js",
         "js/data_base_data.js",
         "js/do.js",

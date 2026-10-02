@@ -16,7 +16,6 @@ import {
     BOLT_LIM,
     COLNO,
     CLOUD,
-    COULD_SEE,
     CORR,
     DB_FLOOR,
     DB_ICE,
@@ -39,8 +38,6 @@ import {
     HALLUC_RES,
     ICE,
     IRONBARS,
-    INFRAVISION,
-    IS_POOL,
     IS_ROOM,
     IS_WALL,
     LADDER,
@@ -63,11 +60,7 @@ import {
     STRAT_WAITMASK,
     THRONE,
     TREE,
-    DETECT_MONSTERS,
     FIRE_RES,
-    SEE_INVIS,
-    TELEPAT,
-    WARN_OF_MON,
     WATER,
     W_SADDLE,
     D_BROKEN,
@@ -78,9 +71,10 @@ import {
     LA_DOWN,
     OBJ_FREE,
     OBJ_FLOOR,
-    isok,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { cansee } from './vision.js';
+import { canseemon, canspotmon } from './display.js';
 import {
     do_screen_description,
     mhidden_description,
@@ -155,7 +149,7 @@ import {
     WEAPON_CLASS,
     WOOD,
 } from './objects.js';
-import { M1_MINDLESS, PM_COYOTE } from './monsters.js';
+import { PM_COYOTE } from './monsters.js';
 import {
     S_air,
     S_altar,
@@ -970,7 +964,7 @@ export function furnitureDescription(symbol) {
 }
 
 function drawbridgeMask(location) {
-    return location?.flags || location?.drawbridgemask || 0;
+    return location?.flags ?? 0;
 }
 
 function doorDescription(location, x, y, state) {
@@ -1402,94 +1396,6 @@ export function heroIsBlind(state) {
         && !property?.blocked;
 }
 
-// C ref: display.h mon_visible(). This tests the monster itself, assuming that
-// its map location is physically visible; canSeeMonster() adds that location
-// check.
-export function monsterVisible(monster, state) {
-    const hero = state.u;
-    return Boolean(
-        monster
-        && (!monster.minvis || propertyActive(hero, SEE_INVIS))
-        && !monster.mundetected,
-    );
-}
-
-// C ref: display.h _canseemon() (118-120). C tests the monster's visibility
-// and the hero's line of sight and nothing else: a monster whose hit points
-// have just reached zero is still seen, which is what mon.c xkilled():3508
-// depends on to name what the hero killed.
-export function canSeeMonster(monster, state) {
-    if (!monster || !monsterVisible(monster, state))
-        return false;
-    const hero = state.u;
-    const couldSee = Boolean(
-        state.viz_array?.[monster.my]?.[monster.mx] & COULD_SEE,
-    );
-    const infrared = !heroIsBlind(state)
-        && propertyActive(hero, INFRAVISION)
-        && Boolean(monster.data?.mflags3 & 0x0200) // monflag.h:M3_INFRAVISIBLE
-        && couldSee;
-    return cansee(monster.mx, monster.my, state) || infrared;
-}
-
-function matchesWarnOfMonster(monster, state) {
-    if (!propertyActive(state.u, WARN_OF_MON)) return false;
-    const flags = monster.data?.mflags2 ?? 0;
-    const warned = state.context?.warntype ?? {};
-    return Boolean((warned.obj & flags) || (warned.polyd & flags)
-        || (warned.species && warned.species === monster.data));
-}
-
-function monsterSensingContext(monster, state) {
-    const hero = state.u;
-    const dx = monster.mx - hero.ux;
-    const dy = monster.my - hero.uy;
-    const distance = dx * dx + dy * dy;
-    const blocked = (hero.uswallow && monster !== hero.ustuck)
-        || (hero.uinwater
-        && !(distance <= 2
-            && IS_POOL(state.level?.at(monster.mx, monster.my)?.typ)));
-    return { blocked, distance };
-}
-
-// C ref: display.h sensemon(), excluding only its Detect_monsters operand.
-// This shares sensesMonster()'s swallowed and underwater gates. Ordinary
-// consumers should call sensesMonster(); display code uses this narrower
-// result solely to choose PHYSICALLY_SEEN versus DETECTED sightflags.
-function sensesMonsterCore(monster, state, includeDetection) {
-    const hero = state.u;
-    const { blocked, distance } = monsterSensingContext(monster, state);
-    if (blocked) return false;
-    if (includeDetection && propertyActive(hero, DETECT_MONSTERS)) return true;
-    const mindless = Boolean(monster.data?.mflags1 & M1_MINDLESS);
-    if (!mindless) {
-        const telepathy = hero.uprops?.[TELEPAT] ?? {};
-        if (heroIsBlind(state)
-            && Boolean(telepathy.intrinsic || telepathy.extrinsic)) return true;
-        if (telepathy.extrinsic
-            && distance <= Math.trunc(hero.unblind_telepat_range ?? 0)) {
-            return true;
-        }
-    }
-    return matchesWarnOfMonster(monster, state);
-}
-
-export function sensesMonsterWithoutDetection(monster, state) {
-    return sensesMonsterCore(monster, state, false);
-}
-
-export function sensesMonster(monster, state) {
-    return sensesMonsterCore(monster, state, true);
-}
-
-// C ref: display.h canspotmon(). Hiding and mimicry do not block sensing;
-// callers such as hack.c notice_mon() and monster_nearby() apply their own
-// source-specific concealment predicates.
-export function canSpotMonster(monster, state) {
-    if (!monster) return false;
-    return canSeeMonster(monster, state) || sensesMonster(monster, state);
-}
-
 function singularMovementVerb(species) {
     const verb = locomotion(species, 'move');
     const last = verb.at(-1).toLowerCase();
@@ -1512,7 +1418,7 @@ export function collectMonsterMovementMessage(
     state,
 ) {
     if (!state.a11y?.mon_movement
-        || !canSpotMonster(monster, state)
+        || !canspotmon(monster, state)
         || !monster.mspotted) {
         return null;
     }
@@ -1540,7 +1446,7 @@ export function collectMonsterMovementMessage(
 }
 
 function canNoticeMonster(monster, state) {
-    if (!canSpotMonster(monster, state)) return false;
+    if (!canspotmon(monster, state)) return false;
     const appearance = monster.m_ap_type & M_AP_TYPMASK;
     const hider = Boolean(monster.data?.mflags1 & 0x00000100); // M1_HIDE
     if (hider && (monster.mundetected
@@ -1560,7 +1466,7 @@ function updateMonsterNotice(monster, state) {
 
     monster.mspotted = true;
     return messageAt(
-        `You ${canSeeMonster(monster, state) ? 'see' : 'notice'} ${noticeMonsterName(monster)}.`,
+        `You ${canseemon(monster, state) ? 'see' : 'notice'} ${noticeMonsterName(monster)}.`,
         monster.mx,
         monster.my,
         state,
@@ -1579,7 +1485,7 @@ export function collectMonsterNoticeMessages(state, compare = null) {
     const monsters = [];
     for (let monster = state.level?.monlist; monster; monster = monster.nmon) {
         if (monster.mhp < 1) continue;
-        if (canSpotMonster(monster, state)) monsters.push(monster);
+        if (canspotmon(monster, state)) monsters.push(monster);
         else monster.mspotted = false;
     }
     monsters.sort(compare ?? ((left, right) => {
@@ -1617,7 +1523,6 @@ export async function emitStartupA11yNotices(state, env = {}) {
 export const _startupA11yInternals = Object.freeze({
     compassDescription,
     coordinateDescription,
-    canSeeMonster,
     describeKnownRoom,
     describeMonster,
     describeObject,

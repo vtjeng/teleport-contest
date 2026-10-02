@@ -133,7 +133,7 @@ async function heroPoolAt(x, y, state, env) {
     // Keep trap.js out of this module's static dependency graph: trap.js owns
     // the production pool predicate and imports trap_effects.js, which calls
     // back into this file.
-    const { is_pool } = await import('./trap.js');
+    const { is_pool } = await import('./dbridge.js');
     return is_pool(x, y, state);
 }
 
@@ -663,7 +663,7 @@ export async function water_damage(obj, description, force, env = {}) {
                 obj.ox = ox;
                 obj.oy = oy;
             }
-            if (location && (await import('./const.js')).isok(ox, oy)) {
+            if (location && (await import('./cmd_isok.js')).isok(ox, oy)) {
                 const canSee = env.canSee
                     ?? (await import('./vision.js')).cansee;
                 if (canSee(ox, oy, state)) {

@@ -10,7 +10,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { canSeeMonster } from '../js/startup_a11y.js';
+
 import { defended } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
@@ -21,6 +21,7 @@ import {
 } from '../js/monsters.js';
 import { ORANGE_DRAGON_SCALE_MAIL } from '../js/objects.js';
 import { trapeffect_selector } from '../js/trap_effects.js';
+import { canseemon } from '..//js/display.js';
 
 // Fixed wall-clock input keeps startup independent of the host date.
 const DATETIME = '20310203040506';
@@ -153,7 +154,7 @@ test('sleep gas trap freezes a visible monster after ending its meal', async () 
     const trap = trapAt(x, y);
     const env = effectEnv(state, 12);
 
-    assert.equal(canSeeMonster(monster, state), true);
+    assert.equal(canseemon(monster, state), true);
     assert.equal(
         await trapeffect_selector(monster, trap, 0, env),
         Trap_Effect_Finished,

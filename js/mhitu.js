@@ -64,6 +64,9 @@ import {
     KILLED_BY,
     BOLT_LIM,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { exercise, minuhpmax } from './attrib.js';
 // js/unported_monster_actions.js already imports allmain.js across the same
 // cycle and records why it is safe: `stop_occupation` is a hoisted function
@@ -146,7 +149,7 @@ import {
     mon_hates_blessings,
     perceives,
     poly_when_stoned,
-    monster_resists_element,
+    Resists_Elem,
     stagger,
     thick_skinned,
     touch_petrifies,
@@ -173,14 +176,10 @@ import {
 import { an, donameFresh, xnameFresh } from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rn2_on_display_rng } from './rng.js';
+import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
-    canSeeMonster,
-    canSpotMonster,
-    heroIsBlind,
-    messageAt,
-    monsterVisible,
-} from './startup_a11y.js';
-import { is_pool, t_at } from './trap.js';
+    t_at,
+} from './trap.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
@@ -188,13 +187,7 @@ import {
 } from './tty_message.js';
 import { mhitm_adtyping, mhitm_knockback } from './uhitm.js';
 import { Cold_resistance, Fire_resistance, drain_item } from './zap.js';
-import {
-    cansee,
-    canseemon,
-    couldsee,
-    m_canseeu,
-    vision_recalc,
-} from './vision.js';
+import { cansee, couldsee, m_canseeu, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
 import { breamu, spitmu } from './mthrowu.js';
@@ -214,6 +207,7 @@ import { note_unported } from './unported.js';
 import { heroDeaf, heroUnaware } from './pline.js';
 import { growl_sound } from './sounds.js';
 import { were_summon } from './were.js';
+import { canseemon, canspotmon, mon_visible } from './display.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any
@@ -722,7 +716,7 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     const message = requireMattackuOperation(rawEnv, 'message');
     const markInvisible = requireMattackuOperation(rawEnv, 'markInvisible');
-    const spotMonster = rawEnv.canSpotMonster ?? canSpotMonster;
+    const spotMonster = rawEnv.canSpotMonster ?? canspotmon;
     const gh = hitmsgState(state);
 
     gh.hitmsg_mid = 0;
@@ -782,7 +776,7 @@ export function mswings_verb(mwep, bash, rawEnv = {}) {
 async function mswings(mtmp, otemp, bash, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = requireMattackuOperation(rawEnv, 'message');
-    const visible = rawEnv.monsterVisible ?? monsterVisible;
+    const visible = rawEnv.monsterVisible ?? mon_visible;
 
     if (state.flags?.verbose && !activeHeroProperty(state, BLINDED)
         && visible(mtmp, state)) {
@@ -792,7 +786,7 @@ async function mswings(mtmp, otemp, bash, rawEnv = {}) {
             + `${(otemp.quan > 1) ? 'one of ' : ''}`
             + `${mhis(mtmp, {
                 ...rawEnv,
-                canSpotMonster: rawEnv.canSpotMonster ?? canSpotMonster,
+                canSpotMonster: rawEnv.canSpotMonster ?? canspotmon,
             })} ${xnameFresh(otemp, state)}.`,
             state,
         );
@@ -913,7 +907,7 @@ export function getmattk(magr, mdef, indx, prev_result, rawEnv = {}) {
                && attk.adtyp === M.AD_COLD
                && (udefend
                    ? Cold_resistance(state)
-                   : monster_resists_element(mdef, COLD_RES, state))
+                   : Resists_Elem(mdef, COLD_RES, state))
                && mdef.data !== state.mons[M.PM_SHADE]) {
         attk = copyAttack(attk);
         attk.adtyp = M.AD_PHYS;
@@ -942,7 +936,7 @@ export function getmattk(magr, mdef, indx, prev_result, rawEnv = {}) {
 // the steed retaliation at mhitu.c:545, returns on every path out of :547.
 export function calc_mattacku_vars(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
-    const seeMonster = rawEnv.canSeeMonster ?? canSeeMonster;
+    const seeMonster = rawEnv.canSeeMonster ?? canseemon;
     return {
         ranged: mdistu(mtmp, state) > 3,
         range2: !monnear(mtmp, mtmp.mux, mtmp.muy, state),
@@ -1682,7 +1676,7 @@ async function hitmu(mtmp, mattk, env) {
     const state = env.state;
     const random = env.random;
     const markInvisible = requireMattackuOperation(env, 'markInvisible');
-    const spotMonster = env.canSpotMonster ?? canSpotMonster;
+    const spotMonster = env.canSpotMonster ?? canspotmon;
     const mdat = mtmp.data;
     const olduasmon = state.youmonst.data;
     let res;
@@ -1840,7 +1834,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
         random,
         message,
         urgentMessage,
-        canSpotMonster: rawEnv.canSpotMonster ?? canSpotMonster,
+        canSpotMonster: rawEnv.canSpotMonster ?? canspotmon,
     };
     const draw = (name, ...args) => {
         if (typeof random[name] !== 'function')
@@ -2295,7 +2289,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
                 state,
                 env,
             );
-            if (monster_resists_element(mtmp, ACID_RES, state)) {
+            if (Resists_Elem(mtmp, ACID_RES, state)) {
                 await message(
                     messageAt(`${Monnam(mtmp, state, env)} is not affected.`,
                         mtmp.mx, mtmp.my, state),
@@ -2316,7 +2310,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
         let wornitems = mtmp.misc_worn_check ?? 0;
         // MON_WEP(mtmp) supplies glove protection for a wielded weapon.
         if (mtmp.mw) wornitems |= W_ARMG;
-        if (!monster_resists_element(mtmp, STONE_RES, state)
+        if (!Resists_Elem(mtmp, STONE_RES, state)
             && (protector === 0
                 || (protector !== ~0
                     && (wornitems & protector) !== protector))) {
@@ -2408,7 +2402,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
             }
             return M_ATTK_HIT;
         case M.AD_COLD:
-            if (monster_resists_element(mtmp, COLD_RES, state)) {
+            if (Resists_Elem(mtmp, COLD_RES, state)) {
                 await shieldeff(mtmp.mx, mtmp.my, state);
                 await message(
                     messageAt(`${Monnam(mtmp, state, env)} is mildly chilly.`,
@@ -2460,7 +2454,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
             tmp = 0;
             break;
         case M.AD_FIRE:
-            if (monster_resists_element(mtmp, FIRE_RES, state)) {
+            if (Resists_Elem(mtmp, FIRE_RES, state)) {
                 await shieldeff(mtmp.mx, mtmp.my, state);
                 await message(
                     messageAt(`${Monnam(mtmp, state, env)} is mildly warm.`,
@@ -2484,7 +2478,7 @@ async function passiveum(olduasmon, mtmp, mattk, state, env) {
             );
             break;
         case M.AD_ELEC:
-            if (monster_resists_element(mtmp, SHOCK_RES, state)) {
+            if (Resists_Elem(mtmp, SHOCK_RES, state)) {
                 await shieldeff(mtmp.mx, mtmp.my, state);
                 await message(
                     messageAt(

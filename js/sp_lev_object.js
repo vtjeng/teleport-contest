@@ -31,7 +31,7 @@ import {
 import { makemon } from './makemon_create.js';
 import { mongone } from './mon.js';
 import { propagate, rndmonnum } from './makemon.js';
-import { monster_resists_element, poly_when_stoned } from './mondata.js';
+import { Resists_Elem, poly_when_stoned } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     mkgold,
@@ -580,7 +580,7 @@ function populateMedusaStatue(obj, specification, env) {
     let speciesIndex = obj.corpsenm;
     const finishMonster = (monster, attempts) => {
         if (monster) {
-            const survivesPetrification = monster_resists_element(
+            const survivesPetrification = Resists_Elem(
                 monster,
                 STONE_RES,
                 state,

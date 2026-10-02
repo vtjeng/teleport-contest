@@ -96,7 +96,6 @@ import {
     W_SADDLE,
     EYE,
     voice_deity,
-    isok,
     ismnum,
     has_mcorpsenm,
     MCORPSENM,
@@ -104,6 +103,7 @@ import {
     M_AP_TYPMASK,
     CXN_ARTICLE,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import {
     artifact_origin,
     artiname,
@@ -218,7 +218,7 @@ import {
 import { safe_teleds } from './teleport.js';
 import { ttyPline } from './tty_message.js';
 import { set_voice } from './sounds.js';
-import { canseemon, couldsee } from './vision.js';
+import { couldsee } from './vision.js';
 import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { Monnam, a_monnam } from './do_name.js';
 import { killed, mon_offmap } from './mon.js';
@@ -243,6 +243,7 @@ import {
 } from './objnam.js';
 import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
+import { canseemon } from './display.js';
 
 // Raised where pray.c reaches a branch this port has not translated.
 // js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps every

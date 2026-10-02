@@ -88,11 +88,12 @@ export function validateGoals(store) {
                 if (goal.kind !== 'file-port' || !Array.isArray(goal.requiredFunctions)) {
                     throw new Error(`goal ${goal.id} needs a C requiredFunctions array`);
                 }
-                const keys = new Set();
+                const keys = new Set((goal.functions ?? [])
+                    .map(entry => sourceUnitKey(goal, entry)));
                 for (const entry of goal.requiredFunctions) {
                     const key = sourceUnitKey(goal, entry);
                     if (!/^[A-Za-z0-9_-]+\.c$/u.test(entry.sourceFile ?? '')
-                        || entry.sourceFile === goal.cFile || !nonempty(entry.name)
+                        || !nonempty(entry.name)
                         || !Number.isInteger(entry.line) || !Number.isInteger(entry.endLine)
                         || entry.line < 1 || entry.endLine < entry.line || keys.has(key)) {
                         throw new Error(`goal ${goal.id} has an invalid required source function`);
@@ -715,7 +716,8 @@ function newGoal(options) {
                 const match = unit.match(/^([A-Za-z0-9_-]+\.c):([A-Za-z_][A-Za-z0-9_]*)$/u);
                 if (!match) throw new Error('--required-functions entries must be file.c:function');
                 const [, file, name] = match;
-                if (file === goal.cFile) throw new Error('primary source functions belong in the selected range');
+                if (file === goal.cFile && functions.some(entry => entry.name === name))
+                    throw new Error(`required source function ${unit} is already selected in the primary range`);
                 const definition = cFunctions(file).find(entry => entry.name === name);
                 if (!definition) throw new Error(`no function named ${name} in ${file}`);
                 return { ...markDeclared([definition], jsFunctionNames())[0], sourceFile: file };

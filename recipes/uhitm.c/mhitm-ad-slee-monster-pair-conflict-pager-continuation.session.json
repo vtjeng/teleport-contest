@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "BLOCKED LONGER CONTINUATION retained from bounded C run-w9GP74, strict replay run-9QByyK, and JS boundary diagnostic run-yLcbs2. The C/JS replay matches through recorded boundary 125 (zero-based step index 124). C boundary 126 (step index 125) is the homunculus M-to-H AD_SLEE hit and sleep; B89's hitmsg, rn2(5), magic-negation, fall_asleep and message sequence matches its C source. The next complete C monster scan later reaches an armed AT_WEAP M-to-M action: boundary 129 (step index 128) shows the goblin thrusting her crude dagger at the homunculus, from mhitm.c:mattackm()'s weapon arm. During JS's clone preflight, js/mhitm.js:mattackm() refuses at the non-null mwep check (UnsupportedTurnBoundaryError: simple monster action requires an armed monster attacking another monster), so the full planned scan aborts before any of its live boundaries are committed; diff-fresh therefore reports no JS boundary 126. The JS-only diagnostic captured that exact boundary, with input not exhausted. This is a later mhitm.c:mattackm() gap, not a B89 sleep/fall_asleep divergence. Keep this longer continuation out of recordings; the separately frozen C prefix ending on the first M-to-M AD_SLEE call strictly matches. The waits and pager acknowledgements come from this C trace, not JavaScript output.",
+  "segments": [
+    {
+      "seed": 711203,
+      "datetime": "20320421101010",
+      "nethackrc": "OPTIONS=name:SleepPairConflict,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\na>>h\n \n#wizgenesis\nhostile newt\n #wizgenesis\nhostile homunculus\n. . . . . . . . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ]
+}

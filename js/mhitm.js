@@ -69,7 +69,7 @@ import {
     sticks,
     touch_petrifies,
     unsolid,
-    monster_resists_element,
+    Resists_Elem,
     poly_when_stoned,
     zombie_form,
     defended,
@@ -121,7 +121,7 @@ import { ART_TROLLSBANE } from './artifacts.js';
 import { objectType } from './obj.js';
 import { SILVER } from './objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
-import { canSpotMonster } from './startup_a11y.js';
+
 import { mhitm_adtyping, mhitm_knockback, shade_miss } from './uhitm.js';
 import { cansee, unblock_point } from './vision.js';
 import { breamm, spitmm, thrwmm } from './mthrowu.js';
@@ -132,6 +132,7 @@ import { place_worm_tail_randomly, remove_worm } from './worm.js';
 import { newsym, flush_screen, shieldeff } from './display.js';
 import { drain_item, resist } from './zap.js';
 import { ttyPline } from './tty_message.js';
+import { canspotmon } from './display.js';
 
 // C ref: mhitm.c attk_protection() (1475-1518). Return the worn-item mask
 // that protects a target from the attack type. This is a pure source helper;
@@ -192,7 +193,7 @@ export async function sleep_monst(mtmp, amount, how, env = {}) {
             || M_AP_TYPE(mtmp) === M_AP_OBJECT)) {
         seemimic(mtmp, state, env);
     }
-    let resisted = monster_resists_element(mtmp, SLEEP_RES, state)
+    let resisted = Resists_Elem(mtmp, SLEEP_RES, state)
         || defended(mtmp, AD_SLEE, state);
     if (!resisted && how >= 0) {
         resisted = await resist(mtmp, how, 0, false, state, random);
@@ -354,10 +355,10 @@ function pre_mm_attack(magr, mdef, env) {
         // C's `if/else if` per participant: a marker write and a redraw are
         // mutually exclusive, so a monster the hero cannot spot is marked and
         // not redrawn even when showit is set.
-        if (!canSpotMonster(magr, state))
+        if (!canspotmon(magr, state))
             markInvisible(magr.mx, magr.my);
         else if (showit) redraw(magr.mx, magr.my);
-        if (!canSpotMonster(mdef, state))
+        if (!canspotmon(mdef, state))
             markInvisible(mdef.mx, mdef.my);
         else if (showit) redraw(mdef.mx, mdef.my);
     }
@@ -529,12 +530,12 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
     finish_meating(mdef, operationEnv);
 
     state.gv ??= {};
-    state.gv.vis = canSpotMonster(magr, state) && canSpotMonster(mdef, state);
+    state.gv.vis = canspotmon(magr, state) && canspotmon(mdef, state);
 
     // monst.h resists_ston() is the monster's STONE_RES bitset.  which_armor
     // is source-owned by worn.c and checks the monster's worn inventory.
     if (touch_petrifies(pd)
-        && !monster_resists_element(magr, STONE_RES, state)
+        && !Resists_Elem(magr, STONE_RES, state)
         && !which_armor(magr, W_ARMG, state)) {
         if (poly_when_stoned(pa, state)) {
             await mon_to_stone(magr, state, {
@@ -543,11 +544,15 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
             });
             return M_ATTK_HIT;
         }
-        if (!quietly && canSpotMonster(magr, state)) {
+        if (!quietly && canspotmon(magr, state)) {
             if (state.gv.vis) {
                 await message(
                     `${Monnam(magr, state)} tries to move ${mon_nam(mdef, state)}`
-                        + ` out of ${is_rider(pa) ? 'the' : mhis(magr, { ...rawEnv, state, canSpotMonster })} way.`,
+                        + ` out of ${is_rider(pa) ? 'the' : mhis(magr, {
+                            ...rawEnv,
+                            state,
+                            canSpotMonster: rawEnv.canSpotMonster ?? canspotmon,
+                        })} way.`,
                     state,
                     rawEnv,
                 );
@@ -582,7 +587,11 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
     if (state.gv.vis && !quietly && !planning) {
         await message(
             `${Monnam(magr, state)} moves ${mon_nam(mdef, state)}`
-                + ` out of ${is_rider(pa) ? 'the' : mhis(magr, { ...rawEnv, state, canSpotMonster })} way!`,
+                + ` out of ${is_rider(pa) ? 'the' : mhis(magr, {
+                    ...rawEnv,
+                    state,
+                    canSpotMonster: rawEnv.canSpotMonster ?? canspotmon,
+                })} way!`,
             state,
             rawEnv,
         );
@@ -666,8 +675,8 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
 
     /* Set up the visibility of action */
     state.gv ??= {};
-    state.gv.vis = (cansee(magr.mx, magr.my, state) && canSpotMonster(magr, state))
-        || (cansee(mdef.mx, mdef.my, state) && canSpotMonster(mdef, state));
+    state.gv.vis = (cansee(magr.mx, magr.my, state) && canspotmon(magr, state))
+        || (cansee(mdef.mx, mdef.my, state) && canspotmon(mdef, state));
 
     /* Set flag indicating monster has moved this turn. */
     magr.mlstmv = state.moves;

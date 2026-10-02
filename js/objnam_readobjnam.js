@@ -12,6 +12,10 @@ import {
     artifact_exists, artifact_name, nartifact_exist, permapoisoned,
 } from './artifacts.js';
 import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
+import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, Align2amask,
     ALTAR, BEAR_TRAP, CLOUD, COLNO, CORPSTAT_FEMALE, CORPSTAT_MALE,
     CORPSTAT_HISTORIC, CORPSTAT_NEUTER, CORPSTAT_RANDOM, CORR, DB_FLOOR, DB_ICE, DB_LAVA,
@@ -26,7 +30,7 @@ import {
     TREE_SWARM, TRAPNUM, WT_IRON_BALL_INCR, something,
     TT_LAVA, VWALL, WATER, WM_MASK, W_NONDIGGABLE, W_NONPASSWALL, ZOMBIFY_MON,
     IS_DOOR, IS_FOUNTAIN, IS_FURNITURE, IS_GRAVE, IS_SINK, IS_WALL,
-    Has_contents, is_hole, isok, ismnum,
+    Has_contents, is_hole, ismnum,
 } from './const.js';
 import { lookup_novel, oname, safe_oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
@@ -63,7 +67,12 @@ import {
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
-    Flying, is_pool, is_lava, Levitation, maketrap, reset_utrap, trapname,
+    Flying,
+    is_lava,
+    Levitation,
+    maketrap,
+    reset_utrap,
+    trapname,
 } from './trap.js';
 import { note_unported } from './unported.js';
 import { begin_burn, start_timer } from './timeout.js';
@@ -514,12 +523,10 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         return upstart(an(text));
     };
     const addDrawbridgeTerrain = (under) => {
-        // In rm.h this is the drawbridgemask overlay of the single `flags`
-        // union field. `flags` is live in JS; mirror the legacy property for
-        // readers that still accept old state fixtures.
-        const mask = lev.flags || lev.drawbridgemask || 0;
+        // C stores drawbridgemask in the same rm union as flags; JS keeps the
+        // value in that single flags slot.
+        const mask = lev.flags ?? 0;
         lev.flags = (mask & ~DB_UNDER) | under;
-        lev.drawbridgemask = lev.flags;
     };
     const oldtyp = lev.typ;
     const isDbridge = oldtyp === DRAWBRIDGE_DOWN

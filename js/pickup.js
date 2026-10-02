@@ -101,7 +101,6 @@ import {
     plur,
     something,
     is_pit,
-    isok,
     st_all,
     st_corpse,
     st_gloves,
@@ -109,6 +108,10 @@ import {
     st_resists,
     u_at,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import { get_adjacent_loc, yn_function } from './cmd.js';
 import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
@@ -182,7 +185,7 @@ import {
     remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
     unbless,
 } from './obj.js';
-import { canSpotMonster } from './startup_a11y.js';
+
 import { get_obj_location } from './light.js';
 import { bagotricks, set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
@@ -216,8 +219,13 @@ import {
 import { menuTitleStyle } from './tty_menu.js';
 import { waterbody_name } from './pager.js';
 import {
-    back_on_ground, is_lava, is_pool, t_at, chest_trap, unconscious,
-    uescaped_shaft, uteetering_at_seen_pit,
+    back_on_ground,
+    is_lava,
+    t_at,
+    chest_trap,
+    unconscious,
+    uescaped_shaft,
+    uteetering_at_seen_pit,
 } from './trap.js';
 import {
     clearTtyMessageWindow, ttyNorep, ttyPline, ttyUrgentPline,
@@ -238,6 +246,7 @@ import { welded } from './wield.js';
 import { setuqwep, setuswapwep, setuwep } from './worn.js';
 import { note_unported } from './unported.js';
 import { d } from './rng.js';
+import { canspotmon } from './display.js';
 
 const INCREASED_BURDEN_MESSAGES = Object.freeze([
     null,
@@ -1892,7 +1901,7 @@ export async function observe_quantum_cat(box, makecat, givemsg, rawEnv = {}) {
             livecat.mpeaceful = true;
             set_malign(livecat, state);
             if (givemsg) {
-                if (!canSpotMonster(livecat, state)) {
+                if (!canspotmon(livecat, state)) {
                     await ttyPline(
                         `You think ${something} brushed your ${body_part(FOOT, state.youmonst)}.`,
                         state,

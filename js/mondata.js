@@ -11,6 +11,7 @@ import {
     BLINDED,
     BLND_RES,
     COLD_RES,
+    DRAIN_RES,
     DISINT_RES,
     FEMALE,
     FAINTED,
@@ -44,19 +45,21 @@ import {
     REFLECTING,
     SHOCK_RES,
     SLEEP_RES,
+    STONE_RES,
     Upolyd,
     W_ACCESSORY,
     W_AMUL,
     W_ARM,
     W_ARMC,
     W_ARMOR,
+    W_SWAPWEP,
     W_WEP,
     W_ARMH,
+    P_NONE,
 } from './const.js';
 import { acurr } from './attrib.js';
 import {
     ART_EXCALIBUR,
-    artifact_defends,
     defends,
     defends_when_carried,
 } from './artifacts.js';
@@ -71,19 +74,14 @@ import * as M from './monsters.js';
 import {
     ALCHEMY_SMOCK,
     AMULET_OF_MAGICAL_BREATHING,
-    BLACK_DRAGON_SCALES,
-    BLUE_DRAGON_SCALES,
     CREAM_PIE,
     BLINDING_VENOM,
     POT_BLINDNESS,
     GRAY_DRAGON_SCALE_MAIL,
     GRAY_DRAGON_SCALES,
-    GOLD_DRAGON_SCALES,
-    GREEN_DRAGON_SCALES,
-    ORANGE_DRAGON_SCALES,
-    RED_DRAGON_SCALES,
-    WHITE_DRAGON_SCALES,
     YELLOW_DRAGON_SCALES,
+    TOOL_CLASS,
+    WEAPON_CLASS,
 } from './objects.js';
 import { rn2, rnd } from './rng.js';
 import { makesingular } from './fruit.js';
@@ -98,6 +96,7 @@ import { unconscious } from './trap.js';
 // already do, and neither side uses the other's exports at module scope.
 import { m_canseeu } from './vision.js';
 import { mon_has_amulet } from './wizard.js';
+import { note_unported } from './unported.js';
 
 // C ref: mondata.c set_mon_data() (12-38).  `movement` belongs to the
 // monster instance while the hero's pointer is state.u.umovement; only
@@ -129,35 +128,6 @@ function hasDamageType(species, damageType) {
     ));
 }
 
-// C ref: artifact.c defends()'s dragon-armor branch (636-685). The caller
-// has already established that `armor` is dragon armor, so this compact switch
-// preserves the source's mail-to-scales normalization without consulting the
-// initialized artifact table.
-function dragonArmorDefends(armor, adtyp) {
-    let scales = armor.otyp;
-    if (scales >= GRAY_DRAGON_SCALE_MAIL
-        && scales < GRAY_DRAGON_SCALES) {
-        scales += GRAY_DRAGON_SCALES - GRAY_DRAGON_SCALE_MAIL;
-    }
-    switch (adtyp) {
-    case M.AD_MAGM: return scales === GRAY_DRAGON_SCALES;
-    case M.AD_HALU: return scales === GOLD_DRAGON_SCALES;
-    case M.AD_FIRE: return scales === RED_DRAGON_SCALES;
-    case M.AD_COLD: return scales === WHITE_DRAGON_SCALES;
-    case M.AD_DRST:
-    case M.AD_DISE: return scales === GREEN_DRAGON_SCALES;
-    case M.AD_SLEE:
-    case M.AD_PLYS: return scales === ORANGE_DRAGON_SCALES;
-    case M.AD_DISN:
-    case M.AD_DRLI: return scales === BLACK_DRAGON_SCALES;
-    case M.AD_ELEC:
-    case M.AD_SLOW: return scales === BLUE_DRAGON_SCALES;
-    case M.AD_ACID:
-    case M.AD_STON: return scales === YELLOW_DRAGON_SCALES;
-    default: return false;
-    }
-}
-
 // C refs: mondata.c attacktype(), noattacks(), dmgtype(); mondata.h's
 // movement-facing permonst predicates. Keep these as direct catalog queries:
 // callers decide how a capability interacts with level and monster state.
@@ -183,7 +153,7 @@ export function noattacks(species) {
 }
 
 export function dmgtype(species, damageType) {
-    return hasDamageType(species, damageType);
+    return dmgtype_fromattack(species, damageType, M.AT_ANY) !== null;
 }
 
 // C ref: mondata.h:122 can_breathe(). Breath weapon via AT_BREA attack type.
@@ -297,8 +267,12 @@ export function resists_blnd(mon, state = game) {
     }
     if (resists_blnd_by_arti(mon, state)) return true;
     const blindResist = state.u?.uprops?.[BLND_RES];
-    if (isYou && (blindResist?.intrinsic || blindResist?.extrinsic))
+    if (isYou && (blindResist?.intrinsic || blindResist?.extrinsic)) {
+        // mondata.c explicitly calls impossible() for this inconsistent state
+        // before returning TRUE; keep the source-named diagnostic gap.
+        note_unported('pline.c impossible');
         return true;
+    }
     return false;
 }
 
@@ -657,43 +631,71 @@ export function mon_hates_silver(monster) {
     return is_vampshifter(monster) || hates_silver(monster?.data);
 }
 
-function monsterArtifactDefense(monster, obj, field, damageType, state) {
-    if (!obj?.oartifact) return false;
-    const artifact = state.artilist?.[obj.oartifact];
-    if (!artifact) {
-        throw new Error(
-            `Resists_Elem requires artifact ${obj.oartifact} data`,
-        );
-    }
-    return artifact[field]?.adtyp === damageType;
+function weaponOrWeaponTool(obj, state) {
+    // obj.h:254's weapons-compatible test expands is_weptool(), whose
+    // objects.h comparison is against P_NONE.
+    return obj?.oclass === WEAPON_CLASS
+        || (obj?.oclass === TOOL_CLASS
+            && state.objects?.[obj.otyp]?.oc_subtyp !== P_NONE);
 }
 
-// C ref: mondata.c Resists_Elem(), elemental-property monster arm. Hero
-// properties and the three non-elemental delegation cases have separate
-// consumers and are outside this monster predicate.
-export function monster_resists_element(monster, property, state = game) {
-    if (!Number.isInteger(property) || property < 1 || property > 8)
-        throw new RangeError(`invalid elemental resistance ${property}`);
+// C ref: mondata.c Resists_Elem() (129-197). This is the one owner behind
+// resists_fire/cold/sleep/disint/elec/poison/acid/ston. The same source
+// function also dispatches antimagic, drain-life and blindness resistance.
+export function Resists_Elem(monster, property, state = game) {
+    const isYou = monster === state.youmonst;
+    let damageType = 0;
+    let resistanceMask = 0;
+    let heroResistance = false;
 
-    const resistanceMask = 1 << (property - 1);
-    const resistanceBits = (monster.data?.mresists ?? 0)
-        | (monster.mextrinsics ?? 0)
-        | (monster.mintrinsics ?? 0);
-    if (resistanceBits & resistanceMask) return true;
-
-    const damageType = property + 1;
-    if (monsterArtifactDefense(
-        monster,
-        monster.mw,
-        'defn',
-        damageType,
-        state,
-    )) {
-        return true;
+    switch (property) {
+    case FIRE_RES:
+    case COLD_RES:
+    case SLEEP_RES:
+    case DISINT_RES:
+    case SHOCK_RES:
+    case POISON_RES:
+    case ACID_RES:
+    case STONE_RES:
+        damageType = property + 1;
+        resistanceMask = 1 << (property - 1);
+        if (isYou) {
+            const source = state.u?.uprops?.[property];
+            heroResistance = Boolean(source?.intrinsic || source?.extrinsic);
+        }
+        break;
+    case ANTIMAGIC:
+        return resists_magm(monster, state);
+    case DRAIN_RES:
+        return resists_drli(monster, state);
+    case BLND_RES:
+        return resists_blnd(monster, state);
+    default:
+        // impossible() prints a diagnostic and the C function returns FALSE.
+        note_unported('pline.c impossible');
+        return false;
     }
 
-    const slotmask = W_ARMOR | W_ACCESSORY | W_WEP;
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+    if (isYou) {
+        if (heroResistance) return true;
+    } else {
+        const resistanceBits = (monster.data?.mresists ?? 0)
+            | (monster.mextrinsics ?? 0)
+            | (monster.mintrinsics ?? 0);
+        if (resistanceBits & resistanceMask) return true;
+    }
+
+    const wielded = isYou ? state.uwep : monster.mw;
+    if (wielded?.oartifact && defends(damageType, wielded, state))
+        return true;
+
+    let slotmask = W_ARMOR | W_ACCESSORY;
+    if (!isYou || (state.uwep && weaponOrWeaponTool(state.uwep, state)))
+        slotmask |= W_WEP;
+    if (isYou && state.u?.twoweap) slotmask |= W_SWAPWEP;
+
+    for (let obj = isYou ? state.invent : monster.minvent;
+        obj; obj = obj.nobj) {
         const wornProperty = Boolean(
             (obj.owornmask & slotmask)
             && state.objects?.[obj.otyp]?.oc_oprop === property,
@@ -702,35 +704,39 @@ export function monster_resists_element(monster, property, state = game) {
             && obj.otyp === ALCHEMY_SMOCK
             && (property === POISON_RES || property === ACID_RES);
         if (wornProperty || smockResistance
-            || monsterArtifactDefense(
-                monster,
-                obj,
-                'cary',
-                damageType,
-                state,
-            )) {
+            || (obj.oartifact
+                && defends_when_carried(damageType, obj, state))) {
             return true;
         }
     }
     return false;
 }
 
-// C ref: mondata.c resists_magm(), monster arm. General magic resistance
-// includes species attacks, gray-dragon ancestry, wielded artifact defense,
-// worn property grants, and carried artifact defense.
+
+// C ref: mondata.c resists_magm() (215-244). Hero and monster inventory
+// traversal share the C slot-mask rules, including the hero's conditional
+// weapon and two-weapon slots.
 export function resists_magm(monster, state = game) {
+    const isYou = monster === state.youmonst;
     if (dmgtype(monster.data, M.AD_MAGM)
         || monster.data?.pmidx === M.PM_BABY_GRAY_DRAGON
         || dmgtype(monster.data, M.AD_RBRE)) {
         return true;
     }
-    if (artifact_defends(monster.mw, M.AD_MAGM, state)) return true;
+    const wielded = isYou ? state.uwep : monster.mw;
+    if (wielded?.oartifact && defends(M.AD_MAGM, wielded, state))
+        return true;
 
-    const slotmask = W_ARMOR | W_ACCESSORY | W_WEP;
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+    let slotmask = W_ARMOR | W_ACCESSORY;
+    if (!isYou || (state.uwep && weaponOrWeaponTool(state.uwep, state)))
+        slotmask |= W_WEP;
+    if (isYou && state.u?.twoweap) slotmask |= W_SWAPWEP;
+    for (let obj = isYou ? state.invent : monster.minvent;
+        obj; obj = obj.nobj) {
         if (((obj.owornmask & slotmask)
                 && state.objects?.[obj.otyp]?.oc_oprop === ANTIMAGIC)
-            || artifact_defends(obj, M.AD_MAGM, state, true)) {
+            || (obj.oartifact
+                && defends_when_carried(M.AD_MAGM, obj, state))) {
             return true;
         }
     }
@@ -1528,8 +1534,6 @@ export function dead_species(m_idx, egg = false, env = {}) {
 // yet; scripts/mondata-pure.test.mjs pins each result to values read from C.
 //
 // Left for later, with the reason each one is not pure or not yet portable:
-//   Resists_Elem            already ported above as monster_resists_element
-//   defended, resists_drli  retain source branches used by other effects
 //   pronoun_gender          calls rn2()
 //   set_mon_data, give_u_to_m_resistances, mon_learns_traps, mons_see_trap,
 //   monstseesu             change monster or hero state.  monstunseesu() is
@@ -1816,8 +1820,7 @@ export function dmgtype_fromattack(species, dtyp, atyp) {
 }
 
 // C ref: mondata.c max_passive_dmg(). resists_acid() and its siblings are the
-// monst.h macros for Resists_Elem(), ported above as
-// monster_resists_element().
+// monst.h resistance macros delegate to the canonical Resists_Elem owner.
 export function max_passive_dmg(mdef, magr, state = game) {
     let multi2 = 0;
     // Each of magr's attacks can draw passive damage.
@@ -1843,13 +1846,13 @@ export function max_passive_dmg(mdef, magr, state = game) {
             || (adtyp === M.AD_RUST && completelyrusts(magr.data))) {
             dmg = magr.mhp;
         } else if ((adtyp === M.AD_ACID
-                && !monster_resists_element(magr, ACID_RES, state))
+                && !Resists_Elem(magr, ACID_RES, state))
             || (adtyp === M.AD_COLD
-                && !monster_resists_element(magr, COLD_RES, state))
+                && !Resists_Elem(magr, COLD_RES, state))
             || (adtyp === M.AD_FIRE
-                && !monster_resists_element(magr, FIRE_RES, state))
+                && !Resists_Elem(magr, FIRE_RES, state))
             || (adtyp === M.AD_ELEC
-                && !monster_resists_element(magr, SHOCK_RES, state))
+                && !Resists_Elem(magr, SHOCK_RES, state))
             || adtyp === M.AD_PHYS) {
             dmg = attack.damn;
             if (!dmg) dmg = mdef.data.mlevel + 1;
@@ -2122,7 +2125,7 @@ export function defended(mon, adtyp, state = game) {
     const is_you = (mon === state.youmonst);
     // wielded artifact that defends against adtyp
     const wep = is_you ? state.uwep : mon?.mw;
-    if (wep && wep.oartifact && artifact_defends(wep, adtyp, state))
+    if (wep && wep.oartifact && defends(adtyp, wep, state))
         return true;
 
     // C constructs a zeroed object with the adult dragon's scale type, so only
@@ -2131,10 +2134,9 @@ export function defended(mon, adtyp, state = game) {
     const armor = mndx >= M.PM_GRAY_DRAGON && mndx <= M.PM_YELLOW_DRAGON
         ? { otyp: GRAY_DRAGON_SCALES + mndx - M.PM_GRAY_DRAGON }
         : which_armor(mon, W_ARM, state);
-    if (armor
-        && armor.otyp >= GRAY_DRAGON_SCALE_MAIL
+    if (armor && armor.otyp >= GRAY_DRAGON_SCALE_MAIL
         && armor.otyp <= YELLOW_DRAGON_SCALES
-        && dragonArmorDefends(armor, adtyp)) {
+        && defends(adtyp, armor, state)) {
         return true;
     }
     return false;

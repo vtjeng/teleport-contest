@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { isok } from '../js/cmd_isok.js';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
@@ -58,7 +59,6 @@ import {
     ICE,
     IN_SIGHT,
     INTRINSIC,
-    isok,
     LADDER,
     LAVAPOOL,
     LEVITATION,
@@ -193,7 +193,7 @@ function topLine(state) {
 // cmd.c:4326-4330 isok() is `x >= 1 && x <= COLNO - 1 && y >= 0
 // && y <= ROWNO - 1`. The column and row bounds differ: column 0 exists in
 // levl[][] and sits outside the map, while row 0 is the map's first row. The
-// port defines isok() in js/const.js, where a comment says why; these cases
+// port defines isok() in js/cmd_isok.js; these cases
 // sit on each of the four bounds and one step past it.
 test('isok admits the map columns and rows cmd.c names', () => {
     // Column 1 row 0 is the first square isok() admits, at two of the bounds.

@@ -31,6 +31,7 @@ import { init_objects } from '../js/o_init.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
 import { newObject } from '../js/obj.js';
 import { game } from '../js/gstate.js';
+import { initUnported } from '../js/unported.js';
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
     AMULET_OF_GUARDING,
@@ -377,7 +378,12 @@ test('which_armor answers the hero from the uarm* slots, not from minvent',
         // which_armor"); return 0;`. W_SADDLE reaches which_armor() for a
         // steed (artifact.c:2675, sit.c:624) and so is a mask the function
         // really sees, but never for the hero.
+        initUnported();
         assert.equal(which_armor(hero, W_SADDLE, state), null);
+        assert.equal(game.unported.has('pline.c impossible'), true);
+        assert.equal(which_armor(hero, W_ARM | W_ARMC, state), null);
+        assert.equal(game.unported.has('pline.c impossible'), true);
+        initUnported();
 
         // The monster branch still runs for anything that is not the hero,
         // even with the same state in hand.

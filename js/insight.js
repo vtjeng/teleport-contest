@@ -236,6 +236,9 @@ import {
     WOUNDED_LEGS,
     WWALKING,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { timet_delta } from './allmain.js';
 import { acurr, from_what, stone_luck } from './attrib.js';
 import { getnow, midnight, night } from './calendar.js';
@@ -362,7 +365,12 @@ import { P_SKILL, weapon_type } from './startup_skills.js';
 import { empty_handed } from './wield.js';
 import { ART_OGRESMASHER } from './artifacts.js';
 import { RIGHT_HANDED } from './u_init.js';
-import { is_lava, is_pool, is_pool_or_lava, t_at, trapname } from './trap.js';
+import {
+    is_lava,
+    is_pool_or_lava,
+    t_at,
+    trapname,
+} from './trap.js';
 import { digests } from './dothrow.js';
 import { dxdy_to_dist_descr } from './getpos.js';
 import { item_what, u_adtyp_resistance_obj } from './zap.js';

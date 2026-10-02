@@ -10,8 +10,9 @@ import {
     CORR, M_AP_MONSTER, M_AP_NOTHING, M_AP_TYPE, NO_KILLER_PREFIX,
     PIT, ROWNO, ROOM, SCORR, SDOOR, SHOPBASE, SINK, STRAT_WAITMASK,
     SUPPRESS_SADDLE, STUNNED, THRONE, TT_BURIEDBALL, TT_PIT,
-    UNCHANGING, has_mgivenname, is_pit, isok, plur, u_at,
+    UNCHANGING, has_mgivenname, is_pit, plur, u_at,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { acurr, exercise } from './attrib.js';
 import { getdir, yn_function } from './cmd.js';
 import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
@@ -53,12 +54,10 @@ import {
 import { sleep_monst, slept_monst } from './mhitm.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import {
-    block_point, cansee, canseemon, does_block, recalc_block_point,
-    unblock_point,
-} from './vision.js';
+import { block_point, cansee, does_block, recalc_block_point, unblock_point } from './vision.js';
 import { getlin } from './windows.js';
 import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
+import { canseemon } from './display.js';
 
 const musicRandom = { d, rn1, rn2, rne, rnl, rnd, rnz };
 function property(state, index) {

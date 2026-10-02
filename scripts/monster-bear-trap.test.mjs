@@ -65,7 +65,7 @@ import {
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
 import { CORPSE, IRON_SHOES } from '../js/objects.js';
-import { canSeeMonster } from '../js/startup_a11y.js';
+
 import { t_at, trapname } from '../js/trap.js';
 import {
     floor_trigger,
@@ -76,6 +76,7 @@ import {
 } from '../js/trap_effects.js';
 import { cansee } from '../js/vision.js';
 import { loadMonsterBearTrapRecipe } from './run-monster-bear-trap.mjs';
+import { canseemon } from '..//js/display.js';
 
 // The same Valkyrie scripts/monster-pit.test.mjs uses, so both read the same
 // hero, the same lit starting room and the same free neighbours.
@@ -272,7 +273,7 @@ function watch_again(x, y) {
 test('a bear trap catches a monster the hero can watch', async () => {
     await hero();
     const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13);
-    assert.equal(canSeeMonster(mon, game), true, 'the hero watches');
+    assert.equal(canseemon(mon, game), true, 'the hero watches');
     // monsters.h:1002-1009 gives the pony SIZ(1300, 250, MS_NEIGH, MZ_MEDIUM),
     // which is the only conjunct of C:1530-1531 that a species record decides
     // on its own for this fixture.
@@ -432,7 +433,7 @@ test('a bear trap out of sight is silent but still bites', async () => {
     await hero();
     const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13);
     blind_to(x, y);
-    assert.equal(canSeeMonster(mon, game), false, 'the hero cannot watch');
+    assert.equal(canseemon(mon, game), false, 'the hero cannot watch');
 
     const env = bearEnv([5]);
     assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);
@@ -459,7 +460,7 @@ test('a bear trap under the hero own steed is reported unseen', async () => {
     // reads it, and js/do_name.js monsterCommonName() has no "your" form.
     const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13);
     blind_to(x, y);
-    assert.equal(canSeeMonster(mon, game), false, 'the hero cannot watch');
+    assert.equal(canseemon(mon, game), false, 'the hero cannot watch');
     game.u.usteed = mon;
 
     try {
@@ -731,7 +732,7 @@ test('a trapped monster pulls free of the bear trap', async () => {
         mtrapped: true,
     });
     trap.tseen = true;
-    assert.equal(canSeeMonster(mon, game), true, 'the hero watches');
+    assert.equal(canseemon(mon, game), true, 'the hero watches');
 
     const env = bearEnv([0]);
     assert.equal(await mintrap(mon, 0, env), Trap_Effect_Finished,
@@ -813,7 +814,7 @@ test('watching a held monster reveals the trap under it', async () => {
         minvis: true,
         mtrapped: true,
     });
-    assert.equal(canSeeMonster(invisible.mon, game), false, 'not seen');
+    assert.equal(canseemon(invisible.mon, game), false, 'not seen');
     const invisibleEnv = bearEnv([0]);
     assert.equal(await mintrap(invisible.mon, 0, invisibleEnv),
                  Trap_Effect_Finished);
@@ -837,7 +838,7 @@ test('a hole under a held monster is revealed like a bear trap', async () => {
         mtrapped: true,
     });
     trap.ttyp = HOLE;
-    assert.equal(canSeeMonster(mon, game), true, 'the hero watches');
+    assert.equal(canseemon(mon, game), true, 'the hero watches');
     assert.equal(trap.tseen, false, 'the hole starts unmapped');
 
     // rn2(40) of 1 is the smallest roll that keeps the monster held, so the

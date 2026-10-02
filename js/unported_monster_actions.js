@@ -37,6 +37,9 @@ import {
     ANTI_MAGIC,
     Upolyd,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { exercise, poisoned } from './attrib.js';
 // js/allmain.js imports this file's action runners, so this edge closes an
 // import cycle. `stop_occupation` is a hoisted function declaration, which an
@@ -100,7 +103,7 @@ import {
     is_swimmer,
     likes_lava,
     monsndx,
-    monster_resists_element,
+    Resists_Elem,
     nohands,
     passes_walls,
     perceives,
@@ -168,12 +171,12 @@ import {
     rnl,
     rnz,
 } from './rng.js';
-import {
-    canSeeMonster,
-    canSpotMonster,
-} from './startup_a11y.js';
+
 import { is_ice } from './terrain.js';
-import { is_lava, is_pool, t_at } from './trap.js';
+import {
+    is_lava,
+    t_at,
+} from './trap.js';
 import { rloc } from './teleport.js';
 import { ttyPline, ttyPlineWillWait } from './tty_message.js';
 import { note_unported } from './unported.js';
@@ -194,6 +197,7 @@ import {
     mon_wield_item,
     setmnotwielded,
 } from './weapon.js';
+import { canseemon, canspotmon } from './display.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
@@ -812,11 +816,11 @@ function ordinaryMonsterCanSeeHero(monster, state) {
 function resistsTrapEffect(monster, trapType, env) {
     const state = env.state ?? game;
     if (trapType === SLP_GAS_TRAP) {
-        return monster_resists_element(monster, SLEEP_RES, state)
+        return Resists_Elem(monster, SLEEP_RES, state)
             || defended(monster, AD_SLEE, state);
     }
     if (trapType === FIRE_TRAP) {
-        return monster_resists_element(monster, FIRE_RES, state)
+        return Resists_Elem(monster, FIRE_RES, state)
             || defended(monster, AD_FIRE, state);
     }
     if (trapType === ANTI_MAGIC) {
@@ -1091,7 +1095,7 @@ function monsterMigrationOperation(env) {
 // weapon.c canseemon() presentation checks.
 function monsterWieldOperations(env) {
     return {
-        canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        canSeeMonster: (subject) => canseemon(subject, env.state),
     };
 }
 
@@ -1142,7 +1146,7 @@ async function moveSimplePet(monster, after, env) {
         avoidSokobanPush: (subject, x, y) =>
             m_avoid_soko_push_loc(subject, x, y, env.state),
         bestTarget: best_target,
-        canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        canSeeMonster: (subject) => canseemon(subject, env.state),
         // C ref: dogmove.c dog_move():1291-1292 calls the same
         // m_digweapon_check() m_move() does, so the pet gets the real function
         // rather than a constant answer.
@@ -1235,7 +1239,7 @@ async function moveSimplePet(monster, after, env) {
 function monsterMissileEnv(monster, env) {
     let plannedAnnouncementWaits = false;
     return {
-        canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        canSeeMonster: (subject) => canseemon(subject, env.state),
         canSeeSquare: (x, y) => cansee(x, y, env.state),
         clearObjectKnowledge: (obj) => clear_dknown(obj, env.state),
         damageValue: (obj, target, actionEnv) => dmgval(
@@ -1482,7 +1486,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
     assertSimpleActionState(monster, state);
     return dochugw(monster, true, {
         ...env,
-        canSpotMonster: (subject) => canSpotMonster(subject, state),
+        canSpotMonster: (subject) => canspotmon(subject, state),
         // One dochug() now serves both, as in C. m_move() picks the mover.
         dochug: (subject, actionEnv) => dochug(subject, {
                 ...actionEnv,
@@ -1728,7 +1732,7 @@ async function planSimpleMonsterScan(monster, env) {
             ...subjectEnv,
             setMimicSym: setPlannedMimicSym,
         }),
-        canSeeMonster: (subject) => canSeeMonster(subject, env.state),
+        canSeeMonster: (subject) => canseemon(subject, env.state),
         // C ref: mon.c movemon_singlemon():1295-1303 and hideunder():4726-4801.
         // js/allmain.js binds the same function for the live pass. The clone
         // owns the eel's mundetected; only the newsym() that follows it is

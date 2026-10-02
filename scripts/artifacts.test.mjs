@@ -40,6 +40,7 @@ import {
     defends_when_carried,
     discover_artifact,
     found_artifact,
+    get_artifact,
     has_magic_key,
     is_art,
     protects,
@@ -1071,7 +1072,23 @@ test('attacks() returns false for non-artifacts', () => {
     assert.equal(attacks(0, plain, state), false);
 });
 
+test('get_artifact returns the indexed row or ART_NONARTIFACT sentinel', () => {
+    // artifact.c:2821-2836 uses 0 as the sentinel and accepts an index only
+    // when 0 < (int)oartifact < AFTER_LAST_ARTIFACT.
+    const state = artiState();
+    const magicbane = { oartifact: ART_MAGICBANE };
+    assert.equal(get_artifact(magicbane, state), state.artilist[ART_MAGICBANE]);
+    assert.equal(get_artifact(null, state), state.artilist[0]);
+    assert.equal(get_artifact({ oartifact: -1 }, state), state.artilist[0]);
+    assert.equal(
+        get_artifact({ oartifact: AFTER_LAST_ARTIFACT }, state),
+        state.artilist[0],
+    );
+});
+
 test('defends() checks artifact defense type and dragon armor', () => {
+    // artifact.c:636-685 selects the artifact defn record before its
+    // dragon-armor switch.
     const state = artiState();
     // ART_SCEPTRE_OF_MIGHT defn.adtyp = AD_MAGM (1).
     const sceptre = { oartifact: ART_SCEPTRE_OF_MIGHT };
@@ -1094,6 +1111,7 @@ test('defends() returns false for null otmp', () => {
 });
 
 test('defends_when_carried() checks the carry defense field', () => {
+    // artifact.c:687-695 reads cary.adtyp only for an actual artifact.
     const state = artiState();
     // ART_MITRE_OF_HOLINESS cary.adtyp = AD_FIRE (2) per the artilist.
     const mitre = { oartifact: ART_MITRE_OF_HOLINESS };
@@ -1103,6 +1121,8 @@ test('defends_when_carried() checks the carry defense field', () => {
 });
 
 test('protects() checks object property and artifact SPFX_PROTECT', () => {
+    // artifact.c:698-715 prefers the worn object property, then checks the
+    // artifact's cspfx/spfx protection bits.
     // An object with oc_oprop = PROTECTION when worn confers protection.
     const PROTECTION_PROP = 59; // const.js PROTECTION
     const state = artiState();

@@ -162,7 +162,6 @@ import {
     PROT_FROM_SHAPE_CHANGERS,
     helpless,
     is_pit,
-    isok,
     u_at,
     xdir,
     ydir,
@@ -170,6 +169,7 @@ import {
     UNCHANGING,
     Ugender,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { float_vs_flight, rehumanize } from './polyself.js';
 import { adjalign, acurrstr, acurr, exercise } from './attrib.js';
 import {
@@ -270,7 +270,7 @@ import {
     is_swimmer,
     likes_lava,
     metallivorous,
-    monster_resists_element,
+    Resists_Elem,
     dmgtype,
     passes_bars,
     passes_walls,
@@ -373,7 +373,10 @@ import {
 import { CapitalMon } from './random_text.js';
 import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { maybe_adjust_hero_bubble, water_friction } from './mkmaze.js';
-import { is_db_wall } from './dbridge.js';
+import {
+    is_db_wall,
+    is_pool,
+} from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
 import { enexto, goodpos, mnexto, rloc, rloc_to } from './teleport.js';
@@ -393,14 +396,7 @@ import {
     subfrombill,
     UnsupportedShopError,
 } from './shk.js';
-import {
-    canSpotMonster,
-    collectMonsterNoticeMessage,
-    collectMonsterNoticeMessages,
-    messageAt,
-    monsterVisible,
-    sensesMonster,
-} from './startup_a11y.js';
+import { collectMonsterNoticeMessage, collectMonsterNoticeMessages, messageAt } from './startup_a11y.js';
 import { exercise_steed, stucksteed } from './steed.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import {
@@ -418,7 +414,6 @@ import {
 } from './timeout.js';
 import {
     is_lava,
-    is_pool,
     is_pool_or_lava,
     back_on_ground,
     climb_pit,
@@ -447,6 +442,7 @@ import {
     recalc_block_point,
     vision_recalc,
 } from './vision.js';
+import { canspotmon, mon_visible, sensemon } from './display.js';
 
 function reset_tmp_anything(state) {
     state.tmp_anything ??= {};
@@ -878,7 +874,7 @@ export function monster_nearby(state = game) {
             if (is_hider(monster.data) && monster.mundetected) continue;
             if (helpless(monster)) continue;
             if (onscary(ux, uy, monster, state)) continue;
-            if (canSpotMonster(monster, state)) return true;
+            if (canspotmon(monster, state)) return true;
         }
     }
     return false;
@@ -1024,7 +1020,7 @@ export function spot_checks(x, y, oldTyp, state = game, env = {}) {
 
     switch (oldTyp) {
     case DRAWBRIDGE_UP:
-        drawbridgeIceNow = (((location.flags || location.drawbridgemask || 0)
+        drawbridgeIceNow = (((location.flags ?? 0)
             & DB_UNDER) === DB_ICE);
         // FALLTHROUGH
     case ICE:
@@ -1570,7 +1566,7 @@ export function doorless_door(location, state = game) {
 // (ceiling hiders, for example) are not handled in do_attack() and stop here.
 function requireOrdinaryHostileMelee(monster, state) {
     if (monster.mundetected
-        && !sensesMonster(monster, state)
+        && !sensemon(monster, state)
         && !(hides_under(monster.data) || monster.data?.mlet === S_EEL)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'attacking a hidden monster (ceiling hider or other)',
@@ -2330,7 +2326,7 @@ async function moverock_core(sx, sy, state, env) {
             );
 
             // 459-460, the Blind arm, remains a source-backed map-memory gap.
-            if (canSpotMonster(mtmp, state)) {
+            if (canspotmon(mtmp, state)) {
                 await message(
                     `There's ${a_monnam(mtmp, { state })} on the other side.`,
                     state,
@@ -3198,11 +3194,11 @@ export async function swim_move_danger(x, y, state = game) {
 // C ref: hack.c domove_bump_mon() (1925-1948).
 export async function domove_bump_mon(mtmp, glyph, state = game) {
     if (state.context.nopick && !state.context.travel
-        && (canSpotMonster(mtmp, state) || glyph_is_invisible(glyph)
+        && (canspotmon(mtmp, state) || glyph_is_invisible(glyph)
             || glyph_is_warning(glyph))) {
         if ((mtmp.m_ap_type ?? 0)
             && !propertyActiveUnblocked(state, PROT_FROM_SHAPE_CHANGERS)
-            && !sensesMonster(mtmp, state)) {
+            && !sensemon(mtmp, state)) {
             await stumble_onto_mimic(mtmp, state);
         } else if (mtmp.mpeaceful && !heroHallucinating(state)) {
             await ttyPline(`Pardon me, ${m_monnam(mtmp, state)}.`, state);
@@ -3221,7 +3217,7 @@ export async function domove_attackmon_at(
 ) {
     let displace = false;
     if (state.context.forcefight || !mtmp.mundetected
-        || sensesMonster(mtmp, state)
+        || sensemon(mtmp, state)
         || ((hides_under(mtmp.data) || mtmp.data?.mlet === S_EEL)
             && !is_safemon(mtmp, state))) {
         displace = mtmp.data?.pmidx === PM_DISPLACER_BEAST && !rn2(2)
@@ -3299,7 +3295,7 @@ export function slippery_ice_fumbling(state = game) {
     const skater = state.u.usteed ?? state.youmonst;
     if (onIce) {
         if ((state.uarmf && objdescr_is(state.uarmf, 'snow boots', state))
-            || monster_resists_element(skater, COLD_RES, state)
+            || Resists_Elem(skater, COLD_RES, state)
             || heroIsFlying(state) || is_floater(skater.data)
             || is_clinger(skater.data) || is_whirly(skater.data)) {
             onIce = false;
@@ -3578,10 +3574,10 @@ export function runStopsBeforeMonster(monster, run, state) {
         return false;
     const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;
     const seen = !heroIsBlind(state)
-        && monsterVisible(monster, state)
+        && mon_visible(monster, state)
         && ((appearance !== M_AP_FURNITURE && appearance !== M_AP_OBJECT)
             || propertyActiveUnblocked(state, PROT_FROM_SHAPE_CHANGERS));
-    return seen || sensesMonster(monster, state);
+    return seen || sensemon(monster, state);
 }
 
 // C ref: hack.c domove_fight_ironbars() (1993-2016). Its whole body is the
@@ -4453,7 +4449,7 @@ export async function lookaround(state = game) {
             const appearance = (mtmp.m_ap_type ?? 0) & M_AP_TYPMASK;
             if (appearance !== M_AP_FURNITURE
                 && appearance !== M_AP_OBJECT
-                && monsterVisible(mtmp, state)) {
+                && mon_visible(mtmp, state)) {
                 /* running movement and not a hostile monster, OR it blocks
                    our move direction and we're not traveling */
                 if ((state.context.run !== 1 && !is_safemon(mtmp, state))

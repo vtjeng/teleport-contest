@@ -2025,7 +2025,7 @@ test('zhitm() ZT_COLD deals d(nd,6) damage and calls resist()', async () => {
         mhpmax: 50,
         minvent: null,
     };
-    // monster_resists_element and defended need a state with mons
+    // Resists_Elem and defended need a state with mons
     const mockState = { ...game, mons: game.mons };
     const result = await zhitm(mon, 2, 6, mockState, rng);
     assert.equal(result.damage, 18,

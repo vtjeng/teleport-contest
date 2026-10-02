@@ -59,7 +59,8 @@
 // pettype:none is what keeps the starting pet off those lines. The hero never
 // steps, so the only turn any segment spends is the zap itself.
 
-import { ZAP_POS, isok } from '../js/const.js';
+import { ZAP_POS} from '../js/const.js';
+import { isok } from '../js/cmd_isok.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';

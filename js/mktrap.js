@@ -49,8 +49,8 @@ import {
     MOAT,
     is_hole,
     is_pit,
-    isok,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import {
     Can_fall_thru,
     Invocation_lev,

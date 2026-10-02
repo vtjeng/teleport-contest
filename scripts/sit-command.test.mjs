@@ -71,7 +71,7 @@ import {
     TOWEL,
 } from '../js/objects.js';
 import { dosit } from '../js/sit.js';
-import { canSpotMonster } from '../js/startup_a11y.js';
+
 import {
     SIT,
     WAIT,
@@ -79,6 +79,7 @@ import {
     loadSitCommandRecipe,
     loadSitEggLayingRecipes,
 } from './run-sit-command.mjs';
+import { canspotmon } from '..//js/display.js';
 
 const C_SIT = readFileSync(
     new URL('../nethack-c/upstream/src/sit.c', import.meta.url), 'utf8',
@@ -728,7 +729,7 @@ function holderBesideHero(data) {
         const monster = newMonster({
             data, mx: game.u.ux + dx, my: game.u.uy + dy,
         });
-        if (canSpotMonster(monster, game)) return monster;
+        if (canspotmon(monster, game)) return monster;
     }
     throw new Error('no square beside the hero holds a spottable monster');
 }

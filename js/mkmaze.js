@@ -50,9 +50,12 @@ import {
     TUWALL,
     WATER,
     W_NONDIGGABLE,
-    isok,
     undestroyable_trap,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import {
     Is_branchlev,
     Is_special,
@@ -117,7 +120,11 @@ import { create_gas_cloud } from './region.js';
 import { within_bounded_area } from './rect.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import { set_levltyp } from './terrain.js';
-import { deltrap, is_pool, maketrap, t_at } from './trap.js';
+import {
+    deltrap,
+    maketrap,
+    t_at,
+} from './trap.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import {
     block_point,

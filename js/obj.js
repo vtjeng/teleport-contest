@@ -25,7 +25,6 @@ import {
     HATCH_EGG,
     I_SPECIAL,
     ICE,
-    isok,
     LARGEST_INT,
     LOST_NONE,
     MAX_OIL_IN_FLASK,
@@ -84,6 +83,10 @@ import {
     W_WEAPONS,
     W_WEP,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 // corpstat.js imports from this file; both sides use the other's exports only
 // inside function bodies, so the cycle resolves.
 import { get_mtraits } from './corpstat.js';
@@ -176,7 +179,9 @@ import { is_ice } from './terrain.js';
 // is_pool and is_pool_or_lava are imported for the boulder sanity check in
 // obj_sanity_check(). trap.js imports from this file; both sides use the
 // other's exports only inside function bodies.
-import { is_pool, is_pool_or_lava } from './trap.js';
+import {
+    is_pool_or_lava,
+} from './trap.js';
 // ttyPline is used by object diagnostics and naming paths.
 import { ttyPline } from './tty_message.js';
 // add_to_migration() calls maybe_reset_pick() for containers. lock.js imports

@@ -22,10 +22,10 @@ import {
     STRAT_WAITMASK,
     STRAT_WAITFORU,
     MM_NOMSG,
-    isok,
     u_at,
     helpless,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { Amonnam, Monnam } from './do_name.js';
 import { In_W_tower, In_hell, builds_up } from './dungeon.js';
 import { game } from './gstate.js';
@@ -59,11 +59,12 @@ import { monster_census, msummon } from './minion.js';
 import { makemon_runtime } from './makemon_create.js';
 import { cansee } from './vision.js';
 import { distant_name, donameFresh } from './objnam.js';
-import { messageAt, canSpotMonster } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { vtense } from './objnam.js';
 import { note_unported } from './unported.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
+import { canspotmon } from './display.js';
 
 // monflag.h M3_WANTS* values. They are kept here with wizard.c's consumers
 // so the strategy bits cannot silently drift from the source masks.
@@ -142,7 +143,7 @@ function creationEnv(state, rawEnv) {
 }
 
 function wizardAppearanceMessage(monster, state, displayRandom) {
-    if (!canSpotMonster(monster, state)) return null;
+    if (!canspotmon(monster, state)) return null;
     const name = Amonnam(monster, { state, displayRandom });
     const distance = (monster.mx - state.u.ux) ** 2
         + (monster.my - state.u.uy) ** 2;

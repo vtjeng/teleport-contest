@@ -41,10 +41,14 @@ import {
     STUNNED,
     TT_PIT,
     SDOOR,
-    isok,
     u_at,
 } from './const.js';
-import { is_db_wall, is_drawbridge_wall } from './dbridge.js';
+import { isok } from './cmd_isok.js';
+import {
+    is_db_wall,
+    is_drawbridge_wall,
+    is_pool,
+} from './dbridge.js';
 import { is_magic_key } from './artifacts.js';
 import { stop_occupation } from './allmain.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
@@ -127,20 +131,17 @@ import { costly_spot } from './shk.js';
 import {
     chest_trap,
     is_lava,
-    is_pool,
     t_at,
     unconscious,
 } from './trap.js';
 import { in_rooms } from './rooms.js';
-import { canSpotMonster, heroIsBlind, messageAt } from './startup_a11y.js';
-import {
-    block_point, cansee, canseemon, recalc_block_point, unblock_point,
-    vision_recalc,
-} from './vision.js';
+import { heroIsBlind, messageAt } from './startup_a11y.js';
+import { block_point, cansee, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
 import { setnotworn } from './worn.js';
+import { canseemon, canspotmon } from './display.js';
 
 // Thrown where lock.c reaches a branch this port has not ported.
 export class UnsupportedLockError extends Error {
@@ -1389,12 +1390,12 @@ async function obstructed(x, y, quietly, state = game, rawEnv = {}) {
             if (!quietly) {
                 let name = Some_Monnam(mtmp, state, rawEnv);
                 if ((mtmp.mx !== x || mtmp.my !== y)
-                    && canSpotMonster(mtmp, state)) {
+                    && canspotmon(mtmp, state)) {
                     name = `${s_suffix(name)} tail`;
                 }
                 await message(`${name} blocks the way!`, state, rawEnv);
             }
-            if (!canSpotMonster(mtmp, state)) map_invisible(x, y, state);
+            if (!canspotmon(mtmp, state)) map_invisible(x, y, state);
             return true;
         }
     } else if (OBJ_AT(x, y, state)) {

@@ -11,6 +11,7 @@ import {
     CLOUD,
     CORR,
     DELPHI,
+    DB_EAST,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
@@ -45,6 +46,13 @@ import {
     VWALL,
 } from '../js/const.js';
 import { DUNGEON_DATA } from '../js/dungeon_data.js';
+import {
+    create_drawbridge,
+    drawbridgeFlags,
+    drawbridgeUnder,
+    is_moat,
+    is_pool,
+} from '../js/dbridge.js';
 import {
     BR_NO_END1,
     BR_NO_END2,
@@ -162,6 +170,57 @@ test('on_level is null-safe raw dungeon coordinate equality', () => {
     assert.equal(on_level({ dnum: 0, dlevel: 0 }, { dnum: 0, dlevel: 0 }), true);
 });
 
+test('dbridge moat predicates honor assigned Juiblex level and canonical flags', () => {
+    // Interior coordinates isolate dbridge.c bounds checks; flags is the one
+    // JavaScript owner of rm.drawbridgemask.
+    const x = 7;
+    const y = 4;
+    const location = { typ: MOAT, flags: 0 };
+    const state = {
+        level: { at: (atX, atY) => atX === x && atY === y ? location : null },
+        u: { uz: { dnum: 0, dlevel: 0 } },
+        juiblex_level: { dnum: 0, dlevel: 0 },
+    };
+
+    // Lassigned is false for the all-zero uninitialized Juiblex level, even
+    // though raw on_level(0, 0) is true.
+    assert.equal(is_moat(x, y, state), true);
+    assert.equal(is_pool(x, y, state), true);
+    assert.equal(drawbridgeFlags(location), 0);
+    assert.equal(drawbridgeUnder(location), 0);
+    assert.equal(drawbridgeFlags({ drawbridgemask: DB_MOAT }), 0);
+    assert.equal(drawbridgeUnder({ drawbridgemask: DB_MOAT }), 0);
+
+    state.juiblex_level = { dnum: 2, dlevel: 3 };
+    state.u.uz = { dnum: 2, dlevel: 3 };
+    assert.equal(is_moat(x, y, state), false);
+    assert.equal(is_pool(x, y, state), true);
+
+    state.u.uz = { dnum: 2, dlevel: 4 };
+    location.typ = DRAWBRIDGE_UP;
+    location.flags = DB_MOAT;
+    assert.equal(is_moat(x, y, state), true);
+    location.flags = DB_LAVA;
+    assert.equal(is_moat(x, y, state), false);
+    assert.equal(is_pool(x, y, state), false);
+});
+
+test('create_drawbridge stores its union mask only in location.flags', () => {
+    const bridge = { typ: LAVAPOOL, flags: 0 };
+    const wall = { typ: VWALL };
+    const state = {
+        level: {
+            at: (x, y) => x === 5 && y === 4 ? bridge
+                : x === 6 && y === 4 ? wall : null,
+        },
+    };
+
+    assert.equal(create_drawbridge(5, 4, DB_EAST, false, state), true);
+    assert.equal(bridge.typ, DRAWBRIDGE_UP);
+    assert.equal(bridge.flags, DB_EAST | DB_LAVA);
+    assert.equal(Object.hasOwn(bridge, 'drawbridgemask'), false);
+});
+
 test('assign_rnd_level keeps the C two-way signed draw', () => {
     // dungeon.c:1986-1995 uses `range > 0 ? rnd(range) : -rnd(-range)`.
     // The zero arm therefore evaluates rnd(0), whose canonical RNG wrapper
@@ -223,12 +282,10 @@ test('update_lastseentyp remembers a raised drawbridge underlay', () => {
     };
 
     assert.equal(read({ typ: DRAWBRIDGE_UP, flags: DB_ICE }), ICE);
-    // `drawbridgemask` is the compatibility alias eight js/ modules read beside
-    // `flags` for struct rm's single union slot, so a location carrying only
-    // the alias has to resolve to the same underlay. DB_LAVA rather than
-    // DB_MOAT, because DB_MOAT is 0 and a zero underlay is what every wrong
-    // reading of the mask lands on anyway.
-    assert.equal(read({ typ: DRAWBRIDGE_UP, drawbridgemask: DB_LAVA }),
+    // flags is the one JavaScript storage slot for C's drawbridgemask. DB_LAVA
+    // rather than DB_MOAT, because DB_MOAT is 0 and a zero underlay would also
+    // exercise db_under_typ()'s default arm.
+    assert.equal(read({ typ: DRAWBRIDGE_UP, flags: DB_LAVA }),
         LAVAPOOL);
     // DB_MOAT is 0, so a drawbridge that records no underlay at all spans
     // water, which is also what C's db_under_typ() default answers.
@@ -1338,7 +1395,7 @@ test('earth_sense refuses only the state its notice would speak for', () => {
 // puts the square in a room of that kind, which is what hack.c in_rooms()
 // answers with: ROOMOFFSET is the first room number a map square can carry.
 function ceilingState(typ, {
-    drawbridgemask = null,
+    flags = null,
     rtype = null,
     uz = { dnum: 0, dlevel: 1 },
     water_level,
@@ -1357,7 +1414,7 @@ function ceilingState(typ, {
     };
     const location = state.level.at(10, 10);
     location.typ = typ;
-    if (drawbridgemask !== null) location.drawbridgemask = drawbridgemask;
+    if (flags !== null) location.flags = flags;
     if (rtype !== null) {
         location.roomno = ROOMOFFSET;
         state.level.rooms = [{ rtype }];
@@ -1416,7 +1473,7 @@ test('ceiling names every overhead in the C branch order', () => {
         // without the ice mask would pass under either reading. ICE is 33 and
         // IS_ROOM admits it, so this row answers "rock cavern" today and would
         // answer "ceiling" if ceiling() were switched to surface_typ().
-        ['raised drawbridge over ice', DRAWBRIDGE_UP, { drawbridgemask: DB_ICE },
+        ['raised drawbridge over ice', DRAWBRIDGE_UP, { flags: DB_ICE },
             'rock cavern'],
         ['solid rock', STONE, {}, 'rock cavern'],
         // The earth plane's rooms are carved out of rock, so they lose the
@@ -1436,7 +1493,6 @@ test('ceiling names every overhead in the C branch order', () => {
 // hero stands elsewhere unless a case moves her onto the square.
 function surfaceState(typ, {
     flags = 0,
-    drawbridgemask,
     uz = { dnum: 0, dlevel: 1 },
     water_level,
     earth_level,
@@ -1454,7 +1510,6 @@ function surfaceState(typ, {
     const location = state.level.at(10, 10);
     location.typ = typ;
     location.flags = flags;
-    if (drawbridgemask !== undefined) location.drawbridgemask = drawbridgemask;
     return state;
 }
 

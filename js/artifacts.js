@@ -93,13 +93,13 @@ import {
     ismnum,
     In_endgame,
     In_quest,
-    isok,
     W_BALL,
     W_QUIVER,
     NOTELL,
     engulfing_u,
     NECK,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
 import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
@@ -212,7 +212,7 @@ import {
 import { getdir } from './cmd.js';
 import {
     amorphous, attacktype, bigmonst, defended, has_head, hates_silver,
-    is_demon, is_dlord, is_dprince, monster_resists_element,
+    is_demon, is_dlord, is_dprince, Resists_Elem,
     noncorporeal, nonliving, resists_drli, sticks,
 } from './mondata.js';
 import { In_hell, depth, dunlevs_in_dungeon, ledger_no, surface } from './dungeon.js';
@@ -1572,26 +1572,26 @@ function spec_applies(weap, mtmp, state = game, env = {}) {
         switch (weap.attk.adtyp) {
         case AD_FIRE:
             return !(yours ? Fire_resistance(state)
-                           : monster_resists_element(mtmp, FIRE_RES, state));
+                           : Resists_Elem(mtmp, FIRE_RES, state));
         case AD_COLD:
             return !(yours ? Cold_resistance(state)
-                           : monster_resists_element(mtmp, COLD_RES, state));
+                           : Resists_Elem(mtmp, COLD_RES, state));
         case AD_ELEC:
             return !(yours ? Shock_resistance(state)
-                           : monster_resists_element(mtmp, SHOCK_RES, state));
+                           : Resists_Elem(mtmp, SHOCK_RES, state));
         case AD_MAGM:
         case AD_STUN:
             return !(yours ? Antimagic(state)
                            : ((env.random?.rn2 ?? rn2)(100) < ptr.mr));
         case AD_DRST:
             return !(yours ? Poison_resistance(state)
-                           : monster_resists_element(mtmp, POISON_RES, state));
+                           : Resists_Elem(mtmp, POISON_RES, state));
         case AD_DRLI:
             return !(yours ? Drain_resistance(state)
                            : resists_drli(mtmp, state));
         case AD_STON:
             return !(yours ? Stone_resistance(state)
-                           : monster_resists_element(mtmp, STONE_RES, state));
+                           : Resists_Elem(mtmp, STONE_RES, state));
         default:
             throw new Error('Weird weapon special attack.');
         }

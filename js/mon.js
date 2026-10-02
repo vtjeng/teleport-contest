@@ -88,7 +88,6 @@ import {
     IS_WATERWALL,
     LEAVESTATUE,
     is_pit,
-    isok,
     ismnum,
     LL_CONDUCT,
     LL_ACHIEVE,
@@ -173,6 +172,10 @@ import {
     Upolyd,
     plur,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import { get_mleash, leashable } from './apply.js';
 import { artifact_exists, artifactTouchable } from './artifacts.js';
 import { night } from './calendar.js';
@@ -323,7 +326,7 @@ import {
     likes_lava,
     locomotion,
     mindless,
-    monster_resists_element,
+    Resists_Elem,
     monsndx,
     gender,
     needspick,
@@ -658,13 +661,7 @@ import {
 import { end_burn } from './timeout.js';
 import { migrate_to_level } from './dog.js';
 import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
-import {
-    canSeeMonster,
-    canSpotMonster,
-    heroIsBlind,
-    messageAt,
-    sensesMonster,
-} from './startup_a11y.js';
+import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     mdrop_special_objs,
     mpickobj,
@@ -683,7 +680,6 @@ import {
 import {
     fill_pit,
     is_lava,
-    is_pool,
     t_at,
     unconscious,
     Flying,
@@ -702,20 +698,11 @@ import {
 import { getlin } from './windows.js';
 import { tt_doppel } from './topten.js';
 import { mwepgone } from './weapon.js';
-import {
-    cansee,
-    canseemon,
-    couldsee,
-    does_block,
-    is_lightblocker_mappear,
-    m_canseeu,
-    recalc_block_point,
-    unblock_point,
-    vision_recalc,
-} from './vision.js';
+import { cansee, couldsee, does_block, is_lightblocker_mappear, m_canseeu, recalc_block_point, unblock_point, vision_recalc } from './vision.js';
 import { bypass_obj, mon_break_armor, which_armor } from './worn.js';
 import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';
+import { canseemon, canspotmon, sensemon } from './display.js';
 
 function monsterTurnEnv(env = {}) {
     const state = env.state ?? game;
@@ -1193,7 +1180,7 @@ export function m_poisongas_ok(mtmp, state = game) {
         || state.u?.uinwater)) return M_POISONGAS_OK;
     if (isYou
         ? poisonResistance?.intrinsic || poisonResistance?.extrinsic
-        : monster_resists_element(mtmp, POISON_RES, state)) {
+        : Resists_Elem(mtmp, POISON_RES, state)) {
         return M_POISONGAS_MINOR;
     }
     return M_POISONGAS_BAD;
@@ -1569,7 +1556,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
             || obj.otyp === AMULET_OF_STRANGULATION
             || obj.otyp === RIN_SLOW_DIGESTION
             || (obj.opoisoned
-                && !monster_resists_element(mtmp, POISON_RES, state))) {
+                && !Resists_Elem(mtmp, POISON_RES, state))) {
             continue;
         }
         if (!isMetallic(obj, state)
@@ -1656,7 +1643,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
         }
         const species = obj.otyp === CORPSE ? state.mons?.[obj.corpsenm] : null;
         if ((species && touch_petrifies(species)
-                && !monster_resists_element(mtmp, STONE_RES, state))
+                && !Resists_Elem(mtmp, STONE_RES, state))
             || obj.oclass === ROCK_CLASS
             || obj === state.uball
             || obj === state.uchain
@@ -1674,9 +1661,9 @@ export async function meatobj(mtmp, rawEnv = {}) {
             || obj.otyp === AMULET_OF_STRANGULATION
             || obj.otyp === RIN_SLOW_DIGESTION
             || (obj.opoisoned
-                && !monster_resists_element(mtmp, POISON_RES, state))
+                && !Resists_Elem(mtmp, POISON_RES, state))
             || (stoning
-                && !monster_resists_element(mtmp, STONE_RES, state))
+                && !Resists_Elem(mtmp, STONE_RES, state))
             || (obj.otyp === GLOB_OF_GREEN_SLIME && !slimeproof(mtmp.data));
         if (engulf) {
             engulfed++;
@@ -1737,7 +1724,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
         const species = state.mons?.[obj.corpsenm];
         if (vegan(species)
             || (flesh_petrifies(species)
-                && !monster_resists_element(mtmp, STONE_RES, state))) continue;
+                && !Resists_Elem(mtmp, STONE_RES, state))) continue;
         if (is_rider(species)) {
             const revived = await revive_corpse(obj, state);
             newsym(x, y, state);
@@ -1802,7 +1789,7 @@ export async function mon_givit(mtmp, ptr, rawEnv = {}) {
             const oldName = capitalizedMonsterName(mtmp, state);
             mon_set_minvis(mtmp, false, state);
             if (visible) {
-                const text = !canSpotMonster(mtmp, state)
+                const text = !canspotmon(mtmp, state)
                     ? `${oldName} vanishes.`
                     : mtmp.invis_blkd
                         ? `${oldName} seems to flicker.`
@@ -2316,7 +2303,7 @@ export async function minliquid_core(monster, env = {}) {
                 return 0;
             }
 
-            if (!monster_resists_element(monster, FIRE_RES, state)) {
+            if (!Resists_Elem(monster, FIRE_RES, state)) {
                 if (liquidCanSee(monster, env)) {
                     const how = on_fire(
                         monster.data,
@@ -2523,9 +2510,9 @@ function normalizedDistressEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = distressRandom(rawEnv);
     const seeMonster = rawEnv.canSeeMonster
-        ?? ((monster) => canSeeMonster(monster, state));
+        ?? ((monster) => canseemon(monster, state));
     const spotMonster = rawEnv.canSpotMonster
-        ?? ((monster) => canSpotMonster(monster, state));
+        ?? ((monster) => canspotmon(monster, state));
     const message = rawEnv.message ?? ttyPline;
     const redrawSquare = rawEnv.redrawSquare
         ?? (state === game ? (x, y) => newsym(x, y) : null);
@@ -3861,7 +3848,7 @@ export async function peacefuls_respond(attacked, rawEnv = {}) {
 export async function wake_msg(monster, interesting, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const seeMonster = rawEnv.canSeeMonster
-        ?? ((subject) => canSeeMonster(subject, state));
+        ?? ((subject) => canseemon(subject, state));
     const message = rawEnv.message ?? ttyPline;
     if (typeof seeMonster !== 'function' || typeof message !== 'function') {
         throw new TypeError(
@@ -3972,7 +3959,7 @@ export async function wake_nearto_core(
 ) {
     const state = rawEnv.state ?? game;
     const seeMonster = rawEnv.canSeeMonster
-        ?? ((monster) => canSeeMonster(monster, state));
+        ?? ((monster) => canseemon(monster, state));
     const message = rawEnv.message ?? ttyPline;
     const disturbBuriedZombies = rawEnv.disturbBuriedZombies
         ?? ((nearX, nearY) =>
@@ -4913,7 +4900,7 @@ export async function vamprises(mtmp, state = game, env = {}) {
     if (!revived) return mtmp.mhp >= 1;
     mtmp.cham = mtmp.data === state.mons[mndx] ? NON_PM : mndx;
 
-    if (canSpotMonster(mtmp, state)) {
+    if (canspotmon(mtmp, state)) {
         await message(
             messageAt(
                 `${upstart(action)} ${x_monnam(
@@ -4947,7 +4934,7 @@ export async function vamprises(mtmp, state = game, env = {}) {
                 state,
             );
             if (heard) await message(messageAt(heard, x, y, state), state, env);
-        } else if (!canSpotMonster(mtmp, state)) {
+        } else if (!canspotmon(mtmp, state)) {
             await message(
                 messageAt(
                     trapped ? 'You see a door exploding.'
@@ -4985,7 +4972,7 @@ export async function vamprises(mtmp, state = game, env = {}) {
             } finally {
                 state.flags.verbose = oldVerbose;
             }
-            if (trapKilled && canSpotMonster(mtmp, state) && !unaware) {
+            if (trapKilled && canspotmon(mtmp, state) && !unaware) {
                 await message(
                     messageAt(`${Monnam(mtmp, state)} is destroyed!`, x, y, state),
                     state,
@@ -5254,7 +5241,7 @@ export function corpse_chance(
                     magr.mhp -= tmp;
                     if (magr.mhp <= 0) {
                         await mondied(magr, state, env);
-                        if (canSpotMonster(magr, state))
+                        if (canspotmon(magr, state))
                             await message(`${Monnam(magr, state, env)} rips open!`,
                                 state, env);
                     } else if (canseemon(magr, state)) {
@@ -5538,7 +5525,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
         obj = oname(obj, MGIVENNAME(mtmp), ONAME_NO_FLAGS, objectEnv);
 
     /* Avoid naming an unseen corpse while blind: hitmu() calls it "something". */
-    if (heroIsBlind(state) && !sensesMonster(mtmp, state)) clear_dknown(obj);
+    if (heroIsBlind(state) && !sensemon(mtmp, state)) clear_dknown(obj);
 
     stackobj(obj, objectGenerationEnv(objectEnv));
     killRedraw(x, y, { ...env, state });
@@ -5821,7 +5808,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
 
         await message(
             `You ${nonliving(mtmp.data) ? 'destroy' : 'kill'} `
-            + `${!(wasinside || canSpotMonster(mtmp, state)) ? 'it'
+            + `${!(wasinside || canspotmon(mtmp, state)) ? 'it'
                 : !mtmp.mtame ? monsterCommonName(mtmp, state)
                     : x_monnam(mtmp, namedpet ? ARTICLE_NONE : ARTICLE_THE,
                                'poor', namedpet ? SUPPRESS_SADDLE : 0,
@@ -6149,7 +6136,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
                 const newXY = enexto(x, y, state.mons[mndx], { state });
                 if (newXY) rloc_to(mtmp, newXY.x, newXY.y, { ...env, state });
             }
-            if (canSpotMonster(mtmp, state)) {
+            if (canspotmon(mtmp, state)) {
                 await message(
                     messageAt(`${description}!`, x, y, state),
                     state,
@@ -6161,7 +6148,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
             }
             await newcham(mtmp, state.mons[mndx], { ...env, state });
             mtmp.cham = mtmp.data === state.mons[mndx] ? NON_PM : mndx;
-            if (canSpotMonster(mtmp, state)) {
+            if (canspotmon(mtmp, state)) {
                 await message(
                     messageAt(
                         `${Monnam(mtmp, state)} rises from the `
@@ -6417,7 +6404,7 @@ export function restrap(monster, env = {}) {
         /* can't hide on ceiling if there isn't one */
         || (ceiling_hider(monster.data) && !has_ceiling(state.u?.uz, state))
         /* won't hide when adjacent to hero */
-        || (sensesMonster(monster, state) && m_next2u(monster, state))) {
+        || (sensemon(monster, state) && m_next2u(monster, state))) {
         return false;
     }
 
@@ -6494,7 +6481,7 @@ export async function hideunder(monster, env = {}) {
             if (seeit) seenobj = ansimpleoname(object, state);
             // C's hider branch skips cockatrice corpses unless the pile has a
             // second object the monster can hide beneath.
-            if (!monster_resists_element(monster, STONE_RES, state)) {
+            if (!Resists_Elem(monster, STONE_RES, state)) {
                 while (object?.otyp === CORPSE
                     && touch_petrifies(state.mons?.[object.corpsenm])) {
                     object = object.nexthere;
@@ -6743,7 +6730,7 @@ export async function angry_guards(silent = false, rawEnv = {}) {
         if (mon.mhp < 1 || !is_watch(mon.data) || !mon.mpeaceful)
             continue;
         ++count;
-        if (canSpotMonster(mon, state) && mon.mcanmove) {
+        if (canspotmon(mon, state) && mon.mcanmove) {
             if (m_next2u(mon, state)) ++nearby;
             else ++distant;
         }

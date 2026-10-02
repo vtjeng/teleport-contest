@@ -14,6 +14,10 @@ import {
     permapoisoned,
     shade_glare,
 } from './artifacts.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import { adjalign, exercise } from './attrib.js';
 import { some_armor, setwornEnv } from './do_wear.js';
 import {
@@ -57,6 +61,7 @@ import {
     RLOC_NOMSG,
     M_SEEN_COLD,
     M_SEEN_ELEC,
+    M_SEEN_SLEEP,
     MON_EXPLODE,
     NATTK,
     NOTELL,
@@ -92,6 +97,7 @@ import {
     SEE_INVIS,
     SICK,
     SICK_RES,
+    SLEEP_RES,
     SLOW_DIGESTION,
     STOMACH,
     STRAT_WAITFORU,
@@ -121,7 +127,6 @@ import {
     W_ARMU,
     engulfing_u,
     helpless,
-    isok,
     ismnum,
     M_AP_TYPE,
     HAND,
@@ -277,7 +282,7 @@ import {
     monstseesu,
     monstunseesu,
     noncorporeal,
-    monster_resists_element,
+    Resists_Elem,
     noattacks,
     passes_walls,
     passes_rocks,
@@ -413,7 +418,14 @@ import {
     S_ORC,
     S_ZOMBIE,
 } from './monsters.js';
-import { engulf_target, failed_grab, paralyze_monst } from './mhitm.js';
+import {
+    engulf_target,
+    failed_grab,
+    paralyze_monst,
+    sleep_monst,
+    slept_monst,
+} from './mhitm.js';
+import { fall_asleep } from './timeout.js';
 import { set_ulycn } from './were.js';
 import {
     carried,
@@ -503,13 +515,7 @@ import {
 } from './potion.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { night } from './calendar.js';
-import {
-    canSeeMonster,
-    canSpotMonster,
-    heroIsBlind,
-    messageAt,
-    sensesMonster,
-} from './startup_a11y.js';
+import { heroIsBlind, messageAt } from './startup_a11y.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import {
     abon,
@@ -543,7 +549,11 @@ import {
 } from './worn.js';
 import { steal } from './steal.js';
 import { rloc, tele_restrict } from './teleport.js';
-import { Flying, Levitation, is_pool, unconscious } from './trap.js';
+import {
+    Flying,
+    Levitation,
+    unconscious,
+} from './trap.js';
 import { mintrap } from './trap_effects.js';
 import { mselftouch } from './trap_effects.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
@@ -555,12 +565,13 @@ import { Finish_digestion, eating_conducts, is_fainted, newuhs } from './eat.js'
 import { note_unported } from './unported.js';
 import { m_useup } from './mthrowu.js';
 import { explode, adtyp_to_expltype } from './explode.js';
-import { cansee, canseemon } from './vision.js';
+import { cansee } from './vision.js';
 import { body_part, mbodypart, polymon, rehumanize, uunstick } from './polyself.js';
 import { observe_object } from './o_init.js';
 import { obj_resists } from './bury.js';
 import { mhidden_description } from './pager.js';
 import { cutworm } from './worm.js';
+import { canseemon, canspotmon, sensemon } from './display.js';
 
 function intrinsicProperty(hero, index) {
     return Boolean(hero?.uprops?.[index]?.intrinsic);
@@ -669,7 +680,7 @@ export async function flash_hits_mon(
                         state,
                         random,
                         canSeeMonster: rawEnv.canSeeMonster
-                            ?? ((subject) => canSeeMonster(subject, state)),
+                            ?? ((subject) => canseemon(subject, state)),
                         fleeMessage: rawEnv.fleeMessage ?? monfleeMessage,
                     });
                 }
@@ -746,7 +757,7 @@ export async function light_hits_gremlin(
             await killed(monster, state, { ...rawEnv, random });
         }
     } else if (cansee(monster.mx, monster.my, state)
-        && !canSpotMonster(monster, state)) {
+        && !canspotmon(monster, state)) {
         map_invisible(monster.mx, monster.my, state);
     }
 }
@@ -757,7 +768,7 @@ export function is_safemon(monster, state = game) {
     return Boolean(
         state.flags?.safe_dog
         && monster?.mpeaceful
-        && canSpotMonster(monster, state)
+        && canspotmon(monster, state)
         && !intrinsicProperty(hero, CONFUSION)
         && !Hallucination(state)
         && !intrinsicProperty(hero, STUNNED),
@@ -803,7 +814,7 @@ export async function mhitm_mgc_atk_negated(
         if (verbosely) {
             if (mdef === state.youmonst) {
                 await message('You avoid harm.', state);
-            } else if (state.gv?.vis && canSeeMonster(mdef, state)) {
+            } else if (state.gv?.vis && canseemon(mdef, state)) {
                 // C uses pline_mon() for a visible monster defender, carrying
                 // its location through set_msg_xy(); canspotmon() is broader
                 // because detection and telepathy also count as sensing.
@@ -914,7 +925,7 @@ export async function stumble_onto_mimic(mtmp, state = game, env = {}) {
 
     await wakeup(mtmp, false, env);
 
-    if (!canSpotMonster(mtmp, state)
+    if (!canspotmon(mtmp, state)
         && !glyph_is_invisible(
             state.level?.at(mtmp.mx, mtmp.my)?.glyph)) {
         map_invisible(mtmp.mx, mtmp.my, state);
@@ -946,7 +957,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     const glyph = glyph_at(bhitpos.x, bhitpos.y, state);
 
     // 230-252: a target the hero cannot spot, not hidden under something.
-    if (!canSpotMonster(mtmp, state)
+    if (!canspotmon(mtmp, state)
         && !glyph_is_warning(glyph)
         && !glyph_is_invisible(glyph)
         && !(!(heroIsBlind(state)) && mtmp.mundetected
@@ -974,7 +985,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     if (M_AP_TYPE(mtmp)
         && !propertyPresent(state.u, PROT_FROM_SHAPE_CHANGERS)
         && !glyph_is_warning(glyph)
-        && !sensesMonster(mtmp, state)) {
+        && !sensemon(mtmp, state)) {
         if (glyph_is_invisible(glyph)) {
             // If a hidden mimic was where the player remembers an unseen
             // monster, the player is in luck -- attacks it even though hidden.
@@ -990,7 +1001,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     }
 
     // 268-297: a hidden or submerged monster the hero cannot see.
-    if (mtmp.mundetected && !canSeeMonster(mtmp, state)
+    if (mtmp.mundetected && !canseemon(mtmp, state)
         && !glyph_is_warning(glyph)
         && (hides_under(mtmp.data) || mtmp.data?.mlet === S_EEL)) {
         mtmp.mundetected = 0;
@@ -1026,7 +1037,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
     }
 
     // 303-306: wake up a disguised or hidden monster the hero can sense.
-    if ((mtmp.mundetected || M_AP_TYPE(mtmp)) && sensesMonster(mtmp, state)) {
+    if ((mtmp.mundetected || M_AP_TYPE(mtmp)) && sensemon(mtmp, state)) {
         mtmp.mundetected = 0;
         await wakeup(mtmp, true, env);
     }
@@ -1040,7 +1051,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
             state.go.override_confirmation = true;
             return false;
         }
-        if (canSpotMonster(mtmp, state)) {
+        if (canspotmon(mtmp, state)) {
             const prompt = `Really attack ${mon_nam(mtmp, state)}?`;
             if (!await (env.paranoidQuery ?? paranoid_query)(
                 Boolean(state.flags?.paranoia_bits & PARANOID_HIT),
@@ -1337,7 +1348,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                 `You ${verb} it, then ${expelVerb} it.`,
                 state,
             );
-            if (canSpotMonster(mdef, state)) {
+            if (canspotmon(mdef, state)) {
                 await message(
                     `It turns into ${x_monnam(
                         mdef,
@@ -1471,7 +1482,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                 break;
             case AD_ACID:
                 await message(`${Monnam(mdef, state, env)} is covered with your goo!`, state);
-                if (monster_resists_element(mdef, ACID_RES, state)) {
+                if (Resists_Elem(mdef, ACID_RES, state)) {
                     await message(`It seems harmless to ${mon_nam(mdef, state, env)}.`, state);
                     damage = 0;
                 }
@@ -1489,7 +1500,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
             case AD_ELEC:
                 if (random.rn2(2)) {
                     await message(`The air around ${mon_nam(mdef, state, env)} crackles with electricity.`, state);
-                    if (monster_resists_element(mdef, SHOCK_RES, state)) {
+                    if (Resists_Elem(mdef, SHOCK_RES, state)) {
                         await message(`${Monnam(mdef, state, env)} seems unhurt.`, state);
                         damage = 0;
                     }
@@ -1498,7 +1509,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                 break;
             case AD_COLD:
                 if (random.rn2(2)) {
-                    if (monster_resists_element(mdef, COLD_RES, state)) {
+                    if (Resists_Elem(mdef, COLD_RES, state)) {
                         await message(`${Monnam(mdef, state, env)} seems mildly chilly.`, state);
                         damage = 0;
                     } else {
@@ -1509,7 +1520,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                 break;
             case AD_FIRE:
                 if (random.rn2(2)) {
-                    if (monster_resists_element(mdef, FIRE_RES, state)) {
+                    if (Resists_Elem(mdef, FIRE_RES, state)) {
                         await message(`${Monnam(mdef, state, env)} seems mildly hot.`, state);
                         damage = 0;
                     } else {
@@ -1958,7 +1969,7 @@ export async function do_attack(monster, state = game, env = {}) {
 
         if (inShop || foo) {
             if (!state.context?.travel && !state.context?.run
-                && canSpotMonster(monster, state) && monster.isshk) {
+                && canspotmon(monster, state) && monster.isshk) {
                 return ECMD_TIME | await dopay(state, {
                     ...env,
                     state,
@@ -2088,7 +2099,7 @@ export async function do_attack(monster, state = game, env = {}) {
     const x = state.u.ux + state.u.dx;
     const y = state.u.uy + state.u.dy;
     if (state.context?.forcefight && monster.mhp >= 1
-        && !canSpotMonster(monster, state)
+        && !canspotmon(monster, state)
         && !glyph_is_invisible(glyph_at(x, y, state))
         && !engulfing_u(monster, state)) {
         map_invisible(x, y, state);
@@ -2185,7 +2196,7 @@ export async function known_hitum(
                     state,
                     random,
                     canSeeMonster: env.canSeeMonster
-                        ?? ((subject) => canSeeMonster(subject, state)),
+                        ?? ((subject) => canseemon(subject, state)),
                     fleeMessage: env.fleeMessage ?? monfleeMessage,
                     message: env.message ?? (env.planning
                         ? async () => {}
@@ -2483,7 +2494,7 @@ function backstabbable(mon, state) {
         && mon.data.mlet !== S_BLOB
         && mon.data.mlet !== S_EYE
         && mon.data.mlet !== S_FUNGUS
-        && canSeeMonster(mon, state)
+        && canseemon(mon, state)
         && Boolean(mon.mflee || helpless(mon));
 }
 
@@ -2571,7 +2582,7 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
         await (await import('./mthrowu.js')).m_useupall(
             mon, monwep, { ...env, state },
         );
-        if (canSeeMonster(mon, state)) {
+        if (canseemon(mon, state)) {
             await requireAttackOperation(env, 'message')(
                 `${Yobjnam2(monwep, 'shatter', state)} from the force of your blow!`,
                 state,
@@ -2763,7 +2774,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             const { munstone } = await import('./muse.js');
             if (!await munstone(mon, true, state, lifeEnv))
                 note_unported('trap.c minstapetrify');
-            if (!monster_resists_element(mon, STONE_RES, state)) {
+            if (!Resists_Elem(mon, STONE_RES, state)) {
                 hmd.doreturn = true;
                 hmd.retval = mon.mhp >= 1;
                 return;
@@ -2803,7 +2814,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             const { munstone } = await import('./muse.js');
             if (!await munstone(mon, true, state, lifeEnv))
                 note_unported('trap.c minstapetrify');
-            if (!monster_resists_element(mon, STONE_RES, state)) {
+            if (!Resists_Elem(mon, STONE_RES, state)) {
                 hmd.doreturn = true;
                 hmd.retval = mon.mhp >= 1;
                 return;
@@ -2907,7 +2918,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
     }
 
     if (obj.otyp === ACID_VENOM) {
-        if (monster_resists_element(mon, ACID_RES, state)) {
+        if (Resists_Elem(mon, ACID_RES, state)) {
             await message(
                 `Your venom hits ${monsterCommonName(mon, state)} harmlessly.`,
                 state,
@@ -3153,7 +3164,7 @@ async function hmon_hitmon_poison(hmd, mon, obj, state, env, random) {
         obj.opoisoned = false;
         hmd.unpoisonmsg = true;
     }
-    if (monster_resists_element(mon, POISON_RES, state)) {
+    if (Resists_Elem(mon, POISON_RES, state)) {
         hmd.needpoismsg = true;
     } else if (random.rn2(10)) {
         hmd.dmg += random.rnd(6);
@@ -3210,7 +3221,7 @@ async function mhurtle_to_doom(mon, damage, hmd, state, env, random) {
 async function hmon_hitmon_stagger(hmd, mon, state, env, random) {
     if (random.rnd(100) < P_SKILL(P_BARE_HANDED_COMBAT, state)
         && !bigmonst(hmd.mdat) && !thick_skinned(hmd.mdat)) {
-        if (canSpotMonster(mon, state)) {
+        if (canspotmon(mon, state)) {
             await (env.message ?? ttyPline)(
                 `${Monnam(mon, state)} ${makeplural(stagger(mon.data, 'stagger'))}`
                 + ' from your powerful strike!',
@@ -3343,7 +3354,7 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
                         : 'hit';
             await message(
                 `You ${verb} ${monsterCommonName(mon, state)}`
-                    + `${canSeeMonster(mon, state) ? exclam(hmd.dmg) : '.'}`,
+                    + `${canseemon(mon, state) ? exclam(hmd.dmg) : '.'}`,
                 state,
             );
         }
@@ -3825,7 +3836,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
         }
         if (magr.data.mlet === S_NYMPH
             && !(await tele_restrict(magr, state, { ...env, message }))) {
-            const couldspot = canSpotMonster(magr, state);
+            const couldspot = canspotmon(magr, state);
             mhm.hitflags = M_ATTK_AGR_DONE;
             const rlocEnv = {
                 ...env,
@@ -3838,7 +3849,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             };
             await rloc(magr, RLOC_NOMSG, rlocEnv);
             if (state.gv?.vis && couldspot
-                && !canSpotMonster(magr, state)) {
+                && !canspotmon(magr, state)) {
                 await message(`${buf} suddenly disappears!`, state);
             }
         }
@@ -3965,16 +3976,16 @@ export async function mhitm_really_poison(
     const message = requireAttackOperation(env, 'message');
     const visible = Boolean(state.gv?.vis);
 
-    if (visible && canSpotMonster(magr, state)) {
+    if (visible && canspotmon(magr, state)) {
         await message(
             `${s_suffix(Monnam(magr, state, env))} `
                 + `${mpoisons_subj(magr, mattk, state)} was poisoned!`,
             state,
         );
     }
-    if (monster_resists_element(mdef, POISON_RES, state)) {
-        if (visible && canSpotMonster(mdef, state)
-            && canSpotMonster(magr, state)) {
+    if (Resists_Elem(mdef, POISON_RES, state)) {
+        if (visible && canspotmon(mdef, state)
+            && canspotmon(magr, state)) {
             await message(
                 `The poison doesn't seem to affect ${mon_nam(mdef, state, env)}.`,
                 state,
@@ -3984,7 +3995,7 @@ export async function mhitm_really_poison(
     }
 
     mhm.damage += random.rn1(10, 6);
-    if (mhm.damage >= mdef.mhp && visible && canSpotMonster(mdef, state))
+    if (mhm.damage >= mdef.mhp && visible && canspotmon(mdef, state))
         await message('The poison was deadly...', state);
 }
 
@@ -4007,7 +4018,7 @@ export async function mhitm_ad_drst(
             const message = requireAttackOperation(env, 'message');
             const subject = mpoisons_subj(magr, mattk, state);
             await message(`Your ${subject} was poisoned!`, state);
-            if (monster_resists_element(mdef, POISON_RES, state)) {
+            if (Resists_Elem(mdef, POISON_RES, state)) {
                 await message(
                     `The poison doesn't seem to affect ${mon_nam(mdef, state, env)}.`,
                     state,
@@ -4202,7 +4213,7 @@ export async function mhitm_ad_phys(
         let mwep = magr.mw; /* MON_WEP(magr) */
         /* C's own local, not gv.vis: this arm asks whether the hero sees both
            combatants, while mhitm.c's gv.vis asks whether it sees either. */
-        const vis = canSeeMonster(magr, state) && canSeeMonster(mdef, state);
+        const vis = canseemon(magr, state) && canseemon(mdef, state);
 
         if (mattk.aatyp !== AT_WEAP && mattk.aatyp !== AT_CLAW) mwep = null;
 
@@ -4264,7 +4275,7 @@ export async function shade_miss(
         ?? (env.planning ? () => {} : ttyPline);
     const visible = youdef
         || cansee(mdef.mx, mdef.my, state)
-        || sensesMonster(mdef, state)
+        || sensemon(mdef, state)
         || (youagr && m_next2u(mdef, state));
     if (verbose && visible) {
         const what = !obj || shade_aware(obj, state)
@@ -4287,7 +4298,7 @@ export async function shade_miss(
                 env,
             );
         }
-        if (!youdef && !canSpotMonster(mdef, state))
+        if (!youdef && !canspotmon(mdef, state))
             map_invisible(mdef.mx, mdef.my, state);
     }
     if (!youdef) mdef.msleeping = 0;
@@ -4340,10 +4351,10 @@ export async function mhitm_ad_blnd(
     } else {
         /* mhitm */
         if (can_blnd(magr, mdef, mattk.aatyp, null, state)) {
-            if (state.gv?.vis && mdef.mcansee && canSpotMonster(mdef, state)) {
+            if (state.gv?.vis && mdef.mcansee && canspotmon(mdef, state)) {
                 let text = `${Monnam(mdef, state, env)} is blinded`;
                 if (mdef.data?.pmidx === PM_ARCHON
-                    && canSeeMonster(mdef, state)) {
+                    && canseemon(mdef, state)) {
                     text += ` by ${s_suffix(mon_nam(magr, state, env))} radiance`;
                 }
                 await message(`${text}.`, state);
@@ -4795,7 +4806,7 @@ export async function mhitm_ad_plys(
         && !(await mhitm_mgc_atk_negated(
             magr, mdef, true, state, { ...env, random, message },
         ))) {
-        if (state.gv?.vis && canSpotMonster(mdef, state)) {
+        if (state.gv?.vis && canspotmon(mdef, state)) {
             await message(
                 `${Monnam(mdef, state, env)} is frozen by ${mon_nam(magr, state, env)}.`,
                 state,
@@ -4842,6 +4853,84 @@ async function mhitm_ad_were(magr, mattk, mdef, mhm, state = game, env = {}) {
     } else {
         await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
         if (mhm.done) return;
+    }
+}
+
+// C ref: uhitm.c mhitm_ad_slee() (3478-3522). Preserve all three attack
+// directions and the source's short-circuit/RNG order. In the monster-pair
+// arm C calls sleep_monst() twice, although its first successful call makes
+// the defender immobile and guarantees that the second returns false.
+export async function mhitm_ad_slee(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2, rnd };
+    const message = requireAttackOperation(env, 'message');
+    const effectEnv = { ...env, state, random, message };
+
+    if (magr === state.youmonst) {
+        if (!mdef.msleeping
+            && !await mhitm_mgc_atk_negated(
+                magr, mdef, false, state, effectEnv,
+            )
+            && await sleep_monst(
+                mdef, random.rnd(10), -1, effectEnv,
+            )) {
+            if (!heroIsBlind(state))
+                await message(
+                    `${Monnam(mdef, state)} is put to sleep by you!`,
+                    state,
+                    env,
+                );
+            await slept_monst(mdef, effectEnv);
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, effectEnv);
+        if ((state.multi ?? 0) >= 0
+            && !random.rn2(5)
+            && !await mhitm_mgc_atk_negated(
+                magr, mdef, true, state, effectEnv,
+            )) {
+            const sleepResistance = state.u?.uprops?.[SLEEP_RES];
+            if (sleepResistance?.intrinsic || sleepResistance?.extrinsic) {
+                monstseesu(M_SEEN_SLEEP, state);
+                return;
+            }
+            monstunseesu(M_SEEN_SLEEP, state);
+            await fall_asleep(-random.rnd(10), true, state, effectEnv);
+            if (heroIsBlind(state)) {
+                await message('You are put to sleep!', state, env);
+            } else {
+                await message(
+                    `You are put to sleep by ${mon_nam(magr, state)}!`,
+                    state,
+                    env,
+                );
+            }
+        }
+    } else {
+        if (!mdef.msleeping
+            && await sleep_monst(
+                mdef, random.rnd(10), -1, effectEnv,
+            )
+            && await sleep_monst(
+                mdef, random.rnd(10), -1, effectEnv,
+            )) {
+            if (state.gv?.vis && canspotmon(mdef, state)) {
+                await message(
+                    `${Monnam(mdef, state)} is put to sleep by `
+                    + `${mon_nam(magr, state)}.`,
+                    state,
+                    env,
+                );
+            }
+            mdef.mstrategy &= ~STRAT_WAITFORU;
+            await slept_monst(mdef, effectEnv);
+        }
     }
 }
 
@@ -4969,7 +5058,9 @@ export async function mhitm_adtyping(
     case AD_PLYS:
         await mhitm_ad_plys(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_SLEE: unported('mhitm_ad_slee'); break;
+    case AD_SLEE:
+        await mhitm_ad_slee(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_SLIM: unported('mhitm_ad_slim'); break;
     case AD_ENCH:
         await mhitm_ad_ench(magr, mattk, mdef, mhm, state, env);
@@ -5080,7 +5171,7 @@ export async function missum(
     if (wouldhavehit) /* monk is missing due to penalty for wearing suit */
         await message('Your armor is rather cumbersome...', state);
 
-    if (canSpotMonster(mdef, state) && state.flags?.verbose)
+    if (canspotmon(mdef, state) && state.flags?.verbose)
         await message(`You miss ${monsterCommonName(mdef, state)}.`, state);
     else
         await message('You miss it.', state);

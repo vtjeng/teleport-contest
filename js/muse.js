@@ -102,7 +102,6 @@ import {
     ZAP_POS,
     helpless,
     is_hole,
-    isok,
     u_at,
     BEAR_TRAP,
     In_V_tower,
@@ -110,6 +109,7 @@ import {
     WEB,
     is_pit,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { stop_occupation } from './allmain.js';
 import { end_running, losehp, nomul } from './hack.js';
 import { dirtocoord, xytodir } from './cmd.js';
@@ -153,7 +153,7 @@ import {
     haseyes, is_animal,
     is_bat, is_floater, is_flyer, is_mercenary, is_undead, is_unicorn,
     is_vampshifter, locomotion, mhe, mhim, mindless, mon_hates_silver,
-    mon_knows_traps, mon_learns_traps, monster_resists_element, monstseesu,
+    mon_knows_traps, mon_learns_traps, Resists_Elem, monstseesu,
     monstunseesu, needspick, nohands, noncorporeal, nonliving, passes_walls,
     resists_magm, same_race, slimeproof, throws_rocks, touch_petrifies,
     unsolid, verysmall,
@@ -190,15 +190,26 @@ import { HCOLORS } from './random_text_data.js';
 import { in_rooms } from './rooms.js';
 import { inhishop } from './shk.js';
 import { stairway_at } from './stairs.js';
-import { canSpotMonster, messageAt, sensesMonster } from './startup_a11y.js';
-import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
+import { messageAt } from './startup_a11y.js';
+import {
+    find_drawbridge,
+    is_drawbridge_wall,
+    is_pool,
+} from './dbridge.js';
 import {
     enexto, noteleport_level, random_teleport_level, rloc, tele,
     tele_restrict,
 } from './teleport.js';
 import { CLR_GREEN, CLR_BRIGHT_GREEN } from './terminal.js';
 import { begin_burn } from './timeout.js';
-import { fill_pit, is_lava, is_pool, maketrap, t_at, trapname, unconscious } from './trap.js';
+import {
+    fill_pit,
+    is_lava,
+    maketrap,
+    t_at,
+    trapname,
+    unconscious,
+} from './trap.js';
 import { is_ice } from './terrain.js';
 import { mintrap, seetrap, wearing_iron_shoes } from './trap_effects.js';
 import { makeplural } from './fruit.js';
@@ -207,7 +218,7 @@ import { mpickobj, remove_worn_item } from './steal.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { doorlock } from './lock.js';
-import { cansee, canseemon, couldsee, recalc_block_point, unblock_point } from './vision.js';
+import { cansee, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { body_part } from './polyself.js';
 import { arti_reflects } from './artifacts.js';
 // read.c owns the boulder helpers used by both hero and monster earth scrolls.
@@ -226,6 +237,7 @@ import { mon_has_amulet, mon_has_special } from './wizard.js';
 import { dobuzz, exclam, hit, miss, resist, zhitm } from './zap.js';
 import { which_armor } from './worn.js';
 import { hard_helmet } from './do_wear.js';
+import { canseemon, canspotmon, sensemon } from './display.js';
 
 // The generated catalog stores these values but does not currently export
 // their source enum names.
@@ -500,7 +512,7 @@ async function mplayhorn(mtmp, otmp, self, state) {
 // deaf.
 async function mreadmsg(mtmp, otmp, state) {
     const vismon = canseemon(mtmp, state);
-    let tpindicator = !vismon && sensesMonster(mtmp, state);
+    let tpindicator = !vismon && sensemon(mtmp, state);
 
     if (!vismon && Deaf(state))
         return; /* no feedback */
@@ -522,7 +534,7 @@ async function mreadmsg(mtmp, otmp, state) {
         const mflags = (SUPPRESS_INVISIBLE | SUPPRESS_SADDLE
             | (recognize ? SUPPRESS_IT : AUGMENT_IT));
 
-        if (sensesMonster(mtmp, state)) {
+        if (sensemon(mtmp, state)) {
             tpindicator = true;
         } else if (couldsee(mtmp.mx, mtmp.my, state)
             && mdistu(mtmp, state) <= 10 * 10) {
@@ -923,7 +935,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
         if (!cc) return 0;
         await mzapwand(mtmp, otmp, false, state);
         const mon = makemon(null, cc.x, cc.y, NO_MM_FLAGS, { state });
-        if (mon && canSpotMonster(mon, state) && oseen)
+        if (mon && canspotmon(mon, state) && oseen)
             discover_object(O.WAN_CREATE_MONSTER, true, true, true, state);
         return 2;
     }
@@ -948,7 +960,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             const cc = enexto(mtmp.mx, mtmp.my, fish, { state });
             if (!cc) break;
             const mon = makemon(pm, cc.x, cc.y, NO_MM_FLAGS, { state });
-            if (mon && canSpotMonster(mon, state))
+            if (mon && canspotmon(mon, state))
                 known = true;
         }
         if (known)
@@ -1508,7 +1520,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         const nambuf = monsterCommonName(mtmp, state);
         mon_set_minvis(mtmp, Boolean(otmp.cursed), state);
         if (vismon && mtmp.minvis) { /* was seen, now invisible */
-            if (canSpotMonster(mtmp, state)) {
+            if (canspotmon(mtmp, state)) {
                 await ttyPline(messageAt(
                     `${upstart(s_suffix(nambuf))} body takes on a ${Hallucination(state) ? 'normal' : 'strange'} transparency.`,
                     mtmp.mx, mtmp.my, state), state);
@@ -1724,7 +1736,7 @@ async function you_aggravate(mtmp, state) {
         state.nomovemsg = 'Aggravated, you are jolted into full consciousness.';
     }
     newsym(mtmp.mx, mtmp.my, state);
-    if (!canSpotMonster(mtmp, state))
+    if (!canspotmon(mtmp, state))
         map_invisible(mtmp.mx, mtmp.my, state);
 }
 
@@ -1798,7 +1810,7 @@ export function find_defensive(monster, tryescape, rawEnv = {}) {
         && state.uwep?.otyp === O.CORPSE
         && touch_petrifies(state.mons[state.uwep.corpsenm])
         && !poly_when_stoned(species, state)
-        && !monster_resists_element(monster, STONE_RES, state)
+        && !Resists_Elem(monster, STONE_RES, state)
         && lined_up(monster, { state, random })) {
         for (let obj = monster.minvent; obj; obj = obj.nobj) {
             if (obj.otyp === O.WAN_UNDEAD_TURNING && obj.spe > 0)
@@ -2298,7 +2310,7 @@ async function mbhitm(mtmp, otmp, state, rawEnv = {}) {
     }
     if (reveal_invis && mtmp.mhp >= 1 /* !DEADMONSTER */
         && cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
-        && !canSpotMonster(mtmp, state))
+        && !canspotmon(mtmp, state))
         map_invisible(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
 
     return 0;
@@ -2357,7 +2369,7 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
             const mtmp = m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
             if (mtmp) {
                 if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
-                    && !canSpotMonster(mtmp, state))
+                    && !canspotmon(mtmp, state))
                     map_invisible(
                         state.gb.bhitpos.x, state.gb.bhitpos.y, state);
                 await fhitm(mtmp, obj, state, rawEnv);
@@ -3009,7 +3021,7 @@ export async function ureflects(fmt, str, state = game, rawEnv = {}) {
    can cure itself by eating a lizard corpse, acidic corpse, tin, or quaffing
    acid. Returns TRUE if the monster consumed something. */
 export async function munstone(mon, by_you, state = game, env = {}) {
-    if (monster_resists_element(mon, STONE_RES, state))
+    if (Resists_Elem(mon, STONE_RES, state))
         return false;
     if (mon.meating || helpless(mon))
         return false;
@@ -3065,7 +3077,7 @@ async function mon_consume_unstone(
     await m_useup(mon, obj, { state });
     /* obj is now gone */
 
-    if (acid && !tinned && !monster_resists_element(mon, ACID_RES, state)) {
+    if (acid && !tinned && !Resists_Elem(mon, ACID_RES, state)) {
         mon.mhp -= random.rnd(15);
         if (vis)
             await pline_mon(mon,

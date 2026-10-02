@@ -165,9 +165,12 @@ import {
     W_ARMS,
     W_NONDIGGABLE,
     helpless,
-    isok,
     is_pit,
 } from './const.js';
+import {
+    is_pool,
+} from './dbridge.js';
+import { isok } from './cmd_isok.js';
 import { artifactTouchable, artifact_light, has_magic_key } from './artifacts.js';
 import { acurr } from './attrib.js';
 import { bury_an_obj, obj_resists } from './bury.js';
@@ -273,7 +276,7 @@ import {
     mindless,
     mon_knows_traps,
     mon_learns_traps,
-    monster_resists_element,
+    Resists_Elem,
     needspick,
     noattacks,
     nohands,
@@ -421,16 +424,17 @@ import { in_rooms } from './rooms.js';
 import { after_shk_move, inhishop, shk_move } from './shk.js';
 import { findgold, mdrop_obj, mpickobj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
-import {
-    canSpotMonster,
-    collectMonsterMovementMessage,
-    messageAt,
-    sensesMonster,
-} from './startup_a11y.js';
+import { collectMonsterMovementMessage, messageAt } from './startup_a11y.js';
 import { mbodypart } from './polyself.js';
 import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
-import { count_traps, is_lava, is_pool, maketrap, t_at, unconscious } from './trap.js';
+import {
+    count_traps,
+    is_lava,
+    maketrap,
+    t_at,
+    unconscious,
+} from './trap.js';
 import {
     check_in_air,
     fixed_tele_trap,
@@ -448,16 +452,7 @@ import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { gd_move } from './vault.js';
 import { tactics } from './wizard.js';
-import {
-    block_point,
-    canseemon,
-    cansee,
-    clear_path,
-    couldsee,
-    m_canseeu,
-    recalc_block_point,
-    vision_recalc,
-} from './vision.js';
+import { block_point, cansee, clear_path, couldsee, m_canseeu, recalc_block_point, vision_recalc } from './vision.js';
 import {
     autoreturn_weapon,
     can_touch_safely,
@@ -468,6 +463,7 @@ import { mwelded } from './wield.js';
 import { extract_from_minvent, is_pole, which_armor } from './worn.js';
 import * as M from './monsters.js';
 import * as O from './objects.js';
+import { canseemon, canspotmon, sensemon } from './display.js';
 
 
 function movementEnv(env = {}) {
@@ -504,7 +500,7 @@ function doorMask(location) {
 }
 
 function drawbridgeMask(location) {
-    return location?.flags || location?.drawbridgemask || 0;
+    return location?.flags ?? 0;
 }
 
 // C ref: hack.h mdistu(). Squared distance from the hero to a monster.
@@ -750,7 +746,7 @@ async function mind_blast(mtmp, env = {}) {
         && (!propertyActive(state, CONFLICT) || resist_conflict(mtmp, state, random))) {
         await message('It feels quite soothing.', state, env);
     } else if (!state.u?.uinvulnerable) {
-        const m_sen = sensesMonster(mtmp, state);
+        const m_sen = sensemon(mtmp, state);
         // C ref: youprop.h Blind_telepat = (HTelepat || ETelepat)
         const heroTelepat = state.u?.uprops?.[TELEPAT];
         const blind_telepat = Boolean(heroTelepat?.intrinsic || heroTelepat?.extrinsic);
@@ -1026,7 +1022,7 @@ async function mon_yells(mon, shout, env = {}) {
     const state = env.state ?? game;
     const message = env.message ?? ttyPline;
     if (heroDeaf(state)) {
-        if (canSpotMonster(mon, state)) {
+        if (canspotmon(mon, state)) {
             const verb = nolimbs(mon.data) ? 'shakes' : 'waves';
             const poss = mhis(mon, { state });
             const part = nolimbs(mon.data)
@@ -1044,7 +1040,7 @@ async function mon_yells(mon, shout, env = {}) {
             );
         }
     } else {
-        if (canSpotMonster(mon, state)) {
+        if (canspotmon(mon, state)) {
             await message(
                 messageAt(
                     `${Amonnam(mon, { state })} yells:`,
@@ -1094,7 +1090,7 @@ async function m_break_boulder(mtmp, x, y, env = {}) {
                 }.`;
                 // C: canspotmon() gates set_msg_xy() for the location prefix;
                 // the pline() itself runs unconditionally.
-                const line = canSpotMonster(mtmp, state)
+                const line = canspotmon(mtmp, state)
                     ? messageAt(text, mtmp.mx, mtmp.my, state)
                     : text;
                 await message(line, state, env);
@@ -2915,7 +2911,7 @@ export function select_postmove_object_action(
                 || obj.otyp === O.AMULET_OF_STRANGULATION
                 || obj.otyp === O.RIN_SLOW_DIGESTION
                 || (obj.opoisoned
-                    && !monster_resists_element(
+                    && !Resists_Elem(
                         subject,
                         POISON_RES,
                         state,
@@ -2947,7 +2943,7 @@ export function select_postmove_object_action(
             const corpseSpecies = state.mons?.[obj.corpsenm];
             if (!corpseSpecies || vegan(corpseSpecies)
                 || (flesh_petrifies(corpseSpecies)
-                    && !monster_resists_element(
+                    && !Resists_Elem(
                         subject,
                         STONE_RES,
                         state,
@@ -3179,7 +3175,7 @@ async function maybe_spin_web(mtmp, env) {
                     // YMonnam() and messageAt() preserve the source naming
                     // and location; postmov supplies a no-op message during
                     // planning so this branch cannot paint the live terminal.
-                    const mbuf = canSpotMonster(mtmp, state)
+                    const mbuf = canspotmon(mtmp, state)
                         ? YMonnam(mtmp, state, env)
                         : 'Something';
                     const message = env.message ?? ttyPline;
@@ -3304,7 +3300,7 @@ export async function postmov(
                 // the second argument to this seam; adapt it to the display
                 // owner's (monster, state) contract without exposing the
                 // bundle as a state object.
-                canSpotMonster: (subject) => canSpotMonster(subject, state),
+                canSpotMonster: (subject) => canspotmon(subject, state),
             })) {
                 species = monster.data; /* update cached value */
             }
@@ -3384,7 +3380,7 @@ export async function postmov(
                     })) return MMOVE_DIED;
                 } else {
                     if (state.flags?.verbose) {
-                        if (canseeit && canSpotMonster(monster, state)) {
+                        if (canseeit && canspotmon(monster, state)) {
                             await message(
                                 messageAt(
                                     `${Monnam(monster, state, rawEnv)}`
@@ -3416,7 +3412,7 @@ export async function postmov(
                 // Soundeffect(se_door_open, 100) is a tty-sound hook that
                 // writes nothing to the terminal the recorder captures.
                 if (state.flags?.verbose) {
-                    if (canseeit && canSpotMonster(monster, state)) {
+                    if (canseeit && canspotmon(monster, state)) {
                         await message(
                             messageAt(
                                 `${capitalizedMonsterName(monster, state, rawEnv)}`
@@ -3454,7 +3450,7 @@ export async function postmov(
                     })) return MMOVE_DIED;
                 } else {
                     if (state.flags?.verbose) {
-                        if (canseeit && canSpotMonster(monster, state)) {
+                        if (canseeit && canspotmon(monster, state)) {
                             await message(
                                 messageAt(
                                     `${Monnam(monster, state, rawEnv)}`
@@ -3745,7 +3741,7 @@ export async function m_move(monster, rawEnv = {}) {
     // the vampire fog-shift rollback; its later door messages recompute the
     // post-move canseeit value as C does.
     const seenFlags = (canseemon(monster, state) ? 1 : 0)
-        | (canSpotMonster(monster, state) ? 2 : 0);
+        | (canspotmon(monster, state) ? 2 : 0);
     set_apparxy(monster, env);
     // C ref: monmove.c:1763-1766.  mon_allowflags() computes the same three
     // capabilities for mfndpos(); m_move() keeps its own can_tunnel because it

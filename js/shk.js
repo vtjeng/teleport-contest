@@ -36,7 +36,6 @@ import {
     ismnum,
     INVIS,
     IS_DOOR,
-    isok,
     LOW_PM,
     MAXULEV,
     MENU_TRADITIONAL,
@@ -72,6 +71,7 @@ import {
     plur,
     u_at,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { acurr, adjalign } from './attrib.js';
 import { arti_cost } from './artifacts.js';
 import { yn_function } from './cmd.js';
@@ -184,12 +184,7 @@ import { m_at } from './monst.js';
 import { m_next2u } from './mhitu.js';
 import { mbodypart, poly_gender } from './polyself.js';
 import { livelog_printf, verbalize } from './pline.js';
-import {
-    canSeeMonster,
-    canSpotMonster,
-    heroIsBlind,
-    sensesMonster,
-} from './startup_a11y.js';
+import { heroIsBlind } from './startup_a11y.js';
 import { set_voice } from './sounds.js';
 import { saleable, shkname, Shknam } from './shknam.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
@@ -204,6 +199,7 @@ import { ansimpleoname, Doname2, donameFresh, paydoname, safe_qbuf,
 import { hidden_gold } from './vault.js';
 import { cansee } from './vision.js';
 import { add_menu_heading, select_menu } from './windows.js';
+import { canseemon, canspotmon, sensemon } from './display.js';
 
 // C ref: shk.c:u_entered_shop()'s static `empty_shops[5]`. It survives calls
 // in one C process but is not saved; each recorder segment starts a new
@@ -508,7 +504,7 @@ export async function shkcatch(obj, x, y, state = game, rawEnv = {}) {
             state,
             rawEnv,
         );
-        if (!canSpotMonster(shkp, state)) map_invisible(x, y, state);
+        if (!canspotmon(shkp, state)) map_invisible(x, y, state);
         await nh_delay_output(state);
         // mark_synch() only flushes the C terminal stream and has no state;
         // the async message/flush above preserves the observable order.
@@ -909,10 +905,10 @@ async function deserted_shop(
             const monster = m_at(x, y, state);
             if (!monster) continue;
             ++total;
-            if (sensesMonster(monster, state)
+            if (sensemon(monster, state)
                 || ((M_AP_TYPE(monster) === M_AP_NOTHING
                     || M_AP_TYPE(monster) === M_AP_MONSTER)
-                    && canSeeMonster(monster, state))) {
+                    && canseemon(monster, state))) {
                 ++sensed;
             }
         }
@@ -1998,7 +1994,7 @@ export async function dopay(state = game, env = {}) {
             ++nearby;
             next = mon;
         }
-        if (canSpotMonster(mon, state)) ++seen;
+        if (canspotmon(mon, state)) ++seen;
         if (inhishop(mon, state) && state.u.ushops[0] === mon.mextra.eshk.shoproom)
             resident = mon;
     }
@@ -2017,7 +2013,7 @@ export async function dopay(state = game, env = {}) {
         else if (seen === 1) {
             for (shkp = next_shkp(state.level.monlist, false, state);
                 shkp; shkp = next_shkp(shkp.nmon, false, state))
-                if (canSpotMonster(shkp, state)) break;
+                if (canspotmon(shkp, state)) break;
             if (shkp !== resident && !m_next2u(shkp, state)) {
                 await message(`${Shknam(shkp, state)} is not near enough to receive your payment.`, state);
                 return ECMD_OK;
@@ -2033,7 +2029,7 @@ export async function dopay(state = game, env = {}) {
                 return ECMD_OK;
             }
             const mon = m_at(cc.x, cc.y, state);
-            if (!cansee(cc.x, cc.y, state) && (!mon || !canSpotMonster(mon, state))) {
+            if (!cansee(cc.x, cc.y, state) && (!mon || !canspotmon(mon, state))) {
                 await message(`You can't ${blind ? 'sense' : 'see'} anyone there.`, state);
                 return ECMD_OK;
             }
@@ -2108,7 +2104,7 @@ export async function dopay(state = game, env = {}) {
                 else await message(`Besides, you don't have enough to interest ${pronoun(shkp, 'him')}.`, state);
                 return ECMD_TIME;
             }
-            await message(`You try to appease ${canSpotMonster(shkp, state)
+            await message(`You try to appease ${canspotmon(shkp, state)
                 ? x_monnam(shkp, ARTICLE_THE, 'angry', 0, false, state) : shkname(shkp, state)} by giving ${
                 pronoun(shkp, 'him')} 1000 gold pieces.`, state);
             await pay(1000, shkp, state, env);
@@ -3061,7 +3057,7 @@ export async function stolen_value(
     } else {
         shkp.mextra.eshk.robbed += value;
         if (!silent) {
-            if (canSeeMonster(shkp, state)) {
+            if (canseemon(shkp, state)) {
                 await ttyNorep(
                     `${Shknam(shkp, state)} booms: `
                     + `"${state.plname}, you are a thief!"`,
@@ -3216,7 +3212,7 @@ function set_repo_loc(shopkeeper, state) {
 // synchronous cleanup still receives these mutations without an await.
 async function rouse_shk(shopkeeper, verbosely = false, state = game, env = {}) {
     if (helpless(shopkeeper)) {
-        if (verbosely && canSpotMonster(shopkeeper, state))
+        if (verbosely && canspotmon(shopkeeper, state))
             await (env.message ?? ttyPline)(`${Shknam(shopkeeper, state)} ${
                 shopkeeper.msleeping ? 'wakes up' : 'can move again'}.`, state);
         shopkeeper.msleeping = 0;

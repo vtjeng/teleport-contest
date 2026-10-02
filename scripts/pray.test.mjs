@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { isok } from '../js/cmd_isok.js';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
@@ -45,7 +46,6 @@ import {
     WOUNDED_LEGS,
     W_SADDLE,
     voice_deity,
-    isok,
 } from '../js/const.js';
 import { S_altar } from '../js/symbols.js';
 import { cmdq_add_key, paranoid_query } from '../js/cmd.js';

@@ -37,6 +37,7 @@ import {
     ceiling_hider,
     cvt_adtyp_to_mseenres,
     cvt_prop_to_mseenres,
+    dmgtype,
     dmgtype_fromattack,
     gender,
     hates_blessings,
@@ -530,6 +531,20 @@ test('max_passive_dmg covers the cold and shock resistance arms too', () => {
     const vortex = { data: pm(M.PM_ENERGY_VORTEX), mhp: 40, mextrinsics: 0,
         mintrinsics: 0, minvent: null };
     assert.equal(max_passive_dmg(shocking, vortex, state), 0);
+});
+
+test('dmgtype delegates to the six-slot AT_ANY source query', () => {
+    // monattk.h defines NATTK=6 and AT_ANY=-1; the C helper scans mattk[0..5]
+    // and returns TRUE if any slot carries the requested adtyp.
+    const AD_PHYS = 0; // monattk.h:42
+    const AD_MAGM = 1; // monattk.h:43
+    const species = {
+        mattk: Array.from({ length: 6 }, () => ({ aatyp: 0, adtyp: AD_PHYS })),
+    };
+    species.mattk[5] = { aatyp: 1, adtyp: AD_MAGM };
+    assert.equal(dmgtype(species, AD_MAGM), true);
+    assert.equal(dmgtype(species, AD_PHYS), true);
+    assert.equal(dmgtype(species, 2), false);
 });
 
 test('max_passive_dmg covers the rot and rust instakill arms too', () => {

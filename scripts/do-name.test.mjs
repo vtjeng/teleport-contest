@@ -1064,8 +1064,9 @@ test('mon_nam_too swaps a second reference for a reflexive pronoun', () => {
     assert.equal(mon_nam_too(mon, other, state, env), 'the gnome lord');
 
     // The production caller normally supplies only its state and random
-    // owner. mon_nam_too() supplies do_name.js's canspotmon owner to
+    // owner. mon_nam_too() supplies display.h's canSpotMonster operation to
     // pronoun_gender(), so this path must not require a test-only override.
+    assert.equal(mon_nam_too(mon, mon, state), 'himself');
     assert.equal(mon_nam_too(mon, mon, state, {
         random: { rn2: () => 3 },
     }), 'himself');

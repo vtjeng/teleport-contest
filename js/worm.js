@@ -18,10 +18,11 @@ import { PM_LONG_WORM } from './monsters.js';
 import { clone_mon } from './makemon.js';
 import { Monnam, mon_nam } from './do_name.js';
 import { s_suffix } from './hacklib.js';
-import { canSpotMonster } from './startup_a11y.js';
+
 import { ttyPline } from './tty_message.js';
 import { rnd_nextto_goodpos } from './trap.js';
 import { note_unported } from './unported.js';
+import { canspotmon } from './display.js';
 
 function wormSlots(state) {
     if (!state.level)
@@ -72,8 +73,8 @@ async function wormMessage(line, env) {
 export function worm_known(worm, state = game) {
     const segments = state.level?.worms?.[worm?.wormno]?.segments ?? [];
     return segments.some((segment) => cansee(
-        segment.x ?? segment.wx,
-        segment.y ?? segment.wy,
+        segment.x,
+        segment.y,
         state,
     ));
 }
@@ -315,7 +316,7 @@ export async function cutworm(worm, x, y, cuttier, rawEnv = {}) {
         state.level.monsters[x][y] = worm;
         const movingMonster = Boolean(state.context?.mon_moving);
         if (movingMonster) {
-            if (canSpotMonster(worm, state)) {
+            if (canspotmon(worm, state)) {
                 await wormMessage(
                     `Part of ${s_suffix(mon_nam(worm, state))} tail has been cut off.`,
                     env,

@@ -207,9 +207,17 @@ import { livelog_printf } from './pline.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
-import { is_drawbridge_wall } from './dbridge.js';
+import {
+    is_drawbridge_wall,
+    is_pool,
+} from './dbridge.js';
 import { is_ice } from './terrain.js';
-import { is_lava, is_pool, is_pool_or_lava, t_at, trapname } from './trap.js';
+import {
+    is_lava,
+    is_pool_or_lava,
+    t_at,
+    trapname,
+} from './trap.js';
 import { hidden_gold } from './vault.js';
 import { game } from './gstate.js';
 import { itemactions } from './iactions.js';

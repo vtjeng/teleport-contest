@@ -128,10 +128,10 @@ import {
     helpless,
     is_hole,
     is_pit,
-    isok,
     undestroyable_trap,
     u_at,
 } from './const.js';
+import { isok } from './cmd_isok.js';
 import { stop_occupation } from './allmain.js';
 import { placebc, unplacebc } from './ball.js';
 import {
@@ -142,7 +142,11 @@ import {
 } from './display.js';
 import { flooreffects, set_wounded_legs } from './do.js';
 import { del_engr_at } from './engrave.js';
-import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
+import {
+    find_drawbridge,
+    is_drawbridge_wall,
+    is_pool,
+} from './dbridge.js';
 import {
     at_dgn_entrance,
     Can_fall_thru,
@@ -217,7 +221,7 @@ import {
     metallivorous,
     mindless,
     nolimbs,
-    monster_resists_element,
+    Resists_Elem,
     mon_knows_traps,
     mon_learns_traps,
     mons_see_trap,
@@ -332,12 +336,7 @@ import { encumber_msg } from './pickup.js';
 import { body_part, mbodypart, polyself } from './polyself.js';
 import { makeplural } from './fruit.js';
 import { d, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl } from './rng.js';
-import {
-    canSeeMonster,
-    canSpotMonster,
-    heroIsBlind,
-    messageAt,
-} from './startup_a11y.js';
+import { heroIsBlind, messageAt } from './startup_a11y.js';
 import {
     Flying,
     Levitation,
@@ -351,7 +350,6 @@ import {
     set_utrap,
     t_at,
     trapname,
-    is_pool,
     activate_statue_trap,
 } from './trap.js';
 import { mlevel_tele_trap, mtele_trap, tele_trap } from './teleport.js';
@@ -389,6 +387,7 @@ import {
     water_damage,
     water_damage_monster_equipment,
 } from './trap_water_damage.js';
+import { canseemon, canspotmon } from './display.js';
 
 // Five owners arrive through the caller's env rather than through an import.
 // `mInAir` is mon.c m_in_air() and `youHear`/`heroDeaf` are pline.c You_hear()
@@ -595,7 +594,7 @@ async function trapeffect_sqky_board(monster, trap, _trflags, env) {
 
     if (mInAir(monster, state)) return Trap_Effect_Finished;
     // stepped on a squeaky board
-    const inSight = canSeeMonster(monster, state)
+    const inSight = canseemon(monster, state)
         || monster === state.u?.usteed;
     if (inSight) {
         if (!heroDeaf(state)) {
@@ -721,7 +720,7 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
         return Trap_Effect_Finished;
     }
 
-    const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const seeIt = cansee(mtmp.mx, mtmp.my, state);
     if (trap.once && trap.tseen && !random.rn2(15)) {
         if (inSight && seeIt) {
@@ -950,7 +949,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
     }
 
     // ── monster arm (C 1294-1318) ──
-    const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const see_it = cansee(mtmp.mx, mtmp.my, state);
 
     if (trap.once && trap.tseen && !random.rn2(15)) {
@@ -1083,7 +1082,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
     }
 
     // ── monster arm (C 1375-1398) ──
-    const in_sight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const in_sight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     // C 1377. Read only by the wear-out message below; the falling-rock path
     // guards seetrap() on in_sight alone.
     const see_it = cansee(mtmp.mx, mtmp.my, state);
@@ -1162,7 +1161,7 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
         const mInAir = requireTrapOperation(env, 'mInAir');
         const youHear = requireTrapOperation(env, 'youHear');
         const mptr = mtmp.data;
-        const in_sight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+        const in_sight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
         let trapkilled = false;
 
         if (mptr.msize > MZ_SMALL && !amorphous(mptr) && !mInAir(mtmp, state)
@@ -1291,9 +1290,9 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
         // no-op guard; a mounted hero gives the gas effect to its steed.
         await steedintrap(trap, null, env);
     } else {
-        const in_sight = canSeeMonster(mtmp, state)
+        const in_sight = canseemon(mtmp, state)
             || mtmp === state.u?.usteed;
-        if (!monster_resists_element(mtmp, SLEEP_RES, state)
+        if (!Resists_Elem(mtmp, SLEEP_RES, state)
             && !breathless(mtmp.data) && !helpless(mtmp)
             && await sleep_monst(mtmp, random.rnd(25), -1, env)
             && in_sight) {
@@ -1368,7 +1367,7 @@ async function steedintrap(trap, otmp, env) {
         steedhit = true;
         break;
     case SLP_GAS_TRAP:
-        if (!monster_resists_element(steed, SLEEP_RES, state)
+        if (!Resists_Elem(steed, SLEEP_RES, state)
             && !breathless(steed.data) && !helpless(steed)
             && await sleep_monst(steed, random.rnd(25), -1, env)) {
             await message(
@@ -1592,7 +1591,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
         return Trap_Effect_Finished;
     }
 
-    const in_sight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const in_sight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const forcetrap = (trflags & FORCETRAP) !== 0;
     const sokoban = Boolean(state.level?.flags?.sokoban_rules);
     const inescapable = forcetrap || (sokoban && !trap.madeby_u);
@@ -1925,7 +1924,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
 
     const tt = trap.ttyp;
     const species = mtmp.data;
-    const inSight = canSeeMonster(mtmp, state)
+    const inSight = canseemon(mtmp, state)
         || mtmp === state.u?.usteed;
     const forceTrap = (trflags & FORCETRAP) !== 0;
     const inescapable = forceTrap
@@ -1995,7 +1994,7 @@ async function trapeffect_telep_trap(mtmp, trap, _trflags, env) {
         return Trap_Effect_Finished;
     }
 
-    await mtele_trap(mtmp, trap, canSeeMonster(mtmp, state)
+    await mtele_trap(mtmp, trap, canseemon(mtmp, state)
         || mtmp === state.u?.usteed, {
         ...env,
         seeTrap: env.seeTrap ?? ((candidate, operationEnv) =>
@@ -2025,7 +2024,7 @@ async function trapeffect_level_telep(mtmp, trap, trflags, env) {
         mtmp,
         trap,
         (trflags & FORCETRAP) !== 0,
-        canSeeMonster(mtmp, state) || mtmp === state.u?.usteed,
+        canseemon(mtmp, state) || mtmp === state.u?.usteed,
         {
             ...env,
             seeTrap: env.seeTrap ?? ((candidate, operationEnv) =>
@@ -2193,7 +2192,7 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
 
     const tx = trap.tx;
     const ty = trap.ty;
-    const inSight = canSeeMonster(mtmp, state)
+    const inSight = canseemon(mtmp, state)
         || mtmp === state.u?.usteed;
     const seeIt = cansee(tx, ty, state);
     let trapkilled = false;
@@ -2227,7 +2226,7 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
         );
     }
 
-    if (monster_resists_element(mtmp, FIRE_RES, state)) {
+    if (Resists_Elem(mtmp, FIRE_RES, state)) {
         if (inSight) {
             await shieldeff(mtmp.mx, mtmp.my, state);
             await message(
@@ -2432,7 +2431,7 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
     }
 
     const message = requireTrapOperation(env, 'message');
-    const inSight = canSeeMonster(mtmp, state)
+    const inSight = canseemon(mtmp, state)
         || mtmp === state.u?.usteed;
     const seeIt = cansee(mtmp.mx, mtmp.my, state);
     const species = mtmp.data;
@@ -2704,7 +2703,7 @@ async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}) {
                         ...env,
                         state,
                         canSeeMonster: env.canSeeMonster
-                            ?? ((subject) => canSeeMonster(subject, state)),
+                            ?? ((subject) => canseemon(subject, state)),
                         hooks: {
                             ...(env.hooks ?? {}),
                             blockPoint: objectHooks.blockPoint,
@@ -2902,7 +2901,7 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
         if (!mInAir(monster, state)) {
             const inSight = monster === state.u?.usteed
                 || (cansee(monster.mx, monster.my, state)
-                    && canSpotMonster(monster, state));
+                    && canspotmon(monster, state));
             const style = ROLL | (inSight ? 0 : LAUNCH_UNSEEN);
             let trapkilled = false;
 
@@ -3007,7 +3006,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
         return Trap_Effect_Finished;
     }
 
-    const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     if (wearing_iron_shoes(mtmp, state)) {
         let shoes = which_armor(mtmp, W_ARMF, state);
         await extract_from_minvent(mtmp, shoes, true, true, { ...env, state });
@@ -3118,7 +3117,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
         return Trap_Effect_Finished;
     }
 
-    const inSight = canSeeMonster(monster, state) || monster === state.u.usteed;
+    const inSight = canseemon(monster, state) || monster === state.u.usteed;
     const forcetrap = (trflags & FORCETRAP) !== 0;
     const species = monster.data;
     if (webmaker(species)) return Trap_Effect_Finished;
@@ -3342,7 +3341,7 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
         return Trap_Effect_Finished;
     }
 
-    const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const mptr = mtmp.data;
     let trapkilled = false;
     if (inSight) seetrap(trap, env);
@@ -3632,7 +3631,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
 
     const mInAir = requireTrapOperation(env, 'mInAir');
     const heroDeaf = requireTrapOperation(env, 'heroDeaf');
-    const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const tx = trap.tx;
     const ty = trap.ty;
     const triggerWeight = Math.trunc(mtmp.data?.cwt ?? 0);
@@ -3728,7 +3727,7 @@ async function trapeffect_vibrating_square(mtmp, trap, _trflags, env) {
         return Trap_Effect_Finished;
     }
 
-    const inSight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const seeIt = cansee(mtmp.mx, mtmp.my, state);
     if (seeIt && !heroIsBlind(state)) {
         seetrap(trap, env);
@@ -4031,7 +4030,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
 
     if (monster.mtrapped) { /* is currently in the trap */
         if (!trap.tseen && cansee(monster.mx, monster.my, state)
-            && canSeeMonster(monster, state)
+            && canseemon(monster, state)
             && (is_pit(tt) || tt === BEAR_TRAP || tt === HOLE || tt === WEB))
             seetrap(trap, env);
 
@@ -4041,7 +4040,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                 && is_pit(tt)) {
                 if (!random.rn2(2)) {
                     monster.mtrapped = false;
-                    if (canSeeMonster(monster, state)) {
+                    if (canseemon(monster, state)) {
                         await message(
                             messageAt(
                                 `${capitalizedMonsterName(monster, state)}`
@@ -4059,7 +4058,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                     note_unported('trap.c fill_pit');
                 }
             } else {
-                if (canSeeMonster(monster, state)) {
+                if (canseemon(monster, state)) {
                     let text = null;
                     if (is_pit(tt)) {
                         text = `${capitalizedMonsterName(monster, state)}`
@@ -4081,7 +4080,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
             }
         } else if (metallivorous(species)) {
             if (tt === BEAR_TRAP) {
-                if (canSeeMonster(monster, state)) {
+                if (canseemon(monster, state)) {
                     await message(
                         messageAt(
                             `${capitalizedMonsterName(monster, state)}`
@@ -4098,7 +4097,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                 monster.meating = 5;
                 monster.mtrapped = false;
             } else if (tt === SPIKED_PIT) {
-                if (canSeeMonster(monster, state)) {
+                if (canseemon(monster, state)) {
                     await message(
                         messageAt(
                             `${capitalizedMonsterName(monster, state)}`
@@ -4157,9 +4156,9 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     // C ref: trap.c:3827-3835. A monster the effect left trapped may be
     // revealed after it is no longer hidden under an object or in water.
     if (monster.mhp >= 1 && monster.mtrapped) {
-        const alreadySpotted = canSpotMonster(monster, state);
+        const alreadySpotted = canspotmon(monster, state);
         maybe_unhide_at(monster.mx, monster.my, state, env);
-        if (!alreadySpotted && canSeeMonster(monster, state)) {
+        if (!alreadySpotted && canseemon(monster, state)) {
             await message(
                 messageAt(
                     `${capitalizedMonsterName(monster, state)} appears.`,

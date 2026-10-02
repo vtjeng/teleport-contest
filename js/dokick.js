@@ -23,6 +23,7 @@
 // down_gate(), shared by hero drops, throws, and monster missile settlement.
 
 import { acurrstr, exercise, acurr } from './attrib.js';
+import { isok } from './cmd_isok.js';
 import { getdir } from './cmd.js';
 import {
     A_CON,
@@ -89,7 +90,6 @@ import {
     TRAPDOOR,
     is_hole,
     ismnum,
-    isok,
     something,
 } from './const.js';
 import { feel_location, feel_newsym, glyph_at, glyph_is_invisible,
@@ -146,15 +146,22 @@ import {
 import { shkname } from './shknam.js';
 import { stairway_at } from './stairs.js';
 import { remove_worn_item } from './steal.js';
-import { fall_through, is_pool, t_at } from './trap.js';
+import {
+    fall_through,
+    t_at,
+} from './trap.js';
 import { m_in_out_region } from './region.js';
 import { mintrap } from './trap_effects.js';
 import {
     displayPendingTtyMessageWindow,
     ttyPline,
 } from './tty_message.js';
-import { find_drawbridge, is_drawbridge_wall } from './dbridge.js';
-import { canSpotMonster } from './startup_a11y.js';
+import {
+    find_drawbridge,
+    is_drawbridge_wall,
+    is_pool,
+} from './dbridge.js';
+
 import { note_unported } from './unported.js';
 import { cansee, recalc_block_point } from './vision.js';
 import { martial_bonus, special_dmgval, use_skill } from './weapon.js';
@@ -164,6 +171,7 @@ import {
 } from './uhitm.js';
 import { a_monnam, Monnam, mon_nam } from './do_name.js';
 import { noteleport_level, goodpos } from './teleport.js';
+import { canspotmon } from './display.js';
 
 // C ref: decl.h:507 `coord kickedloc`, the square the hero just kicked. Three
 // C files write it directly: dokick.c:1325 sets it, and hack.c domove():2708
@@ -352,7 +360,7 @@ export async function maybe_kick_monster(mon, x, y, state = game) {
     state.gb ??= {};
     state.gb.bhitpos = { x, y };
     const saveForcefight = state.context?.forcefight;
-    if (!mon.mpeaceful || !canSpotMonster(mon, state)) {
+    if (!mon.mpeaceful || !canspotmon(mon, state)) {
         state.context ??= {};
         state.context.forcefight = true;
     }
@@ -387,10 +395,10 @@ export async function kick_monster(mon, x, y, state = game) {
         || (M_AP_TYPE(mon) && M_AP_TYPE(mon) !== M_AP_MONSTER)) {
         if (M_AP_TYPE(mon)) seemimic(mon, state);
         mon.mundetected = 0;
-        if (!canSpotMonster(mon, state)) map_invisible(x, y, state);
+        if (!canspotmon(mon, state)) map_invisible(x, y, state);
         else newsym(x, y);
         await ttyPline(
-            `There is ${canSpotMonster(mon, state) ? a_monnam(mon, { state })
+            `There is ${canspotmon(mon, state) ? a_monnam(mon, { state })
                 : 'something hidden'} here.`,
             state,
         );
@@ -1009,7 +1017,7 @@ export async function dokick(state = game) {
                 // source-owned JS screen operation; preserve the exact gap.
                 note_unported('display.c show_glyph');
             }
-        } else if (!canSpotMonster(mtmp, state)
+        } else if (!canspotmon(mtmp, state)
                    && mtmp.mx === x && mtmp.my === y
                    && !glyph_is_invisible(glyph)
                    && !engulfing_u(mtmp, state)) {

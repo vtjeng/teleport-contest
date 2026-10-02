@@ -10,6 +10,9 @@ import {
     spec_abon,
     spec_dbon,
 } from './artifacts.js';
+import {
+    is_pool,
+} from './dbridge.js';
 import { acurr } from './attrib.js';
 import {
     AKLYS_LIM,
@@ -225,22 +228,23 @@ import {
     skillSlot,
     weapon_type,
 } from './startup_skills.js';
-import { is_pool } from './trap.js';
+
 import { y_n } from './cmd.js';
 import { select_menu } from './windows.js';
 import { ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
-import { cansee, canseemon, couldsee } from './vision.js';
+import { cansee, couldsee } from './vision.js';
 import { mwelded } from './wield.js';
 import {
     The, Tobjnam, Yname2, donameFresh, is_plural, otense, the, xnameFresh,
 } from './objnam.js';
 import { mbodypart } from './polyself.js';
 import { bimanual, which_armor } from './worn.js';
-import { canSpotMonster, messageAt } from './startup_a11y.js';
+import { messageAt } from './startup_a11y.js';
 import { arti_light_description } from './light.js';
 import { begin_burn } from './timeout.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { canseemon, canspotmon } from './display.js';
 
 const MR_STONE = 0x80;
 
@@ -959,7 +963,7 @@ export async function mon_wield_item(monster, env = {}) {
     const namingEnv = {
         ...normalized,
         state,
-        canSpotMonster: normalized.canSpotMonster ?? canSpotMonster,
+        canSpotMonster: normalized.canSpotMonster ?? canspotmon,
     };
     const weaponCheck = monster.weapon_check;
     if (weaponCheck === NO_WEAPON_WANTED) return 0;
