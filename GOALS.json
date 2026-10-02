@@ -140036,7 +140036,7 @@
     {
       "id": "port-uhitm-mhitm-ad-plys-v18-20261002",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Monster and polymorphed hero paralysis attacks",
       "cFile": "uhitm.c",
       "sessions": [
@@ -140050,8 +140050,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "35c50b07a51f3af4d84690b160c36db5ec874540",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_plys",
@@ -140331,6 +140334,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "35c50b07a51f3af4d84690b160c36db5ec874540",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
