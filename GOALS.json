@@ -140951,6 +140951,678 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-potion-make-slimed-v18-20261002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Port whole make_slimed and wire source-owned setting, cure and fire callers",
+      "cFile": "potion.c",
+      "sessions": [
+        "synthetic/v18/wizard-sets-slimed-intrinsic-c59",
+        "synthetic/v18/wizard-sets-slimed-intrinsic-five-turns-c59"
+      ],
+      "selectionReason": "The accepted v18 evaluation still mismatches two source-related wizard cases at the transition into SLIMED. The first, wizard-sets-slimed-intrinsic-c59, reaches cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_slimed(30, ...) at step 17; the five-turn case reaches the same source function with a count-prefixed duration of 5. Port the complete potion.c:make_slimed function and wire the active existing direct callers. Use the two admitted wizard cases for positive transitions and add an independent C-first cure recipe through do_wear.c:Amulet_on, with a five-turn variation. Supporting timeout.c:burn_away_slime must await make_slimed and all existing JS caller arms must await that helper. A78 is accepted and merged in the base; B87's timeout.c:nh_timeout, timeout.c:slip_or_trip, cmd.c:confdir and clone RNG contract are outside this reservation. Source tracing also found the consume_tin -> cprefx call at eat.c:1611. Wire the call in C order. sp_lev.c:create_object can assign any Lua-specified corpsenm directly, but shipped dat tin definitions contain only generic, spinach and chameleon tins; do not claim a Green Slime tin runtime entry from the ordinary data. A valid gnome tin will verify the general consume_tin -> cprefx caller, not make_slimed. Orchestrator rechecked current accepted main 2cb609294e38f0b8e43d4f01c182bb88c458584d and challenges/evaluations/20261002111453-v18.json at tested commit 1c3a2e71ab9691a383e5b52a24e5243a07620bb5. Both selected v18 wizard intrinsic cases retain one unmatched screen and complete source-traced investigations. Whole primary scope is potion.c:make_slimed; supporting burn_away_slime and represented callers carry no whole outer-function completion credit. Immutable delivery bb10fa69216f37f42394a6ba03194decd1182418 has independent matching cure and oil variations plus the general tin caller witness, with exact recipe/record hashes and terminal receipts verified.",
+      "detail": "",
+      "openedAt": "2cb609294e38f0b8e43d4f01c182bb88c458584d",
+      "openStanding": {
+        "sha": "1c3a2e71ab9691a383e5b52a24e5243a07620bb5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "make_slimed",
+          "line": 195,
+          "endLine": 221,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 195,
+        "to": 221
+      },
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-sets-slimed-intrinsic-c59": {
+          "session": "synthetic/v18/wizard-sets-slimed-intrinsic-c59",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-sets-slimed-intrinsic-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json",
+          "recordingSha256": "b3aa2e3021038d79bea1f6836e4e39c9980346f4106582250afefd013992ae1d",
+          "evaluationPath": "challenges/evaluations/20261002111453-v18.json",
+          "evaluationCommit": "1c3a2e71ab9691a383e5b52a24e5243a07620bb5"
+        },
+        "synthetic/v18/wizard-sets-slimed-intrinsic-five-turns-c59": {
+          "session": "synthetic/v18/wizard-sets-slimed-intrinsic-five-turns-c59",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.session.json",
+          "recordingSha256": "c47a4783649f4ad9ffb4b42459e9a26b63604b538a8ab078cf7c33887e257010",
+          "evaluationPath": "challenges/evaluations/20261002111453-v18.json",
+          "evaluationCommit": "1c3a2e71ab9691a383e5b52a24e5243a07620bb5"
+        }
+      },
+      "activeStanding": {
+        "sha": "1c3a2e71ab9691a383e5b52a24e5243a07620bb5",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-sets-slimed-intrinsic-c59",
+          "session": "synthetic/v18/wizard-sets-slimed-intrinsic-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json",
+          "recordingSha256": "b3aa2e3021038d79bea1f6836e4e39c9980346f4106582250afefd013992ae1d",
+          "recipe": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.recipe.session.json",
+          "recipeSha256": "f0500e5ea8ec620f242baf1767771d567d6b6df6478f5285dc3dec191918425d",
+          "replayInputSha256": "7c72542bc67a65fef44e8e3a2084125f3213cb2d23d4bbf13262e5f56e94be9c",
+          "evaluationPath": "challenges/evaluations/20261002111453-v18.json",
+          "evaluationCommit": "1c3a2e71ab9691a383e5b52a24e5243a07620bb5",
+          "evaluationArtifact": "challenges/evaluations/20261002111453-v18.json",
+          "evaluationUtc": "2026-10-02T11:15:43.066Z",
+          "remainingScreens": 1,
+          "recordedSteps": 18,
+          "previousScreensMatched": 17,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 17,
+              "total": 18
+            },
+            "rng": {
+              "matched": 2403,
+              "total": 2403
+            },
+            "cursors": {
+              "matched": 17,
+              "total": 18
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 17,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 17,
+                "key": "\n"
+              },
+              "cCursor": [
+                35,
+                0,
+                1
+              ],
+              "jsCursor": [
+                67,
+                15,
+                1
+              ]
+            }
+          },
+          "step": 17,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-sets-slimed-intrinsic-c59.json",
+            "result": {
+              "session": "synthetic/v18/wizard-sets-slimed-intrinsic-c59",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-sets-slimed-intrinsic-c59",
+              "remainingScreens": 1,
+              "recordedSteps": 18,
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "b3aa2e3021038d79bea1f6836e4e39c9980346f4106582250afefd013992ae1d",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-c59",
+                "session": "synthetic/v18/wizard-sets-slimed-intrinsic-c59",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json",
+                "recordingSha256": "b3aa2e3021038d79bea1f6836e4e39c9980346f4106582250afefd013992ae1d",
+                "recipe": "challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.recipe.session.json",
+                "recipeSha256": "f0500e5ea8ec620f242baf1767771d567d6b6df6478f5285dc3dec191918425d",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 1,
+                "recordedSteps": 18,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 17,
+                    "total": 18
+                  },
+                  "rng": {
+                    "matched": 2403,
+                    "total": 2403
+                  },
+                  "cursors": {
+                    "matched": 17,
+                    "total": 18
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 17,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 17,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      35,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      67,
+                      15,
+                      1
+                    ]
+                  }
+                },
+                "step": 17,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The selected wizard intrinsic reaches a missing potion.c:make_slimed implementation. C sets the SLIMED timeout and prints “You are turning into slime.” on the zero-to-active transition; js/wizcmds.js currently constructs then discards that message and does not change the property. This accounts for the sole current mismatch at step 17. Port the whole make_slimed function and wire the existing wiz_intrinsic caller. The later timeout.c:slimed_to_death behavior remains a separate unresolved path.",
+              "source": {
+                "file": "potion.c",
+                "branch": "For the selected #wizintrinsic command, the menu selects SLIMED with a positive count. In this recording the old timeout is zero and the default count is 30, so wiz_intrinsic() calls make_slimed(30, \"You are turning into slime.\"). make_slimed() overwrites the timeout while preserving non-timeout intrinsic bits; when the truth value changes it marks the status line dirty and prints the supplied message. Port the whole function: when the timeout is cleared it also removes any delayed SLIMED killer and clears the hero’s fake green-slime monster appearance when present. wiz_intrinsic() separately caps an extension when a SLIMED timeout is already active.",
+                "functions": [
+                  "make_slimed"
+                ],
+                "callers": [
+                  "Selected production route: nethack-c/upstream/src/cmd.c:1965-1966 registers wizintrinsic -> nethack-c/upstream/src/wizcmds.c:wiz_intrinsic() (1039-1043) -> make_slimed(newtimeout, buf). JavaScript route is js/cmd.js:runIntrinsicCommand (3520-3523) -> js/wizcmds.js:wiz_intrinsic() (425-429); replace that branch’s discarded message and note_unported gap with the ported helper call.",
+                  "Whole-helper wiring inventory: existing JavaScript source branches in eat.c:cprefx (and its eatcorpse refusal), spell.c:spelleffects SPE_CURE_SICKNESS, do_wear.c:Amulet_on, pray.c:fix_worst_trouble, artifact.c:invoke_healing, wizcmds.c:wiz_intrinsic, timeout.c:burn_away_slime, polyself.c:newman, both polyself.c:polymon cleanup branches, and uhitm.c:gulpum must call potion.c:make_slimed where C calls it. Preserve each outer function’s separate incomplete status.",
+                  "Direct C callers without the corresponding JavaScript source branch remain explicit outer gaps: timeout.c:stoned_dialogue, uhitm.c:mhitm_ad_drin, and uhitm.c:mhitm_ad_slim. stoned_dialogue is the direct timeout caller; done_timeout is not."
+                ],
+                "dependencies": [
+                  "potion.c:set_itimeout() is already implemented as js/potion.js:set_itimeout() (469-470); it overwrites only TIMEOUT bits.",
+                  "The cure branch consumes end.c:find_delayed_killer(SLIMED) as end.c:dealloc_killer() input (potion.c:209-210); both are already implemented in js/end.js (1715-1721, 1746-1755). Preserve this return-valued dependency in the whole-function port.",
+                  "The active transition calls pline() only when msg is non-null (potion.c:204-208); the existing JavaScript message path is ttyPline(). The selected caller supplies a message."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20261002065911-v18.json (evaluation commit d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d) records 17/18 screens, 2403/2403 RNG calls, and 17/18 cursors. Its sole remaining screen is segment 0, step 17, key newline: C row 0 column 0 is “Y” and JavaScript is a space; the cursor is [35,0,1] in C versus [67,15,1] in JavaScript.",
+                "The recorded step at challenges/cases/v18/wizard-sets-slimed-intrinsic-c59.session.json: segment 0 step 17 has the C message “You are turning into slime.--More--” and the status condition “Slime”. The preceding step is the “Which intrinsics?” menu with “c + becoming slime” selected. The recipe and saved evaluation identify one unmatched screen among 18 steps.",
+                "challenges/manifests/v18.json identifies the first mismatch owner as potion.c:make_slimed and the route as wizcmds.c:wiz_intrinsic plus potion.c:make_slimed. The immutable comparison detail at /tmp/teleport-loop-worker-c-20260925/.cache/C59-logs/b82-js-comparisons/wizard-sets-slimed-intrinsic-c59.detail.json has SHA-256 e67f3258e006cb524edc9ecda2c439ef245616769394f28fcd774ca9153a2272 and confirms the same step-17 observation on older base c279bd556876e7c8494dbe37aea914412f8e75a3; the newer saved evaluation confirms the mismatch remains current.",
+                "Source: nethack-c/upstream/src/wizcmds.c:1039-1043 constructs the transition message and calls make_slimed(newtimeout, buf). nethack-c/upstream/src/potion.c:194-218 defines the complete missing helper: set_itimeout, status-line update and optional message on a timeout transition, delayed-killer removal on cure, and removal of the disguised green-slime appearance. In js/wizcmds.js:425-429 the existing caller creates an equivalent message, discards it with void message, and does not set the property; js/potion.js has no make_slimed implementation. This is missing behavior, so the actionable unit is a whole-function file port, not a divergence fix.",
+                "The production dispatcher is present: nethack-c/upstream/src/cmd.c:1965-1966 registers wizintrinsic; js/cmd.js:3520-3523 invokes js/wizcmds.js:wiz_intrinsic. This debug command returns without spending a turn, so timeout.c:slimed_to_death (still noted unported at js/timeout.js:825-827) is a separate later defect and does not explain the current message/status mismatch. Other source call paths, including uhitm.c slime attacks, have separate behavior and are outside this assigned case.",
+                "The exact caller inventory extends beyond wiz_intrinsic. Existing named helper gaps occur in js/eat.js:cprefx, js/pray.js:fix_worst_trouble, js/artifacts.js:invoke_healing (stale hack.c owner), js/wizcmds.js:wiz_intrinsic, js/polyself.js:newman, and js/uhitm.js:gulpum. Existing JS Amulet_on and burn_away_slime refuse active Slimed; spelleffects lacks SPE_CURE_SICKNESS and polymon omits both C cleanup branches. Wire the source helper calls in the same task and remove the placeholders those calls replace; this does not establish completion of the outer functions.",
+                "After wiring timeout.c:burn_away_slime to make_slimed, retain its existing JS callers in artifact_hit, explode, potion, zap, and mcastu. Existing JS source branches that record burn_away_slime gaps are do.c:boulder_hits_pool (gap incorrectly names trap.c), trap.c:dofiretrap and lava_effects, read.c:seffect_fire, and both sit.c:dosit fire branches. Separate absent fire branches remain in mhitu.c:gulpmu and gazemu, trap.c:sink_into_lava, uhitm.c:mhitm_ad_fire, and mcastu.c:castmu; muse.c:use_offensive’s fire-scroll branch is disabled by #if 0. Verify those source boundaries when defining the helper task."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+          "session": "synthetic/v18/wizard-sets-slimed-intrinsic-five-turns-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.session.json",
+          "recordingSha256": "c47a4783649f4ad9ffb4b42459e9a26b63604b538a8ab078cf7c33887e257010",
+          "recipe": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.recipe.session.json",
+          "recipeSha256": "62c63b3ff0a1134ad45fd8fc684a3bcbb882c0ab36083efed539caf98d13695a",
+          "replayInputSha256": "7c72542bc67a65fef44e8e3a2084125f3213cb2d23d4bbf13262e5f56e94be9c",
+          "evaluationPath": "challenges/evaluations/20261002111453-v18.json",
+          "evaluationCommit": "1c3a2e71ab9691a383e5b52a24e5243a07620bb5",
+          "evaluationArtifact": "challenges/evaluations/20261002111453-v18.json",
+          "evaluationUtc": "2026-10-02T11:15:43.066Z",
+          "remainingScreens": 1,
+          "recordedSteps": 19,
+          "previousScreensMatched": 18,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 18,
+              "total": 19
+            },
+            "rng": {
+              "matched": 2591,
+              "total": 2591
+            },
+            "cursors": {
+              "matched": 18,
+              "total": 19
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 0,
+              "cCell": {
+                "ch": "Y",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": {
+              "index": 18,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 18,
+                "key": "\n"
+              },
+              "cCursor": [
+                35,
+                0,
+                1
+              ],
+              "jsCursor": [
+                62,
+                5,
+                1
+              ]
+            }
+          },
+          "step": 18,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-sets-slimed-intrinsic-five-turns-c59.json",
+            "result": {
+              "session": "synthetic/v18/wizard-sets-slimed-intrinsic-five-turns-c59",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+              "remainingScreens": 1,
+              "recordedSteps": 19,
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "c47a4783649f4ad9ffb4b42459e9a26b63604b538a8ab078cf7c33887e257010",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+                "session": "synthetic/v18/wizard-sets-slimed-intrinsic-five-turns-c59",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.session.json",
+                "recordingSha256": "c47a4783649f4ad9ffb4b42459e9a26b63604b538a8ab078cf7c33887e257010",
+                "recipe": "challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.recipe.session.json",
+                "recipeSha256": "62c63b3ff0a1134ad45fd8fc684a3bcbb882c0ab36083efed539caf98d13695a",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 1,
+                "recordedSteps": 19,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 18,
+                    "total": 19
+                  },
+                  "rng": {
+                    "matched": 2591,
+                    "total": 2591
+                  },
+                  "cursors": {
+                    "matched": 18,
+                    "total": 19
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 0,
+                    "cCell": {
+                      "ch": "Y",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": {
+                    "index": 18,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 18,
+                      "key": "\n"
+                    },
+                    "cCursor": [
+                      35,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      62,
+                      5,
+                      1
+                    ]
+                  }
+                },
+                "step": 18,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The explicit count prefix 5 selects a five-turn SLIMED timeout, but the existing js/wizcmds.js SLIMED arm still discards its message and does not call potion.c:make_slimed. C applies the timeout and prints “You are turning into slime.”; JavaScript leaves it unset, causing the sole mismatch at step 18. This case confirms the same whole-function make_slimed port and caller wiring as the default-duration case, with the requested duration fixed at 5 rather than the default 30. The command does not spend five game turns, so slime expiration is not reached here.",
+              "source": {
+                "file": "potion.c",
+                "branch": "For #wizintrinsic with a leading count prefix of 5 and the SLIMED menu choice, wiz_intrinsic() uses amt=5 instead of DEFAULT_TIMEOUT_INCR=30. This recording starts with oldtimeout=0, so C computes newtimeout=5 and calls make_slimed(5, \"You are turning into slime.\"). The whole make_slimed() function must set the requested timeout while preserving non-timeout intrinsic bits, update the status line and print a non-null message only when the active state changes, and on cure remove the delayed SLIMED killer and any fake green-slime monster appearance. The recipe ends after the command/menu selection; it does not spend five turns or reach timeout expiration.",
+                "functions": [
+                  "make_slimed"
+                ],
+                "callers": [
+                  "Selected production route: nethack-c/upstream/src/cmd.c:1965-1966 registers wizintrinsic -> nethack-c/upstream/src/wizcmds.c:wiz_intrinsic() (1039-1043) -> make_slimed(newtimeout, buf). The count prefix 5 changes newtimeout from this caller’s default 30 to exactly 5. JavaScript route is js/cmd.js:runIntrinsicCommand (3520-3523) -> js/wizcmds.js:wiz_intrinsic() (425-429); replace that branch’s discarded message and note_unported gap with the ported helper call.",
+                  "Whole-helper wiring inventory: existing JavaScript source branches in eat.c:cprefx (and its eatcorpse refusal), spell.c:spelleffects SPE_CURE_SICKNESS, do_wear.c:Amulet_on, pray.c:fix_worst_trouble, artifact.c:invoke_healing, wizcmds.c:wiz_intrinsic, timeout.c:burn_away_slime, polyself.c:newman, both polyself.c:polymon cleanup branches, and uhitm.c:gulpum must call potion.c:make_slimed where C calls it. Preserve each outer function’s separate incomplete status.",
+                  "Direct C callers without the corresponding JavaScript source branch remain explicit outer gaps: timeout.c:stoned_dialogue, uhitm.c:mhitm_ad_drin, and uhitm.c:mhitm_ad_slim. stoned_dialogue is the direct timeout caller; done_timeout is not."
+                ],
+                "dependencies": [
+                  "potion.c:set_itimeout() is already implemented as js/potion.js:set_itimeout() (469-470); it overwrites only TIMEOUT bits.",
+                  "The cure branch consumes end.c:find_delayed_killer(SLIMED) as end.c:dealloc_killer() input (potion.c:209-210); both are already implemented in js/end.js (1715-1721, 1746-1755). Preserve this return-valued dependency in the whole-function port.",
+                  "The active transition calls pline() only when msg is non-null (potion.c:204-208); the existing JavaScript message path is ttyPline(). The selected caller supplies a message."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20261002065911-v18.json (evaluation commit d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d) records 18/19 screens, 2591/2591 RNG calls, and 18/19 cursors. The sole remaining screen is segment 0, step 18, key newline: C row 0 column 0 is “Y” and JavaScript is a space; C cursor is [35,0,1] versus JavaScript [62,5,1].",
+                "The recipe challenges/cases/v18/wizard-sets-slimed-intrinsic-five-turns-c59.recipe.session.json chooses Wizard debug mode and moves “ #wizintrinsic\\n5c\\n”: count prefix 5, then SLIMED selector c, then menu completion. Its recording has 19 steps; at step 18 C displays “You are turning into slime.--More--” and the status condition “Slime”. This is the five-turn timeout setup, not five elapsed turns.",
+                "The v18 manifest record for wizard-sets-slimed-intrinsic-five-turns-c59 names sourcePointers wizcmds.c:wiz_intrinsic and potion.c:make_slimed, assigns bucketId potion.c:make_slimed, and states that the count prefix requests duration five while the default-duration case uses the same helper. The two cases therefore preserve a distinct duration variation but share one source behavior bucket.",
+                "The immutable comparison detail at /tmp/teleport-loop-worker-c-20260925/.cache/C59-logs/b82-js-comparisons/wizard-sets-slimed-intrinsic-five-turns-c59.detail.json has SHA-256 76e36306e405082da3f875aa510d7b8f8ca43c4c3c16b99c5ced7d7d4472ab89; it records 19 screens, 2591 RNG calls with no RNG mismatch, and the same step-18 difference on older base c279bd556876e7c8494dbe37aea914412f8e75a3. The newer saved evaluation confirms the mismatch remains current.",
+                "Source: nethack-c/upstream/src/wizcmds.c:1003-1015 selects amt from the count prefix, computes newtimeout, and retains the existing-timeout cap; lines 1039-1043 format and call make_slimed(newtimeout, buf). nethack-c/upstream/src/potion.c:194-218 defines the whole helper, including timeout transition feedback and cure cleanup. In js/wizcmds.js:388-395 the current caller computes the explicit count and applies the same cap, while lines 425-429 build then discard the message and do not set SLIMED; js/potion.js has no make_slimed implementation. This is missing behavior, so use a whole-function file-port scope rather than a divergence fix.",
+                "Production dispatch is already wired: nethack-c/upstream/src/cmd.c:1965-1966 registers wizintrinsic; js/cmd.js:3520-3523 invokes js/wizcmds.js:wiz_intrinsic. That command returns without spending a turn. timeout.c:slimed_to_death remains a separate unresolved later path, noted at js/timeout.js:825-827, and is not exercised by this five-turn setup.",
+                "The exact caller inventory extends beyond wiz_intrinsic. Existing named helper gaps occur in js/eat.js:cprefx, js/pray.js:fix_worst_trouble, js/artifacts.js:invoke_healing (stale hack.c owner), js/wizcmds.js:wiz_intrinsic, js/polyself.js:newman, and js/uhitm.js:gulpum. Existing JS Amulet_on and burn_away_slime refuse active Slimed; spelleffects lacks SPE_CURE_SICKNESS and polymon omits both C cleanup branches. Wire the source helper calls in the same task and remove the placeholders those calls replace; this does not establish completion of the outer functions.",
+                "After wiring timeout.c:burn_away_slime to make_slimed, retain its existing JS callers in artifact_hit, explode, potion, zap, and mcastu. Existing JS source branches that record burn_away_slime gaps are do.c:boulder_hits_pool (gap incorrectly names trap.c), trap.c:dofiretrap and lava_effects, read.c:seffect_fire, and both sit.c:dosit fire branches. Separate absent fire branches remain in mhitu.c:gulpmu and gazemu, trap.c:sink_into_lava, uhitm.c:mhitm_ad_fire, and mcastu.c:castmu; muse.c:use_offensive’s fire-scroll branch is disabled by #if 0. Verify those source boundaries when defining the helper task."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "make_slimed",
+            "implementation": "js/potion.js",
+            "symbol": "make_slimed",
+            "sourceReview": "Ported the complete potion.c:make_slimed definition at lines 195-218. C snapshots the full Slimed intrinsic, calls set_itimeout, toggles disp.botl and emits the optional message only when the old and new timeout truth values differ, then tests the complete resulting Slimed intrinsic before unlinking the delayed killer and clearing the green-slime disguise. JavaScript preserves the disabled Unaware block, source call/message/state order, and upper intrinsic flags when clearing only the timeout. The full-intrinsic cleanup condition is !prop.intrinsic, matching potion.c's !Slimed rather than masking to TIMEOUT. Supporting timeout.c:burn_away_slime is also ported as a two-branch async helper: it awaits make_slimed only while Slimed is active. Its existing JS callers preserve C order and await the helper; unported outer functions remain explicit in task context.",
+            "callers": [
+              {
+                "path": "js/wizcmds.js",
+                "symbol": "wiz_intrinsic",
+                "source": "wizcmds.c:wiz_intrinsic -> potion.c:make_slimed; cmd.c:wizintrinsic is the production command dispatcher."
+              },
+              {
+                "path": "js/eat.js",
+                "symbol": "cprefx",
+                "source": "eat.c:eatcorpse or eat.c:consume_tin -> eat.c:cprefx -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/spell.js",
+                "symbol": "spelleffects",
+                "source": "spell.c:spelleffects SPE_CURE_SICKNESS arm -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "Amulet_on",
+                "source": "do_wear.c:Amulet_on UNCHANGING arm -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/artifacts.js",
+                "symbol": "invoke_healing",
+                "source": "artifact.c:invoke_healing -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/pray.js",
+                "symbol": "fix_worst_trouble",
+                "source": "pray.c:fix_worst_trouble -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "newman",
+                "source": "polyself.c:newman -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/polyself.js",
+                "symbol": "polymon",
+                "source": "polyself.c:polymon cleanup branches -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "gulpum",
+                "source": "uhitm.c:gulpum -> potion.c:make_slimed."
+              },
+              {
+                "path": "js/timeout.js",
+                "symbol": "burn_away_slime",
+                "source": "timeout.c:burn_away_slime -> potion.c:make_slimed when Slimed is active."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/potion.test.mjs"
+            ],
+            "recordings": [
+              "recordings/potion.c/amulet-unchanging-cures-sliming-a79.session.json",
+              "recordings/potion.c/amulet-unchanging-cures-five-turn-sliming-a79.session.json",
+              "recordings/potion.c/lit-oil-burns-away-slime-barbarian-a79.session.json",
+              "recordings/potion.c/lit-oil-burns-away-slime-wizard-variation-a79.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 17,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_slimed(30, ...)"
+              },
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_slimed(5, ...)"
+              }
+            ],
+            "checkedAt": "3c2c08f8105bef27f061a82b6138d130da8f4172"
+          }
+        ],
+        "entryPointReview": "The selected whole helper is exercised through three matching production routes. The admitted v18 default-duration and five-turn #wizintrinsic cases execute the positive make_slimed transition through zero-based steps 0-17 and 0-18 respectively. Independent Amulet_on records exercise the active-to-clear transition with 30-turn and five-turn SLIMED values. Two independent lit-oil records exercise peffect_oil -> timeout.c:burn_away_slime -> make_slimed, including a Barbarian with ordinary lit oil and a Wizard with blessed lit oil; both match the face-burn and slime-cleared messages. The source-pinned potion tests verify transition-only output, full-intrinsic flag preservation and cleanup. All existing active direct make_slimed callers are represented in source and wired in C order. The valid homemade-gnome tin recording covers eat.c:consume_tin -> cprefx only and is not make_slimed runtime evidence. A79 also wires every represented JS burn_away_slime site: artifact_hit, explode, peffect_oil, zapyourself, zhitu, mcast_fire_pillar, dofiretrap, seffect_fire, lava_effects, boulder_hits_pool, and both dosit lava branches. Source-pinned caller tests cover the newly exposed seffect_fire, lava_effects, boulder_hits_pool, and dosit calls; existing fire-scroll and lava-effects recordings remain unchanged and strict-matching. No whole caller completion is claimed. Explicitly excluded outer callers and timer/death gaps are listed in .cache/A79-context.json.",
+        "entryPoints": [
+          {
+            "name": "Wizard sets the full Slimed intrinsic through #wizintrinsic",
+            "functions": [
+              "make_slimed"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 17,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_slimed(30, ...)"
+              },
+              {
+                "batch": "v18",
+                "caseId": "wizard-sets-slimed-intrinsic-five-turns-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 18,
+                "source": "cmd.c:wizintrinsic -> wizcmds.c:wiz_intrinsic -> potion.c:make_slimed(5, ...)"
+              }
+            ]
+          },
+          {
+            "name": "Wearing an Amulet of Unchanging clears active Slimed",
+            "functions": [
+              "make_slimed"
+            ],
+            "recordings": [
+              "recordings/potion.c/amulet-unchanging-cures-sliming-a79.session.json",
+              "recordings/potion.c/amulet-unchanging-cures-five-turn-sliming-a79.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Lit oil clears active Slimed through burn_away_slime",
+            "functions": [
+              "make_slimed"
+            ],
+            "recordings": [
+              "recordings/potion.c/lit-oil-burns-away-slime-barbarian-a79.session.json",
+              "recordings/potion.c/lit-oil-burns-away-slime-wizard-variation-a79.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

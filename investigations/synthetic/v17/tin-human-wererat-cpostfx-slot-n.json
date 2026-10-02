@@ -7,12 +7,12 @@
   "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
   "recordingPath": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json",
   "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
-  "evaluationPath": "challenges/evaluations/20261001214251-v17.json",
-  "evaluationCommit": "1f29dddb7791d0584379eeb425ef34791d600acc",
-  "remainingScreens": 1,
+  "evaluationPath": "challenges/evaluations/20261002123847-v17.json",
+  "evaluationCommit": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+  "remainingScreens": 0,
   "recordedSteps": 51,
   "status": "complete",
-  "commit": "1f29dddb7791d0584379eeb425ef34791d600acc",
+  "commit": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
   "mismatch": {
     "corpus": "synthetic",
     "batch": "v17",
@@ -25,12 +25,12 @@
     "recordingSha256": "7ea6bda981edcd91576a70c0d58b6a72fa28f6c4a3f80b14a112b7c598dcd9d0",
     "recipe": "challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.recipe.session.json",
     "recipeSha256": "83d14defb71e451c8c58d8086465d28751945439e8c1e509ea961430d3b099d2",
-    "replayInputSha256": "f613e308a782216f90cf667f3e45652b9a4b09431b15fcca3f9f2a6ad3abaf0d",
-    "evaluationPath": "challenges/evaluations/20261001214251-v17.json",
-    "evaluationCommit": "1f29dddb7791d0584379eeb425ef34791d600acc",
-    "evaluationArtifact": "challenges/evaluations/20261001214251-v17.json",
-    "evaluationUtc": "2026-10-01T21:43:58.598Z",
-    "remainingScreens": 1,
+    "replayInputSha256": "ceb304fae81a50533a5435f25b1568b24ea13ab0efb8633e60c94e0d7978a487",
+    "evaluationPath": "challenges/evaluations/20261002123847-v17.json",
+    "evaluationCommit": "af31fadba807f9170de9a9152f6a2ca4d7102ba6",
+    "evaluationArtifact": "challenges/evaluations/20261002123847-v17.json",
+    "evaluationUtc": "2026-10-02T12:39:29.959Z",
+    "remainingScreens": 0,
     "recordedSteps": 51,
     "previousScreensMatched": 50,
     "regression": false,
@@ -38,11 +38,11 @@
     "error": null,
     "metrics": {
       "screens": {
-        "matched": 50,
+        "matched": 51,
         "total": 51
       },
       "rng": {
-        "matched": 2624,
+        "matched": 2628,
         "total": 2632
       },
       "cursors": {
@@ -51,34 +51,12 @@
       }
     },
     "firstMismatch": {
-      "screen": {
-        "index": 50,
-        "location": {
-          "segmentIndex": 0,
-          "stepIndex": 50,
-          "key": "y"
-        },
-        "kind": "ch",
-        "row": 0,
-        "column": 31,
-        "cCell": {
-          "ch": "Y",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        },
-        "jsCell": {
-          "ch": " ",
-          "color": 8,
-          "attr": 0,
-          "decgfx": 0
-        }
-      },
+      "screen": null,
       "rng": {
-        "index": 2623,
-        "cEntry": "rn2(4)=1",
-        "cCaller": "maybe_cannibal(eat.c:784)",
-        "jsEntry": "rn2(5)=4",
+        "index": 2628,
+        "cEntry": "rn2(80)=50",
+        "cCaller": "moveloop_core(allmain.c:328)",
+        "jsEntry": "rn2(300)=130",
         "location": {
           "segmentIndex": 0,
           "stepIndex": 50,
@@ -90,39 +68,40 @@
     },
     "step": 50,
     "kind": "rng",
-    "sourceFile": "eat.c",
-    "function": "maybe_cannibal",
+    "sourceFile": "allmain.c",
+    "function": "moveloop_core",
     "message": null,
-    "cFile": "eat.c",
+    "cFile": "allmain.c",
     "luaFile": null,
-    "line": 784
+    "line": 328
   },
-  "summary": "The remaining mismatch is the skipped eat.c:cprefx() call on the tin-consumption route. The current evaluation matches 50/51 screens, 2624/2632 RNG calls, and all 51 cursor positions; at step 50 after the player accepts the tin, C displays “You cannibal! You will regret this!” and logs rn2(4)=1 from maybe_cannibal(), while JS leaves that message cell blank and proceeds to rn2(5)=4. C consume_tin() calls cprefx() before cpostfx(); JS still records note_unported(\"eat.c cprefx\") at that call site, although its cprefx() helper and maybe_cannibal() implementation are used by ordinary corpse meals. The actionable scope remains a whole-function port of eat.c:cprefx() and wiring the existing tin caller while preserving the ordinary corpse caller. The earlier newuhs() stop was a real downstream symptom of missing Szechuan nutrition in the older implementation, but TIN_VARIETIES[9] now matches C (nutrition 70, greasy false), and the current replay no longer stops at the NaN/newuhs refusal. Separate downstream gaps remain in cpostfx(): JS still records note_unported(\"were.c set_ulycn\") and note_unported(\"artifact.c retouch_equipment\") for the human-wererat path.",
+  "summary": "The saved evaluation now matches all 51 screens and cursors, but still fails on RNG. After the tin route calls cprefx() and cpostfx() sets u.ulycn to PM_WERERAT, C reaches allmain.c:328 and consumes rn2(80)=50 for the daytime lycanthropy change chance; JS skips that allmain turn block and immediately consumes rn2(300) in dosounds(). The actionable owner is allmain.c:moveloop_core(), including its pending-change gates and ordered polymorph/lycanthropy chance and dispatch. The later were.c:you_were() transformation path is not reached by this recording; eat.js also still records artifact.c:retouch_equipment() as a separate cpostfx gap.",
   "source": {
-    "file": "eat.c",
-    "branch": "The Wizard uses #eat on a blessed homemade tin of human wererat meat, completes the opening delay, and answers yes to “Eat it?”. The C variety roll rn2(15)=9 selects tintxts[9], szechuan. consume_tin() calls cprefx(PM_HUMAN_WERERAT) before cpostfx(); cprefx() reaches maybe_cannibal(pm, TRUE), which emits the own-species warning, aggravates monsters, and consumes rn2(4). At current HEAD, the JS tin caller skips cprefx(), and the single remaining screen plus first RNG mismatch occurs at this step-50 branch.",
+    "file": "allmain.c",
+    "branch": "On step 50 the Wizard completes a Szechuan human-wererat tin. C eat.c:cpostfx() has set u.ulycn to PM_WERERAT; the hero is not polymorphed, and the C daytime roll is rn2(80)=50. In allmain.c:moveloop_core(), after teleportation and before automatic search/dosounds, the ismnum(u.ulycn) && !Upolyd branch consumes rn2(80 - 20 * night()). The nonzero result means no transformation. The accepted JS allmain elapsed-turn path has no mvl_change, u.ulycn, or lycanthropy chance branch, so it skips this draw and uses the next C value for dosounds().",
     "functions": [
-      "cprefx"
+      "moveloop_core"
     ],
     "callers": [
-      "C eat.c:consume_tin() (1610-1615) calls cprefx(mnum), then cpostfx(mnum) if the tin remains. JS eat.js:consume_tin() (1158-1163) still places note_unported(\"eat.c cprefx\") at the corresponding site.",
-      "The production command route is cmd.c #eat -> eat.c:doeat() tin arm (2953-2959) -> start_tin()/opentin() -> consume_tin(); JS cmd.js:runEatCommand() (3225 onward) -> eat.js:doeat() -> start_tin() (4069, 4207) -> opentin() (1243) -> consume_tin() (1076).",
-      "C also calls cprefx() from eat.c:start_eating() for corpse meals (2040-2045); JS eat.js:start_eating() (3356-3362) already wires its cprefx helper on that path. Preserve this caller while wiring the tin route."
+      "C allmain.c:moveloop() calls moveloop_core() in its main loop (allmain.c:595); JS allmain.js:moveloop() calls moveloop_core() at 1747.",
+      "JS allmain.js:moveloop_core() calls advanceElapsedTurn() when context.move is set (1526-1544); advanceElapsedTurn() is the corresponding once-per-turn body. In the accepted source, it proceeds from teleport handling (985-1011) to automatic search (1013 onward) and dosounds() (1055) without the C delayed polymorph/lycanthropy block.",
+      "The recorded trigger is reached through C eat.c:consume_tin() (1610-1615), which calls cprefx() and then cpostfx(); accepted JS eat.js:consume_tin() (1161-1164) now follows that order, and cpostfx() calls were.js:set_ulycn() before returning to the elapsed turn."
     ],
     "dependencies": [
-      "C maybe_cannibal() (eat.c:758-788) returns a boolean that cprefx() discards; its visible message, aggravation state, luck change, and rn1(4, 2) draw remain required side effects. JS has maybe_cannibal() at eat.js:2153-2189, and cprefx() calls it at 2194-2195, but consume_tin() skips cprefx().",
-      "The whole eat.c:cprefx() source body (791-864) also depends on flesh_petrifies(), poly_when_stoned(), polymon(), revive_corpse(), and acidic() return values, and has stoning, Rider, green-slime and lizard branches. Current JS cprefx() at 2194-2244 retains UnsupportedEatError refusals for unsupported source branches, so the actionable unit is the whole function and required return-dependent callees, not only the observed cannibalism branch.",
-      "Historical counterevidence: the prior evaluation at 518d4526ccba82c89752a8babb892ba9bc48bc60, examined against implementation 45a483d2dd3320f9268aeb4477a785237e69df4e stopped at newuhs() because the then-current TIN_VARIETIES[9] omitted nutrition; that explanation was correct for that snapshot. Current JS eat.js:431-448 now includes Szechuan nutrition 70 and greasy false, matching C eat.c:tintxts[9], and the exact-HEAD evaluation reaches step 50. Do not retain missing tin metadata or NaN hunger as the current cause.",
-      "C cpostfx() maps PM_HUMAN_WERERAT to PM_WERERAT at eat.c:1144-1145 and later calls set_ulycn() and retouch_equipment(2) at 1323-1326. Current JS cpostfx() still records note_unported(\"were.c set_ulycn\") and note_unported(\"artifact.c retouch_equipment\") at eat.js:2746-2748; these genuine downstream gaps remain separate from the first cprefx mismatch."
+      "C eat.c:cpostfx() assigns catch_lycanthropy=PM_WERERAT for PM_HUMAN_WERERAT, then calls were.c:set_ulycn() before retouch_equipment() (eat.c:1144-1145, 1323-1326). Accepted JS eat.js:cpostfx() calls were.js:set_ulycn(), which writes state.u.ulycn and refreshes form-derived properties (were.js:31-36); the current first mismatch is later in allmain, after 2628 RNG calls have matched.",
+      "Port the entire ordered allmain.c:moveloop_core() delayed-change block (322-339): clear an invalid mvl_change, check Polymorph with rn2(100), otherwise check lycanthropy with rn2(80 - 20 * night()), then when mvl_change is active and Unchanging is false wait for gm.multi >= 0, stop occupation, dispatch polyself(POLY_NOFLAGS) or you_were(), and clear the pending value. Preserve mvl_change state across elapsed turns.",
+      "The success dispatch to were.c:you_were() is a separate unported callee in accepted JS (the existing references in js/potion.js remain note_unported calls). This recording draws 50, so C does not set mvl_change or call you_were(); retain this downstream gap without treating it as the current first divergence.",
+      "Accepted JS eat.js:cpostfx() still uses note_unported(\"artifact.c retouch_equipment\") immediately after set_ulycn() (2754-2756). C performs retouch_equipment(2), but this separate equipment effect is not the first recorded RNG mismatch."
     ]
   },
   "goalKind": "file-port",
   "evidence": [
-    "The refreshed queue .cache/B79-final-work-queue.json and saved challenges/evaluations/20261001214251-v17.json agree on the current case identity and one remaining screen. Evaluation SHA 1f29dddb7791d0584379eeb425ef34791d600acc equals examined HEAD 1f29dddb7791d0584379eeb425ef34791d600acc; metrics are 50/51 screens, 2624/2632 RNG calls, and 51/51 cursors. Its first screen mismatch is segment 0 step 50 on key y at row 0, column 31 (C has Y; JS has a blank); its first RNG mismatch is index 2623 (C rn2(4)=1 at maybe_cannibal(eat.c:784), JS rn2(5)=4).",
-    "Immutable C recording challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json step 47 logs rn2(15)=9 at tin_variety(eat.c:1503), selecting Szechuan; step 50 on y shows “You consume szechuan wererat. You cannibal! You will regret this!” and begins with rn2(4)=1 @ maybe_cannibal(eat.c:784). The first 50 screens match in the current evaluation; the step-50 message and draw identify the omitted prefix call.",
-    "Upstream nethack-c/upstream/src/eat.c:758-788 defines maybe_cannibal(); eat.c:791-864 defines cprefx(), whose first operation calls maybe_cannibal(pm, TRUE) at line 793. eat.c:1610-1615 calls cprefx() before cpostfx() in consume_tin(). In contrast, current js/eat.js:1158-1163 records note_unported(\"eat.c cprefx\") before its cpostfx() call. The C and JS production command paths are traced in source.callers.",
-    "Current js/eat.js:431-448 defines Szechuan as {name: szechuan, nutrition: 70, healthFood: true, greasy: false}, matching upstream eat.c:tintxts[9] at lines 143-158. The previous evaluation challenges/evaluations/20261001190602-v17.json at commit 518d4526ccba82c89752a8babb892ba9bc48bc60 reported the downstream newuhs() stop when nutrition was absent; that historical finding is superseded by the restored fields and current step-50 mismatch.",
-    "Current JS eat.js:2194-2244 implements cprefx() only partially and includes UnsupportedEatError arms for source branches; eat.js:3356-3362 wires it for ordinary corpse meals. The missing tin caller is therefore the production gap even though the helper exists.",
-    "The lycanthropy/equipment follow-up remains: C eat.c:cpostfx() selects PM_WERERAT for PM_HUMAN_WERERAT at 1144-1145 and invokes set_ulycn()/retouch_equipment() at 1323-1326. Current JS eat.js:2746-2748 still calls note_unported(\"were.c set_ulycn\") and note_unported(\"artifact.c retouch_equipment\"); this report does not treat those gaps as resolved."
+    "The assigned queue entry in .cache/A79-final-work-queue.json and saved challenges/evaluations/20261002123847-v17.json identify this exact case, manifest, recording, and tested commit af31fadba807f9170de9a9152f6a2ca4d7102ba6. The evaluation is complete and reports passed=false, 51/51 screens, 2628/2632 RNG calls, 51/51 cursors, remainingScreens=0, and first RNG mismatch index 2628 at segment 0 step 50 key y: C rn2(80)=50 @ moveloop_core(allmain.c:328), JS rn2(300)=130.",
+    "The immutable C recording challenges/cases/v17/tin-human-wererat-cpostfx-slot-n.session.json, step 50, records in order rn2(4)=1 @ maybe_cannibal(eat.c:784), the two distfleeck draws, rn2(12)=4 @ mcalcmove(mon.c:1164), rn2(70)=35 @ maybe_generate_rnd_mon(allmain.c:166), rn2(80)=50 @ moveloop_core(allmain.c:328), and rn2(300)=253 @ dosounds(sounds.c:220). Thus C's lycanthropy chance draw is the first missing value; the accepted JS draw at that position is the later dosounds() rn2(300)=130.",
+    "Frozen C source submodule commit 16ff59115315917b93185d026aeefea06db9b0f4 confirms allmain.c:321-339 validates mvl_change, tests Polymorph, then tests ismnum(u.ulycn) && !Upolyd with rn2(80 - (20 * night())), before stop_occupation()/polyself()/you_were() dispatch. Its call order puts automatic search and dosounds after this block.",
+    "At the examined JavaScript commit, js/allmain.js:985-1011 handles teleportation, then lines 1013 onward handle automatic search, and lines 1055 onward call dosounds(); searching js/allmain.js for mvl_change, u.ulycn, and rn2(80) finds no lycanthropy chance branch. moveloop_core() calls advanceElapsedTurn() at 1540-1544; moveloop() calls moveloop_core() at 1747.",
+    "The current step reaches the expected precondition: frozen C eat.c:consume_tin() calls cprefx() then cpostfx() at 1610-1615; accepted JS eat.js:consume_tin() now calls both at 1161-1164. Frozen C cpostfx() sets catch_lycanthropy=PM_WERERAT for PM_HUMAN_WERERAT, then invokes set_ulycn() at eat.c:1323-1325. Accepted JS cpostfx() calls were.js:set_ulycn(), whose body sets state.u.ulycn (were.js:31-36).",
+    "Counterevidence to the stale report: the prior evaluated cause was the skipped cprefx() caller at 1f29dddb7791d0584379eeb425ef34791d600acc; at this evaluated commit the tin caller now invokes cprefx(), the cannibalism message is present, and RNG matches through index 2627. The earlier Szechuan metadata/newuhs() refusal is also no longer current: accepted JS TIN_VARIETIES[9] is nutrition 70, healthFood true, greasy false (eat.js:445), matching upstream eat.c:tintxts[9] (142-158).",
+    "Downstream scope remains distinct: the C success branch did not run because its chance draw was 50, so were.c:you_were() is not reached by this recording. Accepted JS cpostfx() also still records note_unported(\"artifact.c retouch_equipment\") after set_ulycn(); retain it as a separate later gap rather than the cause of the first mismatch."
   ]
 }
