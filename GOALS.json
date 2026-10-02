@@ -139087,6 +139087,255 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-timeout-learn-egg-type-v18-20261002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Learn egg species through identification and polymorph",
+      "cFile": "timeout.c",
+      "sessions": [
+        "synthetic/v18/wizard-learns-egg-type-from-identification-c59"
+      ],
+      "selectionReason": "synthetic/v18/wizard-learns-egg-type-from-identification-c59, investigation investigations/synthetic/v18/wizard-learns-egg-type-from-identification-c59.json, current evaluation challenges/evaluations/20261002075924-v18.json. Port whole timeout.c:learn_egg_type and wire existing identification and polymorph callers. Preserve canonical species knowledge and refresh order. Manifest challenges/manifests/v18.json SHA256 ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30; recording challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.session.json SHA256 e7baee31752ff24439cb9cabdcc104485f43efa81069503390284a08fd3fbaca.",
+      "detail": "Compared all of timeout.c:learn_egg_type against C: normalize through the existing little_to_big, OR MV_KNOWS_EGG into canonical svm.mvitals, then invoke update_inventory. Existing reset_mvitals and restore keep the mvitals alias on the same storage; no new state is added. Compared invent.c:fully_identify_obj and polyself.c:polymon exact caller branches: egg knowledge follows object flags, and both polymorph calls follow newsym in source order, with force_ordinary skipping offspring RNG. The helper is impure because it writes game state and refreshes inventory. Existing caller gaps are removed. The absent hatch_egg timer callback remains an outer gap and receives no completion credit. Whole helper and both implemented caller families have matching runtime evidence; enclosing caller functions receive no whole-function credit.",
+      "openedAt": "33e00aac62350c7f0b679662e935879ad355993a",
+      "openStanding": {
+        "sha": "6f62f97576e59ad69ca3dae0c919680cf95b89e9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "learn_egg_type",
+          "line": 1193,
+          "endLine": 1203,
+          "declared": false,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 1193,
+        "to": 1203
+      },
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-learns-egg-type-from-identification-c59": {
+          "session": "synthetic/v18/wizard-learns-egg-type-from-identification-c59",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-learns-egg-type-from-identification-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.session.json",
+          "recordingSha256": "e7baee31752ff24439cb9cabdcc104485f43efa81069503390284a08fd3fbaca",
+          "evaluationPath": "challenges/evaluations/20261002075924-v18.json",
+          "evaluationCommit": "6f62f97576e59ad69ca3dae0c919680cf95b89e9"
+        }
+      },
+      "activeStanding": {
+        "sha": "6f62f97576e59ad69ca3dae0c919680cf95b89e9",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-learns-egg-type-from-identification-c59",
+          "session": "synthetic/v18/wizard-learns-egg-type-from-identification-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.session.json",
+          "recordingSha256": "e7baee31752ff24439cb9cabdcc104485f43efa81069503390284a08fd3fbaca",
+          "recipe": "challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.recipe.session.json",
+          "recipeSha256": "f264e74c06a0b9cb69ba1bbf96b0d00bf1b6dd21181082fce665b4ed98bbf15b",
+          "replayInputSha256": "56d9565afc0696840efb26c5d8a3f98205e48910c8669f56466fae98de64a5de",
+          "evaluationPath": "challenges/evaluations/20261002075924-v18.json",
+          "evaluationCommit": "6f62f97576e59ad69ca3dae0c919680cf95b89e9",
+          "evaluationArtifact": "challenges/evaluations/20261002075924-v18.json",
+          "evaluationUtc": "2026-10-02T08:00:13.454Z",
+          "remainingScreens": 1,
+          "recordedSteps": 70,
+          "previousScreensMatched": 69,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 69,
+              "total": 70
+            },
+            "rng": {
+              "matched": 4533,
+              "total": 4533
+            },
+            "cursors": {
+              "matched": 70,
+              "total": 70
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 69,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 69,
+                "key": "\n"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 5,
+              "cCell": {
+                "ch": " ",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "n",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": null,
+            "cursor": null
+          },
+          "step": 69,
+          "kind": "screen",
+          "sourceFile": null,
+          "function": null,
+          "message": null,
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-learns-egg-type-from-identification-c59.json",
+            "result": {
+              "session": "synthetic/v18/wizard-learns-egg-type-from-identification-c59",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-learns-egg-type-from-identification-c59",
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingSha256": "e7baee31752ff24439cb9cabdcc104485f43efa81069503390284a08fd3fbaca",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "remainingScreens": 1,
+              "recordedSteps": 70,
+              "status": "complete",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-learns-egg-type-from-identification-c59",
+                "session": "synthetic/v18/wizard-learns-egg-type-from-identification-c59",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.session.json",
+                "recordingSha256": "e7baee31752ff24439cb9cabdcc104485f43efa81069503390284a08fd3fbaca",
+                "recipe": "challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.recipe.session.json",
+                "recipeSha256": "f264e74c06a0b9cb69ba1bbf96b0d00bf1b6dd21181082fce665b4ed98bbf15b",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 1,
+                "recordedSteps": 70,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 69,
+                    "total": 70
+                  },
+                  "rng": {
+                    "matched": 4533,
+                    "total": 4533
+                  },
+                  "cursors": {
+                    "matched": 70,
+                    "total": 70
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 69,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 69,
+                      "key": "\n"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 5,
+                    "cCell": {
+                      "ch": " ",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "n",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": null,
+                  "cursor": null
+                },
+                "step": 69,
+                "kind": "screen",
+                "sourceFile": null,
+                "function": null,
+                "message": null,
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The first wished blessed giant-ant egg is fully identified through #wizidentify. C invent.c:fully_identify_obj() calls timeout.c:learn_egg_type(), which sets the species-wide MV_KNOWS_EGG flag. The second, fresh uncursed giant-ant egg therefore prints “a giant ant egg” in C at segment 0 step 69, while JavaScript prints “an egg”; RNG and cursor both match. Port the whole learn_egg_type() helper and wire its existing JS identification and egg-laying polymorph caller gaps. The separate timeout.c:hatch_egg() caller is still absent from the JavaScript timer table callback.",
+              "source": {
+                "file": "timeout.c",
+                "functions": [
+                  "learn_egg_type"
+                ],
+                "branch": "Port the whole helper: normalize its monster index with the consumed return from little_to_big(mnum), OR MV_KNOWS_EGG into svm.mvitals[mnum].mvflags without clearing other bits, then call update_inventory() because the newly learned species may change carried egg names. For PM_GIANT_ANT the little_to_big mapping leaves the index unchanged. The function returns void; every caller discards that result.",
+                "callers": [
+                  "nethack-c/upstream/src/invent.c:fully_identify_obj() calls learn_egg_type(otmp->corpsenm) exactly when otyp is EGG and corpsenm != NON_PM (2646). The recorded #wizidentify path is wizcmds.c:wiz_identify() -> invent.c:display_pickinv() wizard-identify menu; choosing its fake _ entry calls identify_pack(0, FALSE), which reaches identify() -> fully_identify_obj(). Existing JS js/invent.js:fully_identify_obj() has note_unported(\"timeout.c learn_egg_type\") at 2820; replace it with the helper call and pass the active state.",
+                  "nethack-c/upstream/src/polyself.c:polymon() calls learn_egg_type(u.umonnum), then learn_egg_type(egg_type_from_parent(u.umonnum, TRUE)) when lays_eggs(gy.youmonst.data) is true (907-910). Existing js/polyself.js:polymon() explicitly omits this branch at 1219; wire both calls with the corresponding state. The second call consumes egg_type_from_parent() as its argument; js/mon.js already provides it, and force_ordinary=true takes its no-random path. The outer polymon() remains a separately scoped partial function.",
+                  "nethack-c/upstream/src/timeout.c:hatch_egg() calls learn_egg_type(mnum) only after a monster successfully hatches and cansee_hatchspot && knows_egg (1166). JavaScript js/timeout.js has a hatch_egg timer row without an f callback at 358 and no hatch_egg implementation, so there is no existing JS call site to wire in a helper-only task. Keep this direct C caller visible as a separate missing hatch_egg timer path; helper completion alone does not complete it.",
+                  "The apparent read.c:seffect_identify source pointer is not this recipe’s route: this recipe selects the fake all-identify entry in #wizidentify. An actual identify scroll is another route into identify_pack() and fully_identify_obj(), so wiring the existing JS fully_identify_obj() call covers that caller too. Commented candidate calls in uhitm.c and zap.c are not active C callers."
+                ],
+                "dependencies": [
+                  "mondata.c:little_to_big() returns the mvitals index consumed by learn_egg_type(); the existing JS mondata.js:little_to_big() returns the same species index, and PM_GIANT_ANT has no grownup mapping.",
+                  "invent.c:update_inventory() is called for its inventory-refresh side effect after the species flag changes; its C return is void/ignored. JavaScript js/invent.js:update_inventory() is already present and likewise returns an ignored status rather than game data.",
+                  "polyself.c:egg_type_from_parent(u.umonnum, TRUE) is consumed as the second helper argument. Existing js/mon.js:egg_type_from_parent() preserves the forced-ordinary branch and does not draw RNG for TRUE.",
+                  "The state contract is svm.mvitals[mnum].mvflags |= MV_KNOWS_EGG (include/monflag.h:212). js/monsters.js:reset_mvitals() aliases state.mvitals and state.svm.mvitals to the same array, and js/objnam.js reads the species flag. Keep the OR update on that shared array so objnam.c’s EGG naming condition can observe it.",
+                  "The helper makes no RNG call and returns void. No return from learn_egg_type() is consumed by any direct caller."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The current saved evaluation challenges/evaluations/20261002065911-v18.json at evaluation commit d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d records 69/70 screens, 4533/4533 RNG calls, and 70/70 cursors. Its sole mismatch is segment 0, step 69, newline: screen row 0 column 5 is a space in C and “n” in JavaScript; RNG and cursor mismatches are null. This assessment uses that saved result; no new replay was needed.",
+                "The immutable recipe challenges/cases/v18/wizard-learns-egg-type-from-identification-c59.recipe.session.json wishes “blessed egg of giant ant”, invokes #wizidentify, selects “_” to permanently identify all inventory, then wishes “uncursed egg of giant ant”. In the C recording, step 27 shows “o - an egg.” before identification, the wizard identify menu at step 40 shows the blessed giant-ant species under override identification, step 42 after the permanent identification says “o - a blessed giant ant egg.”, and step 69 says “p - a giant ant egg.”. The same step-69 JavaScript screen spells the second item “p - an egg.”; its first differing cell is the “n” at column 5. Distinct BUC states ensure the second line refers to a new egg rather than the identified first object.",
+                "The manifest challenges/manifests/v18.json records the case’s independently reproduced C recording and first-mismatch owner timeout.c:learn_egg_type. Its sourcePointers include read.c:seffect_identify, but the saved input and C screens establish the actual route as #wizidentify. C wizcmds.c:wiz_identify() sets override_ID and calls display_inventory(); invent.c:display_pickinv() handles the wizard menu’s fake _ selection by calling identify_pack(0, FALSE), which reaches identify() and fully_identify_obj(). The latter calls learn_egg_type() for an identified EGG with a species.",
+                "nethack-c/upstream/src/timeout.c:1193-1200 defines the complete missing helper: little_to_big(mnum), OR of MV_KNOWS_EGG into svm.mvitals[mnum].mvflags, and update_inventory(). The egg naming rule in objnam.c:1525-1531 includes the monster name when object->known is true or mvitals[omndx].mvflags has MV_KNOWS_EGG. Egg objects use the FOOD macro’s unk=1 entry (objects.h) and mkobj.c:854-864 initializes known false when oc_uses_known is set; therefore the second object needs the species-wide flag. JavaScript js/objnam.js:1797 has the equivalent condition, but js/invent.js:2820 currently records note_unported(\"timeout.c learn_egg_type\") instead of setting that flag. This is the deterministic state omission behind the screen difference, not a display-only issue or RNG tag.",
+                "Direct active C callers are invent.c:fully_identify_obj(), polyself.c:polymon() (two calls under lays_eggs), and timeout.c:hatch_egg() under cansee_hatchspot && knows_egg. Only the first route is exercised here. The JavaScript identify caller exists but is a recorded gap; the JavaScript polymon caller branch is explicitly omitted; the hatch_egg timer table row currently has no callback. Commented calls in uhitm.c and zap.c are not active callers. Wiring the first two call paths is required alongside the helper, while the broader hatch_egg timer behavior remains separate source work.",
+                "The consumed helper return dependencies are mondata.c:little_to_big() for the mvitals index and polyself.c:egg_type_from_parent(u.umonnum, TRUE) for the polymorph branch argument; both JavaScript helpers already exist. update_inventory() is needed for its side effect but has no consumed return. reset_mvitals() assigns state.mvitals and state.svm.mvitals to the same JavaScript array, so the helper must mutate the shared species record."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
