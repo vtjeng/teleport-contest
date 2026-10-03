@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent male Tourist CORNUTHAUM variation. Its separate C-first prompt probe observed this wished hat at inventory letter m; the read selector advertises i only because C read_ok returns DOWNPLAY, so direct m exercises the source-supported selector fallback. This changes cap object and reported cap text relative to DUNCE_CAP while preserving the helper call.",
+  "segments": [
+    {
+      "seed": 60841391,
+      "datetime": "20260817101400",
+      "nethackrc": "OPTIONS=name:CornCapProbe,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017cornuthaum\nrm"
+    }
+  ]
+}

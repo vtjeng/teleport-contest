@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first Tourist DUNCE_CAP route. The separate menu-probe recording established the wished cap appears at inventory letter n while the normal read selector lists only j; direct n is accepted by read_ok(DOWNPLAY). This frozen continuation exercises read.c:doread’s Tourist-cap helper path without inferring the item letter.",
+  "segments": [
+    {
+      "seed": 60841377,
+      "datetime": "20260513091500",
+      "nethackrc": "OPTIONS=name:CapTextProbe,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017dunce cap\nrn"
+    }
+  ]
+}
