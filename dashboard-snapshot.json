@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-03T01:44:42.834Z",
+  "capturedAt": "2026-10-03T02:13:28.670Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -16298,12 +16298,52 @@
         "type": "accepted",
         "at": "2026-10-03T01:43:47.528Z",
         "task": "B91"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B91-published-2207124e",
+        "type": "published",
+        "at": "2026-10-03T01:44:56.330Z",
+        "task": "B91",
+        "commit": "2207124e3eed3e14d9887948ed5018cf0559dc3a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C64-integrating-15be180d",
+        "type": "integrating",
+        "at": "2026-10-03T01:57:09.481Z",
+        "task": "C64",
+        "integration": "15be180dc8aec3010025eac5f8bbcd34571ad39c"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C65-v21-ba3e42d6-cases-only",
+        "type": "assign",
+        "at": "2026-10-03T02:01:42.446Z",
+        "task": "C65",
+        "worker": "C",
+        "kind": "challenge-preparation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C64-validated-15be180d",
+        "type": "validated",
+        "at": "2026-10-03T02:08:11.115Z",
+        "task": "C64",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C64-accepted-15be180d",
+        "type": "accepted",
+        "at": "2026-10-03T02:13:08.458Z",
+        "task": "C64"
       }
     ]
   },
   "development": {
-    "executionCommit": "82e0a29d6e1fb1033112dd229400e822af504f75",
-    "measuredAt": "2026-10-03T01:32:22.913Z",
+    "executionCommit": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+    "measuredAt": "2026-10-03T02:07:37.543Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
