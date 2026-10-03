@@ -5,6 +5,7 @@
 // passiveum(), and gulp_blnd_check().
 
 import {
+    A_CON,
     A_DEX,
     ACID_RES,
     AC_VALUE,
@@ -32,6 +33,7 @@ import {
     MM_NOMSG,
     M_SEEN_COLD,
     M_SEEN_FIRE,
+    NEUTRAL,
     NATTK,
     NO_MINVENT,
     NEED_HTH_WEAPON,
@@ -44,6 +46,8 @@ import {
     STONING,
     STUNNED,
     SHOCK_RES,
+    SICK,
+    SICK_NONVOMITABLE,
     STONE_RES,
     IS_WATERWALL,
     TT_PIT,
@@ -67,7 +71,8 @@ import {
 import {
     is_pool,
 } from './dbridge.js';
-import { exercise, minuhpmax } from './attrib.js';
+import { acurr, exercise, minuhpmax } from './attrib.js';
+import { encumber_msg } from './pickup.js';
 // js/unported_monster_actions.js already imports allmain.js across the same
 // cycle and records why it is safe: `stop_occupation` is a hoisted function
 // declaration, initialized before either module body runs, and nothing here
@@ -156,6 +161,7 @@ import {
     unsolid,
     attacktype_fordmg,
     can_blnd,
+    flaming,
     resists_blnd,
 } from './mondata.js';
 import { monnear } from './monmove.js';
@@ -186,7 +192,11 @@ import {
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
-import { mhitm_adtyping, mhitm_knockback } from './uhitm.js';
+import {
+    heroSickResistance,
+    mhitm_adtyping,
+    mhitm_knockback,
+} from './uhitm.js';
 import { Cold_resistance, Fire_resistance, drain_item } from './zap.js';
 import { cansee, couldsee, m_canseeu, vision_recalc } from './vision.js';
 import { hitval } from './weapon.js';
@@ -199,7 +209,12 @@ import {
     rehumanize,
     ugolemeffects,
 } from './polyself.js';
-import { make_blinded, make_confused, make_stunned } from './potion.js';
+import {
+    make_blinded,
+    make_confused,
+    make_sick,
+    make_stunned,
+} from './potion.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
@@ -213,15 +228,18 @@ import { canseemon, canspotmon, mon_visible } from './display.js';
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any
 // extrinsic speed source (such as speed boots) for the second message arm.
-export async function u_slow_down(state = game) {
+export async function u_slow_down(
+    state = game,
+    { message = ttyPline, random = { rn2 } } = {},
+) {
     const fast = state.u?.uprops?.[FAST];
     if (!fast) return;
     fast.intrinsic = 0;
     if (!(fast.extrinsic ?? 0))
-        await ttyPline('You slow down.', state);
+        await message('You slow down.', state);
     else
-        await ttyPline('Your quickness feels less natural.', state);
-    await exercise(A_DEX, false, state);
+        await message('Your quickness feels less natural.', state);
+    await exercise(A_DEX, false, state, random);
 }
 
 // Planning cannot call end.c done_in_by() on its cloned state: the ordinary
@@ -1238,13 +1256,17 @@ export async function mattacku(monster, rawEnv = {}) {
 
         case M.AT_ENGL:
             if (!range2) {
-                // This slice admits only the witnessed live ice vortex. The
-                // other engulfers, polymorphed heroes, cold resistance and a
-                // cancelled vortex remain outside the selected boundary.
-                if (mdat?.pmidx !== M.PM_ICE_VORTEX
-                    || Upolyd(state.u)
-                    || Cold_resistance(state)
-                    || monster.mcan) {
+                // C dispatches each successful AT_ENGL hit to gulpmu(). This
+                // slice admits the existing ice-vortex AD_COLD route and the
+                // source-defined Juiblex AD_DISE route; unrelated engulfers
+                // and polymorphed heroes remain outside the partial port.
+                const iceVortexCold = mdat?.pmidx === M.PM_ICE_VORTEX
+                    && mattk.adtyp === M.AD_COLD
+                    && !Cold_resistance(state)
+                    && !monster.mcan;
+                const juiblexDisease = mdat?.pmidx === M.PM_JUIBLEX
+                    && mattk.adtyp === M.AD_DISE;
+                if (Upolyd(state.u) || (!iceVortexCold && !juiblexDisease)) {
                     unsupported('a monster engulfing the hero');
                 }
                 if (foundyou) {
@@ -1440,21 +1462,54 @@ export async function expels(mtmp, rawEnv = {}) {
     await spoteffects(true, state, rawEnv);
 }
 
-// C ref: mhitu.c gulpmu() (1287-1577). This slice covers an ordinary human
-// Wizard being swallowed by an uncancelled ice vortex, the same vortex's
-// repeated AD_COLD arm while the hero remains inside, and its ordinary
-// non-digestive expulsion when the timer expires. The other engulfers,
-// polymorphed heroes, cold resistance and a cancelled vortex remain outside
-// the selected boundary.
+// C ref: mhitu.c diseasemu() (1033-1044). This shared infection effect is
+// called by the active Pestilence and engulfing AD_DISE arms. Keep illness
+// duration on the SICK timeout owner, and pass the caller's clone/message/RNG
+// environment through make_sick() and its possible encumber_msg().
+export async function diseasemu(mdat, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const message = rawEnv.message ?? ttyPline;
+    const random = { rn1, rn2, ...(rawEnv.random ?? {}) };
+
+    if (heroSickResistance(state)) {
+        await message('You feel a slight illness.', state, rawEnv);
+        return false;
+    }
+
+    // C's Sick macro is the whole packed intrinsic, not only its timeout
+    // field; make_sick() clamps the resulting duration through itimeout().
+    const sick = state.u?.uprops?.[SICK]?.intrinsic ?? 0;
+    const duration = sick
+        ? Math.trunc(sick / 3) + 1
+        : random.rn1(acurr(state, A_CON), 20);
+    const encumberMessage = rawEnv.encumberMessage
+        ?? ((subject) => encumber_msg(subject, { message }));
+    await make_sick(
+        duration,
+        mdat.pmnames[NEUTRAL],
+        true,
+        SICK_NONVOMITABLE,
+        state,
+        { ...rawEnv, message, random, encumberMessage },
+    );
+    return true;
+}
+
+// C ref: mhitu.c gulpmu() (1287-1577). This function remains a partial port:
+// its ordinary ice-vortex cold slice and the consumed AD_DISE disease arm are
+// implemented. Other engulfers, polymorphed heroes, cold resistance and
+// several engulfing transitions remain outside this selected boundary.
 async function gulpmu(mtmp, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const u = state.u;
-    const random = rawEnv.random;
+    const suppliedRandom = rawEnv.random;
     const message = requireMattackuOperation(rawEnv, 'message');
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
-    if (typeof random?.d !== 'function' || typeof random?.rn2 !== 'function') {
+    if (typeof suppliedRandom?.d !== 'function'
+        || typeof suppliedRandom?.rn2 !== 'function') {
         throw new TypeError('gulpmu requires d and rn2 random sources');
     }
+    const random = { d, rn1, rn2, ...suppliedRandom };
 
     // C evaluates the damage roll before any initial-swallow checks.
     let tmp = random.d(mattk.damn, mattk.damd);
@@ -1533,8 +1588,16 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         const timTmp = random.rnd(mtmp.m_lev + 10 / 2);
         u.uswldtim = timTmp < 2 ? 2 : timTmp;
         if (!rawEnv.planning) await swallowed(1, state);
-        // An ice vortex is not flaming, so its inventory snuff loop has no
-        // effect on this path and is deliberately not entered.
+        // C mhitu.c:1398-1402 calls snuff_lit() on each inventory object when
+        // the engulfer is not flaming. Its void result is discarded, so retain
+        // the exact named gap until light.c:snuff_lit is ported.
+        if (!flaming(mtmp.data)) {
+            for (let object = state.invent; object;) {
+                const next = object.nobj;
+                note_unported('light.c snuff_lit');
+                object = next;
+            }
+        }
     }
 
     if (mtmp !== u.ustuck) return M_ATTK_MISS;
@@ -1552,6 +1615,13 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
                 monstunseesu(M_SEEN_COLD, state);
             }
         } else {
+            tmp = 0;
+        }
+        break;
+    case M.AD_DISE:
+        if (!await diseasemu(mtmp.data, {
+            ...rawEnv, state, random, message,
+        })) {
             tmp = 0;
         }
         break;
@@ -1665,9 +1735,8 @@ function Half_physical_damage(state) {
 //
 // Ported: the marker for an unspottable attacker in hitmu() and missmu(), the
 // hidden-under-object reveal, and the permanent hit-point accounting. The
-// latter is exercised when a future uhitm.c mhitm_ad_deth() writer supplies a
-// nonzero field; that AD_DETH arm remains an unported source gap, while this
-// reader preserves C's update and display order.
+// latter is reached by uhitm.c mhitm_ad_deth(); this reader preserves C's
+// update and display order for the helper's permdmg field.
 //
 // mhm.specialdmg has no ported reader either, and mhitm_ad_phys() did not
 // bring one. Its two C readers, uhitm.c:3992 and :3995, are inside the

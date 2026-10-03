@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent freeze for the Famine AT_TUCH/AD_FAMN hero branch. The Wizard role is selected for playmode:debug command access; the short wait is intended only to give hostile Famine time to approach. Preserve the actual unique prompt, target reachability and first C observation; no JavaScript result has been consulted.",
+  "segments": [
+    {
+      "seed": 610202604,
+      "datetime": "21210604093000",
+      "nethackrc": "OPTIONS=name:C63Famine,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile Famine\ny......"
+    }
+  ]
+}

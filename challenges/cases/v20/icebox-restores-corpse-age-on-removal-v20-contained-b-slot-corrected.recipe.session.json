@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first selector continuation frozen after run-qjclFX. That C recording shows the corpse inserted with the source `s` menu, then the second #loot prompt offers `o` to take something out and lists the contained ice troll corpse as slot b. Preserve the preceding pager and slot-o misses unchanged. This recipe applies the C-observed b selector after the same source action sequence; reachability is established only if this new C trace shows pickup.c:out_container calling removed_from_icebox.",
+  "segments": [
+    {
+      "seed": 620329871,
+      "datetime": "20431025132000",
+      "nethackrc": "OPTIONS=name:C63IceAge,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed ice troll corpse\n #loot\nso #loot\nob"
+    }
+  ]
+}

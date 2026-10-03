@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first hatch timer probe frozen before recording. C source rejects the earlier jackal egg because jackals lack M1_OVIPAROUS; this independent correction wishes an egg of giant ant, whose monster definition has M1_OVIPAROUS, so objnam.c:can_be_hatched can assign corpsenm and set_corpsenm can attach HATCH_EGG. The bounded wait observes the source-selected timer and timeout.c:hatch_egg if the timer is reached. Preserve a timer/setup miss as a target miss.",
+  "segments": [
+    {
+      "seed": 67231940,
+      "datetime": "21160415111500",
+      "nethackrc": "OPTIONS=name:C63EggAnt,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\negg of giant ant\n............................................................................................................................................................................................................................"
+    }
+  ]
+}

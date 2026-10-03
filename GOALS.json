@@ -144545,6 +144545,2369 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "port-do-wear-ring-on-v19-20261002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete ring-on effects and source-ordered worn-ring callbacks",
+      "cFile": "do_wear.c",
+      "sessions": [
+        "synthetic/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+        "synthetic/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold"
+      ],
+      "selectionReason": "The two v19 warning-ring investigations select complete do_wear.c:Ring_on1242-1344. Current B89 evaluations at c52fd696 retain one unmatched screen in each case; below-threshold level1 orc and warning-threshold level5 ogre share this helper. Port all ring-on switch arms and wire source-ordered set_wear ring callbacks plus poly_obj W_RING target dispatch. Preserve the missing set_mimic_blocking call, separate see_monsters warning-artifact limitation, and unimplemented potion_dip/doseduce outer paths; do not claim whole set_wear/poly_obj. Source-selected immutable recording hashes and current evaluations are verified in .cache/B90-root-source-verification.json.",
+      "detail": "",
+      "openedAt": "b77c11650724bf3ea7e62fe211b3f355f03fdc1a",
+      "openStanding": {
+        "sha": "c52fd696d861d2e016e2944a5bb99c4afc032971",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c96e70bb677da6dc746034cab4f517fd9487de30",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "Ring_on",
+          "line": 1242,
+          "endLine": 1346,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 1242,
+        "to": 1346
+      },
+      "syntheticProvenance": {
+        "synthetic/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected": {
+          "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.session.json",
+          "recordingSha256": "043e228144da907d0453b55427976cae61bf67f4440017b820553b89657388b2",
+          "evaluationPath": "challenges/evaluations/20261002215105-v19.json",
+          "evaluationCommit": "c52fd696d861d2e016e2944a5bb99c4afc032971"
+        },
+        "synthetic/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold": {
+          "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.session.json",
+          "recordingSha256": "abe24900655387cc4ca256901f970f476e17bb24267b8626466538848b9ae330",
+          "evaluationPath": "challenges/evaluations/20261002215105-v19.json",
+          "evaluationCommit": "c52fd696d861d2e016e2944a5bb99c4afc032971"
+        }
+      },
+      "activeStanding": {
+        "sha": "c52fd696d861d2e016e2944a5bb99c4afc032971",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+          "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.session.json",
+          "recordingPath": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.session.json",
+          "recordingSha256": "043e228144da907d0453b55427976cae61bf67f4440017b820553b89657388b2",
+          "recipe": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.recipe.session.json",
+          "recipeSha256": "b89f98d12e0c4c8cbbc8093aa6cd50a393c56f036c0647631f89d1537e86eb78",
+          "replayInputSha256": "c975ff9433e8908459b91f518526739fc353d95c74f7b82828f4a210bb17a850",
+          "evaluationPath": "challenges/evaluations/20261002215105-v19.json",
+          "evaluationCommit": "c52fd696d861d2e016e2944a5bb99c4afc032971",
+          "evaluationArtifact": "challenges/evaluations/20261002215105-v19.json",
+          "evaluationUtc": "2026-10-02T21:52:00.819Z",
+          "remainingScreens": 1,
+          "recordedSteps": 54,
+          "previousScreensMatched": 53,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 53,
+              "total": 54
+            },
+            "rng": {
+              "matched": 2826,
+              "total": 2833
+            },
+            "cursors": {
+              "matched": 53,
+              "total": 54
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+            "step": 53
+          },
+          "step": 53,
+          "kind": "stop",
+          "sourceFile": "do_wear.c",
+          "function": "Ring_on",
+          "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.json",
+            "result": {
+              "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+              "remainingScreens": 1,
+              "recordedSteps": 54,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "043e228144da907d0453b55427976cae61bf67f4440017b820553b89657388b2",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+                "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.session.json",
+                "recordingPath": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.session.json",
+                "recordingSha256": "043e228144da907d0453b55427976cae61bf67f4440017b820553b89657388b2",
+                "recipe": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-slot-f-corrected.recipe.session.json",
+                "recipeSha256": "b89f98d12e0c4c8cbbc8093aa6cd50a393c56f036c0647631f89d1537e86eb78",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 1,
+                "recordedSteps": 54,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 53,
+                    "total": 54
+                  },
+                  "rng": {
+                    "matched": 2826,
+                    "total": 2833
+                  },
+                  "cursors": {
+                    "matched": 53,
+                    "total": 54
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+                  "step": 53
+                },
+                "step": 53,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "Ring_on",
+                "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Wearing a warning ring reaches an unported Ring_on branch. C refreshes monsters but produces no warning for the level-1 orc. Port the whole Ring_on function and wire the monster refresh.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "Putting the slot-f RIN_WARNING on the left hand calls see_monsters; warning requires an active property, a hostile nearby monster, and integer monster level / 4 at least context.warnlevel.",
+                "functions": [
+                  "Ring_on"
+                ],
+                "callers": [
+                  "do_wear.c:doputon -> accessory_or_armor_on -> Ring_on"
+                ],
+                "dependencies": [
+                  "display.c:see_monsters",
+                  "display.c:display_warning",
+                  "display.c:warning_of",
+                  "do_wear.c:learnring",
+                  "do_wear.c:adjust_attrib",
+                  "wield.c:setuwep/setuswapwep/setuqwep"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/do_wear.c:1242-1344 defines Ring_on. After clearing wield/quiver references and preserving the other ring property mask, RIN_WARNING calls see_monsters. accessory_or_armor_on at 2209 and its ring branch set the worn slot before calling Ring_on; doputon provides the production command route.",
+                "js/do_wear.js:818-823 throws UnsupportedRingOnError for RIN_WARNING instead of calling see_monsters. The admitted baseline stops at the left-hand selection boundary, before the turn completes; the later mcalcmove comparator gap does not diagnose monster movement.",
+                "nethack-c/upstream/src/display.c:1487-1522 see_monsters refreshes monster locations and special display state. display_warning at 634-651 uses warning_of unless hallucinating, then show_mon_or_warn. warning_of at 654-662 clamps integer level / 4 to WARNCOUNT - 1.",
+                "nethack-c/upstream/include/display.h:64-66 requires Warning, a non-peaceful monster, distance squared below 100, and integer level / 4 >= context.warnlevel. allmain.c:774 initializes warnlevel=1. Existing JS display.js monsterWarnsHero and warning_of mirror this threshold; their declarations do not by themselves establish whole-function completion.",
+                "The frozen recording at segment 0 step 53, key l, shows f - a wire ring (on left hand). The invisible hostile orc has level 1, so 1 / 4 truncates to 0 and misses threshold 1; no warning glyph is expected. This is a negative threshold route, not missing C warning behavior.",
+                "Both ring recordings select one whole Ring_on file-port scope, not two separate source tasks. Include its other source branches and required consumed-return closure, remove replaced refusals, and wire the existing monster refresh with source-backed behavior. This does not grant completion credit to the whole accessory command or movement loop.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+          "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.session.json",
+          "recordingPath": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.session.json",
+          "recordingSha256": "abe24900655387cc4ca256901f970f476e17bb24267b8626466538848b9ae330",
+          "recipe": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.recipe.session.json",
+          "recipeSha256": "d1d911ca427c192f75d1ea21aa32ccbedfd82edfab51694ca74168ef33508b0f",
+          "replayInputSha256": "c975ff9433e8908459b91f518526739fc353d95c74f7b82828f4a210bb17a850",
+          "evaluationPath": "challenges/evaluations/20261002215105-v19.json",
+          "evaluationCommit": "c52fd696d861d2e016e2944a5bb99c4afc032971",
+          "evaluationArtifact": "challenges/evaluations/20261002215105-v19.json",
+          "evaluationUtc": "2026-10-02T21:52:00.819Z",
+          "remainingScreens": 1,
+          "recordedSteps": 55,
+          "previousScreensMatched": 54,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 54,
+              "total": 55
+            },
+            "rng": {
+              "matched": 2819,
+              "total": 2826
+            },
+            "cursors": {
+              "matched": 54,
+              "total": 55
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+            "step": 54
+          },
+          "step": 54,
+          "kind": "stop",
+          "sourceFile": "do_wear.c",
+          "function": "Ring_on",
+          "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+          "cFile": "do_wear.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.json",
+            "result": {
+              "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+              "remainingScreens": 1,
+              "recordedSteps": 55,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "abe24900655387cc4ca256901f970f476e17bb24267b8626466538848b9ae330",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+                "session": "synthetic/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.session.json",
+                "recordingPath": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.session.json",
+                "recordingSha256": "abe24900655387cc4ca256901f970f476e17bb24267b8626466538848b9ae330",
+                "recipe": "challenges/cases/v19/wear-warning-ring-reveals-monsters-c62-warning-threshold.recipe.session.json",
+                "recipeSha256": "d1d911ca427c192f75d1ea21aa32ccbedfd82edfab51694ca74168ef33508b0f",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 1,
+                "recordedSteps": 55,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 54,
+                    "total": 55
+                  },
+                  "rng": {
+                    "matched": 2819,
+                    "total": 2826
+                  },
+                  "cursors": {
+                    "matched": 54,
+                    "total": 55
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+                  "step": 54
+                },
+                "step": 54,
+                "kind": "stop",
+                "sourceFile": "do_wear.c",
+                "function": "Ring_on",
+                "message": "unsupported hero command: an unported branch of this command: Ring_on() reached an unported branch: see_monsters() for otyp 187",
+                "cFile": "do_wear.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "Wearing a warning ring reaches an unported Ring_on branch. C refreshes monsters and shows a red warning 1 for the level-5 ogre. This shares the Ring_on scope with the orc threshold case.",
+              "source": {
+                "file": "do_wear.c",
+                "branch": "Putting the slot-f RIN_WARNING on the left hand calls see_monsters; warning requires an active property, a hostile nearby monster, and integer monster level / 4 at least context.warnlevel.",
+                "functions": [
+                  "Ring_on"
+                ],
+                "callers": [
+                  "do_wear.c:doputon -> accessory_or_armor_on -> Ring_on"
+                ],
+                "dependencies": [
+                  "display.c:see_monsters",
+                  "display.c:display_warning",
+                  "display.c:warning_of",
+                  "do_wear.c:learnring",
+                  "do_wear.c:adjust_attrib",
+                  "wield.c:setuwep/setuswapwep/setuqwep"
+                ]
+              },
+              "evidence": [
+                "nethack-c/upstream/src/do_wear.c:1242-1344 defines Ring_on. After clearing wield/quiver references and preserving the other ring property mask, RIN_WARNING calls see_monsters. accessory_or_armor_on at 2209 and its ring branch set the worn slot before calling Ring_on; doputon provides the production command route.",
+                "js/do_wear.js:818-823 throws UnsupportedRingOnError for RIN_WARNING instead of calling see_monsters. The admitted baseline stops at the left-hand selection boundary, before the turn completes; the later mcalcmove comparator gap does not diagnose monster movement.",
+                "nethack-c/upstream/src/display.c:1487-1522 see_monsters refreshes monster locations and special display state. display_warning at 634-651 uses warning_of unless hallucinating, then show_mon_or_warn. warning_of at 654-662 clamps integer level / 4 to WARNCOUNT - 1.",
+                "nethack-c/upstream/include/display.h:64-66 requires Warning, a non-peaceful monster, distance squared below 100, and integer level / 4 >= context.warnlevel. allmain.c:774 initializes warnlevel=1. Existing JS display.js monsterWarnsHero and warning_of mirror this threshold; their declarations do not by themselves establish whole-function completion.",
+                "The frozen recording at segment 0 step 54, key l, shows f - a wire ring (on left hand) and red warning glyph 1 by the hero. The invisible hostile ogre has level 5, so 5 / 4 truncates to 1 and reaches threshold 1; this is the positive counterpart to the orc case.",
+                "Both ring recordings select one whole Ring_on file-port scope, not two separate source tasks. Include its other source branches and required consumed-return closure, remove replaced refusals, and wire the existing monster refresh with source-backed behavior. This does not grant completion credit to the whole accessory command or movement loop.",
+                "Authoritative baseline: challenges/evaluations/20261002180737-v19.json, measured 8583a972f66a872a8ad73c888a24dd01075481f4. Immutable preparation packet: .cache/worker-state-loop-20260925.json.deliveries/f166c3eb2d6f32580ce08de90e1d94999f442d71d97220ef67e0470312b4daed.json; per-case C replay and comparison receipts are preserved there. Session and seed identify evidence only, not implementation conditions."
+              ],
+              "goalKind": "file-port"
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "Ring_on",
+            "implementation": "js/do_wear.js",
+            "symbol": "Ring_on",
+            "sourceReview": "Compared the complete do_wear.c:1242-1344 body. C captures the property extrinsic before clearing any accidental uwep/uswapwep/uquiver alias, masks W_RING only when the two slots do not jointly provide the property, and preserves the no-op ring list plus MEAT_RING. The active arms keep stealth feedback, warning detection, see-invisible mimic notification then visibility redraw/message/learning, invisibility learning/redraw/self message, levitation plus conditional spoteffects or float_vs_flight, attribute/accuracy/damage adjustments, shape-changer protection and protection/find_ac in source order. The missing display.c:set_mimic_blocking result is discarded, so JS records that exact gap and continues. The missing warning-artifact count-change path in display.c:see_monsters remains outside this source unit and is documented in entryPointReview. The levitation arm ends before RIN_GAIN_STRENGTH.",
+            "callers": [
+              {
+                "path": "js/do_wear.js",
+                "symbol": "accessory_or_armor_on",
+                "source": "do_wear.c:2407-2411 installs the ring with setworn before calling Ring_on; the #wear/#puton warning cases execute this route."
+              },
+              {
+                "path": "js/do_wear.js",
+                "symbol": "set_wear",
+                "source": "do_wear.c:1546-1549 calls Ring_on for the right and left worn slots in source order; B90 wires both startup and target-object dispatch arms."
+              },
+              {
+                "path": "js/read.js",
+                "symbol": "recharge",
+                "source": "read.c:823-827 restores a charged worn ring with setworn then Ring_on; the existing charging-worn-adornment-ring recording reaches this caller."
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "poly_obj",
+                "source": "zap.c:1945-1949 installs the transformed item, calls target-object set_wear, then rereads wearmask_to_obj; B90 wires the W_RING caller arm only."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/wear-armor.test.mjs",
+              "scripts/zap-poly-obj.test.mjs"
+            ],
+            "recordings": [
+              "recordings/read.c/charging-worn-adornment-ring-c31-independent.session.json"
+            ],
+            "sourceFile": "do_wear.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "wear-warning-ring-reveals-monsters-c62-slot-f-corrected",
+                "segment": 0,
+                "fromStep": 51,
+                "throughStep": 53,
+                "source": "P command -> do_wear.c:accessory_or_armor_on -> setworn -> Ring_on(RIN_WARNING) -> see_monsters; final left-ring selection executes Ring_on."
+              },
+              {
+                "batch": "v19",
+                "caseId": "wear-warning-ring-reveals-monsters-c62-warning-threshold",
+                "segment": 0,
+                "fromStep": 52,
+                "throughStep": 54,
+                "source": "P command -> do_wear.c:accessory_or_armor_on -> setworn -> Ring_on(RIN_WARNING) -> see_monsters; final left-ring selection executes Ring_on at the warning threshold."
+              }
+            ],
+            "checkedAt": "33449a0b6b11992c3f6c3c11fc9f89a440d8efec"
+          }
+        ],
+        "entryPointReview": "Helper-only primary unit: entryPoints is empty. The production #wear/#puton dispatcher calls Ring_on from accessory_or_armor_on after setworn; the two admitted v19 cases execute this path at segment 0 steps 51-53 and 52-54, respectively, and cover the below-threshold and warning-threshold monster cases. Startup moveloop_preamble calls set_wear(NULL); ordinary role inventories do not begin with worn rings, while the source-ordered ring dispatch and initial_don lifetime are pinned by scripts/wear-armor.test.mjs. read.c:recharge also calls Ring_on after restoring a worn ring; its pre-existing charging-worn-adornment-ring recording is cited above. zap.c:poly_obj calls set_wear after transforming an item; B90 wires only the target W_RING arm and the focused source/runtime test calls poly_obj directly. The outer potion.c:potion_dip JavaScript path is still unported, so the test does not claim that production entry path. mhitu.c:doseduce is another C caller, but its JavaScript entry remains blocked by the existing AD_SSEX/seduction gaps; no completion is claimed for those callers. The existing see_monsters warning-artifact count-change limitation and the discarded display.c:set_mimic_blocking call remain precisely bounded gaps; B90 claims no display.c completion. Current implemented planning callers cannot replace a worn ring with a levitation ring: bhito polymorph production callers provide floor objects; carried stone-to-flesh rings become MEAT_RING; polymorph-trap callers convert footwear. The bhito impossible-location diagnostic continues and is not an early refusal. Random worn-ring replacement through potion_dip and seduction doseduce remain unimplemented outer paths. Before enabling those planning paths, route float_up output through the proper planning environment: planningState currently shares nhDisplay, and ttyPlineCore guards only live vision/flush, not direct display writes. No general float_up planning-safety claim is made.",
+        "entryPoints": []
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c96e70bb677da6dc746034cab4f517fd9487de30",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-slow-v19-20261002",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete slowing attacks and intrinsic hero-speed effects",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v19/skeleton-slows-wizard-c62-pager-corrected"
+      ],
+      "selectionReason": "The complete current v19 skeleton investigation selects whole uhitm.c:mhitm_ad_slow3652-3687; the latest accepted evaluation retains 13 unmatched screens. Preserve all three combat directions, cancellation before defense, speed and strategy changes, intrinsic HFast and one-in-four RNG order. Include whole supporting mhitu.c:u_slow_down163-171 to route output and exercise RNG through the existing planning environment, preserving live zapyourself defaults. The gazemu slowdown caller is build-excluded by PM_BEHOLDER and monsters.h #if 0. Source, current recording identity and six independent matching recipe/recording pairs are verified in .cache/B91-root-source-verification.json.",
+      "detail": "",
+      "openedAt": "28cd93328d50f92cc60815b1e25456de82b6195b",
+      "openStanding": {
+        "sha": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "82e0a29d6e1fb1033112dd229400e822af504f75",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_slow",
+          "line": 3652,
+          "endLine": 3689,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3652,
+        "to": 3689
+      },
+      "requiredFunctions": [
+        {
+          "name": "u_slow_down",
+          "line": 163,
+          "endLine": 175,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v19/skeleton-slows-wizard-c62-pager-corrected": {
+          "session": "synthetic/v19/skeleton-slows-wizard-c62-pager-corrected",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json",
+          "recordingSha256": "426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a",
+          "evaluationPath": "challenges/evaluations/20261002231141-v19.json",
+          "evaluationCommit": "c96e70bb677da6dc746034cab4f517fd9487de30"
+        }
+      },
+      "activeStanding": {
+        "sha": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+          "session": "synthetic/v19/skeleton-slows-wizard-c62-pager-corrected",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json",
+          "recordingPath": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json",
+          "recordingSha256": "426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a",
+          "recipe": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.recipe.session.json",
+          "recipeSha256": "fef62e53d1d883a8f9abf3998693948128fde01b0e2b80182523ab3f48ef2f2a",
+          "replayInputSha256": "be6f5975aba7920de757a85af99e02d14e9853e53677f7d8cd6ea05ca51783c7",
+          "evaluationPath": "challenges/evaluations/20261002231141-v19.json",
+          "evaluationCommit": "c96e70bb677da6dc746034cab4f517fd9487de30",
+          "evaluationArtifact": "challenges/evaluations/20261002231141-v19.json",
+          "evaluationUtc": "2026-10-02T23:12:39.385Z",
+          "remainingScreens": 13,
+          "recordedSteps": 46,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 46
+            },
+            "rng": {
+              "matched": 2944,
+              "total": 3002
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 46
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_slow()",
+            "step": 33
+          },
+          "step": 33,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_slow",
+          "message": "simple monster action requires uhitm.c mhitm_ad_slow()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/skeleton-slows-wizard-c62-pager-corrected.json",
+            "result": {
+              "session": "synthetic/v19/skeleton-slows-wizard-c62-pager-corrected",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "remainingScreens": 13,
+              "recordedSteps": 46,
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+                "session": "synthetic/v19/skeleton-slows-wizard-c62-pager-corrected",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json",
+                "recordingPath": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json",
+                "recordingSha256": "426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a",
+                "recipe": "challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.recipe.session.json",
+                "recipeSha256": "fef62e53d1d883a8f9abf3998693948128fde01b0e2b80182523ab3f48ef2f2a",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 13,
+                "recordedSteps": 46,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 46
+                  },
+                  "rng": {
+                    "matched": 2944,
+                    "total": 3002
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 46
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_slow()",
+                  "step": 33
+                },
+                "step": 33,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_slow",
+                "message": "simple monster action requires uhitm.c mhitm_ad_slow()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The recorded monster turn stops in JS planning because AD_SLOW reaches the unported mhitm_ad_slow() branch in js/uhitm.js:mhitm_adtyping(). In C, distfleeck runs before mattacku/hitmu in that turn; the helper then prints hitmsg, while HFast=false prevents slowing or its rn2(4) draw. The comparator’s first missing draw is distfleeck’s rn2(5), a reporting symptom of JS preflight refusing the whole turn, not a chronologically later event. Port the whole uhitm.c:mhitm_ad_slow() function and wire its existing AD_SLOW dispatch.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "mhitm_adtyping() dispatches AD_SLOW. mhitm_ad_slow() first checks magic negation, then returns if defended(AD_SLOW); it otherwise branches for hero attacker, hero defender, or monster-versus-monster. In the reproduced monster-versus-hero branch, magr is not gy.youmonst and mdef is gy.youmonst: hitmsg runs even when negated, while HFast=false short-circuits before rn2(4) and u_slow_down().",
+                "functions": [
+                  "mhitm_ad_slow()"
+                ],
+                "callers": [
+                  "uhitm.c:damageum() -> mhitm_adtyping() AD_SLOW arm (hero attacks monster)",
+                  "mhitu.c:hitmu() -> mhitm_adtyping() AD_SLOW arm (monster attacks hero; reproduced path)",
+                  "mhitm.c:mdamagem() -> mhitm_adtyping() AD_SLOW arm (monster attacks monster)"
+                ],
+                "dependencies": [
+                  "mhitm_mgc_atk_negated() is evaluated before defended() and supplies the effect gate.",
+                  "defended() gates the complete effect after the negation check.",
+                  "Hero-attacker and monster-versus-monster branches use mon_adjust_speed(); the monster-versus-monster branch also clears STRAT_WAITFORU.",
+                  "The hero-defender branch uses hitmsg(), then HFast, rn2(4), and u_slow_down() in that order.",
+                  "Visible speed-change messages use Monnam(), pline()/pline_mon(), canseemon(), and gv.vis/canspotmon()."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Upstream nethack-c/upstream/src/uhitm.c:3652-3687 defines the entire mhitm_ad_slow() unit: it evaluates mhitm_mgc_atk_negated() before defended(); for a hero defender it always calls hitmsg() after the defense check, then calls u_slow_down() only when !negated && HFast && !rn2(4). Port this whole source function, preserving the three attacker/defender branches and call/RNG order.",
+                "Upstream nethack-c/upstream/src/uhitm.c:4782-4832 dispatches AD_SLOW directly to mhitm_ad_slow(). Its production entry callers are damageum() at uhitm.c:4854, hitmu() at mhitu.c:1191, and mdamagem() at mhitm.c:1059; keep all three routes wired through the existing dispatcher.",
+                "At the frozen recording zero-based step 33, a Skeleton reaches AT_TUCH/AD_SLOW against a normal Wizard (HFast=false); C records the hit/touch message and completes the boundary. js/uhitm.js:4977 instead calls unported(\"mhitm_ad_slow\"), causing JS preflight to refuse the planned turn. Capsule C62 reports the comparator’s first missing C draw as rn2(5) in distfleeck(monmove.c:538), one-based step 34. That is a first-mismatch reporting symptom, not a later C event: distfleeck occurs before mattacku/hitmu in the C turn, while the JS refusal prevents the entire turn boundary.",
+                "Capsule 2 links the exact frozen recording challenges/cases/v19/skeleton-slows-wizard-c62-pager-corrected.session.json (SHA-256 426552d7bb89c9114812d650e0a6ed22452771762ff98976fe6379df6c3a537a) and C62 accepted-main per-case receipt/stdout with verified hashes a290965d8cc615081185dbbdea7a5d360244521da14e35f64b1361217b85c8ec and 1cb9d87a0e82122f05f87cf8c0ab6ab1a2f0edbb8e82c36d167bc94e590b54df. Their causal diagnosis is uhitm.c:mhitm_adtyping(AD_SLOW) -> mhitm_ad_slow hero-defender branch; HFast=false proves branch reach but no speed mutation."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_slow",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_slow",
+            "sourceReview": "Compared complete nethack-c/upstream/src/uhitm.c:3652-3687. The helper evaluates mhitm_mgc_atk_negated before defended(AD_SLOW), returning if defended. Hero attack snapshots speed, applies mon_adjust_speed(-1), and prints only after a real change and canseemon. Monster→hero calls hitmsg before checking !negated, intrinsic HFast, then rn2(4), in that order; the selected call to discarded-void u_slow_down receives the planned message and random operations. Monster→monster snapshots speed, applies the decrement, clears STRAT_WAITFORU, and prints only on a visible real change. Existing discarded void calls preserve source order. HFast is intrinsic FAST (youprop.h); extrinsic-only Fast does not enter rn2(4). The supporting u_slow_down seam forwards effectEnv.random to exercise(A_DEX,FALSE), preventing planning from consuming global RNG, and defaults to ttyPline/global rn2 for live self-zap calls.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping AD_SLOW arm at 4819; the active parents are damageum (uhitm.c:4854), hitmu (mhitu.c:1191), and mdamagem (mhitm.c:1059)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-slow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-hero-monster-skeleton-pager-continued.session.json",
+              "recordings/uhitm.c/b91-hero-monster-skeleton-troll-variation.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-positive-slowdown.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658105-slot-q.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658104.session.json",
+              "recordings/uhitm.c/b91-monster-pair-conflict-level12-troll-skeleton-positive-slowdown.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 33,
+                "source": "mattacku → mhitu.c:hitmu → uhitm.c:mhitm_adtyping(AD_SLOW) → mhitm_ad_slow; selected M→H HFast-false call."
+              }
+            ],
+            "checkedAt": "e60de372d533854c69426f3827cd43a72c592e42"
+          },
+          {
+            "name": "u_slow_down",
+            "implementation": "js/mhitu.js",
+            "symbol": "u_slow_down",
+            "sourceReview": "Compared the complete nethack-c/upstream/src/mhitu.c:163-171 body. It clears intrinsic HFast before testing remaining Fast, emits the corresponding You/Your message, then calls exercise(A_DEX,FALSE). The JS message and random parameters are optional planning seams; default live output and RNG remain ttyPline and global rn2. The C call at zap.c:2872 is zapyourself and remains a live-default caller. mhitu.c:gazemu:1877 is inside #ifdef PM_BEHOLDER and the beholder definition is disabled by #if 0 in include/monsters.h, so that apparent caller is excluded in the reference build.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_slow",
+                "source": "uhitm.c:3675"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:2872"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-slow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-positive-slowdown.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658105-slot-q.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [],
+            "checkedAt": "e60de372d533854c69426f3827cd43a72c592e42"
+          }
+        ],
+        "entryPointReview": "Primary completion is whole uhitm.c:mhitm_ad_slow. The active production entry direction is selected by mattacku→hitmu, damageum, or mattackm→mdamagem before the AD_SLOW arm of mhitm_adtyping. The selected v19 range covers M→H with HFast false; independent passing recordings cover H→M, M→H with HFast true (both rn2(4)=0 and rn2(4)=1 outcomes), and M→M. u_slow_down is called only in the M→H branch; B91 routes its message and exercise RNG through the planning environment while keeping the live ttyPline/global-RNG defaults for the self-zap caller. The C speed-boots probe did not reach a positive retained-extrinsic slowdown and is excluded from evidence. Supporting whole unit u_slow_down: the new B91 AD_SLOW call at uhitm.c:3675 is exercised by the matching monster-to-hero recordings. Existing zapyourself at zap.c:2872 remains a live-default caller. The apparent mhitu.c:gazemu call at 1877 is excluded by #ifdef PM_BEHOLDER and the #if 0 beholder definition in monsters.h.",
+        "entryPoints": [
+          {
+            "name": "hero-to-monster AD_SLOW attack",
+            "functions": [
+              "mhitm_ad_slow"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-hero-monster-skeleton-pager-continued.session.json",
+              "recordings/uhitm.c/b91-hero-monster-skeleton-troll-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-hero AD_SLOW attack",
+            "functions": [
+              "mhitm_ad_slow"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-positive-slowdown.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658105-slot-q.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658104.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 33,
+                "source": "monmove → mhitu.c:hitmu → uhitm.c:mhitm_adtyping(AD_SLOW) → mhitm_ad_slow; this selected route has HFast false and exercises the monster-to-hero branch."
+              }
+            ]
+          },
+          {
+            "name": "monster-to-monster AD_SLOW attack",
+            "functions": [
+              "mhitm_ad_slow"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-monster-pair-conflict-level12-troll-skeleton-positive-slowdown.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "82e0a29d6e1fb1033112dd229400e822af504f75",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-conf-v19-20261003",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete confusion attacks and source-ordered status effects",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued"
+      ],
+      "selectionReason": "The current complete v19 Yeenoghu investigation and B91 evaluation at82e0a29d select whole uhitm.c:mhitm_ad_conf3690-3725, with8 unmatched screens beginning step39. Preserve all three source directions, cancellation/rn2(4)/cooldown order, confusion and cooldown writes, messages, damage and strategy. The selected case supplies a no-proc variation; independent C64 records provide positive monster-to-hero confusion and monster-to-monster confusion. Hero-attacker AD_CONF is unreachable in the valid current source table: Umber Hulk gaze uses dogaze and Yeenoghu is M2_NOPOLY. Root verified original packet, recording/replay input hashes, source and current provenance in .cache/C64-root-source-verification.json. Stale tactics wording in the original context is superseded by this current source trace.",
+      "detail": "",
+      "openedAt": "2207124e3eed3e14d9887948ed5018cf0559dc3a",
+      "openStanding": {
+        "sha": "82e0a29d6e1fb1033112dd229400e822af504f75",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_conf",
+          "line": 3690,
+          "endLine": 3728,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3690,
+        "to": 3728
+      },
+      "syntheticProvenance": {
+        "synthetic/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued": {
+          "session": "synthetic/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.session.json",
+          "recordingSha256": "94dd3eba9eb357304d87278f5498c3f625c3240a0971bc36987b41515e474089",
+          "evaluationPath": "challenges/evaluations/20261003013640-v19.json",
+          "evaluationCommit": "82e0a29d6e1fb1033112dd229400e822af504f75"
+        }
+      },
+      "activeStanding": {
+        "sha": "82e0a29d6e1fb1033112dd229400e822af504f75",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+          "session": "synthetic/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.session.json",
+          "recordingPath": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.session.json",
+          "recordingSha256": "94dd3eba9eb357304d87278f5498c3f625c3240a0971bc36987b41515e474089",
+          "recipe": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.recipe.session.json",
+          "recipeSha256": "74766c0776725a72ef70d51599d7f600d7d3279c9b8664a990e88bd4862fcac2",
+          "replayInputSha256": "aecc0c6b8af97dac6425f4c236ff23ed08d4bd29b8e470d4fd92a36ad018d938",
+          "evaluationPath": "challenges/evaluations/20261003013640-v19.json",
+          "evaluationCommit": "82e0a29d6e1fb1033112dd229400e822af504f75",
+          "evaluationArtifact": "challenges/evaluations/20261003013640-v19.json",
+          "evaluationUtc": "2026-10-03T01:37:36.068Z",
+          "remainingScreens": 8,
+          "recordedSteps": 47,
+          "previousScreensMatched": 39,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 39,
+              "total": 47
+            },
+            "rng": {
+              "matched": 2370,
+              "total": 2429
+            },
+            "cursors": {
+              "matched": 39,
+              "total": 47
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_conf()",
+            "step": 39
+          },
+          "step": 39,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_conf",
+          "message": "simple monster action requires uhitm.c mhitm_ad_conf()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.json",
+            "result": {
+              "session": "synthetic/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+              "remainingScreens": 8,
+              "recordedSteps": 47,
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "94dd3eba9eb357304d87278f5498c3f625c3240a0971bc36987b41515e474089",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+                "session": "synthetic/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.session.json",
+                "recordingPath": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.session.json",
+                "recordingSha256": "94dd3eba9eb357304d87278f5498c3f625c3240a0971bc36987b41515e474089",
+                "recipe": "challenges/cases/v19/yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued.recipe.session.json",
+                "recipeSha256": "74766c0776725a72ef70d51599d7f600d7d3279c9b8664a990e88bd4862fcac2",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 8,
+                "recordedSteps": 47,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 39,
+                    "total": 47
+                  },
+                  "rng": {
+                    "matched": 2370,
+                    "total": 2429
+                  },
+                  "cursors": {
+                    "matched": 39,
+                    "total": 47
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_conf()",
+                  "step": 39
+                },
+                "step": 39,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_conf",
+                "message": "simple monster action requires uhitm.c mhitm_ad_conf()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The current stop is the unported AD_CONF arm in uhitm.c:mhitm_ad_conf, reached through a hostile covetous Yeenoghu weapon attack on the hero. Port the complete helper and preserve its source order: hitmsg runs, confusion is gated by cancellation, rn2(4), and mspec_used, and mhm.damage is cleared. The recorded rn2(4)=1 outcome leaves hero confusion unchanged. The C62 first-missing-RNG report is censored because preflight stops at this helper before live execution; tactics and distfleeck are both earlier in the source-ordered dochug path.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "mhitm_adtyping receives AD_CONF after Yeenoghu lands its weapon blow on the hero, so magr is a monster and mdef is &youmonst. The complete helper also owns the hero-attacks-monster and monster-attacks-monster branches. In the hero-target branch hitmsg always runs; confusion changes only when the attacker is not cancelled, rn2(4) returns zero, and mspec_used is zero. The C62 trace records rn2(4)=1, so this case must leave hero confusion unchanged while still setting mhm.damage to zero.",
+                "functions": [
+                  "mhitm_ad_conf"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_adtyping() AD_CONF switch arm",
+                  "mhitu.c:hitmu() -> uhitm.c:mhitm_adtyping()",
+                  "mhitu.c:mattacku() -> mhitu.c:hitmu(); monmove.c:dochug() -> mhitu.c:mattacku()",
+                  "js/uhitm.js:mhitm_adtyping() AD_CONF switch arm",
+                  "js/mhitu.js:hitmu() -> js/uhitm.js:mhitm_adtyping(); js/mhitu.js:mattacku() -> hitmu()",
+                  "js/unported_monster_actions.js:attackHeroWithMattacku() -> js/mhitu.js:mattacku(); js/monmove.js:dochug() -> attackHero"
+                ],
+                "dependencies": [
+                  "mhitu.c:hitmsg() / js/mhitu.js:hitmsg()",
+                  "rnd.c:rn2() / js/rng.js:rn2()",
+                  "potion.c:make_confused() / js/potion.js:make_confused()"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Current saved evaluation challenges/evaluations/20261002180737-v19.json identifies the first stop at step 39 as `simple monster action requires uhitm.c mhitm_ad_conf()`. The bounded replay of this recording at commit 8583a972f66a872a8ad73c888a24dd01075481f4 (`/tmp/teleport-validation-1000/run-YzXEnt/stdout.log`) reproduces the same boundary after 39 screens.",
+                "C source order is monmove.c:dochug() -> wizard.c:tactics() for is_covetous(mdat), then distfleeck(), then the standard-attack gate; js/monmove.js:dochug() has the corresponding tactics call before distanceAndFear() and attackHero. C62 stdout names tactics rn2(5) as the first absent JS RNG log at measured head 24ca0fa8414dbe0891e138b16ec077054a796d65. The current scanner boundary occurs in the simple-monster action preflight: allmain.js:advanceElapsedTurn() plans before live execution, and preflightSimpleMonsterActions() propagates the unsupported helper boundary, so the live RNG log for that turn is never emitted. distfleeck() itself unconditionally draws rn2(5) before attack on both sides; it is part of the censored turn and a comparator symptom, not a later independent cause.",
+                "C source uhitm.c:3690-3727 implements all three mhitm_ad_conf() target cases. For a monster hitting the hero it calls hitmsg(), conditionally draws rn2(4), on a zero result adds rn2(6) to mspec_used and calls make_confused(), then sets mhm.damage=0 regardless. The capsule C62 crosswalk records rn2(4)=1 for this Yeenoghu case, which prevents confusion and skips rn2(6).",
+                "C caller uhitm.c:mhitm_adtyping():4820 dispatches AD_CONF to mhitm_ad_conf(); JS js/uhitm.js:mhitm_adtyping():4978 currently calls unported(\"mhitm_ad_conf\"). Its production path is connected through mhitu.c:hitmu()/mattacku() and monmove.c:dochug(), with JS equivalents in js/mhitu.js, js/unported_monster_actions.js, and js/monmove.js. The complete source function and this existing AD_CONF dispatch form an actionable file-port scope."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_conf",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_conf",
+            "sourceReview": "Read and ported all of uhitm.c:mhitm_ad_conf (3690–3725). Hero-to-monster sets mconf only when not already confused and emits a message only when canseemon. Monster-to-hero calls hitmsg first, then evaluates !mcan, rn2(4), and mspec_used in C order; only on success it adds damage plus rn2(6) to mspec_used, chooses the output from HConfusion, calls make_confused(HConfusion + damage, FALSE), and always zeros mhm.damage. Monster-to-monster evaluates the uncancelled/unconfused/cooldown gate, conditionally calls the location-aware message under gv.vis && canseemon, sets mconf, clears only STRAT_WAITFORU, and retains mhm.damage without a helper RNG draw. Existing C-equivalent helpers hitmsg, Monnam/canseemon, message/pline_mon output, and potion.c:make_confused are wired; this helper has no unported call or fabricated return value.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:damageum -> mhitm_adtyping(AD_CONF) -> mhitm_ad_conf (current species table has no reachable hero-attacker AD_CONF route; pinned below)"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "mhitu.c:hitmu -> mhitm_adtyping(AD_CONF) -> mhitm_ad_conf"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "mhitm.c:mdamagem -> mhitm_adtyping(AD_CONF) -> mhitm_ad_conf"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-conf.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-conf-yeenoghu-monster-hero-c64-seed-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-conf-yeenoghu-stone-pair-conflict-c64-minimal.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 39,
+                "source": "mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_CONF) -> mhitm_ad_conf; rn2(4)=1 skips confusion and the helper still zeros damage. Positive confusion is separately covered by the independent C64 seed variation."
+              }
+            ],
+            "checkedAt": "25876621e3edbdc4e752d1551a7178809ffc72df"
+          }
+        ],
+        "entryPointReview": "The two reachable production directions have complete matching independent recordings: Yeenoghu AT_WEAP/AD_CONF attacking the hero exercises mhitu.c:hitmu, and Conflict-driven Yeenoghu attacking a stone golem exercises mhitm.c:mdamagem. The selected C64 minimal M→M recipe is a source-observed two-stone-golem variation; its final space dismisses the preceding attack pager, C executes AD_CONF, and the segment ends on the confusion More, before later AD_PLYS/zhitu work. The hero-attacks-monster arm is source-pinned only: monsters.h has two AD_CONF attacks, Umber Hulk AT_GAZE (routed through polyself.c:dogaze) and Yeenoghu AT_WEAP (whose M2_NOPOLY plus mondata.h:polyok rejects hero polymorph). No valid current attack table route sends a hero AD_CONF weapon hit through damageum. Full stone-pair and capped-level attempts remain in blocked history and are not cited as passing recordings. Root adds the current selected v19 step39 as the no-proc variation, verified during evidence recording; current selection uses the B91 evaluation, superseding the stale tactics wording in the immutable context.",
+        "entryPoints": [
+          {
+            "name": "Monster-to-hero AD_CONF hit",
+            "functions": [
+              "mhitm_ad_conf"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-conf-yeenoghu-monster-hero-c64-seed-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 39,
+                "source": "mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_CONF) -> mhitm_ad_conf; rn2(4)=1 skips confusion and the helper still zeros damage. Positive confusion is separately covered by the independent C64 seed variation."
+              }
+            ]
+          },
+          {
+            "name": "Monster-to-monster AD_CONF attack",
+            "functions": [
+              "mhitm_ad_conf"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-conf-yeenoghu-stone-pair-conflict-c64-minimal.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-drli-v18-20261003",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete level-draining attacks and fatal planning handoff",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v18/wizard-hostile-wraith-ad-drli-c59"
+      ],
+      "selectionReason": "Complete current v18 wraith investigation selects whole uhitm.c:mhitm_ad_drli2445-2518. Preserve all three source directions, chance/resistance/negation order, HP/level arithmetic, damage-zero and level-zero override, visibility and source callers. Four independent C-first matching recipe pairs cover active directions and a cheap role variation. The selected level-one fatal-drain case now fully matches on the worker: root identified and verified an existing planningDeath handoff before losexp can call live done(DIED) on a clone. The AD_DETH outer caller remains unported without credit. Packet/source/runtime verification is .cache/B92-root-source-verification.json.",
+      "detail": "",
+      "openedAt": "94213941a84325d064f68a868a7d70b47e8a3167",
+      "openStanding": {
+        "sha": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_drli",
+          "line": 2445,
+          "endLine": 2520,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 2445,
+        "to": 2520
+      },
+      "syntheticProvenance": {
+        "synthetic/v18/wizard-hostile-wraith-ad-drli-c59": {
+          "session": "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-wraith-ad-drli-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+          "recordingSha256": "f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873",
+          "evaluationPath": "challenges/evaluations/20261003020850-v18.json",
+          "evaluationCommit": "15be180dc8aec3010025eac5f8bbcd34571ad39c"
+        }
+      },
+      "activeStanding": {
+        "sha": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v18",
+          "caseId": "wizard-hostile-wraith-ad-drli-c59",
+          "session": "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+          "manifestPath": "challenges/manifests/v18.json",
+          "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+          "recording": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+          "recordingPath": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+          "recordingSha256": "f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873",
+          "recipe": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.recipe.session.json",
+          "recipeSha256": "cc50670259ee62e61db1240f66715433a520ac028f0a2c18259028a2d7233867",
+          "replayInputSha256": "203f802b167d7284c62820dbfef9a48064bff2afb74711bf88ece59aadad2665",
+          "evaluationPath": "challenges/evaluations/20261003020850-v18.json",
+          "evaluationCommit": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
+          "evaluationArtifact": "challenges/evaluations/20261003020850-v18.json",
+          "evaluationUtc": "2026-10-03T02:09:40.404Z",
+          "remainingScreens": 2,
+          "recordedSteps": 31,
+          "previousScreensMatched": 29,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 29,
+              "total": 31
+            },
+            "rng": {
+              "matched": 2849,
+              "total": 2854
+            },
+            "cursors": {
+              "matched": 29,
+              "total": 31
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_drli()",
+            "step": 29
+          },
+          "step": 29,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_drli",
+          "message": "simple monster action requires uhitm.c mhitm_ad_drli()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v18/wizard-hostile-wraith-ad-drli-c59.json",
+            "result": {
+              "session": "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+              "corpus": "synthetic",
+              "batch": "v18",
+              "caseId": "wizard-hostile-wraith-ad-drli-c59",
+              "remainingScreens": 2,
+              "recordedSteps": 31,
+              "manifestPath": "challenges/manifests/v18.json",
+              "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+              "recordingPath": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+              "recordingSha256": "f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873",
+              "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+              "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+              "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+              "commit": "04b79edc2bcff3a4c2d70efba937608818f85b53",
+              "status": "complete",
+              "summary": "The wraith reaches the monster-to-hero AD_DRLI arm during segment 0, step 29. C mhitu.c:hitmu() dispatches through uhitm.c:mhitm_adtyping() to uhitm.c:mhitm_ad_drli(); JavaScript still refuses the AD_DRLI arm in js/uhitm.js:mhitm_adtyping(). The recorded C turn rolls rn2(3)=0, then rn2(10)=8 in mhitm_mgc_atk_negated(), and prints “Goodbye level 1.” through losexp(\"life drainage\"). Port the whole mhitm_ad_drli() function and wire its AD_DRLI dispatch. This is missing source behavior, not an RNG divergence; the comparison labels the next C call, distfleeck(), only because JavaScript stopped at the refusal. The function also has hero-to-monster and monster-to-monster arms. Its separate C caller mhitm_ad_deth() remains unported behind the AD_DETH refusal.",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v18",
+                "caseId": "wizard-hostile-wraith-ad-drli-c59",
+                "session": "synthetic/v18/wizard-hostile-wraith-ad-drli-c59",
+                "manifestPath": "challenges/manifests/v18.json",
+                "manifestSha256": "ae5d3db56c25c411a013cc08e773969fe29731f8fd69504cfe617db995e42a30",
+                "recording": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+                "recordingPath": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json",
+                "recordingSha256": "f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873",
+                "recipe": "challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.recipe.session.json",
+                "recipeSha256": "cc50670259ee62e61db1240f66715433a520ac028f0a2c18259028a2d7233867",
+                "replayInputSha256": "8fbef3d87b2d6f6dd9732a7e4ec3330b366f7e6eb079a28c449c8afa3124cbbf",
+                "evaluationPath": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationCommit": "d7c4a8eac54b0a7dafd453b1ec7a4e0c9b1ed61d",
+                "evaluationArtifact": "challenges/evaluations/20261002065911-v18.json",
+                "evaluationUtc": "2026-10-02T06:59:12.293Z",
+                "remainingScreens": 2,
+                "recordedSteps": 31,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 29,
+                    "total": 31
+                  },
+                  "rng": {
+                    "matched": 2849,
+                    "total": 2854
+                  },
+                  "cursors": {
+                    "matched": 29,
+                    "total": 31
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_drli()",
+                  "step": 29
+                },
+                "step": 29,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_drli",
+                "message": "simple monster action requires uhitm.c mhitm_ad_drli()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "source": {
+                "file": "uhitm.c",
+                "branch": "mattk->adtyp == AD_DRLI enters mhitm_ad_drli(). The current case has a monster attacker (magr != &gy.youmonst) and the hero as defender (mdef == &gy.youmonst), selecting the mhitu arm. That arm prints hitmsg(), then evaluates !rn2(3) && !Drain_resistance && !mhitm_mgc_atk_negated(magr, mdef, TRUE) in C short-circuit order; on success it calls losexp(\"life drainage\"). At level 1 that call prints the fatal “Goodbye level 1.” message. The recorded step 29 has rn2(3)=0 and rn2(10)=8 inside mhitm_mgc_atk_negated(), and the C screen contains that message. The other two whole-function arms are hero-to-monster and monster-to-monster; preserve their own resistance, damage, kill, and Death-redirect behavior from source.",
+                "functions": [
+                  "mhitm_ad_drli"
+                ],
+                "callers": [
+                  "uhitm.c:mhitm_adtyping() (line 4804) dispatches AD_DRLI to mhitm_ad_drli(); JavaScript js/uhitm.js:mhitm_adtyping() currently throws at the AD_DRLI switch arm (line 4823), so add the dispatcher call there.",
+                  "mhitu.c:hitmu() (line 1191) calls mhitm_adtyping(mtmp, mattk, &gy.youmonst, &mhm); JavaScript js/mhitu.js:hitmu() (line 1707) is the production route reached by this wraith session.",
+                  "mhitm.c:mdamagem() (line 1059) calls mhitm_adtyping(magr, mattk, mdef, &mhm); JavaScript js/mhitm.js:mdamagem() (line 1057) is the monster-to-monster production route for the function’s third arm.",
+                  "uhitm.c:damageum() (line 4854) calls mhitm_adtyping(&gy.youmonst, mattk, mdef, &mhm); JavaScript js/uhitm.js:damageum() (line 4886) is the hero-to-monster production route for the function’s first arm.",
+                  "uhitm.c:mhitm_ad_deth() (line 3892) directly calls mhitm_ad_drli() when Death’s touch targets another monster. JavaScript mhitm_adtyping() still refuses AD_DETH, so this direct caller remains a separate unported route and is not established by the wraith case."
+                ],
+                "dependencies": [
+                  "Consumed return values: rn2(3) gates life drain in all three actor/target arms; d(2,6) supplies mhm.damage in the successful hero-to-monster and ordinary monster-to-monster arms; mhitm_mgc_atk_negated() supplies the final boolean gate in all active drain arms; resists_drli() and defended() supply resistance decisions in the hero-to-monster and monster-to-monster arms. Existing JavaScript helpers are js/uhitm.js:mhitm_mgc_atk_negated() and js/mondata.js:resists_drli()/defended(). Preserve C short-circuit and random-call order.",
+                  "Consumed source predicates: DEADMONSTER(mdef) controls whether the hero-to-monster drain kills through xkilled(), nonliving(mdef->data) selects the kill message, and mattk->adtyp == AD_DETH selects the monster-target Death bypass. These are part of the whole function, not just the recorded hero-target arm.",
+                  "Void side effects with discarded return values: hitmsg(magr,mattk) runs before the monster-to-hero gate (existing JS js/mhitu.js:hitmsg()); losexp(\"life drainage\") performs level loss or fatal handling (existing JS js/exper.js:losexp()); xkilled() handles a monster killed by the hero’s drain (existing JS js/mon.js:xkilled())."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "Saved evaluation challenges/evaluations/20261002065911-v18.json identifies this case at segment 0, step 29 with stop message “simple monster action requires uhitm.c mhitm_ad_drli()”: 29 of 31 screens and cursors match, 2849 of 2854 RNG calls match, and 2 screens remain. The stop is the JavaScript refusal at js/uhitm.js:4823, so the later C RNG tag at distfleeck(monmove.c:538) is subsequent work, not the cause.",
+                "C recording challenges/cases/v18/wizard-hostile-wraith-AD-DRLI-c59.session.json, segment 0, step 29: C records rn2(5)=1 at distfleeck, rnd(20)=2 at mattacku, d(1,6)=3 at hitmu, rn2(3)=0 at mhitm_ad_drli(uhitm.c:2482), and rn2(10)=8 at mhitm_mgc_atk_negated(uhitm.c:87); its screen says “The wraith touches you! Goodbye level 1.” This establishes the monster-to-hero branch and successful losexp() route without another replay.",
+                "Upstream nethack-c/upstream/src/uhitm.c:2445-2518 is the complete mhitm_ad_drli() body, including the hero-to-monster and monster-to-monster arms. Lines 4782-4828 show the AD_DRLI dispatcher and the separate AD_DETH dispatch. uhitm.c:3892 shows mhitm_ad_deth()’s direct call into mhitm_ad_drli().",
+                "The exact current call path is nethack-c/upstream/src/mhitu.c:1191 -> mhitm_adtyping() -> AD_DRLI, mirrored by js/mhitu.js:1707 -> js/uhitm.js:mhitm_adtyping():4823. Other existing shared-dispatch routes are nethack-c/upstream/src/mhitm.c:1059 / js/mhitm.js:1057 and nethack-c/upstream/src/uhitm.c:4854 / js/uhitm.js:4886.",
+                "The missing implementation is limited to uhitm.c:mhitm_ad_drli() plus wiring its already-existing AD_DRLI dispatcher arm. Supporting helpers already exist in JavaScript: mhitm_mgc_atk_negated() in js/uhitm.js:776, defended()/resists_drli() in js/mondata.js:2121-2152, hitmsg() in js/mhitu.js:624, losexp() in js/exper.js:60, and xkilled() in js/mon.js:5769. The level-one losexp/death boundary still needs to be validated by the recording after the new branch reaches it; current JS stop evidence cannot establish the two remaining screens.",
+                "Manifest challenges/manifests/v18.json records this as distinct from v17 spell-ray drain-life cases: v17 uses zap.c:bhito -> drain_item on positive-enchantment floor objects, whereas c59 exercises a monster-to-hero AD_DRLI attack. The manifest records an independent patched-C replay matching the immutable C recording SHA-256 f64bd694d60a2846b00926c3ae8e84da92afbeb0250a2aa5759ce862ba11d873."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_drli",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_drli",
+            "sourceReview": "Read uhitm.c:2445-2518 in full. The hero-to-monster branch preserves rn2(3), resists_drli, defended(AD_DRLI), and mhitm_mgc_atk_negated order, then d(2,6), message, max-HP floor, HP loss, death/level handling, xkilled(XKILL_NOMSG), and mhm.damage=0. The monster-to-hero branch calls hitmsg before the short-circuit chance, Drain_resistance, and magic-negation gates, then losexp only on success. The monster-to-monster branch preserves AD_DETH bypass semantics, visible-message guard, max-HP floor, level-zero kill damage, and level decrement. Existing whole return units mhitm_mgc_atk_negated, resists_drli, defended, and losexp were reused with their existing source contracts; the canonical DRAIN_RES, DEADMONSTER, and nonliving state/macros remain single-owned. The direct C void xkilled call remains on its existing implementation. For planning only, a successful level-one monster-to-hero loss hands off through the existing planningDeath marker before losexp can enter done(DIED) and mutate shared terminal state; live replay still runs the normal losexp/done path. The JavaScript AD_DETH arm and C mhitm_ad_deth direct caller remain outside this task.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "damageum",
+                "source": "uhitm.c:damageum (4854) -> mhitm_adtyping AD_DRLI arm (4804) -> mhitm_ad_drli"
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "hitmu",
+                "source": "mhitu.c:hitmu (1191) -> uhitm.c:mhitm_adtyping AD_DRLI arm (4804) -> mhitm_ad_drli"
+              },
+              {
+                "path": "js/mhitm.js",
+                "symbol": "mdamagem",
+                "source": "mhitm.c:mdamagem (1059) -> uhitm.c:mhitm_adtyping AD_DRLI arm (4804) -> mhitm_ad_drli"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-drli.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drli-hero-to-monster-wraith-b92.session.json",
+              "recordings/uhitm.c/mhitm-ad-drli-hero-to-monster-wraith-variation-b92.session.json",
+              "recordings/uhitm.c/mhitm-ad-drli-monster-to-hero-wraith-b92.session.json",
+              "recordings/uhitm.c/mhitm-ad-drli-monster-to-monster-wraith-b92.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-wraith-ad-drli-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_DRLI) -> uhitm.c:mhitm_ad_drli monster-to-hero branch -> exper.c:losexp; the full recorded continuation also verifies planningDeath handoff to live death recovery. Root verifies the full 31-boundary selected case, including live fatal-drain recovery after the planning handoff."
+              }
+            ],
+            "checkedAt": "5ec951417cb029c76563cbaba4c1f37a67b678d9"
+          }
+        ],
+        "entryPointReview": "The active production routes are hero-to-monster through damageum, monster-to-hero through hitmu, and monster-to-monster through mdamagem; each reaches the AD_DRLI arm of mhitm_adtyping. The three directions have independent C-first recordings; the selected v18 case additionally verifies the fatal level-one planning handoff. The monster-to-monster recording reaches the helper but rn2(3)=2 misses its drain; ordinary attack damage kills that defender. A successful drain mutation is exercised in both other directions and source-pinned tests. uhitm.c:mhitm_ad_deth also calls this helper directly for Death touch, but its JavaScript AD_DETH arm remains an unported outer caller and receives no B92 entry-point credit.",
+        "entryPoints": [
+          {
+            "name": "hero-to-monster natural wraith AD_DRLI",
+            "functions": [
+              "mhitm_ad_drli"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drli-hero-to-monster-wraith-b92.session.json",
+              "recordings/uhitm.c/mhitm-ad-drli-hero-to-monster-wraith-variation-b92.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-hero natural wraith AD_DRLI",
+            "functions": [
+              "mhitm_ad_drli"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drli-monster-to-hero-wraith-b92.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v18",
+                "caseId": "wizard-hostile-wraith-ad-drli-c59",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 30,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_DRLI) -> uhitm.c:mhitm_ad_drli -> exper.c:losexp Root verifies the full 31-boundary selected case, including live fatal-drain recovery after the planning handoff."
+              }
+            ]
+          },
+          {
+            "name": "monster-to-monster natural wraith AD_DRLI",
+            "functions": [
+              "mhitm_ad_drli"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-drli-monster-to-monster-wraith-b92.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-pest-v20-20261003",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete Pestilence attacks and shared hero disease effect",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v20/pestilence-touches-wizard-v20-more-corrected"
+      ],
+      "selectionReason": "The complete current v20 Pestilence investigation selects whole uhitm.c:mhitm_ad_pest and its required Boolean callee mhitu.c:diseasemu. The independent Juiblex caller recording also requires whole timeout.c:sickness_dialogue and its exact nh_timeout SICK arm: the disease helper matches before that separate unported dialogue skips an exercise draw. The countdown consumes mhe/pronoun_gender; verify the whole existing mondata.c helper unchanged, with its source-pinned tests and new hallucinated warning recording. Preserve every source direction and the discarded void mhitm_ad_dise gaps. Wire AD_PEST dispatch and only the consumed gulpmu AD_DISE caller, including the existing mattacku admission needed for Juiblex. Claim no whole completion for those callers. Root verifies independent C recordings, source reachability, clone state and message/RNG isolation before integration. Evidence: .cache/B93-root-source-verification.json.",
+      "detail": "",
+      "openedAt": "b44b3860fb7746d60bbd6367298a1b3736edf86b",
+      "openStanding": {
+        "sha": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_pest",
+          "line": 3808,
+          "endLine": 3836,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3808,
+        "to": 3836
+      },
+      "requiredFunctions": [
+        {
+          "name": "diseasemu",
+          "line": 1033,
+          "endLine": 1046,
+          "declared": true,
+          "sourceFile": "mhitu.c",
+          "complete": true
+        },
+        {
+          "name": "sickness_dialogue",
+          "line": 323,
+          "endLine": 352,
+          "declared": true,
+          "sourceFile": "timeout.c",
+          "complete": true
+        },
+        {
+          "name": "pronoun_gender",
+          "line": 1191,
+          "endLine": 1210,
+          "declared": true,
+          "sourceFile": "mondata.c",
+          "complete": true
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v20/pestilence-touches-wizard-v20-more-corrected": {
+          "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "pestilence-touches-wizard-v20-more-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+          "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+          "evaluationPath": "challenges/evaluations/20261003032251-v20.json",
+          "evaluationCommit": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3"
+        }
+      },
+      "activeStanding": {
+        "sha": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "pestilence-touches-wizard-v20-more-corrected",
+          "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+          "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+          "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+          "recipe": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.recipe.session.json",
+          "recipeSha256": "febc7150b2f1be0259cdd1b5377df487089d68a0c8e17707032fce9e8a3b6fb3",
+          "replayInputSha256": "44dba02cd0d9e9a7d546eb0e0436b32bff72a244d9b2e7a4dd31c4ea68111599",
+          "evaluationPath": "challenges/evaluations/20261003032251-v20.json",
+          "evaluationCommit": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+          "evaluationArtifact": "challenges/evaluations/20261003032251-v20.json",
+          "evaluationUtc": "2026-10-03T03:24:00.478Z",
+          "remainingScreens": 12,
+          "recordedSteps": 48,
+          "previousScreensMatched": 36,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 36,
+              "total": 48
+            },
+            "rng": {
+              "matched": 2366,
+              "total": 2375
+            },
+            "cursors": {
+              "matched": 36,
+              "total": 48
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+            "step": 36
+          },
+          "step": 36,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_pest",
+          "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/pestilence-touches-wizard-v20-more-corrected.json",
+            "result": {
+              "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "pestilence-touches-wizard-v20-more-corrected",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+              "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 12,
+              "recordedSteps": 48,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+                "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+                "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+                "recipe": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.recipe.session.json",
+                "recipeSha256": "febc7150b2f1be0259cdd1b5377df487089d68a0c8e17707032fce9e8a3b6fb3",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 12,
+                "recordedSteps": 48,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 36,
+                    "total": 48
+                  },
+                  "rng": {
+                    "matched": 2366,
+                    "total": 2375
+                  },
+                  "cursors": {
+                    "matched": 36,
+                    "total": 48
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+                  "step": 36
+                },
+                "step": 36,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_pest",
+                "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 36, C reaches Pestilence’s AD_PEST hit on the Wizard and runs diseasemu(); JavaScript stops at the unported AD_PEST dispatcher arm. mhitm_ad_pest() discards diseasemu()’s boolean here, but the helper’s RNG and sickness side effects are part of the recorded result.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "A monster (magr != &gy.youmonst) lands AD_PEST on the hero (mdef == &gy.youmonst): mhitm_ad_pest() prints the fever-and-chills line, calls diseasemu(pa) with a void-cast result, then lets hitmu() apply the normal damage. The function also has a hero-attacker jump to the mhitm_ad_dise path and a monster-defender branch that rewrites the attack type to AD_DISE.",
+                "functions": [
+                  "mhitm_ad_pest"
+                ],
+                "callers": [
+                  "C: monmove.c:971 dochug() calls mhitu.c:mattacku(); the successful melee AT_TUCH path calls mhitu.c:hitmu(), which calls uhitm.c:mhitm_adtyping() at mhitu.c:1191.",
+                  "C: uhitm.c:mhitm_adtyping() dispatches AD_PEST to mhitm_ad_pest() at uhitm.c:4825.",
+                  "JavaScript: js/unported_monster_actions.js:runSimpleMonsterAction() supplies attackHeroWithMattacku() to dochug(); js/mhitu.js:mattacku() calls hitmu() for a successful AT_TUCH; hitmu() calls js/uhitm.js:mhitm_adtyping(), whose AD_PEST arm stops at unported(\"mhitm_ad_pest\") at js/uhitm.js:5074."
+                ],
+                "dependencies": [
+                  "mhitu.c:diseasemu(): mhitm_ad_pest() calls this in the hero-target branch and discards its return value with (void), but its sickness mutation, messages, and conditional rn1() draw are required for replay parity. The return is consumed at other call sites: mhitu.c:gulpmu() around line 1534 and uhitm.c:mhitm_ad_dise() at line 4607.",
+                  "uhitm.c:mhitm_ad_dise(): mhitm_ad_pest() calls this for a non-hero defender after copying mattk and changing adtyp to AD_DISE. It is a void mutator; the current JavaScript AD_DISE dispatcher arm is still unported."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "challenges/evaluations/20261003003219-v20.json records this case at commit b5bb23ff11504c300f032b10b1e17c99b06fc97e with 36/48 matched screens and cursors, 2366/2375 matched RNG calls, and a failed evaluation. .cache/v20-work-queue.json identifies the first mismatch as stop at step 36: “simple monster action requires uhitm.c mhitm_ad_pest()”.",
+                "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json segment 0, stored step 36, records rnd(20)=10 at mattacku(mhitu.c:806), d(8,8)=48 at hitmu(mhitu.c:1187), and rn2(14)=6 at diseasemu(mhitu.c:1039). Its message begins “It reaches out, and you feel fever and chills.” and continues “You feel deathly sick.” Step 35 is the jackal’s attack, so the Pestilence branch is reached at step 36.",
+                "nethack-c/upstream/src/uhitm.c:3808-3834 defines the whole mhitm_ad_pest() function. Lines 3815-3820 jump hero attackers to the AD_DISE-equivalent path; lines 3820-3825 handle a monster hitting the hero and explicitly cast diseasemu(pa) to void; lines 3826-3833 handle a monster hitting another monster through mhitm_ad_dise(). Lines 4782-4832 show the dispatcher and AD_PEST call at 4825.",
+                "nethack-c/upstream/src/mhitu.c:1033-1043 defines diseasemu(): Sick_resistance prints “a slight illness” and returns FALSE; otherwise it calls make_sick() with either Sick / 3 + 1 or rn1(ACURR(A_CON), 20), then returns TRUE. The AD_PEST call discards that boolean, while the function’s state, output, and RNG effects remain observable. The other return-consuming call sites are mhitu.c:1534 and uhitm.c:4607.",
+                "js/uhitm.js:4998-5074 confirms the current committed port has a source-shaped mhitm_adtyping() dispatcher but leaves AD_PEST as unported(\"mhitm_ad_pest\"). The production action wrapper in js/unported_monster_actions.js and the attacker path in js/mhitu.js wire the recorded monster attack into that dispatcher."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_pest",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_pest",
+            "sourceReview": "Read the complete C definition in uhitm.c:3808-3834. Snapshot magr->data at entry. The hero-attacker branch goes to the shared AD_DISE case and calls void mhitm_ad_dise; the hero-defender branch emits the fever/chills message, calls diseasemu with its Boolean discarded, then returns for ordinary hit damage. The monster-versus-monster branch copies mattk, changes adtyp to AD_DISE, and calls void mhitm_ad_dise. Keep both discarded calls as note_unported('uhitm.c mhitm_ad_dise'). The selected runtime range proves the active hero-defender branch; the independent newt recording proves the monster-versus-monster branch. A valid hero polymorph form cannot have AD_PEST, so the hero-attacker branch is source-pinned only and receives no active-entry completion claim.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping AD_PEST arm at line 4825 dispatches to mhitm_ad_pest; its active production routes are mhitu.c:hitmu (monster-to-hero) and mhitm.c:mdamagem (monster-to-monster)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-pest.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-pest-monster-pair-healer-level30-newt-b93.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 36,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_PEST) -> uhitm.c:mhitm_ad_pest -> mhitu.c:diseasemu"
+              }
+            ],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          },
+          {
+            "name": "diseasemu",
+            "implementation": "js/mhitu.js",
+            "symbol": "diseasemu",
+            "sourceReview": "Read the complete C definition in mhitu.c:1033-1044. Return FALSE immediately for Sick_resistance after the slight-illness message. Otherwise use the raw packed Sick intrinsic from youprop.h:108 and compute Sick/3+1 without masking TIMEOUT; only zero Sick draws rn1(ACURR(A_CON),20). Pass the neutral species name and SICK_NONVOMITABLE to make_sick, await it, and return TRUE. make_sick clamps duration in potion.c:itimeout while retaining intrinsic flags. Reuse canonical heroSickResistance, acurr, make_sick, exercise, and encumber_msg owners. Clone-owned state, RNG, message, and encumbrance callback are threaded through the whole call.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_pest",
+                "source": "uhitm.c:mhitm_ad_pest monster-to-hero branch at line 3824 calls diseasemu and discards its Boolean."
+              },
+              {
+                "path": "js/mhitu.js",
+                "symbol": "gulpmu",
+                "source": "mhitu.c:gulpmu AD_DISE arm at line 1534 consumes FALSE by setting tmp to zero; only this arm is wired, with no whole gulpmu credit."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mhitu.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 36,
+                "source": "uhitm.c:mhitm_ad_pest -> mhitu.c:diseasemu, with the Boolean discarded by the monster-to-hero caller"
+              }
+            ],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          },
+          {
+            "name": "sickness_dialogue",
+            "implementation": "js/timeout.js",
+            "symbol": "sickness_dialogue",
+            "sourceReview": "Read the complete C body in timeout.c:315-345. Compute j from Sick & TIMEOUT and i=j/2; when i is 1..3 and j is odd, select the reversed sickness_texts row, replace illness with sickness when SICK_NONVOMITABLE is absent, then append mhe/upstart/vtense on Hallucination plus Death’s door before urgent_pline. Always call exercise(A_CON,FALSE), even if the warning condition is false. The helper receives nh_timeout’s clone state, random, urgent-message, normal-message, and encumber-message owners; planning performs the exercise on the clone without live TTY or input effects.",
+            "callers": [
+              {
+                "path": "js/timeout.js",
+                "symbol": "nh_timeout",
+                "source": "timeout.c:nh_timeout calls sickness_dialogue whenever Sick is nonzero (line 632); the JS arm remains caller-only and does not claim whole nh_timeout."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/timeout.test.mjs"
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-wizard-intrinsic-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "sourceFile": "timeout.c",
+            "synthetic": [],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          },
+          {
+            "name": "pronoun_gender",
+            "implementation": "js/mondata.js",
+            "symbol": "pronoun_gender",
+            "sourceReview": "Verified the complete existing mondata.c:1191-1210 body unchanged. PRONOUN_HALLU with Hallucination returns rn2(4); otherwise PRONOUN_NO_IT skips canspotmon and the visibility branch returns NEUTRAL for an unspottable monster. The remaining order is is_neuter, then humanoid || G_UNIQ || type_is_pname and the female bit, else NEUTRAL. The C mhe/mhim/mhis macros in you.h are not separate source functions. Existing direct callers and wrappers stay unchanged; this task adds a matching production mhe route through sickness_dialogue.",
+            "callers": [
+              {
+                "path": "js/mondata.js",
+                "symbol": "mhe",
+                "source": "you.h:322 mhe(mtmp) expands to genders[pronoun_gender(mtmp, PRONOUN_HALLU)].he; timeout.c:sickness_dialogue uses mhe(&gy.youmonst) in the hallucinated Death’s-door branch."
+              },
+              {
+                "path": "js/apply.js",
+                "symbol": "its_dead",
+                "source": "apply.c:238 directly calls pronoun_gender(saved, PRONOUN_NO_IT)."
+              },
+              {
+                "path": "js/do_name.js",
+                "symbol": "mon_nam_too",
+                "source": "do_name.c:1199 directly calls pronoun_gender(mon, PRONOUN_HALLU)."
+              },
+              {
+                "path": "js/dothrow.js",
+                "symbol": "noitMhim",
+                "source": "dothrow.c:863 calls noit_mhim(mon), whose C pronoun wrapper delegates to pronoun_gender with the no-it/hallucination flags."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "dopay",
+                "source": "shk.c:dopay calls noit_mhe/noit_mhim/noit_mhis wrappers, which consume pronoun_gender rows."
+              },
+              {
+                "path": "js/shk.js",
+                "symbol": "noitPronoun",
+                "source": "shk.c shopkeeper dialogue uses noit_mhe/noit_mhim/noit_mhis; the JS helper is used by the corresponding shopkeeper dialogue callers."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/mondata-pure.test.mjs"
+            ],
+            "recordings": [
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "sourceFile": "mondata.c",
+            "synthetic": [],
+            "checkedAt": "4148712493cdeadd5ec8ddfbd4f2ef88673b03a8"
+          }
+        ],
+        "entryPointReview": "Active B93 coverage consists of: (1) monster-to-hero Pestilence through hitmu and the AD_PEST dispatcher, verified by the current v20 range through segment 0 step 36; (2) monster-to-monster Pestilence through mdamagem/AD_PEST, independently recorded against a newt whose first hit dies; (3) Juiblex AT_ENGL to gulpmu AD_DISE consuming diseasemu TRUE, with its following nh_timeout sickness dialogue; (4) direct SICK timeout warning and no-warning dialogue variations, including the hallucinated Death’s-door route through the C mhe macro and pronoun_gender. The hero-as-attacker AD_PEST source branch is valid only for impossible hero data: a source-pinned identity fixture confirms its exact void gap, but it is not an active runtime route. Both active monster callers of mhitm_ad_pest that proceed to mhitm_ad_dise remain exact note_unported('uhitm.c mhitm_ad_dise') boundaries; this discarded-void gap is not credited as a port. Gulpmu’s source inventory loop for nonflaming monsters visits discarded note_unported('light.c snuff_lit') calls. No whole gulpmu, mhitm_adtyping, mattacku or nh_timeout completion is claimed.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero Pestilence AD_PEST",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_pest"
+              },
+              {
+                "sourceFile": "mhitu.c",
+                "name": "diseasemu"
+              }
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "pestilence-touches-wizard-v20-more-corrected",
+                "segment": 0,
+                "fromStep": 36,
+                "throughStep": 36,
+                "source": "monmove -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_PEST) -> uhitm.c:mhitm_ad_pest -> mhitu.c:diseasemu"
+              }
+            ]
+          },
+          {
+            "name": "monster-to-monster Pestilence AD_PEST",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_pest"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-pest-monster-pair-healer-level30-newt-b93.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Juiblex AT_ENGL -> gulpmu AD_DISE -> diseasemu",
+            "functions": [
+              {
+                "sourceFile": "mhitu.c",
+                "name": "diseasemu"
+              }
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "SICK timeout warning and unconditional CON exercise",
+            "functions": [
+              {
+                "sourceFile": "timeout.c",
+                "name": "sickness_dialogue"
+              }
+            ],
+            "recordings": [
+              "recordings/mhitu.c/diseasemu-gulpmu-juiblex-first-disease-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-wizard-intrinsic-b93.session.json",
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "Hallucinated sickness warning through the you.h mhe macro",
+            "functions": [
+              {
+                "sourceFile": "timeout.c",
+                "name": "sickness_dialogue"
+              },
+              {
+                "sourceFile": "mondata.c",
+                "name": "pronoun_gender"
+              }
+            ],
+            "recordings": [
+              "recordings/timeout.c/sickness-dialogue-hallucinated-wizard-b93.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "port-uhitm-mhitm-ad-deth-v20-20261003",
+      "kind": "file-port",
+      "status": "closed",
+      "summary": "Complete Death touches and source-directed drain delegation",
+      "cFile": "uhitm.c",
+      "sessions": [
+        "synthetic/v20/death-touches-wizard-v20-more-confirmed"
+      ],
+      "selectionReason": "The complete current v20 Death investigation selects whole uhitm.c:mhitm_ad_deth3837–3893 and its AD_DETH dispatcher arm. Reuse the accepted mhitm_ad_drli delegation and existing hitmu permdmg reader; claim no whole caller completion. Preserve all source directions, target-data snapshot, integer half-damage, Antimagic outcome and RNG/message order, and exact discarded touch_of_death void gap. Independent newt/orc Conflict recordings cover monster targets; the separate wraith setup produces Death touching the living hero, not an undead-defender branch. The hero-attacker direction cannot occur in valid C polymorphs. Root source, attribution, receipt and input verification: .cache/B94-root-source-verification.json.",
+      "detail": "",
+      "openedAt": "1ff70f42232a9340ae14268cab172de95178b55e",
+      "openStanding": {
+        "sha": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "c973e13d992d0d60d9beb39cb183c27071c12272",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "functions": [
+        {
+          "name": "mhitm_ad_deth",
+          "line": 3837,
+          "endLine": 3896,
+          "declared": true,
+          "complete": true
+        }
+      ],
+      "range": {
+        "from": 3837,
+        "to": 3896
+      },
+      "syntheticProvenance": {
+        "synthetic/v20/death-touches-wizard-v20-more-confirmed": {
+          "session": "synthetic/v20/death-touches-wizard-v20-more-confirmed",
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "death-touches-wizard-v20-more-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recordingPath": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+          "recordingSha256": "db591a65e5f705ca354652b58f1819232332d8f0f93ea715f7e6310e6ee56477",
+          "evaluationPath": "challenges/evaluations/20261003063303-v20.json",
+          "evaluationCommit": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c"
+        }
+      },
+      "activeStanding": {
+        "sha": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v20",
+          "caseId": "death-touches-wizard-v20-more-confirmed",
+          "session": "synthetic/v20/death-touches-wizard-v20-more-confirmed",
+          "manifestPath": "challenges/manifests/v20.json",
+          "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+          "recording": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+          "recordingPath": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+          "recordingSha256": "db591a65e5f705ca354652b58f1819232332d8f0f93ea715f7e6310e6ee56477",
+          "recipe": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.recipe.session.json",
+          "recipeSha256": "2fab98356a333d365e3b207f7f1b438c4235d0b585ee22e9b8f9f8a56588f64f",
+          "replayInputSha256": "d9cf267f048d14fcb60c801e59b7f0a90e0099e9a65ddfaac05dc1628bfa0e9a",
+          "evaluationPath": "challenges/evaluations/20261003063303-v20.json",
+          "evaluationCommit": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+          "evaluationArtifact": "challenges/evaluations/20261003063303-v20.json",
+          "evaluationUtc": "2026-10-03T06:34:06.957Z",
+          "remainingScreens": 2,
+          "recordedSteps": 32,
+          "previousScreensMatched": 30,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 30,
+              "total": 32
+            },
+            "rng": {
+              "matched": 2349,
+              "total": 2356
+            },
+            "cursors": {
+              "matched": 30,
+              "total": 32
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires uhitm.c mhitm_ad_deth()",
+            "step": 30
+          },
+          "step": 30,
+          "kind": "stop",
+          "sourceFile": "uhitm.c",
+          "function": "mhitm_ad_deth",
+          "message": "simple monster action requires uhitm.c mhitm_ad_deth()",
+          "cFile": "uhitm.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v20/death-touches-wizard-v20-more-confirmed.json",
+            "result": {
+              "session": "synthetic/v20/death-touches-wizard-v20-more-confirmed",
+              "corpus": "synthetic",
+              "batch": "v20",
+              "caseId": "death-touches-wizard-v20-more-confirmed",
+              "manifestPath": "challenges/manifests/v20.json",
+              "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+              "recordingSha256": "db591a65e5f705ca354652b58f1819232332d8f0f93ea715f7e6310e6ee56477",
+              "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+              "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "remainingScreens": 2,
+              "recordedSteps": 32,
+              "status": "complete",
+              "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v20",
+                "caseId": "death-touches-wizard-v20-more-confirmed",
+                "session": "synthetic/v20/death-touches-wizard-v20-more-confirmed",
+                "manifestPath": "challenges/manifests/v20.json",
+                "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+                "recording": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+                "recordingPath": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.session.json",
+                "recordingSha256": "db591a65e5f705ca354652b58f1819232332d8f0f93ea715f7e6310e6ee56477",
+                "recipe": "challenges/cases/v20/death-touches-wizard-v20-more-confirmed.recipe.session.json",
+                "recipeSha256": "2fab98356a333d365e3b207f7f1b438c4235d0b585ee22e9b8f9f8a56588f64f",
+                "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+                "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+                "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+                "evaluationUtc": "2026-10-03T00:32:52.762Z",
+                "remainingScreens": 2,
+                "recordedSteps": 32,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 30,
+                    "total": 32
+                  },
+                  "rng": {
+                    "matched": 2349,
+                    "total": 2356
+                  },
+                  "cursors": {
+                    "matched": 30,
+                    "total": 32
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires uhitm.c mhitm_ad_deth()",
+                  "step": 30
+                },
+                "step": 30,
+                "kind": "stop",
+                "sourceFile": "uhitm.c",
+                "function": "mhitm_ad_deth",
+                "message": "simple monster action requires uhitm.c mhitm_ad_deth()",
+                "cFile": "uhitm.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The monster-action preflight refuses AD_DETH before Death’s turn. C step30 enters mhitm_ad_deth and rn2(20)=6 selects life-force draining with mhm.permdmg=1. Port the whole helper and AD_DETH dispatch arm, preserving the caller’s permanent-damage handling and all source orientations.",
+              "source": {
+                "file": "uhitm.c",
+                "branch": "AD_DETH with a non-undead hero defender; rn2(20)=6 selects permanent life-force damage. Other source arms halve undead-hero damage, invoke touch_of_death without Antimagic, clear failed damage, or delegate monster-defender draining.",
+                "functions": [
+                  "mhitm_ad_deth"
+                ],
+                "callers": [
+                  "mhitm_adtyping",
+                  "hitmu",
+                  "damageum",
+                  "mdamagem"
+                ],
+                "dependencies": [
+                  "mcastu.c:touch_of_death",
+                  "uhitm.c:mhitm_ad_drli",
+                  "display.c:shieldeff",
+                  "species is_undead flags",
+                  "Antimagic property"
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "uhitm.c:3837–3893 defines mhitm_ad_deth. Its hero-defender rn2(20) switch sets permdmg on the life-force branch; it leaves actual damage application to hitmu.",
+                "C step30 prints the deadly-touch message and records rnd(20)=8 at mattacku, d(8,8)=37 at hitmu, then rn2(20)=6 at mhitm_ad_deth. Space continues the life-force message at31.",
+                "JS uhitm.js:5073 still selects the unported mhitm_ad_deth helper. The baseline reports this exact simple-monster-action refusal, so the earlier missing distfleeck draw is a planning symptom of the unsupported damage type.",
+                "The whole source unit also calls touch_of_death and mhitm_ad_drli with discarded results; audit their source and existing owners when defining implementation scope. Do not claim the life-force recording covers those alternate branches."
+              ]
+            }
+          }
+        }
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_deth",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_deth",
+            "sourceReview": "Compared the complete uhitm.c:3837-3893 body. Snapshots mdef->data before output; preserves the C hero-attacker shared monster-target arm; distinguishes the mdef==youmonst branch, including the undead integer half-damage return before rn2(20), cases 17-19 with the Antimagic fallthrough and exact discarded touch_of_death void boundary, default rolls 5-16 setting mhm.permdmg after the life-force message, and cases 0-4 with optional shieldeff before damage clear and return. For monster targets, applies rnd(damage/2) only for undead defenders and incoming damage >1, then calls the accepted whole mhitm_ad_drli with the original attack and shared damage record. The helper and only the AD_DETH arm of mhitm_adtyping are wired; the hero-attacker AD_DETH branch is source-infeasible in this build per the C comment. Source-discarded touch_of_death is represented by note_unported('mcastu.c touch_of_death'); shieldeff and mhitm_ad_drli reuse their existing verified bodies.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping case AD_DETH at 4824. Production directions reach the dispatcher through mhitu.c:hitmu(1191), mhitm.c:mdamagem(1059), or uhitm.c:damageum(4854)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-deth.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-newt-conflict-acknowledged-b94.session.json",
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-orc-conflict-acknowledged-b94.session.json",
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-wraith-variation-seed-9410053-more-dismissed-b94.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "death-touches-wizard-v20-more-confirmed",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 31,
+                "source": "monmove.c:dochug -> mhitu.c:mattacku/hitmu -> uhitm.c:mhitm_adtyping(AD_DETH) -> uhitm.c:mhitm_ad_deth; step 30 records rn2(20)=6 @ uhitm.c:3858 and step 31 records the life-force message"
+              }
+            ],
+            "checkedAt": "7040302da907819ef4fe949439ef3f77450ecf3f"
+          }
+        ],
+        "entryPointReview": "Active monster-to-hero flow is monmove.c:dochug -> mhitu.c:mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_DETH) -> mhitm_ad_deth; runtime is the admitted v20 selected case through zero-based step 31 and the independent wraith/hero strict recording. Active monster-to-monster flow is mhitm.c:mattackm -> mdamagem -> uhitm.c:mhitm_adtyping(AD_DETH) -> mhitm_ad_deth; independent newt (m_lev 0) and plain-orc (m_lev 3) strict recordings exercise the source Death delegation, including its level-zero automatic-kill and nonzero level decrement branches. Hero-to-monster reaches damageum's dispatcher in source, but uhitm.c:3845-3847 says a valid hero polymorph cannot have AD_DETH; the shared branch is implemented without a live-runtime claim. mhitm_adtyping receives only its AD_DETH caller-arm wiring; no whole dispatcher, hitmu or damageum completion credit is claimed. The high-roll no-Antimagic touch_of_death call is a named discarded-void gap.",
+        "entryPoints": [
+          {
+            "name": "monster-to-hero AD_DETH",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_deth"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-wraith-variation-seed-9410053-more-dismissed-b94.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v20",
+                "caseId": "death-touches-wizard-v20-more-confirmed",
+                "segment": 0,
+                "fromStep": 30,
+                "throughStep": 31,
+                "source": "mattacku -> hitmu -> mhitm_adtyping(AD_DETH) -> mhitm_ad_deth"
+              }
+            ]
+          },
+          {
+            "name": "monster-to-monster AD_DETH",
+            "functions": [
+              {
+                "sourceFile": "uhitm.c",
+                "name": "mhitm_ad_deth"
+              }
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-newt-conflict-acknowledged-b94.session.json",
+              "recordings/uhitm.c/mhitm-ad-deth-monster-to-monster-orc-conflict-acknowledged-b94.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "c973e13d992d0d60d9beb39cb183c27071c12272",
+        "screens": 11405,
+        "rng": 792838
+      }
+    },
+    {
+      "id": "fix-leprechaun-sleeper-disturb-preflight-v19-20261003",
+      "kind": "divergence-fix",
+      "status": "closed",
+      "summary": "Admit sleeping leprechauns to the source wake gate",
+      "cFile": "monmove.c",
+      "sessions": [
+        "synthetic/v19/leprechaun-steals-carried-gold-c62"
+      ],
+      "selectionReason": "Current v19 leprechaun investigation selects a source-traced false preflight refusal before the existing monmove.c:disturb sleeping branch. For a visible sleeping non-tame/non-minion leprechaun, C and JS disturb evaluate LOS, squared distance and Stealth before the hard-to-wake gate; recorded rn2(50)=27 returns false and dochug exits before movement/theft. Broaden only assertSimpleActionState admission to let this existing source decision run; retain awake/special action boundaries. The source functions are unchanged and gain no whole-unit completion credit. Independent C replay, source branch, current evaluation and immutable packet verified in .cache/B95-root-source-verification.json.",
+      "detail": "synthetic/v19/leprechaun-steals-carried-gold-c62 segment0 zero-based step34: premature JS assertSimpleActionState refusal before C monmove.c:disturb327–358, rn2(50)=27 hard-to-wake false result consumed by dochug726–731. Fix only the sleeper admission guard; no source body changes or whole-unit completion credit.",
+      "openedAt": "e25d5da874b4637e2ca2f764ea80a08a98632aec",
+      "openStanding": {
+        "sha": "c973e13d992d0d60d9beb39cb183c27071c12272",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": "6226e31d54b3bcf12676b4b078b0e46e59fe46c0",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
+      "function": "disturb",
+      "session": "synthetic/v19/leprechaun-steals-carried-gold-c62",
+      "step": 34,
+      "syntheticProvenance": {
+        "synthetic/v19/leprechaun-steals-carried-gold-c62": {
+          "session": "synthetic/v19/leprechaun-steals-carried-gold-c62",
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "leprechaun-steals-carried-gold-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recordingPath": "challenges/cases/v19/leprechaun-steals-carried-gold-c62.session.json",
+          "recordingSha256": "fe3f36ced179ff7795440bfa3fba0af450bc68c74c420a23feb32bb0eba25073",
+          "evaluationPath": "challenges/evaluations/20261003074959-v19.json",
+          "evaluationCommit": "c973e13d992d0d60d9beb39cb183c27071c12272"
+        }
+      },
+      "activeStanding": {
+        "sha": "c973e13d992d0d60d9beb39cb183c27071c12272",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v19",
+          "caseId": "leprechaun-steals-carried-gold-c62",
+          "session": "synthetic/v19/leprechaun-steals-carried-gold-c62",
+          "manifestPath": "challenges/manifests/v19.json",
+          "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+          "recording": "challenges/cases/v19/leprechaun-steals-carried-gold-c62.session.json",
+          "recordingPath": "challenges/cases/v19/leprechaun-steals-carried-gold-c62.session.json",
+          "recordingSha256": "fe3f36ced179ff7795440bfa3fba0af450bc68c74c420a23feb32bb0eba25073",
+          "recipe": "challenges/cases/v19/leprechaun-steals-carried-gold-c62.recipe.session.json",
+          "recipeSha256": "5f1eb4b3744cf1796d4a97a1e8a2edc7793c0361b56e17e6611bb03856089d4c",
+          "replayInputSha256": "65caf7e9b0cc65cca26c565ae7c22df46cce8e8a5e93868f59747e9445b24c51",
+          "evaluationPath": "challenges/evaluations/20261003074959-v19.json",
+          "evaluationCommit": "c973e13d992d0d60d9beb39cb183c27071c12272",
+          "evaluationArtifact": "challenges/evaluations/20261003074959-v19.json",
+          "evaluationUtc": "2026-10-03T07:50:55.277Z",
+          "remainingScreens": 5,
+          "recordedSteps": 39,
+          "previousScreensMatched": 34,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 34,
+              "total": 39
+            },
+            "rng": {
+              "matched": 2848,
+              "total": 2902
+            },
+            "cursors": {
+              "matched": 34,
+              "total": 39
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "simple monster action requires a special monster action",
+            "step": 34
+          },
+          "step": 34,
+          "kind": "stop",
+          "sourceFile": null,
+          "function": null,
+          "message": "simple monster action requires a special monster action",
+          "cFile": null,
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v19/leprechaun-steals-carried-gold-c62.json",
+            "result": {
+              "session": "synthetic/v19/leprechaun-steals-carried-gold-c62",
+              "corpus": "synthetic",
+              "batch": "v19",
+              "caseId": "leprechaun-steals-carried-gold-c62",
+              "manifestPath": "challenges/manifests/v19.json",
+              "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+              "recordingSha256": "fe3f36ced179ff7795440bfa3fba0af450bc68c74c420a23feb32bb0eba25073",
+              "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+              "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "remainingScreens": 5,
+              "recordedSteps": 39,
+              "status": "complete",
+              "commit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v19",
+                "caseId": "leprechaun-steals-carried-gold-c62",
+                "session": "synthetic/v19/leprechaun-steals-carried-gold-c62",
+                "manifestPath": "challenges/manifests/v19.json",
+                "manifestSha256": "ce0ee11ac66fd40ee6ff610827da60214ba4842d45077617078207f4008d2007",
+                "recording": "challenges/cases/v19/leprechaun-steals-carried-gold-c62.session.json",
+                "recordingPath": "challenges/cases/v19/leprechaun-steals-carried-gold-c62.session.json",
+                "recordingSha256": "fe3f36ced179ff7795440bfa3fba0af450bc68c74c420a23feb32bb0eba25073",
+                "recipe": "challenges/cases/v19/leprechaun-steals-carried-gold-c62.recipe.session.json",
+                "recipeSha256": "5f1eb4b3744cf1796d4a97a1e8a2edc7793c0361b56e17e6611bb03856089d4c",
+                "replayInputSha256": "5f35ee109bfa4faaf728c841ce6eaafcbc30d23e862ee3ed2ec2ed64226bc5d6",
+                "evaluationPath": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationCommit": "8583a972f66a872a8ad73c888a24dd01075481f4",
+                "evaluationArtifact": "challenges/evaluations/20261002180737-v19.json",
+                "evaluationUtc": "2026-10-02T18:07:42.516Z",
+                "remainingScreens": 5,
+                "recordedSteps": 39,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 34,
+                    "total": 39
+                  },
+                  "rng": {
+                    "matched": 2848,
+                    "total": 2902
+                  },
+                  "cursors": {
+                    "matched": 34,
+                    "total": 39
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "simple monster action requires a special monster action",
+                  "step": 34
+                },
+                "step": 34,
+                "kind": "stop",
+                "sourceFile": null,
+                "function": null,
+                "message": "simple monster action requires a special monster action",
+                "cFile": null,
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "At zero-based step 34, JavaScript rejects the visible sleeping leprechaun in its simple-action preflight before reaching the source-supported wake check. C enters monmove.c:dochug() and calls disturb(); its hard-to-wake leprechaun gate draws rn2(50)=27 and returns 0, so the monster remains asleep and does not attack or steal gold. This is a source-traced false refusal in the JS action boundary, not an AD_SGLD/stealgold mismatch.",
+              "source": {
+                "file": "monmove.c",
+                "branch": "A newly created hostile leprechaun is asleep, visible and adjacent to a non-stealthy hero. In dochug(), a sleeping monster first calls disturb(); for a leprechaun, disturb() requires !rn2(50) before later wake conditions. The recorded 27 fails that gate, so dochug() returns before movement or attack. JavaScript instead rejects this visible sleeping leprechaun in assertSimpleActionState() before the existing disturb/dochug path.",
+                "functions": [
+                  "dochug",
+                  "disturb"
+                ],
+                "callers": [
+                  "C caller path: mon.c:movemon_singlemon() (1320) calls monmove.c:dochugw(mtmp, TRUE); dochugw() calls monmove.c:dochug(), which consumes disturb() at monmove.c:727-731. JavaScript maps this through mon.js:movemon_singlemon() and the allmain.js:1178 adapter to unported_monster_actions.js:runSimpleMonsterAction() and monmove.js:dochug().",
+                  "JavaScript preflight path: allmain.js:1249 calls preflightSimpleMonsterActions(); its cloned run reaches unported_monster_actions.js:assertSimpleActionState() via runSimpleMonsterAction() before monmove.js:dochug() can call disturb()."
+                ],
+                "dependencies": [
+                  "makemon.c:makemon() S_LEPRECHAUN branch (1327-1328) establishes the asleep precondition; js/makemon_create.js mirrors it.",
+                  "monmove.c:disturb() returns an int consumed by dochug(); js/monmove.js:disturb() already contains the matching leprechaun rn2(50) gate and is called from js/monmove.js:dochug()."
+                ]
+              },
+              "goalKind": "divergence-fix",
+              "evidence": [
+                "The immutable v19 C recording challenges/cases/v19/leprechaun-steals-carried-gold-c62.session.json matches the capsule recordingSha256. Normalized segment 0 step 32 records “A leprechaun appears next to you”; step 34 is a period wait and its first RNG entry is rn2(50)=27 @ disturb(monmove.c:348). Steps 33-38 are six period waits; the C outcome records no attack or theft and $773 carried gold.",
+                "Upstream makemon.c:1327-1328 sets msleeping=1 in the S_LEPRECHAUN branch. Upstream monmove.c:327-358 short-circuits the hard-to-wake test through !rn2(50) before the generic !rn2(7) wake condition; monmove.c:727-731 returns immediately when a sleeping monster is not disturbed.",
+                "The current JavaScript stop matches unported_monster_actions.js:272-360: assertSimpleActionState() admits only an unseen sleeping leprechaun, then throws UnsupportedSimpleMonsterActionError(\"a special monster action\") for this visible leprechaun. runSimpleMonsterAction() invokes that guard before monmove.js:dochug() reaches its existing sleeping/disturb branch at 2488-2493. monmove.js:2172-2204 implements the source wake gate, including leprechauns.",
+                "The capsule evaluation at challenges/evaluations/20261002180737-v19.json records the step-34 stop, 34/39 screens, 2848/2902 RNG calls, and the exact “simple monster action requires a special monster action” error. The C62 comparison receipt at /tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4d3bfR/receipt.json has SHA-256 f67b1bae469ea6d1e7487319ecfbcc4052df1a70ac81aa7de0c7b3e9b00662a3; capsule C62 comparison run-4d3bfR identifies monmove.c:disturb as the first C-only call. No replay was needed.",
+                "The C62 capsule crosswalk classifies the prepared theft target as a wake-target miss: no AD_SGLD/stealgold call occurs. Those attack/theft functions are not the source owner of this mismatch; the source-backed fix is to let a sleeping leprechaun reach the ordinary disturb early-return path, leaving any later successfully-woken special action at its own explicit boundary.",
+                "The inspected C and JavaScript source files are unchanged since the independently checkpointed C62 integration at 168d97a870934a4ec84e006d19cfc20ba3fca7ff; this finding is recorded at current main 8583a972f66a872a8ad73c888a24dd01075481f4."
+              ],
+              "preparedCaseDisposition": {
+                "targetStatus": "source-traced first mismatch; wake target miss",
+                "reachedBehavior": "C creates a visible adjacent sleeping leprechaun beside carried gold; step 34 reaches disturb’s rn2(50)=27 hard-to-wake gate and does not wake. No AD_SGLD/stealgold occurs.",
+                "cOutcome": "C creates a leprechaun next to the Tourist at zero-based step32; HUD shows $773 carried gold. C then processes six period waits (steps33–38) without an AD_SGLD hit or theft. Source explains this target miss: makemon.c sets every leprechaun asleep (S_LEPRECHAUN case), and monmove.c:disturb has the extra leprechaun wake gate (!rn2(50)); no wake or AD_SGLD/stealgold call occurs in this trace.",
+                "reproducibility": "Independent patched-C replay run-LMCIaO completed successfully; output fe3f36ced179ff7795440bfa3fba0af450bc68c74c420a23feb32bb0eba25073 is byte-identical to the frozen C recording.",
+                "sourcePointers": [
+                  "makemon.c:makemon",
+                  "monmove.c:dochug",
+                  "monmove.c:disturb"
+                ],
+                "countsTowardDistinctFirstMismatchTarget": true,
+                "comparisonEvidence": {
+                  "acceptedMain": "de86887ba0c3d582fd41fe224446466e54fdd420",
+                  "measuredWorkerHead": "24ca0fa8414dbe0891e138b16ec077054a796d65",
+                  "runId": "run-4d3bfR",
+                  "receipt": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4d3bfR/receipt.json",
+                  "receiptSha256": "f67b1bae469ea6d1e7487319ecfbcc4052df1a70ac81aa7de0c7b3e9b00662a3",
+                  "stdout": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4d3bfR/stdout.log",
+                  "stdoutSha256": "ebf7cb376ff8f3e03ee0cf976745a7a3c7523ac9d1e93b426df1918b25253557",
+                  "stderr": "/tmp/teleport-loop-worker-c-20260925/.cache/C62-logs/bounded/run-4d3bfR/stderr.log",
+                  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                  "exitCode": 1,
+                  "measuredBy": "A81 accepted-main per-case refresh",
+                  "result": "first C-only monmove.c:disturb leprechaun wake rn2(50)=27 at zero-based step34; AD_SGLD not reached"
+                },
+                "sourceActionCrosswalk": {
+                  "firstCBehavior": "Visible adjacent sleeping leprechaun reaches the hard-to-wake rn2(50)=27 gate at zero-based step 34; it stays asleep and never reaches AD_SGLD/stealgold.",
+                  "nearestPriorCases": [
+                    "synthetic/v18/wizard-hostile-ghoul-ad-plys-c59",
+                    "synthetic/v18/wizard-hostile-ghoul-ad-plys-wander-pursuit-c59",
+                    "synthetic/v18/wizard-hostile-homunculus-ad-slee-c59"
+                  ],
+                  "comparisonNote": "These prior rows concern attacks or hero sleep and have no leprechaun hard-to-wake gate or gold theft. C62’s theft target is not reached; the distinct behavior is the pre-attack disturb chance."
+                }
+              }
+            }
+          }
+        }
+      ],
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "6226e31d54b3bcf12676b4b078b0e46e59fe46c0",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }

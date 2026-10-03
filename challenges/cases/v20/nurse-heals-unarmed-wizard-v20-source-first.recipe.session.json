@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first Nurse AD_HEAL probe, frozen before recording or JavaScript comparison. The source hero-defender branch requires no weapon and no worn armor; the Wizard AC9 startup state is unarmored, and w- explicitly selects empty hands before creating the hostile Nurse. Spaces are present to acknowledge C-observed More pages, while periods provide elapsed turns under !safe_wait.",
+  "segments": [
+    {
+      "seed": 261002051,
+      "datetime": "20491023082500",
+      "nethackrc": "OPTIONS=name:NurseProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " w-#wizgenesis\nhostile nurse\n. . . . . ."
+    }
+  ]
+}

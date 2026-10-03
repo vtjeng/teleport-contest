@@ -27,6 +27,7 @@ import {
     A_STR,
     A_WIS,
     ACID_RES,
+    ANTIMAGIC,
     ARTICLE_A,
     ARTICLE_THE,
     ARTICLE_YOUR,
@@ -34,6 +35,7 @@ import {
     COLD_RES,
     CONFUSION,
     DEAF,
+    DRAIN_RES,
     DISP_ALWAYS,
     DISP_END,
     DISMOUNT_POLY,
@@ -62,7 +64,9 @@ import {
     M_SEEN_COLD,
     M_SEEN_ELEC,
     M_SEEN_SLEEP,
+    FAST,
     MON_EXPLODE,
+    MSLOW,
     NATTK,
     NOTELL,
     NEED_WEAPON,
@@ -182,6 +186,7 @@ import {
     map_location,
     mon_to_glyph,
     newsym,
+    shieldeff,
     tmp_at,
     tp_sensemon,
 } from './display.js';
@@ -212,6 +217,7 @@ import { hurtle, mhurtle, will_hurtle } from './dothrow.js';
 // reads them at module scope.
 import {
     could_seduce,
+    diseasemu,
     getmattk,
     hitmsg,
     m_next2u,
@@ -220,8 +226,10 @@ import {
     mtrapped_in_pit,
     mdamageu,
     Protection_from_shape_changers,
+    u_slow_down,
 } from './mhitu.js';
 import { abuse_dog } from './dog.js';
+import { losexp } from './exper.js';
 import {
     angry_guards,
     killed,
@@ -282,6 +290,8 @@ import {
     monstseesu,
     monstunseesu,
     noncorporeal,
+    nonliving,
+    resists_drli,
     Resists_Elem,
     noattacks,
     passes_walls,
@@ -511,7 +521,7 @@ import { acurr } from './attrib.js';
 import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import {
-    make_blinded, make_slimed, make_stunned, potionhit,
+    make_blinded, make_confused, make_slimed, make_stunned, potionhit,
 } from './potion.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { night } from './calendar.js';
@@ -543,6 +553,7 @@ import {
     extract_from_minvent,
     find_mac,
     is_pole,
+    mon_adjust_speed,
     set_twoweap,
     setuwep,
     which_armor,
@@ -4986,6 +4997,312 @@ export async function mhitm_ad_ench(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_slow() (3652-3687). All three combat directions
+// share the magic-cancellation and AD_SLOW defense gates, then preserve their
+// distinct monster-speed or intrinsic hero-speed effects.
+export async function mhitm_ad_slow(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+    const effectEnv = { ...env, state, random, message };
+    const negated = await mhitm_mgc_atk_negated(
+        magr, mdef, false, state, effectEnv,
+    );
+
+    if (defended(mdef, AD_SLOW, state))
+        return;
+
+    if (magr === state.youmonst) {
+        if (!negated && mdef.mspeed !== MSLOW) {
+            const oldSpeed = mdef.mspeed;
+
+            await mon_adjust_speed(mdef, -1, null, state, effectEnv);
+            if (mdef.mspeed !== oldSpeed && canseemon(mdef, state))
+                await message(`${Monnam(mdef, state)} slows down.`, state,
+                    effectEnv);
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, effectEnv);
+        if (!negated
+            && state.u?.uprops?.[FAST]?.intrinsic
+            && !random.rn2(4)) {
+            await u_slow_down(state, effectEnv);
+        }
+    } else if (!negated && mdef.mspeed !== MSLOW) {
+        const oldSpeed = mdef.mspeed;
+
+        await mon_adjust_speed(mdef, -1, null, state, effectEnv);
+        mdef.mstrategy &= ~STRAT_WAITFORU;
+        if (mdef.mspeed !== oldSpeed && state.gv?.vis
+            && canspotmon(mdef, state)) {
+            await message(
+                messageAt(
+                    `${Monnam(mdef, state)} slows down.`,
+                    mdef.mx,
+                    mdef.my,
+                    state,
+                ),
+                state,
+                effectEnv,
+            );
+        }
+    }
+}
+
+// C ref: uhitm.c mhitm_ad_drli() (2445-2518). Level-draining attacks have
+// distinct hero-to-monster, monster-to-hero, and monster-to-monster arms.
+// Keep each arm's chance, resistance, negation, output, and HP/level order
+// separate; the direct Death caller now enters through mhitm_ad_deth().
+export async function mhitm_ad_drli(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = { d, rn2, ...(env.random ?? {}) };
+    const message = requireAttackOperation(env, 'message');
+    const effectEnv = { ...env, state, random, message };
+
+    if (magr === state.youmonst) {
+        if (!random.rn2(3)
+            && !(resists_drli(mdef, state) || defended(mdef, AD_DRLI, state))
+            && !(await mhitm_mgc_atk_negated(
+                magr, mdef, true, state, effectEnv,
+            ))) {
+            mhm.damage = random.d(2, 6);
+            await message(`${Monnam(mdef, state, effectEnv)} becomes weaker!`,
+                state, effectEnv);
+            if (mdef.mhpmax - mhm.damage > mdef.m_lev) {
+                mdef.mhpmax -= mhm.damage;
+            } else if (mdef.mhpmax > mdef.m_lev) {
+                mdef.mhpmax = mdef.m_lev + 1;
+            }
+            mdef.mhp -= mhm.damage;
+            if (mdef.mhp < 1 || !mdef.m_lev) {
+                await message(
+                    `${Monnam(mdef, state, effectEnv)} `
+                        + `${nonliving(mdef.data) ? 'expires' : 'dies'}!`,
+                    state,
+                    effectEnv,
+                );
+                // uhitm.c discards xkilled()'s void result; retain its current
+                // source-backed owner for kill state/corpse processing.
+                await xkilled(mdef, XKILL_NOMSG, state, effectEnv);
+            } else {
+                mdef.m_lev--;
+            }
+            // This helper applied the HP loss itself; damageum must not repeat it.
+            mhm.damage = 0;
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, effectEnv);
+        if (!random.rn2(3)
+            && !propertyPresent(state.u, DRAIN_RES)
+            && !(await mhitm_mgc_atk_negated(
+                magr, mdef, true, state, effectEnv,
+            ))) {
+            if (env.planning && state.u.ulevel <= 1) {
+                if (typeof env.planningDeath !== 'function') {
+                    throw new TypeError(
+                        'mhitm_ad_drli requires planningDeath for a fatal planned life drain',
+                    );
+                }
+                // exper.c losexp() reaches end.c done(DIED) for a fatal
+                // level-one drain. Planning runs against a clone, but done()
+                // still paints the live status and enters terminal recovery;
+                // hand the attacker to the live pass before that boundary.
+                throw env.planningDeath(magr);
+            }
+            await losexp('life drainage', state, effectEnv);
+        }
+    } else {
+        const isDeath = mattk.adtyp === AD_DETH;
+        if (isDeath
+            || (!random.rn2(3)
+                && !(resists_drli(mdef, state)
+                    || defended(mdef, AD_DRLI, state))
+                && !(await mhitm_mgc_atk_negated(
+                    magr, mdef, true, state, effectEnv,
+                )))) {
+            if (!isDeath)
+                mhm.damage = random.d(2, 6);
+            if (state.gv?.vis && canspotmon(mdef, state)) {
+                const text = `${Monnam(mdef, state, effectEnv)} becomes weaker!`;
+                await message(
+                    messageAt(text, mdef.mx, mdef.my, state),
+                    state,
+                    effectEnv,
+                );
+            }
+            if (mdef.mhpmax - mhm.damage > mdef.m_lev) {
+                mdef.mhpmax -= mhm.damage;
+            } else if (mdef.mhpmax > mdef.m_lev) {
+                mdef.mhpmax = mdef.m_lev + 1;
+            }
+            if (mdef.m_lev === 0)
+                mhm.damage = mdef.mhp;
+            else
+                mdef.m_lev--;
+        }
+    }
+}
+
+// C ref: uhitm.c mhitm_ad_conf() (3690-3725). Confusing attacks have three
+// directions: the hero confuses a monster directly, a monster can inflict the
+// hero's Confusion timeout after its one-in-four gate, and a monster can
+// confuse another monster without a timer or random draw.
+export async function mhitm_ad_conf(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+
+    if (magr === state.youmonst) {
+        if (!mdef.mconf) {
+            if (canseemon(mdef, state)) {
+                await message(
+                    `${Monnam(mdef, state, env)} looks confused.`, state,
+                );
+            }
+            mdef.mconf = 1;
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (!magr.mcan && !random.rn2(4) && !magr.mspec_used) {
+            magr.mspec_used = magr.mspec_used + (mhm.damage + random.rn2(6));
+            const confusion = state.u?.uprops?.[CONFUSION]?.intrinsic ?? 0;
+            await message(
+                confusion
+                    ? 'You are getting even more confused.'
+                    : 'You are getting confused.',
+                state,
+            );
+            await make_confused(confusion + mhm.damage, false, state, env);
+        }
+        mhm.damage = 0;
+    } else {
+        if (!magr.mcan && !mdef.mconf && !magr.mspec_used) {
+            if (state.gv?.vis && canseemon(mdef, state)) {
+                await message(
+                    messageAt(
+                        `${Monnam(mdef, state, env)} looks confused.`,
+                        mdef.mx,
+                        mdef.my,
+                        state,
+                    ),
+                    state,
+                );
+            }
+            mdef.mconf = 1;
+            mdef.mstrategy &= ~STRAT_WAITFORU;
+        }
+    }
+}
+
+// C ref: uhitm.c mhitm_ad_pest() (3808-3834). Snapshot the attacker's form
+// before the awaited name/message path. The valid build has no hero form with
+// AD_PEST; monster-to-monster disease effects remain at the exact discarded
+// void call until mhitm_ad_dise() is ported.
+export async function mhitm_ad_pest(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const pa = magr.data;
+
+    if (magr === state.youmonst) {
+        // uhitm.c documents that no valid polymorph form can select this arm.
+        // Preserve the source's goto into the AD_DISE case at its void gap.
+        note_unported('uhitm.c mhitm_ad_dise');
+    } else if (mdef === state.youmonst) {
+        const message = requireAttackOperation(env, 'message');
+        await message(
+            `${Monnam(magr, state, env)} reaches out, and you feel fever and chills.`,
+            state,
+            env,
+        );
+        // C discards diseasemu's Boolean here; its disease mutation is the
+        // effect, and hitmu() still applies the ordinary attack damage.
+        await diseasemu(pa, { ...env, state });
+    } else {
+        // uhitm.c copies mattk, changes adtyp to AD_DISE and discards the
+        // mhitm_ad_dise result. Keep its unported effect at that call boundary.
+        note_unported('uhitm.c mhitm_ad_dise');
+    }
+}
+
+// C ref: uhitm.c mhitm_ad_deth() (3837-3893). Death's touch has a separate
+// hero-defender outcome; against another monster it reuses the original hit
+// through mhitm_ad_drli(). Snapshot the target form before the first awaited
+// message, as C does before entering either direction.
+export async function mhitm_ad_deth(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const defenderData = mdef.data;
+    const random = env.random ?? { rn2, rnd };
+    const message = requireAttackOperation(env, 'message');
+
+    if (magr !== state.youmonst && mdef === state.youmonst) {
+        const text = `${Monnam(magr, state, env)} reaches out with its deadly touch.`;
+        await message(messageAt(text, magr.mx, magr.my, state), state, env);
+
+        if (is_undead(defenderData)) {
+            mhm.damage = Math.trunc((mhm.damage + 1) / 2);
+            await message('Was that the touch of death?', state, env);
+            return;
+        }
+
+        const roll = random.rn2(20);
+        if (roll >= 17 && !propertyPresent(state.u, ANTIMAGIC)) {
+            // C discards touch_of_death()'s void result; retain only its
+            // source-named gap before applying C's explicit damage reset.
+            note_unported('mcastu.c touch_of_death');
+            mhm.damage = 0;
+            return;
+        }
+
+        if (roll <= 4) {
+            if (propertyPresent(state.u, ANTIMAGIC))
+                await shieldeff(state.u.ux, state.u.uy, state);
+            await message("Lucky for you, it didn't work!", state, env);
+            mhm.damage = 0;
+            return;
+        }
+
+        await message('You feel your life force draining away...', state, env);
+        mhm.permdmg = 1;
+        return;
+    }
+
+    // The hero-attacker AD_DETH form is excluded by the valid monsters, so C
+    // shares this monster-target arm. Preserve its damage division and the
+    // already-ported Death-specific AD_DRLI delegation.
+    if (is_undead(defenderData) && mhm.damage > 1)
+        mhm.damage = random.rnd(Math.trunc(mhm.damage / 2));
+    await mhitm_ad_drli(magr, mattk, mdef, mhm, state, env);
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -5042,7 +5359,9 @@ export async function mhitm_adtyping(
     case AD_CURS:
         await mhitm_ad_curs(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_DRLI: unported('mhitm_ad_drli'); break;
+    case AD_DRLI:
+        await mhitm_ad_drli(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_RUST: unported('mhitm_ad_rust'); break;
     case AD_CORR: unported('mhitm_ad_corr'); break;
     case AD_DCAY: unported('mhitm_ad_dcay'); break;
@@ -5065,13 +5384,21 @@ export async function mhitm_adtyping(
     case AD_ENCH:
         await mhitm_ad_ench(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_SLOW: unported('mhitm_ad_slow'); break;
-    case AD_CONF: unported('mhitm_ad_conf'); break;
+    case AD_SLOW:
+        await mhitm_ad_slow(magr, mattk, mdef, mhm, state, env);
+        break;
+    case AD_CONF:
+        await mhitm_ad_conf(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_POLY: unported('mhitm_ad_poly'); break;
     case AD_DISE: unported('mhitm_ad_dise'); break;
     case AD_SAMU: unported('mhitm_ad_samu'); break;
-    case AD_DETH: unported('mhitm_ad_deth'); break;
-    case AD_PEST: unported('mhitm_ad_pest'); break;
+    case AD_DETH:
+        await mhitm_ad_deth(magr, mattk, mdef, mhm, state, env);
+        break;
+    case AD_PEST:
+        await mhitm_ad_pest(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_FAMN: unported('mhitm_ad_famn'); break;
     case AD_DGST: unported('mhitm_ad_dgst'); break;
     case AD_HALU: unported('mhitm_ad_halu'); break;

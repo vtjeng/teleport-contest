@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first input correction frozen from run-1XDCdq: the first newline selects the recorded alignment and C then displays the welcome --More-- pager, which consumed the original wizard-wish key. This recipe adds one space to dismiss that actual C pager before issuing ^W. The original no-pager-correction recipe/recording remains unchanged as setup-miss provenance. After the wish, C will confirm the selector and whether the completed meal reaches eat.c:fpostfx.",
+  "segments": [
+    {
+      "seed": 74102031,
+      "datetime": "20470312145607",
+      "nethackrc": "OPTIONS=name:C63Jelly,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n \u0017lump of royal jelly\neo eo................"
+    }
+  ]
+}

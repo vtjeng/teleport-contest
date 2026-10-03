@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent cheap B92 H→M natural-wraith variation: a lawful Valkyrie uses the wizard-mode polymorph/create commands, then attacks the C-observed ogre directly south once. The saved C trace shows hmonas lands the wraith touch, damageum selects AD_DRLI, rn2(3)=0 succeeds, and the ogre becomes weaker. The role change exercises the same source arm under different hero attributes and startup state.",
+  "segments": [
+    {
+      "seed": 7823309,
+      "datetime": "20340922112000",
+      "nethackrc": "OPTIONS=name:WraithVarProbe,role:Valkyrie,race:human,gender=female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #polyself\nwraith\n#wizgenesis\nhostile ogre\nj"
+    }
+  ]
+}

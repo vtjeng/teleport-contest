@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "B91 C-first hero-to-monster AD_SLOW witness with the source-observed combat pager acknowledged. A prior setup probe with this task-selected seed showed the hostile ogre northeast. This frozen route changes into Skeleton, creates the ogre, attacks northeast, then supplies one space to continue the C --More-- emitted by the physical and touch messages. The earlier no-space attempt is preserved as a pager-limited C capture.",
+  "segments": [
+    {
+      "seed": 6348291,
+      "datetime": "20380411091500",
+      "nethackrc": "OPTIONS=name:SlowProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #polyself\nskeleton\n#wizgenesis\nhostile ogre\nu "
+    }
+  ]
+}

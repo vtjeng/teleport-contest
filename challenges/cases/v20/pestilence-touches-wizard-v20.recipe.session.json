@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent Pestilence candidate frozen before recording or JavaScript comparison. Use a debug Genesis hostile Pestilence and wait through C-observed adjacent turns to test the hostile monster AT_TUCH/AD_PEST route into mhitu.c:diseasemu. Preserve a Genesis/approach/disease-resistance miss if C does not select the touch.",
+  "segments": [
+    {
+      "seed": 81923077,
+      "datetime": "21131115102012",
+      "nethackrc": "OPTIONS=name:C63Pest,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile Pestilence\n...................."
+    }
+  ]
+}

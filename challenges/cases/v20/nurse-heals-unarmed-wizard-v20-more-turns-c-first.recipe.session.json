@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first longer-turn continuation frozen from the initial six-period C result: the Wizard was bare handed and unarmored, but the hostile Nurse had not attacked. This recipe preserves the same independent seed/date/setup and adds 24 periods, with a Space after each to acknowledge any C combat More boundary. The continuation is based on C state/action evidence and was frozen before recording/comparison.",
+  "segments": [
+    {
+      "seed": 261002051,
+      "datetime": "20491023082500",
+      "nethackrc": "OPTIONS=name:NurseProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " w-#wizgenesis\nhostile nurse\n. . . . . . .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  . "
+    }
+  ]
+}

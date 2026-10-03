@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first survivability variation frozen from the prior C trace: the Abbot AT_CLAW/AD_PHYS attack hit the Wizard for 12 and ended the game before the kick. Valkyrie is an independent role setup; the initial Space acknowledges the C-observed welcome More before #wizgenesis. Extra spaces are provided after the observed combat boundary to acknowledge More if C displays it, with periods available for elapsed turns. This route is frozen before C and JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 261002048,
+      "datetime": "20490217093000",
+      "nethackrc": "OPTIONS=name:AbbotValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizgenesis\nhostile abbot\n..     ......"
+    }
+  ]
+}

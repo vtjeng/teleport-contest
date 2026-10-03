@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C64 minimal M→M runtime recipe, frozen from the recorded two-stone-golem Conflict route before comparing this new recipe with JavaScript. It preserves the source-observed setup and ends after zero-based C step 92: Yeenoghu’s AD_CONF attack marks the stone golem confused and displays the More pager. The final space in this prefix dismisses the preceding attack pager to reach the helper; the resulting confusion pager is the segment endpoint, before the next Yeenoghu AD_PLYS or later zhitu/armed-attacker paths.",
+  "segments": [
+    {
+      "seed": 12636002,
+      "datetime": "20360401120619",
+      "nethackrc": "OPTIONS=name:C64ConfPairB,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na>>h\n  #wizgenesis\nhostile Yeenoghu\n #wizgenesis\n2 hostile stone golem\n .  . "
+    }
+  ]
+}
