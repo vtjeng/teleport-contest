@@ -1734,9 +1734,8 @@ function Half_physical_damage(state) {
 //
 // Ported: the marker for an unspottable attacker in hitmu() and missmu(), the
 // hidden-under-object reveal, and the permanent hit-point accounting. The
-// latter is exercised when a future uhitm.c mhitm_ad_deth() writer supplies a
-// nonzero field; that AD_DETH arm remains an unported source gap, while this
-// reader preserves C's update and display order.
+// latter is reached by uhitm.c mhitm_ad_deth(); this reader preserves C's
+// update and display order for the helper's permdmg field.
 //
 // mhm.specialdmg has no ported reader either, and mhitm_ad_phys() did not
 // bring one. Its two C readers, uhitm.c:3992 and :3995, are inside the
