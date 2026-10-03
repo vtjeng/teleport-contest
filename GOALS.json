@@ -149529,6 +149529,30 @@
           "declared": true,
           "sourceFile": "objnam.c",
           "complete": false
+        },
+        {
+          "name": "curr_mon_load",
+          "sourceFile": "mon.c",
+          "line": 1913,
+          "endLine": 1926,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "stuff_prevents_passage",
+          "sourceFile": "monmove.c",
+          "line": 2319,
+          "endLine": 2353,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "can_fog",
+          "sourceFile": "monmove.c",
+          "line": 2365,
+          "endLine": 2372,
+          "declared": true,
+          "complete": false
         }
       ],
       "syntheticProvenance": {
