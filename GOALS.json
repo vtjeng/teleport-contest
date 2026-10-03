@@ -145614,7 +145614,7 @@
     {
       "id": "port-uhitm-mhitm-ad-drli-v18-20261003",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete level-draining attacks and fatal planning handoff",
       "cFile": "uhitm.c",
       "sessions": [
@@ -145628,8 +145628,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_drli",
@@ -145907,6 +145910,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
