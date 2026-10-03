@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "C-first route from the separate seed/date: space acknowledges the Death-potion More prompt, then the next monster turn has a hostile wraith touch the hero (mhitm_ad_deth M-to-H, step 122, rn2(20)=15). This is a strict matching supporting M-to-H route; it is not M-to-M evidence.",
+  "comment": "C-first route from the separate seed/date: space acknowledges the Death-potion More prompt. At step 121 a hostile wraith touches the hero with AD_DRLI; at step 122 Death attacks the hero with AD_DETH and rn2(20)=15. This is a strict matching supporting M-to-H route; it is not M-to-M evidence.",
   "segments": [
     {
       "seed": 9410053,
