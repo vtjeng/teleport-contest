@@ -918,9 +918,12 @@ export function xname_flags(obj, state, cxnFlags = CXN_NORMAL) {
 
 export const xnameFreshWithOffset = xname_flags;
 
-// C objnam.c xname() (575-578) selects CXN_NORMAL.
-export function xname(obj, state) {
-    return xname_flags(obj, state).name;
+// C objnam.c xname() (575-578) selects CXN_NORMAL. The optional result form
+// carries the interior-buffer offset that C callers retain from its char *;
+// ordinary callers still receive the pointed-to string.
+export function xname(obj, state, { withOffset = false } = {}) {
+    const result = xname_flags(obj, state);
+    return withOffset ? result : result.name;
 }
 export const xnameFresh = xname;
 
@@ -1739,7 +1742,7 @@ function doname_base(
     const forMenu = Boolean(donameFlags & DONAME_FOR_MENU);
     const type = objectType(obj, state);
     const omndx = Math.trunc(obj.corpsenm ?? NON_PM);
-    const xnameBuffer = xname_flags(obj, state);
+    const xnameBuffer = xname(obj, state, { withOffset: true });
     let base = xnameBuffer.name;
     let bufferOffset = xnameBuffer.bufferOffset;
     const xnameResult = base;

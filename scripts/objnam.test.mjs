@@ -100,7 +100,9 @@ import {
     concatNameBody,
     erosion_matters,
     vtense,
+    xname,
     xnameFresh,
+    xname_flags,
     yname,
     Yname2,
     Yobjnam2,
@@ -489,10 +491,34 @@ test('objnam source helpers retain searchable C names in the immutable adapter',
     assert.match(OBJNAM_JS_SOURCE, /function nextobuf\(value = ''\)/u);
     assert.match(OBJNAM_JS_SOURCE, /export function xname_flags\(/u);
     assert.match(OBJNAM_JS_SOURCE, /export function xname\(/u);
+    assert.match(OBJNAM_JS_SOURCE,
+        /const xnameBuffer = xname\(obj, state, \{ withOffset: true \}\)/u);
     assert.match(OBJNAM_JS_SOURCE, /function Japanese_item_name\(otyp, ordinaryName\)/u);
     assert.match(OBJNAM_JS_SOURCE, /actualn = Japanese_item_name\(otyp, actualn\)/u);
     assert.match(OBJNAM_JS_SOURCE, /actual = Japanese_item_name\(obj\.otyp, actual\)/u);
     assert.match(OBJNAM_JS_SOURCE, /base = nextobuf\(base\)/u);
+});
+
+test('doname_base calls the source xname wrapper and retains its C pointer offset', () => {
+    const state = dualWieldState(LONG_SWORD);
+    state.artiexist[ART_SUNSWORD].exists = 1;
+    state.artidisco[0] = ART_SUNSWORD;
+    const articleName = `The ${'x'.repeat(220)}`;
+    const named = objectOf(state, LONG_SWORD, {
+        dknown: true,
+        known: true,
+        bknown: true,
+        rknown: true,
+        oartifact: ART_SUNSWORD,
+        oextra: { oname: articleName },
+        owornmask: W_WEP,
+    });
+    state.uwep = named;
+    const cResult = xname_flags(named, state);
+    assert.deepEqual(xname(named, state, { withOffset: true }), cResult);
+    assert.equal(xname(named, state), cResult.name);
+    assert.equal(cResult.bufferOffset, 4);
+    assert.doesNotMatch(donameFresh(named, state), /\(wielded\)/u);
 });
 
 // C objnam.c xname_flags() default arm formats numeric oclass/otyp/spe and
