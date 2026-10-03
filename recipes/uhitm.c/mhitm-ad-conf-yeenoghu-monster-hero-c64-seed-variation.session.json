@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first seed variation frozen after the previous same-seed recordings reached AD_CONF but only observed rn2(4)=3,3,1 misses and the short-lived Wizard death prompt. It keeps the observed pager-correct input pattern, changes the seed to seek a successful source branch, and is compared with JavaScript only after this C record and independent replay.",
+  "segments": [
+    {
+      "seed": 12635891,
+      "datetime": "20360102113248",
+      "nethackrc": "OPTIONS=name:C64HeroB,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\na\n\n\u0007hostile Yeenoghu\ny..\n.\n.\n.\n.\n.\n.\n.\n.\n.\n."
+    }
+  ]
+}
