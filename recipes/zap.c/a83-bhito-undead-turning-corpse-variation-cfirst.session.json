@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Preserved setup miss for the alternate-species bhito variation. C shows the wished newt corpse at p and wand at o; the original frozen `dq` selects no object, so the undead-turning branch is not reached. A corrected C-derived variation is a separate recipe.",
+  "segments": [{
+    "seed": 83207039,
+    "datetime": "20520304110942",
+    "nethackrc": "OPTIONS=name:A83BhitoNewt,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+    "moves": " \u0017wand of undead turning\n\u0017newt corpse\ndqzp>"
+  }]
+}

@@ -40,10 +40,12 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
+    M2_LORD,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_LONG_WORM,
     PM_ORCUS,
+    PM_JUIBLEX,
     PM_PONY,
     PM_SEWER_RAT,
     PM_WIZARD_OF_YENDOR,
@@ -301,6 +303,17 @@ test('rloco moves a floor object after its source-ordered destination draws', as
 });
 
 test('noteleport_level counts only living on-map demon-court blockers', () => {
+    // C teleport.c:m_blocks_teleporting() blocks both M2_LORD and M2_PRINCE.
+    const cBlocker = sourceScrolltele(
+        C_TELEPORT_SOURCE,
+        'staticfn boolean\nm_blocks_teleporting(struct monst *mtmp)',
+        '\n/* teleporting is prevented',
+    );
+    assert.match(
+        cBlocker,
+        /is_dlord\(mtmp->data\)\s*\|\|\s*is_dprince\(mtmp->data\)/u,
+    );
+
     const state = positionState();
     state.dungeons[0].flags.hellish = true;
     const ordinary = newMonster({
@@ -321,6 +334,113 @@ test('noteleport_level counts only living on-map demon-court blockers', () => {
     prince.mstate = MON_FLOOR;
     assert.equal(noteleport_level(ordinary, state), true);
     assert.equal(noteleport_level(prince, state), false);
+
+    // C teleport.c:m_blocks_teleporting() has a separate M2_LORD arm. Juiblex
+    // is selected here because Asmodeus is M2_PRINCE, like the Orcus above.
+    const lord = newMonster({
+        data: state.mons[PM_JUIBLEX],
+        mhp: 1, // A living demon is needed for get_iter_mons() to retain it.
+        mstate: MON_FLOOR, // Keep the lord on-map for the court scan.
+    });
+    assert.notEqual(lord.data.mflags2 & M2_LORD, 0);
+    state.level.monlist = lord;
+    assert.equal(noteleport_level(ordinary, state), true);
+    assert.equal(noteleport_level(lord, state), false);
+});
+
+test('rloc enforces inclusive down and up destination bounds', () => {
+    // C teleport.c:tele_jump_ok() compares both source and target with the
+    // inclusive dndest/updest boxes. Drive it through rloc_pos_ok() so these
+    // private checks remain tested at their production caller.
+    const cStart = C_TELEPORT_SOURCE.indexOf(
+        'staticfn boolean\ntele_jump_ok(coordxy x1, coordxy y1, coordxy x2, coordxy y2)',
+    );
+    const cEnd = C_TELEPORT_SOURCE.indexOf(
+        '\nstaticfn boolean\nteleok(', cStart,
+    );
+    assert.notEqual(cStart, -1);
+    assert.notEqual(cEnd, -1);
+    const cTeleJump = C_TELEPORT_SOURCE.slice(cStart, cEnd);
+    assert.match(cTeleJump, /svd\.dndest\.nlx/u);
+    assert.match(cTeleJump, /svu\.updest\.nlx/u);
+    assert.match(cTeleJump, /within_bounded_area\(/u);
+
+    const jsStart = JS_TELEPORT_SOURCE.indexOf('function teleJumpOk(');
+    const jsEnd = JS_TELEPORT_SOURCE.indexOf('\nfunction rlocPositionOk(', jsStart);
+    assert.notEqual(jsStart, -1);
+    assert.notEqual(jsEnd, -1);
+    const jsTeleJump = JS_TELEPORT_SOURCE.slice(jsStart, jsEnd);
+    assert.match(jsTeleJump, /state\.dndest/u);
+    assert.match(jsTeleJump, /state\.updest/u);
+    assert.match(jsTeleJump, /wasInside !== isInside/u);
+
+    const run = ({ boundsName, start, candidates }) => {
+        const state = positionState();
+        // The 30..40 by 4..12 rectangle is an ordinary room-sized test box;
+        // these endpoints pin the source's inclusive lower and upper edges.
+        state[boundsName] = { nlx: 30, nly: 4, nhx: 40, nhy: 12 };
+        const points = [start, ...candidates];
+        for (const [x, y] of points) state.level.at(x, y).typ = ROOM;
+        const monster = newMonster({
+            data: state.mons[PM_SEWER_RAT],
+            mhp: 2, // A live monster is required by the coordinate index.
+            mhpmax: 2,
+            m_id: 92, // A nonzero id exercises the live-monster position path.
+        });
+        place_monster(monster, start[0], start[1], state);
+        const draws = [];
+        let candidateIndex = 0;
+        const relocated = rloc(monster, 0, {
+            state,
+            random: {
+                rnd(bound) {
+                    assert.equal(bound, COLNO - 1);
+                    const x = candidates[candidateIndex][0];
+                    draws.push(['rnd', bound, x]);
+                    return x;
+                },
+                rn2(bound) {
+                    assert.equal(bound, ROWNO);
+                    const y = candidates[candidateIndex][1];
+                    draws.push(['rn2', bound, y]);
+                    candidateIndex += 1;
+                    return y;
+                },
+            },
+            newsym: () => {},
+            onscary: () => false,
+            setApparxy: () => {},
+        });
+        return { relocated, monster, draws };
+    };
+
+    // The source begins on dndest's lower corner. It rejects an outside
+    // point, then permits the opposite upper corner because it stays inside.
+    const down = run({
+        boundsName: 'dndest',
+        start: [30, 4],
+        candidates: [[12, 9], [40, 12]],
+    });
+    assert.equal(down.relocated, true);
+    assert.deepEqual([down.monster.mx, down.monster.my], [40, 12]);
+    assert.deepEqual(down.draws, [
+        ['rnd', COLNO - 1, 12], ['rn2', ROWNO, 9],
+        ['rnd', COLNO - 1, 40], ['rn2', ROWNO, 12],
+    ]);
+
+    // The source starts outside updest. Its upper corner is inside and is
+    // rejected; the second outside point remains on the starting side.
+    const up = run({
+        boundsName: 'updest',
+        start: [12, 9],
+        candidates: [[40, 12], [13, 9]],
+    });
+    assert.equal(up.relocated, true);
+    assert.deepEqual([up.monster.mx, up.monster.my], [13, 9]);
+    assert.deepEqual(up.draws, [
+        ['rnd', COLNO - 1, 40], ['rn2', ROWNO, 12],
+        ['rnd', COLNO - 1, 13], ['rn2', ROWNO, 9],
+    ]);
 });
 
 test('collect_coords clips edge rings before deriving shuffle bounds', () => {

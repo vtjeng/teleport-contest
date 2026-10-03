@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first setup miss for zap.c:weffects -> zap_updown -> bhitpile -> bhito. C shows the wished corpse at q and the wished wand at p; this original frozen `dp` input drops the wand, not the corpse, and the later zap menu never reaches the target. Keep these original input bytes as history; the corrected C-derived route is a separate recipe.",
+  "segments": [{
+    "seed": 83207011,
+    "datetime": "20520304110917",
+    "nethackrc": "OPTIONS=name:A83BhitoTroll,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+    "moves": " \u0017wand of undead turning\n\u0017troll corpse\ndpz?o>"
+  }]
+}

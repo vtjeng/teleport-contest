@@ -205,10 +205,15 @@ test('fruit fixed-buffer helpers keep their distinct C terminators', () => {
 });
 
 test('makesingular preserves the object-name inflection rules used by fruit', () => {
+    // C objnam.c:singplur_lookup() reaches badman() before the ordinary
+    // suffix rewrite. These values pin its listed NO_MAN exception, the
+    // normal *men-to-*man fallback, and the special-subject as-is table.
     const cases = [
         ['blueberries', 'blueberry'],
         ['knives', 'knife'],
         ['slices of pizza', 'slice of pizza'],
+        ['specimen', 'specimen'],
+        ['firemen', 'fireman'],
         ['children', 'child'],
         ['mice', 'mouse'],
         ['boxes', 'box'],
@@ -217,6 +222,7 @@ test('makesingular preserves the object-name inflection rules used by fruit', ()
         ['fungi', 'fungus'],
         ['bacteria', 'bacterium'],
         ['boots', 'boots'],
+        ['Hippocrates', 'Hippocrates'],
         ['Manes', 'Manes'],
         // strcasecpy only promotes the replacement's first character here.
         ['THEY', 'It'],
@@ -226,6 +232,9 @@ test('makesingular preserves the object-name inflection rules used by fruit', ()
 });
 
 test('makeplural preserves source compounds and irregular object names', () => {
+    // C objnam.c:singplur_compound() splits " of " before inflection;
+    // ch_ksound() gives monarch the listed k-sound spelling, while church
+    // takes the ordinary "es" suffix because it is absent from that list.
     const cases = [
         ['potion of healing', 'potions of healing'],
         ['knife', 'knives'],
@@ -233,6 +242,7 @@ test('makeplural preserves source compounds and irregular object names', () => {
         ['vortex', 'vortices'],
         ['human', 'humans'],
         ['monarch', 'monarchs'],
+        ['church', 'churches'],
         ['pair of boots', 'pair of boots'],
         ['blueberry', 'blueberries'],
         ['foo@', 'foo@s'],

@@ -1220,6 +1220,10 @@ test('doname bounds wizard weight before adding its constructed prefix', () => {
 });
 
 test('doname keeps xname pointer offsets and food prefixes source-aligned', () => {
+    // C objnam.c:nextobuf() rotates scratch buffers, while this JS port uses
+    // immutable strings and explicit offsets. The +4 "The " case below pins
+    // the byte displacement and bounded-string behavior without inventing a
+    // JavaScript ring-buffer state.
     const poisonState = dualWieldState(DART);
     // objnam.c:xname_flags() gives this named poisoned dart a 175-byte body;
     // the 220-byte oname fills it, and doname_base's bp += 9 must not restore
