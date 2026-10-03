@@ -146908,6 +146908,67 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-dothrow-hurtle-invisible-planning-v21-20261003",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Preserve invisible-monster map memory during planned hero hurtling",
+      "cFile": "dothrow.c",
+      "sessions": [],
+      "selectionReason": "The complete v21 Archon investigation traces the replay exception through dothrow.c:hurtle_step to the live-only display helper. Fix its planning helper choice in the existing collision branch; A83 only rewires disjoint imports in the same file and owns no coupled planning contract.",
+      "detail": "The admitted v21 case throws without returning a localized input boundary. C dothrow.c:hurtle_step:867–868 calls display.c:map_invisible after collision with an unspotted monster. JS hurtle_step:981 passes a foreign planning clone to the live-only helper; use existing map_invisible_planning for that clone. Investigation investigations/synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json records the fresh-process exception, caller chain and immutable case identity.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "hurtle_step",
+      "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+      "syntheticProvenance": {
+        "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst": {
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+          "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0"
+        }
+      }
+    },
+    {
+      "id": "fix-cmd-counted-extcmd-dispatch-v21-20261003",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Dispatch counted extended commands with the source count intact",
+      "cFile": "cmd.c",
+      "sessions": [],
+      "selectionReason": "The complete v21 counted Purple Worm investigation traces the first refusal to rhack before extended-command dispatch, rather than the annotated parse owner. A83 reserves no cmd.c function and has no pending count or extended-command edits; keep new tests separate from its paranoid-query coverage.",
+      "detail": "At segment0 step48 the saved and fresh replay stop at the counted # key. C cmd.c:rhack dispatches doextcmd with gm.multi intact; read.c:create_particular_parse consumes 1+gm.multi for wiz_genesis quantity, and rhack resets the count on ECMD_OK. JS rhack rejects all counted nonmovement commands before its existing # dispatch. Fix this implemented dispatch gate generally; retain subsequent unsupported repeated-command boundaries. Investigation investigations/synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.json preserves exact case provenance and source trace.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "rhack",
+      "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+      "step": 48,
+      "syntheticProvenance": {
+        "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst": {
+          "session": "synthetic/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/wizard-conflict-purple-worm-m2m-ad-dgst-count-pair-v21-cfirst.session.json",
+          "recordingSha256": "9f36ccbd834163b58e13a576d38d55115876ca2c783a69c75bc9323987cf7c0d",
+          "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+          "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0"
+        }
+      }
     }
   ]
 }
