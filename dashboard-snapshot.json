@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-03T20:49:48.966Z",
+  "capturedAt": "2026-10-03T21:26:06.367Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -16768,12 +16768,77 @@
         "type": "accepted",
         "at": "2026-10-03T20:36:09.905Z",
         "task": "B96"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B96-published-1648c005",
+        "type": "published",
+        "at": "2026-10-03T20:50:03.347Z",
+        "task": "B96",
+        "commit": "1648c005766548738616bf934c7ff5c748803493"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-0264ad6d3b2384e4366e7fac749a2a007ee7a005",
+        "type": "ready",
+        "at": "2026-10-03T20:55:31.964Z",
+        "task": "C67",
+        "delivery": "0264ad6d3b2384e4366e7fac749a2a007ee7a005"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C67-received-0264ad6d",
+        "type": "received",
+        "at": "2026-10-03T20:56:34.774Z",
+        "task": "C67",
+        "delivery": "0264ad6d3b2384e4366e7fac749a2a007ee7a005"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C67-integrating-252c0bae",
+        "type": "integrating",
+        "at": "2026-10-03T20:58:55.503Z",
+        "task": "C67",
+        "integration": "252c0bae5d9a9c746896a135d67355537cb845a4"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C68-dochug-ms-cuss-20261003",
+        "type": "assign",
+        "at": "2026-10-03T21:07:05.290Z",
+        "task": "C68",
+        "worker": "C",
+        "goal": "fix-monmove-dochug-ms-cuss-v21-20261003",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C67-integrating-fixture-b35ea93c",
+        "type": "integrating",
+        "at": "2026-10-03T21:10:37.353Z",
+        "task": "C67",
+        "integration": "b35ea93ca4f5c84f4dd69708fc51af654f242c46"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C67-validated-b35ea93c",
+        "type": "validated",
+        "at": "2026-10-03T21:18:48.788Z",
+        "task": "C67",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C67-accepted-b35ea93c",
+        "type": "accepted",
+        "at": "2026-10-03T21:24:45.933Z",
+        "task": "C67"
       }
     ]
   },
   "development": {
-    "executionCommit": "9acbf872281a3ef081dc4d9f56ac2dfbc6b4e1d6",
-    "measuredAt": "2026-10-03T20:21:34.675Z",
+    "executionCommit": "b35ea93ca4f5c84f4dd69708fc51af654f242c46",
+    "measuredAt": "2026-10-03T21:17:57.701Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
