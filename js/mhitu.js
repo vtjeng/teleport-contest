@@ -212,15 +212,18 @@ import { canseemon, canspotmon, mon_visible } from './display.js';
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any
 // extrinsic speed source (such as speed boots) for the second message arm.
-export async function u_slow_down(state = game) {
+export async function u_slow_down(
+    state = game,
+    { message = ttyPline, random = { rn2 } } = {},
+) {
     const fast = state.u?.uprops?.[FAST];
     if (!fast) return;
     fast.intrinsic = 0;
     if (!(fast.extrinsic ?? 0))
-        await ttyPline('You slow down.', state);
+        await message('You slow down.', state);
     else
-        await ttyPline('Your quickness feels less natural.', state);
-    await exercise(A_DEX, false, state);
+        await message('Your quickness feels less natural.', state);
+    await exercise(A_DEX, false, state, random);
 }
 
 // Planning cannot call end.c done_in_by() on its cloned state: the ordinary

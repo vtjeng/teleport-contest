@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "B91 shortest C-first positive intrinsic-HFast witness. The recipe ends at the C-observed skeleton attack on step 99, where mhitm_ad_slow draws rn2(10)=1 and rn2(4)=0 and prints \u201cYou slow down.\u201d The unchanged longer input is also retained and now matches fully after B91 forwards the cloned RNG into exercise; the former distfleeck RNG mismatch was caused by that planning RNG leak.",
+  "segments": [
+    {
+      "seed": 1658105,
+      "datetime": "20380511091500",
+      "nethackrc": "OPTIONS=name:FastProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\n+7 gray dragon scale mail\n#wizwish\npotion of speed\nTbqq #wizgenesis\nhostile skeleton\n. .."
+    }
+  ]
+}
