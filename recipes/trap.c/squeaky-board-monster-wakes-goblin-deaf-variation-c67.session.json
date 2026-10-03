@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap Deaf variation of the frozen C-first monster SQKY_BOARD recipe. It changes only the permadeaf role-play option; the board, monster, moves, seed and clock stay fixed so C can show its in-sight Deaf branch if the newt triggers the board.",
+  "segments": [
+    {
+      "seed": 91827731,
+      "datetime": "20340517112344",
+      "nethackrc": "OPTIONS=name:SqkyMonsterC67,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,!safe_wait,time\nOPTIONS=permadeaf\n",
+      "moves": "l\u0017squeaky board\n#wizgenesis\nnewt\nh. . . . . . . ."
+    }
+  ]
+}
