@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 96234507,
+      "datetime": "20310506114700",
+      "nethackrc": "OPTIONS=name:C65OfferMis,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017lawful altar\n\u0017orc corpse\nd?o #offer\ny"
+    }
+  ],
+  "comment": "Independent C-first correction frozen from the prior recording. Its step0 showed `Hello wizard, welcome to NetHack! --More--`, so this recipe begins with the required space before the first Ctrl-W; it then wishes the lawful altar and orc corpse. The same starting inventory displayed the corpse at letter o, and the later C drop pager is dismissed with one space before #offer. Intended active route is neutral hero -> lawful altar -> pray.c:dosacrifice/offer_corpse/offer_different_alignment_altar. No JavaScript comparison informed this input."
+}

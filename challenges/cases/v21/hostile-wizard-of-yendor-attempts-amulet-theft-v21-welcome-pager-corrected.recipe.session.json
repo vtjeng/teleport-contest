@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71102658,
+      "datetime": "21120610140900",
+      "nethackrc": "OPTIONS=name:C65Steal,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017Amulet of Yendor\n\u0007hostile Wizard of Yendor\ny."
+    }
+  ],
+  "comment": "Frozen C-first correction based solely on the original C recording: its first screen is the startup welcome --More-- prompt, so one leading Space acknowledges that prompt before the already frozen Ctrl-W wizwish, Ctrl-G wizgenesis and forced unique-monster confirmation inputs. The target source chain remains mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping/mhitm_ad_samu -> steal.c:stealamulet. No JavaScript comparison informed this correction."
+}

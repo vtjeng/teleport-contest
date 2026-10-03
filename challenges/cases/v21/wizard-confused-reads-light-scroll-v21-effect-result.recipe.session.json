@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen from the prior C recording: after slot o is selected, C first prompts on the scroll-disappearance message, then on “Being confused, you mispronounce the magic words...--More--” at zero-based step48. This adds one space to acknowledge that second C More and observe the actual seffect_light result. Every earlier input and setup is unchanged. Frozen before this record and before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 506190312,
+      "datetime": "21141207103000",
+      "nethackrc": "OPTIONS=name:C65ConfusedLight,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\ng\n \u0017uncursed scroll of light\nr?o  ",
+      "recorderIsDst": true
+    }
+  ]
+}

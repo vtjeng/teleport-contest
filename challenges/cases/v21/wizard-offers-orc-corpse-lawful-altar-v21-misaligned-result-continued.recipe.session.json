@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 96234507,
+      "datetime": "20310506114700",
+      "nethackrc": "OPTIONS=name:C65OfferMis,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017lawful altar\n\u0017orc corpse\nd?o #offer\ny "
+    }
+  ],
+  "comment": "C-first pager continuation frozen after the corrected C route reached `Your sacrifice is consumed in a plume of smoke!--More--` while hero alignment is neutral and altar alignment is lawful. The added space dismisses that observed source message so the rest of offer_different_alignment_altar can be observed; this is the same offered-corpse behavior route, not a separate candidate. No JavaScript result informed the continuation."
+}

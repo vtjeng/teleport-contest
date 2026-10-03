@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 96234507,
+      "datetime": "20310506114700",
+      "nethackrc": "OPTIONS=name:C65OfferMis,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017lawful altar\n\u0017orc corpse\nd?"
+    }
+  ],
+  "comment": "Independent C-first source probe frozen before any JavaScript comparison. The neutral Wizard wishes a lawful altar and a fresh orc corpse; `d?` stops at the inventory selector to read the actual corpse letter before offering. Intended #offer route is pray.c:dosacrifice -> offer_corpse -> offer_different_alignment_altar because hero alignment is neutral while the altar is wished lawful. Setup alone does not claim the offering branch was reached."
+}

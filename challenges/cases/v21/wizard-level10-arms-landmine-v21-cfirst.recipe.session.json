@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 580419233,
+      "datetime": "20431108101700",
+      "nethackrc": "OPTIONS=name:C65Mine10,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!safe_wait\n",
+      "moves": "#levelchange\n10\nh\u0017uncursed land mine\nan........lh"
+    }
+  ],
+  "comment": "C-first corrected landmine recipe, frozen after the earlier target miss showed a gridbug More loop before set_trap completion. A distinct seed/date and source-supported level-10 wizard provide a clear attempt with enough HP for the landmine blast; the initial unknown-command space and pre-setup shoe-wear turn are removed. Step west off the upstairs, wish an uncursed land mine into the observed slot n, apply it, let set_trap complete, step east to the stairs, then return west onto the mine. Verify actual C reaches apply.c:use_trap/set_trap -> trap.c:maketrap/dotrap/trapeffect_landmine and records the damage/iron-shoe or no-shoe branch, pit conversion, recursion and fill_pit. If C shows a new setup or pager miss, preserve it and do not claim activation."
+}

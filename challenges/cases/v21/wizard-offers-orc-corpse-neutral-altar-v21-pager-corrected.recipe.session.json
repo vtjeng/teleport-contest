@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93651327,
+      "datetime": "20291004113500",
+      "nethackrc": "OPTIONS=name:C65Offer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017neutral altar\n\u0017orc corpse\nd?o #offer\ny"
+    }
+  ],
+  "comment": "C-first pager correction frozen from the prior recording. C showed the corpse lands on the altar and emits a `--More--` pager after selector o; one space is inserted before #offer to clear that exact source-observed pager. The remaining command/confirmation follows only after that boundary; no JavaScript result informed this correction."
+}

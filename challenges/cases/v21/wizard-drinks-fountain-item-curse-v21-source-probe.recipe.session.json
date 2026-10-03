@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 98120765,
+      "datetime": "20311002095500",
+      "nethackrc": "OPTIONS=name:C65Fountain,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017fountain\nqy"
+    }
+  ],
+  "comment": "Independent C-first source probe frozen before JavaScript comparison. Wish a fountain at the hero square, invoke q, and accept only the C-observed fountain prompt. Target is potion.c:dodrink -> fountain.c:drinkfountain, especially its fate-24 loop that curses uncursed noncoin inventory items; the recorded C outcome determines which source branch was actually reached. No JS feedback informs the seed or inputs."
+}

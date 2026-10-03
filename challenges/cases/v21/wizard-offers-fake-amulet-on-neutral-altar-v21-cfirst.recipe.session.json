@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen independent C-first command sequence for the pray.c:offer_fake_amulet route. It tries inventory key o after wishing a fake Amulet and dropping it at a neutral altar. The new C record must establish whether that selector actually chose the wished object and which known/high-altar guard ran; if it misses, retain that valid target-miss evidence and freeze any correction only from C output, never from JavaScript.",
+  "segments": [
+    {
+      "seed": 74193521,
+      "datetime": "20320617092800",
+      "nethackrc": "OPTIONS=name:C65FakeOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017neutral altar\n\u0017fake Amulet of Yendor\nd?o#offer\ny"
+    }
+  ]
+}

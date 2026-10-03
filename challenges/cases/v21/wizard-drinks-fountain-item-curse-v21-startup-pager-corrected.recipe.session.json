@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 98120765,
+      "datetime": "20311002095500",
+      "nethackrc": "OPTIONS=name:C65Fountain,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017fountain\nqy"
+    }
+  ],
+  "comment": "C-first setup correction frozen from the preceding C trace, which shows `Hello wizard, welcome to NetHack! --More--` before the first input. The initial space dismisses that startup page before Ctrl-W; the remaining wishes and q action are otherwise unchanged. This aims to reach potion.c:dodrink -> fountain.c:drinkfountain. No JavaScript result informed the correction."
+}

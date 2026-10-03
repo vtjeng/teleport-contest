@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9041017,
+      "datetime": "21130511143000",
+      "nethackrc": "OPTIONS=name:C65Tame,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0007hostile orc\n\u0007hostile goblin\n\u0017scroll of taming\n"
+    }
+  ],
+  "comment": "Frozen C-first setup before any C result. Wizard debug mode creates two explicitly hostile, adjacent ordinary monsters through ^G and independently wishes an uncursed scroll of taming through ^W. This setup-only recipe will be continued only from the C-observed inventory and pager; no JavaScript comparison informed these inputs."
+}

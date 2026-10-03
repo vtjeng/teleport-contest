@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first throne effect 9 recipe frozen from sit.c source before C recording or JavaScript comparison. OPTIONS=playmode:debug supplies the wizard-only #wizwish and effect selector; #sit dispatches through cmd.c to dosit. The chosen fixed date is source-checked as a new moon (phase 0): u.uluck initializes to 0 and allmain.c only raises Luck for full moon, so the ordinary case-9 branch is not diverted to blindness by Luck > 0. Respond 9 after #sit; C must actually show the throne effect selector, record rnd(6)>4 and rnd(13), and show the case-9/Luck<=0 curse outcome before this counts as an rndcurse reach. If the gate misses, retain that valid miss unchanged.",
+  "segments": [
+    {
+      "seed": 840210302,
+      "datetime": "20420915132741",
+      "nethackrc": "OPTIONS=name:C65ThroneCurse,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017throne\n#sit\n9\n"
+    }
+  ]
+}

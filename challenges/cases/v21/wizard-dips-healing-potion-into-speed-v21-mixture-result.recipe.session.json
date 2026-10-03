@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after actual C reached potion.c:potion_dip: POT_HEALING selected at h and the wished POT_SPEED at n produce “The potions of healing mix with the brown potion...--More--” at zero-based step64. One space acknowledges this C-observed result pager and captures the post-mixture state/knowledge output. All previous input remains fixed. Frozen before this C record and before JS comparison.",
+  "segments": [
+    {
+      "seed": 315601987,
+      "datetime": "21141208120600",
+      "nethackrc": "OPTIONS=name:C65DipMix,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017uncursed potion of healing\n \u0017uncursed potion of speed\n#dip\n?h?n ",
+      "recorderIsDst": true
+    }
+  ]
+}

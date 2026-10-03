@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9041017,
+      "datetime": "21130511143000",
+      "nethackrc": "OPTIONS=name:C65Tame,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0007hostile orc\n\u0007hostile goblin\n\u0017scroll of taming\nro "
+    }
+  ],
+  "comment": "C-first pager continuation frozen after run-3DDLvy showed the scroll-consumption message ending in `--More--` at stored zero-based step 49, with the source-ordered read/taming RNG already present. Append one space to observe the queued neighborhood result and final action boundary. No JavaScript comparison informed this continuation."
+}

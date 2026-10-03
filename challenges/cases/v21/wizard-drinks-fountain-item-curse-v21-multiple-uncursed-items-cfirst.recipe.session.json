@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 752134891,
+      "datetime": "20321222141800",
+      "nethackrc": "OPTIONS=name:C65FountainCurseItems,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed long sword\n\u0017uncursed potion of healing\n\u0017fountain\nqy"
+    }
+  ],
+  "comment": "Independent C-first fountain fate-24 route. The startup space dismisses the welcome page; separate uncursed long-sword and healing-potion wishes give the inventory loop multiple noncoin objects with explicit BUC state before wishing and drinking from a normal fountain. C output and RNG will establish whether fate 24 and any per-object curse draws occur. No JavaScript result informed these inputs."
+}

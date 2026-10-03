@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 710028463,
+      "datetime": "21190304132317",
+      "nethackrc": "OPTIONS=name:C65WetFace,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017wet towel\n\u0017cream pie\ni nwaoan an "
+    }
+  ],
+  "comment": "C-first output continuation frozen after run-pyNCcp ended on `--More--` immediately after the towel action printed “You’ve got the glop off. You can see again.” It repeats the same C-observed towel and cream-pie sequence and adds one space after the exact final pager boundary to reveal the queued towel-wetness output. No JavaScript comparison has informed this input."
+}

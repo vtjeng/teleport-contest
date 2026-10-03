@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 739241065,
+      "datetime": "20871204182500",
+      "nethackrc": "OPTIONS=name:C65PyroliskPair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n#wizgenesis\n7 hostile floating eye\n#wizgenesis\nhostile pyrolisk\n. . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ],
+  "_comment": "C-first source plan: this independent recipe creates seven awake hostile floating eyes and then an awake hostile Pyrolisk under level-30 Conflict, then supplies bounded elapsed-turn inputs. The leading 7 is create_particular_parse quantity text after an unprefixed #wizgenesis command, not a rhack count prefix. C observations must establish actual map placement, adjacency, the selected defender, and any gazemm branch before any target or mismatch claim."
+}

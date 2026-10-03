@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71102658,
+      "datetime": "21120610140900",
+      "nethackrc": "OPTIONS=name:C65Steal,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017Amulet of Yendor\n  nothing\n\u0007hostile Wizard of Yendor\ny."
+    }
+  ],
+  "comment": "Frozen C-first continuation based solely on the welcome-corrected C record and source. One Space acknowledges the startup welcome. After Ctrl-W creates the Amulet, the two recorded More boundaries are acknowledged. allmain.c then calls makewish for the Amulet’s once-per-game extra wish; the exact word \"nothing\" is the source-supported no-object result handled by zap.c:makewish returning when readobjnam yields &nothing. The existing Ctrl-G Wizard-of-Yendor creation and force-confirmation inputs follow unchanged. Target source chain remains mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping/mhitm_ad_samu -> steal.c:stealamulet. No JavaScript comparison informed this correction."
+}

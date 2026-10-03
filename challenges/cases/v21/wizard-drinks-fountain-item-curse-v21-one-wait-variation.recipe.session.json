@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 98120766,
+      "datetime": "20320903101500",
+      "nethackrc": "OPTIONS=name:C65FountainWait,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017fountain\n.qy"
+    }
+  ],
+  "comment": "Independent C-first variation for the planned fountain fate search. It changes seed/date and enables elapsed one-turn wait with !safe_wait before quaffing the wished fountain, so the action history/state differs from the direct-drink route. The C recording will establish whether this reaches fate24; no JavaScript result informs the recipe."
+}

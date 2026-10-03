@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first v21 probe for read.c:seffect_identify. Seed 904731226 and a valid independent date were chosen for a new route, not copied from an earlier case. The Wizard wishes a blessed identify scroll, reads it, and uses provisional inventory selectors m and a based on C-observed Wizard inventory ordering from a separate route; this recording will establish whether those slots reach the intended action. The recipe is frozen before its own C output and before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 904731226,
+      "datetime": "21141205140930",
+      "nethackrc": "OPTIONS=name:C65Identify,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nblessed scroll of identify\nrma ",
+      "recorderIsDst": true
+    }
+  ]
+}
