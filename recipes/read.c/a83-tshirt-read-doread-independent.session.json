@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first read.c:doread apparel route. The debug Wizard wishes an unworn T-shirt, then reads the C-observed downplayed inventory item at letter o. Seed 87242017 and timestamp 20460314122900 were selected for this new route; !autopickup keeps the wished item explicit, and the following 'r'/'o' inputs reach read.c:tshirt_text and erode_obj_text with zero erosion.",
+  "segments": [
+    {
+      "seed": 87242017,
+      "datetime": "20460314122900",
+      "nethackrc": "OPTIONS=name:ReadTextProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017T-shirt\nro"
+    }
+  ]
+}
