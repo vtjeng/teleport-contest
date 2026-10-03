@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first B92 monster-to-hero AD_DRLI witness. The Wizard is raised to level 5 with the documented debug level command so one successful life drain is survivable, then creates a hostile wraith. The C probe showed the wraith adjacent and the second wait turn calls hitmu→mhitm_adtyping(AD_DRLI)→mhitm_ad_drli, passes the one-in-three and magic-negation gates, and loses one hero level; the input ends at that first successful drain.",
+  "segments": [
+    {
+      "seed": 7429163,
+      "datetime": "20380517210000",
+      "nethackrc": "OPTIONS=name:DrainTargetProbe5,role:Wizard,race:human,gender=female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n5\n   #wizgenesis\nhostile wraith\n.."
+    }
+  ]
+}

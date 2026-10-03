@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B92 C-first monster-to-monster AD_DRLI route: a hostile wraith attacks a hostile newt while Conflict is active. The final period is the C-observed mattackm attack at which uhitm.c:mhitm_adtyping dispatches AD_DRLI to mhitm_ad_drli; rn2(3)=2 is a gate miss, so no M-to-M drain is claimed. The newt dies from ordinary attack damage. Recipe stops before acknowledging the later message or taking another monster turn.",
+  "segments": [
+    {
+      "seed": 9347165,
+      "datetime": "20390313093000",
+      "nethackrc": "OPTIONS=name:DrainPairProbe,role:Wizard,race:human,gender=female,align=neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n5\n   #wizintrinsic\n>>h\n   #wizgenesis\nhostile newt\n #wizgenesis\nhostile wraith\nn. . . ."
+    }
+  ]
+}
