@@ -145008,8 +145008,8 @@
           "name": "mhitm_ad_slow",
           "line": 3652,
           "endLine": 3689,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -145023,7 +145023,7 @@
           "endLine": 175,
           "declared": true,
           "sourceFile": "mhitu.c",
-          "complete": false
+          "complete": true
         }
       ],
       "syntheticProvenance": {
@@ -145194,7 +145194,122 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_slow",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_slow",
+            "sourceReview": "Compared complete nethack-c/upstream/src/uhitm.c:3652-3687. The helper evaluates mhitm_mgc_atk_negated before defended(AD_SLOW), returning if defended. Hero attack snapshots speed, applies mon_adjust_speed(-1), and prints only after a real change and canseemon. Monster→hero calls hitmsg before checking !negated, intrinsic HFast, then rn2(4), in that order; the selected call to discarded-void u_slow_down receives the planned message and random operations. Monster→monster snapshots speed, applies the decrement, clears STRAT_WAITFORU, and prints only on a visible real change. Existing discarded void calls preserve source order. HFast is intrinsic FAST (youprop.h); extrinsic-only Fast does not enter rn2(4). The supporting u_slow_down seam forwards effectEnv.random to exercise(A_DEX,FALSE), preventing planning from consuming global RNG, and defaults to ttyPline/global rn2 for live self-zap calls.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:mhitm_adtyping AD_SLOW arm at 4819; the active parents are damageum (uhitm.c:4854), hitmu (mhitu.c:1191), and mdamagem (mhitm.c:1059)."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-slow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-hero-monster-skeleton-pager-continued.session.json",
+              "recordings/uhitm.c/b91-hero-monster-skeleton-troll-variation.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-positive-slowdown.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658105-slot-q.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658104.session.json",
+              "recordings/uhitm.c/b91-monster-pair-conflict-level12-troll-skeleton-positive-slowdown.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 33,
+                "source": "mattacku → mhitu.c:hitmu → uhitm.c:mhitm_adtyping(AD_SLOW) → mhitm_ad_slow; selected M→H HFast-false call."
+              }
+            ],
+            "checkedAt": "e60de372d533854c69426f3827cd43a72c592e42"
+          },
+          {
+            "name": "u_slow_down",
+            "implementation": "js/mhitu.js",
+            "symbol": "u_slow_down",
+            "sourceReview": "Compared the complete nethack-c/upstream/src/mhitu.c:163-171 body. It clears intrinsic HFast before testing remaining Fast, emits the corresponding You/Your message, then calls exercise(A_DEX,FALSE). The JS message and random parameters are optional planning seams; default live output and RNG remain ttyPline and global rn2. The C call at zap.c:2872 is zapyourself and remains a live-default caller. mhitu.c:gazemu:1877 is inside #ifdef PM_BEHOLDER and the beholder definition is disabled by #if 0 in include/monsters.h, so that apparent caller is excluded in the reference build.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_ad_slow",
+                "source": "uhitm.c:3675"
+              },
+              {
+                "path": "js/zap.js",
+                "symbol": "zapyourself",
+                "source": "zap.c:2872"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-slow.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-positive-slowdown.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658105-slot-q.session.json"
+            ],
+            "sourceFile": "mhitu.c",
+            "synthetic": [],
+            "checkedAt": "e60de372d533854c69426f3827cd43a72c592e42"
+          }
+        ],
+        "entryPointReview": "Primary completion is whole uhitm.c:mhitm_ad_slow. The active production entry direction is selected by mattacku→hitmu, damageum, or mattackm→mdamagem before the AD_SLOW arm of mhitm_adtyping. The selected v19 range covers M→H with HFast false; independent passing recordings cover H→M, M→H with HFast true (both rn2(4)=0 and rn2(4)=1 outcomes), and M→M. u_slow_down is called only in the M→H branch; B91 routes its message and exercise RNG through the planning environment while keeping the live ttyPline/global-RNG defaults for the self-zap caller. The C speed-boots probe did not reach a positive retained-extrinsic slowdown and is excluded from evidence. Supporting whole unit u_slow_down: the new B91 AD_SLOW call at uhitm.c:3675 is exercised by the matching monster-to-hero recordings. Existing zapyourself at zap.c:2872 remains a live-default caller. The apparent mhitu.c:gazemu call at 1877 is excluded by #ifdef PM_BEHOLDER and the #if 0 beholder definition in monsters.h.",
+        "entryPoints": [
+          {
+            "name": "hero-to-monster AD_SLOW attack",
+            "functions": [
+              "mhitm_ad_slow"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-hero-monster-skeleton-pager-continued.session.json",
+              "recordings/uhitm.c/b91-hero-monster-skeleton-troll-variation.session.json"
+            ],
+            "synthetic": []
+          },
+          {
+            "name": "monster-to-hero AD_SLOW attack",
+            "functions": [
+              "mhitm_ad_slow"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-positive-slowdown.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658105-slot-q.session.json",
+              "recordings/uhitm.c/b91-monster-hero-fast-skeleton-uncloaked-seed-1658104.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "skeleton-slows-wizard-c62-pager-corrected",
+                "segment": 0,
+                "fromStep": 33,
+                "throughStep": 33,
+                "source": "monmove → mhitu.c:hitmu → uhitm.c:mhitm_adtyping(AD_SLOW) → mhitm_ad_slow; this selected route has HFast false and exercises the monster-to-hero branch."
+              }
+            ]
+          },
+          {
+            "name": "monster-to-monster AD_SLOW attack",
+            "functions": [
+              "mhitm_ad_slow"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/b91-monster-pair-conflict-level12-troll-skeleton-positive-slowdown.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
