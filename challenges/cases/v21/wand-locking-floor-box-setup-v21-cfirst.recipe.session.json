@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup probe for zap.c:weffects -> bhit -> bhitpile -> bhito -> lock.c:boxlock. It independently wishes a locking wand and an unlocked chest, then requests inventory so the later floor-ray recipe can use C-observed slots. This probe does not claim to reach bhito or boxlock; its exact setup inputs are frozen before recording or JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 914207631,
+      "datetime": "20490518153200",
+      "nethackrc": "OPTIONS=name:HazelLock,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,menustyle:traditional,!autopickup,!safe_wait\n",
+      "moves": " #wizwish\nwand of locking\n#wizwish\nunlocked chest\ni"
+    }
+  ]
+}

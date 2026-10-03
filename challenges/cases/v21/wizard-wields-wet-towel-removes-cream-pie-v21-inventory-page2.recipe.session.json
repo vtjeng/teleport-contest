@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 710028463,
+      "datetime": "21190304132317",
+      "nethackrc": "OPTIONS=name:C65WetFace,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017wet towel\n\u0017cream pie\ni "
+    }
+  ],
+  "comment": "A C-first continuation recipe frozen only after run-NaHm0q showed the inventory selector stops at page 1 of 2; the wet towel is therefore not yet visible. It repeats the exact prior seed/date/options/wishes and adds one space after `i` to dismiss the observed inventory pager. No object is selected and no JavaScript comparison informed this input."
+}

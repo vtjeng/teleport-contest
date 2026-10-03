@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 352907184,
+      "datetime": "20321031152100",
+      "nethackrc": "OPTIONS=name:C65StatueTrap,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "l\u0017statue trap\nlh"
+    }
+  ],
+  "comment": "C-first correction to the preserved stair-square miss: the prior C trace showed @ overlaying upstairs and wizterrainwish/maketrap rejected a statue trap there because the square cannot be overwritten. This recipe first moves east off the observed upstairs, wishes the trap on that floor square, then moves east and west to trigger it. Frozen from the C source gate and observed map before any JS comparison."
+}

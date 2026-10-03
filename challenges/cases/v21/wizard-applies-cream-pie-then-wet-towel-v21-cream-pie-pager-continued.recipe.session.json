@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 710028463,
+      "datetime": "21190304132317",
+      "nethackrc": "OPTIONS=name:C65WetFace,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017wet towel\n\u0017cream pie\ni nwaoan an"
+    }
+  ],
+  "comment": "C-first pager continuation frozen after run-HwQOBZ: C has already shown the towel wielded and applied the cream pie, with `--More--` still active after the attempted a/n keys. This recipe preserves the same setup and observed command history, inserts one space to dismiss the exact outstanding pager, then retries applying towel n. C output will determine whether more pager input is still required."
+}

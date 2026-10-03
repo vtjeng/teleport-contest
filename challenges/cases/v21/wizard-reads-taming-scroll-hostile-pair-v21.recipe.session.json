@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9041017,
+      "datetime": "21130511143000",
+      "nethackrc": "OPTIONS=name:C65Tame,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0007hostile orc\n\u0007hostile goblin\n\u0017scroll of taming\nro"
+    }
+  ],
+  "comment": "C-first continuation frozen after the setup recording showed two hostile adjacent orc/goblin glyphs, no startup pager, and the wished scroll in inventory slot o. The only appended inputs are r then C-observed slot o; this reaches the source scroll effect. No JavaScript comparison informed this continuation."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 710028463,
+      "datetime": "21190304132317",
+      "nethackrc": "OPTIONS=name:C65WetFace,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017wet towel\n\u0017cream pie\ni nwaoan"
+    }
+  ],
+  "comment": "C-first corrected action recipe frozen from run-axNmi8 before JavaScript comparison. C showed page 2 with towel n; selecting n opens iactions.c:itemactions, whose observed menu has `w` for wield. This recipe uses the pager space, selects towel n, chooses `w` to wield, then runs apply o on the cream pie and apply n on the towel. The exact action effects must be established by the new C record."
+}

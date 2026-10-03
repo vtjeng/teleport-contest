@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation frozen only after the separate original recipe recorded the welcome startup --More-- consuming its first Ctrl-W and the would-be throne name. This source-corrected input adds one leading space to dismiss that observed welcome More, then sends the already-frozen wizard wish, #sit, and 9 response. No JavaScript comparison has informed this correction. C must show `A throne.`, open the effect selector after rnd(6)>4, accept 9, and confirm Luck<=0/ordinary throne case9 before this can establish sit.c:rndcurse. The original startup-pager miss and its recording remain immutable.",
+  "segments": [
+    {
+      "seed": 840210302,
+      "datetime": "20420915132741",
+      "nethackrc": "OPTIONS=name:C65ThroneCurse,role:Wizard,race:human,gender:male,align:chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017throne\n#sit\n9\n"
+    }
+  ]
+}

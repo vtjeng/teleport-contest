@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 193856239,
+      "datetime": "20530614110200",
+      "nethackrc": "OPTIONS=name:C65FlamePair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizgenesis\n2 hostile sleeping goblin\n#wizgenesis\nhostile flaming sphere\n#wizintrinsic\na>>h\n  . . . . . . . . . . . . . ."
+    }
+  ],
+  "_comment": "Clean-v5 source-equivalent refreeze after the preserved invalid-version recipe was rejected before game execution. The recipe retains its independently frozen seed, datetime, and inputs; no JavaScript output informed the refreeze. Candidate quantity remains part of the #wizgenesis argument, not a rhack count prefix."
+}

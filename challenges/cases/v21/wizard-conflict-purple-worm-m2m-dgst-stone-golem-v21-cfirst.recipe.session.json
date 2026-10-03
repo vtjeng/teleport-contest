@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first monster-versus-monster Purple Worm digestion probe. The seed 73421985 and 2045-03-13 19:02:00 were selected for this new case and do not occur in the existing challenge recipe set. Wizard mode raises the hero to level 30 before setting Invulnerability and Conflict; mondata.c:resist_conflict then uses its capped chance 19, but rnd(20)=20 can still resist. The stone golem is created first, the hero moves west, and the Purple Worm is created second so the actual fmon order and adjacency can be checked in C. The four wait opportunities are a bounded source-based chance for mon.c:movemon_singlemon -> mhitm.c:fightm. No helper reach or JS result is assumed: count AD_DGST only if the C trace shows the Purple Worm AT_ENGL attack enters mhitm.c:gulpmm -> mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping -> uhitm.c:mhitm_ad_dgst.",
+  "segments": [
+    {
+      "seed": 73421985,
+      "datetime": "20450313190200",
+      "nethackrc": "OPTIONS=name:C65DigestPair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizgenesis\nhostile stone golem\nh#wizgenesis\nhostile purple worm\n#wizintrinsic\na>>h\n  . . . ."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93651327,
+      "datetime": "20291004113500",
+      "nethackrc": "OPTIONS=name:C65Offer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017neutral altar\n\u0017orc corpse\nd?o#offer\ny"
+    }
+  ],
+  "comment": "C-first continuation frozen from the preceding C menu: `d?` listed the wished orc corpse as item o in the inventory menu, so this route selects o, drops it at the wished neutral altar, then invokes #offer and confirms the C floorfood prompt if reached. Intended source is cmd.c #offer -> pray.c:dosacrifice -> floorfood(\"sacrifice\",1) -> offer_corpse/eval_offering. No JavaScript result informed this continuation."
+}

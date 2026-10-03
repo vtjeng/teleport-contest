@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen from the prior C recording: slot o read the blessed identify scroll and ended at the exact `--More--` boundary after the scroll was used and named. This adds one space only to acknowledge that observed C pager and expose the remaining identify effect; seed, datetime, options, and all prior actions remain unchanged. Frozen before its own C recording and before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 904731226,
+      "datetime": "21141205140930",
+      "nethackrc": "OPTIONS=name:C65Identify,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizwish\nblessed scroll of identify\nro ",
+      "recorderIsDst": true
+    }
+  ]
+}

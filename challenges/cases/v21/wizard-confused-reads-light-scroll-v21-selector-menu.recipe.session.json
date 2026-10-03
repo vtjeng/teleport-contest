@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first v21 source mission for read.c:seffect_light confused branch. Fresh seed/date and Wizard debug setup were selected independently. The C property menu order is source-verified from timeout.c:propertynames; g selects the seventh listed property, Confusion. `?` at the read selector is included to expose the wished scroll’s actual inventory letter for a C-observed continuation. Frozen before its C recording and before any JS comparison.",
+  "segments": [
+    {
+      "seed": 506190312,
+      "datetime": "21141207103000",
+      "nethackrc": "OPTIONS=name:C65ConfusedLight,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #wizintrinsic\ng\n \u0017uncursed scroll of light\nr?",
+      "recorderIsDst": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 739241065,
+      "datetime": "20871204182500",
+      "nethackrc": "OPTIONS=name:C65PyroliskPair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n\n#wizgenesis\n7 hostile floating eye\n#wizgenesis\nhostile pyrolisk\n. . . . . . . . . . . . . . . . . . . . . . . ."
+    }
+  ],
+  "_comment": "C-observed continuation from the prior frozen attempt: the intrinsic command ends with a More after setting Conflict; the added newline dismisses that observed pager before the unprefixed #wizgenesis command. The seven is retained inside the monster-creation text, not as a command count prefix. C must verify monster placement and attack."
+}

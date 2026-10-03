@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 610827347,
+      "datetime": "20411023091500",
+      "nethackrc": "OPTIONS=name:C65Squeak,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "l\u0017squeaky board\n#wizgenesis\nsleeping goblin\nhl"
+    }
+  ],
+  "comment": "C-first source freeze before recording or JavaScript comparison. Move east off the observed upstairs, use the exact trapname from defsym.h to wish a squeaky board with objnam.c:wizterrainwish, create a sleeping goblin through cmd.c -> wizcmds.c:wiz_genesis -> read.c:create_particular, then leave the board square west onto the upstairs and return east to trigger it. C must establish successful trap creation, goblin position/sleep state, hero dotrap -> trapeffect_sqky_board, and any wake_nearby(FALSE) state change. Keep a failed creation, misplaced monster, or missed trigger as an actual C target miss; do not infer wake behavior from the recipe."
+}

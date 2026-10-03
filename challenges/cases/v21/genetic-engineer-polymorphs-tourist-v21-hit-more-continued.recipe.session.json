@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 92053177,
+      "datetime": "21121207150300",
+      "nethackrc": "OPTIONS=name:C65Poly,role=Tourist,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0007hostile genetic engineer\n.. "
+    }
+  ],
+  "comment": "C-first continuation frozen from the prior recording’s exact observation: after the second elapsed wait, C displays “The genetic engineer hits!--More--” and records the incoming AT_CLAW/AD_POLY RNG. The single trailing space acknowledges that C-observed More; it does not add another elapsed turn. This recipe was frozen before its C recording and JS comparison to see the source result/state after the pager. The original short recipe remains immutable."
+}

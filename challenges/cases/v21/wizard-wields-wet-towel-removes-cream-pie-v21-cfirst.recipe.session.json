@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 710028463,
+      "datetime": "21190304132317",
+      "nethackrc": "OPTIONS=name:C65WetFace,role:Wizard,race:human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017wet towel\n\u0017cream pie\ni wnaoan"
+    }
+  ],
+  "comment": "Independent full C-first route frozen from the two prior C-only setup outputs before JavaScript comparison. C identified the wet towel at n on page 2 and the cream pie at o on page 1. The recipe dismisses the inventory pager, wields n, applies cream pie o, then applies towel n. It tests whether C reaches use_cream_pie, ucreamed cleanup in use_towel, and wielded dry_a_towel; input intent alone does not establish those outcomes."
+}
