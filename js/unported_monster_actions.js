@@ -321,16 +321,15 @@ function assertSimpleActionState(monster, state) {
     // mon.c m_respond() is now wired through dochug(); its remaining
     // unported callees record their own gaps without stopping the turn.
     // monmove.c dochug() checks msleeping before m_move()'s leppie_avoidance()
-    // arm. For a non-tame, non-minion leprechaun outside couldsee(),
-    // disturb() returns 0 without a draw, so this exact case returns from
-    // dochug() before any leprechaun-specific movement. Keep every other
-    // leprechaun state behind the special-action boundary.
-    const sleepingOutOfSightLeprechaun =
+    // arm. Let disturb() decide whether a sleeping, non-tame, non-minion
+    // leprechaun wakes: its visibility, distance, Stealth, and hard-to-wake
+    // gates can all return before species-specific movement. An already-awake
+    // leprechaun still reaches the special-action boundary below.
+    const sleepingLeprechaun =
         monster.data?.pmidx === PM_LEPRECHAUN
         && monster.msleeping
         && !monster.mtame
-        && !monster.isminion
-        && !couldsee(monster.mx, monster.my, state);
+        && !monster.isminion;
     // C monmove.c:341-358 evaluates couldsee(), mdistu(), and Stealth before
     // any wakeup RNG.  A sleeping killer bee therefore takes dochug()'s
     // ordinary no-op return when it is unseen, farther than ten squares, or
@@ -355,8 +354,7 @@ function assertSimpleActionState(monster, state) {
     // tele_restrict() rejects it on a no-teleport level. m_move now admits
     // the permitted relocation path through rloc()/mnexto(); leprechaun,
     // killer-bee, and digesting-cube actions remain separate boundaries.
-    if ((monster.data?.pmidx === PM_LEPRECHAUN
-            && !sleepingOutOfSightLeprechaun)
+    if ((monster.data?.pmidx === PM_LEPRECHAUN && !sleepingLeprechaun)
         || (monster.data?.pmidx === PM_KILLER_BEE
             && !sleepingOutOfWakeRangeKillerBee)
         || (monster.data?.pmidx === PM_GELATINOUS_CUBE
