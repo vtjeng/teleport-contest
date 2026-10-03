@@ -2169,6 +2169,16 @@ test('corpse, statue, and named-fruit articles include their source nouns', () =
         'a statue of a newt',
     );
 
+    // C doname_base calls artifact_name() for a slime-mold name that may be a
+    // fake artifact. Keep that selected helper wired at the same caller.
+    assert.match(
+        OBJNAM_SOURCE,
+        /fake_arti\s*=\s*\(obj->otyp == SLIME_MOLD\s*&& \(aname = artifact_name\(bp, \(short \*\) 0, FALSE\)\) != 0\)/u,
+    );
+    assert.match(
+        OBJNAM_JS_SOURCE,
+        /const fakeArtifact = obj\.otyp === SLIME_MOLD\s*\? artifact_name\(xnameResult, null, false, state\) : null/u,
+    );
     state.gf.ffruit.fname = 'The Orb of Detection';
     assert.equal(
         donameFresh(objectOf(state, SLIME_MOLD, {

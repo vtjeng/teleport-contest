@@ -29,7 +29,6 @@ import {
 } from './const.js';
 import {
     fruit_from_indx, fruit_from_name, makeplural, makesingular,
-    matching_artifact_fruit,
 } from './fruit.js';
 import { noit_mon_nam, obj_pmname } from './do_name.js';
 import { doffing, donning } from './do_wear.js';
@@ -1753,7 +1752,7 @@ function doname_base(
     const modifiers = [];
     let corpsePrefix = null;
     const fakeArtifact = obj.otyp === SLIME_MOLD
-        ? matching_artifact_fruit(xnameResult, state) : null;
+        ? artifact_name(xnameResult, null, false, state) : null;
     const buc = bucWord(obj, type, state, ident);
     if (buc) modifiers.push(buc);
     // objnam.c:1291-1300. Known bags of tricks and horns judge emptiness by
@@ -1969,7 +1968,7 @@ function doname_base(
         // corpse_xname() already supplied both its article and any stack count.
     } else if (quantity !== 1) {
         words = `${ident.dknown || !vagueQuantity ? quantity : 'some'} ${words}`;
-    } else if (fakeArtifact?.forceThe
+    } else if (fakeArtifact?.slice(0, 4).toLowerCase() === 'the '
         || obj_is_pname(obj, state)
         || theUniqueObject(obj, type, state)) {
         words = `the ${words.replace(/^the /iu, '')}`;
