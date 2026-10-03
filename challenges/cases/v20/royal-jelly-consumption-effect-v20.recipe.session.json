@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first independent recipe frozen from eat.c:fpostfx source review before any JavaScript comparison. Wished an uncursed lump of royal jelly, selected it from the observed wizard-wish inventory slot, and supplied elapsed turns to reach the completed-meal callback. The target is the royal-jelly branch after consumption, not C57 apply-to-egg behavior.",
+  "segments": [
+    {
+      "seed": 74102031,
+      "datetime": "20470312145607",
+      "nethackrc": "OPTIONS=name:C63Jelly,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\n\u0017lump of royal jelly\neo eo................"
+    }
+  ]
+}

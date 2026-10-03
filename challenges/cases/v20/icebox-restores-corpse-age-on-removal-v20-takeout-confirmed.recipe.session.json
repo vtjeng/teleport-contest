@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first take-out confirmation frozen after run-XQRE6C. C showed the ice troll corpse at slot b in the Take out what? multi-select, and the recorded b key toggled it (+) without submitting the selection. Preserve the earlier wish-pager, insertion-pager, wrong-slot and unconfirmed-selector recordings unchanged. This continuation adds Enter after the selected b to submit the C-observed getobj choice. Attribute an ice-box removal callback only if the new C recording shows it.",
+  "segments": [
+    {
+      "seed": 620329871,
+      "datetime": "20431025132000",
+      "nethackrc": "OPTIONS=name:C63IceAge,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed ice troll corpse\n #loot\nso #loot\nob\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first frozen selector correction for the cursed-apple probe. The original alignment-menu and wrong-slot records remain unchanged as target-miss provenance. C run-YU5kdn showed the item is letter o and confirmed the eat prompt; this recipe uses that C-observed selector to test eat.c:fprefx APPLE and its cursed/sleep-resistance gate.",
+  "segments": [
+    {
+      "seed": 73022301,
+      "datetime": "20461109141723",
+      "nethackrc": "OPTIONS=name:C63Apple,role:Wizard,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,showexp,time,pettype:none,playmode:debug,!autopickup,!acoustics\n",
+      "moves": "\n\u0017cursed apple\n eo"
+    }
+  ]
+}

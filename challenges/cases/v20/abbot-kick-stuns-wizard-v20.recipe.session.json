@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first Abbot second-slot stun probe, frozen before recording or JavaScript comparison. C monsters.h defines claw/physical, kick/stun, then clerical magic; explicit hostile debug genesis and !safe_wait keep the intended attack turn observable. Preserve the actual first C branch and any range/survival miss.",
+  "segments": [
+    {
+      "seed": 261002047,
+      "datetime": "20481207091500",
+      "nethackrc": "OPTIONS=name:AbbotProbe,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizgenesis\nhostile abbot\n...."
+    }
+  ]
+}

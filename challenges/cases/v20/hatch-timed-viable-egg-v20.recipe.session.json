@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Pre-C frozen attempt preserved: before recording, inspection caught literal backslash-n bytes in the command stream, so it would type those characters instead of opening #wizwish. It was not recorded or compared. The corrected source-frozen recipe is the sibling -newline-corrected recipe.",
+  "segments": [
+    {
+      "seed": 73169021,
+      "datetime": "21160302123000",
+      "nethackrc": "OPTIONS=name:C63Egg,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "#wizwish\\negg of jackal\\n............................................................................................................................................................................................................................"
+    }
+  ]
+}

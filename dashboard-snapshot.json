@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-02T23:17:12.466Z",
+  "capturedAt": "2026-10-03T00:49:09.452Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -16112,12 +16112,133 @@
         "type": "accepted",
         "at": "2026-10-02T23:16:13.095Z",
         "task": "B90"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B90-published-24d8f417",
+        "type": "published",
+        "at": "2026-10-02T23:17:42.735Z",
+        "task": "B90",
+        "commit": "24d8f417da62f2573c60bd9857a5b996549161a3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C63-overlap-feedback-42c95c1d",
+        "type": "feedback",
+        "at": "2026-10-02T23:18:31.393Z",
+        "task": "C63",
+        "delivery": "42c95c1d059fe0546d3174841d7c785e5a74342a"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-B91-mhitm-ad-slow-20261002",
+        "type": "assign",
+        "at": "2026-10-02T23:26:09.318Z",
+        "task": "B91",
+        "worker": "B",
+        "goal": "port-uhitm-mhitm-ad-slow-v19-20261002",
+        "kind": "implementation"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C63-overlap-correction-20261002T2341Z",
+        "type": "resume",
+        "at": "2026-10-02T23:53:40.330Z",
+        "task": "C63"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-1bf97d16db740a25e2cfbf55eda00bd4b6cf39ac",
+        "type": "ready",
+        "at": "2026-10-02T23:53:47.277Z",
+        "task": "C63",
+        "delivery": "1bf97d16db740a25e2cfbf55eda00bd4b6cf39ac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C63-received-1bf97d16",
+        "type": "received",
+        "at": "2026-10-02T23:57:35.121Z",
+        "task": "C63",
+        "delivery": "1bf97d16db740a25e2cfbf55eda00bd4b6cf39ac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C63-id-feedback-1bf97d16",
+        "type": "feedback",
+        "at": "2026-10-02T23:57:35.594Z",
+        "task": "C63",
+        "delivery": "1bf97d16db740a25e2cfbf55eda00bd4b6cf39ac"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "resume-C63-id-feedback-20261003T0020Z",
+        "type": "resume",
+        "at": "2026-10-02T23:59:03.102Z",
+        "task": "C63"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-09c221ae059429367a2d640797b58bb63ebd6e8d",
+        "type": "ready",
+        "at": "2026-10-02T23:59:49.644Z",
+        "task": "C63",
+        "delivery": "09c221ae059429367a2d640797b58bb63ebd6e8d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C63-received-09c221ae",
+        "type": "received",
+        "at": "2026-10-03T00:02:49.513Z",
+        "task": "C63",
+        "delivery": "09c221ae059429367a2d640797b58bb63ebd6e8d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C63-integrating-da49f727",
+        "type": "integrating",
+        "at": "2026-10-03T00:02:51.059Z",
+        "task": "C63",
+        "integration": "da49f727c7429fd1bb875c98673d49bf26e5eb0d"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C63-validated-da49f727",
+        "type": "validated",
+        "at": "2026-10-03T00:10:27.898Z",
+        "task": "C63",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C63-accepted-da49f727",
+        "type": "accepted",
+        "at": "2026-10-03T00:10:28.378Z",
+        "task": "C63"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C63-published-d802ed6a",
+        "type": "published",
+        "at": "2026-10-03T00:11:12.662Z",
+        "task": "C63",
+        "commit": "d802ed6ae98661c8da553cc0fdb9b15ffe0660c1"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "assign-C64-mhitm-ad-conf-20261003",
+        "type": "assign",
+        "at": "2026-10-03T00:17:09.299Z",
+        "task": "C64",
+        "worker": "C",
+        "goal": "port-uhitm-mhitm-ad-conf-v19-20261003",
+        "kind": "implementation"
       }
     ]
   },
   "development": {
-    "executionCommit": "c96e70bb677da6dc746034cab4f517fd9487de30",
-    "measuredAt": "2026-10-02T23:08:53.463Z",
+    "executionCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+    "measuredAt": "2026-10-03T00:40:30.710Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",

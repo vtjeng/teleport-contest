@@ -1,0 +1,92 @@
+{
+  "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+  "corpus": "synthetic",
+  "batch": "v20",
+  "caseId": "pestilence-touches-wizard-v20-more-corrected",
+  "manifestPath": "challenges/manifests/v20.json",
+  "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+  "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+  "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+  "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+  "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "remainingScreens": 12,
+  "recordedSteps": 48,
+  "status": "complete",
+  "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v20",
+    "caseId": "pestilence-touches-wizard-v20-more-corrected",
+    "session": "synthetic/v20/pestilence-touches-wizard-v20-more-corrected",
+    "manifestPath": "challenges/manifests/v20.json",
+    "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+    "recording": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+    "recordingPath": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json",
+    "recordingSha256": "5f0cbf7cd6da87dcd9638f332cb21a9260b9a3ab97caa0e384d5d95001d22724",
+    "recipe": "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.recipe.session.json",
+    "recipeSha256": "febc7150b2f1be0259cdd1b5377df487089d68a0c8e17707032fce9e8a3b6fb3",
+    "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+    "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+    "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationUtc": "2026-10-03T00:32:52.762Z",
+    "remainingScreens": 12,
+    "recordedSteps": 48,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 36,
+        "total": 48
+      },
+      "rng": {
+        "matched": 2366,
+        "total": 2375
+      },
+      "cursors": {
+        "matched": 36,
+        "total": 48
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+      "step": 36
+    },
+    "step": 36,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_pest",
+    "message": "simple monster action requires uhitm.c mhitm_ad_pest()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At zero-based step 36, C reaches Pestilence’s AD_PEST hit on the Wizard and runs diseasemu(); JavaScript stops at the unported AD_PEST dispatcher arm. mhitm_ad_pest() discards diseasemu()’s boolean here, but the helper’s RNG and sickness side effects are part of the recorded result.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "A monster (magr != &gy.youmonst) lands AD_PEST on the hero (mdef == &gy.youmonst): mhitm_ad_pest() prints the fever-and-chills line, calls diseasemu(pa) with a void-cast result, then lets hitmu() apply the normal damage. The function also has a hero-attacker jump to the mhitm_ad_dise path and a monster-defender branch that rewrites the attack type to AD_DISE.",
+    "functions": [
+      "mhitm_ad_pest"
+    ],
+    "callers": [
+      "C: monmove.c:971 dochug() calls mhitu.c:mattacku(); the successful melee AT_TUCH path calls mhitu.c:hitmu(), which calls uhitm.c:mhitm_adtyping() at mhitu.c:1191.",
+      "C: uhitm.c:mhitm_adtyping() dispatches AD_PEST to mhitm_ad_pest() at uhitm.c:4825.",
+      "JavaScript: js/unported_monster_actions.js:runSimpleMonsterAction() supplies attackHeroWithMattacku() to dochug(); js/mhitu.js:mattacku() calls hitmu() for a successful AT_TUCH; hitmu() calls js/uhitm.js:mhitm_adtyping(), whose AD_PEST arm stops at unported(\"mhitm_ad_pest\") at js/uhitm.js:5074."
+    ],
+    "dependencies": [
+      "mhitu.c:diseasemu(): mhitm_ad_pest() calls this in the hero-target branch and discards its return value with (void), but its sickness mutation, messages, and conditional rn1() draw are required for replay parity. The return is consumed at other call sites: mhitu.c:gulpmu() around line 1534 and uhitm.c:mhitm_ad_dise() at line 4607.",
+      "uhitm.c:mhitm_ad_dise(): mhitm_ad_pest() calls this for a non-hero defender after copying mattk and changing adtyp to AD_DISE. It is a void mutator; the current JavaScript AD_DISE dispatcher arm is still unported."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "challenges/evaluations/20261003003219-v20.json records this case at commit b5bb23ff11504c300f032b10b1e17c99b06fc97e with 36/48 matched screens and cursors, 2366/2375 matched RNG calls, and a failed evaluation. .cache/v20-work-queue.json identifies the first mismatch as stop at step 36: “simple monster action requires uhitm.c mhitm_ad_pest()”.",
+    "challenges/cases/v20/pestilence-touches-wizard-v20-more-corrected.session.json segment 0, stored step 36, records rnd(20)=10 at mattacku(mhitu.c:806), d(8,8)=48 at hitmu(mhitu.c:1187), and rn2(14)=6 at diseasemu(mhitu.c:1039). Its message begins “It reaches out, and you feel fever and chills.” and continues “You feel deathly sick.” Step 35 is the jackal’s attack, so the Pestilence branch is reached at step 36.",
+    "nethack-c/upstream/src/uhitm.c:3808-3834 defines the whole mhitm_ad_pest() function. Lines 3815-3820 jump hero attackers to the AD_DISE-equivalent path; lines 3820-3825 handle a monster hitting the hero and explicitly cast diseasemu(pa) to void; lines 3826-3833 handle a monster hitting another monster through mhitm_ad_dise(). Lines 4782-4832 show the dispatcher and AD_PEST call at 4825.",
+    "nethack-c/upstream/src/mhitu.c:1033-1043 defines diseasemu(): Sick_resistance prints “a slight illness” and returns FALSE; otherwise it calls make_sick() with either Sick / 3 + 1 or rn1(ACURR(A_CON), 20), then returns TRUE. The AD_PEST call discards that boolean, while the function’s state, output, and RNG effects remain observable. The other return-consuming call sites are mhitu.c:1534 and uhitm.c:4607.",
+    "js/uhitm.js:4998-5074 confirms the current committed port has a source-shaped mhitm_adtyping() dispatcher but leaves AD_PEST as unported(\"mhitm_ad_pest\"). The production action wrapper in js/unported_monster_actions.js and the attacker path in js/mhitu.js wire the recorded monster attack into that dispatcher."
+  ]
+}

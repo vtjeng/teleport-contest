@@ -1,0 +1,139 @@
+{
+  "session": "synthetic/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+  "corpus": "synthetic",
+  "batch": "v20",
+  "caseId": "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+  "manifestPath": "challenges/manifests/v20.json",
+  "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+  "recordingSha256": "3aa2cc068fff1e549763ce4b68c0e736765ad5560108f82f47fa3b58ae07bf1d",
+  "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+  "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "remainingScreens": 1,
+  "recordedSteps": 35,
+  "status": "complete",
+  "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v20",
+    "caseId": "pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+    "session": "synthetic/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup",
+    "manifestPath": "challenges/manifests/v20.json",
+    "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+    "recording": "challenges/cases/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup.session.json",
+    "recordingPath": "challenges/cases/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup.session.json",
+    "recordingSha256": "3aa2cc068fff1e549763ce4b68c0e736765ad5560108f82f47fa3b58ae07bf1d",
+    "recipe": "challenges/cases/v20/pit-liquid-flow-lateral-pit-zap-water-v20-attempt-2-short-startup.recipe.session.json",
+    "recipeSha256": "1944f69e5def0496e247d445cd130edd640e7facc0f1e18008150a8b190c82f6",
+    "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+    "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+    "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationUtc": "2026-10-03T00:32:52.762Z",
+    "remainingScreens": 1,
+    "recordedSteps": 35,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 34,
+        "total": 35
+      },
+      "rng": {
+        "matched": 2656,
+        "total": 2656
+      },
+      "cursors": {
+        "matched": 34,
+        "total": 35
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 34,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 34,
+          "key": "h"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "S",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": {
+        "index": 2656,
+        "cCaller": null,
+        "jsEntry": "rn2(19)=13",
+        "stepIndex": null
+      },
+      "cursor": {
+        "index": 34,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 34,
+          "key": "h"
+        },
+        "cCursor": [
+          54,
+          0,
+          1
+        ],
+        "jsCursor": [
+          42,
+          15,
+          1
+        ]
+      }
+    },
+    "step": 34,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "At step34 C prints “Suddenly water flows in from the adjacent pit!” while JS skips the pit_flow call. Port whole dig.c:pit_flow and liquid_flow, wire the existing zap_dig tail, and preserve copied conjoined-pit recursion after trap deletion. Liquid handling depends on the pending A83 pooleffects and terrain predicates.",
+  "source": {
+    "file": "dig.c",
+    "branch": "The hero zaps digging laterally while trapped in a pit beside water. zap_dig sets pitflow, obtains a non-ROOM fillholetyp, and calls pit_flow; liquid_flow prints the hero-location fill message and handles released objects and liquid effects.",
+    "functions": [
+      "pit_flow",
+      "liquid_flow"
+    ],
+    "callers": [
+      "zap_dig",
+      "pit_flow"
+    ],
+    "dependencies": [
+      "dbridge.c:is_pool_or_lava",
+      "display.c:hliquid",
+      "trap.c:delfloortrap",
+      "mkobj.c:obj_ice_effects",
+      "dig.c:unearth_objs",
+      "hack.c:pooleffects",
+      "mon.c:minliquid"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "dig.c:1739–1748 calls pit_flow after fillholetyp returns non-ROOM. pit_flow:1844–1881 copies the trap before changing terrain/flags, calls liquid_flow, then recursively processes its saved conjoined bits because trap deletion clears the originals.",
+    "dig.c:838–880 defines liquid_flow: validate liquid terrain, delete floor trap, release ice/buried objects, print hliquid(fillmsg), damage objects before hero/monster liquid effects.",
+    "JS zap.js:6571–6576 preserves the trap/fillholetyp predicates but calls note_unported(\"dig.c pit_flow\") instead of pit_flow. No pit_flow implementation exists in js/dig.js.",
+    "Saved C step34 follows input h, logs exercise rn2(19)=16, zap_dig rn2(18)=15 and fillholetyp rn2(2)=1, then displays the fill message with More. The baseline matches34/35 screens and all2656 C RNG calls, but misses that message/cursor. The source omission explains the first missing visible result; do not treat an equal matched RNG prefix as a completed liquid path."
+  ]
+}

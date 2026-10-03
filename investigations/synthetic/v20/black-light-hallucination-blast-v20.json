@@ -1,0 +1,97 @@
+{
+  "session": "synthetic/v20/black-light-hallucination-blast-v20",
+  "remainingScreens": 13,
+  "recordedSteps": 47,
+  "corpus": "synthetic",
+  "batch": "v20",
+  "caseId": "black-light-hallucination-blast-v20",
+  "manifestPath": "challenges/manifests/v20.json",
+  "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+  "recordingPath": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+  "recordingSha256": "ac326b5b910c50d7df7f34deda0271054c080262b29e9c30c10713208e5182b9",
+  "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+  "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v20",
+    "caseId": "black-light-hallucination-blast-v20",
+    "session": "synthetic/v20/black-light-hallucination-blast-v20",
+    "manifestPath": "challenges/manifests/v20.json",
+    "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+    "recording": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+    "recordingPath": "challenges/cases/v20/black-light-hallucination-blast-v20.session.json",
+    "recordingSha256": "ac326b5b910c50d7df7f34deda0271054c080262b29e9c30c10713208e5182b9",
+    "recipe": "challenges/cases/v20/black-light-hallucination-blast-v20.recipe.session.json",
+    "recipeSha256": "2f01b8a61fdd60f97c16f2b2192423e12f749a4d5da8f7887e7519897398da69",
+    "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+    "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+    "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationUtc": "2026-10-03T00:32:52.762Z",
+    "remainingScreens": 13,
+    "recordedSteps": 47,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 34,
+        "total": 47
+      },
+      "rng": {
+        "matched": 4247,
+        "total": 4250
+      },
+      "cursors": {
+        "matched": 34,
+        "total": 47
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires a monster exploding at the hero",
+      "step": 34
+    },
+    "step": 34,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "simple monster action requires a monster exploding at the hero",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "status": "complete",
+  "summary": "At step 34, C calls explmu() for the Black Light’s AT_EXPL/AD_HALU attack, while JavaScript mattacku() stops at its unsupported AT_EXPL branch. Port the whole mhitu.c explmu() function and wire that existing mattacku() call site to cover the remaining explosion behavior.",
+  "source": {
+    "file": "mhitu.c",
+    "branch": "In mattacku(), getmattk() selects AT_EXPL and range2 is false, so C calls explmu(). explmu() returns a miss if the monster is cancelled; otherwise it rolls damage and checks defended(). For AD_HALU, the hero is unaffected if blind, polymorphed as a Black Light or Violet Fungus, or in a form with AD_STUN. When the hero is found and is not immune, C reports the kaleidoscopic blast, kills the attacker before applying hallucination, then wakes nearby monsters. The saved C observation reaches this effect branch.",
+    "functions": [
+      "explmu"
+    ],
+    "callers": [
+      "mhitu.c:mattacku() AT_EXPL branch (839-842), the direct call to explmu() when !range2",
+      "monmove.c:dochug() PHASE FOUR standard-attack gate (965-972), the runtime entry path into mattacku()"
+    ],
+    "dependencies": [
+      "d and rnd for explosion damage",
+      "mondata.c:defended and mondata.c:dmgtype for AD_HALU defenses",
+      "mhitu.c:hitmsg for a found target",
+      "explode.c:mon_explodes for AD_COLD, AD_FIRE, and AD_ELEC arms",
+      "mondata.c:resists_blnd and potion.c:make_blinded for AD_BLND",
+      "mon.c:mondead and potion.c:make_hallucinated for AD_HALU",
+      "polyself.c:ugolemeffects for unaffected targets",
+      "mon.c:wake_nearto for post-explosion wakeup"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    ".cache/v20-work-queue.json records synthetic/v20/black-light-hallucination-blast-v20 with manifest SHA-256 83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0, recording SHA-256 ac326b5b910c50d7df7f34deda0271054c080262b29e9c30c10713208e5182b9, 13 unmatched screens across 47 recorded steps, and first stop at step 34: “simple monster action requires a monster exploding at the hero.” challenges/evaluations/20261003003219-v20.json confirms 34/47 screens and cursors, 4247/4250 RNG calls, and a failed evaluation at commit b5bb23ff11504c300f032b10b1e17c99b06fc97e.",
+    ".cache/worker-state-loop-20260925.json.deliveries/0630c68d2c093a7132ff6e9db12a5983515863647fd63c01b43348089db91eaf.json records the C observation at step 34: the Black Light reaches AT_EXPL/AD_HALU and C displays the kaleidoscopic-light effect. Its firstMismatch identifies mhitu.c:explmu AD_HALU and says the earlier distfleeck draw is not the owner. The packet also records an independent C replay byte-identical to the committed recording.",
+    "nethack-c/upstream/src/mhitu.c:839-842 shows the direct caller: AT_EXPL invokes explmu() precisely when range2 is false. Lines 1591-1663 contain the whole source function; lines 1636-1650 define AD_HALU immunity, the kaleidoscopic-light message, attacker death, and hallucination order. This makes explmu(), rather than monmove.c:distfleeck, the source owner for the current stop.",
+    "At the examined commit, js/mhitu.js:1234-1236 throws unsupported() in the same !range2 AT_EXPL branch instead of calling explmu(); no explmu() implementation exists in that module. The actionable scope is a whole-function file-port of mhitu.c:explmu plus wiring its existing call site in mattacku().",
+    "The production caller path is nethack-c/upstream/src/monmove.c:965-972, where dochug() calls mattacku() in its standard-attack gate. The committed JavaScript path is js/monmove.js:2763-2770 through the attackHero operation, then js/unported_monster_actions.js:1420-1423 to mhitu.js:mattacku()."
+  ]
+}

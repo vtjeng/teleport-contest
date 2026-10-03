@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation frozen after run-VBAh5F. That valid recording shows the Ice Box on the floor, corpse slot o stashed into it through the C `s` menu action, and the insertion message ending at --More--; the original command suffix after insertion was therefore consumed by the pager. Preserve both earlier C recipes/recordings unchanged. This recipe adds the C-observed Space dismissal, reopens #loot, chooses the C menu action o (take something out), and selects the corpse. Target only the C pickup.c:out_container -> removed_from_icebox age conversion and ice-troll timeout chain if the resulting C trace proves it.",
+  "segments": [
+    {
+      "seed": 620329871,
+      "datetime": "20431025132000",
+      "nethackrc": "OPTIONS=name:C63IceAge,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "  #wizwish\nuncursed ice box\n#wizwish\nuncursed ice troll corpse\n #loot\nso #loot\noo"
+    }
+  ]
+}

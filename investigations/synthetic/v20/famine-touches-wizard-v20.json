@@ -1,0 +1,93 @@
+{
+  "session": "synthetic/v20/famine-touches-wizard-v20",
+  "corpus": "synthetic",
+  "batch": "v20",
+  "caseId": "famine-touches-wizard-v20",
+  "manifestPath": "challenges/manifests/v20.json",
+  "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+  "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+  "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+  "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "remainingScreens": 4,
+  "recordedSteps": 36,
+  "status": "complete",
+  "commit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v20",
+    "caseId": "famine-touches-wizard-v20",
+    "session": "synthetic/v20/famine-touches-wizard-v20",
+    "manifestPath": "challenges/manifests/v20.json",
+    "manifestSha256": "83543b7b4b28a2a8daaa78bb76e0f237f9aefe1f77a12b439bf3e8d1771a94b0",
+    "recording": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+    "recordingPath": "challenges/cases/v20/famine-touches-wizard-v20.session.json",
+    "recordingSha256": "78cf58157fc05e9981dba5fc3cdcb3e7e071057df3176162983c7f271ce0a1f7",
+    "recipe": "challenges/cases/v20/famine-touches-wizard-v20.recipe.session.json",
+    "recipeSha256": "e011dca4725bde5fef58ff586b59924b513af6eafa417fab065b83fb02aa76db",
+    "replayInputSha256": "5aab35c45a61456e8dfefa14591050cf95012a6905fb56e4d990c533bb1bdf1c",
+    "evaluationPath": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationCommit": "b5bb23ff11504c300f032b10b1e17c99b06fc97e",
+    "evaluationArtifact": "challenges/evaluations/20261003003219-v20.json",
+    "evaluationUtc": "2026-10-03T00:32:52.762Z",
+    "remainingScreens": 4,
+    "recordedSteps": 36,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 32,
+        "total": 36
+      },
+      "rng": {
+        "matched": 2348,
+        "total": 2355
+      },
+      "cursors": {
+        "matched": 32,
+        "total": 36
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+      "step": 32
+    },
+    "step": 32,
+    "kind": "stop",
+    "sourceFile": "uhitm.c",
+    "function": "mhitm_ad_famn",
+    "message": "simple monster action requires uhitm.c mhitm_ad_famn()",
+    "cFile": "uhitm.c",
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The monster-action preflight refuses AD_FAMN before Famine’s turn. The C shrivel attack at step32 belongs to uhitm.c:mhitm_ad_famn; it exercises Constitution and draws rn1(40,40) for hunger. Port the whole helper and its dispatch arm. Its consumed is_fainted predicate is reserved by A83.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "AD_FAMN dispatch, with hero as defender; Famine prints the shrivel message, exercises Constitution, and increases hunger unless is_fainted(). Monster defenders take normal damage only when their species eats.",
+    "functions": [
+      "mhitm_ad_famn"
+    ],
+    "callers": [
+      "mhitm_adtyping",
+      "hitmu",
+      "damageum",
+      "mdamagem"
+    ],
+    "dependencies": [
+      "eat.c:is_fainted",
+      "eat.c:morehungry",
+      "attrib.c:exercise",
+      "species carnivorous/herbivorous/metallivorous flags"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "uhitm.c:3777–3805 defines all three orientations of mhitm_ad_famn. The hero-attacker orientation is source-documented as unreachable through polymorph; it shares the monster-defender food-species test.",
+    "C recording step32 prints the shrivel message and logs rn2(2)=1 from attrib.c:exercise followed by rn2(40)=24 from mhitm_ad_famn. Earlier distfleeck draws belong to the suppressed same turn and do not identify the missing helper.",
+    "JS uhitm.js:5075 still maps AD_FAMN to the unported helper. The common damage dispatcher is called by damageum, hitmu, and mdamagem; the saved baseline reports the explicit simple-monster-action mhitm_ad_famn refusal.",
+    "JS eat.js:571 has is_fainted and :1927 morehungry; the former is part of the pending A83 source reservation. Preserve environment RNG/message routing during monster-action planning."
+  ]
+}
