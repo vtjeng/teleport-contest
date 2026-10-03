@@ -73,6 +73,8 @@ import {
     Tobjnam,
     an,
     aobjnam,
+    armor_simple_name,
+    boots_simple_name,
     cloak_simple_name,
     cxname,
     cxname_singular,
@@ -88,6 +90,8 @@ import {
     is_plural,
     not_fully_identified,
     obj_typename,
+    shield_simple_name,
+    shirt_simple_name,
     simpleonames,
     simple_typename,
     suit_simple_name,
@@ -118,6 +122,13 @@ import {
 } from '../js/monsters.js';
 import { create_region } from '../js/region.js';
 import {
+    ARM_BOOTS,
+    ARM_CLOAK,
+    ARM_GLOVES,
+    ARM_HELM,
+    ARM_SHIELD,
+    ARM_SHIRT,
+    ARM_SUIT,
     ALCHEMY_SMOCK,
     CHEST,
     CHAIN_MAIL,
@@ -133,6 +144,7 @@ import {
     GAUNTLETS_OF_POWER,
     GOLD_PIECE,
     HELM_OF_BRILLIANCE,
+    IRON_SHOES,
     LEATHER_ARMOR,
     LEATHER_GLOVES,
     LEATHER_JACKET,
@@ -146,6 +158,7 @@ import {
     RED_DRAGON_SCALE_MAIL,
     RED_DRAGON_SCALES,
     ROBE,
+    SHIELD_OF_REFLECTION,
     SLIME_MOLD,
     STATUE,
     TALLOW_CANDLE,
@@ -347,6 +360,44 @@ test('simple suit names preserve dragon, suffix, and fallback categories',
         );
         assert.equal(suit_simple_name(null, state), 'suit');
     });
+
+test('armor_simple_name dispatches each C armor category to its named helper', () => {
+    const state = namingState();
+    state.objects[GAUNTLETS_OF_POWER].oc_name_known = true;
+    const cases = [
+        [RED_DRAGON_SCALE_MAIL, ARM_SUIT, 'dragon mail'],
+        [ROBE, ARM_CLOAK, 'robe'],
+        [HELM_OF_BRILLIANCE, ARM_HELM, 'helm'],
+        [GAUNTLETS_OF_POWER, ARM_GLOVES, 'gauntlets'],
+        [IRON_SHOES, ARM_BOOTS, 'shoes'],
+        [SHIELD_OF_REFLECTION, ARM_SHIELD, 'silver shield'],
+        [T_SHIRT, ARM_SHIRT, 'shirt'],
+    ];
+
+    for (const [otyp, category, expected] of cases) {
+        const armor = objectOf(state, otyp, { dknown: true });
+        assert.equal(state.objects[otyp].oc_armcat, category, otyp);
+        assert.equal(armor_simple_name(armor, state), expected, otyp);
+    }
+
+    assert.equal(boots_simple_name(objectOf(state, IRON_SHOES, {
+        dknown: false,
+    }), state), 'boots');
+    assert.equal(shield_simple_name(objectOf(state, SHIELD_OF_REFLECTION, {
+        dknown: false,
+    }), state), 'smooth shield');
+    assert.equal(shield_simple_name(objectOf(state, T_SHIRT), state), 'shield');
+    assert.equal(shirt_simple_name(null, state), 'shirt');
+
+    assert.match(OBJNAM_SOURCE,
+        /armor_simple_name\(struct obj \*armor\)[\s\S]*?case ARM_SUIT:[\s\S]*?case ARM_CLOAK:[\s\S]*?case ARM_HELM:[\s\S]*?case ARM_GLOVES:[\s\S]*?case ARM_BOOTS:[\s\S]*?case ARM_SHIELD:[\s\S]*?case ARM_SHIRT:/u);
+    assert.match(OBJNAM_SOURCE,
+        /boots_simple_name\(struct obj \*boots\)[\s\S]*?"shoes"/u);
+    assert.match(OBJNAM_SOURCE,
+        /shield_simple_name\(struct obj \*shield\)[\s\S]*?"silver shield"[\s\S]*?"smooth shield"/u);
+    assert.match(OBJNAM_SOURCE,
+        /shirt_simple_name\(struct obj \*shirt UNUSED\)[\s\S]*?return "shirt"/u);
+});
 
 test('simple cloak names retain the discovery-sensitive smock branch', () => {
     const state = namingState();
@@ -1031,8 +1082,8 @@ test('object-pile source branches continue through their output owners',
                         displayObjectPile: (lines) =>
                             events.push(['display', lines]),
                         readEngraving: () => events.push(['engraving']),
-                    },
-            );
+    },
+);
             assert.ok(events.length > 0, specimen.name);
         }
     });
