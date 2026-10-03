@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent B93 C-first M→M AD_PEST witness. A level-30 Healer with source-observed Charisma 18 gives resist_conflict threshold min(19,18-30+30)=18; Conflict is active before spawning a hostile newt then forced Pestilence. The recorded step 124 reaches Pestilence touching and killing the newt on its first AD_PEST attack. C mattackm then sees the defender is DEADMONSTER before selecting attack slot 1, so it does not substitute the second AD_PEST into AD_STUN; this avoids the precise `uhitm.c:mhitm_ad_stun()` preflight boundary from the troll variation. Keep the later fox bite on this same C turn as context; it is not credited to the primary helper.",
+  "segments": [
+    {
+      "seed": 93352144,
+      "datetime": "20381207164013",
+      "nethackrc": "OPTIONS=name=PestilenceNewtProbe,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n30\n                             #wizintrinsic\n>>h\n #wizgenesis\nhostile newt\n#wizgenesis\nhostile Pestilence\ny. ."
+    }
+  ]
+}

@@ -36,6 +36,7 @@ import {
     STRAT_WAITFORU,
     STUNNED,
     STONE,
+    SICK,
     TIMEOUT,
     TT_PIT,
     TELEPAT,
@@ -61,6 +62,7 @@ import { near_capacity, spoteffects, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     could_seduce,
+    diseasemu,
     gazemu,
     getmattk,
     hitmsg,
@@ -140,6 +142,7 @@ import {
     PM_HUMAN,
     PM_ICE_VORTEX,
     PM_JACKAL,
+    PM_JUIBLEX,
     PM_KI_RIN,
     PM_LICH,
     PM_MASTER_LICH,
@@ -207,6 +210,49 @@ const YOUPROP_H = readFileSync(
     new URL('../nethack-c/upstream/include/youprop.h', import.meta.url),
     'utf8',
 );
+
+test('diseasemu divides the complete Sick intrinsic before make_sick clamps it',
+    async () => {
+        // youprop.h defines Sick as the entire intrinsic. FROMOUTSIDE|9 is
+        // therefore divided as a packed value by mhitu.c:diseasemu; potion.c
+        // then clamps its duration to TIMEOUT. Masking first would leave 9/3+1.
+        assert.match(YOUPROP_H, /^#define Sick u\.uprops\[SICK\]\.intrinsic$/mu);
+        assert.match(MHITU_C,
+            /make_sick\(Sick \? Sick \/ 3L \+ 1L : \(long\) rn1\(ACURR\(A_CON\), 20\),/u);
+        assert.match(MHITU_JS,
+            /const sick = state\.u\?\.uprops\?\.\[SICK\]\?\.intrinsic \?\? 0;/u);
+
+        const state = await meleeHero();
+        const outside = FROMOUTSIDE | 9;
+        state.u.uprops[SICK].intrinsic = outside;
+        const draws = [];
+        const lines = [];
+        const result = await diseasemu(state.mons[PM_JUIBLEX], {
+            state,
+            random: {
+                rn1(bound, offset) {
+                    draws.push(`rn1(${bound},${offset})`);
+                    assert.fail('nonzero raw Sick must not draw rn1');
+                },
+                rn2(bound) {
+                    draws.push(`rn2(${bound})`);
+                    assert.equal(bound, 2,
+                        'only make_sick exercise(A_CON,FALSE) draws rn2');
+                    return 0;
+                },
+            },
+            message: async (text) => { lines.push(text); },
+            encumberMessage: async () => {},
+        });
+
+        assert.equal(result, true);
+        assert.deepEqual(draws, ['rn2(2)']);
+        assert.deepEqual(lines, ['You feel much worse.']);
+        assert.equal(state.u.uprops[SICK].intrinsic & TIMEOUT, TIMEOUT,
+            'itimeout clamps the raw-Sick duration after its division');
+        assert.equal(state.u.uprops[SICK].intrinsic & FROMOUTSIDE, FROMOUTSIDE,
+            'make_sick preserves the packed source flag');
+    });
 
 test('Protection_from_shape_changers matches the intrinsic/extrinsic macro', () => {
     // youprop.h:355-360 defines the property as intrinsic || extrinsic.
@@ -1129,6 +1175,8 @@ test('an ice vortex swallows, freezes, and expels an ordinary hero',
     assert.deepEqual(first.bounds, [
         'rnd(20)', 'd(1,6)', 'rnd(10)', 'rn2(2)',
     ]);
+    assert.equal(state.unported.has('light.c snuff_lit'), true,
+        'the swallowed nonflaming source path visits the discarded snuff_lit calls');
     assert.equal(state.u.uswallow, 1);
     assert.equal(state.u.ustuck, vortex);
     assert.equal(state.u.uswldtim, 8);

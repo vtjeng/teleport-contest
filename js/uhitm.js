@@ -215,6 +215,7 @@ import { hurtle, mhurtle, will_hurtle } from './dothrow.js';
 // reads them at module scope.
 import {
     could_seduce,
+    diseasemu,
     getmattk,
     hitmsg,
     m_next2u,
@@ -5209,6 +5210,41 @@ export async function mhitm_ad_conf(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_pest() (3808-3834). Snapshot the attacker's form
+// before the awaited name/message path. The valid build has no hero form with
+// AD_PEST; monster-to-monster disease effects remain at the exact discarded
+// void call until mhitm_ad_dise() is ported.
+export async function mhitm_ad_pest(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const pa = magr.data;
+
+    if (magr === state.youmonst) {
+        // uhitm.c documents that no valid polymorph form can select this arm.
+        // Preserve the source's goto into the AD_DISE case at its void gap.
+        note_unported('uhitm.c mhitm_ad_dise');
+    } else if (mdef === state.youmonst) {
+        const message = requireAttackOperation(env, 'message');
+        await message(
+            `${Monnam(magr, state, env)} reaches out, and you feel fever and chills.`,
+            state,
+            env,
+        );
+        // C discards diseasemu's Boolean here; its disease mutation is the
+        // effect, and hitmu() still applies the ordinary attack damage.
+        await diseasemu(pa, { ...env, state });
+    } else {
+        // uhitm.c copies mattk, changes adtyp to AD_DISE and discards the
+        // mhitm_ad_dise result. Keep its unported effect at that call boundary.
+        note_unported('uhitm.c mhitm_ad_dise');
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -5300,7 +5336,9 @@ export async function mhitm_adtyping(
     case AD_DISE: unported('mhitm_ad_dise'); break;
     case AD_SAMU: unported('mhitm_ad_samu'); break;
     case AD_DETH: unported('mhitm_ad_deth'); break;
-    case AD_PEST: unported('mhitm_ad_pest'); break;
+    case AD_PEST:
+        await mhitm_ad_pest(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_FAMN: unported('mhitm_ad_famn'); break;
     case AD_DGST: unported('mhitm_ad_dgst'); break;
     case AD_HALU: unported('mhitm_ad_halu'); break;

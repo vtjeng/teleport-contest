@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent cheap timeout.c:sickness_dialogue variation. Wizard, seed 9831057, and datetime 20301114141200 were selected before recording. The supported debug command #wizintrinsic selects the C 'fatally sick' property row with a three-turn count, then one ordinary wait reaches the caller. This varies the sickness timer/source from the Juiblex disease route and is intended to cover its warning countdown plus unconditional Constitution exercise.",
+  "segments": [
+    {
+      "seed": 9831057,
+      "datetime": "20301114141200",
+      "nethackrc": "OPTIONS=name:SicknessTimeoutProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n3e\n ."
+    }
+  ]
+}

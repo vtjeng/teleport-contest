@@ -7,6 +7,7 @@ import { loadHeroTimeoutRecipes, verifyHeroTimeoutSegment } from './run-hero-tim
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
     ACID_RES,
+    A_CON,
     BLINDED,
     BURN_OBJECT,
     CONFUSION,
@@ -50,6 +51,8 @@ import {
     STRANGLED,
     SLEEPY,
     SLEEP_RES,
+    SICK,
+    SICK_NONVOMITABLE,
     TIMEOUT,
     TIMER_NONE,
     TIMER_LEVEL,
@@ -120,6 +123,7 @@ import {
     start_glob_timeout,
     start_corpse_timeout,
     slip_or_trip,
+    sickness_dialogue,
     stop_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
@@ -2739,6 +2743,160 @@ test('timeout.c choke_dialogue is source-pinned and always exercises strength',
         assert.match(C_TIMEOUT, /if \(Strangled\)\s+choke_dialogue\(\);/u);
         assert.match(JS_TIMEOUT,
             /if \(u\.uprops\?\.\[STRANGLED\]\?\.intrinsic && !env\.planning\)\s+await choke_dialogue/u);
+    });
+
+test('timeout.c sickness_dialogue preserves countdown, poison wording, and exercise order',
+    async () => {
+        const cases = [
+            {
+                // C j=7 gives i=3 and selects “feels worse”; rn2(2)=1 loses one CON.
+                countdown: 7,
+                sickType: 0,
+                hallucination: false,
+                expected: 'Your sickness feels worse.',
+                draws: [[2, 1]], // exercise's rn2(2)=1 reduces AEXE by one.
+            },
+            {
+                // C j=5 gives i=2 and selects “severe”; SICK_NONVOMITABLE retains “illness”.
+                countdown: 5,
+                sickType: SICK_NONVOMITABLE,
+                hallucination: false,
+                expected: 'Your illness is severe.',
+                draws: [[2, 0]], // exercise's rn2(2)=0 leaves AEXE unchanged.
+            },
+            {
+                // C j=3 gives i=1 and selects Death’s door; hallucination picks the “they” row.
+                countdown: 3,
+                sickType: SICK_NONVOMITABLE,
+                hallucination: true,
+                expected: "You are at Death's door.  They are inviting you in.",
+                // mhe() consumes rn2(4) before the unconditional
+                // exercise(A_CON, FALSE) consumes rn2(2).
+                draws: [[4, 3], [2, 1]],
+            },
+            {
+                // C j=2 is even, so no warning text is printed although CON is exercised.
+                countdown: 2,
+                sickType: SICK_NONVOMITABLE,
+                hallucination: false,
+                expected: null,
+                // The dialogue condition is false, but C still exercises CON.
+                draws: [[2, 0]],
+            },
+        ];
+
+        for (const item of cases) {
+            const state = propertyTimeoutState();
+            state.u.uprops[SICK].intrinsic = item.countdown;
+            state.u.usick_type = item.sickType;
+            if (item.hallucination)
+                state.u.uprops[HALLUC].intrinsic = FROMOUTSIDE;
+            const events = [];
+            let offset = 0;
+            const random = {
+                rn2(bound) {
+                    const [expectedBound, value] = item.draws[offset++];
+                    assert.equal(bound, expectedBound,
+                        'source RNG calls retain C expression order');
+                    events.push(`rn2(${bound})=${value}`);
+                    return value;
+                },
+                rnd(bound) {
+                    assert.fail(`sickness_dialogue unexpectedly called rnd(${bound})`);
+                },
+            };
+            const messages = [];
+
+            await sickness_dialogue(state, {
+                random,
+                message: async () => {},
+                urgentMessage: async (text) => {
+                    events.push('message');
+                    messages.push(text);
+                },
+                encumberMessage: async () => {},
+            });
+
+            assert.equal(offset, item.draws.length,
+                'the mocked draw sequence is fully consumed');
+            assert.deepEqual(messages, item.expected ? [item.expected] : []);
+            const drawEvents = item.draws.map(([bound, value]) =>
+                `rn2(${bound})=${value}`);
+            const expectedEvents = item.hallucination
+                ? [drawEvents[0], 'message', drawEvents[1]]
+                : [
+                    ...(item.expected ? ['message'] : []),
+                    ...drawEvents,
+                ];
+            assert.deepEqual(events, expectedEvents,
+                'the pronoun draw precedes the urgent line, then exercise');
+            assert.equal(state.u.aexe[A_CON], item.draws.at(-1)[1] === 1 ? -1 : 0);
+        }
+    });
+
+test('nh_timeout runs sickness exercise on planning clones without live output',
+    async () => {
+        // Odd 3/5/7 countdowns enter each warning row. With no message
+        // operation supplied, preflight must still keep urgent_pline silent;
+        // even countdown 2 has no line but still exercises CON.
+        for (const countdown of [2, 3, 5, 7]) {
+            const state = propertyTimeoutState();
+            state.u.uprops[SICK].intrinsic = countdown;
+            state._pending_message = '';
+            const coreDraws = [];
+            const displayDraws = [];
+            await nh_timeout(state, {
+                planning: true,
+                random: {
+                    rn2(bound) {
+                        coreDraws.push(bound);
+                        assert.equal(bound, 2);
+                        return 1;
+                    },
+                    rnd(bound) {
+                        assert.fail(`nh_timeout unexpectedly called rnd(${bound})`);
+                    },
+                },
+                displayRandom(bound) {
+                    displayDraws.push(bound);
+                    return 0;
+                },
+                encumberMessage: async () => {},
+            });
+
+            assert.deepEqual(coreDraws, [2],
+                `countdown ${countdown}: clone consumes exercise(A_CON, FALSE)`);
+            assert.deepEqual(displayDraws, [],
+                `countdown ${countdown}: no display RNG is consumed`);
+            assert.equal(state._pending_message, '',
+                `countdown ${countdown}: no urgent output reaches the clone TTY`);
+            assert.equal(state.u.aexe[A_CON], -1,
+                `countdown ${countdown}: exercise mutates the supplied clone`);
+            assert.equal(state.u.uprops[SICK].intrinsic, countdown - 1,
+                `countdown ${countdown}: nh_timeout decrements after dialogue`);
+        }
+    });
+
+test('sickness_dialogue matches the complete source branch and remains live in preflight',
+    () => {
+        const cStart = C_TIMEOUT.indexOf(
+            'staticfn void\nsickness_dialogue(void)\n{',
+        );
+        const cEnd = C_TIMEOUT.indexOf('\n}', cStart) + 2;
+        const cBody = C_TIMEOUT.slice(cStart, cEnd);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        assert.match(cBody,
+            /long j = \(Sick & TIMEOUT\), i = j \/ 2L;[\s\S]*?i > 0L && i <= SIZE\(sickness_texts\) && \(j % 2\) != 0/u);
+        assert.match(cBody,
+            /\(u\.usick_type & SICK_NONVOMITABLE\) == 0[\s\S]*?strsubst\(buf, "illness", "sickness"\)/u);
+        assert.match(cBody,
+            /Hallucination && strstri\(buf, "Death's door"\)[\s\S]*?mhe\(&gy\.youmonst\)[\s\S]*?exercise\(A_CON, FALSE\);/u);
+        assert.match(C_TIMEOUT,
+            /if \(Sick\)\s+sickness_dialogue\(\);/u);
+        assert.match(JS_TIMEOUT,
+            /if \(u\.uprops\?\.\[SICK\]\?\.intrinsic\)\s*\{\s*const sicknessMessage = env\.message[\s\S]*?await sickness_dialogue\(state,\s*\{\s*\.\.\.displayEnv,\s*state,\s*random,\s*message: sicknessMessage,[\s\S]*?urgentMessage: env\.urgentMessage[\s\S]*?encumberMessage: env\.encumberMessage/u);
+        assert.doesNotMatch(JS_TIMEOUT,
+            /if \(u\.uprops\?\.\[SICK\]\?\.intrinsic && !env\.planning\)/u);
     });
 
 test('choke_dialogue uses the display RNG when NH_BLUE is hallucinated',

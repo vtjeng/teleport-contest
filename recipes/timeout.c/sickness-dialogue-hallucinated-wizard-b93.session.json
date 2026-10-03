@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first Hallucination variation for timeout.c:sickness_dialogue and its mhe()->pronoun_gender return chain. I selected a fresh Wizard, seed 4620931, and datetime 20311109070600 before recording. #wizintrinsic's source table assigns e to fatally sick and h to hallucinating; the first selection sets the three-turn death's-door warning, the second turns on Hallucination before the next game turn. Each leading space acknowledges the C property message before the next command. The final wait is intended to exercise both the hallucinated pronoun draw and the warning countdown's unconditional CON exercise.",
+  "segments": [
+    {
+      "seed": 4620931,
+      "datetime": "20311109070600",
+      "nethackrc": "OPTIONS=name:HallucSicknessProbe,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#wizintrinsic\n3e\n #wizintrinsic\n5h\n ."
+    }
+  ]
+}
