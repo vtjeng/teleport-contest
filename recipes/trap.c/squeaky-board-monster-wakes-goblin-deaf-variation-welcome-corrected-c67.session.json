@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap permadeaf variation of the welcome-corrected monster SQKY_BOARD recipe. Only the permadeaf option differs from the normal recipe; C determines whether the newt triggers the board and reaches the in-sight Deaf branch.",
+  "segments": [
+    {
+      "seed": 91827731,
+      "datetime": "20340517112344",
+      "nethackrc": "OPTIONS=name:SqkyMonsterC67,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,!safe_wait,time\nOPTIONS=permadeaf\n",
+      "moves": " l\u0017squeaky board\n#wizgenesis\nnewt\nh. . . . . . . ."
+    }
+  ]
+}

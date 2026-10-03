@@ -201,6 +201,7 @@ import {
     maybe_unhide_at,
     monkilled,
     shieldeff_mon,
+    wake_nearby,
     wake_nearto,
 } from './mon.js';
 import {
@@ -581,22 +582,52 @@ export function trapnote(trap, noprefix) {
     return noprefix ? name : `${just_an(name)}${name}`;
 }
 
-// C ref: trap.c trapeffect_sqky_board() (1402-1476), monster arm (1439-1475).
-// The `mtmp == &gy.youmonst` arm reaches the hero only through dotrap(), which
-// is not ported. Soundeffect() is a tty-sound hook and writes nothing to the
-// terminal the recorder captures.
-async function trapeffect_sqky_board(monster, trap, _trflags, env) {
+// C ref: trap.c trapeffect_sqky_board() (1402-1476), both hero and monster
+// arms. Soundeffect() is a tty-sound hook and writes nothing to the terminal
+// the recorder captures.
+async function trapeffect_sqky_board(monster, trap, trflags, env) {
     const { state } = env;
-    const mInAir = requireTrapOperation(env, 'mInAir');
-    const heroDeaf = requireTrapOperation(env, 'heroDeaf');
-    const youHear = requireTrapOperation(env, 'youHear');
     const message = requireTrapOperation(env, 'message');
 
-    if (mInAir(monster, state)) return Trap_Effect_Finished;
+    const forcetrap = (trflags & (FORCETRAP | FAILEDUNTRAP)) !== 0
+        || (Flying(state) && (trflags & VIASITTING) !== 0);
+    if (monster === state.youmonst) {
+        if ((Levitation(state) || Flying(state)) && !forcetrap) {
+            if (!heroIsBlind(state)) {
+                seetrap(trap, env);
+                await message(
+                    Hallucination(state)
+                        ? 'You notice a crease in the linoleum.'
+                        : 'You notice a loose board below you.',
+                    state,
+                    env,
+                );
+            }
+            return Trap_Effect_Finished;
+        }
+
+        seetrap(trap, env);
+        if (heroIsDeaf(state)) {
+            await message('A board beneath you vibrates.', state, env);
+        } else {
+            await message(
+                `A board beneath you squeaks ${trapnote(trap, false)}`
+                    + ' loudly.',
+                state,
+                env,
+            );
+        }
+        await wake_nearby(false, { ...env, state });
+        return Trap_Effect_Finished;
+    }
+
     // stepped on a squeaky board
     const inSight = canseemon(monster, state)
         || monster === state.u?.usteed;
+    const mInAir = requireTrapOperation(env, 'mInAir');
+    if (mInAir(monster, state)) return Trap_Effect_Finished;
     if (inSight) {
+        const heroDeaf = requireTrapOperation(env, 'heroDeaf');
         if (!heroDeaf(state)) {
             await message(
                 messageAt(
@@ -629,6 +660,7 @@ async function trapeffect_sqky_board(monster, trap, _trflags, env) {
             ? BOLT_LIM + 1 : BOLT_LIM - 3; /* 9 or 5 */
         const near = dist2(monster.mx, monster.my, state.u.ux, state.u.uy)
             <= range * range;
+        const youHear = requireTrapOperation(env, 'youHear');
         const heard = youHear(
             `${trapnote(trap, false)} squeak `
             + `${near ? 'nearby' : 'in the distance'}.`,
@@ -3823,9 +3855,9 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //   a fixed-destination teleport trap with a monster standing on the
 //     destination -- teleport.c:1516's rloc_to(), whose port covers only a
 //     monster that is not yet on the map;
-//   a seen trap except WEB, LANDMINE, ROCKTRAP, ANTI_MAGIC, STATUE_TRAP and
-//     pits/holes -- the "You escape ..." line at trap.c:3039 is outside those
-//     effects;
+//   a seen trap except WEB, LANDMINE, ROCKTRAP, ANTI_MAGIC, STATUE_TRAP,
+//     SQKY_BOARD and pits/holes -- the "You escape ..." line at trap.c:3039
+//     is outside those effects;
 //   a mounted hero where the effect has no corresponding source arm --
 //     s_suffix(mon_nam()) and mbodypart() at trap.c:1508-1509 (bear trap),
 //     while steedintrap() handles the dart, gas, magic, polymorph, landmine
@@ -3844,6 +3876,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== WEB
         && trap.ttyp !== POLY_TRAP
         && trap.ttyp !== STATUE_TRAP
+        && trap.ttyp !== SQKY_BOARD
         && trap.ttyp !== ROLLING_BOULDER_TRAP && !is_hole(trap.ttyp))
         throw new UnsupportedHeroMoveBoundaryError('trap activation');
     if (trap.ttyp === TELEP_TRAP) {
@@ -3865,6 +3898,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
     if (trap.tseen && !forcetrap && trap.ttyp !== WEB
         && trap.ttyp !== LANDMINE && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== STATUE_TRAP
+        && trap.ttyp !== SQKY_BOARD
         && !pitTrap && !is_hole(trap.ttyp)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'a trap the hero has already seen',
@@ -3875,6 +3909,7 @@ export function preflight_dotrap(trap, state = game, trflags = 0) {
         && trap.ttyp !== ROCKTRAP
         && trap.ttyp !== SLP_GAS_TRAP && trap.ttyp !== MAGIC_TRAP
         && trap.ttyp !== ANTI_MAGIC && trap.ttyp !== POLY_TRAP
+        && trap.ttyp !== SQKY_BOARD
         && !pitTrap) {
         // trap.c:1507-1511 names a bear-trap steed through
         // s_suffix(mon_nam()) and mbodypart(); the other mounted arms call

@@ -45,6 +45,7 @@ import {
     D_TRAPPED,
     DUST,
     FAINTED,
+    FLYING,
     G_GENOD,
     HALLUC,
     HALLUC_RES,
@@ -369,6 +370,9 @@ function makeState() {
         () => Array(ROWNO).fill(null),
     );
     const uprops = [];
+    // trap.c:trapeffect_sqky_board evaluates Flying before choosing the hero
+    // or monster arm. Zero masks model the grounded hero in these fixtures.
+    uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[DEAF] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     uprops[STEALTH] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
