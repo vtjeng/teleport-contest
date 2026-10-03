@@ -15,6 +15,7 @@ import {
     A_MAX,
     A_NEUTRAL,
     A_STR,
+    AM_SANCTUM,
     Align2amask,
     BLINDED,
     CONFUSION,
@@ -69,6 +70,8 @@ import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     AMULET_OF_UNCHANGING,
+    AMULET_CLASS,
+    AMULET_OF_YENDOR,
     ARMOR_CLASS,
     BOULDER,
     FUMBLE_BOOTS,
@@ -80,6 +83,7 @@ import {
     RIN_LEVITATION,
     SADDLE,
     CORPSE,
+    FAKE_AMULET_OF_YENDOR,
     FOOD_CLASS,
     POTION_CLASS,
     POT_WATER,
@@ -202,6 +206,130 @@ test('dosacrifice preserves source guard order and return values', async () => {
     );
     assert.equal(getRngLog().length, before);
     game.u.uprops[CONFUSION].intrinsic = 0;
+});
+
+test('dosacrifice wires real and fake low-altar Amulet feedback', async () => {
+    // pray.c:1876/1885 route both objects through offer_too_soon(). The fake
+    // Amulet's low-altar arm returns before its sound/luck handling.
+    const tooSoon = PRAY_C.match(
+        /staticfn void\s+offer_too_soon\(aligntyp altaralign\)\s*\{([\s\S]*?)\n\}/u,
+    )?.[1];
+    const fake = PRAY_C.match(
+        /staticfn void\s+offer_fake_amulet\(\s*struct obj \*otmp,\s*boolean highaltar,\s*aligntyp altaralign\)\s*\{([\s\S]*?)\n\}/u,
+    )?.[1];
+    assert.ok(tooSoon);
+    assert.ok(fake);
+    assert.match(tooSoon, /altaralign == A_NONE && Inhell/u);
+    assert.match(tooSoon, /gods_upset\(A_NONE\)/u);
+    assert.match(tooSoon, /Hallucination\s*\?/u);
+    assert.match(tooSoon, /altaralign == u\.ualign\.type/u);
+    assert.match(tooSoon, /You_feel\("%s\."/u);
+    assert.match(fake, /if\s*\(!highaltar && !otmp->known\)/u);
+    assert.match(fake, /offer_too_soon\(altaralign\)/u);
+    assert.match(PRAY_C, /offer_too_soon\(altaralign\);\s*return ECMD_TIME;/u);
+
+    await startedGame();
+    const altar = game.level.at(game.u.ux, game.u.uy);
+    const oldType = altar.typ;
+    const oldFlags = altar.flags;
+    const oldInventory = game.invent;
+    const oldUnported = new Set(game.unported ?? []);
+    const makeAmulet = (otyp) => ({
+        invlet: 'a',
+        otyp,
+        oclass: AMULET_CLASS,
+        quan: 1,
+        where: OBJ_INVENT,
+        known: false,
+        nobj: null,
+        nexthere: null,
+    });
+    const select = async (otyp) => {
+        game.invent = makeAmulet(otyp);
+        game.nhDisplay.terminal._inputQueue.push(...Array(16).fill(32));
+        cmdq_add_key(CQ_CANNED, 'a', game);
+        return dosacrifice(game);
+    };
+
+    try {
+        altar.typ = ALTAR;
+        altar.flags = Align2amask(game.u.ualign.type);
+        assert.equal(await select(FAKE_AMULET_OF_YENDOR), ECMD_TIME);
+        assert.equal(
+            game._pending_message,
+            'You feel an urge to return to the surface.',
+        );
+        assert.ok(!game.unported.has('pray.c offer_fake_amulet'));
+        assert.ok(!game.unported.has('pray.c offer_too_soon'));
+
+        clearTtyMessageWindow(game);
+        altar.flags = Align2amask(
+            game.u.ualign.type === A_CHAOTIC ? A_LAWFUL : A_CHAOTIC,
+        );
+        assert.equal(await select(AMULET_OF_YENDOR), ECMD_TIME);
+        assert.equal(game._pending_message, 'You feel ashamed.');
+        assert.ok(!game.unported.has('pray.c offer_too_soon'));
+    } finally {
+        altar.typ = oldType;
+        altar.flags = oldFlags;
+        game.invent = oldInventory;
+        game.unported = oldUnported;
+    }
+});
+
+test('offer_fake_amulet reports the recorder-supported thunderclap and mistake',
+    async () => {
+    // pray.c:1610-1618. Soundeffect() is an empty macro in this build; the
+    // source-visible You_hear() still follows acoustics before the mistake.
+    const soundMacros = readFileSync(new URL(
+        '../nethack-c/upstream/include/sndprocs.h', import.meta.url,
+    ), 'utf8');
+    assert.match(soundMacros, /#define Soundeffect\(seid, vol\)\s*$/mu);
+    const fake = PRAY_C.match(
+        /staticfn void\s+offer_fake_amulet\(\s*struct obj \*otmp,\s*boolean highaltar,\s*aligntyp altaralign\)\s*\{([\s\S]*?)\n\}/u,
+    )?.[1];
+    assert.ok(fake);
+    assert.match(fake, /Soundeffect\(se_thunderclap, 100\);\s*You_hear\("a nearby thunderclap\."\);/u);
+    assert.match(fake, /otmp->known = TRUE;\s*change_luck\(-1\)/u);
+
+    await startedGame();
+    const altar = game.level.at(game.u.ux, game.u.uy);
+    const oldType = altar.typ;
+    const oldFlags = altar.flags;
+    const oldInventory = game.invent;
+    const oldAcoustics = game.flags.acoustics;
+    const oldUnported = new Set(game.unported ?? []);
+    const amulet = {
+        invlet: 'a',
+        otyp: FAKE_AMULET_OF_YENDOR,
+        oclass: AMULET_CLASS,
+        quan: 1,
+        where: OBJ_INVENT,
+        known: false,
+        nobj: null,
+        nexthere: null,
+    };
+    try {
+        altar.typ = ALTAR;
+        altar.flags = Align2amask(game.u.ualign.type) | AM_SANCTUM;
+        game.invent = amulet;
+        game.flags.acoustics = true;
+        game.nhDisplay.terminal._inputQueue.push(...Array(16).fill(32));
+        cmdq_add_key(CQ_CANNED, 'a', game);
+        const luckBefore = game.u.uluck;
+        assert.equal(await dosacrifice(game), ECMD_TIME);
+        assert.equal(amulet.known, true);
+        assert.equal(game.u.uluck, luckBefore - 1);
+        assert.match(game._ttyToplines, /You hear a nearby thunderclap\./u);
+        assert.match(game._ttyToplines, /You realize you have made a mistake\./u);
+        assert.ok(!game.unported.has('pray.c offer_fake_amulet'));
+    } finally {
+        altar.typ = oldType;
+        altar.flags = oldFlags;
+        game.invent = oldInventory;
+        game.flags.acoustics = oldAcoustics;
+        game.unported = oldUnported;
+    }
 });
 
 test('dosacrifice reaches offer_corpse through the canned selector',

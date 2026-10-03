@@ -129,7 +129,13 @@ import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { near_capacity, nomul, You_can_move_again } from './hack.js';
-import { livelog_printf, verbalize } from './pline.js';
+import {
+    heroDeaf,
+    heroUnaware,
+    livelog_printf,
+    verbalize,
+    youHear,
+} from './pline.js';
 import { dist2, upstart, s_suffix } from './hacklib.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
@@ -348,7 +354,7 @@ export async function dosacrifice(state = game) {
 
     if (otmp.otyp === AMULET_OF_YENDOR) {
         if (!highaltar) {
-            note_unported('pray.c offer_too_soon');
+            await offer_too_soon(altaralign, state);
             return ECMD_TIME;
         }
         note_unported('pray.c offer_real_amulet');
@@ -357,7 +363,7 @@ export async function dosacrifice(state = game) {
         // this still-unported helper unexpectedly returns.
     }
     if (otmp.otyp === FAKE_AMULET_OF_YENDOR) {
-        note_unported('pray.c offer_fake_amulet');
+        await offer_fake_amulet(otmp, highaltar, altaralign, state);
         return ECMD_TIME;
     }
     if (otmp.otyp === CORPSE) {
@@ -369,6 +375,27 @@ export async function dosacrifice(state = game) {
     // this final arm for a directly supplied object that reaches dosacrifice.
     await ttyPline(nothing_happens, state);
     return ECMD_TIME;
+}
+
+// C ref: pray.c:1480-1497 offer_too_soon(). A_none on an unaligned altar
+// in Gehennom first angers Moloch; all other low-altar attempts use the
+// source's Hallucination/alignment wording.
+async function offer_too_soon(altaralign, state) {
+    const { u } = state;
+    if (altaralign === A_NONE && In_hell(u.uz, state)) {
+        await gods_upset(A_NONE, state);
+        return;
+    }
+
+    const feeling = Hallucination(state)
+        ? 'homesick'
+        : altaralign === u.ualign.type
+            ? 'an urge to return to the surface'
+            : 'ashamed';
+    const prefix = heroUnaware(state)
+        ? 'You dream that you feel'
+        : 'You feel';
+    await ttyPline(`${prefix} ${feeling}.`, state);
 }
 
 // C ref: pray.c:1446-1474 consume_offering(). The offering is consumed before
@@ -651,6 +678,38 @@ async function offer_negative_valued(highaltar, altaralign, state) {
         note_unported('pray.c desecrate_altar');
     } else {
         await gods_upset(altaralign, state);
+    }
+}
+
+// C ref: pray.c:1602-1627 offer_fake_amulet(). The recorder's build compiles
+// Soundeffect() away; You_hear() and the amulet's known state still determine
+// the visible feedback and luck/alignment changes.
+async function offer_fake_amulet(otmp, highaltar, altaralign, state) {
+    const { u } = state;
+    if (!highaltar && !otmp.known) {
+        await offer_too_soon(altaralign, state);
+        return;
+    }
+
+    const thunderclap = youHear('a nearby thunderclap.', state);
+    if (thunderclap !== null) await ttyPline(thunderclap, state);
+
+    if (!otmp.known) {
+        await ttyPline(
+            `You realize you have made a ${Hallucination(state)
+                ? 'boo-boo' : 'mistake'}.`,
+            state,
+        );
+        otmp.known = true;
+        change_luck(-1, state);
+    } else {
+        // The source reports this only when the hero is Deaf; the earlier
+        // You_hear() has already suppressed the thunderclap in that case.
+        if (heroDeaf(state)) await ttyPline('Oh, no.', state);
+        change_luck(-3, state);
+        adjalign(-1, state);
+        u.ugangr += 3;
+        await offer_negative_valued(highaltar, altaralign, state);
     }
 }
 

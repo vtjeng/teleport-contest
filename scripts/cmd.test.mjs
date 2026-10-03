@@ -17,9 +17,11 @@ import {
     cmdq_add_ec,
     cmdq_add_key,
     cmdq_peek,
+    act_on_act,
     extcmdRow,
     failClosedCommandRefusals,
     MAX_COMMAND_COUNT,
+    MCMD,
     parseCommand,
     resetCommandVars,
     rhack,
@@ -35,6 +37,7 @@ import { itemactions } from '../js/iactions.js';
 import { INTERNALCMD, extcmdlist } from '../js/extcmdlist_data.js';
 import {
     ALTAR,
+    Align2amask,
     BEAR_TRAP,
     COLNO,
     CORR,
@@ -104,6 +107,8 @@ import {
     BOULDER,
     CORPSE,
     ARMOR_CLASS,
+    AMULET_CLASS,
+    FAKE_AMULET_OF_YENDOR,
     DAGGER,
     DART,
     FOOD_CLASS,
@@ -160,6 +165,12 @@ const IACTIONS_C = readFileSync(
 );
 const HACK_C = readFileSync(
     new URL('../nethack-c/upstream/src/hack.c', import.meta.url), 'utf8',
+);
+const READ_C = readFileSync(
+    new URL('../nethack-c/upstream/src/read.c', import.meta.url), 'utf8',
+);
+const WIZCMDS_C = readFileSync(
+    new URL('../nethack-c/upstream/src/wizcmds.c', import.meta.url), 'utf8',
 );
 const CMD_JS = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
 const HACK_JS = readFileSync(new URL('../js/hack.js', import.meta.url), 'utf8');
@@ -2989,9 +3000,10 @@ test('counted comma pickup reaches the handler that consumes its count', () => {
     assert.ok(cChecks < cSelect);
 
     // Preserve the refusals for other counted nonmovement commands while
-    // admitting comma to the existing, source-ordered pickup dispatch.
+    // admitting comma pickup and the `#` extended-command dispatch. The next
+    // test verifies that `#` passes its count to the selected handler.
     assert.match(CMD_JS,
-        /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
+        /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
     assert.match(CMD_JS,
         /if \(command === 'pickup'\)[\s\S]*?runPickupCommand\(key, state\)/u);
 
@@ -3006,6 +3018,91 @@ test('counted comma pickup reaches the handler that consumes its count', () => {
     assert.ok(jsCount >= 0 && jsCount < jsReset && jsReset < jsChecks);
     assert.ok(jsChecks < jsSelect);
 });
+
+test('counted #wizgenesis carries its quantity through doextcmd then resets ECMD_OK',
+    async () => {
+        const cParseStart = CMD_C.indexOf('\nparse(void)\n{');
+        const cParseEnd = CMD_C.indexOf('\n#ifdef HANGUPHANDLING', cParseStart);
+        assert.ok(cParseStart >= 0 && cParseEnd > cParseStart);
+        const cParse = CMD_C.slice(cParseStart, cParseEnd);
+        assert.match(cParse,
+            /gm\.multi = gc\.command_count;[\s\S]*?if \(gm\.multi\)\s*gm\.multi--;/u);
+
+        const cRhackStart = CMD_C.indexOf('rhack(int key)');
+        const cRhackEnd = CMD_C.indexOf(
+            '\n/* convert an x,y pair into a direction code */', cRhackStart,
+        );
+        assert.ok(cRhackStart >= 0 && cRhackEnd > cRhackStart);
+        const cRhack = CMD_C.slice(cRhackStart, cRhackEnd);
+        const cDispatch = cRhack.indexOf('func = ((struct ext_func_tab *) tlist)->ef_funct;');
+        const cCall = cRhack.indexOf('res = (*func)();', cDispatch);
+        const cOkReset = cRhack.indexOf(
+            'else if ((res & (ECMD_OK | ECMD_TIME)) == ECMD_OK)', cCall,
+        );
+        assert.ok(cDispatch >= 0 && cDispatch < cCall && cCall < cOkReset);
+
+        const cGenesisStart = WIZCMDS_C.indexOf('wiz_genesis(void)');
+        const cGenesisEnd = WIZCMDS_C.indexOf('/* #wizwhere command', cGenesisStart);
+        assert.ok(cGenesisStart >= 0 && cGenesisEnd > cGenesisStart);
+        const cGenesis = WIZCMDS_C.slice(cGenesisStart, cGenesisEnd);
+        assert.match(cGenesis, /create_particular\(\);[\s\S]*?return ECMD_OK;/u);
+
+        const cCreateStart = READ_C.indexOf('create_particular_parse(\n');
+        const cCreateEnd = READ_C.indexOf('\n}\n', cCreateStart);
+        assert.ok(cCreateStart >= 0 && cCreateEnd > cCreateStart);
+        const cCreate = READ_C.slice(cCreateStart, cCreateEnd);
+        assert.match(cCreate,
+            /d->quan = 1 \+ \(\(gm\.multi > 0\) \? \(int\) gm\.multi : 0\);/u);
+
+        // The generic repeat refusal remains active for unsupported rows;
+        // only '#' is a container dispatch whose selected handler consumes
+        // this already-decremented multi value.
+        assert.match(CMD_JS,
+            /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
+        const jsCountGuard = CMD_JS.indexOf('state.multi > 0 && command !== null');
+        const jsGenesisDispatch = CMD_JS.indexOf("if (command === '#')", jsCountGuard);
+        assert.ok(jsCountGuard >= 0 && jsGenesisDispatch > jsCountGuard);
+
+        const base = {
+            // Fixed seed keeps the two genesis runs comparable; only the
+            // command-count prefix changes between them.
+            seed: 840097,
+            datetime: COMMAND_DATETIME,
+            nethackrc: [
+                'OPTIONS=name:CountTest,role:Wizard,race:human,gender:female,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,playmode:debug',
+                '',
+            ].join('\n'),
+        };
+        const createWithCount = async (counted) => {
+            const boundaries = [];
+            await runSegment({
+                ...base,
+                moves: `.${counted ? '2' : ''}#wizgenesis\nnewt\n`,
+            }, { onBoundary: (error) => boundaries.push(error) });
+            let newts = 0;
+            for (let mon = game.level.monlist; mon; mon = mon.nmon)
+                if (mon.mnum === PM_NEWT) newts++;
+            return {
+                newts,
+                multi: game.multi,
+                dispatches: game._commandDispatchCount,
+                boundaries,
+            };
+        };
+
+        const single = await createWithCount(false);
+        const counted = await createWithCount(true);
+        assert.deepEqual(single.boundaries, []);
+        assert.deepEqual(counted.boundaries, []);
+        assert.equal(counted.newts, single.newts + 1,
+            '2# dispatch sends multi=1 through #wizgenesis as quantity 2');
+        assert.equal(counted.multi, 0,
+            'wiz_genesis returns ECMD_OK and rhack resets the command count');
+        assert.equal(counted.dispatches, 2,
+            'the initial wait and #wizgenesis dispatch once each; count does not repeat it');
+    });
 
 test('a committed count is retained as a parsed command after dispatch refusal',
     async () => {
@@ -3556,6 +3653,65 @@ test('rhack runs a queued command even when it was given a key', async () => {
     assert.equal(state._pending_message ?? '', '');
     assert.equal(cmdq_peek(CQ_CANNED, state), null, 'the queue was drained');
 });
+
+test('MCMD_OFFER dispatches queued dosacrifice with its ECMD result',
+    async () => {
+        // C cmd.c act_on_act() queues the dosacrifice function pointer and a
+        // user-input marker; rhack() must call that pointer and apply its
+        // normal ECMD_TIME tail. The menu recording separately proves the
+        // altar's displayed MCMD_OFFER row reaches this caller.
+        assert.match(CMD_C,
+            /case MCMD_OFFER:\s*cmdq_add_ec\(CQ_CANNED, dosacrifice\);\s*cmdq_add_userinput\(CQ_CANNED\);/u);
+        assert.match(CMD_JS,
+            /case MCMD\.OFFER:\s*queueHandler\('dosacrifice', state\);\s*cmdq_add_userinput\(CQ_CANNED, state\);/u);
+        assert.match(CMD_JS,
+            /queuedExtcmdEntry\?\.ef_funct === 'dosacrifice'[\s\S]*?await dosacrifice\(state\)[\s\S]*?if \(res & ECMD_TIME\) commandTookTime\(state\)/u);
+
+        // Seed 4210044 and the fixed clock provide a stable initialized game;
+        // the test replaces only the current terrain/alignment and inventory.
+        await runSegment({
+            seed: 4210044,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:QueuedOffer,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            moves: '',
+        });
+        // Match a player typing a command after startup has dismissed its
+        // welcome line; otherwise the selector consumes the first key at the
+        // pending-message boundary before getobj() can read it.
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        const altar = game.level.at(game.u.ux, game.u.uy);
+        altar.typ = ALTAR;
+        altar.flags = Align2amask(game.u.ualign.type);
+        const amulet = {
+            invlet: 'a',
+            otyp: FAKE_AMULET_OF_YENDOR,
+            oclass: AMULET_CLASS,
+            quan: 1,
+            where: OBJ_INVENT,
+            known: false,
+            nobj: null,
+            nexthere: null,
+        };
+        game.invent = amulet;
+        game.nhDisplay.pushKey(commandKeyCode('a'));
+
+        act_on_act(MCMD.OFFER, 0, 0, game);
+        assert.equal(
+            cmdq_peek(CQ_CANNED, game)?.ec_entry?.ef_funct,
+            'dosacrifice',
+        );
+        await rhack(0, game);
+
+        assert.equal(game._pending_message,
+            'You feel an urge to return to the surface.');
+        assert.equal(game.context.move, 1, 'the selected offering costs a turn');
+        assert.equal(amulet.known, false, 'the source early return leaves it unknown');
+        assert.equal(cmdq_peek(CQ_CANNED, game), null,
+            'getobj consumes the marker when it reads the selected object');
+    });
 
 test('rhack consumes a queued command after the reqmenu prefix', async () => {
     // cmd.c:3637-3652 pops the command queue again at got_prefix_input. Wait

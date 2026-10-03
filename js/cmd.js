@@ -5490,8 +5490,14 @@ export async function rhack(key, state = game) {
                 state,
             );
         } else if (state.multi > 0 && command !== null && command !== 'pay'
-            && command !== 'pickup'
+            && command !== 'pickup' && command !== '#'
             && !Object.hasOwn(MOVEMENT_INTENTS, command)) {
+            // `#` is the dispatch row for doextcmd(), not the selected
+            // extended command. C dispatches it with gm.multi intact; the
+            // selected handler (for example, wiz_genesis() using multi as its
+            // monster quantity) and its ECMD result own count consumption and
+            // reset. A repeated selected command still reaches its own ported
+            // handler or its existing refusal.
             // shk.c dopay:1755 clears multi before its first action, so pay
             // never reaches the repeated-command path refused here. Likewise,
             // hack.c dopickup consumes gc.command_count and clears gm.multi
@@ -5539,6 +5545,17 @@ export async function rhack(key, state = game) {
         // function instead of sending it through the unported generic arm.
         if (queuedExtcmdEntry?.ef_funct === 'dosit') {
             const res = await dosit(state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        // C ref: cmd.c act_on_act() queues dosacrifice() for MCMD_OFFER, then
+        // rhack() dispatches the queued function pointer and applies the same
+        // ECMD reset/time tail as a directly selected extended command.
+        if (queuedExtcmdEntry?.ef_funct === 'dosacrifice') {
+            const res = await dosacrifice(state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Welcome-corrected C-first recipe for the monster SQKY_BOARD arm. A leading space dismisses the startup welcome pager observed in the preserved original attempt. Then leave the upstairs, wish the board on floor, create a newt, leave the board tile, and wait; C determines whether the monster reaches it.",
+  "segments": [
+    {
+      "seed": 91827731,
+      "datetime": "20340517112344",
+      "nethackrc": "OPTIONS=name:SqkyMonsterC67,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,!safe_wait,time\n",
+      "moves": " l\u0017squeaky board\n#wizgenesis\nnewt\nh. . . . . . . ."
+    }
+  ]
+}
