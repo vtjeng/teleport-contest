@@ -1,0 +1,138 @@
+{
+  "session": "synthetic/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+  "corpus": "synthetic",
+  "batch": "v21",
+  "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+  "manifestPath": "challenges/manifests/v21.json",
+  "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+  "recordingSha256": "519cbcc0a68c203238b5c70fc574c8b3758c0e0f0f63c357d69b6f0c43c389cc",
+  "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+  "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+  "remainingScreens": 3,
+  "recordedSteps": 37,
+  "status": "complete",
+  "commit": "4901dd542af51235daa15e837437a78fa6af5787",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v21",
+    "caseId": "wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+    "session": "synthetic/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst",
+    "manifestPath": "challenges/manifests/v21.json",
+    "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+    "recording": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.session.json",
+    "recordingPath": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.session.json",
+    "recordingSha256": "519cbcc0a68c203238b5c70fc574c8b3758c0e0f0f63c357d69b6f0c43c389cc",
+    "recipe": "challenges/cases/v21/wizard-applies-cream-pie-and-inspects-dried-towel-v21-cfirst.recipe.session.json",
+    "recipeSha256": "c558fe9262696faca0291c96c97ded5589f42a8584b5401982178f7c3745ac87",
+    "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+    "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+    "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+    "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+    "evaluationUtc": "2026-10-03T18:29:21.226Z",
+    "remainingScreens": 3,
+    "recordedSteps": 37,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 34,
+        "total": 37
+      },
+      "rng": {
+        "matched": 2890,
+        "total": 2890
+      },
+      "cursors": {
+        "matched": 36,
+        "total": 37
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 33,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 33,
+          "key": "n"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 44,
+        "cCell": {
+          "ch": "-",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": " ",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": {
+        "index": 33,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 33,
+          "key": "n"
+        },
+        "cCursor": [
+          52,
+          0,
+          1
+        ],
+        "jsCursor": [
+          75,
+          16,
+          1
+        ]
+      }
+    },
+    "step": 33,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The first measured v21 mismatch occurs when C reaches weapon.c:dry_a_towel after apply.c:use_towel cleans the hero’s cream-blinded face with a carried wet towel. JavaScript records note_unported('apply.c dry_a_towel') and skips the void call, omitting the towel drying message and the wetness, wielded-state, and inventory updates. The smallest coherent source family is weapon.c:finish_towel_change, wet_a_towel, and dry_a_towel, wired at their existing source callers.",
+  "source": {
+    "file": "weapon.c",
+    "branch": "finish_towel_change clamps changed towel wetness to 0–7, updates obj->spe, changes gu.unweapon when the hero wields the towel, and refreshes inventory for carried towels. wet_a_towel reports only an increase and dry_a_towel reports only a decrease; both finish any changed value through that helper. Feedback depends on verbose and whether the towel is carried or carried by a visible monster. This case reaches the dry branch with amt -1 after use_towel removes u.ucreamed; drying_feedback is true when the towel is uwep.",
+    "functions": [
+      "finish_towel_change",
+      "wet_a_towel",
+      "dry_a_towel"
+    ],
+    "callers": [
+      "apply.c:use_towel (four wet-towel cleanup branches; assigned case reaches the cream-cleanup branch)",
+      "uhitm.c:hmon_hitmon (after the hit message when hmd.dryit is set)",
+      "dothrow.c:throw_obj (before throwing a wet towel, with verbose false)",
+      "engrave.c:doengrave (when a wet towel wipes an engraving)",
+      "trap.c:burnarmor (randomly decreases a carried wet towel after fire damage)",
+      "trap.c:water_damage (increases towel wetness through wet_a_towel)"
+    ],
+    "dependencies": [
+      "obj.h:is_wet_towel tests towel wetness from obj->spe",
+      "carried, mcarried, and canseemon select hero and monster feedback paths",
+      "Yobjnam2, xname, Monnam, s_suffix, and pline construct towel feedback",
+      "uwep and gu.unweapon preserve the wielded-towel state",
+      "update_inventory refreshes the carried towel description after obj->spe changes"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "The saved queue entry and challenges/evaluations/20261003183000-v21.json identify 3 unmatched screens of 37, 34/37 screens matched, and the first mismatch at segment 0, step 33, key n: C row 0 column 44 is “-” while JavaScript is blank. All 2,890 RNG calls match; the cursor also first diverges at step 33. The evaluation commit is b0fd76f6091376c07bf54e8d3061aa5a9c9957d0.",
+    "The manifest entry for this case says that C applies the cream pie, then applies the wet towel; cleanup reaches dry_a_towel at step 33, followed by the drying line at step 34 and the towel wetness change at step 35. The saved C65 comparison .cache/C65-qualified-current-base-comparisons-v1.json independently names weapon.c:dry_a_towel as the first mismatch behavior and records the JavaScript boundary as unported.",
+    "Upstream nethack-c/upstream/src/apply.c:use_towel (112–197), especially 173–187, removes u.ucreamed and then calls dry_a_towel(obj, -1, drying_feedback) when is_wet_towel(obj). Upstream nethack-c/upstream/src/weapon.c:finish_towel_change (1018–1034), wet_a_towel (1036–1063), and dry_a_towel (1065–1088) form the contiguous source family; dry_a_towel reports a decrease and applies the new spe through the helper.",
+    "At inspected HEAD 4901dd542af51235daa15e837437a78fa6af5787, js/apply.js:4279–4304 substitutes note_unported for the source dry call, including this cream-cleanup branch. The other direct dry callers are similarly skipped in js/uhitm.js:3538–3541, js/dothrow.js:2126–2127, and js/engrave.js:673. The C wet caller is trap.c:water_damage (4712–4852); its JavaScript counterpart js/trap_water_damage.js:230 records note_unported('weapon.c wet_a_towel').",
+    "The direct C caller set also includes trap.c:burnarmor (88–160), which checks carried towels before item erosion and may dry one by a random amount. Its JavaScript counterpart js/trap_erode_obj.js:411–426 currently throws UnsupportedErosionError for a wet towel and otherwise records note_unported('apply.c dry_a_towel'), so the future source port must replace that refusal and wire this caller too. trap.c:water_damage (4712–4852) calls wet_a_towel at :4734; js/trap_water_damage.js:230 currently records note_unported('weapon.c wet_a_towel')."
+  ]
+}
