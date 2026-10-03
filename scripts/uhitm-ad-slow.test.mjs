@@ -24,6 +24,12 @@ const UHITM_C = readFileSync(
 const MHITU_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8',
 );
+const ZAP_C = readFileSync(
+    new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
+);
+const MONSTERS_H = readFileSync(
+    new URL('../nethack-c/upstream/include/monsters.h', import.meta.url), 'utf8',
+);
 const MHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitm.c', import.meta.url), 'utf8',
 );
@@ -136,6 +142,15 @@ test('mhitm_ad_slow matches the whole C function, three dispatch routes, and HFa
     assert.ok(slowDownSource, 'mhitu.c defines u_slow_down');
     assert.match(slowDownSource,
         /HFast = 0L;[\s\S]*?if \(!Fast\)[\s\S]*?You\("slow down\."\);[\s\S]*?Your\("quickness feels less natural\."\);[\s\S]*?exercise\(A_DEX, FALSE\);/u);
+    assert.match(ZAP_C,
+        /case WAN_SLOW_MONSTER:[\s\S]*?case SPE_SLOW_MONSTER:[\s\S]*?HFast & \(TIMEOUT \| INTRINSIC\)[\s\S]*?u_slow_down\(\);/u);
+    const zapJs = readFileSync(new URL('../js/zap.js', import.meta.url), 'utf8');
+    assert.match(zapJs,
+        /export async function zapyourself\([\s\S]*?case WAN_SLOW_MONSTER:[\s\S]*?await u_slow_down\(state\);/u);
+    assert.match(MHITU_C,
+        /#ifdef PM_BEHOLDER \/\* work in progress \*\/[\s\S]*?case AD_SLOW:[\s\S]*?u_slow_down\(\);[\s\S]*?#endif \/\* BEHOLDER \*\//u);
+    assert.match(MONSTERS_H,
+        /#if 0 \/\* not yet implemented \*\/[\s\S]*?MON\(NAM\("beholder"\)/u);
     const slowDownJs = readFileSync(new URL('../js/mhitu.js', import.meta.url), 'utf8');
     assert.match(slowDownJs,
         /export async function u_slow_down\([\s\S]*?random = \{ rn2 \}[\s\S]*?exercise\(A_DEX, false, state, random\);/u);
