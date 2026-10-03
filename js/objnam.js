@@ -13,7 +13,7 @@
 import {
     ART_EYES_OF_THE_OVERWORLD, ART_ORB_OF_DETECTION, artifact_light,
     artifact_name, artiname, glow_color, glow_verb,
-    find_artifact,
+    find_artifact, undiscovered_artifact,
     permapoisoned,
 } from './artifacts.js';
 import {
@@ -653,7 +653,8 @@ export function not_fully_identified(obj, state = game, resolvedType = null) {
             && (obj.otyp === LARGE_BOX || obj.otyp === CHEST))) {
         return true;
     }
-    if (obj.oartifact && !state.artiexist?.[obj.oartifact]?.found)
+    if (obj.oartifact
+        && undiscovered_artifact(obj.oartifact, state))
         return true;
     if (obj.rknown
         || (obj.oclass !== ARMOR_CLASS
@@ -1600,13 +1601,11 @@ export function The(str, state = game) {
 }
 
 // C ref: obj.h is_plural() (421-427). The Eyes of the Overworld are plural
-// once discovered but not while they are still "a pair of lenses";
-// undiscovered_artifact() is unported and no wish this port grants makes an
-// artifact, so that arm stops.
-export function is_plural(otmp) {
+// once they appear in artidisco, independently of artiexist[].found.
+export function is_plural(otmp, state = game) {
     if (otmp.quan !== 1) return true;
     if (otmp.oartifact === ART_EYES_OF_THE_OVERWORLD)
-        unsupported('undiscovered_artifact() for is_plural()', otmp);
+        return !undiscovered_artifact(ART_EYES_OF_THE_OVERWORLD, state);
     return false;
 }
 

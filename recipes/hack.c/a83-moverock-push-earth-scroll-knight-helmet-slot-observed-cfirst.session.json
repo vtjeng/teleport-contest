@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Source-based Knight variation after two preserved setup misses. The first C run exposed the initial greeting; the second confirmed the wished scroll in slot i. This input corrects only those observed prompts and keeps the corrected Knight seed/date/options fixed. Knight's hard helmet is source-defined at u_init.c:90–99; C's scroll hit is capped at 2 damage at read.c:2318–2324, and this C trace survives to hack.c:moverock_core -> do.c:boulder_hits_pool(pushing=TRUE) at zero-based step 65. The exact recipe passed strict C/JS differential run-h2HSth (2,574 PRNG values, 66 screens and cursors). This is the only positive pushed-liquid variation; no seed search was used.",
+  "comment": "Source-based Knight variation after two preserved setup misses. The first C run exposed the initial greeting; the second confirmed the wished scroll in slot i. This input corrects only those observed prompts and keeps the corrected Knight seed/date/options fixed. The Cursed scroll reaches read.c:1969 with helmet_protects=!scursed=FALSE, so the hit is not capped by Knight's hard helmet: rnd(20)=13 reduces HP 16 to 3. This is a higher-HP survival setup, not hard-helmet coverage. The C trace reaches hack.c:moverock_core -> do.c:boulder_hits_pool(pushing=TRUE) at zero-based step 65. The recipe passed strict C/JS differential run-h2HSth (2,574 PRNG values, 66 screens and cursors); no seed search was used.",
   "segments": [
     {
       "seed": 85216479,

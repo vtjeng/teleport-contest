@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import {
     ART_EXCALIBUR,
+    ART_EYES_OF_THE_OVERWORLD,
     ART_GIANTSLAYER,
     ART_GRIMTOOTH,
     ART_HEART_OF_AHRIMAN,
@@ -83,6 +84,8 @@ import {
     isPoisonable,
     killer_xname,
     just_an,
+    is_plural,
+    not_fully_identified,
     obj_typename,
     simpleonames,
     simple_typename,
@@ -132,6 +135,7 @@ import {
     LEATHER_ARMOR,
     LEATHER_GLOVES,
     LEATHER_JACKET,
+    LENSES,
     LONG_SWORD,
     MUMMY_WRAPPING,
     OBJ_DESCR,
@@ -179,6 +183,8 @@ import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
 
 const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
 const OBJNAM_JS_SOURCE = readFileSync('js/objnam.js', 'utf8');
+const ARTIFACT_SOURCE = readFileSync('nethack-c/upstream/src/artifact.c', 'utf8');
+const ARTIFACT_JS_SOURCE = readFileSync('js/artifacts.js', 'utf8');
 
 function deferred() {
     let resolve;
@@ -1277,9 +1283,10 @@ test('doname keeps xname pointer offsets and food prefixes source-aligned', () =
     // objnam.c:xname_flags() lowercases then returns buf+4 for "The ";
     // a 220-byte artifact name leaves only 171 bytes after that pointer move.
     const articleName = `The ${'x'.repeat(220)}`;
-    // The existing artifact registry must recognize this Sunsword instance,
-    // just as a generated artifact does before find_artifact() runs.
+    // C's proper-name branch needs both an existing artifact and its id in
+    // artidisco; artiexist[].found alone does not establish discovery.
     articleState.artiexist[ART_SUNSWORD].exists = 1;
+    articleState.artidisco[0] = ART_SUNSWORD;
     const namedArtifact = objectOf(articleState, LONG_SWORD, {
         dknown: true,
         known: true,
@@ -1875,6 +1882,52 @@ test('override_ID supplies the bknown that names holy water', () => {
     assert.equal(donameFresh(water, state), 'a potion of holy water');
 });
 
+test('artifact identification uses the discovery list, not artiexist.found', () => {
+    assert.match(
+        OBJNAM_SOURCE,
+        /otmp->oartifact && undiscovered_artifact\(otmp->oartifact\)/u,
+    );
+    assert.match(
+        ARTIFACT_SOURCE,
+        /undiscovered_artifact\(xint16 m\)[\s\S]*?if \(artidisco\[i\] == m\)[\s\S]*?else if \(artidisco\[i\] == 0\)/u,
+    );
+    assert.match(
+        OBJNAM_JS_SOURCE,
+        /obj\.oartifact\s*&&\s*undiscovered_artifact\(obj\.oartifact, state\)/u,
+    );
+    assert.match(
+        ARTIFACT_JS_SOURCE,
+        /undiscovered_artifact\(m, state = game\)[\s\S]*?state\.artidisco\[i\] === m/u,
+    );
+
+    const state = namingState();
+    state.objects[LONG_SWORD].oc_name_known = 1;
+    const sword = objectOf(state, LONG_SWORD, {
+        known: true, dknown: true, bknown: true, rknown: true,
+        oartifact: ART_GIANTSLAYER,
+    });
+    state.artiexist[ART_GIANTSLAYER].found = 1;
+    state.artidisco.fill(0);
+    // A found-object flag does not substitute for membership in artidisco.
+    assert.equal(not_fully_identified(sword, state), true);
+
+    state.artiexist[ART_GIANTSLAYER].found = 0;
+    state.artidisco[0] = ART_GIANTSLAYER;
+    // Conversely, C considers the artifact discovered when its id is in the
+    // discovery list even if the independent found flag is clear.
+    assert.equal(not_fully_identified(sword, state), false);
+
+    const eyes = objectOf(state, LENSES, {
+        oartifact: ART_EYES_OF_THE_OVERWORLD,
+    });
+    state.artiexist[ART_EYES_OF_THE_OVERWORLD].found = 1;
+    state.artidisco.fill(0);
+    assert.equal(is_plural(eyes, state), false);
+    state.artiexist[ART_EYES_OF_THE_OVERWORLD].found = 0;
+    state.artidisco[0] = ART_EYES_OF_THE_OVERWORLD;
+    assert.equal(is_plural(eyes, state), true);
+});
+
 test('BUC, poison, erosion, and enchantment prefixes retain source order', () => {
     const state = namingState();
     const unknownUncursed = objectOf(state, DART, {
@@ -2123,7 +2176,7 @@ test("'wizmgender' names the gender a body or statue carries", () => {
     );
 });
 
-test('artifact naming records discovery before choosing its article', () => {
+test('artifact naming records found separately from discovered identity', () => {
     const state = namingState();
     state.artiexist[ART_GIANTSLAYER].exists = 1;
     const artifact = objectOf(state, LONG_SWORD, {
@@ -2140,6 +2193,14 @@ test('artifact naming records discovery before choosing its article', () => {
     artifact.known = true;
     artifact.bknown = true;
     artifact.rknown = true;
+    // C find_artifact() sets artiexist[].found but does not call
+    // discover_artifact(); not_fully_identified() still sees an empty
+    // artidisco[] until the separate discovery event occurs.
+    assert.deepEqual(state.artidisco, Array(state.artidisco.length).fill(0));
+    assert.equal(
+        donameFresh(artifact, state), 'a +0 long sword named Giantslayer',
+    );
+    state.artidisco[0] = ART_GIANTSLAYER;
     assert.equal(donameFresh(artifact, state), 'the +0 Giantslayer');
 });
 
@@ -2180,8 +2241,10 @@ test('a named artifact weapon needs rknown before it names itself', () => {
         oextra: { oname: 'Giantslayer' },
     });
     // The first naming is what records the artifact as found, which clears
-    // not_fully_identified()'s undiscovered-artifact arm at 1805.
+    // artiexist[].found. C's separate artidisco discovery is required to
+    // clear not_fully_identified()'s arm at 1805.
     donameFresh(artifact, state);
+    state.artidisco[0] = ART_GIANTSLAYER;
     artifact.known = true;
     artifact.bknown = true;
 
@@ -2882,6 +2945,7 @@ test('yname drops the prefix only for a held, non-quest artifact', () => {
         where: OBJ_INVENT,
         known: true, dknown: true, bknown: true, rknown: true,
     });
+    state.artidisco[0] = ART_SUNSWORD;
     assert.equal(yname(sunsword, state), 'Sunsword');
 
     // The same object in flight, which is where a thrown weapon sits while
@@ -2902,6 +2966,7 @@ test('yname drops the prefix only for a held, non-quest artifact', () => {
     // not_fully_identified() to clear; a tool is outside that function's last
     // clause, so rknown does not matter here as it does for the sword.
     state.artiexist[ART_ORB_OF_DETECTION].exists = 1;
+    state.artidisco[1] = ART_ORB_OF_DETECTION;
     state.objects[CRYSTAL_BALL].oc_name_known = 1;
     const orb = objectOf(state, CRYSTAL_BALL, {
         oartifact: ART_ORB_OF_DETECTION,
@@ -2909,6 +2974,11 @@ test('yname drops the prefix only for a held, non-quest artifact', () => {
         where: OBJ_INVENT,
         known: true, dknown: true, bknown: true,
     });
+    assert.deepEqual(
+        state.artidisco.slice(0, 2), [ART_SUNSWORD, ART_ORB_OF_DETECTION],
+    );
+    assert.equal(not_fully_identified(orb, state), false);
+    assert.equal(obj_is_pname(orb, state), true);
     // xname() strips the artifact's own leading "The ", and yname() puts the
     // possessive back because the index is on the quest side.
     assert.equal(yname(orb, state), 'your Orb of Detection');

@@ -77,6 +77,20 @@ test('Strlen_ is the bounded strutil owner used by makeplural', () => {
     assert.equal(Strlen_('a\0tail', 'test', 1), 1);
     assert.equal(Strlen_('é', 'test', 1), 2);
     assert.equal(Strlen_('水', 'test', 1), 3);
+    assert.equal(
+        Strlen_('a'.repeat(LARGEST_INT - 1), 'test', 1),
+        LARGEST_INT - 1,
+    );
+    assert.equal(
+        Strlen_(`${'a'.repeat(LARGEST_INT - 1)}\0tail`, 'test', 1),
+        LARGEST_INT - 1,
+    );
+    // C calls panic at the fixed bound. Long nonterminated input is outside
+    // the valid fixed-buffer game strings, but pin the diagnostic boundary.
+    assert.throws(
+        () => Strlen_('a'.repeat(LARGEST_INT), 'objnam.c', 123),
+        /objnam.c:123 string too long/u,
+    );
 });
 
 test('digit() accepts only ASCII 0-9', () => {
