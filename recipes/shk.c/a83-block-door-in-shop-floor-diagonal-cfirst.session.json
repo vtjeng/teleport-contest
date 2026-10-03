@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83DoorGate,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l, #wizwish\nwall\n#wizwish\nbroken door\nny"
+    }
+  ],
+  "comment": "Use the known D:5 general-store setup to pick up an unpaid floor item. C objnam.c:wizterrainwish rejects making a door on ordinary floor, so first turn the occupied shop floor square into a wall and then wish a broken door there; wizterrainwish changes lev->typ/doormask without rebuilding the level's room rectangles. Step diagonally away and back into the new D_BROKEN square. C test_move's doorless_door result is true for this mask, so its source expression evaluates block_door at the same in-shop coordinates. The matching recording proves execution through the caller; it does not infer which block_door condition produced its false result."
+}

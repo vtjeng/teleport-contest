@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhhhkh, llj#wizwish\nbroken door\n"
+    }
+  ],
+  "comment": "C-first block_door route. Use the D:5 shop at the C-observed doorway, enter Vals’ liquor emporium, step onto the displayed potion square and pick up the unpaid stock, then return to its door and use the existing terrain-wish command to create the broken-door test square. This is a setup probe; the final diagonal movement must still be selected from the recorded C shop geometry."
+}

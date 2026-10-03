@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83DoorGate,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l, #wizwish\nbroken door\nny"
+    }
+  ],
+  "comment": "Preserved setup miss: C objnam.c:wizterrainwish accepts a regular door wish only at an existing door, secret door, wall, or iron bars. This recipe attempts D_BROKEN directly on an ordinary shop floor square, so it stops at the C diagnostic before test_move or block_door. The corrected source-valid route first wishes a wall."
+}

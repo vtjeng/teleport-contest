@@ -41,6 +41,7 @@ import {
     get_pricing_units,
     getprice,
     find_objowner,
+    inhishop,
     is_unpaid,
     oid_price_adjustment,
     onshopbill,
@@ -672,6 +673,30 @@ function shopState({ has_shop = true } = {}) {
     };
     return state;
 }
+
+test('inhishop checks the keeper level before the current room', () => {
+    const cBody = sourceBody(C_SHK, '\ninhishop(');
+    assert.match(cBody,
+        /if \(!on_level\(&eshkp->shoplevel, &u\.uz\)\)\s*return FALSE;\s*shkrooms = in_rooms\(shkp->mx, shkp->my, SHOPBASE\);\s*return \(strchr\(shkrooms, eshkp->shoproom\) != 0\);/u);
+    const jsBody = sourceBody(JS_SHK, 'export function inhishop(');
+    assert.match(jsBody,
+        /on_level\(extension\.shoplevel, state\.u\?\.uz\)\s*&& in_rooms\([\s\S]*?shopkeeper\.mx,[\s\S]*?extension\.shoproom/u);
+
+    const state = shopState();
+    const keeper = state.level.rooms[0].resident;
+    const room = state.level.at(keeper.mx, keeper.my);
+    state.level.at = (x, y) => x === keeper.mx && y === keeper.my ? room : null;
+
+    // A keeper on the source shop room and level is inside the shop.
+    assert.equal(inhishop(keeper, state), true);
+    // The room list alone cannot override a mismatched shoproom value.
+    keeper.mextra.eshk.shoproom = SHOP_ROOMNO + 1;
+    assert.equal(inhishop(keeper, state), false);
+    keeper.mextra.eshk.shoproom = SHOP_ROOMNO;
+    // C returns before reading the room when shoplevel differs from u.uz.
+    keeper.mextra.eshk.shoplevel = { dnum: 0, dlevel: 2 };
+    assert.equal(inhishop(keeper, state), false);
+});
 
 function shopObject(where, overrides = {}) {
     return newObject({

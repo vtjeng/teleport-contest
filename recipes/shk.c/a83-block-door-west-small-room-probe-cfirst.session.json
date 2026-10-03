@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhk. "
+    }
+  ],
+  "comment": "C-first D:5 shop-search probe. The wizard map shows a small west room; from the observed initial cursor at (55,17), the controlled teleport targets interior floor (11,16). The following space dismisses a landing pager so C can expose any shop-entry response. This is location exploration, not block_door runtime evidence."
+}

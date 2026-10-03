@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh k. hh"
+    }
+  ],
+  "comment": "C-first west-room entry probe for block_door, using the prior bounded shop-candidate seed/date. The current wizard map shows a corridor tile east of an open doorway at (14,16), leading into the small west room. Controlled teleport targets the adjacent corridor square (15,16) from the observed start, then two west moves cross the doorway. This probe is exploratory and is not completion evidence unless C identifies the shop."
+}

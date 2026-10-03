@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n\u0006;  lllkk."
+    }
+  ],
+  "comment": "C-first diagnostic probe using the recorded D:5 level map: invoke the existing position-look command and select the visible k glyph near the hero to identify whether it is a shopkeeper. This does not alter A83 source code or provide block_door runtime evidence."
+}

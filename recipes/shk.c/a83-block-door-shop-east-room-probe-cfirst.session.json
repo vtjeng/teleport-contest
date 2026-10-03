@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20420403172200",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  lllllllllllllllk. "
+    }
+  ],
+  "comment": "C-first room-identification probe for block_door. The D:5 map shows an enclosed east room with a single door. From the observed initial square, controlled teleport targets its interior at (70,16); the next key only dismisses any landing pager so C can reveal whether this is a shop. Not completion evidence unless the C output identifies the store."
+}

@@ -34,6 +34,10 @@ import {
     OBJ_CONTAINED,
     OBJ_FREE,
     OBJ_INVENT,
+    OBJ_MINVENT,
+    OBJ_BURIED,
+    BURIED_TOO,
+    CONTAINED_TOO,
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
     PIT,
@@ -63,6 +67,7 @@ import {
     preflight_look_here,
 } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
+import { get_obj_location } from '../js/light.js';
 import { append_price_quote } from '../js/shk.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { newObject } from '../js/obj.js';
@@ -201,6 +206,8 @@ const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
 const OBJNAM_JS_SOURCE = readFileSync('js/objnam.js', 'utf8');
 const ARTIFACT_SOURCE = readFileSync('nethack-c/upstream/src/artifact.c', 'utf8');
 const ARTIFACT_JS_SOURCE = readFileSync('js/artifacts.js', 'utf8');
+const ZAP_SOURCE = readFileSync('nethack-c/upstream/src/zap.c', 'utf8');
+const LIGHT_JS_SOURCE = readFileSync('js/light.js', 'utf8');
 
 function deferred() {
     let resolve;
@@ -1491,6 +1498,45 @@ test('gameover xname disclosures and distant_name object-id masking match C',
         assert.equal(distantState.gd.distantname, 0);
     });
 
+test('get_obj_location maps each C object ownership case and location flag', () => {
+    const cStart = ZAP_SOURCE.indexOf('\nget_obj_location(\n    struct obj *obj,');
+    const cEnd = ZAP_SOURCE.indexOf('\n}', cStart) + 2;
+    const cBody = ZAP_SOURCE.slice(cStart, cEnd);
+    const jsStart = LIGHT_JS_SOURCE.indexOf('export function get_obj_location(');
+    const jsEnd = LIGHT_JS_SOURCE.indexOf('\n}', jsStart) + 2;
+    const jsBody = LIGHT_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cBody,
+        /case OBJ_INVENT:[\s\S]*?\*xp = u\.ux;[\s\S]*?case OBJ_FLOOR:[\s\S]*?obj->ox[\s\S]*?case OBJ_MINVENT:[\s\S]*?if \(obj->ocarry->mx\)[\s\S]*?case OBJ_BURIED:[\s\S]*?locflags & BURIED_TOO[\s\S]*?case OBJ_CONTAINED:[\s\S]*?locflags & CONTAINED_TOO[\s\S]*?return get_obj_location/u);
+    assert.match(jsBody,
+        /case OBJ_INVENT:[\s\S]*?case OBJ_FLOOR:[\s\S]*?case OBJ_MINVENT:[\s\S]*?case OBJ_BURIED:[\s\S]*?locflags & BURIED_TOO[\s\S]*?case OBJ_CONTAINED:[\s\S]*?locflags & CONTAINED_TOO/u);
+
+    const state = { u: { ux: 8, uy: 9 } };
+    assert.deepEqual(get_obj_location({ where: OBJ_INVENT }, 0, state),
+        { x: 8, y: 9 });
+    assert.deepEqual(get_obj_location({ where: OBJ_FLOOR, ox: 4, oy: 6 }, 0, state),
+        { x: 4, y: 6 });
+    assert.deepEqual(get_obj_location({
+        where: OBJ_MINVENT, ocarry: { mx: 3, my: 5 },
+    }, 0, state), { x: 3, y: 5 });
+    assert.equal(get_obj_location({
+        where: OBJ_MINVENT, ocarry: { mx: 0, my: 5 },
+    }, 0, state), null, 'C treats mx == 0 as a migrating monster');
+    const buried = { where: OBJ_BURIED, ox: 7, oy: 2 };
+    assert.equal(get_obj_location(buried, 0, state), null);
+    assert.deepEqual(get_obj_location(buried, BURIED_TOO, state),
+        { x: 7, y: 2 });
+    const contained = {
+        where: OBJ_CONTAINED,
+        ocontainer: { where: OBJ_FLOOR, ox: 11, oy: 4 },
+    };
+    assert.equal(get_obj_location(contained, 0, state), null);
+    assert.deepEqual(get_obj_location(contained, CONTAINED_TOO, state),
+        { x: 11, y: 4 });
+    assert.equal(get_obj_location({ where: OBJ_FREE }, 0, state), null);
+});
+
 // C ref: objnam.c doname_base():1391, the `(obj == uskin)` arm of the same
 // conditional. This also pins the single state owner for the fused scales.
 test('armor fused to the hero\'s skin uses its C-owned worn suffix', () => {
@@ -2168,6 +2214,18 @@ test('corpse, statue, and named-fruit articles include their source nouns', () =
         }), state),
         'a statue of a newt',
     );
+    assert.equal(
+        xnameFresh(objectOf(state, STATUE, {
+            corpsenm: PM_WIZARD_OF_YENDOR,
+        }), state),
+        'statue of the Wizard of Yendor',
+    );
+    assert.equal(
+        xnameFresh(objectOf(state, STATUE, {
+            corpsenm: PM_MEDUSA,
+        }), state),
+        'statue of Medusa',
+    );
 
     // C doname_base calls artifact_name() for a slime-mold name that may be a
     // fake artifact. Keep that selected helper wired at the same caller.
@@ -2186,6 +2244,35 @@ test('corpse, statue, and named-fruit articles include their source nouns', () =
         }), state),
         'the Orb of Detection',
     );
+});
+
+test('xname_flags applies partly-eaten text to every non-fruit food arm', () => {
+    const state = namingState();
+    state.iflags.partly_eaten_hack = true;
+
+    const ration = objectOf(state, FOOD_RATION, { oeaten: 1 });
+    assert.equal(xnameFresh(ration, state), 'partly eaten food ration');
+
+    const glob = objectOf(state, GLOB_OF_GRAY_OOZE, {
+        globby: true,
+        oeaten: 1,
+        owt: 100,
+    });
+    assert.equal(xnameFresh(glob, state), 'partly eaten small glob of gray ooze');
+
+    const cFoodStart = OBJNAM_SOURCE.indexOf('case FOOD_CLASS:');
+    const cFoodEnd = OBJNAM_SOURCE.indexOf('case COIN_CLASS:', cFoodStart);
+    const jsFoodStart = OBJNAM_JS_SOURCE.indexOf('case FOOD_CLASS:',
+        OBJNAM_JS_SOURCE.indexOf('function xnameBase('));
+    const jsFoodEnd = OBJNAM_JS_SOURCE.indexOf('case COIN_CLASS:', jsFoodStart);
+    const cFoodBody = OBJNAM_SOURCE.slice(cFoodStart, cFoodEnd);
+    const jsFoodBody = OBJNAM_JS_SOURCE.slice(jsFoodStart, jsFoodEnd);
+    assert.ok(cFoodStart >= 0 && cFoodEnd > cFoodStart);
+    assert.ok(jsFoodStart >= 0 && jsFoodEnd > jsFoodStart);
+    assert.ok(cFoodBody.indexOf('if (iflags.partly_eaten_hack && obj->oeaten)')
+        < cFoodBody.indexOf('if (obj->globby)'));
+    assert.ok(jsFoodBody.indexOf('const partlyEaten = state.iflags?.partly_eaten_hack')
+        < jsFoodBody.indexOf('if (obj.globby)'));
 });
 
 // C ref: objnam.c doname_base():1549-1559, which names the gender stored in

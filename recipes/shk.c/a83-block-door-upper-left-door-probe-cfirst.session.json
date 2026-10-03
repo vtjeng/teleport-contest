@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhhh"
+    }
+  ],
+  "comment": "C-first upper-left doorway probe for block_door. The D:5 wizard map shows a corridor at (9,7) immediately east of the doorway at (8,7); from the observed initial cursor (55,17), the controlled teleport targets the corridor, then four west moves cross the door and room threshold. This is exploratory unless C reports shop entry."
+}

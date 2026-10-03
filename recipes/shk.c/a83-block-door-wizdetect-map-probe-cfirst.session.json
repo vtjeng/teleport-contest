@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n#wizdetect\n"
+    }
+  ],
+  "comment": "C-first diagnostic probe: reach D:5 from the recorded candidate setup and run the existing wizard monster-detection command to reveal all level monsters, including any shopkeeper, on the map. This helps select a real shop route; it is not block_door runtime evidence."
+}

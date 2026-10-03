@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20420403172200",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  lllllllllllllllk. llkkkjj"
+    }
+  ],
+  "comment": "C-first east-room entry probe for block_door. The D:5 map has a distinct room with a door at (72,14). This route teleports into its observed interior, walks back out through the doorway, then crosses into the room again so C's movement entry path can reveal whether it is a shop. It is setup exploration, not completion evidence without the C shop response."
+}

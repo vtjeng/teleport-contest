@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20420403172200",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  hhhhhkk. "
+    }
+  ],
+  "comment": "C-first interior-location probe for block_door. The wizard map for the independently selected D:5 seed shows a bounded room beside the hero; controlled teleport moves five columns west and two rows north from the observed initial square to a walkable interior candidate. The recipe records C's response only; this probe is not runtime evidence unless C identifies the location as a shop."
+}

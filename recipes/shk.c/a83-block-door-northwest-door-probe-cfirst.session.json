@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkkk. hhhh"
+    }
+  ],
+  "comment": "C-first upper-room doorway trace for block_door. The D:5 wizard map shows an upper room whose doorway is at (23,4), with corridor floor immediately east at (24,4). From initial cursor (55,17), controlled teleport targets that corridor; four west commands test door refusal/opening and crossing into the room. This probe is exploratory until C emits shop-specific output."
+}

@@ -53,7 +53,6 @@ import {
     AS_MON_IS_UNIQUE,
     AS_OK,
     FAILEDUNTRAP,
-    FAINTED,
     FIRE_RES,
     FIRE_TRAP,
     FINGER,
@@ -325,6 +324,7 @@ import { trap_to_defsym } from './symbols.js';
 import { halu_trapnames } from './trap_names_data.js';
 import { set_levltyp } from './terrain.js';
 import { burn_away_slime, spot_stop_timers } from './timeout.js';
+import { is_fainted } from './eat.js';
 import {
     dofiretrap, dotrap, feeltrap, mintrap, m_easy_escape_pit,
 } from './trap_effects.js';
@@ -1403,7 +1403,7 @@ export async function drown(state = game) {
         || can_teleport(state.youmonst?.data);
     const teleportControl = activeHeroProperty(state, TELEPORT_CONTROL);
     const unaware = Math.trunc(state.multi ?? 0) < 0
-        && (unconscious(state) || u.uhs === FAINTED);
+        && (unconscious(state) || is_fainted(state));
     if (teleports && !unaware
         && (teleportControl || rn2(3) < (u.uluck ?? 0) + 2)) {
         await ttyPline('You attempt a teleport spell.', state);
@@ -1423,7 +1423,7 @@ export async function drown(state = game) {
         if (!is_pool(u.ux, u.uy, state)) return true;
     }
     if (u.usleep) await unmul('Suddenly you wake up!', state);
-    if (u.uhs === FAINTED) note_unported('eat.c reset_faint');
+    if (is_fainted(state)) note_unported('eat.c reset_faint');
 
     const destination = (state.multi ?? 0) >= 0
         && state.youmonst?.data?.mmove
@@ -1727,10 +1727,9 @@ function heroIsBlindForLava(state) {
         && !blindness?.blocked);
 }
 
-// C ref: trap.c unconscious() (6775-6786). The larger half of youprop.h:399
-// Unaware, which is `gm.multi < 0 && (unconscious() || is_fainted())`; eat.c
-// is_fainted() is the other half and is one field read, so each caller spells
-// Unaware out around this.
+// C ref: trap.c unconscious() (6775-6786). The youprop.h:399 Unaware macro
+// combines this pending-message query with eat.c:is_fainted(); the JS caller
+// preserves that same composition through the canonical helper.
 //
 // C reads the pending gn.nomovemsg to tell an immobilized hero apart from an
 // insensible one: only the three messages that announce coming round mean the

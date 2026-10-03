@@ -195,7 +195,11 @@ function plainFumblingState() {
         usteed: null,
         uinwater: false,
         uinvulnerable: false,
-        uprops: [],
+        // Match u_init.c: zeroProperties(): every property slot carries all
+        // three C state fields read by weight_cap during timer cleanup.
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+            intrinsic: 0, extrinsic: 0, blocked: 0,
+        })),
         acurr: { a: [10, 10, 10, 10, 10, 10] },
         abon: [0, 0, 0, 0, 0, 0],
         atemp: [0, 0, 0, 0, 0, 0],
@@ -1830,6 +1834,33 @@ test('spot_stop_timers removes only the matching packed-coordinate timer', () =>
 });
 
 test('spot timer queries match level kind, coordinate, and current move', () => {
+    const cExpiresStart = C_TIMEOUT.indexOf(
+        'spot_time_expires(coordxy x, coordxy y, short func_index)',
+    );
+    const cExpiresEnd = C_TIMEOUT.indexOf('\nlong\nspot_time_left(', cExpiresStart);
+    const cExpires = C_TIMEOUT.slice(cExpiresStart, cExpiresEnd);
+    const cLeftStart = C_TIMEOUT.indexOf(
+        'spot_time_left(coordxy x, coordxy y, short func_index)',
+    );
+    const cLeftEnd = C_TIMEOUT.indexOf('\n/* Insert timer', cLeftStart);
+    const cLeft = C_TIMEOUT.slice(cLeftStart, cLeftEnd);
+    const jsExpiresStart = JS_TIMEOUT.indexOf('export function spot_time_expires(');
+    const jsExpiresEnd = JS_TIMEOUT.indexOf('\n}', jsExpiresStart) + 2;
+    const jsLeftStart = JS_TIMEOUT.indexOf('export function spot_time_left(');
+    const jsLeftEnd = JS_TIMEOUT.indexOf('\n}', jsLeftStart) + 2;
+    assert.ok(cExpiresStart >= 0 && cExpiresEnd > cExpiresStart);
+    assert.ok(cLeftStart >= 0 && cLeftEnd > cLeftStart);
+    assert.ok(jsExpiresStart >= 0 && jsExpiresEnd > jsExpiresStart);
+    assert.ok(jsLeftStart >= 0 && jsLeftEnd > jsLeftStart);
+    assert.match(cExpires,
+        /where = \(\(\(long\) x << 16\) \| \(\(long\) y\)\)[\s\S]*curr->kind == TIMER_LEVEL && curr->func_index == func_index[\s\S]*curr->arg\.a_long == where[\s\S]*return 0L;/u);
+    assert.match(cLeft,
+        /spot_time_expires\(x, y, func_index\)[\s\S]*\(expires > 0L\) \? expires - svm\.moves : 0L/u);
+    assert.match(JS_TIMEOUT.slice(jsExpiresStart, jsExpiresEnd),
+        /timer\.kind === TIMER_LEVEL[\s\S]*timer\.func_index === funcIndex[\s\S]*timer\.arg === coordinate/u);
+    assert.match(JS_TIMEOUT.slice(jsLeftStart, jsLeftEnd),
+        /expires > 0 \? expires - currentMove\(state\) : 0/u);
+
     // timeout.c:2443-2463 scans for the absolute expiration first, then
     // subtracts svm.moves. An object timer with the same index and numeric
     // argument must not satisfy the level-timer query.

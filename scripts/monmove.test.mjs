@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -102,6 +103,7 @@ import { noteleport_level } from '../js/teleport.js';
 import { create_region } from '../js/region.js';
 import {
     accessible,
+    closed_door,
     can_fog,
     can_hide_under_obj,
     can_ooze,
@@ -129,6 +131,9 @@ import {
     should_displace,
     undesirable_disp,
 } from '../js/monmove.js';
+
+const ENGRAVE_C = readFileSync('nethack-c/upstream/src/engrave.c', 'utf8');
+const ENGRAVE_JS = readFileSync('js/engrave.js', 'utf8');
 // mon_allowflags() is a mon.c function and lives in js/mon.js. Its cases stay
 // here because makeState() and ordinaryMonster() below build the level, hero
 // and species records they need, and mfndpos() -- the one caller C wrote it
@@ -4555,6 +4560,32 @@ test('accessible uses closed-door and raised-drawbridge surface rules', () => {
     assert.equal(accessible(4, 1, state), false);
 });
 
+test('closed_door matches C door type and closed-mask checks', () => {
+    const cSource = readFileSync('nethack-c/upstream/src/monmove.c', 'utf8');
+    const jsSource = readFileSync('js/monmove.js', 'utf8');
+    const cStart = cSource.indexOf('closed_door(coordxy x, coordxy y)');
+    const cEnd = cSource.indexOf('\nboolean\naccessible(', cStart);
+    const jsStart = jsSource.indexOf('export function closed_door(');
+    const jsEnd = jsSource.indexOf('\n}', jsStart) + 2;
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cSource.slice(cStart, cEnd),
+        /IS_DOOR\(levl\[x\]\[y\]\.typ\)[\s\S]*\(levl\[x\]\[y\]\.doormask & \(D_LOCKED \| D_CLOSED\)\)/u);
+    assert.match(jsSource.slice(jsStart, jsEnd),
+        /location\?\.typ === DOOR[\s\S]*doorMask\(location\) & \(D_LOCKED \| D_CLOSED\)/u);
+
+    const { locations, state } = makeState();
+    // These adjacent in-bounds cells isolate C's closed/locked mask from an open door and non-door.
+    locations.set('2,1', { typ: DOOR, flags: D_CLOSED });
+    locations.set('3,1', { typ: DOOR, flags: D_LOCKED });
+    locations.set('4,1', { typ: DOOR, flags: D_ISOPEN });
+    locations.set('5,1', { typ: ROOM, flags: 0 });
+    assert.equal(closed_door(2, 1, state), true);
+    assert.equal(closed_door(3, 1, state), true);
+    assert.equal(closed_door(4, 1, state), false);
+    assert.equal(closed_door(5, 1, state), false);
+});
+
 test('can_ooze preserves the source inventory-width whitelist', () => {
     const { state } = makeState();
     const monster = newMonster({ data: state.mons[PM_FOG_CLOUD] });
@@ -4604,6 +4635,21 @@ test('can_fog checks vampire form, genocide, protection, and inventory', () => {
 });
 
 test('sengr_at preserves strict, timing, headstone, and case rules', () => {
+    const cStart = ENGRAVE_C.indexOf(
+        'sengr_at(const char *s, coordxy x, coordxy y, boolean strict)',
+    );
+    const cEnd = ENGRAVE_C.indexOf('\nvoid\nu_wipe_engr', cStart);
+    const cBody = ENGRAVE_C.slice(cStart, cEnd);
+    const jsStart = ENGRAVE_JS.indexOf('export function sengr_at(');
+    const jsEnd = ENGRAVE_JS.indexOf('\n}', jsStart) + 2;
+    const jsBody = ENGRAVE_JS.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cBody,
+        /ep->engr_type != HEADSTONE && ep->engr_time <= svm\.moves[\s\S]*strict \? !strcmpi\(ep->engr_txt\[actual_text\], s\)[\s\S]*strstri\(ep->engr_txt\[actual_text\], s\)/u);
+    assert.match(jsBody,
+        /engraving\.engr_type === HEADSTONE[\s\S]*engraving\.engr_time > state\.moves[\s\S]*const actual = asciiCaseFold[\s\S]*const wanted = asciiCaseFold[\s\S]*strict \? actual === wanted : actual\.includes\(wanted\)/u);
+
     const { state } = makeState();
     state.moves = 20;
     const engraving = make_engr_at(

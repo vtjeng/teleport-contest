@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhhh,"
+    }
+  ],
+  "comment": "C-first shop inventory probe for block_door. The date-matched D:5 map shows the store entrance at the upper-left door; from the observed hero/cursor start (55,17), the recipe controlled-teleports to its east corridor, crosses the doorway, enters Vals’ liquor emporium, then requests floor pickup. This probe captures C’s actual stock/menu before freezing the blocked-door route; not completion evidence by itself."
+}

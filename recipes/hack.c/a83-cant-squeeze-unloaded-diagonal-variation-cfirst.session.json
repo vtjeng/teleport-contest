@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 62046817,
+      "datetime": "20410709142600",
+      "nethackrc": "OPTIONS=name:SqueezeWitness,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": ".l\u0017wall\nhj\u0017wall\nkn"
+    }
+  ],
+  "comment": "One-factor control for the C-first diagonal squeeze recipe: same independent character, seed, date, wall geometry, and diagonal target, but omit cursed loadstones. The source helper should execute after both bad_rock tests and return zero instead of the overweight reason. Freeze and verify C's observed route before replay."
+}
