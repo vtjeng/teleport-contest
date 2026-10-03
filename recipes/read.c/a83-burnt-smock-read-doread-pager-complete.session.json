@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-observed pager continuation of the burnt alchemy-smock read route. read.c computes apron_text before pline(\"It reads:\"); the first frozen record ended at that C-observed More. This input adds one space to dismiss that boundary and capture the quote itself. It preserves the same independent Wizard, seed, date, and burnt smock so only the observed pager continuation changes.",
+  "segments": [
+    {
+      "seed": 87242027,
+      "datetime": "20460317112000",
+      "nethackrc": "OPTIONS=name:BurntSmockProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017burnt alchemy smock\nro "
+    }
+  ]
+}

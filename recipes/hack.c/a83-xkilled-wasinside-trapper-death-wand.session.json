@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 C-observed continuation for mon.c:xkilled when the hero is swallowed. C wand inventory listed p as an iridium wand, the wished wand of death’s appearance; select it and aim at the current swallower with the swallowed-target `.` direction. This frozen input is intended to kill the trapper, invoke xkilled while wasinside is true, and execute the copied-monster/spoteffects order.",
+  "segments": [
+    {
+      "seed": 77482061,
+      "datetime": "20261002174500",
+      "nethackrc": "OPTIONS=name:A83SwallowedKill,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of death\n#wizgenesis\n1 hostile trapper\n.. z?p."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation probe from the independently chosen 8439201/20381117121000 setup. The `?` key asks the put-on menu for its inventory description before selecting the life-saving amulet; this prevents guessing the item letter.",
+  "segments": [
+    {
+      "seed": 8439201,
+      "datetime": "20381117121000",
+      "nethackrc": "OPTIONS=name:DrownRescue,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP?"
+    }
+  ]
+}

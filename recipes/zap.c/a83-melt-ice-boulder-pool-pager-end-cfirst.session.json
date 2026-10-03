@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the ordinary-ROOM ICE boulder route. The prior recorded fire zap showed `rn2(10)=1 @ do.c:boulder_hits_pool:61` and the settled-boulder More boundary; this frozen input dismisses that exact final More so the completed melt call and resulting square are captured. No further action is added.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMelt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn lzoh "
+    }
+  ]
+}

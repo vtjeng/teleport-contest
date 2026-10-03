@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source-affecting ICED_MOAT variation with Fire resistance and Flying selected through #wizintrinsic. The pool wish before ICE selects the original MOAT result; boulder melt fills that MOAT. Fire resistance exercises zhitu's source resistance branch and avoids the lethal unresisted continuation. The observed three-space suffix dismisses settlement, splash and hit messages through the returned command boundary.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMoatFireRes,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\n>i>k\n \u0017pool\n\u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn lzoh   "
+    }
+  ]
+}

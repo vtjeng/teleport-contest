@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first role/capacity route. The C-observed Valkyrie inventory menu establishes amulet e, spear a, dagger b, shield c and ration d. Take off the shield and use four ordinary single-item `d` commands on a-d, leaving only the worn life-saving amulet; then wish ten cursed loadstones, which C confirms make the hero overloaded. At the pool emergency_disrobe's source-selected inventory contains only undroppable amulet/loadstones, returns false without do.c:dropx, then life-saving reaches safe_teleds. Input ends at the safe-teleport `You are back on solid ground` More, before dismissing into trap.c:rescued_from_terrain.",
+  "segments": [
+    {
+      "seed": 6042026,
+      "datetime": "20400202110000",
+      "nethackrc": "OPTIONS=name:DrownValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP? eTdadbdcdd\u001710 cursed loadstones\n\u0017pool\n.     "
+    }
+  ]
+}

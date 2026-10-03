@@ -1,8 +1,8 @@
 // Monster movement decisions, actions, and item search.
 // C ref: monmove.c.  Every function ported from that file lives here.
 //
-// Four functions here come from other C files and have not moved yet:
-//   mon.c    m_in_air(), mfndpos(), monnear()
+// Three functions here come from other C files and have not moved yet:
+//   mon.c    mfndpos(), monnear()
 //   trap.c   m_harmless_trap()
 // mfndpos() and its helpers are about 540 lines and call back into can_fog(),
 // monhaskey(), m_can_break_boulder(), closed_door(), accessible(), and
@@ -102,6 +102,7 @@ import {
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
     MS_BRIBE,
+    MS_CUSS,
     MOAT,
     MON_POLE_DIST,
     MTSZ,
@@ -169,6 +170,7 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { artifactTouchable, artifact_light, has_magic_key } from './artifacts.js';
@@ -186,7 +188,7 @@ import {
 import { dogfood } from './dogfood.js';
 import { is_digging, mdig_tunnel, watch_dig } from './dig.js';
 import { could_reach_item } from './dogmove.js';
-import { has_ceiling, Is_special, on_level, u_on_newpos } from './dungeon.js';
+import { Is_special, on_level, u_on_newpos } from './dungeon.js';
 import {
     bad_rock,
     cant_squeeze_thru,
@@ -202,10 +204,12 @@ import { sengr_at, wipe_engr_at } from './engrave.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
-import { delobj, money_cnt, obj_extract_self } from './invent.js';
+import { delobj, money_cnt, obj_extract_self, sobj_at } from './invent.js';
 import { picking_lock } from './lock.js';
 import { grow_up, set_malign } from './makemon.js';
-import { healmon, mnearto, mongone, newcham_distress } from './mon.js';
+import {
+    healmon, m_in_air, mnearto, mongone, newcham_distress,
+} from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import { ranged_attk_available } from './mhitu.js';
 import {
@@ -255,8 +259,6 @@ import {
     is_clinger,
     is_covetous,
     is_demon,
-    is_floater,
-    is_flyer,
     is_mind_flayer,
     is_minion,
     is_rider,
@@ -357,7 +359,6 @@ import {
     isContainer,
     objectType,
     remove_object,
-    sobj_at,
     splitobj,
 } from './obj.js';
 import {
@@ -430,7 +431,6 @@ import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
 import {
     count_traps,
-    is_lava,
     maketrap,
     t_at,
     unconscious,
@@ -1164,16 +1164,6 @@ async function watch_on_duty(mtmp, env = {}) {
     }
 }
 
-// C ref: mon.c m_in_air() (2128-2136). Clingers count only while concealed
-// against a ceiling; ordinary flyers and floaters are unconditional.
-export function m_in_air(monster, state = game) {
-    return is_flyer(monster.data)
-        || is_floater(monster.data)
-        || (is_clinger(monster.data)
-            && has_ceiling(state.u?.uz, state)
-            && monster.mundetected);
-}
-
 function isPick(obj, state) {
     return Boolean(obj && objectType(obj, state).oc_skill === P_PICK_AXE);
 }
@@ -1712,7 +1702,7 @@ function m_balks_at_approaching(oldappr, mtmp, state = game) {
 
 // C ref: monmove.c stuff_prevents_passage(). Keep the source's `otyp ==
 // COIN_CLASS` test: in this source tree, that names the generic coin slot.
-function stuffPreventsPassage(monster, state) {
+function stuff_prevents_passage(monster, state) {
     const chain = monster === state.youmonst
         ? state.invent
         : monster.minvent;
@@ -1765,7 +1755,7 @@ function stuffPreventsPassage(monster, state) {
 // C ref: monmove.c can_ooze().
 export function can_ooze(monster, state = game) {
     return amorphous(monster.data)
-        && !stuffPreventsPassage(monster, state);
+        && !stuff_prevents_passage(monster, state);
 }
 
 export { is_vampshifter };
@@ -1775,7 +1765,7 @@ export function can_fog(monster, state = game) {
     return !(state.mvitals?.[PM_FOG_CLOUD]?.mvflags & G_GENOD)
         && is_vampshifter(monster)
         && !propertyActive(state, PROT_FROM_SHAPE_CHANGERS)
-        && !stuffPreventsPassage(monster, state);
+        && !stuff_prevents_passage(monster, state);
 }
 
 // C ref: monmove.c vamp_shift() (2377-2397). A vampire shifts into the
@@ -2400,18 +2390,10 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //   mind_blast()                          wired for mind flayers
 //   killer bee jelly, gelcube_digests()   wired; the boundary rejects both species
 //   mon_offmap(), wormhitu()              unreachable on a fresh D:1 level
-//   cuss()                                no MS_CUSS species can be generated
-//                                         at the D:1 difficulty cap
+//   cuss()                                the source gate is ported below;
+//                                         wizard.c:cuss remains a void gap
 // A fleeing state is reachable for starting pets (after do_attack()'s
 // safe_pet refusal) and for hostile monsters (after monflee() calls).
-//
-// cuss() used to be listed with mon_offmap() and wormhitu() because only a
-// nearby monster reached it. It is not distance that stops it now: the
-// post-move break below carries a monster that is *not* nearby into the tail
-// of PHASE FOUR, where C's `inrange && msound == MS_CUSS && ... && !rn2(5)`
-// sits. What stops it is difficulty. makemon.c rndmonst_adj() caps a D:1
-// draw at (level_difficulty() + u.ulevel) / 2 = 1, and the lowest-difficulty
-// MS_CUSS species is the imp at 4.
 export async function dochug(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, rnd };
@@ -2767,6 +2749,19 @@ export async function dochug(monster, rawEnv = {}) {
         && ((range.inrange && !range.scared) || panicattk)
         && !noattacks(monster.data)) {
         await attackHero(monster, env);
+    }
+
+    // C ref: monmove.c:983-985.  This source-ordered gate also runs after a
+    // monster moved and can attack.  The call to wizard.c:cuss is void; retain
+    // the gate's draw, and record the unported callee without inventing its
+    // messages or random calls.
+    if (range.inrange
+        && monster.data?.msound === MS_CUSS
+        && !monster.mpeaceful
+        && couldsee(monster.mx, monster.my, state)
+        && !monster.minvis
+        && !random.rn2(5)) {
+        note_unported('wizard.c cuss');
     }
     return 0;
 }

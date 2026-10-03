@@ -24,6 +24,7 @@ import {
     HATCH_EGG,
     HALLUC,
     ICE,
+    ICED_POOL,
     INVULNERABLE,
     INVIS,
     LAST_PROP,
@@ -39,6 +40,7 @@ import {
     OBJ_INVENT,
     PASSES_WALLS,
     PLNMSG_ONE_ITEM_HERE,
+    POOL,
     REVIVE_MON,
     RIGHT_SIDE,
     ROT_CORPSE,
@@ -193,7 +195,11 @@ function plainFumblingState() {
         usteed: null,
         uinwater: false,
         uinvulnerable: false,
-        uprops: [],
+        // Match u_init.c: zeroProperties(): every property slot carries all
+        // three C state fields read by weight_cap during timer cleanup.
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+            intrinsic: 0, extrinsic: 0, blocked: 0,
+        })),
         acurr: { a: [10, 10, 10, 10, 10, 10] },
         abon: [0, 0, 0, 0, 0, 0],
         atemp: [0, 0, 0, 0, 0, 0],
@@ -322,6 +328,23 @@ test('timeout.c vomiting_dialogue preserves its countdown text rows and final CO
         assert.match(JS_TIMEOUT,
             /async function vomiting_dialogue\(state, env = \{\}\)[\s\S]*?switch \(timeout - 1\)[\s\S]*?case 14:[\s\S]*?case 11:[\s\S]*?case 6:[\s\S]*?case 9:[\s\S]*?case 8:[\s\S]*?case 5:[\s\S]*?case 2:[\s\S]*?case 0:[\s\S]*?exercise\(A_CON, false, state, random/u);
 
+        const cFinalCase = C_TIMEOUT.slice(
+            C_TIMEOUT.indexOf(
+                'case 0:', C_TIMEOUT.indexOf('vomiting_dialogue(void)\n{'),
+            ),
+            C_TIMEOUT.indexOf(
+                'default:', C_TIMEOUT.indexOf('vomiting_dialogue(void)\n{'),
+            ),
+        );
+        const jsFinalCase = JS_TIMEOUT.slice(
+            JS_TIMEOUT.indexOf('case 0:', JS_TIMEOUT.indexOf('vomiting_dialogue')),
+            JS_TIMEOUT.indexOf('default:', JS_TIMEOUT.indexOf('vomiting_dialogue')),
+        );
+        assert.match(cFinalCase,
+            /morehungry\(20\)[\s\S]*?You\("%s!"[\s\S]*?vomit\(\);/u);
+        assert.match(jsFinalCase,
+            /await morehungry\(20, state, env\)[\s\S]*?await message\([\s\S]*?await vomit\(state, \{ \.\.\.env, random, message \}\)/u);
+
         // Each timeout value is the C intrinsic count before the current
         // dialogue; subtracting one selects the numbered case in timeout.c.
         const textCases = [
@@ -388,8 +411,9 @@ test('vomiting_dialogue preserves case-six and case-zero call order', async () =
         'case 9 calls nomul(0) after make_confused when multi is positive');
 
     // Vomiting=1 selects C case 0. Hunger stays in its source status band so
-    // the only line is You("%s!", "vomit"); timeout.c decrements the
-    // property before make_vomiting(0, TRUE), so that helper sees old=0.
+    // the timeout and vomit helpers add no other message for the ordinary
+    // Healer form; `vomit()` still installs its two-turn movement lock before
+    // the unconditional Constitution exercise.
     const final = vomitingTimeoutState(1);
     const finalCalls = vomitingRandom();
     const finalMessages = [];
@@ -398,10 +422,12 @@ test('vomiting_dialogue preserves case-six and case-zero call order', async () =
         message: async (line) => finalMessages.push(line),
     });
     assert.deepEqual(finalCalls.bounds, [2],
-        'case 0 still reaches the helper’s unconditional CON exercise');
+        'case 0 reaches vomit() before the unconditional CON exercise');
     assert.deepEqual(finalMessages, ['You vomit!']);
     assert.equal(final.u.uhunger, 880,
-        'case 0 calls morehungry(20) before its discarded eat.c:vomit gap');
+        'case 0 calls morehungry(20) before eat.c:vomit');
+    assert.equal(final.multi_reason, 'vomiting',
+        'eat.c:vomit installs the movement lock after its timeout message');
     assert.equal(final.u.uprops[VOMITING].intrinsic, 0,
         'nh_timeout expires Vomiting only after the dialogue and exercise');
 });
@@ -1601,10 +1627,9 @@ test('every unported timeout row names its own C function', async () => {
         [ZOMBIFY_MON, 'zombify_mon'],
         [BURN_OBJECT, 'burn_object'],
         [HATCH_EGG, 'hatch_egg'],
-        [MELT_ICE_AWAY, 'melt_ice_away'],
     ];
-    // Three short of the enum: ROT_CORPSE, FIG_TRANSFORM, and SHRINK_GLOB.
-    assert.equal(rows.length, NUM_TIME_FUNCS - 3);
+    // Four short of the enum: ROT_CORPSE, FIG_TRANSFORM, SHRINK_GLOB, MELT_ICE_AWAY.
+    assert.equal(rows.length, NUM_TIME_FUNCS - 4);
 
     for (const [index, name] of rows) {
         const state = rottingState(100);
@@ -1700,16 +1725,57 @@ test('run_timers refuses a due corpse that carries a second timer', async () => 
     assert.equal(corpse.where, OBJ_FLOOR);
 });
 
-test('run_timers refuses a due timer that is not an object timer', async () => {
+test('run_timers refuses an unsupported level timer kind', async () => {
     const state = rottingState();
-    // timeout.h timer_is_pos(): MELT_ICE_AWAY is the only level timer, and its
-    // argument is a packed coordinate rather than an object.
-    start_timer(0, TIMER_LEVEL, 8 /* MELT_ICE_AWAY */, 5 * 0x10000 + 5, state);
+    // timeout.h permits positional timers only for MELT_ICE_AWAY; ROT_CORPSE
+    // with TIMER_LEVEL is not an admitted source pair.
+    start_timer(0, TIMER_LEVEL, ROT_CORPSE, 5 * 0x10000 + 5, state);
     await assert.rejects(
         run_timers(state, { newsym: () => {} }),
-        new RegExp(`every due timer to be an object timer, but kind `
+        new RegExp(`every due timer kind to have a supported handler, but kind `
             + `${TIMER_LEVEL} is due`, 'u'),
     );
+});
+
+test('run_timers dispatches the MELT_ICE_AWAY level callback', async () => {
+    const source = readFileSync(
+        new URL('../nethack-c/upstream/src/timeout.c', import.meta.url), 'utf8',
+    );
+    // Skip the earlier API comment and select the C definition itself.
+    const start = source.indexOf('\nrun_timers(void)\n{');
+    assert.notEqual(start, -1);
+    const end = source.indexOf('\n}', start) + 2;
+    const cRunTimers = source.slice(start, end);
+    const cTable = source.slice(
+        source.indexOf('timeout_funcs[NUM_TIME_FUNCS]'),
+        source.indexOf('};', source.indexOf('timeout_funcs[NUM_TIME_FUNCS]')) + 2,
+    );
+    assert.match(cTable, /melt_ice_away,\s*\(timeout_proc\) 0, "melt_ice_away"/u);
+    assert.match(cRunTimers,
+        /timeout_funcs\[curr->func_index\]\.f\)\(&curr->arg, curr->timeout\)/u);
+
+    const state = rottingState();
+    const x = 5, y = 6; // The test square keeps the packed x/y timer argument distinct.
+    const square = state.level.at(x, y);
+    square.typ = ICE;
+    square.icedpool = ICED_POOL; // The source melts ICED_POOL back to POOL.
+    const where = (x << 16) | y;
+    state.context = { mon_moving: false };
+    start_timer(0, TIMER_LEVEL, MELT_ICE_AWAY, where, state);
+
+    await run_timers(state, {
+        canSee: () => false,
+        newSym: () => {},
+        newsym: () => {},
+        redraw: () => {},
+        message: async () => {},
+        norepMessage: async () => {},
+    });
+
+    assert.equal(square.typ, POOL);
+    assert.equal(square.icedpool, 0);
+    assert.equal(state.context.mon_moving, false);
+    assert.equal(state.gt.timer_base, null);
 });
 
 test('duplicate object timers are rejected without consuming an id', () => {
@@ -1768,6 +1834,33 @@ test('spot_stop_timers removes only the matching packed-coordinate timer', () =>
 });
 
 test('spot timer queries match level kind, coordinate, and current move', () => {
+    const cExpiresStart = C_TIMEOUT.indexOf(
+        'spot_time_expires(coordxy x, coordxy y, short func_index)',
+    );
+    const cExpiresEnd = C_TIMEOUT.indexOf('\nlong\nspot_time_left(', cExpiresStart);
+    const cExpires = C_TIMEOUT.slice(cExpiresStart, cExpiresEnd);
+    const cLeftStart = C_TIMEOUT.indexOf(
+        'spot_time_left(coordxy x, coordxy y, short func_index)',
+    );
+    const cLeftEnd = C_TIMEOUT.indexOf('\n/* Insert timer', cLeftStart);
+    const cLeft = C_TIMEOUT.slice(cLeftStart, cLeftEnd);
+    const jsExpiresStart = JS_TIMEOUT.indexOf('export function spot_time_expires(');
+    const jsExpiresEnd = JS_TIMEOUT.indexOf('\n}', jsExpiresStart) + 2;
+    const jsLeftStart = JS_TIMEOUT.indexOf('export function spot_time_left(');
+    const jsLeftEnd = JS_TIMEOUT.indexOf('\n}', jsLeftStart) + 2;
+    assert.ok(cExpiresStart >= 0 && cExpiresEnd > cExpiresStart);
+    assert.ok(cLeftStart >= 0 && cLeftEnd > cLeftStart);
+    assert.ok(jsExpiresStart >= 0 && jsExpiresEnd > jsExpiresStart);
+    assert.ok(jsLeftStart >= 0 && jsLeftEnd > jsLeftStart);
+    assert.match(cExpires,
+        /where = \(\(\(long\) x << 16\) \| \(\(long\) y\)\)[\s\S]*curr->kind == TIMER_LEVEL && curr->func_index == func_index[\s\S]*curr->arg\.a_long == where[\s\S]*return 0L;/u);
+    assert.match(cLeft,
+        /spot_time_expires\(x, y, func_index\)[\s\S]*\(expires > 0L\) \? expires - svm\.moves : 0L/u);
+    assert.match(JS_TIMEOUT.slice(jsExpiresStart, jsExpiresEnd),
+        /timer\.kind === TIMER_LEVEL[\s\S]*timer\.func_index === funcIndex[\s\S]*timer\.arg === coordinate/u);
+    assert.match(JS_TIMEOUT.slice(jsLeftStart, jsLeftEnd),
+        /expires > 0 \? expires - currentMove\(state\) : 0/u);
+
     // timeout.c:2443-2463 scans for the absolute expiration first, then
     // subtracts svm.moves. An object timer with the same index and numeric
     // argument must not satisfy the level-timer query.

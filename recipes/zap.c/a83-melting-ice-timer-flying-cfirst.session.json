@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first source route frozen from the prior menu observation. The setup probe showed that `>f` selects pass through walls, so this recipe uses the recorded third-page `>>k` Flying choice from the C intrinsic menu. It then wishes melting ICE under the flying hero so objnam.c:wizterrainwish starts the source timer. No JavaScript comparison has been made.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceTimer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n>>k\n\u0017melting ice\n"
+    }
+  ]
+}

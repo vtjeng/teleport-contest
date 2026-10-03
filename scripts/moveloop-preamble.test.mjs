@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { NORMAL_SPEED, STAIRS, STONE } from '../js/const.js';
+import { LAST_PROP, NORMAL_SPEED, STAIRS, STONE } from '../js/const.js';
 import { flush_screen } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -52,6 +52,13 @@ function preambleState(datetime, keys = '') {
         uz: { dnum: 3, dlevel: 8 },
         // A distinct dungeon number proves that allmain.c only copies dlevel.
         uz0: { dnum: 9, dlevel: 2 },
+        // u_init.c zeroProperties() initializes every slot before this
+        // fixture reaches status and carrying-capacity updates.
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+            intrinsic: 0,
+            extrinsic: 0,
+            blocked: 0,
+        })),
     };
     // botl.c describe_level() reaches dungeon.c depth(), which reads
     // svd.dungeons[u.uz.dnum].depth_start. Tests below leave the hero in

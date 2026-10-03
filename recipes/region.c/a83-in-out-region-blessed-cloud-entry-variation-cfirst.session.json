@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 202610031,
+      "datetime": "20441003093000",
+      "nethackrc": "OPTIONS=name:GasEntryA83,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017blessed scroll of stinking cloud\nro    llll.llll"
+    }
+  ],
+  "_comment": "Cheap source-affecting variation of the cursed cloud witness: bless the wished scroll so C read.c:do_stinking_cloud changes cloudsize/damage to 25/12. The cursor center and movement are four tiles east, then the hero walks into and across the larger region. The size change is the input variation; Orc poison resistance makes the callback path safe. Inputs are frozen before recording; this covers active gas membership and inside callback, not disabled transition callback slots."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first input attempt. The first trailing space dismisses the vomiting More; after eat.c:vomit sets multi=-2, C continues through the forced turns and prints \"You can move again.\" without another More. The second trailing space is therefore an extra unknown command and is not part of the final recipe. The C recording remains in .cache/A83-logs.",
+  "segments": [
+    {
+      "seed": 45317921,
+      "datetime": "20280115140720",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding4,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n4q\n #wizintrinsic\n1k\n .  "
+    }
+  ]
+}

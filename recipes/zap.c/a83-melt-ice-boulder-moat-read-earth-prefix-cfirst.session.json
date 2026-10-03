@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only source-affecting prefix variation for the boulder-on-ICE route. A pool wish before ICE makes wizterrainwish choose ICED_MOAT from the observed old POOL type; the same cursed scroll of earth then targets the hero-square boulder branch. C-observed inventory places the scroll at n and wand at o. Stop after `rn` to verify the MOAT substrate and pager boundary before freezing the fire suffix; this prefix is not a regression recording.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMoat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017pool\n\u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn"
+    }
+  ]
+}

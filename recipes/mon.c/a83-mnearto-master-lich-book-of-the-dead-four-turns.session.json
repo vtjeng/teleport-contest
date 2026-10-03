@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation of the preserved one-wait attempt: its first hero turn shows no tactics call, so this frozen recipe gives the peaceful master lich four ordinary rest turns for source-owned mcalcmove scheduling. The held Book of the Dead makes the master lich choose STRAT_PLAYER; retain every input and stop after this bounded four-turn window.",
+  "segments": [
+    {
+      "seed": 948211,
+      "datetime": "20341112142200",
+      "nethackrc": "OPTIONS=name:BookTarget,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizwish\nThe Book of the Dead\n#wizgenesis\npeaceful master lich\n...."
+    }
+  ]
+}

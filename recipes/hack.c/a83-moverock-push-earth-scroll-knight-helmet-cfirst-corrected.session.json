@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first setup correction after the prior recipe showed the initial 'Salutations wizard' welcome consumes an opening key. This version dismisses the greeting and confirms Flying, but the cursed earth scroll is created in observed inventory slot i; the inherited read key p produces 'You don't have that object.' It does not exercise Knight helmet protection or moverock_core. The next frozen correction uses the source-observed slot i; this remains a setup miss, not runtime evidence.",
+  "segments": [
+    {
+      "seed": 85216479,
+      "datetime": "20430618094200",
+      "nethackrc": "OPTIONS=name:A83KnightBoulder,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": " #wizintrinsic\n>>k\n \u0017pool\nl#wizwish\ncursed scroll of earth\nrp  lh"
+    }
+  ]
+}

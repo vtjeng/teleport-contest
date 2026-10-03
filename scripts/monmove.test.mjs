@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -61,6 +62,7 @@ import {
     MMOVE_MOVED,
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
+    MS_CUSS,
     NEED_WEAPON,
     NOGARLIC,
     NOTONL,
@@ -103,6 +105,7 @@ import { noteleport_level } from '../js/teleport.js';
 import { create_region } from '../js/region.js';
 import {
     accessible,
+    closed_door,
     can_fog,
     can_hide_under_obj,
     can_ooze,
@@ -117,7 +120,6 @@ import {
     m_everyturn_effect,
     m_harmless_trap,
     find_pmmonst,
-    m_in_air,
     mfndpos,
     mon_track_add,
     monhaskey,
@@ -131,6 +133,10 @@ import {
     should_displace,
     undesirable_disp,
 } from '../js/monmove.js';
+
+const ENGRAVE_C = readFileSync('nethack-c/upstream/src/engrave.c', 'utf8');
+const ENGRAVE_JS = readFileSync('js/engrave.js', 'utf8');
+const MONMOVE_C = readFileSync('nethack-c/upstream/src/monmove.c', 'utf8');
 // mon_allowflags() is a mon.c function and lives in js/mon.js. Its cases stay
 // here because makeState() and ordinaryMonster() below build the level, hero
 // and species records they need, and mfndpos() -- the one caller C wrote it
@@ -139,6 +145,7 @@ import { lined_up } from '../js/mthrowu.js';
 import {
     mm_aggression,
     mm_displacement,
+    m_in_air,
     mon_allowflags,
     monlineu,
 } from '../js/mon.js';
@@ -152,6 +159,7 @@ import {
     MS_LEADER,
     PM_AMOROUS_DEMON,
     PM_ANGEL,
+    PM_ARCHON,
     PM_DEATH,
     PM_DISPLACER_BEAST,
     PM_DWARF,
@@ -190,8 +198,10 @@ import {
     monst_globals_init,
     reset_mvitals,
 } from '../js/monsters.js';
+import { game } from '../js/gstate.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
+import { initUnported } from '../js/unported.js';
 import { init_objects } from '../js/o_init.js';
 import {
     ARROW,
@@ -3283,6 +3293,115 @@ test('dochug gives Conflict monsters the source movement turn', async () => {
 
 // monmove.c:967.  The phase-four Conflict disjunct has no iswiz exception;
 // even a peaceful wizard rolls resist_conflict() before it attacks.
+test('dochug preserves the post-phase-four MS_CUSS gate', async () => {
+    // The defaults make an awake, hostile, visible, adjacent Archon eligible
+    // for C's final cuss test; each variation below disables one C predicate.
+    async function run({
+        inrange = true,
+        msound = MS_CUSS,
+        mpeaceful = false,
+        minvis = 0,
+        visible = true,
+        cussDraw = 0,
+    } = {}) {
+        const { state } = makeState();
+        // Use the Archon from the assigned v21 case: it is the concrete
+        // MS_CUSS species whose source gate this test pins.
+        const archon = state.mons[PM_ARCHON];
+        assert.equal(archon.msound, MS_CUSS);
+        const monster = ordinaryMonster(state, {
+            data: msound === MS_CUSS ? archon : { ...archon, msound },
+            mnum: PM_ARCHON,
+            // Keep the Archon adjacent to the hero's (10,10) fixture square.
+            mx: 9,
+            my: 10,
+            mux: 10,
+            muy: 10,
+            // An awake, sighted fixture avoids unrelated sleeping/blind gates.
+            mcanmove: true,
+            mcansee: true,
+            mpeaceful,
+            minvis,
+            // Keep the Archon's unrelated special-action cooldown active.
+            mspec_used: 1,
+            // These hp values keep the ordinary monster fixture alive through
+            // the mocked attack callback; the callback itself does no damage.
+            mhp: 20,
+            mhpmax: 20,
+        });
+        if (visible) seeSquare(state, monster.mx, monster.my);
+
+        const draws = [];
+        const events = [];
+        // The test controls only the inrange predicate; nearby remains true
+        // and scared false so phase four reaches its ordinary attack path.
+        const range = { nearby: true, inrange, scared: false };
+        initUnported();
+        await dochug(monster, {
+            state,
+            random: {
+                rn2(bound) {
+                    draws.push(bound);
+                    events.push(`rn2(${bound})`);
+                    // One avoids unrelated movement sub-branches; cussDraw
+                    // supplies the explicit rn2(5) boundary value.
+                    return bound === 5 ? cussDraw : 1;
+                },
+                rnd() { assert.fail('unexpected rnd draw'); },
+            },
+            preflight() {},
+            usePreMoveItems: () => false,
+            moveMonster() { return MMOVE_DONE; },
+            attackHero() { events.push('attackHero'); },
+            wakeMessage() {},
+            monFlee() {},
+            monsterCanSeeHero: () => true,
+            unsupported: (reason) => assert.fail(`unexpected refusal: ${reason}`),
+            castUndirectedSpell: () => false,
+            distanceAndFear: () => range,
+            setApparentHero() {},
+            wipeEngraving() {},
+            wieldPreMoveWeapon: () => false,
+            redraw() {},
+            questStatCheck() {},
+            questTalk() {},
+        });
+        const unported = [...game.unported];
+        initUnported();
+        return { draws, events, unported };
+    }
+
+    const skipped = [
+        { inrange: false },
+        // 0 is a different monster sound value from Archon's MS_CUSS value.
+        { msound: 0 },
+        { mpeaceful: true },
+        { visible: false },
+        // A minvisible Archon takes the earlier movement rn2(3), then fails
+        // C's !minvis cuss gate without consuming the later rn2(5).
+        { minvis: 1 },
+    ];
+    for (const variation of skipped) {
+        const result = await run(variation);
+        // A visible minvis Archon consumes the preceding movement rn2(3);
+        // the other disabled predicates stop before any random call.
+        assert.deepEqual(result.draws, variation.minvis ? [3] : []);
+        assert.equal(result.unported.includes('wizard.c cuss'), false);
+    }
+
+    // The C condition is !rn2(5): four misses the cuss branch; zero enters it.
+    const gateMiss = await run({ cussDraw: 4 });
+    // Bound 5 is the only draw: C's !rn2(5) gate fails at value 4.
+    assert.deepEqual(gateMiss.draws, [5]);
+    assert.equal(gateMiss.unported.includes('wizard.c cuss'), false);
+
+    const gateHit = await run({ cussDraw: 0 });
+    // The event order pins PHASE FOUR's attack callback before the cuss roll.
+    assert.deepEqual(gateHit.draws, [5]);
+    assert.deepEqual(gateHit.events, ['attackHero', 'rn2(5)']);
+    assert.deepEqual(gateHit.unported, ['wizard.c cuss']);
+});
+
 test('dochug applies the phase-four Conflict roll to peaceful wizards', async () => {
     const { state } = makeState();
     state.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
@@ -3595,7 +3714,7 @@ test('mon_allowflags uses polymorphed Charisma for conflict resistance', () => {
     assert.equal(charisma(S_HUMAN, PM_HUMAN, 10), 10, 'no form, no floor');
 });
 
-test('movement terrain helpers preserve walls, boulders, and ceilings', () => {
+test('movement terrain helpers and mon.c m_in_air preserve boundaries', () => {
     const { locations, state } = makeState();
     locations.set('3,3', { typ: STONE, flags: 0, wall_info: 0 });
     assert.equal(may_dig(3, 3, state), true);
@@ -3614,6 +3733,8 @@ test('movement terrain helpers preserve walls, boulders, and ceilings', () => {
     state.level.objects[6][6] = objectFor(state, BOULDER);
     assert.equal(bad_rock(human, 6, 6, state), true);
 
+    // m_in_air() is the selected mon.c unit and is owned by js/mon.js; the
+    // shared movement fixture keeps its ceiling and level values observable.
     const floater = newMonster({ data: state.mons[PM_FLOATING_EYE] });
     assert.equal(m_in_air(floater, state), true);
     const clinger = newMonster({
@@ -4557,7 +4678,48 @@ test('accessible uses closed-door and raised-drawbridge surface rules', () => {
     assert.equal(accessible(4, 1, state), false);
 });
 
+test('closed_door matches C door type and closed-mask checks', () => {
+    const cSource = readFileSync('nethack-c/upstream/src/monmove.c', 'utf8');
+    const jsSource = readFileSync('js/monmove.js', 'utf8');
+    const cStart = cSource.indexOf('closed_door(coordxy x, coordxy y)');
+    const cEnd = cSource.indexOf('\nboolean\naccessible(', cStart);
+    const jsStart = jsSource.indexOf('export function closed_door(');
+    const jsEnd = jsSource.indexOf('\n}', jsStart) + 2;
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cSource.slice(cStart, cEnd),
+        /IS_DOOR\(levl\[x\]\[y\]\.typ\)[\s\S]*\(levl\[x\]\[y\]\.doormask & \(D_LOCKED \| D_CLOSED\)\)/u);
+    assert.match(jsSource.slice(jsStart, jsEnd),
+        /location\?\.typ === DOOR[\s\S]*doorMask\(location\) & \(D_LOCKED \| D_CLOSED\)/u);
+
+    const { locations, state } = makeState();
+    // These adjacent in-bounds cells isolate C's closed/locked mask from an open door and non-door.
+    locations.set('2,1', { typ: DOOR, flags: D_CLOSED });
+    locations.set('3,1', { typ: DOOR, flags: D_LOCKED });
+    locations.set('4,1', { typ: DOOR, flags: D_ISOPEN });
+    locations.set('5,1', { typ: ROOM, flags: 0 });
+    assert.equal(closed_door(2, 1, state), true);
+    assert.equal(closed_door(3, 1, state), true);
+    assert.equal(closed_door(4, 1, state), false);
+    assert.equal(closed_door(5, 1, state), false);
+});
+
 test('can_ooze preserves the source inventory-width whitelist', () => {
+    // C monmove.c:2319-2355 calls stuff_prevents_passage() from can_ooze()
+    // and can_fog(). Pin the static helper's shared inventory and blocker arms.
+    const passageStart = MONMOVE_C.indexOf('stuff_prevents_passage(struct monst *mtmp)');
+    const passageEnd = MONMOVE_C.indexOf('\nboolean\ncan_ooze(', passageStart);
+    const passageBody = MONMOVE_C.slice(passageStart, passageEnd);
+    assert.ok(passageStart >= 0 && passageEnd > passageStart);
+    assert.match(passageBody, /if \(mtmp == &gy\.youmonst\)/u);
+    assert.match(passageBody, /typ == COIN_CLASS && obj->quan > 100L/u);
+    assert.match(passageBody, /if \(Is_container\(obj\) && obj->cobj\)/u);
+    const canOozeStart = MONMOVE_C.indexOf('can_ooze(struct monst *mtmp)');
+    const canOozeEnd = MONMOVE_C.indexOf('\n}', canOozeStart) + 2;
+    const canOozeBody = MONMOVE_C.slice(canOozeStart, canOozeEnd);
+    assert.ok(canOozeStart >= 0 && canOozeEnd > canOozeStart);
+    assert.match(canOozeBody,
+        /!amorphous\(mtmp->data\) \|\| stuff_prevents_passage\(mtmp\)/u);
     const { state } = makeState();
     const monster = newMonster({ data: state.mons[PM_FOG_CLOUD] });
 
@@ -4581,6 +4743,14 @@ test('can_ooze preserves the source inventory-width whitelist', () => {
 });
 
 test('can_fog checks vampire form, genocide, protection, and inventory', () => {
+    // C monmove.c:2365-2371 requires each of these four predicates before
+    // allowing the vampire to fog through obstructing inventory.
+    const fogStart = MONMOVE_C.indexOf('can_fog(struct monst *mtmp)');
+    const fogEnd = MONMOVE_C.indexOf('\n}', fogStart) + 2;
+    const fogBody = MONMOVE_C.slice(fogStart, fogEnd);
+    assert.ok(fogStart >= 0 && fogEnd > fogStart);
+    assert.match(fogBody,
+        /G_GENOD[\s\S]*is_vampshifter\(mtmp\)[\s\S]*!Protection_from_shape_changers[\s\S]*!stuff_prevents_passage\(mtmp\)/u);
     const { state } = makeState();
     const monster = newMonster({
         cham: PM_VAMPIRE_LEADER,
@@ -4606,6 +4776,21 @@ test('can_fog checks vampire form, genocide, protection, and inventory', () => {
 });
 
 test('sengr_at preserves strict, timing, headstone, and case rules', () => {
+    const cStart = ENGRAVE_C.indexOf(
+        'sengr_at(const char *s, coordxy x, coordxy y, boolean strict)',
+    );
+    const cEnd = ENGRAVE_C.indexOf('\nvoid\nu_wipe_engr', cStart);
+    const cBody = ENGRAVE_C.slice(cStart, cEnd);
+    const jsStart = ENGRAVE_JS.indexOf('export function sengr_at(');
+    const jsEnd = ENGRAVE_JS.indexOf('\n}', jsStart) + 2;
+    const jsBody = ENGRAVE_JS.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cBody,
+        /ep->engr_type != HEADSTONE && ep->engr_time <= svm\.moves[\s\S]*strict \? !strcmpi\(ep->engr_txt\[actual_text\], s\)[\s\S]*strstri\(ep->engr_txt\[actual_text\], s\)/u);
+    assert.match(jsBody,
+        /engraving\.engr_type === HEADSTONE[\s\S]*engraving\.engr_time > state\.moves[\s\S]*const actual = asciiCaseFold[\s\S]*const wanted = asciiCaseFold[\s\S]*strict \? actual === wanted : actual\.includes\(wanted\)/u);
+
     const { state } = makeState();
     state.moves = 20;
     const engraving = make_engr_at(

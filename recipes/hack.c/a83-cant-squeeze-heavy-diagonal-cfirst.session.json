@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 62046817,
+      "datetime": "20410709142600",
+      "nethackrc": "OPTIONS=name:SqueezeWitness,role:Barbarian,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": ".\u00172 cursed loadstones\nl\u0017wall\nhj\u0017wall\nkn"
+    }
+  ],
+  "comment": "Independent C-first overweight diagonal squeeze recipe from hack.c:bad_rock/cant_squeeze_thru. Two cursed loadstones weigh 1000 total, exceed the 600 diagonal limit, and avoid the cursed-item encumbrance drop check; east and south walls make a southeast move the only diagonal gap. Freeze the C-observed terrain and message before adding any continuation."
+}

@@ -8,7 +8,8 @@ import { SYM_BOULDER } from '../js/const.js';
 import { object_glyph_info } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { sobj_at } from '../js/obj.js';
+
+import { sobj_at } from '../js/invent.js';
 import { BOULDER } from '../js/objects.js';
 import { dosetMenuItems } from '../js/options.js';
 import { misc_symbol, SYM_OFF_X } from '../js/symbols.js';

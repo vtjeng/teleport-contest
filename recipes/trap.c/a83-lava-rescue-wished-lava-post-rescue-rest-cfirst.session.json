@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first post-rescue command boundary. After the sixth input clears the safe-teleds pager and C reports solid ground without a new More, a period tests that play has returned to the command loop and executes one ordinary rest turn.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017amulet of life saving\nP? o\u0017lava\n      ."
+    }
+  ]
+}

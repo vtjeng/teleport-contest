@@ -1,6 +1,8 @@
 // Player-specified fruit names and the named-fruit chain.
 // C refs: options.c optfn_fruit(), initoptions_finish(), fruitadd();
-// objnam.c makesingular(), fruitname(), fruit_from_indx(), fruit_from_name();
+// objnam.c badman(), makeplural(), makesingular(), fruitname(),
+// fruit_from_indx(), fruit_from_name(), singplur_compound(),
+// singplur_lookup(), and ch_ksound();
 // hacklib.c mungspaces(), copynchars(); bones.c sanitize_name().
 
 import { game } from './gstate.js';
@@ -10,6 +12,7 @@ import {
     encodeUtf8Text,
     strstri,
 } from './hacklib.js';
+import { Strlen_ } from './strutil.js';
 import { name_to_mon } from './mondata.js';
 import {
     FOOD_CLASS,
@@ -196,7 +199,7 @@ function replaceSuffixCase(value, oldLength, replacement) {
     return prefix + caseCopy(oldText, replacement, prefix.at(-1));
 }
 
-function compoundIndex(value) {
+function singplur_compound(value) {
     const lowered = value.toLowerCase();
     let selected = -1;
     for (const compound of COMPOUNDS) {
@@ -220,70 +223,57 @@ function badman(value, toPlural) {
     return false;
 }
 
-function singularLookup(value) {
-    for (const suffix of AS_IS) {
-        if (endsWithCI(value, suffix)) return { matched: true, value };
-    }
-    for (const suffix of SPECIAL_SUBJECTS) {
-        if (endsWithCI(value, suffix)) return { matched: true, value };
-    }
-    if (value.length > 5 && endsWithCI(value, 'craft'))
-        return { matched: true, value };
-    if (equalsCI(value, 'slice') || equalsCI(value, 'mongoose'))
-        return { matched: true, value };
-    if (value.length > 2 && endsWithCI(value, 'men') && badman(value, false))
-        return { matched: true, value };
-
-    for (const [singular, plural] of ONE_OFF) {
-        if (endsWithCI(value, singular)) return { matched: true, value };
-        if (endsWithCI(value, plural)) {
-            return {
-                matched: true,
-                value: replaceSuffixCase(value, plural.length, singular),
-            };
-        }
-    }
-    return { matched: false, value };
-}
-
 function appendCase(value, suffix) {
     return value + caseCopy('', suffix, value.at(-1));
 }
 
-function pluralLookup(value) {
+// C ref: objnam.c singplur_lookup() (2708-2780). C writes replacement bytes
+// into endstring; this port returns that changed immutable string instead.
+function singplur_lookup(value, toPlural, altAsIs = []) {
+    const byteLength = Strlen_(value, 'singplur_lookup', 2716);
     for (const suffix of AS_IS) {
         if (endsWithCI(value, suffix)) return { matched: true, value };
     }
-    for (const suffix of ['ae', 'eaux', 'matzot']) {
+    for (const suffix of altAsIs) {
         if (endsWithCI(value, suffix)) return { matched: true, value };
     }
-    if (value.length > 5 && endsWithCI(value, 'craft'))
+    if (byteLength > 5 && endsWithCI(value, 'craft'))
         return { matched: true, value };
     if (equalsCI(value, 'slice') || equalsCI(value, 'mongoose')) {
-        return { matched: true, value: appendCase(value, 's') };
+        return {
+            matched: true,
+            value: toPlural ? appendCase(value, 's') : value,
+        };
     }
-    if (value.length > 2 && endsWithCI(value, 'ox')
-        && !(value.length > 5 && endsWithCI(value, 'muskox'))) {
+    if (toPlural && byteLength > 2 && endsWithCI(value, 'ox')
+        && !(byteLength > 5 && endsWithCI(value, 'muskox'))) {
         return { matched: true, value: appendCase(value, 'es') };
     }
-    if (value.length > 2 && endsWithCI(value, 'man')
-        && badman(value, true)) {
-        return { matched: true, value: appendCase(value, 's') };
+    if (toPlural) {
+        if (byteLength > 2 && endsWithCI(value, 'man')
+            && badman(value, true)) {
+            return { matched: true, value: appendCase(value, 's') };
+        }
+    } else if (byteLength > 2 && endsWithCI(value, 'men')
+        && badman(value, false)) {
+        return { matched: true, value };
     }
 
     for (const [singular, plural] of ONE_OFF) {
-        if (endsWithCI(value, plural)) return { matched: true, value };
-        if (endsWithCI(value, singular)) {
+        const same = toPlural ? plural : singular;
+        const other = toPlural ? singular : plural;
+        if (endsWithCI(value, same)) return { matched: true, value };
+        if (endsWithCI(value, other)) {
             return {
                 matched: true,
-                value: replaceSuffixCase(value, singular.length, plural),
+                value: replaceSuffixCase(value, other.length, same),
             };
         }
     }
     return { matched: false, value };
 }
 
-function chKsound(value) {
+function ch_ksound(value) {
     return value.length >= 4
         && CH_K_SOUND.some((suffix) => endsWithCI(value, suffix));
 }
@@ -313,17 +303,19 @@ export function makeplural(oldstr) {
     }
     if (/^pair of /iu.test(original)) return original;
 
-    const split = compoundIndex(original);
+    const split = singplur_compound(original);
     const excess = split >= 0 ? original.slice(split) : '';
     let base = (split >= 0 ? original.slice(0, split) : original)
         .replace(/ +$/u, '');
-    const len = base.length;
+    // objnam.c:2895 calls Strlen(str), which counts UTF-8 bytes before NUL.
+    // Keep that C byte length separate from JS indexes used by suffix edits.
+    const len = Strlen_(base, 'makeplural', 2895);
     const last = base.at(-1);
     // C's letter() intentionally treats '@' as a letter alongside A-Z/a-z.
     if (len === 1 || !/[A-Za-z@]/u.test(last))
         return appendCase(base, "'s") + excess;
 
-    const lookup = pluralLookup(base);
+    const lookup = singplur_lookup(base, true, ['ae', 'eaux', 'matzot']);
     if (lookup.matched) return lookup.value + excess;
     if (equalsCI(base, 'ya') || endsWithCI(base, ' ya'))
         return base + excess;
@@ -376,7 +368,7 @@ export function makeplural(oldstr) {
     const sibilant = 'zxs'.includes(lowerLast)
         || (lowerLast === 'h'
             && 'cs'.includes(prior)
-            && !(prior === 'c' && chKsound(base)))
+            && !(prior === 'c' && ch_ksound(base)))
         || endsWithCI(base, 'ato')
         || endsWithCI(base, 'dingo');
     if (sibilant) return appendCase(base, 'es') + excess;
@@ -403,10 +395,10 @@ export function makesingular(oldstr) {
             : pronoun;
     }
 
-    const split = compoundIndex(original);
+    const split = singplur_compound(original);
     const excess = split >= 0 ? original.slice(split) : '';
     let base = split >= 0 ? original.slice(0, split) : original;
-    const lookup = singularLookup(base);
+    const lookup = singplur_lookup(base, false, SPECIAL_SUBJECTS);
     if (lookup.matched) return lookup.value + excess;
     base = lookup.value;
 
@@ -538,14 +530,21 @@ function fruitLookup(fname, exact, state) {
     }
 
     let tentative = null;
+    let tentativeLength = -1;
     if (!exact) {
+        const fnameLength = Strlen_(fname, 'fruit_from_name', 470);
+        const fnameBytes = encodeUtf8ByteString(fname).slice(0, fnameLength);
         for (const fruit of nodes) {
-            const length = fruit.fname.length;
-            if (fname.startsWith(fruit.fname)
-                && (!fname[length] || fname[length] === ' ')
-                && (!tentative
-                    || length > tentative.fname.length)) {
+            const length = Strlen_(fruit.fname, 'fruit_from_name', 470);
+            const fruitBytes = encodeUtf8ByteString(fruit.fname).slice(0, length);
+            let prefixMatches = fnameLength >= length;
+            for (let index = 0; prefixMatches && index < length; ++index)
+                prefixMatches = fnameBytes[index] === fruitBytes[index];
+            const nextByte = fnameBytes[length];
+            if (prefixMatches && (nextByte === undefined || nextByte === 0x20)
+                && length > tentativeLength) {
                 tentative = fruit;
+                tentativeLength = length;
             }
         }
         if (tentative) return { fruit: tentative, highestFid };
@@ -557,16 +556,20 @@ function fruitLookup(fname, exact, state) {
 
     if (!exact) {
         tentative = null;
+        tentativeLength = -1;
+        const fnameLength = Strlen_(fname, 'fruit_from_name', 490);
+        const fnameBytes = encodeUtf8ByteString(fname).slice(0, fnameLength);
         for (const fruit of nodes) {
-            const length = fruit.fname.length;
-            if (fname.length < length) continue;
-            const space = fname.indexOf(' ', length);
+            const length = Strlen_(fruit.fname, 'fruit_from_name', 494);
+            if (fnameLength < length) continue;
+            const space = fnameBytes.indexOf(0x20, length);
             if (space < 0) continue;
-            const prefix = makesingular(fname.slice(0, space));
-            if (fruit.fname === prefix
-                && (!tentative
-                    || prefix.length > tentative.fname.length)) {
+            const prefixBytes = fnameBytes.slice(0, space);
+            const prefix = makesingular(decodeUtf8ByteString(prefixBytes));
+            const prefixLength = Strlen_(prefix, 'fruit_from_name', 509);
+            if (fruit.fname === prefix && prefixLength > tentativeLength) {
                 tentative = fruit;
+                tentativeLength = prefixLength;
             }
         }
     }

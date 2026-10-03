@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "C-observed correction of the preserved newt-corpse setup miss: the newt corpse occupies p and the undead-turning wand o. Drop p and zap with o downward. This cheap source-affecting variation exercises corpse_xname/cxname_singular with a second species.",
+  "segments": [{
+    "seed": 83207039,
+    "datetime": "20520304110942",
+    "nethackrc": "OPTIONS=name:A83BhitoNewt,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+    "moves": " \u0017wand of undead turning\n\u0017newt corpse\ndpzo>"
+  }]
+}

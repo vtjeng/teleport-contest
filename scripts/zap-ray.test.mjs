@@ -146,6 +146,20 @@ import {
     movesThroughWish,
 } from './run-ray-zap.mjs';
 
+test('melt_ice uses objnam An() for its settled boulder message', () => {
+    const cSource = readFileSync(new URL(
+        '../nethack-c/upstream/src/zap.c', import.meta.url,
+    ), 'utf8');
+    const jsSource = readFileSync(new URL('../js/zap.js', import.meta.url), 'utf8');
+    const cStart = cSource.indexOf('melt_ice(coordxy x, coordxy y,');
+    const jsStart = jsSource.indexOf('export async function melt_ice(');
+    const jsEnd = jsSource.indexOf('\nexport function start_melt_ice_timeout(', jsStart);
+
+    assert.notEqual(cStart, -1);
+    assert.match(cSource.slice(cStart, cStart + 2500), /An\(xname\(otmp\)\)/u);
+    assert.match(jsSource.slice(jsStart, jsEnd), /An\(xnameFresh\(boulder, state\)\)/u);
+});
+
 // The matrix's own first segment, replayed here so the always-run suite
 // exercises the same keys the C recorder does.
 function raySegment(index) {
@@ -1153,17 +1167,23 @@ test('a cold bolt over water or lava stops at what it would freeze',
     }
 });
 
-test('hallucinated cold water names use display RNG, not core RNG', async () => {
+test('hallucinated cold-water naming uses display RNG and its ice timer uses core RNG', async () => {
     await aimedWand(-1, 0, 0, WAN_COLD);
     const square = game.level.at(game.u.ux - 1, game.u.uy);
     square.typ = MOAT;
     game.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0 };
     game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
     const displayCalls = [];
+    const coreCalls = [];
     const messages = [];
     const random = {
         ...straightThrough(),
-        rn2: () => assert.fail('core RNG must not name hallucinated water'),
+        // The frozen-water timer independently draws once from core RNG;
+        // hallucinated water's name must still use displayRandom below.
+        rn2: (bound) => {
+            coreCalls.push(bound);
+            return 0;
+        },
     };
     await zap_over_floor(
         game.u.ux - 1, game.u.uy, 2, { value: false }, true, 0,
@@ -1178,6 +1198,7 @@ test('hallucinated cold water names use display RNG, not core RNG', async () => 
         },
     );
     assert.deepEqual(displayCalls, [41]);
+    assert.deepEqual(coreCalls, [2000]);
     assert.deepEqual(messages, ['The deep yoghurt is bridged with ice!']);
 });
 

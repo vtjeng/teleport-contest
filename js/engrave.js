@@ -42,96 +42,30 @@ import {
     HAND,
     ECMD_TIME,
     DEAF,
-} from './const.js';
+    } from './const.js';
 import {
     is_pool,
+    is_lava,
+    is_ice,
 } from './dbridge.js';
 import { exercise_nonphysical } from './attrib.js';
 import { ART_FIRE_BRAND, is_art } from './artifacts.js';
 import { ceiling, on_level, surface, surface_typ } from './dungeon.js';
 import { game } from './gstate.js';
 import {
-    decodeUtf8ByteString,
-    encodeUtf8ByteString,
-    xcrypt,
-} from './hacklib.js';
+    decodeUtf8ByteString, encodeUtf8ByteString, xcrypt, } from './hacklib.js';
 import { nomul } from './hack.js';
 import {
-    is_animal,
-    is_demon,
-    is_vampire,
-    is_whirly,
-    resists_blnd,
-    sticks,
-} from './mondata.js';
+    is_animal, is_demon, is_vampire, is_whirly, resists_blnd, sticks, } from './mondata.js';
 import {
-    AT_HUGS,
-    M1_CLING,
-    M1_FLY,
-    M1_HIDE,
-    MZ_HUGE,
-    PM_GHOUL,
-    S_MIMIC,
-} from './monsters.js';
+    AT_HUGS, M1_CLING, M1_FLY, M1_HIDE, MZ_HUGE, PM_GHOUL, S_MIMIC, } from './monsters.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
-    AMULET_CLASS,
-    ARMOR_CLASS,
-    BALL_CLASS,
-    CHAIN_CLASS,
-    COIN_CLASS,
-    FOOD_CLASS,
-    GEM_CLASS,
-    ILLOBJ_CLASS,
-    MAGIC_MARKER,
-    POTION_CLASS,
-    RANDOM_CLASS,
-    RING_CLASS,
-    ROCK_CLASS,
-    SCROLL_CLASS,
-    SPBOOK_CLASS,
-    TOOL_CLASS,
-    TOWEL,
-    VENOM_CLASS,
-    WAND_CLASS,
-    WEAPON_CLASS,
-    WAN_CANCELLATION,
-    WAN_COLD,
-    WAN_CREATE_MONSTER,
-    WAN_DEATH,
-    WAN_DIGGING,
-    WAN_ENLIGHTENMENT,
-    WAN_FIRE,
-    WAN_LIGHT,
-    WAN_LIGHTNING,
-    WAN_LOCKING,
-    WAN_MAGIC_MISSILE,
-    WAN_MAKE_INVISIBLE,
-    WAN_NOTHING,
-    WAN_OPENING,
-    WAN_POLYMORPH,
-    WAN_PROBING,
-    WAN_SECRET_DOOR_DETECTION,
-    WAN_SLEEP,
-    WAN_SLOW_MONSTER,
-    WAN_SPEED_MONSTER,
-    WAN_STASIS,
-    WAN_STRIKING,
-    WAN_TELEPORTATION,
-    WAN_UNDEAD_TURNING,
-    WAN_WISHING,
-    ATHAME,
-} from './objects.js';
+    AMULET_CLASS, ARMOR_CLASS, BALL_CLASS, CHAIN_CLASS, COIN_CLASS, FOOD_CLASS, GEM_CLASS, ILLOBJ_CLASS, MAGIC_MARKER, POTION_CLASS, RANDOM_CLASS, RING_CLASS, ROCK_CLASS, SCROLL_CLASS, SPBOOK_CLASS, TOOL_CLASS, TOWEL, VENOM_CLASS, WAND_CLASS, WEAPON_CLASS, WAN_CANCELLATION, WAN_COLD, WAN_CREATE_MONSTER, WAN_DEATH, WAN_DIGGING, WAN_ENLIGHTENMENT, WAN_FIRE, WAN_LIGHT, WAN_LIGHTNING, WAN_LOCKING, WAN_MAGIC_MISSILE, WAN_MAKE_INVISIBLE, WAN_NOTHING, WAN_OPENING, WAN_POLYMORPH, WAN_PROBING, WAN_SECRET_DOOR_DETECTION, WAN_SLEEP, WAN_SLOW_MONSTER, WAN_SPEED_MONSTER, WAN_STASIS, WAN_STRIKING, WAN_TELEPORTATION, WAN_UNDEAD_TURNING, WAN_WISHING, ATHAME, } from './objects.js';
 import { more_experienced } from './exper.js';
 import {
-    hold_another_object,
-    obj_extract_self,
-    prinv,
-    update_inventory,
-    useup,
-} from './invent.js';
-import { donameFresh, otense, Tobjnam, xnameFresh, Yname2,
-    Yobjnam2, yname } from './objnam.js';
+    hold_another_object, obj_extract_self, prinv, update_inventory, useup, } from './invent.js';
+import { donameFresh, otense, Tobjnam, xnameFresh, Yname2, Yobjnam2, yname } from './objnam.js';
 import { body_part } from './polyself.js';
 import { make_blinded } from './potion.js';
 import { note_unported } from './unported.js';
@@ -139,19 +73,9 @@ import { wand_explode } from './read.js';
 import { check_unpaid } from './shk.js';
 import { learnwand, zappable } from './zap.js';
 import {
-    is_blade,
-    is_boots,
-    is_wet_towel,
-    objectType,
-    splitobj,
-} from './obj.js';
-import { is_ice } from './terrain.js';
-import {
-    is_lava,
-    t_at,
-    uescaped_shaft,
-    uteetering_at_seen_pit,
-} from './trap.js';
+    is_blade, is_boots, is_wet_towel, objectType, splitobj, } from './obj.js';
+
+import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { welded } from './wield.js';
 import { bimanual } from './worn.js';
 import { livelog_printf } from './pline.js';

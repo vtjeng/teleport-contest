@@ -1,6 +1,7 @@
 // artifacts.js -- artifact table and new-game artifact initialization.
 // C refs: include/artifact.h, include/artilist.h, src/artifact.c
-//          init_artifacts() and hack_artifacts().
+//          init_artifacts(), hack_artifacts(), artifact_name(), and
+//          undiscovered_artifact().
 
 import {
     A_NONE,

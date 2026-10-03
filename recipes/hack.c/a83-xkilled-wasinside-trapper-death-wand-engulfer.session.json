@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 C-first continuation for mon.c:xkilled while the hero is swallowed. The prior C recording showed that '.' enters zapyourself and kills the hero; trap.c:dotrap leaves the hero swallowed after the pager. C zap.c:dobuzz instead calls zhitm(u.ustuck, ...) for a directional zap while swallowed, then killed() reaches xkilled() if the engulfer dies. Use the already C-observed p menu slot for the wished death wand, then aim west at the engulfer.",
+  "segments": [
+    {
+      "seed": 77482061,
+      "datetime": "20261002174500",
+      "nethackrc": "OPTIONS=name:A83SwallowedKill,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of death\n#wizgenesis\n1 hostile trapper\n.. z?ph"
+    }
+  ]
+}

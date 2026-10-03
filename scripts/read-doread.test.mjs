@@ -13,7 +13,7 @@ import {
 test('read.c fixed apparel and candy text follows source tables and hashes', () => {
     const epoch = { ubirthday: 0 };
 
-    // read.c:tshirt_text() indexes the 71-entry table by o_id.
+    // read.c:tshirt_text() indexes the 70-entry table by o_id.
     assert.equal(
         tshirt_text({ o_id: 0, oeroded: 0 }, epoch),
         'I explored the Dungeons of Doom and all I got was this lousy T-shirt!',

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkkkk.  "
+    }
+  ],
+  "comment": "C-first D:5 shop-search probe. The wizard map shows an upper room; from the observed start at (55,17), controlled teleport selects an interior floor at (20,5), followed by a pager dismissal to observe any store greeting. This is location exploration only."
+}

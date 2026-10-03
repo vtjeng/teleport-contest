@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 independent C-first continuation through xkilled. The prior preserved recipe dismissed the source-ordered bolt-hit pager and exposed C's `You destroy the ice vortex!--More--` at xkilled's leading message. A second space dismisses that observed message so `mon.c:xkilled` can reach its wasinside museum-copy/spoteffects(TRUE) call and cleanup.",
+  "segments": [
+    {
+      "seed": 77482063,
+      "datetime": "20261002210000",
+      "nethackrc": "OPTIONS=name:A83SwallowedFire,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of fire\n#wizgenesis\n1 hostile ice vortex\n.. z?oh  "
+    }
+  ]
+}

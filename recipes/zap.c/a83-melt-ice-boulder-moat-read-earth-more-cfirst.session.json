@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation of the ICED_MOAT setup variation. The previous C screen ended at the More after read.c:seffect_earth's ceiling message; one observed pager space reveals the hero-square boulder landing and next prompt before the melt suffix is frozen. This is an intermediate probe, not a regression recording.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMoat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017pool\n\u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn "
+    }
+  ]
+}

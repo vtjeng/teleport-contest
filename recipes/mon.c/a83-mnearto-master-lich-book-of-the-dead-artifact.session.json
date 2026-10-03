@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-observed setup correction for A83: the exact wish text `Book of the Dead` produces an ordinary papyrus spellbook, so this independent recipe supplies the artifact's source name `The Book of the Dead`. The peaceful master lich wants that carried artifact and one wait lets wizard.c:tactics call mon.c:mnearto on the hero's occupied coordinates.",
+  "segments": [
+    {
+      "seed": 948211,
+      "datetime": "20341112142200",
+      "nethackrc": "OPTIONS=name:BookTarget,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizwish\nThe Book of the Dead\n#wizgenesis\npeaceful master lich\n."
+    }
+  ]
+}

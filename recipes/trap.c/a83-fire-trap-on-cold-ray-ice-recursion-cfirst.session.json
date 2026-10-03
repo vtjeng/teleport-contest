@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent A83 fire-trap-on-ICE recursion route, frozen from C source and the previously recorded open-room geometry. C cold-ray ZT_COLD first turns a wished pool into ICE with MELT_ICE_AWAY active; the hero steps onto that ICE, grants a timed fire-resistance intrinsic so dofiretrap remains survivable, then wishes a FIRE_TRAP on the ICE and moves off/back onto it. The intended C chain is spoteffects -> dotrap -> dofiretrap -> melt_ice -> recursive spoteffects guarded by the saved trap identity. C must confirm the trap is created on ICE and that the callback reaches the target; no JS comparison has occurred.",
+  "segments": [
+    {
+      "seed": 64100321,
+      "datetime": "20321214103000",
+      "nethackrc": "OPTIONS=name:A83FireTrapIce,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\nh\u0017wand of cold\nzol\nl#wizintrinsic\n>2500i \u0017fire trap\nhl"
+    }
+  ]
+}

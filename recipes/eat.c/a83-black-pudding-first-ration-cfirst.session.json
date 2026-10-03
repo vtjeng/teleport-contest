@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the verified Black Pudding inventory. It dismisses the transformation and quarterstaff-drop pages, displays the four carried rations, then chooses e/o to begin eating one ration. The C screen explicitly reports o - 4 food rations; all next inputs follow that observed stack and command prompt. No JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918305,
+      "datetime": "20261003165200",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\n#polyself\nblack pudding\n i eo"
+    }
+  ]
+}

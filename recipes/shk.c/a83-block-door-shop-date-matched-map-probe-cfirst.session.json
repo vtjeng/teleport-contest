@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n\u0006"
+    }
+  ],
+  "comment": "C-first date-matched D:5 map probe for the previously bounded seed 8510308 shop candidate. The earlier A83 map probes used an unrelated date and therefore generated a different level; this probe restores the date recorded by the prior shop-candidate recipes before selecting any doorway. It is setup exploration, not block_door runtime evidence."
+}

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -53,4 +54,27 @@ test('wizterrainwish returns its unmatched result synchronously', () => {
 
     assert.equal(result, null);
     assert.equal(typeof result?.then, 'undefined');
+});
+
+test('wizterrainwish keeps C An() on the successful named-terrain arms', () => {
+    const cSource = readFileSync(new URL(
+        '../nethack-c/upstream/src/objnam.c', import.meta.url,
+    ), 'utf8');
+    const jsSource = readFileSync(new URL(
+        '../js/objnam_readobjnam.js', import.meta.url,
+    ), 'utf8');
+    const cStart = cSource.indexOf('wizterrainwish(struct _readobjnam_data *d)');
+    const cEnd = cSource.indexOf('\n/*', cStart);
+    const cBody = cSource.slice(cStart, cEnd);
+    const jsStart = jsSource.indexOf('async function apply_wizterrainwish(');
+    const jsEnd = jsSource.indexOf('\nexport async function dbterrainmesg(', jsStart);
+    const jsBody = jsSource.slice(jsStart, jsEnd);
+
+    // These three C arms capitalize a generated name with An(); the failure
+    // branch intentionally uses lowercase an() and stays separate.
+    assert.match(cBody, /An\(tname\)/u);
+    assert.match(cBody, /An\(new_water\)/u);
+    assert.match(cBody, /An\(align_str\(al\)\)/u);
+    assert.match(jsBody, /return An\(text\)/u);
+    assert.match(jsBody, /An\(align_str\(alignment\)\)/u);
 });

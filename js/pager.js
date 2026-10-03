@@ -101,6 +101,7 @@ import { on_level, surface_typ } from './dungeon.js';
 import {
     is_drawbridge_wall,
     is_pool,
+    is_lava,
 } from './dbridge.js';
 import { altarmask_at } from './pray.js';
 import { align_str, trap_predicament } from './insight.js';
@@ -148,7 +149,7 @@ import { createCommandBindingModel, keyForCommand } from './command_bindings.js'
 import { visible_region_at } from './region.js';
 import { dist2, mungspaces, visctrl } from './hacklib.js';
 import { HELP_TEXT_FILES } from './help_data.js';
-import { currency, display_inventory } from './invent.js';
+import { currency, display_inventory, sobj_at } from './invent.js';
 import { tty_yn_function } from './getline.js';
 import { m_at } from './monst.js';
 import {
@@ -219,7 +220,7 @@ import {
     monster_class_symbol,
     object_class_symbol,
 } from './symbols.js';
-import { dealloc_obj, is_treefruit, mkobj, mksobj, sobj_at } from './obj.js';
+import { dealloc_obj, is_treefruit, mkobj, mksobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { obj_stop_timers } from './timeout.js';
 import { observe_object } from './o_init.js';
@@ -253,7 +254,6 @@ import {
 import { ttyPline, ttyPutmixed } from './tty_message.js';
 import { doextversion } from './version.js';
 import {
-    is_lava,
     t_at,
     trapname,
     Levitation,

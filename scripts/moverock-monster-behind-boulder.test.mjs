@@ -6,7 +6,8 @@ import { glyph_is_invisible } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
-import { sobj_at } from '../js/obj.js';
+
+import { sobj_at } from '../js/invent.js';
 import { BOULDER } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 

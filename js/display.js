@@ -30,14 +30,14 @@ export const SCORER_DEC_MAP = {
 
 import { game } from './gstate.js';
 import { isok } from './cmd_isok.js';
-import { is_pool } from './dbridge.js';
+import { is_pool, is_pool_or_lava, is_ice } from './dbridge.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { acurr } from './attrib.js';
 import { near_capacity, nh_delay_output } from './hack.js';
 import {
     In_hell, depth, dunlev, endgamelevelname, on_level, update_lastseentyp,
 } from './dungeon.js';
-import { money_cnt } from './invent.js';
+import { money_cnt, sobj_at } from './invent.js';
 import { cansee, couldsee, seenv_matrix } from './vision.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
 // other's exports only inside function bodies, so the cycle resolves.
@@ -72,7 +72,7 @@ import {
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
     BC_BALL, BC_CHAIN,
     IS_DOOR, IS_OBSTRUCTED, IS_POOL, IS_ROOM, IS_STWALL, u_at, Ugender, Upolyd,
-    BEAR_TRAP, NO_TRAP, WEB, is_pit,
+    BEAR_TRAP, NO_TRAP, WEB, is_pit, Is_waterlevel,
     TT_LAVA,
     In_endgame, In_mines, In_quest, In_sokoban, Is_knox_level,
     MAXTCHARS,
@@ -123,7 +123,7 @@ import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
 import { can_reach_floor, engr_at, engr_can_be_felt } from './engrave.js';
 import { status_version } from './version.js';
-import { is_weptool, sobj_at } from './obj.js';
+import { is_weptool } from './obj.js';
 import { cmap_to_type } from './mkroom.js';
 import { newuexp, UnsupportedExperienceChangeError } from './exper.js';
 import { weapon_type } from './startup_skills.js';
@@ -285,8 +285,8 @@ import {
 // C ref: drawing.c defsyms[].color, the last column of every defsym.h PCHAR
 // row, which display.c reads back through its cmap_color() macro.
 import { CMAP_COLORS, SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
-import { is_pool_or_lava, t_at } from './trap.js';
-import { is_ice } from './terrain.js';
+import { t_at } from './trap.js';
+
 import { note_unported } from './unported.js';
 // pray.c owns critically_low_hp(); botl.c:2555 and wintty.c:4539 are two of
 // its three C call sites, so the status line reads the one port in js/pray.js
@@ -3711,6 +3711,13 @@ export function newsym(x, y) {
         return;
     }
 
+    // display.c:946-952. While submerged, newsym() leaves distant
+    // non-liquid memory alone. On the Water Plane the underwater gate is
+    // disabled; otherwise only nearby pool/lava/ice cells are redrawn.
+    if (game.u?.uinwater && !Is_waterlevel(game.u?.uz)
+        && !((is_pool_or_lava(x, y, game) || is_ice(x, y, game))
+            && dist2(x, y, game.u?.ux ?? 0, game.u?.uy ?? 0) <= 2)) return;
+
     const visible = cansee(x, y);
     if (visible) {
         // display.c:newsym() snapshots permanent location lighting at the
@@ -3723,10 +3730,11 @@ export function newsym(x, y) {
     if (visible && engraving) engraving.erevealed = true;
 
     // display.c:newsym() lets a visible gas region cover every accessible
-    // location, including the hero. Sensed monsters and generic monster
-    // warnings override the region; ordinary visible monsters do so only when
-    // adjacent, and object-disguised mimics do not. The early return
-    // intentionally leaves the remembered underlying glyph untouched.
+    // location, including the hero. Visible poison and steam clouds also cover
+    // pools, moats, and lava. Sensed monsters and generic monster warnings
+    // override the region; ordinary visible monsters do so only when adjacent,
+    // and object-disguised mimics do not. The early return intentionally
+    // leaves the remembered underlying glyph untouched.
     const region = visible ? visible_region_at(x, y, game) : null;
     const monster = visible ? m_at(x, y, game) : null;
     const wormTail = is_worm_tail_at(monster, x, y);
@@ -3755,7 +3763,8 @@ export function newsym(x, y) {
         && y === monster.my
         && monsterWarnsHero(monster, game),
     );
-    if (region && ACCESSIBLE(loc.typ)) {
+    if (region && (ACCESSIBLE(loc.typ)
+        || (region.visible && is_pool_or_lava(x, y, game)))) {
         const adjacentVisibleMonster = monster
             && monsterDirectlyVisible
             && ![M_AP_FURNITURE, M_AP_OBJECT].includes(

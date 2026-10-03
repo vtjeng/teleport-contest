@@ -103,7 +103,7 @@ import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level } from './dungeon.js'
 import { breaktest, hurtle } from './dothrow.js';
 import { game } from './gstate.js';
 import { upstart } from './hacklib.js';
-import { currency, obj_extract_self, obfree, useup } from './invent.js';
+import { currency, obj_extract_self, obfree, useup, sobj_at } from './invent.js';
 import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
 } from './hack.js';
@@ -113,19 +113,24 @@ import {
 } from './mondata.js';
 import { abuse_dog } from './dog.js';
 import {
-    m_in_air, monflee, set_apparxy, youHear,
+    monflee, set_apparxy, youHear,
 } from './monmove.js';
 import {
-    killed, maybe_mnexto, maybe_unhide_at, seemimic, setmangry, wake_nearby,
-    wake_nearto,
+    killed, m_in_air, maybe_mnexto, maybe_unhide_at, seemimic, setmangry,
+    wake_nearby, wake_nearto,
 } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
     AT_KICK, PM_SASQUATCH, PM_SHADE, S_EEL, S_LIZARD,
 } from './monsters.js';
 import {
-    add_to_migration, isContainer, mkgold, mksobj_at, objectType, rnd_class,
-    sobj_at, weight,
+    add_to_migration,
+    isContainer,
+    mkgold,
+    mksobj_at,
+    objectType,
+    rnd_class,
+    weight,
 } from './obj.js';
 import {
     BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, COIN_CLASS, CORPSE,

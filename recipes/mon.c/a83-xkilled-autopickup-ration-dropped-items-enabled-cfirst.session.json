@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first xkilled autopickup variation. The ration is wished, dropped on the hero’s square, and the fire wand is selected with the C-observed inventory letter p. Autopickup is enabled and dropped_nopick is explicitly disabled so pickup.c:autopick_testobj accepts LOST_DROPPED food. The hero remains on that square through engulfing; require C to show the ration picked up after xkilled calls spoteffects(TRUE).",
+  "segments": [
+    {
+      "seed": 77482063,
+      "datetime": "20261002210000",
+      "nethackrc": "OPTIONS=name:A83SwallowedFire,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,autopickup,!dropped_nopick,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017food ration\ndo\u0017wand of fire\n#wizgenesis\n1 hostile ice vortex\n.. z?ph  "
+    }
+  ]
+}

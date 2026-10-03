@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Corrected independent C-first membership recipe. The first attempt was preserved as setup history: its initial space was an ordinary unknown command and C showed that the wished scroll occupied inventory slot n (not o). This frozen input starts with the wizard wish, reads slot n, centers the cursed size-5 cloud two cursor steps east, then walks through the cloud. Source target is movement-driven hero_inside membership in region.c:in_out_region; the recipe does not assume the transition callbacks that are dormant in the recorder build.",
+  "segments": [
+    {
+      "seed": 202610031,
+      "datetime": "20441003093000",
+      "nethackrc": "OPTIONS=name:GasEntryA83,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017cursed scroll of stinking cloud\nrn    ll.ll"
+    }
+  ]
+}

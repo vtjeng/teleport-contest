@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked C-first setup attempt for hack.c:moverock_core -> do.c:boulder_hits_pool(pushing=TRUE), avoiding the blocked direct boulder wish. C confirms the pool west of the hero and a cursed scroll of earth at slot p, but reading it hits the hero with a boulder (rnd(20)=20 @ weapon.c:dmgval) and kills this low-HP Wizard before any movement/push. The route does not reach moverock_core and has no matching recording; the C-observed source blocker is the setup impact, not the selected caller.",
+  "segments": [
+    {
+      "seed": 84563221,
+      "datetime": "20430307131800",
+      "nethackrc": "OPTIONS=name:A83MoverockEarth,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\nl#wizwish\ncursed scroll of earth\nrp lh"
+    }
+  ]
+}

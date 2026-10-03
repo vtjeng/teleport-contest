@@ -143,96 +143,25 @@ import {
     ismnum,
     plur,
     thats_enough_tries,
-} from './const.js';
+    } from './const.js';
 import {
     is_pool,
+    is_pool_or_lava,
 } from './dbridge.js';
 import {
-    acurr, adjabil, exercise, newhp, redist_attr, setuhpmax,
-} from './attrib.js';
+    acurr, adjabil, exercise, newhp, redist_attr, setuhpmax, } from './attrib.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import {
-    amorphous,
-    attacktype,
-    attacktype_fordmg,
-    breakarm,
-    can_be_strangled,
-    can_breathe,
-    could_twoweap,
-    dmgtype,
-    dmgtype_fromattack,
-    emits_light,
-    has_horns,
-    hides_under,
-    humanoid,
-    infravision,
-    is_animal,
-    is_bat,
-    is_clinger,
-    is_floater,
-    is_flyer,
-    is_hider,
-    is_female,
-    is_male,
-    is_neuter,
-    is_placeholder,
-    is_swimmer,
-    is_vampire,
-    is_vampshifter,
-    is_mind_flayer,
-    is_unicorn,
-    is_were,
-    is_whirly,
-    lays_eggs,
-    eggs_in_water,
-    mindless,
-    Resists_Elem,
-    nohands,
-    nonliving,
-    unsolid,
-    passes_walls,
-    perceives,
-    pm_invisible,
-    polyok,
-    regenerates,
-    resists_drli,
-    sliparm,
-    slithy,
-    sticks,
-    strongmonst,
-    telepathic,
-    touch_petrifies,
-    valid_vampshiftform,
-    verysmall,
-    webmaker,
-    weirdnonliving,
-    can_teleport,
-    control_teleport,
-    defended,
-    your_race,
-    flaming,
-    name_to_monclass,
-    name_to_monplus,
-    num_horns,
-    type_is_pname,
-} from './mondata.js';
+    amorphous, attacktype, attacktype_fordmg, breakarm, can_be_strangled, can_breathe, could_twoweap, dmgtype, dmgtype_fromattack, emits_light, has_horns, hides_under, humanoid, infravision, is_animal, is_bat, is_clinger, is_floater, is_flyer, is_hider, is_female, is_male, is_neuter, is_placeholder, is_swimmer, is_vampire, is_vampshifter, is_mind_flayer, is_unicorn, is_were, is_whirly, lays_eggs, eggs_in_water, mindless, Resists_Elem, nohands, nonliving, unsolid, passes_walls, perceives, pm_invisible, polyok, regenerates, resists_drli, sliparm, slithy, sticks, strongmonst, telepathic, touch_petrifies, valid_vampshiftform, verysmall, webmaker, weirdnonliving, can_teleport, control_teleport, defended, your_race, flaming, name_to_monclass, name_to_monplus, num_horns, type_is_pname, } from './mondata.js';
 import { character_race, genders } from './roles.js';
 import {
-    capitalizedMonsterName,
-    hliquid,
-    l_monnam,
-    monsterCommonName,
-    pmname,
-    y_monnam,
-} from './do_name.js';
+    capitalizedMonsterName, hliquid, l_monnam, monsterCommonName, pmname, y_monnam, } from './do_name.js';
 import { set_mon_data } from './mondata.js';
 import { golemhp, mkclass_poly } from './makemon.js';
 import { racial_exception } from './makemon_create.js';
 import {
-    cloak_simple_name, cxname, helm_simple_name, otense, simpleonames,
-    an, the, vtense, yname, the_unique_pm,
-} from './objnam.js';
+    cloak_simple_name, cxname, helm_simple_name, otense, simpleonames, an, the, vtense, yname, the_unique_pm, } from './objnam.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { max_rank_sz } from './u_init.js';
 import { newsym, rank_of, see_monsters } from './display.js';
@@ -243,13 +172,7 @@ import { getlin } from './windows.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import {
-    deltrap,
-    is_pool_or_lava,
-    maketrap,
-    set_utrap,
-    t_at,
-    unconscious,
-} from './trap.js';
+    deltrap, maketrap, set_utrap, t_at, unconscious } from './trap.js';
 import { dotrap, feeltrap } from './trap_effects.js';
 import {
     make_blinded, make_glib, make_sick, make_slimed, set_itimeout,
@@ -295,6 +218,21 @@ import {
     YELLOW_DRAGON_SCALES,
 } from './objects.js';
 import * as M from './monsters.js';
+import {
+    ANIMAL_PARTS,
+    BIRD_PARTS,
+    FISH_PARTS,
+    FUNGUS_PARTS,
+    HORSE_PARTS,
+    HUMANOID_PARTS,
+    JELLY_PARTS,
+    NOT_CLAWS,
+    SNAKE_PARTS,
+    SPHERE_PARTS,
+    SPIDER_PARTS,
+    VORTEX_PARTS,
+    WORM_PARTS,
+} from './polyself_bodyparts.js';
 import { rn1, rn2, rnd, rne, rnl, d, rn2_on_display_rng } from './rng.js';
 import { getdir, y_n } from './cmd.js';
 import { ubuzz, ubreatheu } from './zap.js';
@@ -1923,90 +1861,6 @@ export async function polyself(psflags, state = game) {
                 state.youmonst, state);
     }
 }
-
-const HUMANOID_PARTS = Object.freeze([
-    'arm', 'eye', 'face', 'finger', 'fingertip', 'foot', 'hand',
-    'handed', 'head', 'leg', 'light headed', 'neck', 'spine', 'toe',
-    'hair', 'blood', 'lung', 'nose', 'stomach',
-]);
-const JELLY_PARTS = Object.freeze([
-    'pseudopod', 'dark spot', 'front', 'pseudopod extension',
-    'pseudopod extremity', 'pseudopod root', 'grasp', 'grasped',
-    'cerebral area', 'lower pseudopod', 'viscous', 'middle', 'surface',
-    'pseudopod extremity', 'ripples', 'juices', 'surface', 'sensor',
-    'stomach',
-]);
-const ANIMAL_PARTS = Object.freeze([
-    'forelimb', 'eye', 'face', 'foreclaw', 'claw tip', 'rear claw',
-    'foreclaw', 'clawed', 'head', 'rear limb', 'light headed', 'neck',
-    'spine', 'rear claw tip', 'fur', 'blood', 'lung', 'nose', 'stomach',
-]);
-const BIRD_PARTS = Object.freeze([
-    'wing', 'eye', 'face', 'wing', 'wing tip', 'foot', 'wing', 'winged',
-    'head', 'leg', 'light headed', 'neck', 'spine', 'toe', 'feathers',
-    'blood', 'lung', 'bill', 'stomach',
-]);
-const HORSE_PARTS = Object.freeze([
-    'foreleg', 'eye', 'face', 'forehoof', 'hoof tip', 'rear hoof',
-    'forehoof', 'hooved', 'head', 'rear leg', 'light headed', 'neck',
-    'backbone', 'rear hoof tip', 'mane', 'blood', 'lung', 'nose',
-    'stomach',
-]);
-const SPHERE_PARTS = Object.freeze([
-    'appendage', 'optic nerve', 'body', 'tentacle', 'tentacle tip',
-    'lower appendage', 'tentacle', 'tentacled', 'body', 'lower tentacle',
-    'rotational', 'equator', 'body', 'lower tentacle tip', 'cilia',
-    'life force', 'retina', 'olfactory nerve', 'interior',
-]);
-const FUNGUS_PARTS = Object.freeze([
-    'mycelium', 'visual area', 'front', 'hypha', 'hypha', 'root',
-    'strand', 'stranded', 'cap area', 'rhizome', 'sporulated', 'stalk',
-    'root', 'rhizome tip', 'spores', 'juices', 'gill', 'gill', 'interior',
-]);
-const VORTEX_PARTS = Object.freeze([
-    'region', 'eye', 'front', 'minor current', 'minor current',
-    'lower current', 'swirl', 'swirled', 'central core', 'lower current',
-    'addled', 'center', 'currents', 'edge', 'currents', 'life force',
-    'center', 'leading edge', 'interior',
-]);
-const SNAKE_PARTS = Object.freeze([
-    'vestigial limb', 'eye', 'face', 'large scale', 'large scale tip',
-    'rear region', 'scale gap', 'scale gapped', 'head', 'rear region',
-    'light headed', 'neck', 'length', 'rear scale', 'scales', 'blood',
-    'lung', 'forked tongue', 'stomach',
-]);
-const WORM_PARTS = Object.freeze([
-    'anterior segment', 'light sensitive cell', 'clitellum', 'setae',
-    'setae', 'posterior segment', 'segment', 'segmented',
-    'anterior segment', 'posterior', 'over stretched', 'clitellum',
-    'length', 'posterior setae', 'setae', 'blood', 'skin', 'prostomium',
-    'stomach',
-]);
-const SPIDER_PARTS = Object.freeze([
-    'pedipalp', 'eye', 'face', 'pedipalp', 'tarsus', 'claw', 'pedipalp',
-    'palped', 'cephalothorax', 'leg', 'spun out', 'cephalothorax',
-    'abdomen', 'claw', 'hair', 'hemolymph', 'book lung', 'labrum',
-    'digestive tract',
-]);
-const FISH_PARTS = Object.freeze([
-    'fin', 'eye', 'premaxillary', 'pelvic axillary', 'pelvic fin',
-    'anal fin', 'pectoral fin', 'finned', 'head', 'peduncle', 'played out',
-    'gills', 'dorsal fin', 'caudal fin', 'scales', 'blood', 'gill',
-    'nostril', 'stomach',
-]);
-
-const NOT_CLAWS = new Set([
-    M.S_HUMAN,
-    M.S_MUMMY,
-    M.S_ZOMBIE,
-    M.S_ANGEL,
-    M.S_NYMPH,
-    M.S_LEPRECHAUN,
-    M.S_QUANTMECH,
-    M.S_VAMPIRE,
-    M.S_ORC,
-    M.S_GIANT,
-]);
 
 function isSpecies(species, pmidx) {
     return species?.pmidx === pmidx;

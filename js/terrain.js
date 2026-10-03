@@ -5,9 +5,6 @@
 import {
     AIR,
     COLNO,
-    DB_ICE,
-    DB_UNDER,
-    DRAWBRIDGE_UP,
     FOUNTAIN,
     ICE,
     IS_LAVA,
@@ -20,18 +17,11 @@ import {
     STAIRS,
     STONE,
 } from './const.js';
+import { is_ice } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
 import { obj_ice_effects } from './obj.js';
 import { spot_stop_timers } from './timeout.js';
-
-export function is_ice(x, y, state = game) {
-    if (!isok(x, y)) return false;
-    const location = state.level?.at(x, y);
-    return location?.typ === ICE
-        || (location?.typ === DRAWBRIDGE_UP
-            && ((location.flags ?? 0) & DB_UNDER) === DB_ICE);
-}
 
 export function count_level_features(state = game) {
     const level = state.level;

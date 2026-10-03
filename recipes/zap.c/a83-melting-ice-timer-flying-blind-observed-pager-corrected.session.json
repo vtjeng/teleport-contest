@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Corrected C-first setup after the preserved failed attempt revealed two separate More boundaries from #wizintrinsic: dismiss both before Ctrl-V. The recipe then wishes melting ice underfoot, makes one bounded 511-turn wait, and inspects the timeout queue. C output determines whether a monster interrupts the wait and whether the timer has expired; no JS comparison has been made.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceExpiryCorrected,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n1000a1000i>>1000k\n  \u0017melting ice\n511.#timeout\n"
+    }
+  ]
+}

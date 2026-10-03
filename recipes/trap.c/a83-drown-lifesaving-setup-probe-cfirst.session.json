@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup probe for trap.c:drown after wishing a life-saving amulet. Seed and date were chosen independently of the saved pool-crawl case; the input stops at the put-on menu so the C inventory letter can be observed before freezing the full recipe.",
+  "segments": [
+    {
+      "seed": 8439201,
+      "datetime": "20381117121000",
+      "nethackrc": "OPTIONS=name:DrownRescue,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP"
+    }
+  ]
+}

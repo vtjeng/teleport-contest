@@ -2,6 +2,7 @@
 // level teleport from dungeon topology resolution to random hero placement.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -263,6 +264,25 @@ test('bad_location admits exactly room, air, and maze corridors', () => {
 });
 
 test('teleport exclusion zones apply in C source order and direction', () => {
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/mkmaze.c', import.meta.url), 'utf8',
+    );
+    const jsSource = readFileSync(
+        new URL('../js/mkmaze.js', import.meta.url), 'utf8',
+    );
+    const cStart = cSource.indexOf('is_exclusion_zone(xint16 type, coordxy x, coordxy y)');
+    const cEnd = cSource.indexOf('\n/*\n * Bad if:', cStart);
+    const cBody = cSource.slice(cStart, cEnd);
+    const jsStart = jsSource.indexOf('export function is_exclusion_zone(');
+    const jsEnd = jsSource.indexOf('\n}', jsStart) + 2;
+    const jsBody = jsSource.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cBody,
+        /while \(ez\)[\s\S]*type == LR_DOWNTELE[\s\S]*ez->zonetype == LR_TELE[\s\S]*type == LR_UPTELE[\s\S]*within_bounded_area\(x, y, ez->lx, ez->ly, ez->hx, ez->hy\)[\s\S]*return TRUE;/u);
+    assert.match(jsBody,
+        /for \(let ez = state\.exclusion_zones[\s\S]*type === LR_DOWNTELE[\s\S]*ez\.zonetype === LR_TELE[\s\S]*type === LR_UPTELE[\s\S]*within_bounded_area\(x, y, ez\.lx, ez\.ly, ez\.hx, ez\.hy\)[\s\S]*return true;/u);
+
     const state = placementState();
     state.exclusion_zones = {
         zonetype: LR_DOWNTELE,

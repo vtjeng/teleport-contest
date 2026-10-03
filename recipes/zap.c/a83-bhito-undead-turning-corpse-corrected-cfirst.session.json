@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "C-observed correction to a83-bhito-undead-turning-corpse-cfirst: the wished troll corpse occupies q and the wished wand p. The original setup miss remains unchanged. This version drops q and directly selects p, then aims downward so zap.c:bhito receives the underfoot corpse.",
+  "segments": [{
+    "seed": 83207011,
+    "datetime": "20520304110917",
+    "nethackrc": "OPTIONS=name:A83BhitoTroll,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+    "moves": " \u0017wand of undead turning\n\u0017troll corpse\ndqzp>"
+  }]
+}

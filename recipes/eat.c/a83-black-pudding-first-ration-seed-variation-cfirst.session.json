@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "One independent seed variation after the prior source-observed adjacent invisible monster interrupted Black Pudding's meal at eat.c:doeat/mattacku. Only seed/date/name differ; the source-selected setup remains wished ice and four carried rations before the M1_BREATHLESS|M1_ACID, cwt900 Black Pudding form. This recording stops after the first ration's actual C boundary; later inputs will be selected only from that screen.",
+  "segments": [
+    {
+      "seed": 45317920,
+      "datetime": "20280115140620",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding3,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\n#polyself\nblack pudding\n eo"
+    }
+  ]
+}

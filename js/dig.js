@@ -143,7 +143,7 @@ import {
     set_occupation,
     xytodir,
 } from './cmd.js';
-import { delobj, obfree, obj_extract_self } from './invent.js';
+import { delobj, obfree, obj_extract_self, sobj_at } from './invent.js';
 import { hides_under, is_watch } from './mondata.js';
 import { angry_guards, get_iter_mons, wake_nearby } from './mon.js';
 import { closed_door, youHear } from './monmove.js';
@@ -171,7 +171,6 @@ import {
     mksobj_at,
     place_object,
     remove_object,
-    sobj_at,
 } from './obj.js';
 import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
@@ -181,8 +180,6 @@ import {
     Levitation,
     conjoined_pits,
     deltrap,
-    is_lava,
-    is_pool_or_lava,
     maketrap,
     reset_utrap,
     set_utrap,
@@ -226,6 +223,8 @@ import {
     is_drawbridge_wall,
     is_moat,
     is_pool,
+    is_lava,
+    is_pool_or_lava,
 } from './dbridge.js';
 
 import { hliquid, mon_nam } from './do_name.js';

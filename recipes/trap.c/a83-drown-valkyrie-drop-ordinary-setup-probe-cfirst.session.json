@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only setup probe: take off the observed shield, select All types, and drop the four C-observed ordinary inventory objects while retaining amulet e. Four spaces clear only the resulting drop messages and expose any residual prompt/state.",
+  "segments": [
+    {
+      "seed": 6042026,
+      "datetime": "20400202110000",
+      "nethackrc": "OPTIONS=name:DrownValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP? eTDa\nabcd\n    "
+    }
+  ]
+}

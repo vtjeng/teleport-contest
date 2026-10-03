@@ -525,3 +525,42 @@ test('water_damage recurses through real contained items by default', async () =
         ctx_valid: false,
     });
 });
+
+test('drown uses canonical leash counting and preserves the disrobe gap',
+    async () => {
+        const cTrap = await readFile(
+            new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
+            'utf8',
+        );
+        const jsTrap = await readFile(
+            new URL('../js/trap.js', import.meta.url),
+            'utf8',
+        );
+        assert.match(
+            cTrap,
+            /if \(invc > 0\) \{\s*i = rn2\(invc\);[\s\S]*?if \(!otmp\)\s*return FALSE;/u,
+        );
+        assert.match(
+            jsTrap,
+            /if \(invc > 0\) \{\s*let index = rn2\(invc\);\s*let obj = state\.invent;[\s\S]*?if \(!selected\) return false;/u,
+        );
+        const cDisrobe = cTrap.slice(
+            cTrap.indexOf('\nemergency_disrobe(boolean *lostsome)'),
+            cTrap.indexOf('\nrnd_nextto_goodpos(',
+                cTrap.indexOf('\nemergency_disrobe(boolean *lostsome)'),
+            ),
+        );
+        const jsDisrobe = jsTrap.slice(
+            jsTrap.indexOf('async function emergency_disrobe('),
+            jsTrap.indexOf('\nexport async function drown(',
+                jsTrap.indexOf('async function emergency_disrobe('),
+            ),
+        );
+        assert.match(cDisrobe, /dropx\(otmp\);\s*invc--;/u);
+        assert.match(jsDisrobe,
+            /lostsome\.value = true;[\s\S]*?note_unported\('do\.c dropx'\);\s*--invc;/u);
+        assert.doesNotMatch(jsDisrobe, /await dropx\(/u);
+        assert.match(jsTrap, /import \{ number_leashed \} from '\.\/apply\.js';/u);
+        assert.match(jsTrap, /const leashed = number_leashed\(state\);/u);
+        assert.doesNotMatch(jsTrap, /function numberLeashed\(/u);
+    });

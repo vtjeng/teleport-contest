@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first role/capacity variation of the drowning route. C menus established that the Valkyrie's shield must be taken off first; the selected ordinary starting items a-d are dropped on safe floor, retaining worn lifesaving amulet e. Ten cursed loadstones then overload the Valkyrie while every remaining inventory object is undroppable, so emergency_disrobe takes its source false/no-drop branch and avoids the unported liquid-square do.c:dropx path. The final spaces dismiss only C-observed rescue messages.",
+  "segments": [
+    {
+      "seed": 6042026,
+      "datetime": "20400202110000",
+      "nethackrc": "OPTIONS=name:DrownValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP? eTDa\nabcd\n  \u001710 cursed loadstones\n\u0017pool\n.            "
+    }
+  ]
+}

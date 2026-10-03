@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The preserved 511-count C run ends at T:512 with the wished ice still present and no callback. This independently frozen continuation adds exactly one ordinary wait from that observed boundary; the 1000-turn Flying and blindness remain active, and the hero remains on the timed ice square. C-only until its callback output is inspected.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceExpiryBoundary,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n1000a1000i>>1000k\n \u0017melting ice\n511.."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only source probe, frozen before any JavaScript comparison. A Wizard enables Flying through the observed #wizintrinsic menu, then wishes melting ICE underfoot so objnam.c:wizterrainwish calls zap.c:start_melt_ice_timeout. The output is retained only to observe the C timer draw and terrain confirmation before freezing the complete timer callback route.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceTimerProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n>f\n\u0017melting ice\n"
+    }
+  ]
+}

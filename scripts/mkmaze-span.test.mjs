@@ -2,6 +2,7 @@
 // come from the named C functions, not from recorded sessions.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -40,6 +41,45 @@ import {
 } from '../js/mkmaze.js';
 import { initworm } from '../js/worm.js';
 
+const C_MKMAZE = readFileSync('nethack-c/upstream/src/mkmaze.c', 'utf8');
+const JS_MKMAZE = readFileSync('js/mkmaze.js', 'utf8');
+
+function sourceBody(source, signature) {
+    const start = source.indexOf(signature);
+    assert.ok(start >= 0, `${signature} is present`);
+    return source.slice(start);
+}
+
+test('mv_bubble waits for mnearto before its zero-result clog and next contents',
+    () => {
+        const cBody = sourceBody(C_MKMAZE,
+            '\nmv_bubble(struct bubble *b, coordxy dx, coordxy dy, boolean ini)');
+        const cMove = cBody.indexOf('if (!mnearto(mon, cons->x, cons->y');
+        const cClog = cBody.indexOf('elemental_clog(mon);', cMove);
+        const cNext = cBody.indexOf('break;', cClog);
+        assert.ok(cMove >= 0 && cMove < cClog && cClog < cNext);
+
+        const jsBody = sourceBody(JS_MKMAZE, 'export function mv_bubble(');
+        const jsMove = jsBody.indexOf('const moved = mnearto(');
+        const jsAwait = jsBody.indexOf('return moved.then((result) => {', jsMove);
+        const jsClog = jsBody.indexOf(
+            'if (!result) elemental_clog(contents.list, state);', jsAwait,
+        );
+        const jsNext = jsBody.indexOf(
+            'return finishContents(index + 1);', jsClog,
+        );
+        const jsCollision = jsBody.indexOf('return finishBubble();', jsNext);
+        assert.ok(jsMove >= 0 && jsMove < jsAwait && jsAwait < jsClog);
+        assert.ok(jsClog < jsNext && jsNext < jsCollision);
+        assert.match(jsBody, /if \(!moved\) elemental_clog\(contents\.list, state\);/);
+
+        const cMoveBubbles = sourceBody(C_MKMAZE, '\nmovebubbles(void)');
+        const jsMoveBubbles = sourceBody(JS_MKMAZE,
+            'export async function movebubbles(');
+        assert.ok(cMoveBubbles.indexOf('mv_bubble(b,') >= 0);
+        assert.ok(jsMoveBubbles.indexOf('await mv_bubble(bubble,') >= 0);
+    });
+
 function mazeState() {
     const state = resetGame();
     state.level = new GameMap();
@@ -48,7 +88,7 @@ function mazeState() {
     return state;
 }
 
-test('mkmaze.c movebubbles clears worm wx values before bubble relocation', () => {
+test('mkmaze.c movebubbles clears worm wx values before bubble relocation', async () => {
     const state = resetGame();
     // This independent seed only initializes relocation's un-injected
     // tail-position helper; it is not a reference-game seed, and the three
@@ -131,7 +171,7 @@ test('mkmaze.c movebubbles clears worm wx values before bubble relocation', () =
         return bound === 5 ? 1 : 0;
     };
 
-    movebubbles(state, random);
+    await movebubbles(state, random);
 
     assert.deepEqual(draws, [3, 3, 5]);
     assert.deepEqual(bubble.cons, []);

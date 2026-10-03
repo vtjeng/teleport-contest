@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first complete Levitation-4 variant. The exact suffix is one space after the wait command: it dismisses the C-observed vomiting More, while C returns directly to command input after the forced turns and \"You can move again.\" Levitation remains active for all three timeout decrements; acid melts the ice, but pooleffects skips pool entry. The final status still displays Lev.",
+  "segments": [
+    {
+      "seed": 45317921,
+      "datetime": "20280115140720",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding4,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n4q\n #wizintrinsic\n1k\n . "
+    }
+  ]
+}

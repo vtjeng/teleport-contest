@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { createArtifactTable } from '../js/artifacts.js';
@@ -31,6 +32,9 @@ import {
     initialize_symbols_from_options,
     SYM_OFF_X,
 } from '../js/symbols.js';
+
+const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
+const FRUIT_SOURCE = readFileSync('js/fruit.js', 'utf8');
 
 function objectState(initialized = false) {
     const state = { context: {}, flags: {} };
@@ -205,10 +209,15 @@ test('fruit fixed-buffer helpers keep their distinct C terminators', () => {
 });
 
 test('makesingular preserves the object-name inflection rules used by fruit', () => {
+    // C objnam.c:singplur_lookup() reaches badman() before the ordinary
+    // suffix rewrite. These values pin its listed NO_MAN exception, the
+    // normal *men-to-*man fallback, and the special-subject as-is table.
     const cases = [
         ['blueberries', 'blueberry'],
         ['knives', 'knife'],
         ['slices of pizza', 'slice of pizza'],
+        ['specimen', 'specimen'],
+        ['firemen', 'fireman'],
         ['children', 'child'],
         ['mice', 'mouse'],
         ['boxes', 'box'],
@@ -217,6 +226,7 @@ test('makesingular preserves the object-name inflection rules used by fruit', ()
         ['fungi', 'fungus'],
         ['bacteria', 'bacterium'],
         ['boots', 'boots'],
+        ['Hippocrates', 'Hippocrates'],
         ['Manes', 'Manes'],
         // strcasecpy only promotes the replacement's first character here.
         ['THEY', 'It'],
@@ -226,6 +236,9 @@ test('makesingular preserves the object-name inflection rules used by fruit', ()
 });
 
 test('makeplural preserves source compounds and irregular object names', () => {
+    // C objnam.c:singplur_compound() splits " of " before inflection;
+    // ch_ksound() gives monarch the listed k-sound spelling, while church
+    // takes the ordinary "es" suffix because it is absent from that list.
     const cases = [
         ['potion of healing', 'potions of healing'],
         ['knife', 'knives'],
@@ -233,6 +246,7 @@ test('makeplural preserves source compounds and irregular object names', () => {
         ['vortex', 'vortices'],
         ['human', 'humans'],
         ['monarch', 'monarchs'],
+        ['church', 'churches'],
         ['pair of boots', 'pair of boots'],
         ['blueberry', 'blueberries'],
         ['foo@', 'foo@s'],
@@ -243,6 +257,20 @@ test('makeplural preserves source compounds and irregular object names', () => {
     ];
     for (const [singular, plural] of cases)
         assert.equal(makeplural(singular), plural, singular);
+});
+
+test('fruit inflection keeps the C helper owners and direction flag', () => {
+    assert.match(OBJNAM_SOURCE,
+        /singplur_lookup\([\s\S]*?boolean to_plural[\s\S]*?alt_as_is/u);
+    assert.match(OBJNAM_SOURCE, /singplur_compound\(char \*str\)/u);
+    assert.match(OBJNAM_SOURCE, /ch_ksound\(const char \*basestr\)/u);
+    assert.match(FRUIT_SOURCE, /function singplur_lookup\(value, toPlural/u);
+    assert.match(FRUIT_SOURCE, /function singplur_compound\(value\)/u);
+    assert.match(FRUIT_SOURCE, /function ch_ksound\(value\)/u);
+    assert.match(FRUIT_SOURCE,
+        /singplur_lookup\(base, true, \['ae', 'eaux', 'matzot'\]\)/u);
+    assert.match(FRUIT_SOURCE,
+        /singplur_lookup\(base, false, SPECIAL_SUBJECTS\)/u);
 });
 
 test('artifact fruit matching returns only its article classification', () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 202610031,
+      "datetime": "20441003093000",
+      "nethackrc": "OPTIONS=name:GasEntryA83,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": " \u0017cursed scroll of stinking cloud\nro    ll.ll"
+    }
+  ],
+  "_comment": "Independent C-first source witness for active gas-region hero membership. Wizard Orc wishes a cursed stinking-cloud scroll (C read.c:do_stinking_cloud size 5), centers it two cursor steps east, then walks east through the cross-shaped region. Orc poison resistance keeps the inside callback safe while the movement caller should flip hero_inside. Inputs are frozen before recording; this covers in_out_region membership, not the disabled transition callback slots."
+}

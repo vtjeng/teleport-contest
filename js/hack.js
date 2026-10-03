@@ -1,10 +1,13 @@
 // Movement-adjacent world effects owned by hack.c.
+// C refs: hack.c pooleffects() and spoteffects(), plus the selected return
+// helpers named at their definitions below.
 
 import {
     A_CON,
     A_DEX,
     A_STR,
     ARTICLE_NONE,
+    ARTICLE_A,
     ARTICLE_THE,
     ARTICLE_YOUR,
     BLINDED,
@@ -98,6 +101,7 @@ import {
     POOL,
     RIGHT_SIDE,
     ROWNO,
+    RLOC_NOMSG,
     ROOM,
     ROOMOFFSET,
     RUN_CRAWL,
@@ -135,10 +139,12 @@ import {
     TT_PIT,
     Upolyd,
     VIBRATING_SQUARE,
+    WARNING,
     WATER,
     WEB,
     WOUNDED_LEGS,
     W_ARTI,
+    W_ARMF,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WT_ELF,
@@ -172,6 +178,7 @@ import { adjalign, acurrstr, acurr, exercise } from './attrib.js';
 import {
     bot,
     classify_terrain,
+    docrt,
     feel_location,
     flush_screen,
     glyph_at,
@@ -207,6 +214,7 @@ import { clear_kickedloc } from './dokick.js';
 import { drag_ball, move_bc } from './ball.js';
 import { dig_typ, use_pick_axe2, watch_dig } from './dig.js';
 import {
+    Amonnam,
     a_monnam,
     capitalizedAlwaysVisibleMonsterName,
     hliquid,
@@ -218,6 +226,7 @@ import {
 } from './do_name.js';
 import {
     assign_level,
+    ceiling,
     Invocation_lev,
     on_level,
     surface,
@@ -241,7 +250,7 @@ import {
     wipe_engr_at,
 } from './engrave.js';
 import { game } from './gstate.js';
-import { carrying, delobj } from './invent.js';
+import { carrying, delobj, sobj_at } from './invent.js';
 import { doopen_indir } from './lock.js';
 import {
     amorphous,
@@ -263,7 +272,6 @@ import {
     breathless,
     ceiling_hider,
     is_swimmer,
-    likes_lava,
     metallivorous,
     Resists_Elem,
     dmgtype,
@@ -285,7 +293,6 @@ import {
     objectType,
     place_object,
     remove_object,
-    sobj_at,
 } from './obj.js';
 import {
     an,
@@ -333,20 +340,21 @@ import {
 } from './monsters.js';
 import {
     curr_mon_load,
+    m_in_air,
     minliquid,
     maybe_unhide_at,
     seemimic,
     set_ustuck,
 } from './mon.js';
-import { m_next2u } from './mhitu.js';
+import { m_next2u, mdamageu } from './mhitu.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
+import { S_PIERCER } from './monsters.js';
 import { abuse_dog } from './dog.js';
 import {
     accessible,
     can_ooze,
     can_fog,
     closed_door,
-    m_in_air,
     onscary,
     set_apparxy,
     wormCross,
@@ -361,7 +369,6 @@ import {
 } from './pickup.js';
 import {
     in_out_region,
-    inside_region,
     visible_region_at,
 } from './region.js';
 import { CapitalMon } from './random_text.js';
@@ -370,12 +377,19 @@ import { maybe_adjust_hero_bubble, water_friction } from './mkmaze.js';
 import {
     is_db_wall,
     is_pool,
+    is_ice,
+    is_lava,
+    is_pool_or_lava,
+    is_waterwall,
 } from './dbridge.js';
 import { waterbody_name } from './pager.js';
 import { Cold_resistance } from './zap.js';
-import { enexto, goodpos, rloc, rloc_to } from './teleport.js';
+import { enexto, goodpos, mnexto, rloc, rloc_to } from './teleport.js';
 import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
+import { Boots_on, hard_helmet } from './do_wear.js';
+import { helm_simple_name } from './objnam.js';
+
 import {
     addtobill,
     block_door,
@@ -404,8 +418,6 @@ import {
     stop_timer,
 } from './timeout.js';
 import {
-    is_lava,
-    is_pool_or_lava,
     back_on_ground,
     climb_pit,
     drown,
@@ -555,13 +567,9 @@ export async function handle_tip(tip, state = game, env = {}) {
     return true;
 }
 
-// C ref: hack.c weight_cap() (4293-4351), for the live unpolymorphed,
-// non-levitating repeated-command boundary. Unlike the former startup-only
-// helper, this reads effective Strength on every call, so hunger weakness can
-// change carrying capacity before the next monster/allocation cycle.
-//
-// The Boots_on/ELevitation deferral and its restore at 4337-4341 are absent
-// because nothing reaches them.
+// C ref: hack.c weight_cap() (4293-4351). Read the live attributes and
+// property masks on every call, including the temporary levitation changes
+// around Boots_on and the I_SPECIAL floor-trap exception.
 //
 // The Upolyd adjustment at 4313-4323 scales carrying capacity by the
 // polymorphed form's corpse weight (cwt) relative to WT_HUMAN, matching
@@ -569,15 +577,31 @@ export async function handle_tip(tip, state = game, env = {}) {
 // by msize/MZ_HUMAN; a non-strong form (or a strong form heavier than human)
 // scales by cwt/WT_HUMAN.
 //
-// The steed arm at 4325-4327 is live, because riding a strong monster is one
-// of the three ways C reaches MAX_CARR_CAP -- the other two, Levitation and
-// the air level, remain out of reach.
+// The effective-Levitation and air-level arms at 4325-4327 provide full
+// capacity alongside riding a strong monster. Boots_on temporarily masks
+// footwear Levitation until the delayed wearing callback completes.
 //
 // The EWounded_legs reduction at 4331-4336 is live too, and it is what turns a
 // bear trap's set_wounded_legs() into the "Burdened" the status line shows: one
 // wounded leg costs WT_WOUNDEDLEG_REDUCT, and both cost twice that. C guards it
 // with !Flying, which is the only reader of Flying in this function.
 export function weight_cap(state = game) {
+    const levitation = state.u.uprops[LEVITATION];
+    const saveELevitation = levitation.extrinsic;
+    const saveBLevitation = levitation.blocked;
+
+    // C compares ga.afternmv by function identity. Boots grant their
+    // properties when wearing begins, but C defers the levitation carrying
+    // benefit until the multi-turn Boots_on callback has finished.
+    if (state.afternmv === Boots_on && (levitation.extrinsic & W_ARMF) !== 0) {
+        levitation.extrinsic &= ~W_ARMF;
+        float_vs_flight(state);
+    }
+
+    // C ignores only the floor-trap I_SPECIAL block while calculating
+    // capacity, then restores the complete mask below.
+    levitation.blocked &= ~I_SPECIAL;
+
     let capacity = WT_WEIGHTCAP_STRCON * (
         acurrstr(state) + acurr(state, A_CON)
     ) + WT_WEIGHTCAP_SPARE;
@@ -603,10 +627,17 @@ export function weight_cap(state = game) {
     } else {
         capacity = Math.min(capacity, MAX_CARR_CAP);
         if (!heroIsFlying(state)) {
-            const sides = state.u?.uprops?.[WOUNDED_LEGS]?.extrinsic ?? 0;
+            const sides = state.u.uprops[WOUNDED_LEGS].extrinsic;
             if (sides & LEFT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
             if (sides & RIGHT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
         }
+    }
+
+    if (levitation.extrinsic !== saveELevitation
+        || levitation.blocked !== saveBLevitation) {
+        levitation.extrinsic = saveELevitation;
+        levitation.blocked = saveBLevitation;
+        float_vs_flight(state);
     }
     return Math.max(Math.trunc(capacity), 1); /* never return 0 */
 }
@@ -636,9 +667,10 @@ function capacity_from_excess(excess, capacity) {
 // C ref: hack.c inv_weight(). The inventory is stable throughout the current
 // repeated-command boundary, but its capacity component is deliberately live.
 export function inv_weight(state = game) {
+    const weight = inventory_weight(state);
     state.gw ??= {};
     state.gw.wc = weight_cap(state);
-    return inventory_weight(state) - state.gw.wc;
+    return weight - state.gw.wc;
 }
 
 // C ref: hack.c inv_cnt() (4494-4507). Counts inventory slots, optionally
@@ -1448,6 +1480,11 @@ export function requireSimpleHeroDestination(
     const ordinaryDestination = location && (walkingLiquid
             || location.typ === ROOM
             || location.typ === CORR
+            // hack.c:test_move()'s obstacle chain only blocks IS_OBSTRUCTED
+            // terrain and iron bars. ICE therefore passes the same movement
+            // gate and reaches spoteffects(), which owns its melt timer and
+            // underfoot effects.
+            || location.typ === ICE
             || IS_AIR(location.typ)
             || IS_FURNITURE(location.typ)
             || doorway);
@@ -1512,11 +1549,10 @@ export function requireSimpleHeroDestination(
     const destinationTrap = t_at(x, y, state);
     if (destinationTrap) preflight_dotrap(destinationTrap, state);
 
-    for (const region of state.level?.regions ?? []) {
-        if (region.attach_2_u) continue;
-        if (Boolean(region.hero_inside) !== inside_region(region, x, y))
-            throw new UnsupportedHeroMoveBoundaryError('region crossing');
-    }
+    // Region membership is not an admission failure. hack.c runs
+    // avoid_trap_andor_region() for any needed confirmation, then
+    // in_out_region() before changing u.ux/u.uy; that same source order owns
+    // the query and hero_inside transition here.
     try {
         preflight_shop_transition(state.u.ux, state.u.uy, x, y, state);
     } catch (error) {
@@ -1661,41 +1697,6 @@ function heldStepIgnoresDestination(state) {
     return Boolean(state.u?.utrap) && state.u.utraptype === TT_BEARTRAP;
 }
 
-// The one thing domove_core() does read about the square a held hero pushes
-// against. C ref: hack.c avoid_trap_andor_region() (2513-2581), called at
-// 2822-2825 -- above the u.utrap block at 2830, so it runs whether or not the
-// step can ever commit. Its first arm asks before stepping into a visible gas
-// cloud, its second before stepping onto a trap the hero has already seen, and
-// each blocks on paranoid_query()'s y/n read. Admitting such a step would
-// print the struggle line and then take the answer key as the next command,
-// which is a silent divergence rather than a stop.
-//
-// The whole function is unported (`grep -rn "avoid_trap_andor_region" js/`
-// finds only this comment), so both destinations stop here. The refusal is
-// wider than C in four ways, each of them a stop where C carries on:
-//   ParanoidTrap -- options.c:7173 sets PARANOID_TRAP in the default
-//     paranoia_bits and js/options.js:365 reproduces that default, but a
-//     nethackrc that cleared the bit would silence both prompts;
-//   `!svc.context.nopick || svc.context.run` -- an 'm'-prefixed step skips
-//     both prompts;
-//   test_move(..., TEST_MOVE) -- C asks neither question about a square the
-//     hero could not enter anyway;
-//   immune_to_trap() != TRAP_CLEARLY_IMMUNE, and the region arm's reg_damg()
-//     comparison against the region the hero is leaving -- both suppress the
-//     prompt for a hazard that cannot touch this hero.
-function requireHeldStepDestination(x, y, state) {
-    if (visible_region_at(x, y, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'paranoid region confirmation',
-        );
-    }
-    if (t_at(x, y, state)?.tseen) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'paranoid trap confirmation',
-        );
-    }
-}
-
 // cmd.c establishes movement intent only after this hack.c admission seam has
 // shown that the destination is inside the currently ported domove() subset.
 export function preflightDomoveDestination(x, y, state = game, run = 0) {
@@ -1739,10 +1740,9 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // own refusals inside domove(); this arm is here to let them.
     } else if (heldStepIgnoresDestination(state)) {
         // The step never reaches the terrain rules at all, so this seam must
-        // not consult them either. See heldStepIgnoresDestination() above.
-        // avoid_trap_andor_region() is the exception C makes, and the only
-        // one: it runs above the u.utrap block.
-        requireHeldStepDestination(x, y, state);
+        // not consult them either. C still calls avoid_trap_andor_region()
+        // above trapmove(), where the live movement path can ask and consume
+        // visible-region or discovered-trap confirmation.
     } else if (refusedDiagonalDoorway(x, y, state)) {
         // test_move() owns both diagonal doorway refusals on an empty square.
     } else if (closed_door(x, y, state)) {
@@ -2357,22 +2357,37 @@ async function moverock_core(sx, sy, state, env) {
             return cannot_push(otmp, sx, sy, state);
         }
 
-        // 496-618 and 620-621 are return-valued effects. The local trap and
-        // liquid owners are not complete, so do not silently move a boulder
-        // through them or claim test_move() completion.
+        // hack.c:494. The push disturbs buried zombies before trap or liquid
+        // effects are considered.
+        disturb_buried_zombies(sx, sy, state);
+
+        // 496-618 remains the local trap-effect boundary; do not silently move
+        // a boulder through an unported trap handler.
         if (ttmp) {
             throw new UnsupportedHeroMoveBoundaryError(
                 'hack.c moverock_core boulder trap effect',
             );
         }
         if (is_pool_or_lava(rx, ry, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'do.c boulder_hits_pool',
-            );
+            // hack.c:620-621. This Boolean is consumed: TRUE means the
+            // boulder entered the liquid helper and was consumed, so C
+            // restarts the source-square pile scan instead of dopush().
+            const { boulder_hits_pool } = await import('./do.js');
+            const helperEnv = {
+                ...env,
+                state,
+                hooks: {
+                    ...boulderVisionEnv(state).hooks,
+                    ...env.hooks,
+                    // useupf() reaches obj_extract_self() for this floor
+                    // boulder; C's remove_object() unlinks both floor lists.
+                    extractExternalObject:
+                        env.hooks?.extractExternalObject ?? remove_object,
+                },
+            };
+            if (await boulder_hits_pool(otmp, rx, ry, true, helperEnv))
+                continue;
         }
-
-        /* rumbling disturbs buried zombies */
-        disturb_buried_zombies(sx, sy, state);
 
         /*
          * Re-link at top of fobj chain so that pile order is preserved
@@ -2728,39 +2743,6 @@ export async function crawl_destination(x, y, state = game) {
     const good = goodpos(x, y, hero, 0, {
         state,
         random: { rn2 },
-        heroCanOccupyPool: (candidateX, candidateY, env) => {
-            const candidateState = env.state;
-            const candidate = candidateState.level?.at(candidateX, candidateY);
-            const swimming = propertyPresent(candidateState, SWIMMING)
-                || Boolean(candidateState.u?.usteed
-                    && is_swimmer(candidateState.u.usteed.data));
-            const amphibiousHero = propertyPresent(
-                candidateState,
-                MAGICAL_BREATHING,
-            ) || amphibious(candidateState.youmonst?.data);
-            const waterWalking = propertyPresent(candidateState, WWALKING)
-                && !Is_waterlevel(candidateState.u?.uz);
-            const canRemainAboveWater = !Is_waterlevel(candidateState.u?.uz)
-                && !IS_WATERWALL(candidate?.typ)
-                && (propertyActiveUnblocked(candidateState, LEVITATION)
-                    || heroIsFlying(candidateState)
-                    || waterWalking);
-            return swimming || amphibiousHero || canRemainAboveWater;
-        },
-        heroCanOccupyLava: (_candidateX, _candidateY, env) => {
-            const candidateState = env.state;
-            const waterWalking = propertyPresent(candidateState, WWALKING)
-                && !Is_waterlevel(candidateState.u?.uz);
-            const waterWalkingBoots = candidateState.u?.uarmf;
-            return propertyActiveUnblocked(candidateState, LEVITATION)
-                || heroIsFlying(candidateState)
-                || (propertyPresent(candidateState, FIRE_RES)
-                    && waterWalking
-                    && waterWalkingBoots
-                    && waterWalkingBoots.oerodeproof)
-                || (Upolyd(candidateState.u)
-                    && likes_lava(candidateState.youmonst?.data));
-        },
     });
     if (!good) return false;
 
@@ -3117,7 +3099,7 @@ export function u_simple_floortyp(x, y, state = game) {
     const typ = state.level?.at(x, y)?.typ;
     const inAir = propertyActiveUnblocked(state, LEVITATION)
         || heroIsFlying(state) || !grounded(state.youmonst?.data, state);
-    if (IS_WATERWALL(typ)) return WATER;
+    if (is_waterwall(x, y, state)) return WATER;
     if (typ === LAVAWALL) return LAVAWALL;
     if (!inAir) {
         if (is_pool(x, y, state)) return POOL;
@@ -4893,14 +4875,15 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
     const { u } = state;
     const levitating = propertyActiveUnblocked(state, LEVITATION);
     const flying = heroIsFlying(state);
-    const waterWalking = propertyActiveUnblocked(state, WWALKING);
-    const swimming = propertyActiveUnblocked(state, SWIMMING)
+    const waterWalking = propertyPresent(state, WWALKING)
+        && !Is_waterlevel(u.uz);
+    const swimming = propertyPresent(state, SWIMMING)
         || Boolean(u.usteed && is_swimmer(u.usteed.data));
-    const breathlessHero = propertyActiveUnblocked(
-        state,
-        MAGICAL_BREATHING,
-    ) || breathless(state.youmonst?.data);
-    const amphibiousHero = breathlessHero || amphibious(state.youmonst?.data);
+    const hasMagicalBreathing = propertyPresent(state, MAGICAL_BREATHING);
+    const breathlessHero = hasMagicalBreathing
+        || breathless(state.youmonst?.data);
+    const amphibiousHero = hasMagicalBreathing
+        || amphibious(state.youmonst?.data);
 
     if (u.uinwater) {
         let stillInWater = false;
@@ -4939,13 +4922,23 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
             );
             await set_uinwater(false, state, rawEnv);
             if (wasUnderwater) {
-                await docrt({ state });
+                // hack.c:pooleffects() restores vision around docrt() before
+                // requesting the later full recalculation. display.c's C
+                // docrt_flags() owns both phases; JS docrt() exposes them to
+                // callers so this submerged-to-air redraw follows that order.
+                await docrt({
+                    state,
+                    suspendVision: () => vision_recalc(2, { state }),
+                    restoreVision: () => vision_recalc(0, { state }),
+                });
                 state.vision_full_recalc = 1;
             }
         }
     }
 
-    if (!u.ustuck && !levitating && !flying
+    if (!u.ustuck
+        && !propertyActiveUnblocked(state, LEVITATION)
+        && !heroIsFlying(state)
         && is_pool_or_lava(u.ux, u.uy, state)) {
         if (u.usteed && !grounded(u.usteed.data, state)) {
             return false;
@@ -4967,9 +4960,7 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
         if (is_lava(u.ux, u.uy, state)) {
             if (await lava_effects(state)) return true;
         } else {
-            const isWaterWall = IS_WATERWALL(
-                state.level?.at(u.ux, u.uy)?.typ,
-            );
+            const isWaterWall = is_waterwall(u.ux, u.uy, state);
             if ((!waterWalking || isWaterWall)
                 && (newspot || !u.uinwater
                     || !(swimming || amphibiousHero || breathlessHero))) {
@@ -4980,92 +4971,212 @@ export async function pooleffects(newspot, state = game, rawEnv = {}) {
     return false;
 }
 
-// C ref: hack.c spoteffects():3345-3347, the terrain test that guards
-// switch_terrain(). teleport.c teleds():551-552 has a test of its own with the
-// same call, so this one is written where spoteffects() has it rather than
-// folded into switch_terrain().
+// C's spottrap, spottraptyp, spotterrain, spotloc, and inspoteffects are
+// function statics. Keep one corresponding record per game state so nested
+// effect calls preserve C's recursion guard without leaking between tests.
+const spoteffectsStatics = new WeakMap();
+
+function spoteffectsStaticsFor(state) {
+    let record = spoteffectsStatics.get(state);
+    if (!record) {
+        record = {
+            depth: 0,
+            x: 0,
+            y: 0,
+            terrain: STONE,
+            trap: null,
+            traptyp: NO_TRAP_FLAGS,
+        };
+        spoteffectsStatics.set(state, record);
+    }
+    return record;
+}
+
+// C ref: hack.c spoteffects()'s terrain-transition gate (3329-3335). Keep it
+// as a small source-derived predicate so focused tests can pin both the
+// previous-square comparison and the forced MAX_TYPE refresh.
 export function terrain_changed_under_hero(state = game) {
     const { u } = state;
     const current = state.level?.at(u.ux, u.uy);
     const previous = state.level?.at(u.ux0, u.uy0);
-    if (!current || !previous) return false;
-    return current.typ !== previous.typ
-        || state.iflags?.terrain_typ === MAX_TYPE;
+    return Boolean(current && previous
+        && (current.typ !== previous.typ
+            || state.iflags?.terrain_typ === MAX_TYPE));
 }
 
-// C ref: hack.c spoteffects() (3312-3462), the arms an ordinary ROOM, CORR,
-// IS_AIR, IS_FURNITURE or open doorway square reaches, plus the trap arm at
-// 3373-3398.
-// Its two ported callers, domove() and teleport.c teleds(), each admit their
-// destination through requireSimpleHeroDestination() first, which refuses
-// every square that could reach the pool, lava or ice-warning arms and hands
-// the trap arm's admission to preflight_dotrap(); the recursion guard and the
-// iflags.in_lava_effects return are unreachable for the same reason. The
-// resident-monster arm at 3417-3455 is kept out by the callers instead:
-// domove() reaches this seam only when m_at() answered null, and teleds()
-// makes that test itself. The sink arm is the one an admitted destination can
-// now reach, so it is refused here rather than ahead of the move.
-//
-// gi.in_steed_dismounting is C's kludge for the one caller that needs the
-// pickup deferred: steed.c dismount_steed() sets it around its teleds() call
-// and then lets float_down() run pickup(1) exactly once.
+// C ref: hack.c spoteffects() (3312-3462). This owns the complete square
+// arrival order, including the recursive ICE->liquid path through pooleffects,
+// the fire-trap guard, the melt warning, and the resident-monster surprise.
+// gi.in_steed_dismounting suppresses only the trap/pickup tail; the preceding
+// terrain, pool and room effects still run on that C entry.
 export async function spoteffects(pick, state = game, rawEnv = {}) {
-    let trap = t_at(state.u.ux, state.u.uy, state);
+    const { u } = state;
+    const message = rawEnv.planning
+        ? async () => {}
+        : (rawEnv.message ?? ttyPline);
+    const random = { rn2, rnd, d, ...rawEnv.random };
+    const staticState = spoteffectsStaticsFor(state);
+    let trap = t_at(u.ux, u.uy, state);
     // C ref: hack.c:3322. untrap.c is not ported and nothing sets the flag, so
     // FAILEDUNTRAP never reaches dotrap() -- but the read belongs here, where
     // C makes it, rather than being written out as the constant 0.
     const trapflag = state.iflags?.failing_untrap ? FAILEDUNTRAP : 0;
-    if (await pooleffects(true, state, rawEnv)
-        // C's done() is non-returning.  The JS finalizer returns after setting
-        // gameover so that the segment can capture its terminal display; stop
-        // spoteffects here before its ordinary arrival tail redraws the map.
-        || state.program_state?.gameover) return;
-    if (terrain_changed_under_hero(state))
-        await switch_terrain(state, rawEnv);
-    await check_special_room(false, state);
-    // C ref: hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm. Nothing
-    // in this port grants levitation, so the arm is unreachable today, but
-    // admitting a sink as a destination is what makes it reachable in
-    // principle; sit.c dosinkfall() has no owner.
-    if (IS_SINK(state.level?.at(state.u.ux, state.u.uy)?.typ)
-        && propertyActiveUnblocked(state, LEVITATION)) {
-        await dosinkfall(state);
+    const location = state.level?.at(u.ux, u.uy);
+
+    // C ref: hack.c:3320-3326. Keep the guard before changing its saved
+    // terrain/coordinate: a same-square, same-terrain recursion is ignored
+    // unless the active trap itself changed type.
+    if (staticState.depth
+        && u_at(staticState.x, staticState.y, state)
+        && staticState.terrain === location?.typ
+        && (!staticState.trap || !trap
+            || trap.ttyp === staticState.traptyp)) {
+        return;
     }
-    if (!state.in_steed_dismounting) {
-        // C ref: hack.c:3362-3372. A levitation about to time out at the end
-        // of this turn would let the trap fire twice, so C spends an rn2(2) to
-        // move the timeout out of the way. float_down() handles the early
-        // landing; when it fires the trap and pickup itself, suppress this
-        // caller's second copy of those effects.
-        const levitation = state.u.uprops[LEVITATION];
-        if (trap && (levitation.intrinsic & TIMEOUT) === 1
-            && !levitation.extrinsic
-            && !(levitation.intrinsic & ~(I_SPECIAL | TIMEOUT))) {
-            if (rn2(2)) {
-                const { incr_itimeout } = await import('./potion.js');
-                incr_itimeout(levitation, 1);
-            } else {
-                const { float_down } = await import('./trap.js');
-                if (await float_down(I_SPECIAL | TIMEOUT, 0, state)) {
-                    trap = null;
-                    pick = false;
+    if (state.iflags?.in_lava_effects) return;
+
+    ++staticState.depth;
+    staticState.terrain = location?.typ ?? STONE;
+    staticState.x = u.ux;
+    staticState.y = u.uy;
+    try {
+        // C ref: hack.c:3329-3335. The terrain transition is first; liquid
+        // effects may then relocate the hero and jump to spotdone.
+        if (terrain_changed_under_hero(state)) {
+            await switch_terrain(state, rawEnv);
+        }
+        if (await pooleffects(true, state, rawEnv)
+            || state.program_state?.gameover) return;
+
+        await check_special_room(false, state);
+        if (IS_SINK(state.level?.at(u.ux, u.uy)?.typ)
+            && propertyActiveUnblocked(state, LEVITATION)) {
+            await dosinkfall(state);
+        }
+        if (!state.in_steed_dismounting) {
+            // C ref: hack.c:3362-3372. Preserve the one-point timeout check
+            // and consume rn2(2) only when the fire trap would otherwise run
+            // twice at the end of this turn.
+            const levitation = u.uprops[LEVITATION] ?? {};
+            if (trap && (levitation.intrinsic & TIMEOUT) === 1
+                && !levitation.extrinsic
+                && !(levitation.intrinsic & ~(I_SPECIAL | TIMEOUT))) {
+                if (random.rn2(2)) {
+                    const { incr_itimeout } = await import('./potion.js');
+                    incr_itimeout(levitation, 1);
+                } else {
+                    const { float_down } = await import('./trap.js');
+                    if (await float_down(
+                        I_SPECIAL | TIMEOUT, 0, state, rawEnv,
+                    )) {
+                        trap = null;
+                        pick = false;
+                    }
                 }
             }
+
+            // C ref: hack.c:3379-3398. Ordinary traps pick up before firing;
+            // pits fire before the pickup. A fire trap records its type across
+            // recursive melt_ice()/spoteffects() entry.
+            const pit = Boolean(trap && is_pit(trap.ttyp));
+            if (pick && !pit) await pickup(1, state);
+            if (trap && (!staticState.trap
+                || staticState.traptyp !== trap.ttyp)) {
+                staticState.trap = trap;
+                staticState.traptyp = trap.ttyp;
+                try {
+                    await dotrap(trap, trapflag, state);
+                } finally {
+                    staticState.trap = null;
+                    staticState.traptyp = NO_TRAP_FLAGS;
+                }
+            }
+            if (pick && pit) await pickup(1, state);
         }
-        //
-        // C ref: hack.c:3379-3398. Which of pickup(1) and dotrap() goes first
-        // is decided by is_pit() alone: the hero picks up what is lying on an
-        // ordinary trap before it fires, and falls into a pit before picking
-        // anything up from its floor. A bear trap is not a pit, which is why
-        // the object pile is described first and the trap line arrives on the
-        // next screen.
-        const pit = Boolean(trap && is_pit(trap.ttyp));
-        if (pick && !pit) await pickup(1, state);
-        // C's spottrap/spottraptyp statics at 3388-3396 guard against a fire
-        // trap re-entering spoteffects() through melt_ice(); no ported trap
-        // effect recurses, so the guard has nothing to suppress.
-        if (trap) await dotrap(trap, trapflag, state);
-        if (pick && pit) await pickup(1, state);
+
+        // C ref: hack.c:3402-3410. Warning reads the raw HWarning/EWarning
+        // fields (including blocked bits) and looks up this square's timer.
+        const warning = u.uprops[WARNING];
+        if ((warning?.intrinsic || warning?.extrinsic)
+            && is_ice(u.ux, u.uy, state)) {
+            const warnings = [
+                'The ice seems very soft and slushy.',
+                'You feel the ice shift beneath you!',
+                'The ice, is gonna BREAK!',
+            ];
+            const timeLeft = spot_time_left(
+                u.ux,
+                u.uy,
+                MELT_ICE_AWAY,
+                state,
+            );
+            if (timeLeft && timeLeft < 15) {
+                const index = timeLeft < 5 ? 2 : timeLeft < 10 ? 1 : 0;
+                await message(warnings[index], state);
+            }
+        }
+
+        // C ref: hack.c:3412-3455. The monster at the hero's square loses its
+        // hiding and sleep state before its species-specific surprise runs.
+        const monster = m_at(u.ux, u.uy, state);
+        if (monster && !u.uswallow) {
+            monster.mundetected = 0;
+            monster.msleeping = 0;
+            if (monster.data?.mlet === S_PIERCER) {
+                await message(
+                    `${Amonnam(monster, { ...rawEnv, state })} suddenly drops from the ${ceiling(u.ux, u.uy, state)}!`,
+                    state,
+                );
+                if (!monster.mtame) {
+                    if (hard_helmet(state.uarmh, state)) {
+                        await message(
+                            `Its blow glances off your ${helm_simple_name(state.uarmh, state)}.`,
+                            state,
+                        );
+                    } else if (u.uac + 3 <= random.rnd(20)) {
+                        await message(
+                            `You are almost hit by ${x_monnam(monster, ARTICLE_A, 'falling', 0, true, state, rawEnv)}!`,
+                            state,
+                        );
+                    } else {
+                        await message(
+                            `You are hit by ${x_monnam(monster, ARTICLE_A, 'falling', 0, true, state, rawEnv)}!`,
+                            state,
+                        );
+                        let damage = random.d(4, 6);
+                        if (propertyPresent(state, HALF_PHDAM))
+                            damage = Math.floor((damage + 1) / 2);
+                        await mdamageu(monster, damage, state, rawEnv);
+                    }
+                }
+            } else if (monster.mtame) {
+                await message(
+                    `${Amonnam(monster, { ...rawEnv, state })} jumps near you from the ${ceiling(u.ux, u.uy, state)}.`,
+                    state,
+                );
+            } else if (monster.mpeaceful) {
+                const name = heroIsBlind(state) && !sensesMonster(monster, state)
+                    ? 'something'
+                    : a_monnam(monster, { ...rawEnv, state });
+                await message(`You surprise ${name}!`, state);
+                monster.mpeaceful = 0;
+            } else {
+                await message(
+                    `${Amonnam(monster, { ...rawEnv, state })} attacks you by surprise!`,
+                    state,
+                );
+            }
+            await mnexto(monster, RLOC_NOMSG, { ...rawEnv, state });
+        }
+    } finally {
+        // C ref: hack.c:3457-3462. The statics reset only after the outermost
+        // spoteffects() invocation returns.
+        --staticState.depth;
+        if (!staticState.depth) {
+            staticState.terrain = STONE;
+            staticState.x = 0;
+            staticState.y = 0;
+        }
     }
 }
 

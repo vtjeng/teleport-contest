@@ -135,7 +135,7 @@ import {
     ceiling, depth, dunlev, dunlevs_in_dungeon, get_level, ledger_no, on_level,
     surface,
 } from './dungeon.js';
-import { add_to_container, carrying, freeinv, hands_obj, obfree, obj_extract_self } from './invent.js';
+import { add_to_container, carrying, freeinv, hands_obj, obfree, obj_extract_self, sobj_at } from './invent.js';
 import { game } from './gstate.js';
 import { can_carry } from './moncarry.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
@@ -171,7 +171,6 @@ import {
     objectType,
     place_object,
     remove_object,
-    sobj_at,
     splitobj,
     unbless,
     unknow_object,
@@ -195,6 +194,8 @@ import {
     find_drawbridge,
     is_drawbridge_wall,
     is_pool,
+    is_lava,
+    is_ice,
 } from './dbridge.js';
 import {
     enexto, noteleport_level, random_teleport_level, rloc, tele,
@@ -204,13 +205,12 @@ import { CLR_GREEN, CLR_BRIGHT_GREEN } from './terminal.js';
 import { begin_burn } from './timeout.js';
 import {
     fill_pit,
-    is_lava,
     maketrap,
     t_at,
     trapname,
     unconscious,
 } from './trap.js';
-import { is_ice } from './terrain.js';
+
 import { mintrap, seetrap, wearing_iron_shoes } from './trap_effects.js';
 import { makeplural } from './fruit.js';
 import { s_suffix, upstart } from './hacklib.js';

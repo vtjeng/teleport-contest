@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -40,6 +41,7 @@ import {
     get_pricing_units,
     getprice,
     find_objowner,
+    inhishop,
     is_unpaid,
     oid_price_adjustment,
     onshopbill,
@@ -61,6 +63,15 @@ import {
     PM_SHOPKEEPER,
     PM_TOURIST,
 } from '../js/monsters.js';
+
+const C_SHK = readFileSync('nethack-c/upstream/src/shk.c', 'utf8');
+const JS_SHK = readFileSync('js/shk.js', 'utf8');
+
+function sourceBody(source, signature) {
+    const start = source.indexOf(signature);
+    assert.ok(start >= 0, `${signature} is present`);
+    return source.slice(start);
+}
 
 test('addupbill sums exactly the active bill entries', () => {
     // C ref: shk.c addupbill() (496-507).  billct bounds the pointer walk;
@@ -663,6 +674,30 @@ function shopState({ has_shop = true } = {}) {
     return state;
 }
 
+test('inhishop checks the keeper level before the current room', () => {
+    const cBody = sourceBody(C_SHK, '\ninhishop(');
+    assert.match(cBody,
+        /if \(!on_level\(&eshkp->shoplevel, &u\.uz\)\)\s*return FALSE;\s*shkrooms = in_rooms\(shkp->mx, shkp->my, SHOPBASE\);\s*return \(strchr\(shkrooms, eshkp->shoproom\) != 0\);/u);
+    const jsBody = sourceBody(JS_SHK, 'export function inhishop(');
+    assert.match(jsBody,
+        /on_level\(extension\.shoplevel, state\.u\?\.uz\)\s*&& in_rooms\([\s\S]*?shopkeeper\.mx,[\s\S]*?extension\.shoproom/u);
+
+    const state = shopState();
+    const keeper = state.level.rooms[0].resident;
+    const room = state.level.at(keeper.mx, keeper.my);
+    state.level.at = (x, y) => x === keeper.mx && y === keeper.my ? room : null;
+
+    // A keeper on the source shop room and level is inside the shop.
+    assert.equal(inhishop(keeper, state), true);
+    // The room list alone cannot override a mismatched shoproom value.
+    keeper.mextra.eshk.shoproom = SHOP_ROOMNO + 1;
+    assert.equal(inhishop(keeper, state), false);
+    keeper.mextra.eshk.shoproom = SHOP_ROOMNO;
+    // C returns before reading the room when shoplevel differs from u.uz.
+    keeper.mextra.eshk.shoplevel = { dnum: 0, dlevel: 2 };
+    assert.equal(inhishop(keeper, state), false);
+});
+
 function shopObject(where, overrides = {}) {
     return newObject({
         otyp: DART, oclass: WEAPON_CLASS, quan: 1, where, ox: 4, oy: 5,
@@ -750,4 +785,25 @@ test('shk_your handles personal, unique, and ordinary corpse prefixes', () => {
     assert.equal(shk_your(corpse(PM_MEDUSA), state), '');
     assert.equal(shk_your(corpse(PM_ORACLE), state), 'the ');
     assert.equal(shk_your(corpse(PM_GOBLIN), state), 'your ');
+});
+
+test('shkcatch waits for mnearto before source speech and catch effects', () => {
+    const cBody = sourceBody(C_SHK, '\nshkcatch(\n');
+    const cMove = cBody.indexOf('if (mnearto(shkp, x, y, TRUE, RLOC_NOMSG) == 2');
+    const cVoice = cBody.indexOf('SetVoice(shkp, 0, 80, 0);', cMove);
+    const cSpeak = cBody.indexOf('verbalize("Out of my way, scum!");', cVoice);
+    const cBill = cBody.indexOf('subfrombill(obj, shkp);', cSpeak);
+    const cCatch = cBody.indexOf('mpickobj(shkp, obj);', cBill);
+    assert.ok(cMove >= 0 && cMove < cVoice && cVoice < cSpeak);
+    assert.ok(cSpeak < cBill && cBill < cCatch);
+
+    const jsBody = sourceBody(JS_SHK, 'export async function shkcatch(');
+    const jsMove = jsBody.indexOf('if (await mnearto(shkp, x, y, true');
+    const jsVoice = jsBody.indexOf('set_voice(shkp, 0, 80, 0, state);', jsMove);
+    const jsSpeak = jsBody.indexOf("await verbalize('Out of my way, scum!'", jsVoice);
+    const jsBill = jsBody.indexOf('subfrombill(obj, shkp, state, rawEnv);', jsSpeak);
+    const jsCatch = jsBody.indexOf('mpickobj(shkp, obj, { ...rawEnv, state });', jsBill);
+    assert.ok(jsMove >= 0 && jsMove < jsVoice && jsVoice < jsSpeak);
+    assert.ok(jsSpeak < jsBill && jsBill < jsCatch);
+    assert.match(jsBody, /\{\s*\.\.\.rawEnv,\s*state,\s*\}\) === 2/);
 });

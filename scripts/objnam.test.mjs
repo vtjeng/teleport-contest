@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
     ART_EXCALIBUR,
+    ART_EYES_OF_THE_OVERWORLD,
     ART_GIANTSLAYER,
     ART_GRIMTOOTH,
     ART_HEART_OF_AHRIMAN,
@@ -15,6 +17,11 @@ import {
     BLINDED,
     COLNO,
     CORR,
+    CXN_ARTICLE,
+    CXN_NOCORPSE,
+    CXN_NORMAL,
+    CXN_PFX_THE,
+    CXN_SINGULAR,
     DOOR,
     IN_SIGHT,
     LAVAPOOL,
@@ -27,6 +34,10 @@ import {
     OBJ_CONTAINED,
     OBJ_FREE,
     OBJ_INVENT,
+    OBJ_MINVENT,
+    OBJ_BURIED,
+    BURIED_TOO,
+    CONTAINED_TOO,
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
     PIT,
@@ -49,22 +60,30 @@ import {
     TIMER_OBJECT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
 import {
     dolook,
     look_here,
     preflight_look_here,
 } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
+import { get_obj_location } from '../js/light.js';
 import { append_price_quote } from '../js/shk.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { newObject } from '../js/obj.js';
 import {
+    An,
     The,
+    the,
     Tobjnam,
     an,
     aobjnam,
+    armor_simple_name,
+    boots_simple_name,
     cloak_simple_name,
     cxname,
+    cxname_singular,
+    corpse_xname,
     otense,
     gloves_simple_name,
     helm_simple_name,
@@ -73,7 +92,11 @@ import {
     isPoisonable,
     killer_xname,
     just_an,
+    is_plural,
+    not_fully_identified,
     obj_typename,
+    shield_simple_name,
+    shirt_simple_name,
     simpleonames,
     simple_typename,
     suit_simple_name,
@@ -82,12 +105,15 @@ import {
     concatNameBody,
     erosion_matters,
     vtense,
+    xname,
     xnameFresh,
+    xname_flags,
     yname,
     Yname2,
     Yobjnam2,
     obj_is_pname,
 } from '../js/objnam.js';
+
 import {
     MZ_MEDIUM,
     PM_ARCHON,
@@ -103,6 +129,13 @@ import {
 } from '../js/monsters.js';
 import { create_region } from '../js/region.js';
 import {
+    ARM_BOOTS,
+    ARM_CLOAK,
+    ARM_GLOVES,
+    ARM_HELM,
+    ARM_SHIELD,
+    ARM_SHIRT,
+    ARM_SUIT,
     ALCHEMY_SMOCK,
     CHEST,
     CHAIN_MAIL,
@@ -114,12 +147,15 @@ import {
     ELVEN_LEATHER_HELM,
     FIGURINE,
     FOOD_RATION,
+    GLOB_OF_GRAY_OOZE,
     GAUNTLETS_OF_POWER,
     GOLD_PIECE,
     HELM_OF_BRILLIANCE,
+    IRON_SHOES,
     LEATHER_ARMOR,
     LEATHER_GLOVES,
     LEATHER_JACKET,
+    LENSES,
     LONG_SWORD,
     MUMMY_WRAPPING,
     OBJ_DESCR,
@@ -129,6 +165,7 @@ import {
     RED_DRAGON_SCALE_MAIL,
     RED_DRAGON_SCALES,
     ROBE,
+    SHIELD_OF_REFLECTION,
     SLIME_MOLD,
     STATUE,
     TALLOW_CANDLE,
@@ -164,6 +201,13 @@ import {
 import { roles } from '../js/roles.js';
 import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
+
+const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
+const OBJNAM_JS_SOURCE = readFileSync('js/objnam.js', 'utf8');
+const ARTIFACT_SOURCE = readFileSync('nethack-c/upstream/src/artifact.c', 'utf8');
+const ARTIFACT_JS_SOURCE = readFileSync('js/artifacts.js', 'utf8');
+const ZAP_SOURCE = readFileSync('nethack-c/upstream/src/zap.c', 'utf8');
+const LIGHT_JS_SOURCE = readFileSync('js/light.js', 'utf8');
 
 function deferred() {
     let resolve;
@@ -226,6 +270,11 @@ function objectOf(state, otyp, overrides = {}) {
     });
 }
 
+test('An capitalizes the C article helper result for valid nonempty names', () => {
+    assert.equal(An('ogre'), 'An ogre');
+    assert.equal(An('troll'), 'A troll');
+});
+
 test('simple_typename drops the description and the user-assigned name', () => {
     const state = namingState();
     // objnam.c simple_typename() over obj_typename(). An undiscovered ring's
@@ -273,6 +322,28 @@ test('simpleonames preserves a named-fruit disguise', () => {
     assert.equal(simpleonames(fruit, state), 'slices of pizza');
 });
 
+test('simpleonames pluralizes the minimal fruit name without re-singularizing', () => {
+    const state = namingState();
+    // A restored/bones fruit record is read as stored by fruit_from_indx();
+    // this value distinguishes C's direct makeplural call from an extra
+    // makesingular/makeplural round trip in simpleonames().
+    state.gf = {
+        ffruit: { fname: 'news', fid: 7, nextf: null },
+    };
+    const fruit = objectOf(state, SLIME_MOLD, { spe: 7, quan: 2 });
+
+    assert.equal(simpleonames(fruit, state), 'newses');
+
+    const cBody = OBJNAM_SOURCE.match(
+        /char \*\s*simpleonames\(struct obj \*obj\)\s*\{[\s\S]*?\n\}/u,
+    )?.[0];
+    assert.ok(cBody, 'finds the complete C simpleonames definition');
+    assert.match(cBody, /makeplural\(simpleoname\)/u);
+    assert.doesNotMatch(cBody, /makesingular/u);
+    assert.match(OBJNAM_JS_SOURCE,
+        /export function simpleonames\(obj, state = game\)\s*\{[\s\S]*?name = makeplural\(name\);/u);
+});
+
 test('simple suit names preserve dragon, suffix, and fallback categories',
     () => {
         const state = namingState();
@@ -298,6 +369,44 @@ test('simple suit names preserve dragon, suffix, and fallback categories',
         );
         assert.equal(suit_simple_name(null, state), 'suit');
     });
+
+test('armor_simple_name dispatches each C armor category to its named helper', () => {
+    const state = namingState();
+    state.objects[GAUNTLETS_OF_POWER].oc_name_known = true;
+    const cases = [
+        [RED_DRAGON_SCALE_MAIL, ARM_SUIT, 'dragon mail'],
+        [ROBE, ARM_CLOAK, 'robe'],
+        [HELM_OF_BRILLIANCE, ARM_HELM, 'helm'],
+        [GAUNTLETS_OF_POWER, ARM_GLOVES, 'gauntlets'],
+        [IRON_SHOES, ARM_BOOTS, 'shoes'],
+        [SHIELD_OF_REFLECTION, ARM_SHIELD, 'silver shield'],
+        [T_SHIRT, ARM_SHIRT, 'shirt'],
+    ];
+
+    for (const [otyp, category, expected] of cases) {
+        const armor = objectOf(state, otyp, { dknown: true });
+        assert.equal(state.objects[otyp].oc_armcat, category, otyp);
+        assert.equal(armor_simple_name(armor, state), expected, otyp);
+    }
+
+    assert.equal(boots_simple_name(objectOf(state, IRON_SHOES, {
+        dknown: false,
+    }), state), 'boots');
+    assert.equal(shield_simple_name(objectOf(state, SHIELD_OF_REFLECTION, {
+        dknown: false,
+    }), state), 'smooth shield');
+    assert.equal(shield_simple_name(objectOf(state, T_SHIRT), state), 'shield');
+    assert.equal(shirt_simple_name(null, state), 'shirt');
+
+    assert.match(OBJNAM_SOURCE,
+        /armor_simple_name\(struct obj \*armor\)[\s\S]*?case ARM_SUIT:[\s\S]*?case ARM_CLOAK:[\s\S]*?case ARM_HELM:[\s\S]*?case ARM_GLOVES:[\s\S]*?case ARM_BOOTS:[\s\S]*?case ARM_SHIELD:[\s\S]*?case ARM_SHIRT:/u);
+    assert.match(OBJNAM_SOURCE,
+        /boots_simple_name\(struct obj \*boots\)[\s\S]*?"shoes"/u);
+    assert.match(OBJNAM_SOURCE,
+        /shield_simple_name\(struct obj \*shield\)[\s\S]*?"silver shield"[\s\S]*?"smooth shield"/u);
+    assert.match(OBJNAM_SOURCE,
+        /shirt_simple_name\(struct obj \*shirt UNUSED\)[\s\S]*?return "shirt"/u);
+});
 
 test('simple cloak names retain the discovery-sensitive smock branch', () => {
     const state = namingState();
@@ -368,6 +477,69 @@ test('xname observes sighted objects but preserves blind descriptions', () => {
     assert.equal(xnameFresh(unseenPotion, blind), 'potion');
     assert.equal(unseenPotion.dknown, false);
     assert.equal(blind.objects[POT_HEALING].oc_encountered, 0);
+});
+
+test('objnam source helpers retain searchable C names in the immutable adapter', () => {
+    assert.match(OBJNAM_SOURCE,
+        /nextobuf\(void\)[\s\S]*?obufidx[\s\S]*?return obufs\[obufidx\]/u);
+    assert.match(OBJNAM_SOURCE,
+        /char \*\nxname\(struct obj \*obj\)[\s\S]*?return xname_flags\(obj, CXN_NORMAL\)/u);
+    assert.match(OBJNAM_SOURCE, /xname_flags\([\s\S]*?CXN_SINGULAR/u);
+    assert.match(OBJNAM_SOURCE,
+        /Japanese_item_name\(int i, const char \*ordinaryname\)/u);
+    assert.equal(
+        [...OBJNAM_SOURCE.matchAll(/Japanese_item_name\((?:otyp|typ), actualn\)/gu)].length,
+        2,
+    );
+    assert.equal(
+        [...OBJNAM_JS_SOURCE.matchAll(/JAPANESE_ITEM_NAMES\.get\(/gu)].length,
+        1,
+    );
+    assert.match(OBJNAM_JS_SOURCE, /function nextobuf\(value = ''\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /export function xname_flags\(/u);
+    assert.match(OBJNAM_JS_SOURCE, /export function xname\(/u);
+    assert.match(OBJNAM_JS_SOURCE,
+        /const xnameBuffer = xname\(obj, state, \{ withOffset: true \}\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /function Japanese_item_name\(otyp, ordinaryName\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /actualn = Japanese_item_name\(otyp, actualn\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /actual = Japanese_item_name\(obj\.otyp, actual\)/u);
+    assert.match(OBJNAM_JS_SOURCE, /base = nextobuf\(base\)/u);
+});
+
+test('doname_base calls the source xname wrapper and retains its C pointer offset', () => {
+    const state = dualWieldState(LONG_SWORD);
+    state.artiexist[ART_SUNSWORD].exists = 1;
+    state.artidisco[0] = ART_SUNSWORD;
+    const articleName = `The ${'x'.repeat(220)}`;
+    const named = objectOf(state, LONG_SWORD, {
+        dknown: true,
+        known: true,
+        bknown: true,
+        rknown: true,
+        oartifact: ART_SUNSWORD,
+        oextra: { oname: articleName },
+        owornmask: W_WEP,
+    });
+    state.uwep = named;
+    const cResult = xname_flags(named, state);
+    assert.deepEqual(xname(named, state, { withOffset: true }), cResult);
+    assert.equal(xname(named, state), cResult.name);
+    assert.equal(cResult.bufferOffset, 4);
+    assert.doesNotMatch(donameFresh(named, state), /\(wielded\)/u);
+});
+
+// C objnam.c xname_flags() default arm formats numeric oclass/otyp/spe and
+// then calls the discarded pline.c:impossible() diagnostic.
+test('xname preserves the numeric invalid-class diagnostic result', () => {
+    const state = namingState();
+    game.unported = new Set();
+    const invalid = objectOf(state, FOOD_RATION, {
+        oclass: '?',
+        spe: 3,
+    });
+    assert.equal(xnameFresh(invalid, state),
+        `glorkum ${'?'.charCodeAt(0)} ${FOOD_RATION} 3`);
+    assert.ok(game.unported.has('pline.c impossible'));
 });
 
 test('type discovery and holy water follow class branches', () => {
@@ -943,8 +1115,8 @@ test('object-pile source branches continue through their output owners',
                         displayObjectPile: (lines) =>
                             events.push(['display', lines]),
                         readEngraving: () => events.push(['engraving']),
-                    },
-            );
+    },
+);
             assert.ok(events.length > 0, specimen.name);
         }
     });
@@ -1191,6 +1363,10 @@ test('doname bounds wizard weight before adding its constructed prefix', () => {
 });
 
 test('doname keeps xname pointer offsets and food prefixes source-aligned', () => {
+    // C objnam.c:nextobuf() rotates scratch buffers, while this JS port uses
+    // immutable strings and explicit offsets. The +4 "The " case below pins
+    // the byte displacement and bounded-string behavior without inventing a
+    // JavaScript ring-buffer state.
     const poisonState = dualWieldState(DART);
     // objnam.c:xname_flags() gives this named poisoned dart a 175-byte body;
     // the 220-byte oname fills it, and doname_base's bp += 9 must not restore
@@ -1214,9 +1390,10 @@ test('doname keeps xname pointer offsets and food prefixes source-aligned', () =
     // objnam.c:xname_flags() lowercases then returns buf+4 for "The ";
     // a 220-byte artifact name leaves only 171 bytes after that pointer move.
     const articleName = `The ${'x'.repeat(220)}`;
-    // The existing artifact registry must recognize this Sunsword instance,
-    // just as a generated artifact does before find_artifact() runs.
+    // C's proper-name branch needs both an existing artifact and its id in
+    // artidisco; artiexist[].found alone does not establish discovery.
     articleState.artiexist[ART_SUNSWORD].exists = 1;
+    articleState.artidisco[0] = ART_SUNSWORD;
     const namedArtifact = objectOf(articleState, LONG_SWORD, {
         dknown: true,
         known: true,
@@ -1320,6 +1497,45 @@ test('gameover xname disclosures and distant_name object-id masking match C',
         assert.doesNotMatch(name, /with text/u);
         assert.equal(distantState.gd.distantname, 0);
     });
+
+test('get_obj_location maps each C object ownership case and location flag', () => {
+    const cStart = ZAP_SOURCE.indexOf('\nget_obj_location(\n    struct obj *obj,');
+    const cEnd = ZAP_SOURCE.indexOf('\n}', cStart) + 2;
+    const cBody = ZAP_SOURCE.slice(cStart, cEnd);
+    const jsStart = LIGHT_JS_SOURCE.indexOf('export function get_obj_location(');
+    const jsEnd = LIGHT_JS_SOURCE.indexOf('\n}', jsStart) + 2;
+    const jsBody = LIGHT_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cBody,
+        /case OBJ_INVENT:[\s\S]*?\*xp = u\.ux;[\s\S]*?case OBJ_FLOOR:[\s\S]*?obj->ox[\s\S]*?case OBJ_MINVENT:[\s\S]*?if \(obj->ocarry->mx\)[\s\S]*?case OBJ_BURIED:[\s\S]*?locflags & BURIED_TOO[\s\S]*?case OBJ_CONTAINED:[\s\S]*?locflags & CONTAINED_TOO[\s\S]*?return get_obj_location/u);
+    assert.match(jsBody,
+        /case OBJ_INVENT:[\s\S]*?case OBJ_FLOOR:[\s\S]*?case OBJ_MINVENT:[\s\S]*?case OBJ_BURIED:[\s\S]*?locflags & BURIED_TOO[\s\S]*?case OBJ_CONTAINED:[\s\S]*?locflags & CONTAINED_TOO/u);
+
+    const state = { u: { ux: 8, uy: 9 } };
+    assert.deepEqual(get_obj_location({ where: OBJ_INVENT }, 0, state),
+        { x: 8, y: 9 });
+    assert.deepEqual(get_obj_location({ where: OBJ_FLOOR, ox: 4, oy: 6 }, 0, state),
+        { x: 4, y: 6 });
+    assert.deepEqual(get_obj_location({
+        where: OBJ_MINVENT, ocarry: { mx: 3, my: 5 },
+    }, 0, state), { x: 3, y: 5 });
+    assert.equal(get_obj_location({
+        where: OBJ_MINVENT, ocarry: { mx: 0, my: 5 },
+    }, 0, state), null, 'C treats mx == 0 as a migrating monster');
+    const buried = { where: OBJ_BURIED, ox: 7, oy: 2 };
+    assert.equal(get_obj_location(buried, 0, state), null);
+    assert.deepEqual(get_obj_location(buried, BURIED_TOO, state),
+        { x: 7, y: 2 });
+    const contained = {
+        where: OBJ_CONTAINED,
+        ocontainer: { where: OBJ_FLOOR, ox: 11, oy: 4 },
+    };
+    assert.equal(get_obj_location(contained, 0, state), null);
+    assert.deepEqual(get_obj_location(contained, CONTAINED_TOO, state),
+        { x: 11, y: 4 });
+    assert.equal(get_obj_location({ where: OBJ_FREE }, 0, state), null);
+});
 
 // C ref: objnam.c doname_base():1391, the `(obj == uskin)` arm of the same
 // conditional. This also pins the single state owner for the fused scales.
@@ -1812,6 +2028,52 @@ test('override_ID supplies the bknown that names holy water', () => {
     assert.equal(donameFresh(water, state), 'a potion of holy water');
 });
 
+test('artifact identification uses the discovery list, not artiexist.found', () => {
+    assert.match(
+        OBJNAM_SOURCE,
+        /otmp->oartifact && undiscovered_artifact\(otmp->oartifact\)/u,
+    );
+    assert.match(
+        ARTIFACT_SOURCE,
+        /undiscovered_artifact\(xint16 m\)[\s\S]*?if \(artidisco\[i\] == m\)[\s\S]*?else if \(artidisco\[i\] == 0\)/u,
+    );
+    assert.match(
+        OBJNAM_JS_SOURCE,
+        /obj\.oartifact\s*&&\s*undiscovered_artifact\(obj\.oartifact, state\)/u,
+    );
+    assert.match(
+        ARTIFACT_JS_SOURCE,
+        /undiscovered_artifact\(m, state = game\)[\s\S]*?state\.artidisco\[i\] === m/u,
+    );
+
+    const state = namingState();
+    state.objects[LONG_SWORD].oc_name_known = 1;
+    const sword = objectOf(state, LONG_SWORD, {
+        known: true, dknown: true, bknown: true, rknown: true,
+        oartifact: ART_GIANTSLAYER,
+    });
+    state.artiexist[ART_GIANTSLAYER].found = 1;
+    state.artidisco.fill(0);
+    // A found-object flag does not substitute for membership in artidisco.
+    assert.equal(not_fully_identified(sword, state), true);
+
+    state.artiexist[ART_GIANTSLAYER].found = 0;
+    state.artidisco[0] = ART_GIANTSLAYER;
+    // Conversely, C considers the artifact discovered when its id is in the
+    // discovery list even if the independent found flag is clear.
+    assert.equal(not_fully_identified(sword, state), false);
+
+    const eyes = objectOf(state, LENSES, {
+        oartifact: ART_EYES_OF_THE_OVERWORLD,
+    });
+    state.artiexist[ART_EYES_OF_THE_OVERWORLD].found = 1;
+    state.artidisco.fill(0);
+    assert.equal(is_plural(eyes, state), false);
+    state.artiexist[ART_EYES_OF_THE_OVERWORLD].found = 0;
+    state.artidisco[0] = ART_EYES_OF_THE_OVERWORLD;
+    assert.equal(is_plural(eyes, state), true);
+});
+
 test('BUC, poison, erosion, and enchantment prefixes retain source order', () => {
     const state = namingState();
     const unknownUncursed = objectOf(state, DART, {
@@ -1952,7 +2214,29 @@ test('corpse, statue, and named-fruit articles include their source nouns', () =
         }), state),
         'a statue of a newt',
     );
+    assert.equal(
+        xnameFresh(objectOf(state, STATUE, {
+            corpsenm: PM_WIZARD_OF_YENDOR,
+        }), state),
+        'statue of the Wizard of Yendor',
+    );
+    assert.equal(
+        xnameFresh(objectOf(state, STATUE, {
+            corpsenm: PM_MEDUSA,
+        }), state),
+        'statue of Medusa',
+    );
 
+    // C doname_base calls artifact_name() for a slime-mold name that may be a
+    // fake artifact. Keep that selected helper wired at the same caller.
+    assert.match(
+        OBJNAM_SOURCE,
+        /fake_arti\s*=\s*\(obj->otyp == SLIME_MOLD\s*&& \(aname = artifact_name\(bp, \(short \*\) 0, FALSE\)\) != 0\)/u,
+    );
+    assert.match(
+        OBJNAM_JS_SOURCE,
+        /const fakeArtifact = obj\.otyp === SLIME_MOLD\s*\? artifact_name\(xnameResult, null, false, state\) : null/u,
+    );
     state.gf.ffruit.fname = 'The Orb of Detection';
     assert.equal(
         donameFresh(objectOf(state, SLIME_MOLD, {
@@ -1960,6 +2244,35 @@ test('corpse, statue, and named-fruit articles include their source nouns', () =
         }), state),
         'the Orb of Detection',
     );
+});
+
+test('xname_flags applies partly-eaten text to every non-fruit food arm', () => {
+    const state = namingState();
+    state.iflags.partly_eaten_hack = true;
+
+    const ration = objectOf(state, FOOD_RATION, { oeaten: 1 });
+    assert.equal(xnameFresh(ration, state), 'partly eaten food ration');
+
+    const glob = objectOf(state, GLOB_OF_GRAY_OOZE, {
+        globby: true,
+        oeaten: 1,
+        owt: 100,
+    });
+    assert.equal(xnameFresh(glob, state), 'partly eaten small glob of gray ooze');
+
+    const cFoodStart = OBJNAM_SOURCE.indexOf('case FOOD_CLASS:');
+    const cFoodEnd = OBJNAM_SOURCE.indexOf('case COIN_CLASS:', cFoodStart);
+    const jsFoodStart = OBJNAM_JS_SOURCE.indexOf('case FOOD_CLASS:',
+        OBJNAM_JS_SOURCE.indexOf('function xnameBase('));
+    const jsFoodEnd = OBJNAM_JS_SOURCE.indexOf('case COIN_CLASS:', jsFoodStart);
+    const cFoodBody = OBJNAM_SOURCE.slice(cFoodStart, cFoodEnd);
+    const jsFoodBody = OBJNAM_JS_SOURCE.slice(jsFoodStart, jsFoodEnd);
+    assert.ok(cFoodStart >= 0 && cFoodEnd > cFoodStart);
+    assert.ok(jsFoodStart >= 0 && jsFoodEnd > jsFoodStart);
+    assert.ok(cFoodBody.indexOf('if (iflags.partly_eaten_hack && obj->oeaten)')
+        < cFoodBody.indexOf('if (obj->globby)'));
+    assert.ok(jsFoodBody.indexOf('const partlyEaten = state.iflags?.partly_eaten_hack')
+        < jsFoodBody.indexOf('if (obj.globby)'));
 });
 
 // C ref: objnam.c doname_base():1549-1559, which names the gender stored in
@@ -2060,7 +2373,7 @@ test("'wizmgender' names the gender a body or statue carries", () => {
     );
 });
 
-test('artifact naming records discovery before choosing its article', () => {
+test('artifact naming records found separately from discovered identity', () => {
     const state = namingState();
     state.artiexist[ART_GIANTSLAYER].exists = 1;
     const artifact = objectOf(state, LONG_SWORD, {
@@ -2077,6 +2390,14 @@ test('artifact naming records discovery before choosing its article', () => {
     artifact.known = true;
     artifact.bknown = true;
     artifact.rknown = true;
+    // C find_artifact() sets artiexist[].found but does not call
+    // discover_artifact(); not_fully_identified() still sees an empty
+    // artidisco[] until the separate discovery event occurs.
+    assert.deepEqual(state.artidisco, Array(state.artidisco.length).fill(0));
+    assert.equal(
+        donameFresh(artifact, state), 'a +0 long sword named Giantslayer',
+    );
+    state.artidisco[0] = ART_GIANTSLAYER;
     assert.equal(donameFresh(artifact, state), 'the +0 Giantslayer');
 });
 
@@ -2117,8 +2438,10 @@ test('a named artifact weapon needs rknown before it names itself', () => {
         oextra: { oname: 'Giantslayer' },
     });
     // The first naming is what records the artifact as found, which clears
-    // not_fully_identified()'s undiscovered-artifact arm at 1805.
+    // artiexist[].found. C's separate artidisco discovery is required to
+    // clear not_fully_identified()'s arm at 1805.
     donameFresh(artifact, state);
+    state.artidisco[0] = ART_GIANTSLAYER;
     artifact.known = true;
     artifact.bknown = true;
 
@@ -2378,6 +2701,23 @@ test('an() applies just_an()\'s article rules', () => {
     assert.throws(() => an(''), /an\(\) requires a name/u);
 });
 
+test('an and the keep objnam.c Strlen-based BUFSZ byte limits', () => {
+    assert.match(OBJNAM_SOURCE,
+        /return strncat\(buf, str, BUFSZ - 1 - Strlen\(buf\)\);/u);
+    assert.match(OBJNAM_SOURCE,
+        /else if \(!named && \(l = Strlen\(str\)\) >= 31/u);
+    assert.match(OBJNAM_JS_SOURCE,
+        /Strlen_\(article, 'an', 2154\)/u);
+    assert.match(OBJNAM_JS_SOURCE,
+        /Strlen_\(str, 'the', 2230\)/u);
+
+    // C uses BUFSZ=256 and reserves its last byte for NUL.
+    const suffix = 'f'.repeat(300);
+    assert.equal(an(suffix), `a ${suffix.slice(0, 253)}`);
+    const ordinary = 'ordinary '.repeat(40);
+    assert.equal(the(ordinary), `the ${ordinary.slice(0, 251)}`);
+});
+
 test('vtense() agrees with the subject objnam.c inspects', () => {
     for (const [subject, verb, expected] of [
         // An "a"/"an" subject is singular however it ends.
@@ -2578,6 +2918,37 @@ test('aobjnam names the object and agrees the verb with it', () => {
     assert.equal(cxname(corpse, state), 'newt corpse');
     corpse.quan = 2;
     assert.equal(cxname(corpse, state), 'newt corpses');
+});
+
+// C refs: objnam.c corpse_xname() (1823-1919) and cxname_singular()
+// (1933-1938). Globs use their object class name without a corpse suffix;
+// CXN_SINGULAR suppresses pluralization without changing object quantity.
+test('corpse_xname and cxname_singular preserve source flags and glob naming', () => {
+    const state = namingState();
+    const corpse = objectOf(state, CORPSE, {
+        corpsenm: PM_NEWT,
+        quan: 3,
+    });
+    assert.equal(corpse_xname(corpse, null, CXN_NORMAL, state), 'newt corpses');
+    assert.equal(corpse_xname(corpse, null, CXN_SINGULAR, state), 'newt corpse');
+    assert.equal(cxname_singular(corpse, state), 'newt corpse');
+    assert.equal(corpse_xname(corpse, null, CXN_ARTICLE, state), 'newt corpses');
+    assert.equal(corpse_xname(corpse, null, CXN_PFX_THE, state), 'the newt corpses');
+    assert.equal(corpse_xname(corpse, null, CXN_NOCORPSE, state), 'newt');
+
+    const glob = objectOf(state, GLOB_OF_GRAY_OOZE, {
+        corpsenm: PM_NEWT,
+        globby: true,
+        quan: 7,
+    });
+    assert.equal(corpse_xname(glob, null, CXN_NORMAL, state), 'glob of gray ooze');
+    assert.equal(corpse_xname(glob, null, CXN_ARTICLE, state), 'a glob of gray ooze');
+    assert.equal(corpse_xname(glob, 'cursed', CXN_NORMAL, state),
+        'cursed glob of gray ooze');
+
+    const ration = objectOf(state, FOOD_RATION, { quan: 4 });
+    assert.equal(cxname_singular(ration, state), 'food ration');
+    assert.equal(ration.quan, 4);
 });
 
 // objnam.c killer_xname() (1942-2005). Death text temporarily exposes the
@@ -2788,6 +3159,7 @@ test('yname drops the prefix only for a held, non-quest artifact', () => {
         where: OBJ_INVENT,
         known: true, dknown: true, bknown: true, rknown: true,
     });
+    state.artidisco[0] = ART_SUNSWORD;
     assert.equal(yname(sunsword, state), 'Sunsword');
 
     // The same object in flight, which is where a thrown weapon sits while
@@ -2808,6 +3180,7 @@ test('yname drops the prefix only for a held, non-quest artifact', () => {
     // not_fully_identified() to clear; a tool is outside that function's last
     // clause, so rknown does not matter here as it does for the sword.
     state.artiexist[ART_ORB_OF_DETECTION].exists = 1;
+    state.artidisco[1] = ART_ORB_OF_DETECTION;
     state.objects[CRYSTAL_BALL].oc_name_known = 1;
     const orb = objectOf(state, CRYSTAL_BALL, {
         oartifact: ART_ORB_OF_DETECTION,
@@ -2815,6 +3188,11 @@ test('yname drops the prefix only for a held, non-quest artifact', () => {
         where: OBJ_INVENT,
         known: true, dknown: true, bknown: true,
     });
+    assert.deepEqual(
+        state.artidisco.slice(0, 2), [ART_SUNSWORD, ART_ORB_OF_DETECTION],
+    );
+    assert.equal(not_fully_identified(orb, state), false);
+    assert.equal(obj_is_pname(orb, state), true);
     // xname() strips the artifact's own leading "The ", and yname() puts the
     // possessive back because the index is on the quest side.
     assert.equal(yname(orb, state), 'your Orb of Detection');

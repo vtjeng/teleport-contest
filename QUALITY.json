@@ -56,6 +56,7 @@
         "js/exper.js",
         "js/insight.js",
         "js/polyself.js",
+        "js/polyself_bodyparts.js",
         "js/pray.js",
         "js/quest.js",
         "js/quest_text_data.js",
@@ -68,6 +69,13 @@
         "js/u_init.js",
         "js/u_init_inventory_attrs.js",
         "js/wield.js"
+      ],
+      "generatedOutputs": [
+        {
+          "path": "js/polyself_bodyparts.js",
+          "generator": "scripts/generate-polyself-bodyparts.mjs",
+          "check": "node scripts/generate-polyself-bodyparts.mjs --check"
+        }
       ]
     },
     {
@@ -203,6 +211,7 @@
         "js/nasties_data.js",
         "js/priest.js",
         "js/read.js",
+        "js/read_text_data.js",
         "js/shk.js",
         "js/steed.js",
         "js/teleport.js",
@@ -217,6 +226,11 @@
           "path": "js/monsters.js",
           "generator": "scripts/generate-monsters.mjs",
           "check": "node scripts/generate-monsters.mjs --check"
+        },
+        {
+          "path": "js/read_text_data.js",
+          "generator": "scripts/generate-read-text-data.mjs",
+          "check": "node scripts/generate-read-text-data.mjs --check"
         }
       ]
     },
@@ -352,6 +366,7 @@
         "js/restore.js",
         "js/rng.js",
         "js/sfbase.js",
+        "js/strutil.js",
         "js/timeout.js",
         "js/unported.js",
         "js/version.js"

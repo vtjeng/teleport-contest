@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen third C-observed continuation. The prior capture ended after C reported the cloak of magic resistance bursting into flame; this one space dismisses that exact boundary and observes subsequent lava lifesaving output.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017amulet of life saving\nP? o\u0017lava\n   "
+    }
+  ]
+}

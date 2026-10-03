@@ -146,6 +146,7 @@ import {
     find_drawbridge,
     is_drawbridge_wall,
     is_pool,
+    is_ice,
 } from './dbridge.js';
 import {
     at_dgn_entrance,
@@ -188,6 +189,7 @@ import {
     obfree,
     stackobj,
     update_inventory,
+    sobj_at,
 } from './invent.js';
 import {
     ART_MAGICBANE,
@@ -292,7 +294,6 @@ import {
     objectType,
     place_object,
     remove_object,
-    sobj_at,
     splitobj,
     stone_missile,
     weight,
@@ -360,7 +361,7 @@ import { ttyPline } from './tty_message.js';
 import { burnarmor } from './trap_erode_obj.js';
 import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
-import { is_ice } from './terrain.js';
+
 import { burn_away_slime, end_burn, fall_asleep } from './timeout.js';
 import {
     incr_itimeout,
@@ -2204,8 +2205,10 @@ export async function dofiretrap(box, rawEnv = {}) {
     }
     // C's final ice check and melt_ice() use the hero's coordinates even
     // when dofiretrap() was entered from a trapped chest elsewhere.
-    if (is_ice(u.ux, u.uy))
-        note_unported('zap.c melt_ice()');
+    if (is_ice(u.ux, u.uy)) {
+        const { melt_ice } = await import('./zap.js');
+        await melt_ice(u.ux, u.uy, null, state, env);
+    }
 }
 
 // C ref: trap.c trapeffect_fire_trap() (1729-1821). The monster arm
@@ -2324,8 +2327,10 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
         && dist2(tx, ty, state.u.ux, state.u.uy) <= 3 * 3) {
         await message('You smell smoke.', state, env);
     }
-    if (is_ice(tx, ty))
-        note_unported('zap.c melt_ice()');
+    if (is_ice(tx, ty)) {
+        const { melt_ice } = await import('./zap.js');
+        await melt_ice(tx, ty, null, state, env);
+    }
     if (mtmp.mhp < 1) trapkilled = true;
     if (seeIt) {
         const currentTrap = t_at(tx, ty, state);
@@ -3117,7 +3122,8 @@ export async function trapeffect_web(monster, trap, trflags, env) {
             steed.my = state.u.uy;
             // monmove.js imports mintrap(). Resolve its existing owners only
             // at the mounted call, after module initialization has completed.
-            const { m_in_air, youHear } = await import('./monmove.js');
+            const { m_in_air } = await import('./mon.js');
+            const { youHear } = await import('./monmove.js');
             const result = await mintrap(steed, trflags, {
                 ...env, mInAir: m_in_air, heroDeaf: heroIsDeaf, youHear,
             });
@@ -3765,7 +3771,7 @@ async function trapeffect_vibrating_square(mtmp, trap, _trflags, env) {
         seetrap(trap, env);
         if (inSight) {
             const monName = mon_nam(mtmp, state, env);
-            const { m_in_air } = await import('./monmove.js');
+            const { m_in_air } = await import('./mon.js');
             let beneath;
             if (nolimbs(mtmp.data) || m_in_air(mtmp, state)) {
                 beneath = monName;

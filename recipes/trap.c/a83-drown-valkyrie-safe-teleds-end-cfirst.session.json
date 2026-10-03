@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-affecting Valkyrie capacity variation. C-observed take-off/drop menus leave only the worn life-saving amulet and ten cursed loadstones before the pool. The frozen input ends at the C safe-teleds `You are back on solid ground` More boundary, before its dismissal reaches trap.c:rescued_from_terrain feedback; this bounded record exercises false emergency_disrobe and safe_teleds without the unported do.c:dropx or rescued_from_terrain tails.",
+  "segments": [
+    {
+      "seed": 6042026,
+      "datetime": "20400202110000",
+      "nethackrc": "OPTIONS=name:DrownValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP? eTDa\nabcd\n  \u001710 cursed loadstones\n\u0017pool\n.     "
+    }
+  ]
+}

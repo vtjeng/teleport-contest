@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap source-defined teleds variation: repeat the same independent controlled-ICE destination route with OPTIONS=!verbose. teleport.c:teleds prints 'You materialize...' only under flags.verbose, so this variation reaches the same scrolltele -> teleds -> spoteffects(TRUE) path while exercising the explicit no-materialization-message branch. The initial space clears startup's C-observed welcome pager; later spaces and Escape follow observed source prompt/tip boundaries.",
+  "segments": [
+    {
+      "seed": 63010248,
+      "datetime": "20431003101100",
+      "nethackrc": "OPTIONS=name:A83IceLanding,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,!verbose\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017ice\n\u0017uncursed scroll of teleportation\nrp  \u001b."
+    }
+  ]
+}

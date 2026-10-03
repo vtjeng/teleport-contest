@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first direct vomit setup. Wish solid ICE under the hero, become Black Pudding (monsters.h:2113–2123: SIZ(900,250,...), M1_BREATHLESS|M1_ACID, no AT_BREA/AD_ACID), then set the VOMITING intrinsic to one turn with the source menu's count prefix and row k. C timeout.c:vomiting_dialogue calls eat.c:vomit when Vomiting-1 reaches zero; the C-first prefix ends at that intrinsic's actual output boundary so the next turn input can be selected from the captured screen.",
+  "segments": [
+    {
+      "seed": 45317921,
+      "datetime": "20280115140720",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding4,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n1k"
+    }
+  ]
+}

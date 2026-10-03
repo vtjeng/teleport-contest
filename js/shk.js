@@ -98,14 +98,24 @@ import {
     obj_extract_self,
     o_on,
     update_inventory,
+    sobj_at,
 } from './invent.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { angry_guards, mnearto, mongone, wake_nearto } from './mon.js';
 import { search_special } from './mkroom.js';
 import {
-    carried, dealloc_obj, hasContents, isCandle, is_pick,
-    newObject, next_ident, newomid, objectType, sobj_at, splitobj, weight,
+    carried,
+    dealloc_obj,
+    hasContents,
+    isCandle,
+    is_pick,
+    newObject,
+    next_ident,
+    newomid,
+    objectType,
+    splitobj,
+    weight,
 } from './obj.js';
 import {
     AGATE,
@@ -488,7 +498,10 @@ export async function shkcatch(obj, x, y, state = game, rawEnv = {}) {
         return null;
     }
 
-    if (mnearto(shkp, x, y, true, RLOC_NOMSG, state) === 2
+    if (await mnearto(shkp, x, y, true, RLOC_NOMSG, {
+        ...rawEnv,
+        state,
+    }) === 2
         && !heroIsDeaf(state) && !muteshk(shkp)) {
         set_voice(shkp, 0, 80, 0, state);
         await verbalize('Out of my way, scum!', state);

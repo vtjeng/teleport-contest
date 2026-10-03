@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 independent C-first witness for do_wear.c:Amulet_off AMULET_OF_FLYING -> hack.c:spoteffects. The prior same-seed C menu showed the wished amulet at inventory letter n; this frozen recipe selects that observed item, wears it, then removes it so C clears the only flight source and runs the spot-effect callback.",
+  "segments": [
+    {
+      "seed": 70831991,
+      "datetime": "20261002190000",
+      "nethackrc": "OPTIONS=name:A83FlyingOff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017uncursed amulet of flying\nPnR "
+    }
+  ]
+}

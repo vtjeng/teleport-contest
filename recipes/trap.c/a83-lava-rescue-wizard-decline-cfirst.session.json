@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first lava rescue using Wizard play mode instead of a life-saving amulet. The selected wizard mode makes done(BURNING) survivable after the source-defined death prompt is declined; the wished lava still enters pooleffects()->lava_effects().",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017lava\n"
+    }
+  ]
+}

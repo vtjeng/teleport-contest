@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first role-variation probe for the drowning route. Valkyrie's source starting strength changes the disrobe capacity branch; this records the put-on menu so the life-saving amulet selection is taken from C output rather than assuming Wizard's inventory letter.",
+  "segments": [
+    {
+      "seed": 6042026,
+      "datetime": "20400202110000",
+      "nethackrc": "OPTIONS=name:DrownValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP?"
+    }
+  ]
+}

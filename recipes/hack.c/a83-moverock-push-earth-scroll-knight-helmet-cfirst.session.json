@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first setup miss for the single planned Knight hard-helmet variation. The first input lands while C displays the initial 'Salutations wizard' welcome, so the following #wizintrinsic text is ignored until its newline starts play; the recording never confirms Flying, helmet protection, or moverock_core reachability. A corrected recipe with an explicit greeting dismissal is kept separately. This original attempt does not establish runtime evidence.",
+  "segments": [
+    {
+      "seed": 84105721,
+      "datetime": "20430408102700",
+      "nethackrc": "OPTIONS=name:A83KnightBoulder,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\nl#wizwish\ncursed scroll of earth\nrp  lh"
+    }
+  ]
+}

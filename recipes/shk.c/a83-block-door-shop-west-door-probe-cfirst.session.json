@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20420403172200",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  hhhhhhhkkkk. jj"
+    }
+  ],
+  "comment": "C-first shop-door approach probe. The mapped room near columns 47–60 has an observed open-door tile at (48,14), with ordinary corridor floor immediately north and room floor immediately south. The player starts at (55,17); controlled teleport targets (48,13), then two south moves cross the observed doorway into the room. This remains a setup probe unless C emits its shop-entry response."
+}

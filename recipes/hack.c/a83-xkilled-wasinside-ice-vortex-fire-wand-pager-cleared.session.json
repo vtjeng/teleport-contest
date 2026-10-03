@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 independent C-first continuation of the fire-wand route. The prior preserved recording ended at C's observed More after the bolt hit; source `zap.c:dobuzz` places that pager before its DEADMONSTER check and `killed()` -> `mon.c:xkilled`. This one-space continuation lets that source-ordered callback and any expulsion/spoteffects finish.",
+  "segments": [
+    {
+      "seed": 77482063,
+      "datetime": "20261002210000",
+      "nethackrc": "OPTIONS=name:A83SwallowedFire,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of fire\n#wizgenesis\n1 hostile ice vortex\n.. z?oh "
+    }
+  ]
+}

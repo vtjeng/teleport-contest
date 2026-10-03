@@ -28,7 +28,11 @@ import {
     HEADSTONE,
     ICE,
     I_SPECIAL,
+    LAST_PROP,
     LEVITATION,
+    LAVAWALL,
+    LEFT_SIDE,
+    MAX_CARR_CAP,
     MAX_TYPE,
     MELT_ICE_AWAY,
     KILLED_BY_AN,
@@ -54,7 +58,13 @@ import {
     TRAVP_VALID,
     TRAVP_GUESS,
     TIMER_OBJECT,
+    TT_INFLOOR,
     WT_ELF,
+    WT_WEIGHTCAP_SPARE,
+    WT_WEIGHTCAP_STRCON,
+    WT_WOUNDEDLEG_REDUCT,
+    W_ARMF,
+    WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from '../js/const.js';
 import {
@@ -70,6 +80,7 @@ import {
     hero_tread_disturbs_buried_zombies,
     in_town,
     invocation_pos,
+    inv_weight,
     long_to_any,
     losehp,
     lookaround,
@@ -79,6 +90,7 @@ import {
     notice_mons_cmp,
     monst_to_any,
     obj_to_any,
+    pooleffects,
     preflightDomoveDestination,
     requireSimpleHeroDestination,
     runmode_delay_output,
@@ -92,16 +104,23 @@ import {
     u_simple_floortyp,
     uint_to_any,
     unmul,
+    weight_cap,
 } from '../js/hack.js';
-import { game } from '../js/gstate.js';
+import { game, resetGame } from '../js/gstate.js';
+import { Boots_on } from '../js/do_wear.js';
 import { GameMap } from '../js/game.js';
+import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import {
-    M1_FLY, PM_GRID_BUG, PM_HUMAN, PM_SOLDIER, monst_globals_init,
+    M1_FLY, PM_GRID_BUG, PM_HUMAN, PM_IRON_PIERCER, PM_SOLDIER,
+    S_PIERCER, monst_globals_init,
 } from '../js/monsters.js';
 import {
-    CORPSE, DAGGER, objects_globals_init,
+    BOULDER, CORPSE, DAGGER, HELMET, objects_globals_init,
 } from '../js/objects.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import { init_dummyobj, newObject, place_object } from '../js/obj.js';
+import { sobj_at } from '../js/invent.js';
 import {
     peek_timer,
     start_timer,
@@ -110,6 +129,7 @@ import {
 import { planningState } from '../js/unported_monster_actions.js';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
+const HACK_JS_SOURCE = readFileSync('js/hack.js', 'utf8');
 
 test('planned losehp stops after source-ordered lethal state writes', async () => {
     assert.match(
@@ -233,11 +253,11 @@ function treadState(overrides = {}) {
 }
 
 function terrainProperties() {
-    const uprops = [];
-    uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    uprops[STEALTH] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    return uprops;
+    return Array.from({ length: LAST_PROP + 1 }, () => ({
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    }));
 }
 
 function terrainState(currentTyp, previousTyp = STAIRS) {
@@ -254,6 +274,9 @@ function terrainState(currentTyp, previousTyp = STAIRS) {
         level: {
             at: (x, y) => locations.get(`${x},${y}`),
             flags: {},
+            // C m_at() reads the initialized monster coordinate grid even
+            // when the square is empty.
+            monsters: Array.from({ length: COLNO }, () => []),
         },
         iflags: { terrain_typ: previousTyp },
         flags: { terrainstatus: true },
@@ -296,6 +319,93 @@ function engraving(x, y, type, next = null) {
         nxt_engr: next,
     };
 }
+
+test('weight_cap defers Boots_on levitation and restores blocked masks', () => {
+    const cStart = HACK_SOURCE.indexOf('\nweight_cap(void)');
+    const cEnd = HACK_SOURCE.indexOf('\n/* returns how far beyond', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cWeightCap = HACK_SOURCE.slice(cStart, cEnd);
+    assert.match(cWeightCap,
+        /save_ELev = ELevitation, save_BLev = BLevitation[\s\S]*?ga\.afternmv == Boots_on[\s\S]*?ELevitation &= ~W_ARMF;\s*float_vs_flight\(\);[\s\S]*?BLevitation &= ~I_SPECIAL;[\s\S]*?if \(Levitation[\s\S]*?!Flying[\s\S]*?EWounded_legs & LEFT_SIDE[\s\S]*?EWounded_legs & RIGHT_SIDE[\s\S]*?ELevitation = save_ELev;\s*BLevitation = save_BLev;\s*float_vs_flight\(\);/u);
+
+    const jsStart = HACK_JS_SOURCE.indexOf('export function weight_cap(');
+    const jsEnd = HACK_JS_SOURCE.indexOf('\nfunction inventory_weight(', jsStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsWeightCap = HACK_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.match(jsWeightCap,
+        /state\.afternmv === Boots_on[\s\S]*?levitation\.extrinsic &= ~W_ARMF;\s*float_vs_flight\(state\);[\s\S]*?levitation\.blocked &= ~I_SPECIAL;[\s\S]*?heroIsFlying\(state\)[\s\S]*?saveELevitation[\s\S]*?saveBLevitation[\s\S]*?float_vs_flight\(state\);/u);
+
+    function capacityState() {
+        const state = resetGame();
+        const uprops = [];
+        uprops[LEVITATION] = {
+            intrinsic: 0, extrinsic: W_ARMF, blocked: I_SPECIAL,
+        };
+        uprops[FLYING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        uprops[WOUNDED_LEGS] = {
+            intrinsic: 0, extrinsic: LEFT_SIDE, blocked: 0,
+        };
+        uprops[STEALTH] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+        state.u = {
+            acurr: { a: [18, 10, 10, 10, 10, 10] },
+            abon: [0, 0, 0, 0, 0, 0],
+            atemp: [0, 0, 0, 0, 0, 0],
+            uprops,
+            umonnum: 0,
+            umonster: 0,
+            usteed: null,
+            utrap: 1,
+            utraptype: TT_INFLOOR,
+            uz: { dnum: 0, dlevel: 1 },
+        };
+        state.youmonst = { data: {} };
+        state.afternmv = Boots_on;
+        return state;
+    }
+
+    // Strength 18 and Constitution 10 give 25 * (18 + 10) + 50 = 750.
+    // The trapped-floor I_SPECIAL masks levitation and flight; one wounded
+    // leg then subtracts the source 100-unit reduction while Boots_on defers
+    // the levitation boots' carrying benefit.
+    const state = capacityState();
+    const levitation = state.u.uprops[LEVITATION];
+    const deferred = weight_cap(state);
+    assert.equal(deferred,
+        WT_WEIGHTCAP_STRCON * (18 + 10) + WT_WEIGHTCAP_SPARE
+            - WT_WOUNDEDLEG_REDUCT);
+    assert.equal(levitation.extrinsic, W_ARMF);
+    assert.equal(levitation.blocked, I_SPECIAL);
+    assert.equal(state.u.uprops[FLYING].blocked & I_SPECIAL, I_SPECIAL);
+
+    // Removing the single wounded-leg bit restores the full unpolymorphed
+    // formula while the same Boots_on callback still suppresses flight.
+    state.u.uprops[WOUNDED_LEGS].extrinsic = 0;
+    assert.equal(weight_cap(state),
+        WT_WEIGHTCAP_STRCON * (18 + 10) + WT_WEIGHTCAP_SPARE);
+
+    // After Boots_on is no longer pending, the same worn levitation boots
+    // provide the source full-capacity arm, even though floor trapping sets
+    // BLevitation's I_SPECIAL block again after the calculation.
+    state.afternmv = null;
+    assert.equal(weight_cap(state), MAX_CARR_CAP);
+    assert.equal(levitation.extrinsic, W_ARMF);
+    assert.equal(levitation.blocked, I_SPECIAL);
+
+    // C also clears only I_SPECIAL while calculating: intrinsic levitation
+    // blocked by a floor trap temporarily supplies full capacity, then both
+    // original property fields are restored before returning.
+    const intrinsic = capacityState();
+    intrinsic.afternmv = null;
+    intrinsic.u.uprops[LEVITATION] = {
+        intrinsic: 1, extrinsic: 0, blocked: I_SPECIAL,
+    };
+    const intrinsicLevitation = intrinsic.u.uprops[LEVITATION];
+    assert.equal(weight_cap(intrinsic), MAX_CARR_CAP);
+    assert.equal(intrinsicLevitation.intrinsic, 1);
+    assert.equal(intrinsicLevitation.extrinsic, 0);
+    assert.equal(intrinsicLevitation.blocked, I_SPECIAL);
+    resetGame();
+});
 
 test('hero tread uses the source weight and grounded-property gates', () => {
     const grounded = treadState();
@@ -450,6 +560,61 @@ test('switch_terrain preserves source blocked masks and transition messages', as
     assert.equal(clear.disp.botl, true);
 });
 
+test('pooleffects rereads levitation and flight after leaving water', async () => {
+    // hack.c:pooleffects() calls set_uinwater(0), which calls switch_terrain()
+    // before its separate entering-liquid test. On LAVAWALL, switch_terrain
+    // blocks the previously active Flight property, so the later C test must
+    // see that updated property and enter lava_effects().
+    const start = HACK_SOURCE.indexOf('\npooleffects(');
+    const end = HACK_SOURCE.indexOf('\nvoid\nspoteffects(', start);
+    const cPooleffects = HACK_SOURCE.slice(start, end);
+    assert.match(cPooleffects,
+        /set_uinwater\(0\);[\s\S]*?if \(!u\.ustuck && !Levitation && !Flying && is_pool_or_lava/u);
+    // hack.c restores vision by calling docrt() before setting the deferred
+    // full-recalculation flag. display.c docrt_flags() brackets its memory
+    // repaint with vision_recalc(2) and vision_recalc(0); JS docrt() accepts
+    // those phases from its caller rather than running them unconditionally.
+    const jsPooleffects = HACK_JS_SOURCE.slice(
+        HACK_JS_SOURCE.indexOf('export async function pooleffects('),
+        HACK_JS_SOURCE.indexOf('\nexport async function spoteffects(',
+            HACK_JS_SOURCE.indexOf('export async function pooleffects(')),
+    );
+    assert.match(jsPooleffects,
+        /await set_uinwater\(false, state, rawEnv\);[\s\S]*?await docrt\(\{\s*state,\s*suspendVision: \(\) => vision_recalc\(2, \{ state \}\),\s*restoreVision: \(\) => vision_recalc\(0, \{ state \}\),\s*\}\);\s*state\.vision_full_recalc = 1;/u);
+
+    // Seed 840041 selects reproducible downstream lava-effect draws; (5,4) is
+    // an ordinary interior square for the LAVAWALL transition, and 20 HP keeps
+    // the fixture alive to observe that branch without a rescue hook.
+    resetGame();
+    const state = game;
+    initRng(840041);
+    state.u = {
+        ux: 5,
+        uy: 4,
+        uz: { dnum: 0, dlevel: 1 },
+        uinwater: true,
+        uprops: [],
+        usteed: null,
+        uhp: 20,
+    };
+    state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.u.uprops[FLYING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.level = new GameMap();
+    state.level.at(5, 4).typ = LAVAWALL;
+    state.flags = { terrainstatus: false };
+    state.iflags = { in_lava_effects: 1 };
+    state.unported = new Set();
+
+    await pooleffects(false, state, { message: async () => {} });
+
+    assert.equal(state.u.uinwater, false);
+    assert.equal(state.u.uprops[FLYING].blocked, FROMOUTSIDE);
+    // The recursive guard is an observation point after lava_effects is
+    // entered; the chosen state keeps this fixture away from its other arms.
+    assert.ok(state.unported.has('trap.c lava_effects recursive call'));
+    resetGame();
+});
+
 test('crawl_destination follows the source goodpos and diagonal gates', async () => {
     assert.match(
         HACK_SOURCE,
@@ -558,6 +723,94 @@ test('notice distance comparator and simplified floor type follow hack.c', () =>
     ), -7);
     state.level.at(11, 10).typ = ROOM;
     assert.equal(u_simple_floortyp(11, 10, state), ROOM);
+});
+
+test('hack.c waterwall call sites use the canonical coordinate predicate', () => {
+    const simpleStart = HACK_SOURCE.indexOf('u_simple_floortyp(coordxy');
+    const simpleEnd = HACK_SOURCE.indexOf('\n/* maybe show', simpleStart);
+    const simpleC = HACK_SOURCE.slice(simpleStart, simpleEnd);
+    const poolStart = HACK_SOURCE.indexOf('pooleffects(\n    boolean newspot)');
+    const poolEnd = HACK_SOURCE.indexOf('\nvoid\nspoteffects', poolStart);
+    const poolC = HACK_SOURCE.slice(poolStart, poolEnd);
+    const simpleJsStart = HACK_JS_SOURCE.indexOf('export function u_simple_floortyp(');
+    const simpleJsEnd = HACK_JS_SOURCE.indexOf('\n}', simpleJsStart) + 2;
+    const simpleJs = HACK_JS_SOURCE.slice(simpleJsStart, simpleJsEnd);
+    const poolJsStart = HACK_JS_SOURCE.indexOf('export async function pooleffects(');
+    const poolJsEnd = HACK_JS_SOURCE.indexOf('\n}', poolJsStart) + 2;
+    const poolJs = HACK_JS_SOURCE.slice(poolJsStart, poolJsEnd);
+
+    assert.match(simpleC, /if\s*\(is_waterwall\(x, y\)\)/u);
+    assert.match(poolC, /!Wwalking\s*\|\|\s*is_waterwall\(u\.ux,\s*u\.uy\)/u);
+    assert.match(simpleJs, /if\s*\(is_waterwall\(x, y, state\)\)/u);
+    assert.match(poolJs, /!waterWalking\s*\|\|\s*isWaterWall/u);
+    assert.match(poolJs, /const isWaterWall = is_waterwall\(u\.ux, u\.uy, state\)/u);
+});
+
+test('moverock_core consumes the C liquid-push result before dopush', async () => {
+    const cStart = HACK_SOURCE.indexOf(
+        'moverock_core(coordxy sx, coordxy sy)\n{',
+    );
+    const cEnd = HACK_SOURCE.indexOf('\n/*\n *  still_chewing()', cStart);
+    const jsStart = HACK_JS_SOURCE.indexOf('async function moverock_core(');
+    const jsEnd = HACK_JS_SOURCE.indexOf(
+        '\n// C ref: hack.c test_move', jsStart,
+    );
+    assert.ok(cStart >= 0 && cEnd > cStart && jsStart >= 0 && jsEnd > jsStart);
+    const cBody = HACK_SOURCE.slice(cStart, cEnd);
+    const jsBody = HACK_JS_SOURCE.slice(jsStart, jsEnd);
+    const cLiquid = cBody.indexOf('if (boulder_hits_pool(otmp, rx, ry, TRUE))');
+    assert.ok(cLiquid >= 0);
+    assert.ok(cBody.indexOf('disturb_buried_zombies(sx, sy);') < cLiquid);
+    assert.match(cBody.slice(cLiquid),
+        /if \(boulder_hits_pool\(otmp, rx, ry, TRUE\)\)\s+continue;/u);
+    assert.match(jsBody,
+        /await boulder_hits_pool\(otmp, rx, ry, true, helperEnv\)\)\s+continue;/u);
+
+    // An independently chosen ordinary push places the boulder one square
+    // ahead of the hero and a pool two squares ahead; rn2(10)=1 follows the
+    // source fill branch so the consumed Boolean must restart the pile scan.
+    await runSegment({
+        seed: 202610031,
+        datetime: '20431003091500',
+        nethackrc: 'OPTIONS=name:LiquidPush,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    const sx = game.u.ux;
+    const sy = game.u.uy;
+    const bx = sx + 1;
+    const rx = sx + 2;
+    for (const [x, y, typ] of [
+        [sx, sy, ROOM], [bx, sy, ROOM], [rx, sy, POOL],
+    ]) {
+        const location = game.level.at(x, y);
+        location.typ = typ;
+        location.flags = location.doormask = 0;
+        game.level.monsters[x][y] = null;
+        game.level.objects[x][y] = null;
+    }
+    game.level.traps = [];
+    game.u.dx = 1;
+    game.u.dy = 0;
+    game.context.run = 0;
+    const boulder = init_dummyobj(newObject(), BOULDER, 1, game);
+    const visionHooks = { blockPoint: () => {}, recalcBlockPoint: () => {} };
+    place_object(boulder, bx, sy, { state: game, hooks: visionHooks });
+    const draws = [];
+    const accepted = await test_move(sx, sy, 1, 0, DO_MOVE, game, {
+        random: { rn2: (n) => { draws.push(n); return 1; } },
+        message: async () => {},
+        newsym: () => {},
+        wakeNear: async () => {},
+        hooks: visionHooks,
+    });
+
+    assert.equal(accepted, true);
+    assert.equal(draws[0], 10,
+        'the source liquid helper owns the first random choice');
+    assert.equal(game.level.at(rx, sy).typ, ROOM);
+    assert.equal(sobj_at(BOULDER, bx, sy, game), null);
 });
 
 function swimDangerState(destinationTyp = POOL) {
@@ -771,6 +1024,112 @@ test('spoteffects calls pickup only for an enabled ordinary arrival',
         dismounting.in_steed_dismounting = true;
         await spoteffects(true, dismounting);
         assert.equal(dismounting.gp.pickup_encumbrance, 7);
+    });
+
+test('spoteffects piercer uses the canonical worn hard-helmet slot',
+    async () => {
+        const cStart = HACK_SOURCE.indexOf('\nvoid\nspoteffects(');
+        const cEnd = HACK_SOURCE.indexOf('\nmonstinroom(', cStart);
+        const cSpoteffects = HACK_SOURCE.slice(cStart, cEnd);
+        assert.match(cSpoteffects,
+            /else if \(hard_helmet\(uarmh\)\)\s*\{\s*pline\("Its blow glances off your %s\."/u);
+        const jsStart = HACK_JS_SOURCE.indexOf(
+            'export async function spoteffects(',
+        );
+        const jsEnd = HACK_JS_SOURCE.indexOf('\nexport function monstinroom(',
+            jsStart);
+        const jsSpoteffects = HACK_JS_SOURCE.slice(jsStart, jsEnd);
+        assert.match(jsSpoteffects,
+            /if \(hard_helmet\(state\.uarmh, state\)\)\s*\{\s*await message\([\s\S]*?helm_simple_name\(state\.uarmh, state\)/u);
+        assert.doesNotMatch(jsSpoteffects, /hard_helmet\(u\.uarmh/u);
+
+        // worn.c's W_ARMH table writes the player slot on game state itself.
+        const wornSource = readFileSync('js/worn.js', 'utf8');
+        assert.match(wornSource,
+            /mask: W_ARMH, field: 'uarmh'/u);
+
+        const state = resetGame();
+        objects_globals_init(state);
+        monst_globals_init(state);
+        state.level = new GameMap();
+        state.level.monlist = null;
+        // (5,4) is an interior ROOM square with eight ROOM neighbors; that
+        // lets spoteffects finish its source-required mnexto() relocation.
+        state.u = {
+            ux: 5, uy: 4, ux0: 5, uy0: 4,
+            uinwater: false, uswallow: false,
+            // AC 10 plus the injected minimum rnd(20)=1 makes the unprotected
+            // source arm hit; 20 HP keeps that mistaken hit observable.
+            uac: 10, uhp: 20,
+            umonnum: PM_HUMAN,
+            uprops: terrainProperties(),
+        };
+        state.youmonst = { data: state.mons[PM_HUMAN] };
+        state.level.at(5, 4).typ = ROOM;
+        // This inclusive patch includes the center and all eight adjacent
+        // ROOM squares required by the monster's end-of-effect relocation.
+        for (let x = 4; x <= 6; ++x) {
+            for (let y = 3; y <= 5; ++y)
+                state.level.at(x, y).typ = ROOM;
+        }
+        state.iflags = { terrain_typ: ROOM };
+        state.flags = { terrainstatus: false };
+        state.unported = new Set();
+        // HELMET is the source iron hard helmet; store it only in the C uarmh
+        // slot on state, leaving the old nested-field lookup empty.
+        state.uarmh = newObject({
+            otyp: HELMET,
+            oclass: state.objects[HELMET].oc_class,
+            quan: 1,
+            dknown: true,
+        });
+        assert.equal(state.u.uarmh, undefined);
+
+        const piercer = newMonster({
+            data: state.mons[PM_IRON_PIERCER],
+            mhp: 20,
+            mhpmax: 20,
+            mcanmove: true,
+        });
+        assert.equal(piercer.data.mlet, S_PIERCER);
+        place_monster(piercer, state.u.ux, state.u.uy, state);
+
+        const messages = [];
+        const randomCalls = [];
+        const random = {
+            rn2(bound) {
+                randomCalls.push(['rn2', bound]);
+                // The zero offset makes enexto's deterministic ring shuffle
+                // reproducible without affecting the piercer attack branch.
+                return 0;
+            },
+            rnd(bound) {
+                randomCalls.push(['rnd', bound]);
+                // The minimum value would force the source attack to hit if
+                // hard_helmet() failed to read the canonical slot.
+                return 1;
+            },
+            d(count, sides) {
+                randomCalls.push(['d', count, sides]);
+                // Minimum damage keeps any incorrect attack result legible.
+                return 1;
+            },
+        };
+        await spoteffects(false, state, {
+            message: async (line) => messages.push(line),
+            random,
+            newsym: () => {},
+            setApparxy: () => {},
+        });
+
+        assert.ok(messages.some((line) =>
+            line.includes('Its blow glances off your helm.')));
+        assert.equal(state.u.uhp, 20);
+        assert.equal(randomCalls.some(([kind, bound]) =>
+            kind === 'rnd' && bound === 20), false);
+        assert.equal(randomCalls.some(([kind, count, sides]) =>
+            kind === 'd' && count === 4 && sides === 6), false);
+        resetGame();
     });
 
 test('spoteffects stops its arrival tail after terminal pooleffects',
@@ -1543,6 +1902,14 @@ test('runmode_delay_output stays silent with no run and no multi', async () => {
 // would still match byte for byte.
 function interruptibleRunState(overrides = {}) {
     const state = runState(overrides);
+    // These movement tests reach carrying_too_much() -> near_capacity() even
+    // when the inventory is empty. Give them the same complete property array
+    // that u_init.c initializes, rather than a BLINDED-only partial fixture.
+    state.u.uprops = Array.from({ length: LAST_PROP + 1 }, () => ({
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    }));
     // hack.c nomul() clears both, and end_running() clears the travel pair.
     // These tests exercise ordinary run interruption, not the travel command;
     // leave travel unset so domove() does not enter findtravelpath().
@@ -1553,6 +1920,44 @@ function interruptibleRunState(overrides = {}) {
     state.disp.botl = false;
     return state;
 }
+
+test('inv_weight totals inventory before refreshing the live capacity cache', () => {
+    // hack.c:4351-4371 walks gi.invent before it calls weight_cap() and writes
+    // gw.wc. This order is visible now that weight_cap temporarily changes the
+    // levitation masks while a Boots_on callback is pending.
+    const state = resetGame();
+    const uprops = terrainProperties();
+    const order = [];
+    const levitation = new Proxy(uprops[LEVITATION], {
+        get(target, property, receiver) {
+            if (property === 'extrinsic') order.push('capacity');
+            return Reflect.get(target, property, receiver);
+        },
+    });
+    uprops[LEVITATION] = levitation;
+    state.u = {
+        acurr: { a: [18, 10, 10, 10, 10, 10] },
+        abon: [0, 0, 0, 0, 0, 0],
+        atemp: [0, 0, 0, 0, 0, 0],
+        uprops,
+        umonnum: 0,
+        umonster: 0,
+        usteed: null,
+        uz: { dnum: 0, dlevel: 1 },
+    };
+    state.youmonst = { data: {} };
+    Object.defineProperty(state, 'invent', {
+        configurable: true,
+        get() {
+            order.push('inventory');
+            return { oclass: 0, otyp: 1, owt: 10, nobj: null };
+        },
+    });
+
+    const result = inv_weight(state);
+    assert.deepEqual(order.slice(0, 2), ['inventory', 'capacity']);
+    assert.equal(result, 10 - state.gw.wc);
+});
 
 function assertRunEndedThroughNomul(state, label) {
     assert.equal(state.multi, 0, `${label} multi`);
