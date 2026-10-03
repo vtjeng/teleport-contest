@@ -586,8 +586,7 @@ export async function handle_tip(tip, state = game, env = {}) {
 // wounded leg costs WT_WOUNDEDLEG_REDUCT, and both cost twice that. C guards it
 // with !Flying, which is the only reader of Flying in this function.
 export function weight_cap(state = game) {
-    const levitation = state.u.uprops?.[LEVITATION]
-        ?? { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const levitation = state.u.uprops[LEVITATION];
     const saveELevitation = levitation.extrinsic;
     const saveBLevitation = levitation.blocked;
 
@@ -628,7 +627,7 @@ export function weight_cap(state = game) {
     } else {
         capacity = Math.min(capacity, MAX_CARR_CAP);
         if (!heroIsFlying(state)) {
-            const sides = state.u?.uprops?.[WOUNDED_LEGS]?.extrinsic ?? 0;
+            const sides = state.u.uprops[WOUNDED_LEGS].extrinsic;
             if (sides & LEFT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
             if (sides & RIGHT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
         }
@@ -668,9 +667,10 @@ function capacity_from_excess(excess, capacity) {
 // C ref: hack.c inv_weight(). The inventory is stable throughout the current
 // repeated-command boundary, but its capacity component is deliberately live.
 export function inv_weight(state = game) {
+    const weight = inventory_weight(state);
     state.gw ??= {};
     state.gw.wc = weight_cap(state);
-    return inventory_weight(state) - state.gw.wc;
+    return weight - state.gw.wc;
 }
 
 // C ref: hack.c inv_cnt() (4494-4507). Counts inventory slots, optionally

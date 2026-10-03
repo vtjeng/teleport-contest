@@ -28,6 +28,7 @@ import {
     HEADSTONE,
     ICE,
     I_SPECIAL,
+    LAST_PROP,
     LEVITATION,
     LAVAWALL,
     LEFT_SIDE,
@@ -79,6 +80,7 @@ import {
     hero_tread_disturbs_buried_zombies,
     in_town,
     invocation_pos,
+    inv_weight,
     long_to_any,
     losehp,
     lookaround,
@@ -250,11 +252,11 @@ function treadState(overrides = {}) {
 }
 
 function terrainProperties() {
-    const uprops = [];
-    uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    uprops[FLYING] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    uprops[STEALTH] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    return uprops;
+    return Array.from({ length: LAST_PROP + 1 }, () => ({
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    }));
 }
 
 function terrainState(currentTyp, previousTyp = STAIRS) {
@@ -582,7 +584,8 @@ test('pooleffects rereads levitation and flight after leaving water', async () =
     // Seed 840041 selects reproducible downstream lava-effect draws; (5,4) is
     // an ordinary interior square for the LAVAWALL transition, and 20 HP keeps
     // the fixture alive to observe that branch without a rescue hook.
-    const state = resetGame();
+    resetGame();
+    const state = game;
     initRng(840041);
     state.u = {
         ux: 5,
@@ -1810,6 +1813,14 @@ test('runmode_delay_output stays silent with no run and no multi', async () => {
 // would still match byte for byte.
 function interruptibleRunState(overrides = {}) {
     const state = runState(overrides);
+    // These movement tests reach carrying_too_much() -> near_capacity() even
+    // when the inventory is empty. Give them the same complete property array
+    // that u_init.c initializes, rather than a BLINDED-only partial fixture.
+    state.u.uprops = Array.from({ length: LAST_PROP + 1 }, () => ({
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    }));
     // hack.c nomul() clears both, and end_running() clears the travel pair.
     // These tests exercise ordinary run interruption, not the travel command;
     // leave travel unset so domove() does not enter findtravelpath().
@@ -1820,6 +1831,44 @@ function interruptibleRunState(overrides = {}) {
     state.disp.botl = false;
     return state;
 }
+
+test('inv_weight totals inventory before refreshing the live capacity cache', () => {
+    // hack.c:4351-4371 walks gi.invent before it calls weight_cap() and writes
+    // gw.wc. This order is visible now that weight_cap temporarily changes the
+    // levitation masks while a Boots_on callback is pending.
+    const state = resetGame();
+    const uprops = terrainProperties();
+    const order = [];
+    const levitation = new Proxy(uprops[LEVITATION], {
+        get(target, property, receiver) {
+            if (property === 'extrinsic') order.push('capacity');
+            return Reflect.get(target, property, receiver);
+        },
+    });
+    uprops[LEVITATION] = levitation;
+    state.u = {
+        acurr: { a: [18, 10, 10, 10, 10, 10] },
+        abon: [0, 0, 0, 0, 0, 0],
+        atemp: [0, 0, 0, 0, 0, 0],
+        uprops,
+        umonnum: 0,
+        umonster: 0,
+        usteed: null,
+        uz: { dnum: 0, dlevel: 1 },
+    };
+    state.youmonst = { data: {} };
+    Object.defineProperty(state, 'invent', {
+        configurable: true,
+        get() {
+            order.push('inventory');
+            return { oclass: 0, otyp: 1, owt: 10, nobj: null };
+        },
+    });
+
+    const result = inv_weight(state);
+    assert.deepEqual(order.slice(0, 2), ['inventory', 'capacity']);
+    assert.equal(result, 10 - state.gw.wc);
+});
 
 function assertRunEndedThroughNomul(state, label) {
     assert.equal(state.multi, 0, `${label} multi`);
