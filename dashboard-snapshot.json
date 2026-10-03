@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-03T22:42:08.921Z",
+  "capturedAt": "2026-10-03T23:23:30.561Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -16970,6 +16970,29 @@
         "at": "2026-10-03T22:41:21.851Z",
         "task": "A83",
         "delivery": "b421d8f92badf87a42206e384bddfc62b2968233"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A83-candidate-integrating",
+        "type": "integrating",
+        "at": "2026-10-03T22:48:41.657Z",
+        "task": "A83",
+        "integration": "5ec1c3d7e80ae718969306f4542861222074d206"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A83-focused-fixture-feedback-20261003",
+        "type": "feedback",
+        "at": "2026-10-03T22:53:03.177Z",
+        "task": "A83",
+        "delivery": "b421d8f92badf87a42206e384bddfc62b2968233"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-A83-resume-focused-correction-20261003",
+        "type": "resume",
+        "at": "2026-10-03T22:57:19.332Z",
+        "task": "A83"
       }
     ]
   },
