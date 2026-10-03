@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhk. hhhh"
+    }
+  ],
+  "comment": "C-first west-room doorway continuation using the prior bounded shop-candidate seed/date. The wizard map shows a corridor square at (15,16) immediately east of the doorway at (14,16). From the observed cursor at (55,17), forty west selections and one north selection target that corridor; the subsequent four west commands test refusal, opening, crossing the door, and entering the room in C order. This remains exploratory unless C emits shop-specific output."
+}

@@ -59,6 +59,8 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_ice,
+    is_lava,
 } from './dbridge.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { game } from './gstate.js';
@@ -104,10 +106,9 @@ import { body_part } from './polyself.js';
 import { d, rn1, rn2, rne, rnd } from './rng.js';
 import { aggravate } from './wizard.js';
 import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
-import { is_ice } from './terrain.js';
+
 import {
     Flying,
-    is_lava,
     t_at,
     uescaped_shaft,
     uteetering_at_seen_pit,

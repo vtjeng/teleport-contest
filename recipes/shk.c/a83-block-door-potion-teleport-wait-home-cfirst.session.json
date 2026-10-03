@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhh#wizwish\nbroken door\n\u0014  hh. , \u0014  n..;k;u"
+    }
+  ],
+  "comment": "Preserved setup miss for shk.c:block_door. After teleporting to (7,8) and waiting, C quick-look identifies peaceful Vals at (7,7); the selection key ends the look command, then u immediately enters the broken doorway at (8,7). C still allows the move and prints the ordinary pay-before-leaving warning, so this record does not establish the blocking arm or matching runtime evidence."
+}

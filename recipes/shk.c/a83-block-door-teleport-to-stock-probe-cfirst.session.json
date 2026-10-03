@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhh#wizwish\nbroken door\n \u0014  hhk., ln"
+    }
+  ],
+  "comment": "C-first block_door coordinate probe. Make the observed Vals shop entrance broken before debt, use the recorded control-teleport map to land on the C-observed puce potion tile, pick it up, then test diagonal entry from its adjacent interior square."
+}

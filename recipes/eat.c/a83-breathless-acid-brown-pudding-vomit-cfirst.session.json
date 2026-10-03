@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first form/role variation for eat.c:vomit and its acidic-on-ice branch. monsters.h defines brown pudding with both M1_BREATHLESS and M1_ACID, so eat.c:choke bypasses the random refusal and eat.c:vomit reaches the ice predicate. Monk is chosen to avoid repeating the acid blob’s tiny 10-unit capacity setup; no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 82946317,
+      "datetime": "20261003172500",
+      "nethackrc": "OPTIONS=name:A83VomitPudding,role:Monk,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nbrown pudding\n   \u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\ne? o eo y"
+    }
+  ]
+}

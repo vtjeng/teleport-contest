@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation from the observed C state where slot o is being worn. Invoke polyself to confirm, using C output and the polyself.c:102 contract, that Magical_breathing remains active in the acidic Yellow Dragon form. No JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed amulet of magical breathing\nP?o#polyself\nyellow dragon\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 preserved C-observed menu prefix, not completion evidence. While the hero was engulfed at 4 HP, C listed the wished wand as p — an iridium wand — alongside c, an undead-turning wand. The requested wand of death uses the C-generated iridium appearance. This recording is saved in .cache/A83-logs/; the next recipe selects p and aims at the swallowing monster.",
+  "segments": [
+    {
+      "seed": 77482061,
+      "datetime": "20261002174500",
+      "nethackrc": "OPTIONS=name:A83SwallowedKill,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of death\n#wizgenesis\n1 hostile trapper\n.. z?"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved intermediate C continuation. One space dismisses the read-scroll More, then C displays the controlled-destination More. The following '.' is consumed before getpos accepts a destination. The later continuation adds another observed space, then Escape to close the C-observed Farlooking tip, and '.' to select getpos's initial cursor.",
+  "segments": [
+    {
+      "seed": 63010248,
+      "datetime": "20431003101100",
+      "nethackrc": "OPTIONS=name:A83IceLanding,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n\u0017uncursed scroll of teleportation\nrp  ."
+    }
+  ]
+}

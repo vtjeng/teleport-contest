@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup prefix for the source-derived guaranteed vomit branch. This Wizard first wishes an amulet of magical breathing and wears it; youprop.h:276 includes EMagical_breathing in Breathless and polyself.c:102 says polymorph must not clear that property. The later Yellow Dragon form supplies M1_ACID with ample carry capacity. Stop at the source-observed accessory list before selecting a slot; no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed amulet of magical breathing\nP?"
+    }
+  ]
+}

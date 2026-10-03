@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-only setup probe for the independent lava_effects(BURNING) route. Seed 27409107, date 20481123093817, and this Wizard setup were chosen independently. Wish the life-saving amulet, then request the C put-on inventory menu; stop before choosing a slot or entering lava so the final recipe uses an observed selection.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017amulet of life saving\nP?"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved setup miss. The C-observed inventory selects opener j and tin k, but this frozen suffix ends at the tin's 'contains spinach' More boundary; the following y only dismisses More and never answers the Eat it prompt. The corrected recipe carries that dismissal before y.",
+  "segments": [
+    {
+      "seed": 61204740,
+      "datetime": "20411003191500",
+      "nethackrc": "OPTIONS=name:TinChokeA83,role:Archeologist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizintrinsic\n>g\n \u0017blessed tin opener\n\u0017blessed tin of spinach\ned wjeky"
+    }
+  ]
+}

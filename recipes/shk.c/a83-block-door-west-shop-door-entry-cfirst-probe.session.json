@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh h k. hhhh"
+    }
+  ],
+  "comment": "C-first doorway trace for block_door using the prior bounded shop-candidate seed/date. The wizard map shows a west-room doorway adjacent to corridor (15,16); from the observed cursor start at (55,17), the controlled-teleport recipe selects that corridor square, then presses west through the closed door, opens it if necessary, and continues into the room. Exploratory only unless C produces the shop-entry output."
+}

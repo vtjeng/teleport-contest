@@ -93,12 +93,12 @@ import { in_rooms } from './rooms.js';
 // js/stairs.js imports depth() and on_level() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
 import { On_stairs, stairway_at, stairway_find_special_dir } from './stairs.js';
-import { is_ice } from './terrain.js';
+
 import { dmgtype_fromattack, is_animal } from './mondata.js';
 // js/trap.js imports on_level() from this file. Both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
-import { is_lava } from './trap.js';
-import { is_pool } from './dbridge.js';
+
+import { is_pool, is_ice, is_lava } from './dbridge.js';
 import { ttyPline } from './tty_message.js';
 // js/windows.js does not import from this file, so there is no cycle.
 import { add_menu_heading, getlin, select_menu } from './windows.js';

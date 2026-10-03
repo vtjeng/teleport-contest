@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first diagnostic prefix for the source-selected hack.c:moverock_core push path without a wished boulder object. Flying permits a pool wish under the initial square and safe movement east; a cursed scroll of earth is then wished at the adjacent room square. Inventory is inspected before freezing the read-and-push suffix. This is a setup prefix, not a regression recording.",
+  "segments": [
+    {
+      "seed": 84563221,
+      "datetime": "20430307131800",
+      "nethackrc": "OPTIONS=name:A83MoverockEarth,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\nl#wizwish\ncursed scroll of earth\ni"
+    }
+  ]
+}

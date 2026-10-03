@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first pager-boundary recipe. It repeats the source-selected ICE, Acid Black Pudding, Flying and one-turn Vomiting setup, then ends on the C-observed acid-melt More before any dismissal. The source effects finish before that pager. The longer original recipe is preserved separately; this input boundary avoids entering the later monster electrical hit, which is outside this task.",
+  "segments": [
+    {
+      "seed": 45317922,
+      "datetime": "20280115140721",
+      "nethackrc": "OPTIONS=name:A83VomitFlyingPudding,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n>>k\n #wizintrinsic\n1k\n ."
+    }
+  ]
+}

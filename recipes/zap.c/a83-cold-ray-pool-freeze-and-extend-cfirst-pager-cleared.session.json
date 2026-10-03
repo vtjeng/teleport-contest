@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first cold-ray timer-start and extension route. On this independently chosen seed the source-observed wizard menu enables Flying; wishing a pool under the hero and stepping east onto the adjacent altar leaves the pool west, and the C inventory shows a blessed wand of cold in slot c. The first z-c-h freezes that pool; its C output creates a More boundary, so this variant adds one space before a second z-c-h. That C-observed continuation tests the already-timed ICE branch. Freeze before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 64100322,
+      "datetime": "20321215103000",
+      "nethackrc": "OPTIONS=name:A83ColdRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\nlzch zch"
+    }
+  ]
+}

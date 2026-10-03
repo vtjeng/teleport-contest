@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-observed fourth lava pager continuation with the cloak removed. One space dismisses the fatal BURNING message so the Wizard death confirmation can be inspected.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "T\u0017lava\n    "
+    }
+  ]
+}

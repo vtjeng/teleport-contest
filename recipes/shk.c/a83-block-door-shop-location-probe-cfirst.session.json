@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 85271063,
+      "datetime": "20420214101730",
+      "nethackrc": "OPTIONS=name:A83DoorProbe,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n\u0006"
+    }
+  ],
+  "comment": "C-first location probe. The seed and clock are independently chosen for A83 after source review of hack.c:test_move and shk.c:block_door; Ctrl-V enters D:5 and Ctrl-F maps the level so the shop door and diagonal interior square can be selected from actual C output. This map-only probe is not runtime evidence for block_door."
+}

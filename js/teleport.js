@@ -1,11 +1,11 @@
 // Monster destination selection and short-range relocation, plus the hero's
 // own level teleport and within-level teleport.
-// C ref: teleport.c goodpos(), enexto(), enexto_core(), collect_coords(),
+// C ref: teleport.c goodpos(), m_blocks_teleporting(), tele_jump_ok(),
+// enexto(), enexto_core(), collect_coords(),
 // teleok(), scrolltele(), tele(), level_tele(), random_teleport_level();
 // mon.c mnexto().
 
 import {
-    ACCESSIBLE,
     ALTAR,
     ANTIMAGIC,
     BLINDED,
@@ -20,48 +20,34 @@ import {
     SHOPBASE,
     CONFUSION,
     DIED,
-    DB_ICE,
-    DB_LAVA,
-    DB_MOAT,
-    DB_UNDER,
-    D_CLOSED,
-    D_LOCKED,
-    DOOR,
     KILLED_BY,
-    DRAWBRIDGE_UP,
     GP_ALLOW_U,
     GP_ALLOW_XY,
     GP_AVOID_MONPOS,
     GP_CHECKSCARY,
-    HEADSTONE,
     HOLE,
-    ICE,
-    IS_LAVA,
     IS_STWALL,
     MAGIC_PORTAL,
-    LAVAPOOL,
     LR_MONGEN,
     MIGR_RANDOM,
     MIGR_PORTAL,
     MM_IGNORELAVA,
     MM_IGNOREWATER,
-    MON_FLOOR,
-    MOAT,
     NO_TRAP,
     NO_KILLER_PREFIX,
     OBJ_FREE,
-    POOL,
     PASSES_WALLS,
     RLOC_MSG,
     RLOC_NOMSG,
     ROWNO,
     TEMPLE,
     SLT_ENCUMBER,
-    STONE,
     STRAT_APPEARMSG,
     FLYING,
     LEVITATION,
     STUNNED,
+    SWIMMING,
+    MAGICAL_BREATHING,
     TELEDS_ALLOW_DRAG,
     TELEDS_TELEPORT,
     TELEPORT_CONTROL,
@@ -71,6 +57,8 @@ import {
     VAULT,
     VIBRATING_SQUARE,
     WATER,
+    WWALKING,
+    FIRE_RES,
     W_NONPASSWALL,
     ZAP_POS,
     In_quest,
@@ -78,6 +66,7 @@ import {
     is_pit,
     is_hole,
     engulfing_u,
+    Upolyd,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -108,10 +97,13 @@ import {
     UnsupportedLevelChangeError,
 } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { engr_at } from './engrave.js';
+import { sengr_at } from './engrave.js';
+import { is_lava, is_pool, is_waterwall } from './dbridge.js';
+import { is_exclusion_zone } from './mkmaze.js';
+import { accessible, closed_door, onscary } from './monmove.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
-import { addinv, prinv, obj_extract_self } from './invent.js';
+import { addinv, prinv, obj_extract_self, sobj_at } from './invent.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { in_rooms } from './rooms.js';
 import { learnscroll } from './read.js';
@@ -134,8 +126,12 @@ import {
     is_covetous,
     is_dlord,
     is_dprince,
+    amphibious,
+    is_flyer,
     is_rider,
     is_silent,
+    is_swimmer,
+    likes_lava,
     passes_walls,
 } from './mondata.js';
 import { is_home_elemental } from './makemon.js';
@@ -150,7 +146,6 @@ import { place_worm_tail_randomly, remove_worm } from './worm.js';
 import {
     G_UNIQ,
     M1_AMORPHOUS,
-    M1_FLY,
     M1_SWIM,
     PM_FIRE_ELEMENTAL,
     PM_FLOATING_EYE,
@@ -159,21 +154,21 @@ import {
     S_ANGEL,
     S_ELEMENTAL,
     S_EEL,
-    S_EYE,
     S_HUMAN,
-    S_LIGHT,
     S_MIMIC,
     S_VAMPIRE,
 } from './monsters.js';
 import {
     deal_with_overcrowding,
+    get_iter_mons,
+    m_in_air,
     maybe_unhide_at,
     mon_offmap,
     set_ustuck,
     unstuck,
     m_into_limbo,
 } from './mon.js';
-import { carried, mksobj, place_object, sobj_at } from './obj.js';
+import { carried, mksobj, place_object } from './obj.js';
 import {
     AMULET_OF_YENDOR,
     BOULDER,
@@ -213,7 +208,6 @@ import { canseemon, canspotmon, sensemon } from './display.js';
 // These generated-monster masks are source data which monsters.js does not
 // currently export. Keep their names and values traceable to monflag.h.
 const M1_WALLWALK = 0x00000008;
-const M1_CLING = 0x00000010;
 const M1_NOEYES = 0x00001000;
 const M2_ROCKTHROW = 0x08000000;
 
@@ -232,7 +226,7 @@ function teleportEnv(env = {}) {
     return { ...env, random, state: env.state ?? game };
 }
 
-function teleJumpOk(x1, y1, x2, y2, state) {
+function tele_jump_ok(x1, y1, x2, y2, state) {
     if (!isok(x2, y2)) return false;
     for (const bounds of [state.dndest, state.updest]) {
         if (!(bounds?.nlx > 0)) continue;
@@ -259,7 +253,7 @@ function teleJumpOk(x1, y1, x2, y2, state) {
 
 function rlocPositionOk(x, y, monster, env) {
     if (!goodpos(x, y, monster, GP_CHECKSCARY, env)) return false;
-    return teleJumpOk(monster.mx, monster.my, x, y, env.state);
+    return tele_jump_ok(monster.mx, monster.my, x, y, env.state);
 }
 
 function requiredRelocationOperation(env, name) {
@@ -560,66 +554,23 @@ export async function u_teleport_mon(monster, giveFeedback, rawEnv = {}) {
     return true;
 }
 
-function closedDoor(location) {
-    const mask = (location.flags || location.doormask || 0);
-    return location.typ === DOOR && Boolean(mask & (D_LOCKED | D_CLOSED));
-}
-
-function drawbridgeMask(location) {
-    return (location.flags ?? 0) & DB_UNDER;
-}
-
-function isPoolAt(location, state) {
-    if (location.typ === POOL || location.typ === MOAT
-        || location.typ === WATER) {
-        return true;
-    }
-    return location.typ === DRAWBRIDGE_UP
-        && drawbridgeMask(location) === DB_MOAT
-        && !on_level(state.u?.uz, state.juiblex_level);
-}
-
-function isLavaAt(location) {
-    return IS_LAVA(location.typ)
-        || (location.typ === DRAWBRIDGE_UP
-            && drawbridgeMask(location) === DB_LAVA);
-}
-
-function surfaceType(location) {
-    if (location.typ !== DRAWBRIDGE_UP) return location.typ;
-    switch (drawbridgeMask(location)) {
-    case DB_ICE: return ICE;
-    case DB_LAVA: return LAVAPOOL;
-    case DB_MOAT: return MOAT;
-    default: return STONE;
-    }
-}
-
 function currentDungeonIsHellish(state) {
     const dnum = state.u?.uz?.dnum;
     return Number.isInteger(dnum)
         && Boolean(state.dungeons?.[dnum]?.flags?.hellish);
 }
 
-function blocksTeleporting(monster) {
+function m_blocks_teleporting(monster) {
     return is_dlord(monster.data) || is_dprince(monster.data);
 }
 
-// C ref: teleport.c m_blocks_teleporting() and noteleport_level(). Demon
-// courts inspect only living, on-map monsters, as get_iter_mons() does.
+// C ref: teleport.c noteleport_level(). The callback is teleport.c's static
+// m_blocks_teleporting(); mon.c:get_iter_mons owns the living/on-map scan.
 export function noteleport_level(monster, state = game) {
     if (currentDungeonIsHellish(state)
         && !is_dlord(monster.data)
         && !is_dprince(monster.data)) {
-        for (let current = state.level?.monlist ?? null;
-            current;
-            current = current.nmon) {
-            if (current.mhp < 1
-                || (current.mstate ?? MON_FLOOR) !== MON_FLOOR) {
-                continue;
-            }
-            if (blocksTeleporting(current)) return true;
-        }
+        if (get_iter_mons(m_blocks_teleporting, state)) return true;
     }
     if (state.level?.flags?.noteleport && !is_covetous(monster.data))
         return true;
@@ -989,37 +940,9 @@ function inWaterLevel(state) {
     return on_level(state.u?.uz, state.water_level);
 }
 
-function isFloater(species) {
-    return species.mlet === S_EYE || species.mlet === S_LIGHT;
-}
-
-// C ref: mon.c m_in_air(). A fake monster used by enexto_core() is never
-// undetected, so its clinger branch is false; retain the live-monster form for
-// direct goodpos() callers which provide a hasCeiling hook.
-function monsterInAir(monster, normalized) {
-    const species = monster.data;
-    if ((species.mflags1 & M1_FLY) || isFloater(species)) return true;
-    if (!(species.mflags1 & M1_CLING) || !monster.mundetected) return false;
-    const hasCeiling = normalized.hasCeiling;
-    if (typeof hasCeiling !== 'function') {
-        throw new UnsupportedPositionCheckError(
-            'undetected clinger without hasCeiling hook',
-        );
-    }
-    return Boolean(hasCeiling(normalized.state.u?.uz, normalized));
-}
-
 function mayPasswall(location) {
     return !(IS_STWALL(location.typ)
         && (location.wall_info & W_NONPASSWALL));
-}
-
-function engravingSaysElbereth(x, y, state) {
-    const engraving = engr_at(x, y, state);
-    return Boolean(engraving
-        && engraving.engr_type !== HEADSTONE
-        && engraving.engr_time <= (state.moves ?? 0)
-        && String(engraving.engr_txt?.[0] ?? '').toLowerCase() === 'elbereth');
 }
 
 // C ref: teleport.c goodpos_onscary(). This deliberately needs only species
@@ -1038,7 +961,50 @@ export function goodpos_onscary(x, y, species, env = {}) {
     if (currentDungeonIsHellish(state) || inEndgame(state)) return false;
     if (species.pmidx === PM_MINOTAUR || (species.mflags1 & M1_NOEYES))
         return false;
-    return engravingSaysElbereth(x, y, state);
+    return Boolean(sengr_at('Elbereth', x, y, true, state));
+}
+
+function propertyPresent(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function propertyActive(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic) && !value?.blocked;
+}
+
+// These are teleport.c goodpos()'s direct hero macro expressions. Keep them
+// here so every goodpos caller gets the same C checks without injected hooks.
+function heroCanOccupyPool(x, y, state) {
+    const steed = state.u?.usteed;
+    const flying = state.u?.uprops?.[FLYING] ?? {};
+    return propertyPresent(state, SWIMMING)
+        || Boolean(steed && is_swimmer(steed.data))
+        || propertyPresent(state, MAGICAL_BREATHING)
+        || amphibious(state.youmonst?.data)
+        || (!inWaterLevel(state)
+            && !is_waterwall(x, y, state)
+            && (propertyActive(state, LEVITATION)
+                || Boolean((flying.intrinsic || flying.extrinsic
+                    || (steed && is_flyer(steed.data))) && !flying.blocked)
+                || propertyPresent(state, WWALKING)));
+}
+
+function heroCanOccupyLava(state) {
+    // C teleport.c reads global `uarmf` (worn.c's W_ARMF slot), which is
+    // stored at the game-state root alongside uarmh/uarms.
+    const boots = state.uarmf;
+    const waterWalking = propertyPresent(state, WWALKING)
+        && !inWaterLevel(state);
+    const flying = state.u?.uprops?.[FLYING] ?? {};
+    const steed = state.u?.usteed;
+    return Boolean(propertyActive(state, LEVITATION)
+        || Boolean((flying.intrinsic || flying.extrinsic
+            || (steed && is_flyer(steed.data))) && !flying.blocked)
+        || (propertyPresent(state, FIRE_RES) && waterWalking
+            && boots && boots.oerodeproof)
+        || (Upolyd(state.u) && likes_lava(state.youmonst?.data)));
 }
 
 // C ref: teleport.c goodpos(). This covers the species-only fake-monster path
@@ -1072,48 +1038,32 @@ export function goodpos(x, y, monster, gpflags = 0, env = {}) {
         if (!location) return false;
         const ignoreWater = Boolean(gpflags & MM_IGNOREWATER);
         const ignoreLava = Boolean(gpflags & MM_IGNORELAVA);
-        if (isPoolAt(location, state) && !ignoreWater) {
+        if (is_pool(x, y, state) && !ignoreWater) {
             if (monster === state.youmonst) {
-                if (typeof normalized.heroCanOccupyPool !== 'function') {
-                    throw new UnsupportedPositionCheckError(
-                        'hero pool placement without heroCanOccupyPool hook',
-                    );
-                }
-                return Boolean(normalized.heroCanOccupyPool(x, y, normalized));
+                return heroCanOccupyPool(x, y, state);
             }
             return Boolean((species.mflags1 & M1_SWIM)
                 || (!inWaterLevel(state) && location.typ !== WATER
-                    && monsterInAir(monster, normalized)));
+                    && m_in_air(monster, state)));
         } else if (species.mlet === S_EEL && random.rn2(13) && !ignoreWater) {
             return false;
-        } else if (isLavaAt(location) && !ignoreLava) {
+        } else if (is_lava(x, y, state) && !ignoreLava) {
             if (species.pmidx === PM_FLOATING_EYE) return false;
             if (monster === state.youmonst) {
-                if (typeof normalized.heroCanOccupyLava !== 'function') {
-                    throw new UnsupportedPositionCheckError(
-                        'hero lava placement without heroCanOccupyLava hook',
-                    );
-                }
-                return Boolean(normalized.heroCanOccupyLava(x, y, normalized));
+                return heroCanOccupyLava(state);
             }
-            return monsterInAir(monster, normalized)
+            return m_in_air(monster, state)
                 || species.pmidx === PM_FIRE_ELEMENTAL
                 || species.pmidx === PM_SALAMANDER;
         }
         if ((species.mflags1 & M1_WALLWALK) && mayPasswall(location))
             return true;
-        if ((species.mflags1 & M1_AMORPHOUS) && closedDoor(location))
+        if ((species.mflags1 & M1_AMORPHOUS)
+            && closed_door(x, y, state))
             return true;
         if (gpflags & GP_CHECKSCARY) {
             const scary = monster.m_id
-                ? (() => {
-                    if (typeof normalized.onscary !== 'function') {
-                        throw new UnsupportedPositionCheckError(
-                            'live-monster scary placement without onscary hook',
-                        );
-                    }
-                    return normalized.onscary(x, y, monster, normalized);
-                })()
+                ? onscary(x, y, monster, state)
                 : goodpos_onscary(x, y, species, normalized);
             if (scary) return false;
         }
@@ -1121,11 +1071,10 @@ export function goodpos(x, y, monster, gpflags = 0, env = {}) {
 
     const location = state.level?.at?.(x, y);
     if (!location) return false;
-    const accessible = ACCESSIBLE(surfaceType(location))
-        && !closedDoor(location);
-    if (!accessible) {
-        if (!(isPoolAt(location, state) && (gpflags & MM_IGNOREWATER))
-            && !(isLavaAt(location) && (gpflags & MM_IGNORELAVA))) {
+    const canEnter = accessible(x, y, state);
+    if (!canEnter) {
+        if (!(is_pool(x, y, state) && (gpflags & MM_IGNOREWATER))
+            && !(is_lava(x, y, state) && (gpflags & MM_IGNORELAVA))) {
             return false;
         }
     }
@@ -1134,8 +1083,7 @@ export function goodpos(x, y, monster, gpflags = 0, env = {}) {
         return false;
     }
     if ((gpflags & GP_AVOID_MONPOS)
-        && typeof normalized.isExclusionZone === 'function'
-        && normalized.isExclusionZone(LR_MONGEN, x, y, normalized)) {
+        && is_exclusion_zone(LR_MONGEN, x, y, state)) {
         return false;
     }
     return true;
@@ -1509,7 +1457,7 @@ export async function teleok(x, y, trapok, state = game) {
     }
     if (!goodpos(x, y, state.youmonst, 0, { state }))
         return false;
-    if (!teleJumpOk(state.u.ux, state.u.uy, x, y, state))
+    if (!tele_jump_ok(state.u.ux, state.u.uy, x, y, state))
         return false;
     if (!await in_out_region(x, y, { state }))
         return false;
@@ -1715,21 +1663,6 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
         }
     }
 
-    // teleds() itself tests nothing about who is standing on <nux,nuy>: it
-    // moves the hero there at 525 and leaves the consequence to
-    // spoteffects(TRUE) at 568. The arm that answers is hack.c:3417-3455,
-    // `if ((mtmp = m_at(u.ux, u.uy)) != 0 && !u.uswallow)`, which drops a
-    // piercer on the hero or has the resident monster attack by surprise and
-    // then calls mnexto() to move it aside. None of that is ported, and unlike
-    // the hack.js callers of the seam below -- which never arrive on an
-    // occupied square, because uhitm.c do_attack() claims one first -- a
-    // teleport destination can hold a monster, so the test belongs here.
-    if (m_at(nux, nuy, state)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'teleds() onto an occupied square',
-        );
-    }
-
     // The destination admission seam domove() uses. teleds() has no seam of
     // its own, and spoteffects() below depends on the same guarantees.
     requireSimpleHeroDestination(nux, nuy, state);
@@ -1825,6 +1758,8 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
     if (state.level.at(u.ux, u.uy).typ !== state.level.at(u.ux0, u.uy0).typ)
         await switch_terrain(state);
     /* possible shop entry message comes after guard's shrill whistle */
+    // C teleds() does not exclude an occupied destination; spoteffects() owns
+    // the resident monster's surprise after the hero has arrived.
     await spoteffects(true, state);
     invocation_message(state);
     notice_mon_on(state);
@@ -2200,7 +2135,9 @@ export async function level_tele(state = game) {
             'level_tele() with the hero tethered to a buried ball',
         );
     }
-    if (!force_dest && !next_to_u(state)) {
+    // teleport.c:1304 evaluates next_to_u() before checking force_dest, so the
+    // companion scan still runs for controlled wizard destinations.
+    if (!next_to_u(state) && !force_dest) {
         await ttyPline('You shudder for a moment.', state);
         return;
     }

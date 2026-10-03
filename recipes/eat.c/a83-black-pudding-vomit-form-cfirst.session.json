@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first form route for eat.c:vomit and melt_ice without the omitted acid-breath helper. monsters.h:2113–2123 defines black pudding with M1_BREATHLESS|M1_ACID and SIZ(900,250,...); its attack table has no AT_BREA/AD_ACID, so choke enters vomit and vomit skips ubreatheu/zhitu before testing the wished ICE. First record only the source form prompt; no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nblack pudding\n"
+    }
+  ]
+}

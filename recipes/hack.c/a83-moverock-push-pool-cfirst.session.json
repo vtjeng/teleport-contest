@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked independent C-first pushed-liquid attempt for hack.c:moverock_core -> do.c:boulder_hits_pool(pushing=TRUE). C records the boulder wish, eastward pool setup, loop around the source square, and positive push into POOL; however strict JS comparison stops first at segment 0 step 37 because zap.c:makewish consumes rn2(100) at :6421 and JS has no corresponding draw/screen. Preserve this source route as a blocked recipe only; it has no matching recording and establishes no runtime completion evidence.",
+  "segments": [
+    {
+      "seed": 73142089,
+      "datetime": "20421003150700",
+      "nethackrc": "OPTIONS=name:A83MoverockPush,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "#wizintrinsic\n>>k\n #wizwish\nboulder\nl\u0017pool\njhhkl"
+    }
+  ]
+}

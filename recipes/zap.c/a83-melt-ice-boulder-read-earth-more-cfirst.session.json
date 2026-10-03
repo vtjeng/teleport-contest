@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation of the ordinary-ROOM ICE prefix. The previous C screen ended at the More after read.c:seffect_earth's ceiling message; this recipe supplies exactly one space to inspect drop_boulder_on_player/flooreffects before choosing the zap input. It is an intermediate probe, not a regression recording.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMelt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn "
+    }
+  ]
+}

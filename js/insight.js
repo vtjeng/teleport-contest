@@ -238,6 +238,8 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
+    is_pool_or_lava,
 } from './dbridge.js';
 import { timet_delta } from './allmain.js';
 import { acurr, from_what, stone_luck } from './attrib.js';
@@ -366,8 +368,6 @@ import { empty_handed } from './wield.js';
 import { ART_OGRESMASHER } from './artifacts.js';
 import { RIGHT_HANDED } from './u_init.js';
 import {
-    is_lava,
-    is_pool_or_lava,
     t_at,
     trapname,
 } from './trap.js';

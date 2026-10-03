@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Cheap C-first role variation of the Flying acidic-pudding pager witness. Valkyrie changes the startup role and inventory while preserving the independent debug-form/Flying/Vomiting input route; input ends at the source-observed acid-melt More before any monster continuation. Freeze and record this variant before JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 45317922,
+      "datetime": "20280115140721",
+      "nethackrc": "OPTIONS=name:A83VomitFlyingValkyrie,role:Valkyrie,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n>>k\n #wizintrinsic\n1k\n ."
+    }
+  ]
+}

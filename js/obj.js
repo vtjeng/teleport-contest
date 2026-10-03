@@ -85,6 +85,8 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_ice,
+    is_pool_or_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 // corpstat.js imports from this file; both sides use the other's exports only
@@ -108,7 +110,8 @@ import { near_capacity } from './hack.js';
 import { strstri, strsubst } from './hacklib.js';
 import {
     add_to_container, container_weight, mergable, merged,
-    nxtobj, obfree, obj_extract_self, update_inventory,
+    nxtobj, obfree, obj_extract_self,
+    sobj_at as inventory_sobj_at, update_inventory,
     useupall,
 } from './invent.js';
 import { confers_luck } from './artifacts.js';
@@ -175,13 +178,11 @@ import {
     start_glob_timeout,
     stop_timer,
 } from './timeout.js';
-import { is_ice } from './terrain.js';
+
 // is_pool and is_pool_or_lava are imported for the boulder sanity check in
 // obj_sanity_check(). trap.js imports from this file; both sides use the
 // other's exports only inside function bodies.
-import {
-    is_pool_or_lava,
-} from './trap.js';
+
 // ttyPline is used by object diagnostics and naming paths.
 import { ttyPline } from './tty_message.js';
 // add_to_migration() calls maybe_reset_pick() for containers. lock.js imports
@@ -3146,15 +3147,7 @@ export function add_to_migration(obj, state = game) {
     state.gm.migrating_objs = obj;
 }
 
-// C ref: invent.c sobj_at() and g_at().
-export function sobj_at(otyp, x, y, state = game) {
-    const grid = floorObjectGrid(state);
-    for (let obj = grid[x]?.[y] ?? null; obj; obj = obj.nexthere) {
-        if (obj.otyp === otyp) return obj;
-    }
-    return null;
-}
-
+// C ref: invent.c g_at().
 export function g_at(x, y, state = game) {
     const grid = floorObjectGrid(state);
     for (let obj = grid[x]?.[y] ?? null; obj; obj = obj.nexthere) {
@@ -3851,7 +3844,7 @@ export function obj_nexto(otmp, state = game) {
 // Searches the current square first, then adjacent squares in a random
 // order. Makes two rn2(2) calls when recurs is true.
 export function obj_nexto_xy(obj, x, y, recurs, state = game) {
-    let otmp = sobj_at(obj.otyp, x, y, state);
+    let otmp = inventory_sobj_at(obj.otyp, x, y, state);
     while (otmp) {
         if (otmp !== obj && mergable(otmp, obj))
             return otmp;

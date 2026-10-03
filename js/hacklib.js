@@ -1,5 +1,5 @@
 // hacklib.js — Utility functions.
-// C ref: hacklib.c
+// C refs: hacklib.c.
 
 const utf8Encoder = new TextEncoder();
 
@@ -133,8 +133,19 @@ export function truncateByteString(value, limit) {
 // ones returning a rotating static buffer in C (s_suffix, ing_suffix, visctrl,
 // sitoa) return a fresh string, which is what their callers read immediately.
 //
-// Not ported, because they exist only to manipulate C pointers and have no
-// behavior to reproduce: eos(), c_eos(), strkitten(), and copynchars().
+// c_eos(), strkitten(), and copynchars() only expose C pointer operations
+// whose selected callers are still outside this port. strcasecpy() takes the
+// offset its callers reach by pointer arithmetic.
+
+// C ref: hacklib.c eos() (194-199). JS strings are immutable, so return the
+// UTF-8 byte offset of the first NUL terminator rather than a pointer. Callers
+// must keep this C byte offset separate from JavaScript's UTF-16 indexes.
+export function eos(value) {
+    const bytes = encodeUtf8ByteString(value);
+    let offset = 0;
+    while (offset < bytes.length && bytes[offset] !== 0) ++offset;
+    return offset;
+}
 // strcasecpy() takes the offset its callers reach by pointer arithmetic.
 
 // C ref: hacklib.c BUFSZ truncation limit for tabexpand() and stripchars().

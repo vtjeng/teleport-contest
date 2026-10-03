@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation probe frozen after the prior C capture showed a More prompt after #wizintrinsic. The space dismisses that observed page; Ctrl-V then requests `melting ice` under the source-confirmed flying Wizard. The probe ends at the wish result so the C timer draw and any next pager can be inspected before the complete expiration recipe is frozen. No JavaScript comparison has been made.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceTimerProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n>>k\n \u0017melting ice\n"
+    }
+  ]
+}

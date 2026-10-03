@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhh#wizwish\nbroken door\nhkh, ln"
+    }
+  ],
+  "comment": "C-first block_door probe from the observed Vals liquor emporium doorway. Wish the doorway broken before acquiring shop debt, then pick up the observed puce potion and make the diagonal step into the doorway from inside; preserves the active bill without crossing out of the shop."
+}

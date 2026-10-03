@@ -196,6 +196,26 @@ test('traptype_rnd preserves conditional rejection draws and flags', () => {
 });
 
 test('maketrap owns a head-first trap list and assigns unused board notes', () => {
+    const cSource = readFileSync(
+        new URL('../nethack-c/upstream/src/trap.c', import.meta.url),
+        'utf8',
+    );
+    const jsSource = readFileSync(
+        new URL('../js/trap.js', import.meta.url), 'utf8',
+    );
+    const cStart = cSource.indexOf('t_at(coordxy x, coordxy y)');
+    const cEnd = cSource.indexOf('\n/* return number of traps', cStart);
+    const jsStart = jsSource.indexOf('export function t_at(');
+    const jsEnd = jsSource.indexOf('\n}', jsStart) + 2;
+    const cBody = cSource.slice(cStart, cEnd);
+    const jsBody = jsSource.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cBody,
+        /struct trap \*trap = gf\.ftrap;[\s\S]*while \(trap\)[\s\S]*trap->tx == x && trap->ty == y[\s\S]*return trap;[\s\S]*trap = trap->ntrap;[\s\S]*return \(struct trap \*\) 0;/u);
+    assert.match(jsBody,
+        /for \(const trap of state\.level\?\.traps \?\? \[\]\)[\s\S]*trap\.tx === x && trap\.ty === y[\s\S]*return trap;[\s\S]*return null;/u);
+
     const state = initializedState();
     const random = scriptedRandom([
         ['rn2', 12, 7],

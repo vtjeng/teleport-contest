@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap source-affecting variation of the confirmed poison-cloud entry route. The blessed BUC value changes create_gas_cloud size from 15 to 25 (region.c:1229-1239) while the same independently frozen map/cursor route tests membership entry. The seed is an original A83 recipe seed, not copied from a recorded session; preserve the same map so only the source-relevant cloud size changes.",
+  "segments": [
+    {
+      "seed": 202610031,
+      "datetime": "20441003093000",
+      "nethackrc": "OPTIONS=name:GasEntryA83,role:Wizard,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017blessed scroll of stinking cloud\nrn    ll.ly."
+    }
+  ]
+}

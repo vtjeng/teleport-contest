@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation probe from the same independently selected start. The inventory menu identifies the wished amulet as slot n; this input tests whether n selects it directly from the put-on prompt before building the drowning setup.",
+  "segments": [
+    {
+      "seed": 8439201,
+      "datetime": "20381117121000",
+      "nethackrc": "OPTIONS=name:DrownRescue,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP?n"
+    }
+  ]
+}

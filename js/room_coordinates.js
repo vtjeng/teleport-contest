@@ -35,7 +35,8 @@ import {
 import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { sobj_at } from './obj.js';
+
+import { sobj_at } from './invent.js';
 import { BOULDER } from './objects.js';
 import { rn1, rn2 } from './rng.js';
 

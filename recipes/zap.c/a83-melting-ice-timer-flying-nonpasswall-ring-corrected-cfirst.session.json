@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first timer-expiry setup, frozen after inspecting the prior C room map, floor-object More, and intrinsic menu page. The hero begins at the left edge of an ordinary room, where three neighboring cells are existing boundary walls and five are open. Set invulnerability and flight without blindness; grant pass-through-walls and explicitly dismiss its confirmation More. Visit each open neighbor in a closed path, wish it to nonpasswall wall, and return to the center. Wish melting ice at the center. Three separately counted 2001-turn waits, each preceded by a space, allow observed hunger or callback messages to end a wait without shifting later commands; finish with #timeout. Inputs were frozen before any JavaScript comparison.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceWallRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n2500a>>2500k\n #wizintrinsic\n>2500f\n k\u0017nonpasswall wall\nju\u0017nonpasswall wall\nbl\u0017nonpasswall wall\nhn\u0017nonpasswall wall\nyj\u0017nonpasswall wall\nk\u0017melting ice\n2001. 2001. 2001. #timeout\n"
+    }
+  ]
+}

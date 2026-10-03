@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Cheap source-affecting SORTLOOT_LOOT variation chosen before any JS comparison: replace both ordinary-food names while retaining the source-equal FOOD_CLASS/subclass/discovery tie; `?` opens the selector from the C-observed eat prompt. This tests a second pair of loot_xname values and alphabetic order.",
+  "segments": [{
+    "seed": 71032859,
+    "datetime": "20510203040529",
+    "nethackrc": "OPTIONS=name:A83LootSortFoodVar,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,sortloot:full\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+    "moves": " .\u0017tripe ration\n\u0017lembas wafer\ne?"
+  }]
+}

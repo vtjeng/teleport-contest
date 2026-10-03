@@ -5,7 +5,7 @@
 //        (186-259), Cloak_on()
 //        (325-380), Cloak_off()
 //        (382-431), Helmet_on() (433-515), Helmet_off() (517-564),
-//        Gloves_on() (576-607), Shield_on() (704-730),
+//        hard_helmet() (568-571), Gloves_on() (576-607), Shield_on() (704-730),
 //        Shield_off() (732-756), Shirt_on() (758-775), Shirt_off() (777-794),
 //        dragon_armor_handling() (798-884), Armor_on() (886-906),
 //        Armor_off() (908-930), fingers_or_gloves() (59-65),
@@ -196,7 +196,11 @@ import { MZ_SMALL, PM_ARCHEOLOGIST, PM_CLERIC, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import { gulp_blnd_check } from './mhitu.js';
 import {
-    Flying, Levitation, drown, float_down, float_up, is_pool_or_lava,
+    Flying,
+    Levitation,
+    drown,
+    float_down,
+    float_up,
     unconscious,
 } from './trap.js';
 import {
@@ -381,6 +385,7 @@ import {
     which_armor,
 } from './worn.js';
 import { shk_your } from './shk.js';
+import { is_pool_or_lava } from './dbridge.js';
 
 // The armor callbacks can run during a planning polymorph.  Keep the live
 // defaults in one place while allowing that caller to supply its message and
@@ -1090,8 +1095,7 @@ async function Amulet_on(obj, state = game) {
 }
 
 // C ref: do_wear.c Amulet_off() (1090-1189). This callback clears the amulet
-// source before effects that depend on the remaining worn properties. C's
-// discarded spoteffects(TRUE) call stays an explicit void gap.
+// source before effects that depend on the remaining worn properties.
 export async function Amulet_off(state = game, env = {}) {
     const amul = state.uamul;
     // mhitu.c:mattacku supplies silent messages and redraw seams while it
@@ -1202,7 +1206,7 @@ export async function Amulet_off(state = game, env = {}) {
                 state,
             );
             makeKnown = true;
-            note_unported('hack.c spoteffects');
+            await spoteffects(true, state, env);
         }
         break;
     }
@@ -1652,7 +1656,7 @@ const SUPPORTED_BOOTS_ON = new Set([
 // Every boots arm is represented here. ELVEN_BOOTS' source helper call is
 // awaited in its original branch; the other property and terrain effects
 // follow the source order.
-async function Boots_on(state) {
+export async function Boots_on(state) {
     const otyp = state.uarmf.otyp;
     const type = objectType(state.uarmf, state);
     const oldprop = state.u.uprops[type.oc_oprop].extrinsic & ~WORN_BOOTS;
@@ -1759,7 +1763,7 @@ export async function Boots_off(state = game) {
             && !flying.blocked,
         );
         const { is_pool } = await import('./dbridge.js');
-        const { is_lava } = await import('./trap.js');
+        const { is_lava } = await import('./dbridge.js');
         if ((is_pool(state.u.ux, state.u.uy, state)
              || is_lava(state.u.ux, state.u.uy, state))
             && !hasLevitation && !hasFlying

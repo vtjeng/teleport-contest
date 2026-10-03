@@ -1050,20 +1050,6 @@ test('teleds refuses every arm outside an ordinary adjacent square',
             state.level.rooms = [{ rtype: VAULT }];
             state.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];
         }],
-        // teleds() makes no test of its own about who is standing on the
-        // destination; hack.c spoteffects():3417-3455 is what answers, by
-        // dropping a piercer or letting the resident monster attack by
-        // surprise. None of that is ported, and this is the one caller whose
-        // destination can hold a monster, so the refusal sits here.
-        ['onto an occupied square', (state, spot) => {
-            place_monster(
-                newMonster({
-                    mhp: 1, mhpmax: 1, mcanmove: 1,
-                    data: state.mons[PM_LICHEN], mnum: PM_LICHEN,
-                }),
-                spot.x, spot.y, state,
-            );
-        }],
     ];
     for (const [reason, mutate] of rows) {
         const state = await mounted();
@@ -1077,6 +1063,33 @@ test('teleds refuses every arm outside an ordinary adjacent square',
             reason,
         );
     }
+});
+
+test('teleds awaits surprise effects at an occupied destination', async () => {
+    // teleport.c:525-568 moves the hero first and calls spoteffects(TRUE)
+    // without checking for a monster at the destination. hack.c's ported
+    // resident-monster branch owns the surprise and relocation.
+    const state = await mounted();
+    quiet(state);
+    const spot = { x: state.u.ux + 1, y: state.u.uy, flags: 0 };
+    const monster = newMonster({
+        mhp: 6,
+        mhpmax: 6,
+        mcanmove: 1,
+        mpeaceful: 1,
+        data: state.mons[PM_LICHEN],
+        mnum: PM_LICHEN,
+    });
+    place_monster(monster, spot.x, spot.y, state);
+
+    await teleds(spot.x, spot.y, spot.flags, state);
+
+    assert.deepEqual([state.u.ux, state.u.uy], [spot.x, spot.y]);
+    assert.equal(m_at(spot.x, spot.y, state), null,
+        'spoteffects moves the resident monster aside');
+    assert.notDeepEqual([monster.mx, monster.my], [spot.x, spot.y]);
+    assert.match(toplines(), /You surprise/u,
+        'the awaited spoteffects call resolves its message before return');
 });
 
 test('landing_spot avoids a boulder on both of the first two passes',

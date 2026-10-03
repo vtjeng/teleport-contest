@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first exact-input correction of the preserved yellow-dragon setup miss: its captured transformation path showed three successive More pages (form/cloak, forced quarterstaff drop, dragon ability/egg notices). This recipe acknowledges the source-observed pages before invoking wizard wishes; no JS comparison is used to select inputs.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\n"
+    }
+  ]
+}

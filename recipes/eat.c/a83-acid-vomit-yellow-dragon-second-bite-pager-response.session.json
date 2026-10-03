@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation after the observed active-eating hard-time More at step 91: one space dismisses that pager and advances the source eatfood occupation. This checks whether bite() reaches choke() at the next meal boundary; no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\ne? o eo "
+    }
+  ]
+}

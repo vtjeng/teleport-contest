@@ -430,6 +430,10 @@ import { burn_away_slime, end_burn } from './timeout.js';
 import { encumber_msg } from './pickup.js';
 import { remove_worn_item } from './steal.js';
 import { canspotmon } from './display.js';
+import {
+    APRON_MESSAGES, CANDY_WRAPPERS, HAWAIIAN_BACKGROUNDS,
+    HAWAIIAN_MOTIFS, SHIRT_MESSAGES,
+} from './read_text_data.js';
 
 // Retained for narrower effect-family branches that still fail closed. The
 // source-ordered doread() and seffects() dispatches use note_unported() for
@@ -441,111 +445,6 @@ export class UnsupportedReadError extends Error {
         this.branch = branch;
     }
 }
-
-const SHIRT_MESSAGES = Object.freeze([
-    'I explored the Dungeons of Doom and all I got was this lousy T-shirt!',
-    'Is that Mjollnir in your pocket or are you just happy to see me?',
-    "It's not the size of your sword, it's how #enhance'd you are with it.",
-    "Madame Elvira's House O' Succubi Lifetime Customer",
-    "Madame Elvira's House O' Succubi Employee of the Month",
-    'Ludios Vault Guards Do It In Small, Dark Rooms',
-    'Yendor Military Soldiers Do It In Large Groups',
-    'I survived Yendor Military Boot Camp',
-    'Ludios Accounting School Intra-Mural Lacrosse Team',
-    'Oracle(TM) Fountains 10th Annual Wet T-Shirt Contest',
-    'Hey, black dragon!  Disintegrate THIS!',
-    "I'm With Stupid -->",
-    "Don't blame me, I voted for Izchak!",
-    "Don't Panic",
-    'Furinkan High School Athletic Dept.',
-    'Hel-LOOO, Nurse!',
-    '=^.^=',
-    '100% goblin hair - do not wash',
-    'Aberzombie and Fitch',
-    'cK -- Cockatrice touches the Kop',
-    "Don't ask me, I only adventure here",
-    'Down with pants!',
-    'd, your dog or a killer?',
-    'FREE PUG AND NEWT!',
-    'Go team ant!',
-    'Got newt?',
-    'Hello, my darlings!',
-    'Hey!  Nymphs!  Steal This T-Shirt!',
-    'I <3 Dungeon of Doom',
-    'I <3 Maud',
-    'I am a Valkyrie.  If you see me running, try to keep up.',
-    'I am not a pack rat - I am a collector',
-    'I bounced off a rubber tree',
-    'Plunder Island Brimstone Beach Club',
-    'If you can read this, I can hit you with my polearm',
-    "I'm confused!",
-    'I scored with the princess',
-    'I want to live forever or die in the attempt.',
-    'Lichen Park',
-    'LOST IN THOUGHT - please send search party',
-    'Meat is Mordor',
-    'Minetown Better Business Bureau',
-    'Minetown Watch',
-    "Ms. Palm's House of Negotiable Affection--A Very Reputable"
-        + ' House Of Disrepute',
-    'Protection Racketeer',
-    'Real men love Crom',
-    'Somebody stole my Mojo!',
-    'The Hellhound Gang',
-    'The Werewolves',
-    'They Might Be Storm Giants',
-    'Weapons don\'t kill people, I kill people',
-    'White Zombie',
-    "You're killing me!",
-    'Anhur State University - Home of the Fighting Fire Ants!',
-    'FREE HUGS',
-    'Serial Ascender',
-    'Real men are valkyries',
-    "Young Men's Cavedigging Association",
-    'Occupy Fort Ludios',
-    "I couldn't afford this T-shirt so I stole it!",
-    'Mind flayers suck',
-    "I'm not wearing any pants",
-    'Down with the living!',
-    'Pudding farmer',
-    'Vegetarian',
-    'Hello, I\'m War!',
-    'It is better to light a candle than to curse the darkness',
-    'It is easier to curse the darkness than to light a candle',
-    'rock--paper--scissors--lizard--Spock!',
-    '/Valar morghulis/ -- /Valar dohaeris/',
-]);
-
-const HAWAIIAN_MOTIFS = Object.freeze([
-    'flamingo', 'parrot', 'toucan', 'bird of paradise',
-    'sea turtle', 'tropical fish', 'jellyfish', 'giant eel',
-    'water nymph', 'plumeria', 'orchid', 'hibiscus flower',
-    'palm tree', 'hula dancer', 'sailboat', 'ukulele',
-]);
-
-const HAWAIIAN_BACKGROUNDS = Object.freeze([
-    'purple', 'yellow', 'red', 'blue', 'orange', 'black', 'green',
-    'abstract', 'geometric', 'patterned', 'naturalistic',
-]);
-
-const APRON_MESSAGES = Object.freeze([
-    'Kiss the cook',
-    "I'm making SCIENCE!",
-    "Don't mess with the chef",
-    "Don't make me poison you",
-    "Gehennom's Kitchen",
-    'Rat: The other white meat',
-    'If you can\'t stand the heat, get out of Gehennom!',
-    'If we weren\'t meant to eat animals, why are they made out of meat?',
-    "If you don't like the food, I'll stab you",
-    'I am an alchemist; if you see me running, try to catch up...',
-]);
-
-const CANDY_WRAPPERS = Object.freeze([
-    '', 'Apollo', 'Moon Crunchy', 'Snacky Cake', 'Chocolate Nuggie',
-    'The Small Bar', 'Crispy Yum Yum', 'Nilla Crunchie', 'Berry Bar',
-    'Choco Nummer', 'Om-nom', 'Fruity Oaty', 'Wonka Bar',
-]);
 
 // C refs: read.c erode_obj_text(), tshirt_text(), hawaiian_motif(),
 // hawaiian_design(), apron_text(), and candy_wrapper_text(). C fills caller

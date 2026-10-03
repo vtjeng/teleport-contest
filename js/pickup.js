@@ -110,6 +110,7 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { get_adjacent_loc, yn_function } from './cmd.js';
@@ -220,7 +221,6 @@ import { menuTitleStyle } from './tty_menu.js';
 import { waterbody_name } from './pager.js';
 import {
     back_on_ground,
-    is_lava,
     t_at,
     chest_trap,
     unconscious,
@@ -2766,7 +2766,7 @@ function carry_count(obj, container, count, telekinesis, state) {
 async function lift_object(obj, container, cnt_p, telekinesis, state) {
     if (obj.otyp === BOULDER && state.Sokoban) {
         await ttyPline(
-            `You cannot get your ${body_part(HAND, state)} around this `
+            `You cannot get your ${body_part(HAND, state.youmonst)} around this `
             + `${xnameFresh(obj, state)}.`,
             state,
         );

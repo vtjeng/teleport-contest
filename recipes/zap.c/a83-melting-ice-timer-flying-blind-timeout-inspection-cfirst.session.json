@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only inspection from the preserved T:513 boundary. After the prior wait run kept the hero on the timed square with Flying active, this wizard command inspects the C timeout queue to confirm whether MELT_ICE_AWAY has expired. It does not add a game turn or alter the frozen prior inputs.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceExpiryInspect,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n1000a1000i>>1000k\n \u0017melting ice\n511..#timeout\n"
+    }
+  ]
+}

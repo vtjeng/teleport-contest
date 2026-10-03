@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A83 C-only setup probe on an independently selected seed/date. It selects FLYING from the observed page 3 menu and wishes a POOL under the hero. Inspect the resulting map before choosing a safe adjacent floor tile and freezing the cold-ray sequence.",
+  "segments": [
+    {
+      "seed": 64100322,
+      "datetime": "20321215103000",
+      "nethackrc": "OPTIONS=name:A83ColdRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\n"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first Wizard lava rescue. The observed `Die? [yn] (n)` prompt is answered with n so C executes savelife(), safe_teleds(), rescued_from_terrain(BURNING), and the caller return without a life-saving amulet or worn cloak.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "T\u0017lava\n    n"
+    }
+  ]
+}

@@ -893,6 +893,9 @@ export async function finishElapsedTurn(
     await nh_timeout(state, {
         planning,
         random,
+        // Hallucinated level-timer callbacks may format a melted waterbody.
+        // Keep that display draw on the same clone used by monster planning.
+        displayRandom: planningDisplayRandom,
         message: turnMessage,
         norepMessage: turnNorep,
         statusRefresh: turnStatusRefresh,

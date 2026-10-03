@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen fourth C-observed lava pager continuation. The prior capture ended at `Other items in your inventory have been destroyed.--More--`; one space dismisses that exact destruction summary and records the source's next BURNING/lifesaving message.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017amulet of life saving\nP? o\u0017lava\n    "
+    }
+  ]
+}

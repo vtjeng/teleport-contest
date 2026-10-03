@@ -1,6 +1,6 @@
 // do.js -- Commands that drop, dig into, or descend through the floor, and
 // the up command.
-// C refs: do.c -- dodrop(), flooreffects(), canletgo(), drop(), dosinkring(),
+// C refs: do.c -- boulder_hits_pool(), dodrop(), flooreffects(), canletgo(), drop(), dosinkring(),
 // teleport_sink(), dropx(), dropy(), dropz(), trycall(), u_stuck_cannot_go(), dodown(), doup(),
 // goto_level(), u_collide_m(), temperature_change_msg() and
 // legs_in_no_shape(), set_wounded_legs(); dokick.c obj_delivery(); mon.c
@@ -120,6 +120,8 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
+    is_pool_or_lava,
 } from './dbridge.js';
 import { reset_trapset } from './apply.js';
 import { bones_include_name } from './bones.js';
@@ -213,7 +215,8 @@ import { mklev } from './mklev.js';
 import { makemon } from './makemon_create.js';
 import { fumaroles, movebubbles } from './mkmaze.js';
 import {
-    healmon, m_into_limbo, mondied, newcham, pm_to_cham, set_ustuck,
+    healmon, m_in_air, m_into_limbo, mondied, newcham, pm_to_cham, set_ustuck,
+    wake_nearto,
 } from './mon.js';
 import { m_at } from './monst.js';
 import { gulp_blnd_check } from './mhitu.js';
@@ -221,7 +224,7 @@ import {
     dmgtype, is_whirly, olfaction, passes_walls, sticks, touch_petrifies,
     throws_rocks,
 } from './mondata.js';
-import { m_in_air, youHear } from './monmove.js';
+import { youHear } from './monmove.js';
 import {
     AD_DGST,
     AT_ENGL,
@@ -323,8 +326,6 @@ import { burn_away_slime, run_timers } from './timeout.js';
 import {
     climb_pit,
     fill_pit,
-    is_lava,
-    is_pool_or_lava,
     Flying,
     Levitation,
     reset_utrap,
@@ -676,7 +677,12 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
     if (!otmp || otmp.otyp !== BOULDER)
         return false;
     if (!is_pool_or_lava(rx, ry, state)) return false;
-    const random = rawEnv.random ?? { rn2 };
+    const suppliedRandom = rawEnv.random ?? {};
+    const random = {
+        d: suppliedRandom.d ?? d,
+        rn2: suppliedRandom.rn2 ?? rn2,
+        rnd: suppliedRandom.rnd ?? rnd,
+    };
     const location = state.level?.at(rx, ry);
     const lava = is_lava(rx, ry, state);
     const what = (await import('./pager.js')).waterbody_name(
@@ -707,13 +713,12 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
         }
         const monster = m_at(rx, ry, state);
         if (monster && monster.mhp >= 1 && !m_in_air(monster, state)) {
-            // mondead() is an existing owner; C discards its return here.
+            // C's mondied() result is discarded here.
             await mondied(monster, state, rawEnv);
         }
-        const currentTrap = t_at(rx, ry, state);
-        if (currentTrap) {
+        if (trap) {
             const { delfloortrap } = await import('./trap.js');
-            await delfloortrap(currentTrap, state);
+            await delfloortrap(trap, state);
         }
         // C discards bury_objs()'s result; no JS owner exists yet.
         note_unported('dig.c bury_objs');
@@ -768,10 +773,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
                 state,
             );
             await burn_away_slime(state, rawEnv);
-            const damage = random.d
-                ? random.d(fireResistant ? 1 : 3, 6)
-                : Array.from({ length: fireResistant ? 1 : 3 },
-                    () => random.rnd(6)).reduce((sum, n) => sum + n, 0);
+            const damage = random.d(fireResistant ? 1 : 3, 6);
             await losehp(
                 maybeHalfPhysical(damage, state),
                 'molten lava',
@@ -779,7 +781,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
                 state,
             );
         } else if (!fillsUp && state.flags?.verbose !== false
-            && cansee(rx, ry, state)) {
+            && (pushing ? !heroIsBlind(state) : cansee(rx, ry, state))) {
             await message('It sinks without a trace!', state);
         }
     }
@@ -2438,7 +2440,7 @@ export async function goto_level(
 
     stairway_free_all(state);
     // do.c:1688-1690 clears the default arrival areas a special level may
-    // override. js/teleport.js reads both through teleJumpOk().
+    // override. js/teleport.js reads both through tele_jump_ok().
     state.updest = {};
     state.dndest = {};
 
@@ -2643,7 +2645,7 @@ export async function goto_level(
     // redraw; Fire instead creates fumaroles from its level flag.
     if (on_level(u.uz, state.water_level)
         || on_level(u.uz, state.air_level))
-        movebubbles(state);
+        await movebubbles(state);
     else if (state.level.flags.fumaroles) await fumaroles(state);
 
     /* Reset the screen. */

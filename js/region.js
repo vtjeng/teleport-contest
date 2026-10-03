@@ -1,5 +1,5 @@
 // Active level regions, callback dispatch, and gas-cloud turn effects.
-// C ref: region.c create_region(), add_region(), run_regions(),
+// C ref: region.c inside_rect()/inside_region(), create_region(), add_region(), run_regions(),
 // in_out_region(), m_in_out_region(), and the gas-cloud helpers.
 
 import {
@@ -191,15 +191,17 @@ export function add_rect_to_reg(region, rectangle) {
     return region;
 }
 
+// C ref: region.c inside_rect() (54-59). Bounds are inclusive on all sides.
+export function inside_rect(rectangle, x, y) {
+    return x >= rectangle.lx && x <= rectangle.hx
+        && y >= rectangle.ly && y <= rectangle.hy;
+}
+
 export function inside_region(region, x, y) {
     if (!region) return false;
     const bounds = region.bounding_box;
-    if (!bounds || x < bounds.lx || x > bounds.hx
-        || y < bounds.ly || y > bounds.hy) {
-        return false;
-    }
-    return region.rects.some((rect) => x >= rect.lx && x <= rect.hx
-        && y >= rect.ly && y <= rect.hy);
+    if (!bounds || !inside_rect(bounds, x, y)) return false;
+    return region.rects.some((rect) => inside_rect(rect, x, y));
 }
 
 export function mon_in_region(region, monster) {

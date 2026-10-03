@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-affecting variation: wish a MOAT before the cold ray freezes it, creating ICED_MOAT, then drop a boulder and fire along the same line. C records boulder_hits_pool at zero-based step 77. Later C steps record the fire-ray result and cloak damage. The matching recording ends at the death More screen, so it establishes the helper return and melt_ice consuming its result, not return of the outer zap command.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMoat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017pool\n\u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn lzoh    "
+    }
+  ]
+}

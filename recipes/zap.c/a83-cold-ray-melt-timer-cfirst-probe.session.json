@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A83 independent C-first setup for zap.c:zap_over_floor(ZT_COLD): make the hero Flying, wish a POOL underfoot, and wish a wand of cold. This setup prefix is retained only to inspect the C map/inventory and freeze the target direction before attempting the cold-ray timer route.",
+  "segments": [
+    {
+      "seed": 64100321,
+      "datetime": "20321214103000",
+      "nethackrc": "OPTIONS=name:A83ColdRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n>f\n\u0017pool\n\u0017wand of cold\n"
+    }
+  ]
+}

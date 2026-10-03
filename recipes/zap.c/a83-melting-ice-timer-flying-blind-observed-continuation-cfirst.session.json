@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-only continuation frozen from the corrected observed boundary: after the first counted wait was interrupted at T:114 by a monster attack, the timeout queue still showed MELT_ICE_AWAY due at 512. The 450 direct wait commands provide a bounded single-turn continuation to pass that deadline while Flying/invulnerability remain active; the final #timeout screen checks expiration. No JS comparison has been made.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceExpiryContinuation,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n1000a1000i>>1000k\n  \u0017melting ice\n511...................................................................................................................................................................................................................................................................................................................................................................................................................................................................#timeout\n"
+    }
+  ]
+}

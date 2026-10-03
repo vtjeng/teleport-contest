@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 C-first runtime witness for mon.c:xkilled's wasinside branch. The preceding independent C setup showed the ice vortex engulfing the hero and then listed the wished death wand at `p` (a balsa wand). It leaves the hero at a wand menu; this frozen continuation selects that observed item and aims west at the engulfer. The C source route is mhitu.c:gulpmu -> zap.c:dobuzz/zhitm -> killed()/xkilled().",
+  "segments": [
+    {
+      "seed": 77482062,
+      "datetime": "20261002200000",
+      "nethackrc": "OPTIONS=name:A83SwallowedIce,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of death\n#wizgenesis\n1 hostile ice vortex\n.. z?ph "
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first independent eat.c:choke meal recipe. A human Archeologist starts with three rations; an initial wait and a second ration with the Continue eating prompt are intended to let the active meal reach choke() from the later eatfood bite. New seed/date, role, name, and command sequence distinguish it from the admitted Tourist case.",
+  "segments": [
+    {
+      "seed": 46092820,
+      "datetime": "20410930113000",
+      "nethackrc": "OPTIONS=name:FullArchaeologist,role:Archeologist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizintrinsic\n>g\n .ed ed y  "
+    }
+  ],
+  "_comment": "C-first nonfatal satiated choke variation. The observed intrinsic-menu page two uses `g` for magical breathing; dismiss its C-observed timeout More with a space before the original Archeologist ration sequence. Breathless must be active when the source satiation threshold calls choke, forcing the vomit branch and bypassing rn2(20)."
+}

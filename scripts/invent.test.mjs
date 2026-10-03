@@ -3,12 +3,14 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { compareSessionOutputs } from './diff-fresh.mjs';
 
-import { ROOM } from '../js/const.js';
+import { COLNO, ROOM, ROWNO } from '../js/const.js';
 import {
     consume_obj_charge,
     display_binventory,
     only_here,
+    sobj_at,
 } from '../js/invent.js';
+import { DAGGER, DART } from '../js/objects.js';
 import { UnsupportedShopError } from '../js/shk.js';
 import { runSegment } from '../js/jsmain.js';
 
@@ -65,6 +67,38 @@ test('only_here reads C go.only and matches only its target square', () => {
     ));
     assert.equal(only_here(target, state), true);
     assert.equal(only_here(elsewhere, state), false);
+});
+
+test('sobj_at returns the first matching object in the requested floor chain', () => {
+    const cStart = INVENT_C.indexOf('sobj_at(int otyp, coordxy x, coordxy y)');
+    const cEnd = INVENT_C.indexOf('\n}', cStart) + 2;
+    const cBody = INVENT_C.slice(cStart, cEnd);
+    const jsStart = INVENT_JS.indexOf('export function sobj_at(');
+    const jsEnd = INVENT_JS.indexOf('\n}', jsStart) + 2;
+    const jsBody = INVENT_JS.slice(jsStart, jsEnd);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    assert.match(cBody,
+        /for \(otmp = svl\.level\.objects\[x\]\[y\]; otmp; otmp = otmp->nexthere\)[\s\S]*if \(otmp->otyp == otyp\)[\s\S]*return otmp;/u);
+    assert.match(jsBody,
+        /for \(let obj = grid\[x\]\?\.\[y\] \?\? null; obj; obj = obj\.nexthere\)[\s\S]*if \(obj\.otyp === otyp\) return obj;/u);
+
+    const grid = Array.from({ length: COLNO }, () => Array(ROWNO).fill(null));
+    const firstDart = { otyp: DART, nexthere: null };
+    const dagger = { otyp: DAGGER, nexthere: null };
+    const secondDart = { otyp: DART, nexthere: null };
+    firstDart.nexthere = dagger;
+    dagger.nexthere = secondDart;
+    // Interior square (5, 7) holds two matching darts separated by a dagger;
+    // neighboring (6, 7) checks that lookup stays in the requested floor chain.
+    grid[5][7] = firstDart;
+    grid[6][7] = { otyp: DART, nexthere: null };
+
+    const state = { level: { objects: grid } };
+    assert.equal(sobj_at(DART, 5, 7, state), firstDart);
+    assert.equal(sobj_at(DAGGER, 5, 7, state), dagger);
+    assert.equal(sobj_at(0, 5, 7, state), null);
+    assert.equal(sobj_at(DART, 6, 7, state), grid[6][7]);
 });
 
 test('display_binventory returns zero on an empty ordinary floor square', async () => {

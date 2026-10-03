@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first xkilled autopickup variation. The wished ration is assigned inventory letter o in the prior C probe; contiguous `do` selects it for dropping on the hero’s square. The source route keeps the hero at that coordinate through engulfing. Verify the ration remains at the landing square and is admitted by pickup_types before treating xkilled’s spoteffects(TRUE) pickup as covered.",
+  "segments": [
+    {
+      "seed": 77482063,
+      "datetime": "20261002210000",
+      "nethackrc": "OPTIONS=name:A83SwallowedFire,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017food ration\ndo\u0017wand of fire\n#wizgenesis\n1 hostile ice vortex\n.. z?oh  "
+    }
+  ]
+}

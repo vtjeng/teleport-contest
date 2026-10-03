@@ -182,7 +182,7 @@ test('Amulet_off restful sleep preserves other source bits and clears a lone tim
     assert.equal(game.u.uprops[SLEEPY].intrinsic, 0);
 });
 
-test('Amulet_off flying updates status, learns the type, and records spoteffects gap',
+test('Amulet_off flying updates status, runs spot effects, and learns the type',
     async () => {
     const amulet = await wear(AMULET_OF_FLYING);
     // The amulet is the only flight source; clearing these property terms
@@ -197,8 +197,8 @@ test('Amulet_off flying updates status, learns the type, and records spoteffects
     assert.equal(game.uamul, null);
     assert.equal(game.u.uprops[FLYING].extrinsic & W_AMUL, 0);
     assert.equal(game.objects[AMULET_OF_FLYING].oc_name_known, 1);
-    assert.equal(game.unported.has('hack.c spoteffects'), true,
-        'the C call discards spoteffects(), so the unported void gap is recorded');
+    assert.equal(game.unported.has('hack.c spoteffects'), false,
+        'the source-discarded void call still runs all spot effects');
     assert.match(game._pending_message, /You land\./);
     assert.equal(amulet.owornmask & W_AMUL, 0);
 });

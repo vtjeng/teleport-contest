@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the frozen seed34918305 preparation. The prior C recording ended at the observed Black Pudding transformation --More--; this recipe adds one space to dismiss that exact prompt, then opens inventory with i to verify the four wished rations survived the form change before selecting further actions. No JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918305,
+      "datetime": "20261003165200",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding2,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\n#polyself\nblack pudding\n i"
+    }
+  ]
+}
