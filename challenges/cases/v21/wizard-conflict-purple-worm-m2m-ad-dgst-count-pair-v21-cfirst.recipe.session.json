@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first positional correction for the monster-versus-monster Purple Worm AD_DGST mission. The original frozen Purple Worm recipe remains unchanged and records only Purple Worm monster-to-hero gulpmu. This recipe changes the creation action, not the seed: cmd.c wizgenesis honors a count prefix; read.c create_particular_parse sets quantity to 1 + gm.multi; create_particular_creation calls makemon for each requested monster at the hero square, and makemon chooses an available adjacent tile. The C map after creation must establish the worms’ actual adjacency. Count a helper only if C records movemon_singlemon -> fightm -> mattackm with AT_ENGL/AD_DGST -> gulpmm -> mdamagem -> mhitm_adtyping -> mhitm_ad_dgst. The movement/conflict eligibility and actual attacker/defender order will be verified from C; this recipe is not asserted to reach that branch before recording.",
+  "segments": [
+    {
+      "seed": 73421985,
+      "datetime": "20450313190200",
+      "nethackrc": "OPTIONS=name:C65DigestPair,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             2#wizgenesis\nhostile purple worm\n#wizintrinsic\na>>h\n  . . . ."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first carried-wand continuation frozen only from C run-jyv2rU and byte-identical independent replay run-ZKsE4E. The exact wish name and C rnd_otyp_by_namedesc candidate (one matching WAN_SLOW_MONSTER with prob 50 plus xtra_prob 1) establish the wished type; C inventory shows its shuffled appearance as brass wand in slot n. The returned C map shows the hostile goblin immediately west of the hero, so select n and aim h. This extends only the observed menu choice, before any JS comparison.",
+  "segments": [
+    {
+      "seed": 68791343,
+      "datetime": "20340916102700",
+      "nethackrc": "OPTIONS=name:C65Slow,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed wand of slow monster\n\u0007hostile goblin\nz*nh"
+    }
+  ]
+}

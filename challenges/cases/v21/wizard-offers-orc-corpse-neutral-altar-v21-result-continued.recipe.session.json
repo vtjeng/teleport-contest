@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93651327,
+      "datetime": "20291004113500",
+      "nethackrc": "OPTIONS=name:C65Offer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017neutral altar\n\u0017orc corpse\nd?o #offer\ny "
+    }
+  ],
+  "comment": "C-first result continuation frozen after the prior record reached `Your sacrifice is consumed in a plume of smoke!--More--` from pray.c:offer_corpse. It preserves the full input and appends one space at the observed More to expose the remaining offering consequence. This is continuation evidence for the same #offer source behavior, not an independent candidate."
+}

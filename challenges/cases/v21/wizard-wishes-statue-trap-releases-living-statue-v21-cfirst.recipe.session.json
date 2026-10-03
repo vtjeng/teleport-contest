@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 352907184,
+      "datetime": "20321031152100",
+      "nethackrc": "OPTIONS=name:C65StatueTrap,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017statue trap\nlh"
+    }
+  ],
+  "comment": "Independent C-first route for a source-created statue trap. In wizard debug mode, wish `statue trap` at the hero square; then move east off it and west back onto it. C source says readobjnam -> wizterrainwish calls maketrap(STATUE_TRAP), maketrap creates the living statue, and re-entry should dispatch the hero arm of trapeffect_statue_trap to activate_statue_trap. The C recording will establish which branch and monster outcome occur; no JavaScript result informed the inputs."
+}

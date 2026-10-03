@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "_comment": "C-first corrected setup for potion.c:potion_dip, revised only from the first C trace: startup has no pager so omit the leading blank; the first potion wish ends at a More and one space must dismiss it before Ctrl-W starts the second wish. This recipe creates two potions but stops at the second wish’s actual C response; its continuation will be frozen from that response before any JS comparison.",
+  "segments": [
+    {
+      "seed": 315601987,
+      "datetime": "21141208120600",
+      "nethackrc": "OPTIONS=name:C65DipMix,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017uncursed potion of healing\n \u0017uncursed potion of speed\n",
+      "recorderIsDst": true
+    }
+  ]
+}

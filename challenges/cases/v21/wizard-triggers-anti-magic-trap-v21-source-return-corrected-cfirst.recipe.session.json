@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 352907184,
+      "datetime": "20321031152100",
+      "nethackrc": "OPTIONS=name:C65AntiMagic,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "l\u0017anti-magic field\nlh"
+    }
+  ],
+  "comment": "C-first correction to the preserved `anti magic trap` parser miss. C returned “Nothing fitting that description exists in the game.” Source tracing shows wizterrainwish compares trapname(trap, TRUE), which returns the PCHAR2 explanation from defsym.h: “anti-magic field”; the trap name field “anti magic trap” is not the parser string. This recipe uses that exact source-returned explanation after first leaving the observed upstairs. Frozen from C and source before JS comparison."
+}

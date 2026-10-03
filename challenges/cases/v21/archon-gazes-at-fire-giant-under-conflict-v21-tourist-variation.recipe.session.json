@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-selected C-first Archon-versus-Fire-Giant Conflict attempt. Debug #levelchange 30 establishes the source-selected hero level for resist_conflict; the C-observed #wizintrinsic a>>h menu sets invulnerability and Conflict for 30 turns. Create one hostile Fire Giant first and one hostile Archon second: read.c:create_particular_creation calls makemon at the hero square, makemon selects an adjacent free square and prepends each monster to fmon, so the later Archon is the first monster iterated. Four wait opportunities are frozen to expose the source route. Do not claim mhitm.c:gazemm unless C shows the monsters adjacent and awake, the Archon actually enters fightm/mattackm, survives its two preceding AT_WEAP entries, and reaches its AT_GAZE/AD_BLND arm. Preserve any earlier Conflict, adjacency, weapon, gaze-resistance, or attack-order gate as the actual C outcome; no hit, gaze, blindness, or stun is assumed by this recipe.",
+  "segments": [
+    {
+      "seed": 883041579,
+      "datetime": "20521114092800",
+      "nethackrc": "OPTIONS=name:C65GazeTourist,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " #levelchange\n30\n                             #wizintrinsic\na>>h\n#wizgenesis\nhostile fire giant\n#wizgenesis\nhostile Archon\n...."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 710028463,
+      "datetime": "21190304132317",
+      "nethackrc": "OPTIONS=name:C65WetFace,role:Wizard,race:human,gender:female,align:neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017wet towel\n\u0017cream pie\ni"
+    }
+  ],
+  "comment": "Independent C-first setup frozen before recording and JavaScript comparison. A debug Wizard wishes a wet towel and a cream pie, then inspects the resulting inventory. This setup alone does not establish cream-pie application, ucreamed cleanup, towel wielding, or dry_a_towel reachability. Continue only from C-observed inventory slots and prompts."
+}

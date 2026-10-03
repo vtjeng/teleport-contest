@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first selector continuation frozen from independent replay run-DdEeH5: the original prefix reaches “What do you want to zap? [cn or ?*]”. Append * because the C prompt itself offers it to list the choices; no JavaScript comparison has informed this continuation.",
+  "segments": [
+    {
+      "seed": 68791343,
+      "datetime": "20340916102700",
+      "nethackrc": "OPTIONS=name:C65Slow,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed wand of slow monster\n\u0007hostile goblin\nz*"
+    }
+  ]
+}

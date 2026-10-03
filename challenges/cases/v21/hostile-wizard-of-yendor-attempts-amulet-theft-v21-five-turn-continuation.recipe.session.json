@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71102658,
+      "datetime": "21120610140900",
+      "nethackrc": "OPTIONS=name:C65Steal,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017Amulet of Yendor\n  nothing\n\u0007hostile Wizard of Yendor\ny....."
+    }
+  ],
+  "comment": "Frozen C-first continuation of the previously recorded Wizard creation route. The prior C recording reached “The Wizard of Yendor appears next to you.” and one period advanced a turn without any attack action. This input preserves all prior bytes and adds four periods, letting the adjacent hostile monster receive further source-order turns; no JavaScript result informs the number or order of actions. The source target remains the Wizard AT_CLAW/AD_SAMU chain through mhitu.c:mattacku/hitmu -> uhitm.c:mhitm_adtyping/mhitm_ad_samu -> steal.c:stealamulet."
+}

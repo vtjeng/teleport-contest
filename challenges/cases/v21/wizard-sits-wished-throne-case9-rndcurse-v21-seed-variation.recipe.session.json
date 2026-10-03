@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source-first continuation variation frozen after the prior corrected C run reached the throne and recorded rnd(6)=3, missing the ordinary effect gate. The new seed, female/gno­me starting role variation, and same source-verified new-moon date are independently chosen to observe another valid C path through throne_sit_effect. No JavaScript result selected these inputs. The leading space dismisses the observed startup More; C must confirm the selector, effect9 response, Luck<=0 and rndcurse before any target reach is credited.",
+  "segments": [
+    {
+      "seed": 841021343,
+      "datetime": "20420915132741",
+      "nethackrc": "OPTIONS=name:C65ThroneCurseAlt,role:Wizard,race:gnome,gender=female,align=chaotic,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017throne\n#sit\n9\n"
+    }
+  ]
+}

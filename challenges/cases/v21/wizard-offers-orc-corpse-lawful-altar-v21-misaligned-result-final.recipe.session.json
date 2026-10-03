@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 96234507,
+      "datetime": "20310506114700",
+      "nethackrc": "OPTIONS=name:C65OfferMis,role:Wizard,race:human,gender=female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017lawful altar\n\u0017orc corpse\nd?o #offer\ny  "
+    }
+  ],
+  "comment": "C-first continuation frozen after `offer_different_alignment_altar` reached the C conflict message at the preceding pager. The additional space advances that exact pager to observe the result of C rn2(8 + u.ulevel)=8 and any altar alignment/glyph consequence. No JavaScript result informed this input."
+}

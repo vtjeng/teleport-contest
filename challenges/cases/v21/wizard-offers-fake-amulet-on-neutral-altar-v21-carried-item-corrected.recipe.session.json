@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first correction frozen from run-c6pWSY: the fake Amulet wish landed in inventory slot o, and C source shows floorfood(corpsecheck=1) scans only floor corpses before falling back to carried getobj. Keep the wished FAKE_AMULET carried and select slot o through #offer; the earlier dropped-item miss remains unchanged history. The C record must establish which offer_fake_amulet known/high-altar branch executes.",
+  "segments": [
+    {
+      "seed": 74193521,
+      "datetime": "20320617092800",
+      "nethackrc": "OPTIONS=name:C65FakeOffer,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017neutral altar\n\u0017fake Amulet of Yendor\n#offer\no"
+    }
+  ]
+}

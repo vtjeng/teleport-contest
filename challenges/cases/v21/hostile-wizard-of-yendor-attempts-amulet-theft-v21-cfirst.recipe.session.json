@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71102658,
+      "datetime": "21120610140900",
+      "nethackrc": "OPTIONS=name:C65Steal,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017Amulet of Yendor\n\u0007hostile Wizard of Yendor\ny."
+    }
+  ],
+  "comment": "Frozen C-first source route before recording or JavaScript comparison. Debug ^W wishes the Amulet of Yendor; debug ^G requests a hostile Wizard of Yendor, whose source AT_CLAW/AD_SAMU is monsters.h:2847–2850. C read.c:create_particular_creation routes its unique-monster cant_revive conversion through the explicit force prompt; y confirms the source-observed requested species. One ordinary period then lets the adjacent hostile attack attempt run. The candidate source chain is mhitu.c:mattacku -> hitmu -> uhitm.c:mhitm_adtyping/mhitm_ad_samu -> steal.c:stealamulet."
+}

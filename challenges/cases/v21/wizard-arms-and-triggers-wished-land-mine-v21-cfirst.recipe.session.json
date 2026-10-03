@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 740613907,
+      "datetime": "20421003091500",
+      "nethackrc": "OPTIONS=name:C65Mine,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup,!safe_wait\n",
+      "moves": " \u0017uncursed iron shoes\nWn h\u0017uncursed land mine\nao........lh"
+    }
+  ],
+  "comment": "C-first frozen recipe before any JavaScript comparison. The source route wishes iron shoes and wears them, steps west off the upstairs, wishes a land mine into the next inventory slot, applies it on ordinary room floor, lets the occupation finish, steps east to the stairs, and returns west onto the mine. Verify C reaches apply.c:doapply -> use_trap -> set_trap -> trap.c:maketrap and dotrap -> trapeffect_selector -> trapeffect_landmine, including iron-shoe damage reduction, pit conversion, recursive pit handling, and cleanup. Preserve selector, placement, occupation, activation, or death misses as observed; do not infer landmine behavior if C does not trigger it."
+}

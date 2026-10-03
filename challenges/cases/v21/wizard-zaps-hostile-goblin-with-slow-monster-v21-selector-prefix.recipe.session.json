@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first setup prefix only: opening space dismisses startup, Ctrl-W wishes an uncursed wand of slow monster, Ctrl-G creates one hostile goblin, and z opens the zap-object selector. This frozen prefix ends before choosing a wand/direction; use the resulting C screen/map and selector as the only basis for a separately frozen continuation. No JavaScript comparison has informed this input.",
+  "segments": [
+    {
+      "seed": 68791343,
+      "datetime": "20340916102700",
+      "nethackrc": "OPTIONS=name:C65Slow,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " \u0017uncursed wand of slow monster\n\u0007hostile goblin\nz"
+    }
+  ]
+}

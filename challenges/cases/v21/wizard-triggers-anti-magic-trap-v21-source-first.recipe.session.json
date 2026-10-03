@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 352907184,
+      "datetime": "20321031152100",
+      "nethackrc": "OPTIONS=name:C65AntiMagic,role=Wizard,race=human,gender=female,align=neutral,playmode=debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "l\u0017anti magic trap\nlh"
+    }
+  ],
+  "comment": "C-first source mission for trap.c:trapeffect_anti_magic. The prior statue-trap C trace established that the starting @ overlays upstairs and maketrap rejects stairs, so first move east to ordinary floor before wishing the exact defsym.h name `anti magic trap`; then move east and west to trigger. Wizard starts with nonzero energy and no antimagic or protective iron shoes. Input frozen from C source gates before any JS comparison."
+}
