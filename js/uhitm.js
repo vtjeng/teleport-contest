@@ -62,7 +62,9 @@ import {
     M_SEEN_COLD,
     M_SEEN_ELEC,
     M_SEEN_SLEEP,
+    FAST,
     MON_EXPLODE,
+    MSLOW,
     NATTK,
     NOTELL,
     NEED_WEAPON,
@@ -220,6 +222,7 @@ import {
     mtrapped_in_pit,
     mdamageu,
     Protection_from_shape_changers,
+    u_slow_down,
 } from './mhitu.js';
 import { abuse_dog } from './dog.js';
 import {
@@ -543,6 +546,7 @@ import {
     extract_from_minvent,
     find_mac,
     is_pole,
+    mon_adjust_speed,
     set_twoweap,
     setuwep,
     which_armor,
@@ -4986,6 +4990,64 @@ export async function mhitm_ad_ench(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_slow() (3652-3687). All three combat directions
+// share the magic-cancellation and AD_SLOW defense gates, then preserve their
+// distinct monster-speed or intrinsic hero-speed effects.
+export async function mhitm_ad_slow(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+    const effectEnv = { ...env, state, random, message };
+    const negated = await mhitm_mgc_atk_negated(
+        magr, mdef, false, state, effectEnv,
+    );
+
+    if (defended(mdef, AD_SLOW, state))
+        return;
+
+    if (magr === state.youmonst) {
+        if (!negated && mdef.mspeed !== MSLOW) {
+            const oldSpeed = mdef.mspeed;
+
+            await mon_adjust_speed(mdef, -1, null, state, effectEnv);
+            if (mdef.mspeed !== oldSpeed && canseemon(mdef, state))
+                await message(`${Monnam(mdef, state)} slows down.`, state,
+                    effectEnv);
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, effectEnv);
+        if (!negated
+            && state.u?.uprops?.[FAST]?.intrinsic
+            && !random.rn2(4)) {
+            await u_slow_down(state, effectEnv);
+        }
+    } else if (!negated && mdef.mspeed !== MSLOW) {
+        const oldSpeed = mdef.mspeed;
+
+        await mon_adjust_speed(mdef, -1, null, state, effectEnv);
+        mdef.mstrategy &= ~STRAT_WAITFORU;
+        if (mdef.mspeed !== oldSpeed && state.gv?.vis
+            && canspotmon(mdef, state)) {
+            await message(
+                messageAt(
+                    `${Monnam(mdef, state)} slows down.`,
+                    mdef.mx,
+                    mdef.my,
+                    state,
+                ),
+                state,
+                effectEnv,
+            );
+        }
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -5065,7 +5127,9 @@ export async function mhitm_adtyping(
     case AD_ENCH:
         await mhitm_ad_ench(magr, mattk, mdef, mhm, state, env);
         break;
-    case AD_SLOW: unported('mhitm_ad_slow'); break;
+    case AD_SLOW:
+        await mhitm_ad_slow(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_CONF: unported('mhitm_ad_conf'); break;
     case AD_POLY: unported('mhitm_ad_poly'); break;
     case AD_DISE: unported('mhitm_ad_dise'); break;

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "B91 independent C-first M→M AD_SLOW endpoint. In the longer C setup record, step 132 reaches the skeleton’s successful second AT_TUCH AD_SLOW against the troll (`mattackm` -> `mdamagem` -> `mhitm_adtyping`); after the preceding More is acknowledged, step 133 shows “The troll seems to be moving slower. The troll slows down.” This endpoint is frozen from C output before JS replay.",
+  "segments": [
+    {
+      "seed": 4950130,
+      "datetime": "20371106082000",
+      "nethackrc": "OPTIONS=name:SlowPairLevel,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n12\n                              \n#wizintrinsic\n>>h\n \n.\n#wizgenesis\nhostile troll\n #wizgenesis\nhostile skeleton\n. . . . "
+    }
+  ]
+}

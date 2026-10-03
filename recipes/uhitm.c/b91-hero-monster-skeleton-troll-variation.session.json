@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "B91 cheap hero-to-monster variation: keep the Skeleton AD_SLOW attacker, debug Wizard setup, and NE attack, but change the independently wished target from an ogre to a troll. This exercises the same slow-on-monster branch with a distinct target species; C output and strict comparison are required before it can become matching evidence.",
+  "segments": [
+    {
+      "seed": 6348291,
+      "datetime": "20380411091500",
+      "nethackrc": "OPTIONS=name:SlowVariation,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": " #polyself\nskeleton\n#wizgenesis\nhostile troll\nu "
+    }
+  ]
+}
