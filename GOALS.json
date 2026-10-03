@@ -147433,7 +147433,7 @@
     {
       "id": "port-trap-trapeffect-sqky-board-v21-20261003",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Port the complete squeaky-board trap effect for heroes and monsters",
       "cFile": "trap.c",
       "sessions": [
@@ -147447,15 +147447,18 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "b35ea93ca4f5c84f4dd69708fc51af654f242c46",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "trapeffect_sqky_board",
           "line": 1403,
           "endLine": 1478,
           "declared": true,
-          "complete": false
+          "complete": true
         }
       ],
       "range": {
@@ -147631,7 +147634,85 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "trapeffect_sqky_board",
+            "implementation": "js/trap_effects.js",
+            "symbol": "trapeffect_sqky_board",
+            "sourceReview": "Read all of trap.c:trapeffect_sqky_board (1402-1476) and preserved its complete C branch order. The helper computes forcetrap from FORCETRAP/FAILEDUNTRAP and Flying+VIASITTING; the hero arm handles non-forced Levitation/Flying with blind-sensitive trap reveal and Hallucination text, then handles the ordinary Deaf vibration or audible note and calls wake_nearby(FALSE). The monster arm computes visibility before m_in_air, retains the existing audible/visual message choices, uses the source range for heard trap notes and calls wake_nearto. C discards seetrap/Soundeffect/wake helper returns; no return values are fabricated. The supporting preflight_dotrap change admits SQKY_BOARD in the seen/unseen and mounted gates required by the actual C route; it does not port dotrap wholesale.",
+            "callers": [
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "dotrap",
+                "source": "trap.c:dotrap -> trapeffect_selector -> trapeffect_sqky_board; hack.c:spoteffects is the hero command caller."
+              },
+              {
+                "path": "js/trap_effects.js",
+                "symbol": "trapeffect_selector",
+                "source": "trap.c:mintrap -> trapeffect_selector -> trapeffect_sqky_board; monmove.c:postmov is the monster movement caller."
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/trap-squeaky-board.test.mjs"
+            ],
+            "recordings": [
+              "recordings/trap.c/squeaky-board-monster-wakes-goblin-welcome-corrected-c67.session.json",
+              "recordings/trap.c/squeaky-board-monster-wakes-goblin-deaf-variation-welcome-corrected-c67.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_selector -> trapeffect_sqky_board -> wake_nearby(FALSE)"
+              }
+            ],
+            "checkedAt": "b35ea93ca4f5c84f4dd69708fc51af654f242c46"
+          }
+        ],
+        "entryPointReview": "Both C entry points are active. Hero activation runs through hack.c:spoteffects, trap.c:dotrap and trapeffect_selector; admitted v21 recording matches through zero-based segment 0 step 46 and shows the hero squeak and goblin wake. Monster activation runs through monmove.c:postmov, trap.c:mintrap and trapeffect_selector; two independently replayed C records pass strict JS comparison through 51 boundaries, covering the audible note and the Deaf cringing branch. The first C attempt is retained as a welcome-pager setup miss and is not counted as runtime evidence. The preflight allow-list change supports these actual SQKY_BOARD caller paths and does not claim whole-dotrap completion.",
+        "entryPoints": [
+          {
+            "name": "Hero triggers SQKY_BOARD",
+            "functions": [
+              "trapeffect_sqky_board"
+            ],
+            "recordings": [],
+            "synthetic": [
+              {
+                "batch": "v21",
+                "caseId": "wizard-wishes-squeaky-board-wakes-sleeping-goblin-v21-cfirst",
+                "segment": 0,
+                "fromStep": 0,
+                "throughStep": 46,
+                "source": "hack.c:spoteffects -> trap.c:dotrap -> trapeffect_selector -> trapeffect_sqky_board -> wake_nearby(FALSE)"
+              }
+            ]
+          },
+          {
+            "name": "Monster triggers SQKY_BOARD",
+            "functions": [
+              "trapeffect_sqky_board"
+            ],
+            "recordings": [
+              "recordings/trap.c/squeaky-board-monster-wakes-goblin-welcome-corrected-c67.session.json",
+              "recordings/trap.c/squeaky-board-monster-wakes-goblin-deaf-variation-welcome-corrected-c67.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "b35ea93ca4f5c84f4dd69708fc51af654f242c46",
+        "screens": 11405,
+        "rng": 792838
+      }
     }
   ]
 }
