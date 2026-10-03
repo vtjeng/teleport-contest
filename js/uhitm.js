@@ -511,7 +511,7 @@ import { acurr } from './attrib.js';
 import { set_wounded_legs } from './do.js';
 import { encumber_msg } from './pickup.js';
 import {
-    make_blinded, make_slimed, make_stunned, potionhit,
+    make_blinded, make_confused, make_slimed, make_stunned, potionhit,
 } from './potion.js';
 import { d, rn1, rn2, rne, rnl, rnd, rnz } from './rng.js';
 import { night } from './calendar.js';
@@ -4986,6 +4986,63 @@ export async function mhitm_ad_ench(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_conf() (3690-3725). Confusing attacks have three
+// directions: the hero confuses a monster directly, a monster can inflict the
+// hero's Confusion timeout after its one-in-four gate, and a monster can
+// confuse another monster without a timer or random draw.
+export async function mhitm_ad_conf(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+
+    if (magr === state.youmonst) {
+        if (!mdef.mconf) {
+            if (canseemon(mdef, state)) {
+                await message(
+                    `${Monnam(mdef, state, env)} looks confused.`, state,
+                );
+            }
+            mdef.mconf = 1;
+        }
+    } else if (mdef === state.youmonst) {
+        await hitmsg(magr, mattk, state, env);
+        if (!magr.mcan && !random.rn2(4) && !magr.mspec_used) {
+            magr.mspec_used = magr.mspec_used + (mhm.damage + random.rn2(6));
+            const confusion = state.u?.uprops?.[CONFUSION]?.intrinsic ?? 0;
+            await message(
+                confusion
+                    ? 'You are getting even more confused.'
+                    : 'You are getting confused.',
+                state,
+            );
+            await make_confused(confusion + mhm.damage, false, state, env);
+        }
+        mhm.damage = 0;
+    } else {
+        if (!magr.mcan && !mdef.mconf && !magr.mspec_used) {
+            if (state.gv?.vis && canseemon(mdef, state)) {
+                await message(
+                    messageAt(
+                        `${Monnam(mdef, state, env)} looks confused.`,
+                        mdef.mx,
+                        mdef.my,
+                        state,
+                    ),
+                    state,
+                );
+            }
+            mdef.mconf = 1;
+            mdef.mstrategy &= ~STRAT_WAITFORU;
+        }
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -5066,7 +5123,9 @@ export async function mhitm_adtyping(
         await mhitm_ad_ench(magr, mattk, mdef, mhm, state, env);
         break;
     case AD_SLOW: unported('mhitm_ad_slow'); break;
-    case AD_CONF: unported('mhitm_ad_conf'); break;
+    case AD_CONF:
+        await mhitm_ad_conf(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_POLY: unported('mhitm_ad_poly'); break;
     case AD_DISE: unported('mhitm_ad_dise'); break;
     case AD_SAMU: unported('mhitm_ad_samu'); break;
