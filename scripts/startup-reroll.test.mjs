@@ -741,6 +741,9 @@ test('every valid role and race builds a source-shaped reroll inventory',
             finish_fruit_option({}, game);
             reset_mvitals(game);
             init_objects(game);
+            // Startup naming reaches artifact_name() through doname_base();
+            // C initializes the artifact list before displaying inventory.
+            game.artilist = createArtifactTable();
             role_init(game);
             init_dungeons(game);
             await u_init_misc(game, undefined, {

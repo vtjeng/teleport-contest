@@ -1702,7 +1702,7 @@ function m_balks_at_approaching(oldappr, mtmp, state = game) {
 
 // C ref: monmove.c stuff_prevents_passage(). Keep the source's `otyp ==
 // COIN_CLASS` test: in this source tree, that names the generic coin slot.
-function stuffPreventsPassage(monster, state) {
+function stuff_prevents_passage(monster, state) {
     const chain = monster === state.youmonst
         ? state.invent
         : monster.minvent;
@@ -1755,7 +1755,7 @@ function stuffPreventsPassage(monster, state) {
 // C ref: monmove.c can_ooze().
 export function can_ooze(monster, state = game) {
     return amorphous(monster.data)
-        && !stuffPreventsPassage(monster, state);
+        && !stuff_prevents_passage(monster, state);
 }
 
 export { is_vampshifter };
@@ -1765,7 +1765,7 @@ export function can_fog(monster, state = game) {
     return !(state.mvitals?.[PM_FOG_CLOUD]?.mvflags & G_GENOD)
         && is_vampshifter(monster)
         && !propertyActive(state, PROT_FROM_SHAPE_CHANGERS)
-        && !stuffPreventsPassage(monster, state);
+        && !stuff_prevents_passage(monster, state);
 }
 
 // C ref: monmove.c vamp_shift() (2377-2397). A vampire shifts into the
