@@ -145921,7 +145921,7 @@
     {
       "id": "port-uhitm-mhitm-ad-pest-v20-20261003",
       "kind": "file-port",
-      "status": "open",
+      "status": "closed",
       "summary": "Complete Pestilence attacks and shared hero disease effect",
       "cFile": "uhitm.c",
       "sessions": [
@@ -145935,8 +145935,11 @@
         "screens": 11405,
         "rng": 792838
       },
-      "closedAt": null,
-      "delivered": null,
+      "closedAt": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      },
       "functions": [
         {
           "name": "mhitm_ad_pest",
@@ -146374,6 +146377,12 @@
             "synthetic": []
           }
         ]
+      },
+      "closeMismatches": [],
+      "closeStanding": {
+        "sha": "ce77d3a1dfdb0e4d5b0a3fb605bfead8d45d816c",
+        "screens": 11405,
+        "rng": 792838
       }
     }
   ]
