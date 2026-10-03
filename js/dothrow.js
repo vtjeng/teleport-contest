@@ -190,6 +190,7 @@ import {
     glyph_is_invisible,
     glyph_is_monster,
     map_invisible,
+    map_invisible_planning,
     newsym,
     obj_to_glyph,
     tmp_at,
@@ -978,7 +979,13 @@ export async function hurtle_step(arg, x, y) {
             await message(`You bump into ${mnam}.`, state);
         }
         await wakeup(mon, false, { state, random, message });
-        if (!canspotmon(mon, state)) map_invisible(mon.mx, mon.my, state);
+        if (!canspotmon(mon, state)) {
+            // C's map write belongs to the planned level, but map_invisible()
+            // also paints the module-global display. Keep that live half out
+            // of this cloned-state pass.
+            if (planning) map_invisible_planning(mon.mx, mon.my, state);
+            else map_invisible(mon.mx, mon.my, state);
+        }
         await setmangry(mon, false, { state, random, message });
         if (touch_petrifies(mon.data) && !state.uarmu && !state.uarm
             && !state.uarmc) {
