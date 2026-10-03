@@ -5490,8 +5490,14 @@ export async function rhack(key, state = game) {
                 state,
             );
         } else if (state.multi > 0 && command !== null && command !== 'pay'
-            && command !== 'pickup'
+            && command !== 'pickup' && command !== '#'
             && !Object.hasOwn(MOVEMENT_INTENTS, command)) {
+            // `#` is the dispatch row for doextcmd(), not the selected
+            // extended command. C dispatches it with gm.multi intact; the
+            // selected handler (for example, wiz_genesis() using multi as its
+            // monster quantity) and its ECMD result own count consumption and
+            // reset. A repeated selected command still reaches its own ported
+            // handler or its existing refusal.
             // shk.c dopay:1755 clears multi before its first action, so pay
             // never reaches the repeated-command path refused here. Likewise,
             // hack.c dopickup consumes gc.command_count and clears gm.multi
