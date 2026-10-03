@@ -1,0 +1,102 @@
+{
+  "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+  "corpus": "synthetic",
+  "batch": "v21",
+  "caseId": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+  "manifestPath": "challenges/manifests/v21.json",
+  "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+  "recordingSha256": "9f409bbb21792da65d3c5532aac43ebb52ca5575b4480077558270cfa6863113",
+  "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+  "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+  "remainingScreens": 23,
+  "recordedSteps": 148,
+  "status": "complete",
+  "commit": "ee3dc7db5cacad4d18557379dd75b9558de8d421",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v21",
+    "caseId": "archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+    "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation",
+    "manifestPath": "challenges/manifests/v21.json",
+    "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+    "recording": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.session.json",
+    "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.session.json",
+    "recordingSha256": "9f409bbb21792da65d3c5532aac43ebb52ca5575b4480077558270cfa6863113",
+    "recipe": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.recipe.session.json",
+    "recipeSha256": "142222530a3f511b4621bee4955040e2ffb321ed2cb392ae8b2587663fb62ab6",
+    "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+    "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+    "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+    "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+    "evaluationUtc": "2026-10-03T18:29:21.226Z",
+    "remainingScreens": 23,
+    "recordedSteps": 148,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 125,
+        "total": 148
+      },
+      "rng": {
+        "matched": 3356,
+        "total": 3987
+      },
+      "cursors": {
+        "matched": 125,
+        "total": 148
+      }
+    },
+    "firstMismatch": {
+      "kind": "stop",
+      "message": "simple monster action requires an artifact weapon hitting the hero",
+      "step": 125
+    },
+    "step": 125,
+    "kind": "stop",
+    "sourceFile": null,
+    "function": null,
+    "message": "simple monster action requires an artifact weapon hitting the hero",
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "The step-125 stop surfaces while JavaScript preflight advances beyond the matching Archon spell/summon More message and reaches an artifact-equipped weapon attack that C records later at step 143. Do not attribute the artifact hit to C step 125: that screen is the undirected spell path in monmove.c:dochug() through castmu(FALSE, FALSE). The actionable missing source behavior is uhitm.c:mhitm_ad_phys() handling an AT_WEAP hit on the hero when the monster wields an artifact; its current JavaScript branch refuses there. Port the whole function, retaining its other arms and the dispatcher wiring.",
+  "source": {
+    "file": "uhitm.c",
+    "branch": "mdef is the hero, mattk->aatyp is AT_WEAP, MON_WEP(magr) is non-null, and that weapon has oartifact; apply the source weapon damage and artifact_hit(magr, mdef, otmp, &mhm->damage, gm.mhitu_dieroll), preserve its returned message/damage semantics, then continue through the source post-hit effects.",
+    "functions": [
+      "mhitm_ad_phys"
+    ],
+    "callers": [
+      "uhitm.c:mhitm_adtyping (direct AD_PHYS dispatcher)",
+      "mhitu.c:hitmu -> uhitm.c:mhitm_adtyping -> mhitm_ad_phys (monster-to-hero path)",
+      "mhitm.c:mdamagem -> uhitm.c:mhitm_adtyping -> mhitm_ad_phys (monster-to-monster path)",
+      "uhitm.c:damageum -> uhitm.c:mhitm_adtyping -> mhitm_ad_phys (hero attack path)"
+    ],
+    "dependencies": [
+      "weapon.c:dmgval",
+      "artifact.c:artifact_hit (its boolean return suppresses hitmsg and may alter damage or state)",
+      "uhitm.c:hitmsg",
+      "worn.c:which_armor",
+      "mondata.c:hates_silver",
+      "do_wear.c:rustm",
+      "potion.c:permapoisoned",
+      "potion.c:poisoned",
+      "attrib.c:exercise",
+      "uhitm.c:cloneu"
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "Queue provenance: .cache/v21-first-work-queue.json identifies synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation at 23 remaining screens and 148 recorded steps, with evaluation challenges/evaluations/20261003183000-v21.json on b0fd76f6091376c07bf54e8d3061aa5a9c9957d0; the investigation is tied to accepted main ee3dc7db5cacad4d18557379dd75b9558de8d421.",
+    "The saved replay diagnostic .cache/synthetic-scans/v21/archon-gazes-at-fire-giant-conflict-v21-tourist-combat-more-ack-followup3-variation.json reports stop at step 125 with boundary “simple monster action requires an artifact weapon hitting the hero”, but its message is “The Archon casts a spell!  Monsters appear from nowhere!--More--”; this matches the C screen at steps[125], key “.”, “The Archon casts a spell!  Monsters appear from nowhere!--More--”. The stop reason alone therefore does not establish that C attacks the hero at step 125.",
+    "The C65 correction in .cache/C65-current-universe-root-verification.json says the Archon summon is monmove.c:dochug() -> castmu(FALSE, FALSE), not mattackm AD_SPEL. This matches nethack-c/upstream/src/monmove.c:889-904: dochug() scans spell slots, calls castmu(..., FALSE, FALSE), and sets MMOVE_DONE after a successful undirected spell. The C step-125 RNG also includes nasty(wizard.c:695), consistent with the summon message.",
+    "The later C event is steps[143], key “ ”: the screen is “The Archon swings her long sword named Sunsword.  The Archon hits!--More--”; its RNG includes “rnd(20)=7 @ mattacku(mhitu.c:912) | d(2,4)=6 @ hitmu(mhitu.c:1187) | rnd(8)=6 @ dmgval(weapon.c:265) | rn2(3)=2 @ mhitm_knockback(uhitm.c:5258) | rn2(6)=1 @ mhitm_knockback(uhitm.c:5269)”. This is the recorded artifact-weapon hit that the preflight refusal reaches ahead of its C screen; it is later than the current step-125 boundary.",
+    "In nethack-c/upstream/src/uhitm.c:4021-4070, mhitm_ad_phys() enters the monster-to-hero arm and, for an AT_WEAP attack with a wielded object, calls dmgval(), then artifact_hit() at lines 4068-4070 before fallback hitmsg(). js/uhitm.js:mhitm_ad_phys() currently throws “an artifact weapon hitting the hero” under the same hero / AT_WEAP / wielded-weapon preconditions (around line 4187). This is the source-owned unsupported behavior reached during speculative turn processing.",
+    "The smallest whole source unit is mhitm_ad_phys() (uhitm.c:3981-4200), including its hero, monster-to-hero, and monster-to-monster arms; its AD_PHYS dispatcher at uhitm.c:4782-4795 already calls it. Production monster-to-hero route is mhitu.c:hitmu() at 1187-1194 calling mhitm_adtyping() at 1191. The supported task should preserve the existing dispatcher and port the complete function, not only the artifact conditional.",
+    "Reservation check: the current A83 scope event .cache/A83-singular-scope-event.json reserves mon.c iterator/removal units and monmove.c accessible/closed_door/onscary, but not uhitm.c:mhitm_ad_phys; its allowedPaths do include js/uhitm.js, so that shared JS file is a real file-level overlap requiring coordination. The saved reservation map .cache/A83-removal-caller-scope-result.json assigns the adjacent direct caller uhitm.c:mhitm_adtyping to B89, not A83; avoid changing that dispatcher without reconciling B89."
+  ]
+}

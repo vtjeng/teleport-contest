@@ -1,0 +1,118 @@
+{
+  "session": "synthetic/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+  "corpus": "synthetic",
+  "batch": "v21",
+  "caseId": "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+  "manifestPath": "challenges/manifests/v21.json",
+  "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+  "recordingSha256": "77a0ef4747a8edfdfd52c9b4db408c8921313a52c1f83105ef2f8fe768fbb522",
+  "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+  "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+  "remainingScreens": 1,
+  "recordedSteps": 48,
+  "status": "complete",
+  "commit": "fe5eadf3b28b81872f6e646cc42eef176a858068",
+  "mismatch": {
+    "corpus": "synthetic",
+    "batch": "v21",
+    "caseId": "wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+    "session": "synthetic/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected",
+    "manifestPath": "challenges/manifests/v21.json",
+    "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+    "recording": "challenges/cases/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected.session.json",
+    "recordingPath": "challenges/cases/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected.session.json",
+    "recordingSha256": "77a0ef4747a8edfdfd52c9b4db408c8921313a52c1f83105ef2f8fe768fbb522",
+    "recipe": "challenges/cases/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected.recipe.session.json",
+    "recipeSha256": "b7a0d432d2d8435797279a52259e32de8edb2bd109800c8f0cc7f8b0b228339a",
+    "replayInputSha256": "bb24a665cf455b4e9fa37558fad2a9efc9c72969deb6f0c2ed9ed0f576dc6cce",
+    "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+    "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0",
+    "evaluationArtifact": "challenges/evaluations/20261003183000-v21.json",
+    "evaluationUtc": "2026-10-03T18:29:21.226Z",
+    "remainingScreens": 1,
+    "recordedSteps": 48,
+    "previousScreensMatched": null,
+    "regression": false,
+    "passed": false,
+    "error": null,
+    "metrics": {
+      "screens": {
+        "matched": 47,
+        "total": 48
+      },
+      "rng": {
+        "matched": 2700,
+        "total": 2700
+      },
+      "cursors": {
+        "matched": 48,
+        "total": 48
+      }
+    },
+    "firstMismatch": {
+      "screen": {
+        "index": 47,
+        "location": {
+          "segmentIndex": 0,
+          "stepIndex": 47,
+          "key": "o"
+        },
+        "kind": "ch",
+        "row": 0,
+        "column": 0,
+        "cCell": {
+          "ch": "Y",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        },
+        "jsCell": {
+          "ch": "W",
+          "color": 8,
+          "attr": 0,
+          "decgfx": 0
+        }
+      },
+      "rng": null,
+      "cursor": null
+    },
+    "step": 47,
+    "kind": "screen",
+    "sourceFile": null,
+    "function": null,
+    "message": null,
+    "cFile": null,
+    "luaFile": null,
+    "line": null
+  },
+  "summary": "Offering the carried, not-yet-known fake Amulet on a low altar reaches pray.c:offer_fake_amulet, but js/pray.js stops at note_unported. In this aligned neutral case C calls offer_too_soon and displays “You feel an urge to return to the surface.” Port the whole fake-Amulet helper and that feedback helper, then replace the dosacrifice placeholder with the helper call.",
+  "source": {
+    "file": "pray.c",
+    "branch": "In dosacrifice, the selected object is FAKE_AMULET_OF_YENDOR; highaltar is false and otmp->known is false. offer_fake_amulet therefore calls offer_too_soon and returns before the thunderclap/known-Amulet branches. For an aligned, non-hallucinating hero, offer_too_soon displays the urge-to-return message.",
+    "functions": [
+      "offer_fake_amulet",
+      "offer_too_soon"
+    ],
+    "callers": [
+      "cmd.c:rhack/doextcmd (outer extended-command input path reaches the \"offer\" entry mapped to dosacrifice; this generic dispatcher already routes the selected command).",
+      "pray.c:dosacrifice (the FAKE_AMULET_OF_YENDOR arm calls offer_fake_amulet)",
+      "cmd.c:ext command table entry \"offer\" maps #offer to dosacrifice",
+      "cmd.c:MCMD_OFFER menu handler queues dosacrifice",
+      "js/cmd.js:MCMD.OFFER queues dosacrifice; runCommand(\"dosacrifice\") dispatches to js/pray.js:dosacrifice"
+    ],
+    "dependencies": [
+      "pray.c:offer_too_soon is the direct missing callee for the observed low-altar/unknown-object branch and belongs in the same source task.",
+      "pray.c:offer_negative_valued is called by offer_fake_amulet for a known fake Amulet and already has a JavaScript implementation in js/pray.js; its existing desecrate_altar gap remains at that callee.",
+      "pray.c:gods_upset is called by offer_too_soon for an unaligned altar in Gehennom and already has a JavaScript implementation; message, sound, luck, and alignment operations used by other offer_fake_amulet branches are existing game APIs."
+    ]
+  },
+  "goalKind": "file-port",
+  "evidence": [
+    "C source: nethack-c/upstream/src/pray.c:1601-1627 makes offer_fake_amulet call offer_too_soon and return when !highaltar && !otmp->known; nethack-c/upstream/src/pray.c:1477-1498 selects “an urge to return to the surface” when altar alignment matches the hero and Hallucination is false. This is the exact branch represented by the recorded final screen.",
+    "C caller and entry route: nethack-c/upstream/src/pray.c:1852-1887 dispatches FAKE_AMULET_OF_YENDOR from dosacrifice to offer_fake_amulet; nethack-c/upstream/src/cmd.c:1775-1776 maps #offer to dosacrifice and cmd.c:4828-4830 queues dosacrifice from the altar menu.",
+    "Saved evaluation challenges/evaluations/20261003183000-v21.json records 47/48 screens matched, all 2700 RNG calls matched, and all 48 cursors matched; the sole screen mismatch is step 47, key “o”, C first cell “Y” versus JS “W”. The assigned-case diagnostic .cache/synthetic-scans/v21/wizard-offers-fake-amulet-on-neutral-altar-v21-carried-item-corrected.json identifies #offer at command index 46 and lists “pray.c offer_fake_amulet” as unported.",
+    "Current JavaScript caller: js/pray.js:360-363 returns ECMD_TIME after note_unported(\"pray.c offer_fake_amulet\"), so it emits none of the source helper’s branch-specific feedback; the same file already implements dosacrifice and offer_negative_valued. The required caller seam is to replace that placeholder with the whole helper implementation.",
+    "C65 immutable packet .cache/worker-state-loop-20260925.json.deliveries/019f28dfe3343c174784bb8a2d4ea96ed30036df06e2fb1fb09000deda19c3d1.json distinguishes a C-first real-Amulet selector miss from this corrected carried-fake-Amulet case: its comparison note says the real-Amulet case stops before offer_fake_amulet, while the counted corrected case reaches the fake-object helper. That earlier miss is not evidence against this source attribution.",
+    "The saved mismatch was measured on engine commit b0fd76f6091376c07bf54e8d3061aa5a9c9957d0. The examined main commit fe5eadf3b28b81872f6e646cc42eef176a858068 is report-only relative to that engine for js/pray.js, js/cmd.js, and nethack-c/upstream."
+  ]
+}
