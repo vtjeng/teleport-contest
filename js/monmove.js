@@ -102,6 +102,7 @@ import {
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
     MS_BRIBE,
+    MS_CUSS,
     MOAT,
     MON_POLE_DIST,
     MTSZ,
@@ -2400,18 +2401,10 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //   mind_blast()                          wired for mind flayers
 //   killer bee jelly, gelcube_digests()   wired; the boundary rejects both species
 //   mon_offmap(), wormhitu()              unreachable on a fresh D:1 level
-//   cuss()                                no MS_CUSS species can be generated
-//                                         at the D:1 difficulty cap
+//   cuss()                                the source gate is ported below;
+//                                         wizard.c:cuss remains a void gap
 // A fleeing state is reachable for starting pets (after do_attack()'s
 // safe_pet refusal) and for hostile monsters (after monflee() calls).
-//
-// cuss() used to be listed with mon_offmap() and wormhitu() because only a
-// nearby monster reached it. It is not distance that stops it now: the
-// post-move break below carries a monster that is *not* nearby into the tail
-// of PHASE FOUR, where C's `inrange && msound == MS_CUSS && ... && !rn2(5)`
-// sits. What stops it is difficulty. makemon.c rndmonst_adj() caps a D:1
-// draw at (level_difficulty() + u.ulevel) / 2 = 1, and the lowest-difficulty
-// MS_CUSS species is the imp at 4.
 export async function dochug(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2, rnd };
@@ -2767,6 +2760,19 @@ export async function dochug(monster, rawEnv = {}) {
         && ((range.inrange && !range.scared) || panicattk)
         && !noattacks(monster.data)) {
         await attackHero(monster, env);
+    }
+
+    // C ref: monmove.c:983-985.  This source-ordered gate also runs after a
+    // monster moved and can attack.  The call to wizard.c:cuss is void; retain
+    // the gate's draw, and record the unported callee without inventing its
+    // messages or random calls.
+    if (range.inrange
+        && monster.data?.msound === MS_CUSS
+        && !monster.mpeaceful
+        && couldsee(monster.mx, monster.my, state)
+        && !monster.minvis
+        && !random.rn2(5)) {
+        note_unported('wizard.c cuss');
     }
     return 0;
 }
