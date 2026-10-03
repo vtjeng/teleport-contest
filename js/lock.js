@@ -48,6 +48,7 @@ import {
     is_db_wall,
     is_drawbridge_wall,
     is_pool,
+    is_lava,
 } from './dbridge.js';
 import { is_magic_key } from './artifacts.js';
 import { stop_occupation } from './allmain.js';
@@ -130,7 +131,6 @@ import { rn2, rnl } from './rng.js';
 import { costly_spot } from './shk.js';
 import {
     chest_trap,
-    is_lava,
     t_at,
     unconscious,
 } from './trap.js';

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-affecting variation for read.c:tshirt_text and erode_obj_text. The debug Wizard wishes a burnt T-shirt, which readobjnam.c marks as eroded before the ordinary read command; this reaches wipeout_text rather than its zero-erosion return. Seed 87242019 and timestamp 20460315101500 provide an independent character clock/setup, while the item letter o follows the C-observed same inventory ordering.",
+  "segments": [
+    {
+      "seed": 87242019,
+      "datetime": "20460315101500",
+      "nethackrc": "OPTIONS=name:BurntReadProbe,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017burnt T-shirt\nro"
+    }
+  ]
+}

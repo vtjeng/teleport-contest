@@ -6,7 +6,8 @@ import { OBJ_FLOOR } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_MINOTAUR } from '../js/monsters.js';
-import { sobj_at } from '../js/obj.js';
+
+import { sobj_at } from '../js/invent.js';
 import { BOULDER } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the ICED_MOAT boulder variation. The prior recorded zap showed the same source call with `rn2(10)=1 @ do.c:boulder_hits_pool:61` and a settled-boulder More boundary after the ICED_MOAT tile melted. This frozen input dismisses only that observed More to capture the completed melt and MOAT-derived square; no further action is added.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMoat,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017pool\n\u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn lzoh "
+    }
+  ]
+}

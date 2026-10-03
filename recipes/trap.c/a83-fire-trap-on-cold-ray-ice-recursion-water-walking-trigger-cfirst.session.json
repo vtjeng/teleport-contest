@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A83 C-first fire-trap-on-ICE hero trigger with water walking and fire resistance. The preserved flight route shows C asks before a flyer enters the fire trap and `y` only flies over it. This source-based variation chooses water walking (`#wizintrinsic` page 2 `h`) rather than flying, keeps timed fire resistance, and follows the C-observed sequence: move east off the trap, resolve the newt on its trap turn, then step west onto the visible trap square twice as needed. The second C-first recording will establish whether the hero arm calls dofiretrap/melt_ice/recursive spoteffects; no JS comparison yet. C run-a0dB6C displays “Really step onto that fire trap? [yn] (n)” at step80; this frozen response accepts that source-observed prompt.",
+  "segments": [
+    {
+      "seed": 64100321,
+      "datetime": "20321214103000",
+      "nethackrc": "OPTIONS=name:A83FireTrapIce,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>h\n \u0017pool\nh\u0017wand of cold\nzol\nl#wizintrinsic\n>2500i\n \u0017fire trap\nlhhy"
+    }
+  ]
+}

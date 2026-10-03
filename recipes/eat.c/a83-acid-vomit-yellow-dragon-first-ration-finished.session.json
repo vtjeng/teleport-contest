@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation: after the observed first-ration `More`, acknowledge the eating message once and capture C’s next meal/status boundary before selecting another ration. This preserves all input setup from the exact C menu observation.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\ne? o "
+    }
+  ]
+}

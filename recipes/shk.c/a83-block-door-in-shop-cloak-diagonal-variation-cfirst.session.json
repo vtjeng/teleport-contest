@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510304,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83DoorGateCloak,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": "  \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllkk. l, #wizwish\nwall\n#wizwish\nbroken door\nu, b"
+    }
+  ],
+  "comment": "Cheap source-relevant variation of a83-block-door-in-shop-floor-diagonal-cfirst.session.json: use the observed faded-pall shop square instead of the boots square, then pick up the adjacent for-sale scroll so the bill chain contains a different object class. Approach the D_BROKEN target with the opposite diagonal pair (u/b). The wizard-created door is inside the active shop rectangle; the recording checks the same source caller without claiming which block_door condition applies."
+}

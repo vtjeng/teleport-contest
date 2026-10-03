@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first continuation of the independently frozen lava-rescue menu probe. The probe showed the wished amulet at inventory letter o; one pager space dismisses the C item list, then o selects that amulet. Stop after the put-on input and observe any further prompt before planning the lava route.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017amulet of life saving\nP? o"
+    }
+  ]
+}

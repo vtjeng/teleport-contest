@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation of the verified VOMITING intrinsic menu. The prior C capture ends at the message You are vomiting.--More-- after applying count 1 to row k; this recipe dismisses that exact pager with one space and spends one ordinary rest turn with period so timeout.c:vomiting_dialogue reaches Vomiting-1==0 and eat.c:vomit checks the Black Pudding's Acid form against wished ICE. No JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 45317921,
+      "datetime": "20280115140720",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding4,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n1k\n ."
+    }
+  ]
+}

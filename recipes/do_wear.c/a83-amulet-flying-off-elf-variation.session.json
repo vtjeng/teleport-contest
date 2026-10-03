@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 cheap independent role/race variation for the source-selected flying-amulet takeoff path; C must still clear the amulet's only flight source before Amulet_off calls spoteffects.",
+  "segments": [
+    {
+      "seed": 70831992,
+      "datetime": "20261002200000",
+      "nethackrc": "OPTIONS=name:A83FlyingElf,role:Wizard,race:elf,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017uncursed amulet of flying\nPoR   "
+    }
+  ]
+}

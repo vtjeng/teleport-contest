@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 C-first setup to reach mon.c:xkilled's wasinside branch through the already supported mhitu.c ice-vortex engulfing arm. This prefix creates an ordinary hostile ice vortex and opens the wand menu; it does not assume the wished death wand's letter.",
+  "segments": [
+    {
+      "seed": 77482062,
+      "datetime": "20261002200000",
+      "nethackrc": "OPTIONS=name:A83SwallowedIce,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of death\n#wizgenesis\n1 hostile ice vortex\n.. z?"
+    }
+  ]
+}

@@ -68,6 +68,7 @@ import {
 } from './const.js';
 import {
     is_pool,
+    is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
@@ -126,7 +127,7 @@ import {
     S_UNICORN,
     S_VORTEX,
 } from './monsters.js';
-import { greatest_erosion, isMetallic, mksobj, sobj_at } from './obj.js';
+import { greatest_erosion, isMetallic, mksobj } from './obj.js';
 import { BOULDER, SADDLE } from './objects.js';
 import { an } from './objnam.js';
 import { encumber_msg, u_handsy } from './pickup.js';
@@ -135,7 +136,6 @@ import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import { teleds } from './teleport.js';
 import {
     float_down,
-    is_lava,
     t_at,
 } from './trap.js';
 import { ttyPline } from './tty_message.js';
@@ -145,7 +145,7 @@ import {
     update_mon_extrinsics,
     which_armor,
 } from './worn.js';
-import { freeinv, fully_identify_obj } from './invent.js';
+import { freeinv, fully_identify_obj, sobj_at } from './invent.js';
 
 import { mpickobj, remove_worn_item } from './steal.js';
 import { objdescr_is } from './o_init.js';

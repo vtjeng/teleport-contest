@@ -21,6 +21,30 @@ const InventoryMenuHornRecipe = validateCleanRecipe(
     ), 'utf8')),
     'inventory-menu unicorn horn application',
 );
+const APPLY_C = readFileSync(
+    new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
+);
+const APPLY_JS = readFileSync(
+    new URL('../js/apply.js', import.meta.url), 'utf8',
+);
+
+test('use_unicorn_horn routes existing Vomiting through eat.c:vomit', () => {
+    const cStart = APPLY_C.indexOf('use_unicorn_horn(struct obj **optr)');
+    const jsStart = APPLY_JS.indexOf('async function use_unicorn_horn(');
+    assert.notEqual(cStart, -1);
+    assert.notEqual(jsStart, -1);
+    const cCase = APPLY_C.slice(
+        APPLY_C.indexOf('case 4:', cStart),
+        APPLY_C.indexOf('case 5:', cStart),
+    );
+    const jsCase = APPLY_JS.slice(
+        APPLY_JS.indexOf('case 4:', jsStart),
+        APPLY_JS.indexOf('case 5:', jsStart),
+    );
+    assert.match(cCase, /if \(Vomiting\)\s+vomit\(\);/u);
+    assert.match(jsCase,
+        /if \(intrinsic\(VOMITING\)\)\s+await vomit\(state, \{ \.\.\.env, message \}\);/u);
+});
 
 test('doapply dispatches a cursed unicorn horn through use_unicorn_horn',
     async () => {

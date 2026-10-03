@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap A83 role variation of the four-turn C-first setup: an independently chosen Valkyrie seed and clock repeat the exact source-name book wish and peaceful master-lich strategy, with the same bounded rest window.",
+  "segments": [
+    {
+      "seed": 948212,
+      "datetime": "20341112160500",
+      "nethackrc": "OPTIONS=name:BookTarget,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizwish\nThe Book of the Dead\n#wizgenesis\npeaceful master lich\n...."
+    }
+  ]
+}

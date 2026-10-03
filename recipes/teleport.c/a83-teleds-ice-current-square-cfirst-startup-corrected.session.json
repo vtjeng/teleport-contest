@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first controlled teleport onto wished ICE. C's first recording showed that startup's welcome --More-- consumed the original first wish command; this corrected input starts with one space to clear that observed welcome page, then wishes ICE and the scroll. The remaining read-scroll and getpos prompt/tip inputs follow the separately observed C boundaries. Escape closes the first-use TIP_GETPOS window and '.' picks the initial cursor on ICE. scrolltele calls teleds, whose source calls spoteffects(TRUE) for the accepted same-square destination.",
+  "segments": [
+    {
+      "seed": 63010248,
+      "datetime": "20431003101100",
+      "nethackrc": "OPTIONS=name:A83IceLanding,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": " \u0017ice\n\u0017uncursed scroll of teleportation\nrp  \u001b."
+    }
+  ]
+}

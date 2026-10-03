@@ -34,9 +34,16 @@ import {
 } from '../js/monsters.js';
 import { peek_at_iced_corpse_age } from '../js/obj.js';
 import { corpse_xname, the_unique_pm } from '../js/objnam.js';
-import { CORPSE, LARGE_BOX } from '../js/objects.js';
+import {
+    CORPSE, GLOB_OF_BLACK_PUDDING, LARGE_BOX, objects_globals_init,
+} from '../js/objects.js';
+import { init_objects } from '../js/o_init.js';
 
 const state = { mons: monst_globals_init({}), moves: 100 };
+objects_globals_init(state);
+// Initialize the source name indexes before the glob arm reads OBJ_NAME.
+// Zero choices make shuffled descriptions deterministic; glob names are fixed.
+init_objects(state, () => 0);
 const species = (index) => state.mons[index];
 
 function corpse(overrides = {}) {
@@ -142,17 +149,19 @@ test('corpse_xname gives a unique monster "the" and a named one neither',
             CXN_NORMAL, state), 'thing corpse');
     });
 
-test('corpse_xname refuses only a globby object that is not a corpse', () => {
+test('corpse_xname uses the object name for a glob without a corpse suffix', () => {
     // The glob arm needs OBJ_NAME(objects[otyp]); a CORPSE with the flag set
     // is not one, so it has to name itself the ordinary way.
     assert.equal(
         corpse_xname(corpse({ globby: true }), null, CXN_NORMAL, state),
         'goblin corpse',
     );
-    assert.throws(
-        () => corpse_xname({ otyp: LARGE_BOX, corpsenm: PM_GOBLIN, quan: 1,
-            globby: true }, null, CXN_NORMAL, state),
-        { name: 'UnsupportedObjectNameError' },
+    // C's glob arm reads OBJ_NAME regardless of corpsenm or quantity.
+    // A real black-pudding glob exercises that arm on a valid object type.
+    assert.equal(
+        corpse_xname({ otyp: GLOB_OF_BLACK_PUDDING, corpsenm: PM_GOBLIN,
+            quan: 2, globby: true }, null, CXN_NORMAL, state),
+        'glob of black pudding',
     );
 });
 

@@ -77,7 +77,8 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
-import { newObject, place_object, sobj_at } from '../js/obj.js';
+import { newObject, place_object } from '../js/obj.js';
+import { sobj_at } from '../js/invent.js';
 import {
     PM_CAVE_SPIDER,
     PM_DWARF,

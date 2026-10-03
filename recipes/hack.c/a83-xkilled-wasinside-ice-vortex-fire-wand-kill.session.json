@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 C-first continuation from the independently recorded fire-wand menu. The menu showed the unidentified wished wand at slot o; choose that observed item and aim west at the ice vortex. The fire wand is selected because C's nonliving death-ray guard was observed on the earlier source-valid attempt.",
+  "segments": [
+    {
+      "seed": 77482063,
+      "datetime": "20261002210000",
+      "nethackrc": "OPTIONS=name:A83SwallowedFire,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of fire\n#wizgenesis\n1 hostile ice vortex\n.. z?oh"
+    }
+  ]
+}

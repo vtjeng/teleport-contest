@@ -39,7 +39,8 @@ import { rhack } from '../js/cmd.js';
 import { glyph_to_cmap, newsym } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { accessible, m_in_air } from '../js/monmove.js';
+import { accessible } from '../js/monmove.js';
+import { m_in_air } from '../js/mon.js';
 import {
     m_at,
     newMonster,
@@ -387,9 +388,9 @@ test('a bear trap closes through anything it cannot hold', async () => {
     assert.deepEqual(jellyEnv.bounds, [], 'amorphous');
     assert.equal(jelly.mon.mtrapped, false);
 
-    // mon.c m_in_air(), which arrives through the env because js/monmove.js
-    // holds it. A pony clears every other conjunct, so lifting it off the
-    // ground is the whole difference from the catch above.
+    // mon.c m_in_air(), now defined in js/mon.js. A pony clears every other
+    // conjunct, so lifting it off the ground is the whole difference from
+    // the catch above.
     const airborne = victimInBearTrap(PM_PONY, 13);
     const airborneEnv = { ...bearEnv(), mInAir: () => true };
     assert.equal(await mintrap(airborne.mon, 0, airborneEnv),

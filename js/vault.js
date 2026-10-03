@@ -51,7 +51,7 @@ import { del_engr_at } from './engrave.js';
 import { mungspaces } from './fruit.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
-import { money_cnt, obj_extract_self, obfree } from './invent.js';
+import { money_cnt, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { set_malign } from './makemon.js';
 import { gender, is_silent, sticks } from './mondata.js';
 import { PM_GUARD } from './monsters.js';
@@ -65,7 +65,7 @@ import {
 } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { adjalign } from './attrib.js';
-import { carried, g_at, sobj_at, hasContents } from './obj.js';
+import { carried, g_at, hasContents } from './obj.js';
 import { BOULDER, ROCK } from './objects.js';
 import { in_rooms } from './rooms.js';
 import { contained_gold } from './shk.js';

@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "C-first independent eat.c:choke meal recipe. A human Archeologist starts with three rations; an initial wait and a second ration with the Continue eating prompt are intended to let the active meal reach choke() from the later eatfood bite. New seed/date, role, name, and command sequence distinguish it from the admitted Tourist case.",
+  "segments": [
+    {
+      "seed": 46092820,
+      "datetime": "20410930113000",
+      "nethackrc": "OPTIONS=name:FullArchaeologist,role:Archeologist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizintrinsic\n>g\n.ed ed y  "
+    }
+  ],
+  "_comment": "Preserved failed C setup attempt. C displayed `Timeout for magical breathing set to 30.--More--`, but the input sequence sent `.` instead of the required space, so later meal keys were consumed at the wrong prompt. The intrinsic was selected, but this recipe does not reach the satiated choke branch."
+}

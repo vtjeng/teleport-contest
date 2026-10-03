@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Source-affecting role variation of the overburdened drowning route. Valkyrie's independently selected starting strength changes the capacity and removable-gear walk; the C-observed put-on menu places the wished amulet in slot e. Ten cursed loadstones remain undroppable, and the pool wait reaches emergency_disrobe, drowning, life-saving and safe_teleds. Twelve trailing spaces are only a bounded prompt allowance; recorded source effects determine the stopping boundary.",
+  "segments": [
+    {
+      "seed": 6042026,
+      "datetime": "20400202110000",
+      "nethackrc": "OPTIONS=name:DrownValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP? e\u001710 cursed loadstones\n\u0017pool\n.            "
+    }
+  ]
+}

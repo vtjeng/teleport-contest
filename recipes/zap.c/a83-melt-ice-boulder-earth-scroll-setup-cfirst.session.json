@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first setup for melt_ice -> boulder_hits_pool using read.c:seffect_earth instead of wishing a heavy floor object. The Wizard moves west onto room floor, selects invulnerability (page 1, a) and Flying (page 3, k), then wishes ICE, a cursed scroll of earth and a fire wand. The cursed scroll's source path drops only its guaranteed hero-square boulder; Flying/invulnerability make the ICE setup safe. This probe ends at inventory so C supplies the selector letters before the full continuation is frozen.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMelt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\na>>k\n \u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\ni"
+    }
+  ]
+}

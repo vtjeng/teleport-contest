@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhhhkh, \u0014  llj.#wizwish\nbroken door\n\u0014  hk.n"
+    }
+  ],
+  "comment": "C-first block_door probe using the observed Vals liquor emporium door and unpaid puce potion. It uses controlled teleport to stand on the observed door while keeping the shop bill, wishes a broken door there, then tests the diagonal step from the inside square."
+}

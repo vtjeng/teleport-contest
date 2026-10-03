@@ -9,71 +9,41 @@
 // -- is a separate group of functions and lives in js/objnam.js.
 
 import {
-    artifact_exists, artifact_name, nartifact_exist, permapoisoned,
-} from './artifacts.js';
+    artifact_exists,
+    artifact_name,
+    nartifact_exist,
+    permapoisoned,
+    } from './artifacts.js';
 import {
     is_pool,
+    is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import {
-    A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, Align2amask,
-    ALTAR, BEAR_TRAP, CLOUD, COLNO, CORPSTAT_FEMALE, CORPSTAT_MALE,
-    CORPSTAT_HISTORIC, CORPSTAT_NEUTER, CORPSTAT_RANDOM, CORR, DB_FLOOR, DB_ICE, DB_LAVA,
-    DB_MOAT, DB_UNDER, DBWALL, D_BROKEN, D_CLOSED, D_ISOPEN, D_LOCKED,
-    D_NODOOR, D_TRAPPED, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, FEMALE,
-    F_LOOTED, FOUNTAIN, GOLD_SYM, HALLUC_RES, HWALL, ICE, ICED_MOAT, ICED_POOL, IRONBARS,
-    LADDER, LANDMINE, LAVAPOOL, LAVAWALL, LOW_PM, MAGIC_PORTAL, MALE,
-    MELT_ICE_AWAY, MOAT, NEUTRAL, NON_PM, NO_TRAP, ONAME_WISH, P_HAMMER,
-    P_POLEARMS, POOL, ROOM,
-    ROCKTRAP, SCORR, SDOOR, SINK, S_LDWASHER, S_LPUDDING, S_LRING, SPE_LIM,
-    HAND, ROWNO, STAIRS, T_LOOTED, THRONE, TIMER_OBJECT, TREE, TREE_LOOTED,
-    TREE_SWARM, TRAPNUM, WT_IRON_BALL_INCR, something,
-    TT_LAVA, VWALL, WATER, WM_MASK, W_NONDIGGABLE, W_NONPASSWALL, ZOMBIFY_MON,
-    IS_DOOR, IS_FOUNTAIN, IS_FURNITURE, IS_GRAVE, IS_SINK, IS_WALL,
-    Has_contents, is_hole, ismnum,
-} from './const.js';
+    A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, Align2amask, ALTAR, BEAR_TRAP, CLOUD, COLNO, CORPSTAT_FEMALE, CORPSTAT_MALE, CORPSTAT_HISTORIC, CORPSTAT_NEUTER, CORPSTAT_RANDOM, CORR, DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER, DBWALL, D_BROKEN, D_CLOSED, D_ISOPEN, D_LOCKED, D_NODOOR, D_TRAPPED, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, FEMALE, F_LOOTED, FOUNTAIN, GOLD_SYM, HALLUC_RES, HWALL, ICE, ICED_MOAT, ICED_POOL, IRONBARS, LADDER, LANDMINE, LAVAPOOL, LAVAWALL, LOW_PM, MAGIC_PORTAL, MALE, MELT_ICE_AWAY, MOAT, NEUTRAL, NON_PM, NO_TRAP, ONAME_WISH, P_HAMMER, P_POLEARMS, POOL, ROOM, ROCKTRAP, SCORR, SDOOR, SINK, S_LDWASHER, S_LPUDDING, S_LRING, SPE_LIM, HAND, ROWNO, STAIRS, T_LOOTED, THRONE, TIMER_OBJECT, TREE, TREE_LOOTED, TREE_SWARM, TRAPNUM, WT_IRON_BALL_INCR, something, TT_LAVA, VWALL, WATER, WM_MASK, W_NONDIGGABLE, W_NONPASSWALL, ZOMBIFY_MON, IS_DOOR, IS_FOUNTAIN, IS_FURNITURE, IS_GRAVE, IS_SINK, IS_WALL, Has_contents, is_hole, ismnum, } from './const.js';
 import { lookup_novel, oname, safe_oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import {
-    digit, fuzzymatch, lcase, lowc, mungspaces, str_start_is, strstri,
-    strsubst, upstart,
-} from './hacklib.js';
+    digit, fuzzymatch, lcase, lowc, mungspaces, str_start_is, strstri, strsubst, upstart, } from './hacklib.js';
 import {
-    consume_oeaten, eaten_stat, obj_nutrition, set_tin_variety, tin_variety_txt,
-} from './eat.js';
+    consume_oeaten, eaten_stat, obj_nutrition, set_tin_variety, tin_variety_txt, } from './eat.js';
 import {
-    delete_contents, hands_obj, obj_extract_self, obfree,
-} from './invent.js';
+    delete_contents, hands_obj, obj_extract_self, obfree, } from './invent.js';
 import { def_char_to_objclass } from './drawing.js';
 import {
-    can_be_hatched, dead_species, is_female, is_human, is_male, is_neuter,
-    is_were, name_to_monplus, name_to_mon, verysmall, zombie_form,
-} from './mondata.js';
+    can_be_hatched, dead_species, is_female, is_human, is_male, is_neuter, is_were, name_to_monplus, name_to_mon, verysmall, zombie_form, } from './mondata.js';
 import {
-    G_NOCORPSE, G_UNIQ, MS_GUARDIAN, PM_BLACK_PUDDING, PM_GRAY_DRAGON,
-    PM_GRAY_OOZE, PM_LONG_WORM, PM_LONG_WORM_TAIL, PM_MAIL_DAEMON,
-    PM_YELLOW_DRAGON, S_PUDDING,
-} from './monsters.js';
+    G_NOCORPSE, G_UNIQ, MS_GUARDIAN, PM_BLACK_PUDDING, PM_GRAY_DRAGON, PM_GRAY_OOZE, PM_LONG_WORM, PM_LONG_WORM_TAIL, PM_MAIL_DAEMON, PM_YELLOW_DRAGON, S_PUDDING, } from './monsters.js';
 import { counter_were, genus } from './mon.js';
 import { obj_to_any } from './hack.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
-    curse, erosionMatters, is_ammo, isBox, isCandle,
-    isCorrodeable, isCrackable, isDamageable, is_flammable, is_missile,
-    isMultigen, is_rottable, isRustprone, is_weptool, mkobj, mksobj, objectType,
-    place_object, rnd_class, set_corpsenm, weight,
-} from './obj.js';
+    curse, erosionMatters, is_ammo, isBox, isCandle, isCorrodeable, isCrackable, isDamageable, is_flammable, is_missile, isMultigen, is_rottable, isRustprone, is_weptool, mkobj, mksobj, objectType, place_object, rnd_class, set_corpsenm, weight, } from './obj.js';
 import { is_quest_artifact } from './questpgr.js';
 import { d, rn1, rn2, rnd, rne, rnz } from './rng.js';
 import {
-    Flying,
-    is_lava,
-    Levitation,
-    maketrap,
-    reset_utrap,
-    trapname,
-} from './trap.js';
+    Flying, Levitation, maketrap, reset_utrap, trapname } from './trap.js';
 import { note_unported } from './unported.js';
 import { begin_burn, start_timer } from './timeout.js';
 import { body_part } from './polyself.js';
@@ -519,8 +489,8 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         await emit(text, state);
     };
     const article = async (text) => {
-        const { an } = await import('./objnam.js');
-        return upstart(an(text));
+        const { An } = await import('./objnam.js');
+        return An(text);
     };
     const addDrawbridgeTerrain = (under) => {
         // C stores drawbridgemask in the same rm union as flags; JS keeps the
@@ -578,7 +548,7 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
                 const { count_level_features } = await import('./terrain.js');
                 count_level_features(state);
             }
-            const { is_ice } = await import('./terrain.js');
+            const { is_ice } = await import('./dbridge.js');
             if (!is_ice(x, y, state)) {
                 const { spot_stop_timers } = await import('./timeout.js');
                 spot_stop_timers(x, y, MELT_ICE_AWAY, state);
@@ -684,7 +654,8 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         const { del_engr_at } = await import('./engrave.js');
         del_engr_at(x, y, state);
         if (strncmpiIsPrefix(bp, 'melting ')) {
-            note_unported('timeout.c start_melt_ice_timeout');
+            const { start_melt_ice_timeout } = await import('./zap.js');
+            start_melt_ice_timeout(x, y, 0, state, random);
         }
         if (!isDbridge) {
             const { ice_descr } = await import('./pager.js');
@@ -704,8 +675,8 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
             ? A_NONE : random.rn2(A_LAWFUL + 2) - 1;
         lev.flags = Align2amask(alignment);
         const { align_str } = await import('./insight.js');
-        const { an } = await import('./objnam.js');
-        await message(upstart(an(align_str(alignment))) + ' altar.');
+        const { An } = await import('./objnam.js');
+        await message(An(align_str(alignment)) + ' altar.');
         return finishTerrainWish(true, false);
     } else if (endsWith('grave') || endsWith('headstone')) {
         const { make_grave } = await import('./grave.js');
@@ -811,7 +782,8 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         await message('Secret corridor requires corridor location.');
         return finishTerrainWish(false, true);
     } else if (endsWith('room') || endsWith('floor') || endsWith('ground')) {
-        const { is_pool_or_lava, t_at, deltrap } = await import('./trap.js');
+        const { is_pool_or_lava } = await import('./dbridge.js');
+        const { t_at, deltrap } = await import('./trap.js');
         if (oldtyp === ROOM
             || (IS_FURNITURE(oldtyp)
                 && (state.iflags?.debug_overwrite_stairs

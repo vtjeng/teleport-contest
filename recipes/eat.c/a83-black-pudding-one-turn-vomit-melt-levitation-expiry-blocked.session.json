@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked runtime artifact retained unchanged in .cache/A83-logs: count-2 Levitation is active when eat.c:vomit melts the ice, but that helper calls nomul(-2); after two forced nh_timeout turns the Levitation timer expires, hack.c:spoteffects reaches trap.c:drown, and the later display.c:under_water(1) side effect is still unported. This recipe must not be treated as a passing differential.",
+  "segments": [
+    {
+      "seed": 45317921,
+      "datetime": "20280115140720",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding4,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n2q\n #wizintrinsic\n1k\n ."
+    }
+  ]
+}

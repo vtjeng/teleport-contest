@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first follow-up to the preserved four-turn probe: the master lich emits its covetous relocation message and pauses at --More-- on turn four. The trailing space answers that observed pager so the recording ends after the mnearto relocation result.",
+  "segments": [
+    {
+      "seed": 948211,
+      "datetime": "20341112142200",
+      "nethackrc": "OPTIONS=name:BookTarget,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizwish\nThe Book of the Dead\n#wizgenesis\npeaceful master lich\n.... "
+    }
+  ]
+}

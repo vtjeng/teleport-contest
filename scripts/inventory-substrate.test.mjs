@@ -139,6 +139,7 @@ import {
     PM_COCKATRICE,
     PM_FOX,
     PM_KNIGHT,
+    PM_NEWT,
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
@@ -315,6 +316,31 @@ test('loot_xname suppresses sorting prefixes and restores object state', () => {
     });
     assert.equal(loot_xname(glob, state).at(-1), 'a');
     assert.equal(glob.owt, 40);
+
+    // invent.c calls cxname_singular() for sorting, not by temporarily
+    // overwriting quan. Make writes observable so the caller contract is
+    // pinned independently of the final restored value.
+    const rationStack = instance(FOOD_RATION, state, { quan: 4 });
+    let quantity = 4;
+    let quantityWrites = 0;
+    Object.defineProperty(rationStack, 'quan', {
+        configurable: true,
+        enumerable: true,
+        get: () => quantity,
+        set: (value) => { quantityWrites++; quantity = value; },
+    });
+    assert.equal(loot_xname(rationStack, state), 'food ration');
+    assert.equal(quantity, 4);
+    assert.equal(quantityWrites, 0);
+
+    monst_globals_init(state);
+    const corpseStack = instance(CORPSE, state, {
+        corpsenm: PM_NEWT,
+        owt: PLACEHOLDER_CORPSE_WEIGHT,
+        quan: 3,
+    });
+    assert.equal(loot_xname(corpseStack, state), 'newt corpse');
+    assert.equal(corpseStack.quan, 3);
 });
 
 // C ref: invent.c sortloot()'s SORTLOOT_PETRIFY filter override. A rejected

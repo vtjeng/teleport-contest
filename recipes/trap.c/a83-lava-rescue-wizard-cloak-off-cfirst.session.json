@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Frozen C-first Wizard BURNING setup. C menu probe showed `T` removes the starting cloak of magic resistance in one input; no life-saving amulet is carried. The subsequent debug lava wish selects pooleffects(FALSE)→lava_effects(BURNING), whose Wizard death query is answered only after its prompt is observed.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "T\u0017lava\n"
+    }
+  ]
+}

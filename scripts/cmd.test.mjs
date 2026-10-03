@@ -72,6 +72,7 @@ import {
     NORMAL_SPEED,
     OBJ_FLOOR,
     OBJ_INVENT,
+    PARANOID_TRAP,
     PASSES_WALLS,
     PIT,
     ROOM,
@@ -125,6 +126,7 @@ import {
     domove,
     domove_swap_with_pet,
     monster_nearby,
+    preflightDomoveDestination,
     test_move,
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
@@ -1162,6 +1164,51 @@ test('a single object inside an entered visible region is described',
         assert.deepEqual([game.u.ux, game.u.uy], [target.x, target.y]);
     });
 
+test('visible cloud confirmation precedes region membership updates', async () => {
+    const { replay, x, y } = await prepareHeroMoveAdmission();
+    const region = create_region([{ lx: x, ly: y, hx: x, hy: y }]);
+    region.visible = true;
+    region.arg = 1; // A positive damage value selects C's poison-gas wording.
+    game.level.regions.push(region);
+    game.flags.paranoia_bits |= PARANOID_TRAP;
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    game.nhDisplay.pushKey(commandKeyCode('y'));
+
+    const cConfirmStart = HACK_C.indexOf(
+        'avoid_trap_andor_region(coordxy x, coordxy y)',
+    );
+    const cConfirmEnd = HACK_C.indexOf(
+        '/* trying to move out-of-bounds? */',
+        cConfirmStart,
+    );
+    const cConfirm = HACK_C.slice(cConfirmStart, cConfirmEnd);
+    assert.match(cConfirm, /visible_region_at\(x, y\)/u);
+    assert.match(cConfirm, /paranoid_query\(ParanoidConfirm, upstart\(qbuf\)\)/u);
+    const cMoveStart = HACK_C.indexOf('domove_core(void)');
+    assert.ok(cMoveStart >= 0, 'C domove_core definition exists');
+    const cAskAt = HACK_C.indexOf(
+        'avoid_trap_andor_region(x, y)', cMoveStart,
+    );
+    const cTransitionAt = HACK_C.indexOf('in_out_region(x, y)', cMoveStart);
+    assert.ok(cAskAt >= 0 && cAskAt < cTransitionAt,
+        'C asks before changing region membership');
+
+    // The same destination passes the command admission seam and reaches the
+    // live query; a generic region-crossing refusal would skip this C prompt.
+    assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
+    await domove(game);
+
+    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+    assert.equal(region.hero_inside, true);
+    assert.ok(
+        replay.getScreens().some((screen) => (
+            screen.includes('Step into that poison gas cloud? [yn] (n)')
+        )),
+        'the admitted movement asks C’s visible poison-cloud question',
+    );
+});
+
 test('pile_limit zero leaves a single object on the naming path', async () => {
     const { x, y } = await prepareHeroMoveAdmission();
     game.flags.pickup = false;
@@ -1214,29 +1261,6 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                     o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
                     quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
                 };
-            },
-        },
-        {
-            // ICE is rm.h:88's next type after ALTAR, so it is the terrain
-            // just outside IS_FURNITURE()'s range and the one that pins its
-            // upper bound. Its own arm of dfeature_at() calls ice_descr(),
-            // which is unported.
-            name: 'ice terrain',
-            reason: 'test_move() door or special terrain movement',
-            setup: ({ destination }) => {
-                destination.typ = ICE;
-            },
-        },
-        {
-            name: 'region entry',
-            reason: 'region crossing',
-            setup: ({ x, y }) => {
-                installFloorPile(x, y);
-                // A one-cell region isolates the false -> true membership
-                // transition at this destination.
-                game.level.regions.push(create_region([
-                    { lx: x, ly: y, hx: x, hy: y },
-                ]));
             },
         },
         // An ordinary hostile at the destination is no longer an admission
@@ -1401,19 +1425,6 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
             },
             remove: () => {
                 game.level.traps = [];
-            },
-        },
-        {
-            // ICE, the type immediately past ALTAR, stands for terrain
-            // outside IS_FURNITURE()'s range now that the seven types inside
-            // it are admitted.
-            name: 'special terrain',
-            reason: 'test_move() door or special terrain movement',
-            install: ({ destination }) => {
-                destination.typ = ICE;
-            },
-            remove: ({ destination }) => {
-                destination.typ = ROOM;
             },
         },
         // A doorless, broken, or open doorway is an admitted destination
@@ -1982,14 +1993,19 @@ test('unsupported movement retains its byte ahead of the next command',
         resetCommandVars(game);
         const start = [game.u.ux, game.u.uy];
         const east = game.level.at(start[0] + 1, start[1]);
-        // ICE is the first type past IS_FURNITURE()'s range, so it is still a
-        // refused destination and holds this test's refusal.
-        east.typ = ICE;
+        // A hidden magic portal is refused by the still-unported trap arm;
+        // this keeps the queued-byte assertion independent of ICE movement.
+        east.typ = ROOM;
         east.flags = east.doormask = 0;
         for (const column of game.level.monsters) column.fill(null);
         game.level.monlist = null;
         game.level.objects[start[0] + 1][start[1]] = null;
-        game.level.traps = [];
+        game.level.traps = [{
+            tx: start[0] + 1,
+            ty: start[1],
+            ttyp: MAGIC_PORTAL,
+            tseen: false,
+        }];
         game.level.regions = [];
         game.head_engr = null;
         game.nhDisplay.pushKey(commandKeyCode('l'));
@@ -2000,7 +2016,7 @@ test('unsupported movement retains its byte ahead of the next command',
                 moveloop_core(),
                 (error) => (
                     error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'test_move() door or special terrain movement'
+                    && error.reason === 'trap activation'
                 ),
             );
             assert.equal(
@@ -2014,7 +2030,7 @@ test('unsupported movement retains its byte ahead of the next command',
             assert.deepEqual(replay.getRngSlices().at(-1), []);
         }
 
-        east.typ = ROOM;
+        game.level.traps = [];
         await moveloop_core();
         assert.deepEqual(
             [game.u.ux, game.u.uy],
@@ -2047,14 +2063,19 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     const x = start[0] + 1;
     const y = start[1];
     const east = game.level.at(x, y);
-    // ICE is the first type outside IS_FURNITURE(), so the first attempt
-    // reaches the destination boundary after both prefix bytes are parsed.
-    east.typ = ICE;
+    // A hidden magic portal is refused after the reqmenu prefix is parsed;
+    // this pins retry ownership without treating ICE as blocked terrain.
+    east.typ = ROOM;
     east.flags = east.doormask = 0;
     for (const column of game.level.monsters) column.fill(null);
     game.level.monlist = null;
     const floorObject = installFloorPile(x, y, 1);
-    game.level.traps = [];
+    game.level.traps = [{
+        tx: x,
+        ty: y,
+        ttyp: MAGIC_PORTAL,
+        tseen: false,
+    }];
     game.level.regions = [];
     game.head_engr = null;
     game.nhDisplay.pushKey(commandKeyCode('m'));
@@ -2067,7 +2088,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
             moveloop_core(),
             (error) => (
                 error instanceof UnsupportedHeroMoveBoundaryError
-                && error.reason === 'test_move() door or special terrain movement'
+                && error.reason === 'trap activation'
             ),
         );
         assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
@@ -2082,7 +2103,7 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
         assert.deepEqual(replay.getRngSlices().at(-1), []);
     }
 
-    east.typ = ROOM;
+    game.level.traps = [];
     await moveloop_core();
 
     assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
@@ -2290,8 +2311,7 @@ test('simple hero movement admits empty room and corridor controls',
 // hack.c test_move() (991-1160) has no arm for any of these seven types --
 // rm.h:119 makes IS_OBSTRUCTED `typ < POOL` and IS_DOOR is false -- so the
 // obstacle chain never claims the square and the step is admitted below it.
-// ICE, rm.h:88's next type after ALTAR, is the case just outside the range.
-test('simple hero movement admits every furniture square', async () => {
+test('simple hero movement admits furniture and ICE squares', async () => {
     for (const [label, terrain] of [
         ['stairs', STAIRS],
         ['ladder', LADDER],
@@ -2310,15 +2330,15 @@ test('simple hero movement admits every furniture square', async () => {
         assert.equal(game.u.umoved, true, label);
     }
 
-    const { destination } = await prepareHeroMoveAdmission();
+    // ICE is the first terrain after ALTAR in rm.h:88; test_move() admits it
+    // because it is neither obstructed terrain nor a door, then spoteffects()
+    // runs its source-owned ICE branch after the move commits.
+    const { destination, x, y } = await prepareHeroMoveAdmission();
     destination.typ = ICE;
-    await assert.rejects(
-        domove(game),
-        (error) => (
-            error instanceof UnsupportedHeroMoveBoundaryError
-            && error.reason === 'test_move() door or special terrain movement'
-        ),
-    );
+    await domove(game);
+
+    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+    assert.equal(game.u.umoved, true);
 });
 
 // invent.c look_here() computes dfeature_at() unconditionally and prints its
@@ -4794,9 +4814,15 @@ test('the run loop leaves a class outside the refusal list as it found it',
         // breaks the segment on it directly -- so the seam's own refusal has
         // to arrive with its own type, reason and message.
         const { first, second } = await prepareRunPastTheFirstStep();
-        // ICE is outside the terrain requireSimpleHeroDestination() admits,
-        // and domove() calls that seam on every step, including this one.
-        game.level.at(second[0], second[1]).typ = ICE;
+        // This hidden portal reaches the named trap boundary after the run's
+        // first step, exercising the same unconverted error class without
+        // relying on the now-supported ICE arrival path.
+        game.level.traps = [{
+            tx: second[0],
+            ty: second[1],
+            ttyp: MAGIC_PORTAL,
+            tseen: false,
+        }];
         await takeFirstRunStep(first);
 
         await assert.rejects(
@@ -4806,8 +4832,7 @@ test('the run loop leaves a class outside the refusal list as it found it',
                     error instanceof UnsupportedHeroMoveBoundaryError,
                     `${error.constructor.name} is not a hero move boundary`,
                 );
-                assert.equal(error.reason,
-                    'test_move() door or special terrain movement');
+                assert.equal(error.reason, 'trap activation');
                 return true;
             },
         );

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first extension of the recorded edible menu: dismiss the observed `o - 4 food rations` page and select the source-observed stack letter o to begin the first meal. This independent recipe stops at the next C boundary; subsequent eat/Choke replies will be chosen from that output.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\ne? o"
+    }
+  ]
+}

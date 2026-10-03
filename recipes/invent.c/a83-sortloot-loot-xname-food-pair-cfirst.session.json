@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "Preserved setup miss: the frozen `e` input stops at C's `[no or ?*]` prompt and never opens the selector, so invent.c:sortloot_cmp -> loot_xname is not reached. The corrected C-first recipe uses `e?` to open the selector and retains the same independently chosen equal-key food setup.",
+  "segments": [{
+    "seed": 71032841,
+    "datetime": "20510203040506",
+    "nethackrc": "OPTIONS=name:A83LootSortFood,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,sortloot:full\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+    "moves": " .\u0017food ration\n\u0017cram ration\ne"
+  }]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Corrected C-first drowning setup: C observed the amulet in slot n, and source input uses numeric quantity syntax rather than the failed word `ten`. Ten cursed loadstones are intended to remain undroppable after removable inventory is stripped, reaching drown's life-saving safe_teleds branch.",
+  "segments": [
+    {
+      "seed": 8439201,
+      "datetime": "20381117121000",
+      "nethackrc": "OPTIONS=name:DrownRescue,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP?n\u001710 cursed loadstones\n\u0017pool\n.            "
+    }
+  ]
+}

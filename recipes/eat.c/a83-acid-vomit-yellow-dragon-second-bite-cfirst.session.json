@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation after the observed first-ration completion and Satiated HUD state: issue a fresh eat command and choose the remaining source-observed ration stack to exercise eat.c:choke. The C rn2(20) and result decide whether this input reaches vomit; no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\n\u0017food ration\n\u0017food ration\ne? o eo"
+    }
+  ]
+}

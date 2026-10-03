@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A83 C-only menu probe. `timeout.c:propertynames` puts FLYING after JUMPING and TELEPORT_CONTROL; step through the paginated #wizintrinsic menu to observe the page and letter rather than guessing it. This probe selects no intrinsic and is not a regression recording.",
+  "segments": [
+    {
+      "seed": 64100321,
+      "datetime": "20321214103000",
+      "nethackrc": "OPTIONS=name:A83ColdRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>>\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first cheap variation of the verified BURNING rescue route. The added uncursed healing potion changes lava_effects()'s source-defined potion inventory scan and burn summary. The same C-observed cloak removal, wished lava, death refusal, and one-turn return boundary are retained.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "T\u0017uncursed potion of healing\n\u0017lava\n    n."
+    }
+  ]
+}

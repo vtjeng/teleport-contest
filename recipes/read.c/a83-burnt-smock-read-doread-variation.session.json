@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-observed prefix for the alchemy-smock apparel variation. This independent debug Wizard wishes a burnt alchemy smock and selects the C-observed downplayed inventory item at letter o; read.c computes apron_text and erode_obj_text before the captured It reads: More. The matching continuation in a83-burnt-smock-read-doread-pager-complete adds the C-observed dismissal key and captures the quote. Seed 87242027 and timestamp 20460317112000 were independently selected so the eroded caption and any wipeout RNG use this object's own source inputs.",
+  "segments": [
+    {
+      "seed": 87242027,
+      "datetime": "20460317112000",
+      "nethackrc": "OPTIONS=name:BurntSmockProbe,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen\n",
+      "moves": "\u0017burnt alchemy smock\nro"
+    }
+  ]
+}

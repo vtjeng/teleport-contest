@@ -13,7 +13,7 @@
 import {
     ART_EYES_OF_THE_OVERWORLD, ART_ORB_OF_DETECTION, artifact_light,
     artifact_name, artiname, glow_color, glow_verb,
-    find_artifact,
+    find_artifact, undiscovered_artifact,
     permapoisoned,
 } from './artifacts.js';
 import {
@@ -29,7 +29,6 @@ import {
 } from './const.js';
 import {
     fruit_from_indx, fruit_from_name, makeplural, makesingular,
-    matching_artifact_fruit,
 } from './fruit.js';
 import { noit_mon_nam, obj_pmname } from './do_name.js';
 import { doffing, donning } from './do_wear.js';
@@ -37,8 +36,9 @@ import { tin_details } from './eat.js';
 import { game } from './gstate.js';
 import { count_contents, currency } from './invent.js';
 import {
-    digit, dist2, encodeUtf8ByteString, highc, lowc, mungspaces, s_suffix,
+    digit, dist2, encodeUtf8ByteString, eos, highc, lowc, mungspaces, s_suffix,
     strcasecpy, strstri, truncateByteString,
+    upstart,
 } from './hacklib.js';
 import { arti_light_description, find_mid, get_obj_location } from './light.js';
 import { cansee } from './vision.js';
@@ -64,6 +64,7 @@ import {
     is_ammo, is_missile, is_weptool, objectType,
 } from './obj.js';
 import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
+import { Strlen_ } from './strutil.js';
 import {
     AKLYS,
     ALCHEMY_SMOCK, AMULET_CLASS, AMULET_OF_YENDOR, ARMOR_CLASS, ARM_BOOTS,
@@ -138,6 +139,13 @@ function heroIsBlind(state) {
 function articleName(text) {
     return an(text);
 }
+
+// C ref: objnam.c An(). The C helper capitalizes the first byte of an()'s
+// nonempty result; callers pass a nonempty name, as required by an().
+export function An(text) {
+    return upstart(an(text));
+}
+
 // C ref: obj.h is_poisonable() (264-268). The first disjunct repeats
 // is_multigen()'s three terms verbatim, so it is written as that call here.
 export function isPoisonable(obj, state) {
@@ -155,10 +163,8 @@ function isGemStone(otyp, type) {
         && otyp !== EMERALD
         && otyp !== OPAL;
 }
-function sourceActualName(obj, type, state) {
-    if (state.urole?.mnum === PM_SAMURAI)
-        return JAPANESE_ITEM_NAMES.get(obj.otyp) ?? OBJ_NAME(type, state);
-    return OBJ_NAME(type, state);
+function Japanese_item_name(otyp, ordinaryName) {
+    return JAPANESE_ITEM_NAMES.get(otyp) ?? ordinaryName;
 }
 function sourceDescription(obj, type, state, actual) {
     if (state.urole?.mnum === PM_SAMURAI
@@ -228,7 +234,7 @@ export function obj_typename(otyp, state = game) {
     let nn = ocl.oc_name_known;
 
     if (state.urole?.mnum === PM_SAMURAI) {
-        actualn = JAPANESE_ITEM_NAMES.get(otyp) ?? actualn;
+        actualn = Japanese_item_name(otyp, actualn);
         if (otyp === WOODEN_HARP || otyp === MAGIC_HARP) dn = 'koto';
     }
     // Generic items carry no actual name and should never reach here; C
@@ -462,7 +468,10 @@ function xnameBase(obj, type, state, ident) {
     const knownType = ident.nameKnown;
     const dknown = ident.dknown;
     const un = type.oc_uname;
-    const actual = sourceActualName(obj, type, state) ?? 'object?';
+    let actual = OBJ_NAME(type, state);
+    if (state.urole?.mnum === PM_SAMURAI)
+        actual = Japanese_item_name(obj.otyp, actual);
+    actual ??= 'object?';
     const description = sourceDescription(obj, type, state, actual);
 
     switch (obj.oclass) {
@@ -526,32 +535,37 @@ function xnameBase(obj, type, state, ident) {
             const fruit = fruit_from_indx(obj.spe, state);
             return fruit?.fname ?? 'fruit';
         }
+        // C applies the xname_flags hook to every non-fruit FOOD_CLASS item
+        // before selecting the glob/non-glob formatting arm.
+        const partlyEaten = state.iflags?.partly_eaten_hack && obj.oeaten
+            ? 'partly eaten ' : '';
         if (obj.globby) {
-            // C ref: objnam.c xname():776-782. shrink_glob() sets
-            // iflags.partly_eaten_hack so xname() adds "partly eaten"
-            // before the size word; doname() adds it separately for
-            // non-glob food but xname() normally omits it.
-            const eaten = state.iflags?.partly_eaten_hack && obj.oeaten
-                ? 'partly eaten ' : '';
+            // C ref: objnam.c xname_flags():776-789. shrink_glob() sets
+            // iflags.partly_eaten_hack; xname() uses it for every food arm.
             const size = obj.owt <= 100 ? 'small'
                 : obj.owt <= 300 ? 'medium'
                     : obj.owt <= 500 ? 'large' : 'very large';
-            return `${eaten}${size} ${actual}`;
+            return `${partlyEaten}${size} ${actual}`;
         }
         // C ref: objnam.c xname(). `known` here is the object's own flag, set
         // when the hero knows what is inside the tin, not the type's.
         if (obj.otyp === TIN && ident.known)
-            return tin_details(obj, obj.corpsenm, actual, { state });
-        return actual;
+            return tin_details(
+                obj, obj.corpsenm, `${partlyEaten}${actual}`, { state },
+            );
+        return `${partlyEaten}${actual}`;
     case COIN_CLASS:
     case CHAIN_CLASS:
         return actual;
     case ROCK_CLASS:
         if (obj.otyp === STATUE && obj.corpsenm !== NON_PM) {
             const species = obj_pmname(obj, state);
+            const monster = state.mons[obj.corpsenm];
+            const speciesArticle = type_is_pname(monster) ? ''
+                : the_unique_pm(monster) ? 'the ' : just_an(species);
             const historic = state.urole?.filecode === 'Arc'
                 && (obj.spe & CORPSTAT_HISTORIC) ? 'historic ' : '';
-            return `${historic}${actual} of ${articleName(species)}`;
+            return `${historic}${actual} of ${speciesArticle}${species}`;
         }
         if (obj.otyp === BOULDER && obj.next_boulder === 1) {
             obj.next_boulder = 0;
@@ -615,7 +629,12 @@ function xnameBase(obj, type, state, ident) {
         return `${actual}${isGemStone(obj.otyp, type) ? ' stone' : ''}`;
     }
     default:
-        unsupported(`object class ${obj.oclass}`, obj);
+        // C xname_flags() formats oclass numerically, then calls the
+        // discarded-void pline.c:impossible() helper before continuing.
+        const objectClass = typeof obj.oclass === 'number' ? obj.oclass
+            : obj.oclass.charCodeAt(0);
+        note_unported('pline.c impossible');
+        return `glorkum ${objectClass} ${obj.otyp} ${obj.spe ?? 0}`;
     }
 }
 // C ref: objnam.c not_fully_identified() (1787-1818). Callers which already
@@ -634,7 +653,8 @@ export function not_fully_identified(obj, state = game, resolvedType = null) {
             && (obj.otyp === LARGE_BOX || obj.otyp === CHEST))) {
         return true;
     }
-    if (obj.oartifact && !state.artiexist?.[obj.oartifact]?.found)
+    if (obj.oartifact
+        && undiscovered_artifact(obj.oartifact, state))
         return true;
     if (obj.rknown
         || (obj.oclass !== ARMOR_CLASS
@@ -717,7 +737,13 @@ export function just_an(str) {
 // name; nothing in the port can supply one, so that stays a thrown error.
 export function an(str) {
     if (!str) throw new Error(`an() requires a name; got ${String(str)}`);
-    return just_an(str) + str;
+    const article = just_an(str);
+    // C an() uses strncat(BUFSZ - 1 - Strlen(buf)); preserve its byte limit.
+    const remaining = BUFSZ - 1 - Strlen_(article, 'an', 2154);
+    const text = truncateByteString(str, Math.min(
+        remaining, Strlen_(str, 'an', 2154),
+    ));
+    return article + text;
 }
 
 // C ref: objnam.c special_subjs[]. Singular subjects that end in 's'.
@@ -763,14 +789,15 @@ export function vtense(subj, verb) {
                 || endsWith(1, 'ia') || endsWith(1, 'ae');
             if (plural) {
                 const len = spot + 1;
-                const special = SPECIAL_SUBJS.some((entry) => (
-                    (len === entry.length
+                const special = SPECIAL_SUBJS.some((entry) => {
+                    const entryLength = Strlen_(entry, 'vtense', 2610);
+                    return (len === entryLength
                         && subj.slice(0, len).toLowerCase()
                             === entry.toLowerCase())
-                    || (len > entry.length && subj[spot - entry.length] === ' '
-                        && subj.slice(spot - entry.length + 1, spot + 1)
+                    || (len > entryLength && subj[spot - entryLength] === ' '
+                        && subj.slice(spot - entryLength + 1, spot + 1)
                             .toLowerCase() === entry.toLowerCase())
-                ));
+                });
                 if (!special) return verb;
             } else if (subj.toLowerCase() === 'they'
                 || subj.toLowerCase() === 'you') {
@@ -798,15 +825,21 @@ export function vtense(subj, verb) {
     return strcasecpy(buf, last + 1, 's');
 }
 
-// The normal xname() entry point: it observes a nearby object, marks a
-// displayed artifact found, formats its class branch, pluralizes, and appends
-// an instance name.
-function xnameFreshWithOffset(obj, state) {
+// C objnam.c nextobuf() rotates scratch buffers. JavaScript strings are
+// immutable and have independent lifetimes, so this named adapter returns the
+// completed buffer value without emulating a mutable ring or pointer alias.
+function nextobuf(value = '') {
+    return String(value);
+}
+
+// C objnam.c xname_flags() (581-1030). Its C char-pointer result is represented
+// by the immutable name plus the byte offset that doname_base retains.
+export function xname_flags(obj, state, cxnFlags = CXN_NORMAL) {
     if (!obj || typeof obj !== 'object')
-        throw new TypeError('xnameFresh requires an object');
+        throw new TypeError('xname_flags requires an object');
     const quantity = Math.trunc(obj.quan ?? 1);
     if (quantity <= 0)
-        throw new RangeError('xnameFresh requires positive quantity');
+        throw new RangeError('xname_flags requires positive quantity');
     const type = objectType(obj, state);
     // C ref: objnam.c xname_flags():625-626. This runs ahead of the
     // override_ID block at :632, so it reads the type's stored flag rather
@@ -841,9 +874,10 @@ function xnameFreshWithOffset(obj, state) {
     let base = personalName
         ? String(displayedInstanceName)
         : xnameBase(obj, type, state, ident);
-    if (!personalName && encodeUtf8ByteString(base).length > BUFSZ - PREFIX - 1)
+    base = nextobuf(base);
+    if (!personalName && eos(base) > BUFSZ - PREFIX - 1)
         throw new RangeError('xname: buffer overflow before appending name.');
-    if (quantity !== 1) {
+    if (quantity !== 1 && !(cxnFlags & CXN_SINGULAR)) {
         base = obj.otyp === SLIME_MOLD
             ? makeplural(makesingular(base))
             : makeplural(base);
@@ -855,7 +889,7 @@ function xnameFreshWithOffset(obj, state) {
     // objnam.c:xname_flags() adds readable-object disclosure text after
     // pluralization; its nameit fast path rejoins before this block.
     if (state.program_state?.gameover && obj.o_id
-        && encodeUtf8ByteString(base).length < BUFSZ - PREFIX - 1) {
+        && eos(base) < BUFSZ - PREFIX - 1) {
         if (obj.otyp === T_SHIRT || obj.otyp === ALCHEMY_SMOCK) {
             const text = obj.otyp === T_SHIRT
                 ? tshirt_text(obj, state) : apron_text(obj, state);
@@ -881,9 +915,16 @@ function xnameFreshWithOffset(obj, state) {
     };
 }
 
-export function xnameFresh(obj, state) {
-    return xnameFreshWithOffset(obj, state).name;
+export const xnameFreshWithOffset = xname_flags;
+
+// C objnam.c xname() (575-578) selects CXN_NORMAL. The optional result form
+// carries the interior-buffer offset that C callers retain from its char *;
+// ordinary callers still receive the pointed-to string.
+export function xname(obj, state, { withOffset = false } = {}) {
+    const result = xname_flags(obj, state);
+    return withOffset ? result : result.name;
 }
+export const xnameFresh = xname;
 
 // C ref: objnam.c mshot_xname() (1088-1102), quantity-one arm. The multishot
 // prefix belongs to a volley this port still refuses before naming a missile.
@@ -959,11 +1000,11 @@ export function actualoname(obj, state = game) {
 }
 
 // C ref: objnam.c simpleonames() (2427-2442). "scroll" or "scrolls":
-// minimal_xname's result, pluralized when quan > 1.
+// minimal_xname's result, pluralized when quan != 1.
 export function simpleonames(obj, state = game) {
     let name = minimal_xname(obj, state);
     if (Math.trunc(obj.quan ?? 1) !== 1)
-        name = makeplural(makesingular(name));
+        name = makeplural(name);
     return name;
 }
 
@@ -1064,7 +1105,12 @@ export function short_oname(obj, func, altfunc, lenlimit, state = game) {
 // the hero carries, "the <minimal_xname>" for what she does not, or a
 // shopkeeper's possessive where shk_your() finds an owner.
 export function ysimple_name(obj, state = game) {
-    return `${shk_your(obj, state)}${minimal_xname(obj, state)}`;
+    const prefix = shk_your(obj, state);
+    const remaining = BUFSZ - 1 - Strlen_(prefix, 'ysimple_name', 2395);
+    const name = minimal_xname(obj, state);
+    return prefix + truncateByteString(name, Math.min(
+        remaining, Strlen_(name, 'ysimple_name', 2395),
+    ));
 }
 
 // C ref: objnam.c Ysimple_name2() (2402-2408). Capitalized variant of
@@ -1340,8 +1386,6 @@ export function the_unique_pm(species) {
 // the obuf[] that xname() would have used, so aobjnam() can still write into
 // the prefix area; this port returns the string and has no such buffer.
 //
-// The glob arm stops. Its input is a globby object that is not a CORPSE, which
-// only shrink_glob() and eat.c's glob meal produce, and neither is ported.
 export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
     const omndx = otmp.corpsenm;
     /* override quantity if greater than 1 */
@@ -1359,7 +1403,9 @@ export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
     let mnam;
 
     if (glob) {
-        unsupported('corpse_xname() for a glob', otmp);
+        // C OBJ_NAME(objects[otyp]); glob names have no corpse suffix and
+        // their quantity is always treated as one.
+        mnam = OBJ_NAME(objectType(otmp, state), state);
     } else if (omndx === NON_PM) { /* paranoia */
         mnam = 'thing';
     } else {
@@ -1388,7 +1434,7 @@ export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
     if (the_prefix)
         nambuf += 'the ';
 
-    if (!adjective) {
+    if (!adjective || adjective.length === 0) {
         /* normal case:  newt corpse */
         nambuf += mnam;
     } else {
@@ -1404,7 +1450,7 @@ export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
             any_prefix = false;
     }
 
-    if (!omit_corpse) {
+    if (!glob && !omit_corpse) {
         nambuf += ' corpse';
         /* makeplural(nambuf) => append "s" to "corpse" */
         if (otmp.quan > 1 && !ignore_quan) {
@@ -1415,7 +1461,7 @@ export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
 
     if (any_prefix)
         nambuf = an(nambuf);
-    return nambuf;
+    return nextobuf(nambuf);
 }
 
 // C ref: objnam.c cxname() (1922-1930). xname() drops a corpse's monster
@@ -1424,6 +1470,14 @@ export function cxname(obj, state = game) {
     if (obj.otyp === CORPSE)
         return corpse_xname(obj, null, CXN_NORMAL, state);
     return xnameFresh(obj, state);
+}
+
+// C ref: objnam.c cxname_singular() (1933-1938). Unlike changing quan on the
+// object, CXN_SINGULAR suppresses only xname_flags' pluralization decision.
+export function cxname_singular(obj, state = game) {
+    if (obj.otyp === CORPSE)
+        return corpse_xname(obj, null, CXN_SINGULAR, state);
+    return xname_flags(obj, state, CXN_SINGULAR).name;
 }
 
 // C ref: objnam.c killer_xname() (1942-2005). Death reasons identify the
@@ -1544,14 +1598,29 @@ export function the(str, state = game) {
                 if (ofIndex >= 0
                     && (namingIndex < 0 || ofIndex < namingIndex)) {
                     insertThe = true;
-                } else if (namingIndex < 0 && str.length >= 31
-                    && str.endsWith('Platinum Yendorian Express Card')) {
-                    insertThe = true;
+                } else if (namingIndex < 0) {
+                    const length = Strlen_(str, 'the', 2220);
+                    if (length >= 31) {
+                        const bytes = encodeUtf8ByteString(str).slice(0, length);
+                        const suffix = encodeUtf8ByteString(
+                            'Platinum Yendorian Express Card',
+                        );
+                        if (bytes.length >= suffix.length
+                            && suffix.every((byte, index) => (
+                                bytes[bytes.length - suffix.length + index] === byte
+                            )))
+                            insertThe = true;
+                    }
                 }
             }
         }
     }
-    return `${insertThe ? 'the ' : ''}${str}`;
+    const prefix = insertThe ? 'the ' : '';
+    const remaining = BUFSZ - 1 - Strlen_(prefix, 'the', 2230);
+    const text = truncateByteString(str, Math.min(
+        remaining, Strlen_(str, 'the', 2230),
+    ));
+    return prefix + text;
 }
 
 // C ref: objnam.c The() (2234-2241). the() with its first character
@@ -1562,13 +1631,11 @@ export function The(str, state = game) {
 }
 
 // C ref: obj.h is_plural() (421-427). The Eyes of the Overworld are plural
-// once discovered but not while they are still "a pair of lenses";
-// undiscovered_artifact() is unported and no wish this port grants makes an
-// artifact, so that arm stops.
-export function is_plural(otmp) {
+// once they appear in artidisco, independently of artiexist[].found.
+export function is_plural(otmp, state = game) {
     if (otmp.quan !== 1) return true;
     if (otmp.oartifact === ART_EYES_OF_THE_OVERWORLD)
-        unsupported('undiscovered_artifact() for is_plural()', otmp);
+        return !undiscovered_artifact(ART_EYES_OF_THE_OVERWORLD, state);
     return false;
 }
 
@@ -1600,7 +1667,11 @@ export function yobjnam(obj, verb, state = game) {
     if (!carried(obj)
         || !obj_is_pname(obj, state)
         || obj.oartifact >= ART_ORB_OF_DETECTION) {
-        return `${shk_your(obj, state)}${s}`;
+        const prefix = shk_your(obj, state);
+        const remaining = BUFSZ - 1 - Strlen_(prefix, 'yobjnam', 2271);
+        return prefix + truncateByteString(s, Math.min(
+            remaining, Strlen_(s, 'yobjnam', 2271),
+        ));
     }
     return s;
 }
@@ -1640,7 +1711,11 @@ export function yname(obj, state = game) {
     if (!carried(obj)
         || !obj_is_pname(obj, state)
         || obj.oartifact >= ART_ORB_OF_DETECTION) {
-        return `${shk_your(obj, state)}${s}`;
+        const prefix = shk_your(obj, state);
+        const remaining = BUFSZ - 1 - Strlen_(prefix, 'yname', 2368);
+        return prefix + truncateByteString(s, Math.min(
+            remaining, Strlen_(s, 'yname', 2368),
+        ));
     }
     return s;
 }
@@ -1666,7 +1741,7 @@ function doname_base(
     const forMenu = Boolean(donameFlags & DONAME_FOR_MENU);
     const type = objectType(obj, state);
     const omndx = Math.trunc(obj.corpsenm ?? NON_PM);
-    const xnameBuffer = xnameFreshWithOffset(obj, state);
+    const xnameBuffer = xname(obj, state, { withOffset: true });
     let base = xnameBuffer.name;
     let bufferOffset = xnameBuffer.bufferOffset;
     const xnameResult = base;
@@ -1677,7 +1752,7 @@ function doname_base(
     const modifiers = [];
     let corpsePrefix = null;
     const fakeArtifact = obj.otyp === SLIME_MOLD
-        ? matching_artifact_fruit(xnameResult, state) : null;
+        ? artifact_name(xnameResult, null, false, state) : null;
     const buc = bucWord(obj, type, state, ident);
     if (buc) modifiers.push(buc);
     // objnam.c:1291-1300. Known bags of tricks and horns judge emptiness by
@@ -1893,7 +1968,7 @@ function doname_base(
         // corpse_xname() already supplied both its article and any stack count.
     } else if (quantity !== 1) {
         words = `${ident.dknown || !vagueQuantity ? quantity : 'some'} ${words}`;
-    } else if (fakeArtifact?.forceThe
+    } else if (fakeArtifact?.slice(0, 4).toLowerCase() === 'the '
         || obj_is_pname(obj, state)
         || theUniqueObject(obj, type, state)) {
         words = `the ${words.replace(/^the /iu, '')}`;

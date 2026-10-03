@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20420403172200",
+      "nethackrc": "OPTIONS=name:A83ShopProbe,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n\u0006"
+    }
+  ],
+  "comment": "C-first map probe using the next independently sourced D:5 general-store candidate from the bounded shop-placement search recorded in the A52 setup note, not its committed seed. Ctrl-V enters D:5; Ctrl-F exposes the generated floor for selecting the actual shop door and interior tile. This map-only probe is not block_door runtime evidence."
+}

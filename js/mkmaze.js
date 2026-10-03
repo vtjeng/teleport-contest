@@ -72,7 +72,7 @@ import { dist2, upstart } from './hacklib.js';
 import { add_to_minv, stackobj } from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
-import { m_into_limbo, mnearto } from './mon.js';
+import { elemental_clog, m_into_limbo, mnearto } from './mon.js';
 import { mkstairs, place_branch, walkfrom, wallification } from './mklev.js';
 import { mktrap, occupied } from './mktrap.js';
 import { is_orc, is_swimmer } from './mondata.js';
@@ -348,8 +348,27 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
         }
     }
 
-    if (waterLevel && bubble.cons?.length) {
-        for (const contents of bubble.cons) {
+    const finishBubble = () => {
+        // mkmaze.c:2087-2105. Bounce or occasionally reroll a bubble's
+        // direction after it has been drawn. There are no contents on Air's
+        // newly-created bubbles, so the Water-only container loop is absent.
+        if (collision === 1) {
+            bubble.dy = -bubble.dy;
+        } else if (collision === 3) {
+            bubble.dy = -bubble.dy;
+            bubble.dx = -bubble.dx;
+        } else if (collision === 2) {
+            bubble.dx = -bubble.dx;
+        } else if (!initial && (bubble.dx || bubble.dy
+            ? !random(20) : !random(5))) {
+            bubble.dx = 1 - random(3);
+            bubble.dy = 1 - random(3);
+        }
+    };
+
+    const finishContents = (start = 0) => {
+        for (let index = start; index < bubble.cons.length; ++index) {
+            const contents = bubble.cons[index];
             contents.x += dx;
             contents.y += dy;
             switch (contents.what) {
@@ -362,10 +381,22 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                     object = next;
                 }
                 break;
-            case 'monster':
-                mnearto(contents.list, contents.x, contents.y, true,
-                         RLOC_NOMSG, state);
+            case 'monster': {
+                // C mkmaze.c:2052 consumes mnearto's zero result. A swallowed
+                // holder can make its JS release asynchronous; finish the
+                // relocation and the zero-result fallback before moving on to
+                // the next saved bubble content or collision effect.
+                const moved = mnearto(contents.list, contents.x, contents.y,
+                    true, RLOC_NOMSG, state);
+                if (moved && typeof moved.then === 'function') {
+                    return moved.then((result) => {
+                        if (!result) elemental_clog(contents.list, state);
+                        return finishContents(index + 1);
+                    });
+                }
+                if (!moved) elemental_clog(contents.list, state);
                 break;
+            }
             case 'hero': {
                 const occupying = m_at(contents.x, contents.y, state);
                 const oldx = state.u.ux;
@@ -384,23 +415,11 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
             }
         }
         bubble.cons = [];
-    }
+        return finishBubble();
+    };
 
-    // mkmaze.c:2087-2105. Bounce or occasionally reroll a bubble's
-    // direction after it has been drawn. There are no contents on Air's
-    // newly-created bubbles, so the Water-only container loop is absent.
-    if (collision === 1) {
-        bubble.dy = -bubble.dy;
-    } else if (collision === 3) {
-        bubble.dy = -bubble.dy;
-        bubble.dx = -bubble.dx;
-    } else if (collision === 2) {
-        bubble.dx = -bubble.dx;
-    } else if (!initial && (bubble.dx || bubble.dy
-        ? !random(20) : !random(5))) {
-        bubble.dx = 1 - random(3);
-        bubble.dy = 1 - random(3);
-    }
+    if (waterLevel && bubble.cons?.length) return finishContents();
+    return finishBubble();
 }
 
 export function mk_bubble(x, y, n, state = game, random = rn2) {
@@ -468,7 +487,7 @@ export function setup_waterlevel(state = game, random = rn2) {
 // Called once when arriving on Air; the per-turn caller remains outside this
 // candidate until a development session exercises cloud movement after an
 // action on the plane.
-export function movebubbles(state = game, random = rn2) {
+export async function movebubbles(state = game, random = rn2) {
     const waterLevel = on_level(state.u?.uz, state.water_level);
     const airLevel = on_level(state.u?.uz, state.air_level);
     if (!waterLevel && !airLevel) return;
@@ -559,7 +578,7 @@ export function movebubbles(state = game, random = rn2) {
             - (!bubble.dx ? rx : (rx ? 1 : 0));
         const dy = bubble.dy + 1
             - (!bubble.dy ? ry : (ry ? 1 : 0));
-        mv_bubble(bubble, dx, dy, false, state, random);
+        await mv_bubble(bubble, dx, dy, false, state, random);
     }
     state.vision_full_recalc = 1;
 }

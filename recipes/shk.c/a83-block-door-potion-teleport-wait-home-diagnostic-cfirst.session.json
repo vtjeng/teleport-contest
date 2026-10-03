@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhh#wizwish\nbroken door\n\u0014  hh. , \u0014  n..;k\nu"
+    }
+  ],
+  "comment": "C-first source-state diagnostic for shk.c:block_door. Reuse the observed broken doorway and unpaid-potion route, teleport to the clear interior square (7,8), wait one actual turn for the peaceful shopkeeper to move toward ESHK.shk, then use C quick-look on the observed home square (7,7) before attempting u into doorway (8,7). The look result and final movement determine whether the keeper-home gate is true; this recipe is setup evidence unless C emits the block message."
+}

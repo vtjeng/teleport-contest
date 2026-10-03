@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { createArtifactTable } from '../js/artifacts.js';
@@ -54,6 +55,7 @@ import {
     IN_SIGHT,
     LA_DOWN,
     LADDER,
+    LAST_PROP,
     LANDMINE,
     LAVAPOOL,
     LAVAWALL,
@@ -63,6 +65,7 @@ import {
     M_AP_MONSTER,
     M_AP_OBJECT,
     MAXTCHARS,
+    MOAT,
     OBJ_FLOOR,
     PIT,
     POOL,
@@ -381,6 +384,11 @@ import {
     enableBrowserGlyphProjection,
 } from './browser-projection-test-support.mjs';
 
+const C_DISPLAY_SOURCE = readFileSync(
+    'nethack-c/upstream/src/display.c',
+    'utf8',
+);
+
 const WALL_SYMBOL_CASES = [
     // Every wall enum is present so the test catches a swapped corner or T.
     { typ: VWALL, ascii: '|', dec: 'x' },
@@ -499,6 +507,7 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     state.rogue_level = { dnum: 0, dlevel: 0 };
     state.sanctum_level = { dnum: 0, dlevel: 0 };
     state.specialLevels = [];
+    state.artilist = createArtifactTable();
     state.u = {
         ux,
         uy,
@@ -506,6 +515,7 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
         ulevel: 1,
         uhave: { amulet: 0 },
         uz: { dnum: 0, dlevel: 1 },
+        uprops: zeroHeroProperties(),
     };
     state.urace = { mnum: 0 };
     state.urole = { mnum: PM_TENGU };
@@ -624,6 +634,17 @@ function dungeonsOfDoom() {
     return [{ depth_start: 1 }];
 }
 
+// u_init.c zeroProperties() creates all property slots with three masks.
+// Status rendering calls weight_cap(), which reads Levitation and
+// Wounded_legs even when those conditions are inactive.
+function zeroHeroProperties() {
+    return Array.from({ length: LAST_PROP + 1 }, () => ({
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    }));
+}
+
 function statusRenderingState() {
     const state = resetGame();
     state.nhDisplay = new GameDisplay(null);
@@ -667,7 +688,7 @@ function statusRenderingState() {
         uac: 8,
         ualign: { type: -1 },
         acurr: { a: [18, 13, 14, 15, 16, 17] },
-        uprops: [],
+        uprops: zeroHeroProperties(),
         uroleplay: {},
     };
     state.moves = 7;
@@ -4962,7 +4983,8 @@ test('fruit object descriptions preserve source articles and plural order', () =
             state,
             canSpotMonster: () => true,
         }),
-        /, hiding under blueberries$/u,
+        /, hiding under blueberrieses$/u,
+        'C simpleonames applies makeplural directly to the selected name',
     );
 
     state.gf.ffruit.fname = 'foo@';
@@ -5352,6 +5374,39 @@ test('a visible gas region covers the hero without refreshing map memory', () =>
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_ch, '#');
     assert.equal(state.level.at(x, y).remembered_glyph.glyph, priorMemory);
+});
+
+test('newsym overlays visible gas on liquid and accessible terrain', () => {
+    // display.c:993-996 draws a region on accessible terrain, or on pool/lava
+    // terrain when the region is visible. ROOM exercises the ordinary arm;
+    // MOAT is the source-relevant inaccessible liquid arm from zap_over_floor.
+    assert.match(
+        C_DISPLAY_SOURCE,
+        /if \(reg && \(ACCESSIBLE\(lev->typ\)\s+\|\|\s+\(reg->visible && is_pool_or_lava\(x, y\)\)\)\) \{/u,
+    );
+
+    for (const [terrain, sourceArm] of [
+        [ROOM, 'ACCESSIBLE(lev->typ)'],
+        [MOAT, 'reg->visible && is_pool_or_lava(x, y)'],
+    ]) {
+        const x = 7;
+        const y = 4;
+        const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+        state.level.at(x, y).typ = terrain;
+        const cloud = create_region();
+        add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
+        cloud.visible = true;
+        cloud.glyph_cmap = S_cloud;
+        add_region(cloud, state, { deferVisual: true });
+
+        newsym(x, y);
+
+        assert.deepEqual(
+            [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+            ['#', NO_COLOR],
+            `${sourceArm} draws the visible steam region`,
+        );
+    }
 });
 
 test('gas colors and ordinary/disguised monster precedence follow newsym', () => {
@@ -6269,6 +6324,36 @@ test('newsym layers seen traps below objects and above engravings', () => {
         '^',
         'an underwater hero sees the trap through the pool layer',
     );
+
+    // C display.c:newsym() returns before redrawing an underwater square
+    // unless it is adjacent liquid/ice. A carried ration left under the old
+    // hero glyph must not leak through on that distant redraw.
+    state.u.ux = x - 3;
+    state.level.at(x, y).typ = ROOM;
+    state.level.at(x, y).disp_ch = '@';
+    state.level.objects[x][y] = { otyp: 42, oclass: WEAPON_CLASS };
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '@');
+
+    // The same early return applies to distant liquid cells; nearby liquid
+    // was exercised above. Water-level maps bypass this restriction.
+    state.level.at(x, y).typ = POOL;
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, '@');
+    state.water_level = { dnum: 1, dlevel: 2 };
+    state.u.uz = { dnum: 1, dlevel: 2 };
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_ch, ')');
+});
+
+test('newsym applies the C underwater guard before redrawing memory', () => {
+    const start = C_DISPLAY_SOURCE.indexOf(
+        'if (Underwater && !Is_waterlevel(&u.uz))',
+    );
+    assert.notEqual(start, -1);
+    const guard = C_DISPLAY_SOURCE.slice(start, start + 280);
+    assert.match(guard, /is_pool_or_lava\(x, y\) \|\| is_ice\(x, y\)/);
+    assert.match(guard, /!next2u\(x, y\)/);
 });
 
 test('newsym snapshots permanent lighting only at the visible boundary', () => {
@@ -7352,7 +7437,7 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
         ualign: { type: 1 },
         // Storage order is STR, INT, WIS, DEX, CON, CHA.
         acurr: { a: [15, 10, 8, 13, 20, 9] },
-        uprops: [],
+        uprops: zeroHeroProperties(),
         uroleplay: {},
     };
     state.mons = [{ mflags1: M1_HUMANOID }];
@@ -8213,6 +8298,7 @@ test('status uses source attribute order and exceptional strength text', async (
         // Attribute storage is STR, INT, WIS, DEX, CON, CHA. These distinct
         // values expose a display-order swap while 118 exercises 18/**.
         acurr: { a: [118, 13, 14, 15, 16, 17] },
+        uprops: zeroHeroProperties(),
     };
     state.moves = 7;
 
@@ -8365,7 +8451,7 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
         ualign: { type: -1 },
         // Storage order is STR, INT, WIS, DEX, CON, CHA.
         acurr: { a: [18, 13, 14, 15, 16, 17] },
-        uprops: [],
+        uprops: zeroHeroProperties(),
         uroleplay: {},
     };
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
@@ -9033,6 +9119,7 @@ test('three-line status clips the map around a bottom-row hero', async () => {
         // Attribute storage is STR, INT, WIS, DEX, CON, CHA. Distinct
         // values expose both field order and the clipped cursor projection.
         acurr: { a: [12, 13, 14, 15, 16, 17] },
+        uprops: zeroHeroProperties(),
     };
     state.level.at(1, 0).disp_ch = 'A';
     state.level.at(1, 20).disp_ch = 'Z';
@@ -9321,16 +9408,18 @@ test('a turn-counter refresh refuses a row it would have to shrink',
         // needs a shorter rung than the whole-status pass chose stops the
         // segment instead of guessing at one.
         await timedStartup('time,showexp');
-        // Six conditions at their full spellings, which is the most that fits
-        // before make_things_fit() abbreviates them.
+        // Flying and Levitation cannot be visible together: float_vs_flight()
+        // blocks Flying while Levitation is active. Use Deaf instead of
+        // Levitation to keep six source-defined conditions on the row.
         for (const property of [
-            BLINDED, CONFUSION, FLYING, HALLUC, LEVITATION, STUNNED,
+            BLINDED, CONFUSION, FLYING, HALLUC, STUNNED,
         ]) {
             game.u.uprops[property] = { intrinsic: 50 };
         }
-        // Three experience points' worth of digits, plus BL_EXP's '/', leave
-        // the row one column short of the 79 wintty.c allows it.
-        game.u.uexp = 123;
+        game.u.uroleplay.deaf = true;
+        // Two experience digits, plus BL_EXP's '/', leave the row one column
+        // short of the 79 wintty.c allows it.
+        game.u.uexp = 12;
         game.moves = 999;
         game.disp.botl = true;
         await bot();

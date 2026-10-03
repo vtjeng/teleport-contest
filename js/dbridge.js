@@ -1,8 +1,9 @@
 // dbridge.c — drawbridge creation and portcullis lookup predicates.
 import {
-    DB_DIR, DB_EAST, DB_MOAT, DB_NORTH, DB_SOUTH, DB_UNDER, DB_WEST,
-    DBWALL, DOOR, DB_LAVA, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP, D_NODOOR,
-    IS_WALL, IS_DRAWBRIDGE, LAVAPOOL, MOAT, POOL, WATER, W_NONDIGGABLE,
+    DB_DIR, DB_EAST, DB_ICE, DB_LAVA, DB_MOAT, DB_NORTH, DB_SOUTH,
+    DB_UNDER, DB_WEST, DBWALL, DOOR, DRAWBRIDGE_DOWN, DRAWBRIDGE_UP,
+    D_NODOOR, ICE, IS_LAVA, IS_WALL, IS_DRAWBRIDGE, IS_WATERWALL,
+    LAVAPOOL, MOAT, POOL, WATER, W_NONDIGGABLE,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
@@ -41,6 +42,36 @@ export function is_pool(x, y, state = game) {
     const typ = location.typ;
     return typ === POOL || typ === MOAT || typ === WATER
         || is_moat(x, y, state);
+}
+
+// C ref: dbridge.c is_waterwall() (36-42).
+export function is_waterwall(x, y, state = game) {
+    return isok(x, y) && IS_WATERWALL(state.level?.at?.(x, y)?.typ);
+}
+
+// C ref: dbridge.c is_lava() (62-73), including lava under a raised bridge.
+export function is_lava(x, y, state = game) {
+    if (!isok(x, y)) return false;
+    const location = state.level?.at?.(x, y);
+    return Boolean(location && (
+        IS_LAVA(location.typ)
+        || (location.typ === DRAWBRIDGE_UP
+            && drawbridgeUnder(location) === DB_LAVA)
+    ));
+}
+
+// C ref: dbridge.c is_pool_or_lava() (76-83).
+export function is_pool_or_lava(x, y, state = game) {
+    return is_pool(x, y, state) || is_lava(x, y, state);
+}
+
+// C ref: dbridge.c is_ice() (86-97), including ice under a raised bridge.
+export function is_ice(x, y, state = game) {
+    if (!isok(x, y)) return false;
+    const location = state.level?.at?.(x, y);
+    return location?.typ === ICE
+        || (location?.typ === DRAWBRIDGE_UP
+            && drawbridgeUnder(location) === DB_ICE);
 }
 
 // C ref: dbridge.c is_drawbridge_wall() (137-162). Return the direction,

@@ -71,7 +71,8 @@ import {
     IS_DOOR,
 } from './const.js';
 import { obj_resists } from './bury.js';
-import { sobj_at } from './obj.js';
+
+import { sobj_at } from './invent.js';
 import { t_at } from './trap.js';
 import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';

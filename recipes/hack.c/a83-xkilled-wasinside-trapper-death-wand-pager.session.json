@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 C-first swallowed-kill continuation. This input is based only on the prior C observation that the directional death ray killed the trapper and left a More prompt at zero-based step 54. The appended space answers that C pager so the same command can continue through killed(), mon.c:xkilled()'s wasinside branch, and spoteffects(TRUE).",
+  "segments": [
+    {
+      "seed": 77482061,
+      "datetime": "20261002174500",
+      "nethackrc": "OPTIONS=name:A83SwallowedKill,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017wand of death\n#wizgenesis\n1 hostile trapper\n.. z?ph "
+    }
+  ]
+}

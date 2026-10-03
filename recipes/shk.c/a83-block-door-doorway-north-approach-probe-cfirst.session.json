@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhh#wizwish\nbroken door\nkhh, ln"
+    }
+  ],
+  "comment": "C-first block_door geometry probe. From the observed shop doorway, wish it broken before acquiring shop debt, then approach the observed puce potion from the north side to avoid the keeper’s home tile and attempt the diagonal entrance with an unpaid bill."
+}

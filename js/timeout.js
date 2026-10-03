@@ -41,6 +41,7 @@ import {
     LEVITATION,
     KILLED_BY,
     KILLED_BY_AN,
+    MELT_ICE_AWAY,
     MAGICAL_BREATHING,
     NECK,
     NEUTRAL,
@@ -95,9 +96,10 @@ import {
     WOUNDED_LEGS,
     WWALKING,
     ZOMBIFY_MON,
-} from './const.js';
+    } from './const.js';
 import {
     is_pool,
+    is_ice,
 } from './dbridge.js';
 import { stop_occupation } from './allmain.js';
 import { confdir } from './cmd.js';
@@ -108,8 +110,7 @@ import { hcolor, Monnam, x_monnam } from './do_name.js';
 import { hurtle } from './dothrow.js';
 import { toggle_displacement } from './do_wear.js';
 import {
-    Popeye, eating_dangerous_corpse, morehungry,
-} from './eat.js';
+    Popeye, eating_dangerous_corpse, morehungry, vomit, } from './eat.js';
 import { dealloc_killer, find_delayed_killer } from './end.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
 import { heal_legs } from './do.js';
@@ -117,25 +118,16 @@ import { makeplural } from './fruit.js';
 import { carrying, sobj_at, update_inventory, useup } from './invent.js';
 import { game } from './gstate.js';
 import {
-    inv_weight, NODIAG, You_can_move_again, nomul, spoteffects,
-} from './hack.js';
+    inv_weight, NODIAG, You_can_move_again, nomul, spoteffects, } from './hack.js';
 import { highc, upstart } from './hacklib.js';
 import {
-    incr_itimeout, make_blinded, make_confused, make_deaf, make_glib,
-    make_hallucinated, make_sick, make_slimed, make_stunned, make_vomiting,
-    set_itimeout,
-} from './potion.js';
+    incr_itimeout, make_blinded, make_confused, make_deaf, make_glib, make_hallucinated, make_sick, make_slimed, make_stunned, make_vomiting, set_itimeout, } from './potion.js';
 import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
 import { region_danger } from './region.js';
 import { an, donameFresh, the, vtense } from './objnam.js';
 import {
-    candle_light_range,
-    arti_light_radius,
-    del_light_source,
-    get_obj_location,
-    new_light_source,
-} from './light.js';
+    candle_light_range, arti_light_radius, del_light_source, get_obj_location, new_light_source, } from './light.js';
 import {
     breathless, cantvomit, is_flyer, is_rider, is_were, name_to_mon,
     mhe, touch_petrifies, type_is_pname, zombie_form, little_to_big,
@@ -144,10 +136,8 @@ import { body_part, rehumanize } from './polyself.js';
 import { restartcham, wake_nearby } from './mon.js';
 import { note_unported } from './unported.js';
 import {
-    float_down,
-    unconscious,
-} from './trap.js';
-import { is_ice } from './terrain.js';
+    float_down, unconscious } from './trap.js';
+
 import { which_armor } from './worn.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import {
@@ -380,7 +370,7 @@ const timeout_funcs = [
         unported: () => null,
     },
     { name: 'shrink_glob', f: shrinkGlobCallback, unported: unportedShrinkGlobReason },
-    { name: 'melt_ice_away' },
+    { name: 'melt_ice_away', f: meltIceAwayCallback, unported: () => null },
 ];
 if (timeout_funcs.length !== NUM_TIME_FUNCS)
     throw new Error('timeout_funcs must cover every timeout_types row');
@@ -425,6 +415,13 @@ async function figTransformCallback(arg, timeout, env) {
     return fig_transform(arg, timeout, { ...env, hooks });
 }
 
+// C ref: timeout.c timeout_funcs[MELT_ICE_AWAY]. Keep zap.js as the owner
+// of the level callback without creating a timeout.js -> zap.js import cycle.
+async function meltIceAwayCallback(arg, timeout, env) {
+    const { melt_ice_away } = await import('./zap.js');
+    return melt_ice_away(arg, timeout, env);
+}
+
 // The environment run_timers() hands a timeout function. dig.c rot_corpse()
 // reaches invent.c obfree() and mkobj.c remove_object(), which take their
 // integration seams under `hooks`, while nh_timeout()'s own callees take theirs
@@ -444,20 +441,22 @@ function timerFireEnv(state, env) {
 // has not reached. Deciding the whole prefix first keeps the refusal atomic,
 // so a stopped turn leaves the queue as C would have left it.
 //
-// Walking ahead is sound only because firing an admitted element cannot change
-// the prefix: rot_corpse() over a floor corpse starts no timer and stops none.
-// It reaches stop_timer() through neither remove_object()'s obj_timer_checks()
-// nor dealloc_obj(), because run_timers() has already decremented the corpse's
-// only `timed` count to zero, and each admitted element names a distinct
-// object, since start_timer() rejects a duplicate (kind, function, argument).
+// This is deliberately a bounded port of run_timers(), not a claim that every
+// due prefix is accepted: an unsupported later row still causes the whole
+// prefix to be refused before C's earlier supported callbacks could run. Once
+// admitted, the dispatch loop below rereads the queue after every callback;
+// melt_ice_away() can stop a level timer and object ice effects can adjust
+// object timers while processing the same square.
 function unportedDueTimerReason(state, env) {
     for (let timer = state.gt?.timer_base;
         timer && Math.trunc(timer.timeout) <= currentMove(state);
         timer = timer.next) {
-        if (timer.kind !== TIMER_OBJECT) {
-            // timeout.h:52-59 timer_is_obj(): every ported row takes an
-            // object.
-            return 'every due timer to be an object timer, but kind '
+        const isMeltIceLevelTimer = timer.kind === TIMER_LEVEL
+            && timer.func_index === MELT_ICE_AWAY;
+        if (timer.kind !== TIMER_OBJECT && !isMeltIceLevelTimer) {
+            // timeout.h:52-59 timer_is_pos(): MELT_ICE_AWAY is the one
+            // admitted position timer; other due timer kinds remain gaps.
+            return 'every due timer kind to have a supported handler, but kind '
                 + `${timer.kind} is due`;
         }
         const entry = timeout_funcs[timer.func_index];
@@ -467,7 +466,8 @@ function unportedDueTimerReason(state, env) {
         // from remove_object() with a nonzero `timed`, and that can stop and
         // restart a timer on ice, which is exactly the prefix change the walk
         // above assumes away.
-        if (Math.trunc(timer.arg?.timed ?? 0) !== 1)
+        if (timer.kind === TIMER_OBJECT
+            && Math.trunc(timer.arg?.timed ?? 0) !== 1)
             return 'the due object to hold only its own timer';
         const reason = entry.unported(timer.arg, env);
         if (reason) return reason;
@@ -884,7 +884,7 @@ async function vomiting_dialogue(state, env = {}) {
                 );
             }
         }
-        note_unported('eat.c vomit');
+        await vomit(state, { ...env, random, message });
         break;
     default:
         break;

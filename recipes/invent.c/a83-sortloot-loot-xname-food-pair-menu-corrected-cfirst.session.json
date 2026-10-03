@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "C-observed continuation of a83-sortloot-loot-xname-food-pair-cfirst: the prompt said [no or ?*], so `?` is required to open the selector. The original setup miss and its C bytes are retained separately. Two ordinary food names still tie through class/subclass/discovery under sortloot:full, exercising the C SORTLOOT_LOOT comparator path.",
+  "segments": [{
+    "seed": 71032841,
+    "datetime": "20510203040506",
+    "nethackrc": "OPTIONS=name:A83LootSortFood,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,sortloot:full\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics,pettype:none\n",
+    "moves": " .\u0017food ration\n\u0017cram ration\ne?"
+  }]
+}

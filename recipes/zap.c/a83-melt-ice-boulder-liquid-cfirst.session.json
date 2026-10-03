@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first setup miss. The initial `#wizintrinsic` menu spans four pages: `>f` selected pass-through-walls on page 2, then the unclosed menu consumed the supposed Ctrl-W wish text as menu inputs. No terrain, boulder, or wand wish occurred. The corrected menu selection is a separate recipe; keep these original input bytes as history.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderMelt,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": " h#wizintrinsic\n>f\u0017ice\u0017boulder\u0017wand of fire"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap role variation of the C-first relocation witness. Keep the same four source-observed rest turns and the final pager response; Valkyrie changes the independent role setup without changing the wished artifact or monster branch.",
+  "segments": [
+    {
+      "seed": 948212,
+      "datetime": "20341112160500",
+      "nethackrc": "OPTIONS=name:BookTarget,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizwish\nThe Book of the Dead\n#wizgenesis\npeaceful master lich\n.... "
+    }
+  ]
+}

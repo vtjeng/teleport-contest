@@ -37,6 +37,18 @@ test('goto_level resets travelcc in source order', () => {
     assert.ok(jsTravel < jsPolearm);
 });
 
+test('goto_level awaits the Water and Air bubble pass before its redraw', () => {
+    const cBody = sourceBody(C_SOURCE, '\ngoto_level(\n');
+    const cMove = cBody.indexOf('movebubbles();');
+    const cVision = cBody.indexOf('vision_reset();', cMove);
+    assert.ok(cMove >= 0 && cMove < cVision);
+
+    const jsBody = sourceBody(JS_SOURCE, 'export async function goto_level');
+    const jsMove = jsBody.indexOf('await movebubbles(state);');
+    const jsVision = jsBody.indexOf('vision_reset(state);', jsMove);
+    assert.ok(jsMove >= 0 && jsMove < jsVision);
+});
+
 test('the seed0014 recipe reaches the deferred goto_level reset', async () => {
     const recipe = loadDoGotoLevelTravelccRecipe();
     assert.equal(recipe.version, 5);

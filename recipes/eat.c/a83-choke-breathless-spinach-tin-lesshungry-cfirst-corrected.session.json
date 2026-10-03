@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved prompt-boundary attempt. The space after k clears the spinach More and y accepts. C then displays the Popeye More before consume_tin reaches its lesshungry call; the corrected continuation dismisses that observed More.",
+  "segments": [
+    {
+      "seed": 61204740,
+      "datetime": "20411003191500",
+      "nethackrc": "OPTIONS=name:TinChokeA83,role:Archeologist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizintrinsic\n>g\n \u0017blessed tin opener\n\u0017blessed tin of spinach\ned wjek y"
+    }
+  ]
+}

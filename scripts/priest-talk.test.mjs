@@ -17,6 +17,9 @@ const C_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/priest.c', import.meta.url),
     'utf8',
 );
+const PRIEST_JS_SOURCE = readFileSync(
+    new URL('../js/priest.js', import.meta.url), 'utf8',
+);
 const RECIPE = JSON.parse(readFileSync(
     new URL('../recipes/priest.c/generated-temple-movement.session.json',
         import.meta.url),
@@ -75,6 +78,34 @@ test('priest donation reward tiers preserve C order, thresholds, and RNG',
         })()][0];
         assert.ok(priest, 'the recorded generated temple supplies a priest');
         assert.equal(inhistemple(priest, game), true);
+
+        const cStart = C_SOURCE.indexOf('boolean\ninhistemple(struct monst *priest)');
+        const cEnd = C_SOURCE.indexOf('\n/*\n * pri_move', cStart);
+        const cBody = C_SOURCE.slice(cStart, cEnd);
+        const jsStart = PRIEST_JS_SOURCE.indexOf('export function inhistemple(');
+        const jsEnd = PRIEST_JS_SOURCE.indexOf('\n}', jsStart) + 2;
+        const jsBody = PRIEST_JS_SOURCE.slice(jsStart, jsEnd);
+        assert.ok(cStart >= 0 && cEnd > cStart);
+        assert.ok(jsStart >= 0 && jsEnd > jsStart);
+        assert.ok(cBody.indexOf('!priest || !priest->ispriest')
+            < cBody.indexOf('!histemple_at(priest, priest->mx, priest->my)'));
+        assert.ok(cBody.indexOf('!histemple_at')
+            < cBody.indexOf('return has_shrine(priest);'));
+        assert.match(jsBody,
+            /priest\?\.ispriest[\s\S]*histemple_at\(priest, priest\.mx, priest\.my, state\)[\s\S]*has_shrine\(priest, state\)/u);
+        assert.equal(inhistemple(null, game), false);
+        assert.equal(inhistemple({ ...priest, ispriest: false }, game), false);
+        const wrongLevel = {
+            ...priest,
+            mextra: {
+                ...priest.mextra,
+                epri: {
+                    ...priest.mextra.epri,
+                    shrlevel: { dnum: -1, dlevel: -1 },
+                },
+            },
+        };
+        assert.equal(inhistemple(wrongLevel, game), false);
 
         const gold = { otyp: GOLD_PIECE, oclass: COIN_CLASS, quan: 10000 };
         // priest.c reads gi.invent, which maps to state.invent. Keep the

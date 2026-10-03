@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first setup variation for hack.c:moverock_core. The first earth-scroll attempt showed a lethal boulder hit before the push, so this selects the wizard invulnerability intrinsic in addition to Flying and dismisses the separate hit More. C still deals ordinary weapon.c:dmgval damage (rnd(20)=20) despite that property and kills the 12-HP Wizard. It does not reach moverock_core and is not passing runtime evidence.",
+  "segments": [
+    {
+      "seed": 84563221,
+      "datetime": "20430307131800",
+      "nethackrc": "OPTIONS=name:A83MoverockEarth,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "#wizintrinsic\na>>k\n \u0017pool\nl#wizwish\ncursed scroll of earth\nrp  lh"
+    }
+  ]
+}

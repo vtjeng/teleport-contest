@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_SUNSWORD, discover_artifact } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     ACID_RES,
@@ -3026,12 +3026,14 @@ test('the obj.h armor macros answer for exactly one category each',
 });
 
 test('hard_helmet follows do_wear.c material and category checks', async () => {
-    // do_wear.c:568-574: nulls and non-helmets are false; an iron helmet is
-    // hard, while the leather fedora does not protect against falling rocks.
+    // do_wear.c:568-574: nulls and non-helmets are false; iron is hard, and
+    // the glass Helm of Brilliance is the nonmetal is_crackable() arm
+    // (objects.h:470-474; objclass.h:201-203). A leather fedora is soft.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, WAIT);
     assert.equal(hard_helmet(null, game), false);
     assert.equal(hard_helmet(armor(HELMET), game), true);
+    assert.equal(hard_helmet(armor(HELM_OF_BRILLIANCE), game), true);
     assert.equal(hard_helmet(armor(FEDORA), game), false);
     assert.equal(hard_helmet({
         oclass: WEAPON_CLASS, otyp: HELMET, quan: 1,
@@ -3151,6 +3153,8 @@ test('on_msg asks the complete obj_is_pname', async () => {
     const identified = { known: 1, dknown: 1, bknown: 1, rknown: 1 };
     game.artiexist[ART_SUNSWORD].exists = 1;
     game.artiexist[ART_SUNSWORD].found = 1;
+    // artifact.c keeps identification in artidisco, separate from finding it.
+    discover_artifact(ART_SUNSWORD, game);
 
     // C's first term. A shield the hero has called something is still named
     // by its type: a called name is not an artifact's own name.

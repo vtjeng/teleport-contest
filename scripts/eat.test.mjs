@@ -63,6 +63,7 @@ import { runSegment } from '../js/jsmain.js';
 const EAT_C = readFileSync(
     new URL('../nethack-c/upstream/src/eat.c', import.meta.url), 'utf8',
 );
+const EAT_JS = readFileSync(new URL('../js/eat.js', import.meta.url), 'utf8');
 const APPLY_C = readFileSync(
     new URL('../nethack-c/upstream/src/apply.c', import.meta.url), 'utf8',
 );
@@ -114,8 +115,12 @@ test('Finish_digestion runs pending corpse effects and clears C state', async ()
 });
 
 test('is_fainted follows eat.c hunger-status equality', () => {
+    const jsStart = EAT_JS.indexOf('export function is_fainted(');
+    const jsEnd = EAT_JS.indexOf('\n}', jsStart) + 2;
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
     assert.match(EAT_C,
         /is_fainted\(void\)[\s\S]*?return \(boolean\) \(u\.uhs == FAINTED\);/u);
+    assert.match(EAT_JS.slice(jsStart, jsEnd), /state\.u\?\.uhs === FAINTED/u);
     assert.equal(is_fainted({ u: { uhs: FAINTED } }), true);
     for (const uhs of [undefined, 0, FAINTED - 1, FAINTED + 1])
         assert.equal(is_fainted({ u: { uhs } }), false, String(uhs));

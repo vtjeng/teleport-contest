@@ -68,7 +68,9 @@ const JS_SOURCE = readFileSync('js/polyself.js', 'utf8');
 const C_START = C_SOURCE.indexOf('polyself(int psflags)');
 const C_END = C_SOURCE.indexOf('\n}\n\n/* (try to) make a mntmp', C_START) + 2;
 const JS_START = JS_SOURCE.indexOf('export async function polyself(');
-const JS_END = JS_SOURCE.indexOf('\n}\n\nconst HUMANOID_PARTS', JS_START) + 2;
+// The body-part tables are generated in a separate module. Find polyself's
+// unindented closing brace so the source check follows the whole function.
+const JS_END = JS_SOURCE.indexOf('\n}', JS_START) + 2;
 const C_FUNCTION = C_SOURCE.slice(C_START, C_END);
 const JS_FUNCTION = JS_SOURCE.slice(JS_START, JS_END);
 const C_POLYMON_START = C_SOURCE.indexOf('polymon(int mntmp)');

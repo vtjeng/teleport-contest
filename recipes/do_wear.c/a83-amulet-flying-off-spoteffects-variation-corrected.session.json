@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 cheap independent male-Wizard C variation for do_wear.c:Amulet_off AMULET_OF_FLYING -> hack.c:spoteffects. Its C-observed inventory menu places the wished amulet at letter o; select it, wear it, then remove it to reach the same source flight-loss callback.",
+  "segments": [
+    {
+      "seed": 70831992,
+      "datetime": "20261002200000",
+      "nethackrc": "OPTIONS=name:A83FlyingOffVar,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017uncursed amulet of flying\nPoR "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender=male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhhhkh,"
+    }
+  ],
+  "comment": "C-first shop-stock probe for block_door. After entering Vals’ liquor emporium through its C-observed west door, the route steps north and west onto a potion glyph visible in the recorded shop map, then invokes pickup. The actual item/menu response determines the final unpaid-stock input; this probe is not completion evidence by itself."
+}

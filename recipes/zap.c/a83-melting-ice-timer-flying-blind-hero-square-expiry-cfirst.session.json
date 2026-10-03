@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first continuation of the frozen 511-turn timer setup. Source `wiz_intrinsic` accepts an explicit duration before each menu item; this route grants 1000 turns of Flying, blindness (so sighted-monster proximity does not interrupt the timed wait), and invulnerability (to survive any adjacent monster), then wishes melting ice and uses one bounded 511-turn wait. C output will be inspected before any JS comparison. The hero remains on the ice square throughout so the timer callback can take the `u_at`/`spoteffects` path.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceExpiryBlind,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n1000a1000i>>1000k\n \u0017melting ice\n511."
+    }
+  ]
+}

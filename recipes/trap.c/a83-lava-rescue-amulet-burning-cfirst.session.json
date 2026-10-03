@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Independent C-first attempt at trap.c:lava_effects(BURNING) -> safe_teleds -> rescued_from_terrain(BURNING). The seed, date, and Wizard inputs were selected separately from the water routes. C's preceding amulet menu probe established inventory letter o; the known source command sequence raises experience, selects Gehennom through the level menu, dismisses the observed arrival message, then uses the recorded m-prefix direction from the independent lava route. The complete C output determines whether that move reaches BURNING and which later More inputs are needed.",
+  "segments": [
+    {
+      "seed": 27409107,
+      "datetime": "20481123093817",
+      "nethackrc": "OPTIONS=name:BurningRescue,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!autopickup\n",
+      "moves": "\u0017amulet of life saving\nP? o #levelchange\n20\n                    \u0016?\nl .mb"
+    }
+  ]
+}

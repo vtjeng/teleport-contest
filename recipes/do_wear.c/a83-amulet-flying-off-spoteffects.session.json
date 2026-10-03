@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "A83 preserved C-observed setup miss, not runtime evidence. The wish produced the intended amulet at inventory letter n, but this first recipe selected o; C printed “You don’t have that object,” canceled put-on, and never entered Amulet_off. Its C recording is preserved under .cache/A83-logs/ rather than recordings/. A corrected recipe uses the observed inventory letter.",
+  "segments": [
+    {
+      "seed": 70831991,
+      "datetime": "20261002190000",
+      "nethackrc": "OPTIONS=name:A83FlyingOff,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017uncursed amulet of flying\nPoR   "
+    }
+  ]
+}

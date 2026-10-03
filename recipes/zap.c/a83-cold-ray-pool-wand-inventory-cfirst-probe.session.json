@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A83 C-only input probe. The prior source-observed screen places the hero on the newly wished pool with Flying active and open floor immediately east; this advances east once, wishes a wand of cold, then inspects the C-assigned inventory letter before freezing a ray input.",
+  "segments": [
+    {
+      "seed": 64100321,
+      "datetime": "20321214103000",
+      "nethackrc": "OPTIONS=name:A83ColdRay,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": "#wizintrinsic\n>>k\n \u0017pool\nl\u0017wand of cold\ni"
+    }
+  ]
+}

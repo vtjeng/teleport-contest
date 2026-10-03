@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20350108141618",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup,!debug_mongen\n",
+      "moves": " \u00165\n \u0014  hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhkkkkkkkkkk. hhh#wizwish\nbroken door\n\u0014  hh. , \u0014  n. u"
+    }
+  ],
+  "comment": "C-first setup miss for shk.c:block_door. After the observed unpaid-potion and broken-door setup, wizard-controlled teleport selects the other clear interior diagonal square (7,8), then u reaches the broken door (8,7). The C teleport consumes a monster turn, and the next move is allowed with only the ordinary “Please pay before leaving” warning; the serialized trace does not expose which block_door predicate failed. Preserve this attempt without treating it as runtime evidence for block_door."
+}

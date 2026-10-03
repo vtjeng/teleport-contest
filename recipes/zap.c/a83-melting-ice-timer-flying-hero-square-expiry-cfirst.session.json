@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first timer-expiry witness. The preceding probe showed wizard_intrinsic takes a numeric increment, so this recipe selects invulnerability and Flying for 600 turns, wishes melting ice underfoot, then waits through the C-observed 511-turn melt deadline while remaining on that square. This recording is kept as setup/runtime evidence until its full C result is inspected; no JavaScript comparison has been made.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceExpiry,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n600a>>600k\n \u0017melting ice\n511."
+    }
+  ]
+}

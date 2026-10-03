@@ -13,6 +13,7 @@ import {
     dealloc_monst,
     killed,
     m_detach,
+    mnearto,
     mon_leaving_level,
     mondead,
     mondied,
@@ -35,7 +36,7 @@ import { new_light_source } from '../js/light.js';
 
 import { accessible } from '../js/monmove.js';
 import { maketrap } from '../js/trap.js';
-import { PIT, WEB } from '../js/const.js';
+import { PIT, RLOC_NOMSG, WEB } from '../js/const.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
 import {
     AMULET_OF_LIFE_SAVING,
@@ -863,6 +864,105 @@ test('m_detach keeps inventory when the monster merely goes away',
         assert.equal(game.level.monsters[x][y], null);
         assert.equal(mon.minvent, dagger, 'kept its inventory');
         assert.equal(game.level.objects[x][y], null, 'nothing on the floor');
+    });
+
+// mon.c:2699-2716 runs unstuck() to completion before m_detach():2751
+// forces mhp to zero. The swallowed release is asynchronous only because its
+// JS redraw is awaited; the monster must remain on-map and alive at that point.
+test('m_detach waits for a swallowed holder release before removing it',
+    async () => {
+        await hero();
+        const holder = spawn(PM_LICHEN, { mhp: 7 });
+        const x = holder.mx;
+        const y = holder.my;
+        game.u.ustuck = holder;
+        game.u.uswallow = 1;
+        game.u.uswldtim = 4;
+        let duringRedraw;
+        const order = [];
+        const env = killEnv([1]);
+        env.redraw = async () => order.push('redraw');
+        env.visionRecalc = async (control) => {
+            order.push(`vision${control}`);
+            if (control === 0) game.vision_full_recalc = 0;
+        };
+        env.docrt = async () => {
+            order.push('docrt');
+            duringRedraw = {
+                hp: holder.mhp,
+                onMap: m_at(x, y, game) === holder,
+                holder: game.u.ustuck,
+                swallowed: game.u.uswallow,
+            };
+        };
+
+        await m_detach(holder, holder.data, false, game, env);
+
+        assert.deepEqual(duringRedraw, {
+            hp: 7,
+            onMap: true,
+            holder: null,
+            swallowed: 0,
+        });
+        assert.ok(order.indexOf('docrt') < order.lastIndexOf('redraw'));
+        assert.equal(holder.mhp, 0);
+        assert.equal(m_at(x, y, game), null);
+        assert.equal(holder.mstate & MON_DETACH, MON_DETACH);
+    });
+
+// mon.c:mnearto() removes an occupant with mon_leaving_level() before it
+// places the requested monster; the recursive placement and result 2 follow.
+test('mnearto finishes a swallowed occupant release before moving either monster',
+    async () => {
+        await hero();
+        // Both positive HP values keep these separately placed monsters alive;
+        // the exact values do not affect the relocation branches under test.
+        const moving = spawn(PM_GOBLIN, { mhp: 5 });
+        const holder = spawn(PM_LICHEN, { mhp: 6 });
+        const x = holder.mx;
+        const y = holder.my;
+        game.u.ustuck = holder;
+        game.u.uswallow = 1;
+        // Any positive swallowed timer enables the swallowed-release branch.
+        game.u.uswldtim = 4;
+        let duringRedraw;
+        const order = [];
+        // The lichen's AT_TUCH/AD_STCK attack makes it a holder. Its
+        // source-defined re-hold cooldown is rnd(2); coordinate shuffles use
+        // the deterministic fallback after this draw.
+        const env = killEnv([1]);
+        env.redraw = async () => order.push('redraw');
+        env.visionRecalc = async (control) => {
+            order.push(`vision${control}`);
+            if (control === 0) game.vision_full_recalc = 0;
+        };
+        env.docrt = async () => {
+            order.push('docrt');
+            duringRedraw = {
+                holderAtTarget: m_at(x, y, game) === holder,
+                movingAtOriginal: m_at(moving.mx, moving.my, game) === moving,
+                swallowed: game.u.uswallow,
+            };
+        };
+
+        const result = await mnearto(moving, x, y, true, RLOC_NOMSG, {
+            ...env,
+            state: game,
+        });
+
+        assert.deepEqual(duringRedraw, {
+            holderAtTarget: true,
+            movingAtOriginal: true,
+            swallowed: 0,
+        });
+        assert.ok(order.indexOf('docrt') < order.lastIndexOf('redraw'));
+        assert.equal(result, 2);
+        // unstuck moves the hero onto the holder's old square. C's two
+        // enexto calls therefore place each monster in nearby free squares.
+        assert.notDeepEqual([moving.mx, moving.my], [x, y]);
+        assert.notDeepEqual([holder.mx, holder.my], [0, 0]);
+        assert.equal(m_at(moving.mx, moving.my, game), moving);
+        assert.equal(m_at(holder.mx, holder.my, game), holder);
     });
 
 // mon.c mon_leaving_level():2699-2716. A monster that is not the one standing

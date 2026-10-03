@@ -49,7 +49,7 @@ import {
     set_wall_state,
 } from './display.js';
 import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
-import { add_to_container, obj_extract_self, obfree } from './invent.js';
+import { add_to_container, obj_extract_self, obfree, sobj_at } from './invent.js';
 import { UnsupportedMonsterCreationError, makemon, dmonsfree } from './makemon_create.js';
 import { mkclass, rndmonnum } from './makemon.js';
 import { mineralize } from './mineralize.js';
@@ -116,7 +116,6 @@ import {
     mksobj,
     mksobj_at,
     set_corpsenm,
-    sobj_at,
     weight,
 } from './obj.js';
 import {

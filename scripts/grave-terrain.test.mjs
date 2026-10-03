@@ -32,9 +32,9 @@ import { make_grave } from '../js/grave.js';
 import { newObject, place_object, remove_object } from '../js/obj.js';
 import { PM_TROLL } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
+import { is_ice } from '../js/dbridge.js';
 import {
     count_level_features,
-    is_ice,
     set_levltyp,
 } from '../js/terrain.js';
 import {

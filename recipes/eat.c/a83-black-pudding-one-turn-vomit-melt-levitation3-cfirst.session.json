@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preserved C-first prefix attempt. The C capture reaches eat.c:vomit, melts the ice, and shows Levitation still active; its final recorded screen is an observed --More-- boundary, so the input does not yet complete the forced-turn continuation. The successor recipe appends one space to dismiss that exact pager before strict comparison. Do not treat this prefix as a passing regression.",
+  "segments": [
+    {
+      "seed": 45317921,
+      "datetime": "20280115140720",
+      "nethackrc": "OPTIONS=name:A83VomitBlackPudding4,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017ice\n#polyself\nblack pudding\n #wizintrinsic\n3q\n #wizintrinsic\n1k\n ."
+    }
+  ]
+}

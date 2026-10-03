@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first corrected setup after the preserved brown-pudding attempt showed one polymorph More (one space dismisses it), two wished food rations in slot k, and the menu/query sequence. Brown pudding has M1_BREATHLESS and M1_ACID in monsters.h, so satiated choke enters vomit without the random refusal. This recipe changes only inputs based on those C screens; no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 82946317,
+      "datetime": "20261003172500",
+      "nethackrc": "OPTIONS=name:A83VomitPudding,role:Monk,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "#polyself\nbrown pudding\n \u0017ice\n\u0017food ration\n\u0017food ration\ne? k e k y"
+    }
+  ]
+}

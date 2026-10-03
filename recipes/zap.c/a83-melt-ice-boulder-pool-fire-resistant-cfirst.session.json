@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first pool route with source-selected Fire resistance and Flying. The C #wizintrinsic menu selection changes zhitu's post-helper fire-resistance branch, allowing the reflected wand continuation to complete without the earlier lethal unresisted hit. A cursed earth scroll creates the boulder on the wished ICE; the fire ray melts ICE to POOL and exercises do.c:boulder_hits_pool.",
+  "segments": [
+    {
+      "seed": 84620173,
+      "datetime": "20440718112600",
+      "nethackrc": "OPTIONS=name:A83BoulderFireRes,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none\n",
+      "moves": "h#wizintrinsic\n>i>k\n \u0017ice\n\u0017cursed scroll of earth\n\u0017wand of fire\nrn lzoh  "
+    }
+  ]
+}

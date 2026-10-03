@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "C-first source variation for xkilled autopickup. The C capture of the preceding corrected drop route assigned the food ration to inventory `o`, then the fire wand to `p`; C showed wand menu `[cp or ?*]` and item `p`. Autopickup is enabled and default pickup_types includes all classes. The ration was dropped before genesis and the hero stayed on that tile through engulfing. Count this only if the full C capture reports the ration pickup after xkilled reaches spoteffects(TRUE).",
+  "segments": [
+    {
+      "seed": 77482063,
+      "datetime": "20261002210000",
+      "nethackrc": "OPTIONS=name:A83SwallowedFire,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,autopickup,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\n",
+      "moves": ". \u0017food ration\ndo\u0017wand of fire\n#wizgenesis\n1 hostile ice vortex\n.. z?ph  "
+    }
+  ]
+}

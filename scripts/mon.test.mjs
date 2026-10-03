@@ -414,6 +414,10 @@ test('m_carrying returns the first matching object from the source inventory', (
 });
 
 test('curr_mon_load sums inventory weight except rock-thrower boulders', () => {
+    // mon.c:1913-1926 sums owt unless the object is a BOULDER held by a
+    // rock-thrower. These weights make both inclusion and exclusion visible.
+    assert.match(MON_C,
+        /if \(obj->otyp != BOULDER \|\| !throws_rocks\(mtmp->data\)\)\s+curload \+= obj->owt;/u);
     const dagger = { otyp: DAGGER, owt: 10, nobj: null };
     const boulder = { otyp: BOULDER, owt: 6000, nobj: dagger };
     const ordinary = { data: { mflags2: 0 }, minvent: boulder };

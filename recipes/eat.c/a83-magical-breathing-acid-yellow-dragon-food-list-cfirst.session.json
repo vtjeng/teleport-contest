@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation after the observed Yellow Dragon transformation More. Three spaces answer the previously recorded transformation, dropped-quarterstaff, and breath-instruction pages; then the recipe wishes source-visible ice and two rations and stops at the food list to select its actual post-amulet slot. The source test path is Breathless from the worn amulet plus acidic from the form; no JavaScript comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed amulet of magical breathing\nP?o#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\ne?"
+    }
+  ]
+}

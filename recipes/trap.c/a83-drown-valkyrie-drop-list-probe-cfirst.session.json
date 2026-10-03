@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Continuation of the C-observed multi-drop category menu. `.` finishes category selection after `a` selected All types, exposing the actual inventory object selectors.",
+  "segments": [
+    {
+      "seed": 6042026,
+      "datetime": "20400202110000",
+      "nethackrc": "OPTIONS=name:DrownValk,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": "\u0017amulet of life saving\nP? eDa."
+    }
+  ]
+}

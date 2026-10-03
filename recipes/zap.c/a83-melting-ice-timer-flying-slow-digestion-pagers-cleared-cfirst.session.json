@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent C-first source variation for the melting-ice timer callback. #wizintrinsic page 3 item m sets SLOW_DIGESTION for 2500 turns; eat.c:gethungry skips the ordinary nutrition decrement while Slow_digestion is set. The prior C-only setup showed a second More after the added timeout message, so this frozen input includes the second dismissal before the next command. The output must be recorded and compared in full before it is used as passing evidence.",
+  "segments": [
+    {
+      "seed": 65391127,
+      "datetime": "20310612121500",
+      "nethackrc": "OPTIONS=name:A83IceWallRing,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\nOPTIONS=pettype:none,time\n",
+      "moves": " #wizintrinsic\n2500a>>2500k2500m\n  #wizintrinsic\n>2500f\n k\u0017nonpasswall wall\nju\u0017nonpasswall wall\nbl\u0017nonpasswall wall\nhn\u0017nonpasswall wall\nyj\u0017nonpasswall wall\nk\u0017food ration\ni eo \u0017melting ice\n2001."
+    }
+  ]
+}

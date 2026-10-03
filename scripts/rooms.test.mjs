@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    LAST_PROP,
     MAXNROFROOMS,
     OROOM,
     ROOM,
@@ -38,6 +39,13 @@ function initializedState() {
         ushops0: roomBuffer(),
         ushops_entered: roomBuffer(),
         ushops_left: roomBuffer(),
+        // u_init.c zeroProperties() initializes masks read by weight_cap()
+        // when domove() checks movement encumbrance.
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+            intrinsic: 0,
+            extrinsic: 0,
+            blocked: 0,
+        })),
     };
     return state;
 }
@@ -235,7 +243,13 @@ test('domove updates room membership after entering the destination', async () =
         // two equal; allmain.c moveloop_preamble() keeps them so.
         uz: { dnum: 0, dlevel: 1 },
         uz0: { dnum: 0, dlevel: 1 },
-        uprops: [],
+        // u_init.c zeroProperties() initializes the masks read by
+        // weight_cap() during this movement check.
+        uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+            intrinsic: 0,
+            extrinsic: 0,
+            blocked: 0,
+        })),
         weapon_skills: [],
         uswallow: false,
         usteed: null,

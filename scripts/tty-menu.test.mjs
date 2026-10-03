@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { COLNO, PICK_NONE, ROOM, ROWNO } from '../js/const.js';
+import { COLNO, LAST_PROP, PICK_NONE, ROOM, ROWNO } from '../js/const.js';
 import { flush_screen, status_window_rows } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -723,7 +723,13 @@ test('a full-screen gameplay menu redraws the map instead of its saved frame',
             uac: 10,
             ualign: { type: 0 },
             acurr: { a: [10, 10, 10, 10, 10, 10] },
-            uprops: [],
+            // u_init.c zeroProperties() gives weight_cap() initialized masks
+            // while flush_screen() renders the status row.
+            uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+                intrinsic: 0,
+                extrinsic: 0,
+                blocked: 0,
+            })),
             uroleplay: {},
         };
         state.dungeons = [{ depth_start: 1 }];

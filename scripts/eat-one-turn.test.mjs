@@ -50,6 +50,7 @@ import {
     NOT_HUNGRY,
     OBJ_DELETED,
     OBJ_INVENT,
+    ROOM,
     SATIATED,
     SICK,
     SICK_VOMITABLE,
@@ -643,6 +644,9 @@ test('choke handles the satiated Hunger branch before resetting a meal',
         current.context.victual = {
             ...zero_victual(), piece, eating: 1, canchoke: 1,
         };
+        // The completed vomit body reads the hero's terrain. An ordinary
+        // room excludes altar wrath and acid melting from this hunger case.
+        current.level = { at: () => ({ typ: ROOM }) };
         const env = {
             ...newuhsEnv(messages),
             random: {

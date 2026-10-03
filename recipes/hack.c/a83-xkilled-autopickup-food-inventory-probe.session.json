@@ -1,0 +1,13 @@
+{
+  "version": 5,
+  "comment": "A83 C-first source probe for the selected xkilled variation. Autopickup is explicitly on, and a wished food ration is inspected before planning a drop under the engulfed hero; the variation only counts if C later observes pickup at the actual xkilled landing square.",
+  "segments": [
+    {
+      "seed": 77482063,
+      "datetime": "20261002210000",
+      "nethackrc": "OPTIONS=name:A83SwallowedFire,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!safe_wait\nOPTIONS=pettype:none,time\nOPTIONS=autopickup\n",
+      "moves": ". \u0017food ration\ni",
+      "name": ""
+    }
+  ]
+}

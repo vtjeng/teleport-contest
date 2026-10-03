@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C-first continuation after the observed `p - 2 food rations.--More--` list: dismiss it, eat one ration to reach Satiated, answer the C-observed completion pager, then start the second ration. Stop at the second-meal screen to observe the amulet-backed Breathless choke branch; no JS comparison has occurred.",
+  "segments": [
+    {
+      "seed": 34918304,
+      "datetime": "20261003165000",
+      "nethackrc": "OPTIONS=name:A83VomitDragon,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed amulet of magical breathing\nP?o#polyself\nyellow dragon\n   \u0017ice\n\u0017food ration\n\u0017food ration\ne? p ep"
+    }
+  ]
+}

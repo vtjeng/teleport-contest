@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8510308,
+      "datetime": "20420403172200",
+      "nethackrc": "OPTIONS=name:A83BlockDoor,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug,!autopickup\n",
+      "moves": " \u00165\n \u0014  lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllkkkkk. l"
+    }
+  ],
+  "comment": "C-first shop-location trace for the selected block_door entry. Seed 8510308 is the independently selected second D:5 shop candidate from the prior bounded setup search; the new name, role-facing route, and input sequence are specific to locating a broken-door test site. Ctrl-V selects D:5, Ctrl-T probes the map-derived east shop entrance at the observed (72,12) candidate, then l tests whether entering that room triggers the shop greeting. This is a location probe, not runtime evidence until the recorded C output confirms the shop."
+}
