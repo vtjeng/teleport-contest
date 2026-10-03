@@ -55,6 +55,7 @@ import {
     IN_SIGHT,
     LA_DOWN,
     LADDER,
+    LAST_PROP,
     LANDMINE,
     LAVAPOOL,
     LAVAWALL,
@@ -506,6 +507,7 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     state.rogue_level = { dnum: 0, dlevel: 0 };
     state.sanctum_level = { dnum: 0, dlevel: 0 };
     state.specialLevels = [];
+    state.artilist = createArtifactTable();
     state.u = {
         ux,
         uy,
@@ -513,6 +515,7 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
         ulevel: 1,
         uhave: { amulet: 0 },
         uz: { dnum: 0, dlevel: 1 },
+        uprops: zeroHeroProperties(),
     };
     state.urace = { mnum: 0 };
     state.urole = { mnum: PM_TENGU };
@@ -631,6 +634,17 @@ function dungeonsOfDoom() {
     return [{ depth_start: 1 }];
 }
 
+// u_init.c zeroProperties() creates all property slots with three masks.
+// Status rendering calls weight_cap(), which reads Levitation and
+// Wounded_legs even when those conditions are inactive.
+function zeroHeroProperties() {
+    return Array.from({ length: LAST_PROP + 1 }, () => ({
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    }));
+}
+
 function statusRenderingState() {
     const state = resetGame();
     state.nhDisplay = new GameDisplay(null);
@@ -674,7 +688,7 @@ function statusRenderingState() {
         uac: 8,
         ualign: { type: -1 },
         acurr: { a: [18, 13, 14, 15, 16, 17] },
-        uprops: [],
+        uprops: zeroHeroProperties(),
         uroleplay: {},
     };
     state.moves = 7;
@@ -4969,7 +4983,8 @@ test('fruit object descriptions preserve source articles and plural order', () =
             state,
             canSpotMonster: () => true,
         }),
-        /, hiding under blueberries$/u,
+        /, hiding under blueberrieses$/u,
+        'C simpleonames applies makeplural directly to the selected name',
     );
 
     state.gf.ffruit.fname = 'foo@';
@@ -7422,7 +7437,7 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
         ualign: { type: 1 },
         // Storage order is STR, INT, WIS, DEX, CON, CHA.
         acurr: { a: [15, 10, 8, 13, 20, 9] },
-        uprops: [],
+        uprops: zeroHeroProperties(),
         uroleplay: {},
     };
     state.mons = [{ mflags1: M1_HUMANOID }];
@@ -8283,6 +8298,7 @@ test('status uses source attribute order and exceptional strength text', async (
         // Attribute storage is STR, INT, WIS, DEX, CON, CHA. These distinct
         // values expose a display-order swap while 118 exercises 18/**.
         acurr: { a: [118, 13, 14, 15, 16, 17] },
+        uprops: zeroHeroProperties(),
     };
     state.moves = 7;
 
@@ -8435,7 +8451,7 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
         ualign: { type: -1 },
         // Storage order is STR, INT, WIS, DEX, CON, CHA.
         acurr: { a: [18, 13, 14, 15, 16, 17] },
-        uprops: [],
+        uprops: zeroHeroProperties(),
         uroleplay: {},
     };
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
@@ -9103,6 +9119,7 @@ test('three-line status clips the map around a bottom-row hero', async () => {
         // Attribute storage is STR, INT, WIS, DEX, CON, CHA. Distinct
         // values expose both field order and the clipped cursor projection.
         acurr: { a: [12, 13, 14, 15, 16, 17] },
+        uprops: zeroHeroProperties(),
     };
     state.level.at(1, 0).disp_ch = 'A';
     state.level.at(1, 20).disp_ch = 'Z';
@@ -9391,16 +9408,18 @@ test('a turn-counter refresh refuses a row it would have to shrink',
         // needs a shorter rung than the whole-status pass chose stops the
         // segment instead of guessing at one.
         await timedStartup('time,showexp');
-        // Six conditions at their full spellings, which is the most that fits
-        // before make_things_fit() abbreviates them.
+        // Flying and Levitation cannot be visible together: float_vs_flight()
+        // blocks Flying while Levitation is active. Use Deaf instead of
+        // Levitation to keep six source-defined conditions on the row.
         for (const property of [
-            BLINDED, CONFUSION, FLYING, HALLUC, LEVITATION, STUNNED,
+            BLINDED, CONFUSION, FLYING, HALLUC, STUNNED,
         ]) {
             game.u.uprops[property] = { intrinsic: 50 };
         }
-        // Three experience points' worth of digits, plus BL_EXP's '/', leave
-        // the row one column short of the 79 wintty.c allows it.
-        game.u.uexp = 123;
+        game.u.uroleplay.deaf = true;
+        // Two experience digits, plus BL_EXP's '/', leave the row one column
+        // short of the 79 wintty.c allows it.
+        game.u.uexp = 12;
         game.moves = 999;
         game.disp.botl = true;
         await bot();

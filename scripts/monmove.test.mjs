@@ -136,6 +136,7 @@ import {
 
 const ENGRAVE_C = readFileSync('nethack-c/upstream/src/engrave.c', 'utf8');
 const ENGRAVE_JS = readFileSync('js/engrave.js', 'utf8');
+const MONMOVE_C = readFileSync('nethack-c/upstream/src/monmove.c', 'utf8');
 // mon_allowflags() is a mon.c function and lives in js/mon.js. Its cases stay
 // here because makeState() and ordinaryMonster() below build the level, hero
 // and species records they need, and mfndpos() -- the one caller C wrote it
@@ -4704,6 +4705,21 @@ test('closed_door matches C door type and closed-mask checks', () => {
 });
 
 test('can_ooze preserves the source inventory-width whitelist', () => {
+    // C monmove.c:2319-2355 calls stuff_prevents_passage() from can_ooze()
+    // and can_fog(). Pin the static helper's shared inventory and blocker arms.
+    const passageStart = MONMOVE_C.indexOf('stuff_prevents_passage(struct monst *mtmp)');
+    const passageEnd = MONMOVE_C.indexOf('\nboolean\ncan_ooze(', passageStart);
+    const passageBody = MONMOVE_C.slice(passageStart, passageEnd);
+    assert.ok(passageStart >= 0 && passageEnd > passageStart);
+    assert.match(passageBody, /if \(mtmp == &gy\.youmonst\)/u);
+    assert.match(passageBody, /typ == COIN_CLASS && obj->quan > 100L/u);
+    assert.match(passageBody, /if \(Is_container\(obj\) && obj->cobj\)/u);
+    const canOozeStart = MONMOVE_C.indexOf('can_ooze(struct monst *mtmp)');
+    const canOozeEnd = MONMOVE_C.indexOf('\n}', canOozeStart) + 2;
+    const canOozeBody = MONMOVE_C.slice(canOozeStart, canOozeEnd);
+    assert.ok(canOozeStart >= 0 && canOozeEnd > canOozeStart);
+    assert.match(canOozeBody,
+        /!amorphous\(mtmp->data\) \|\| stuff_prevents_passage\(mtmp\)/u);
     const { state } = makeState();
     const monster = newMonster({ data: state.mons[PM_FOG_CLOUD] });
 
@@ -4727,6 +4743,14 @@ test('can_ooze preserves the source inventory-width whitelist', () => {
 });
 
 test('can_fog checks vampire form, genocide, protection, and inventory', () => {
+    // C monmove.c:2365-2371 requires each of these four predicates before
+    // allowing the vampire to fog through obstructing inventory.
+    const fogStart = MONMOVE_C.indexOf('can_fog(struct monst *mtmp)');
+    const fogEnd = MONMOVE_C.indexOf('\n}', fogStart) + 2;
+    const fogBody = MONMOVE_C.slice(fogStart, fogEnd);
+    assert.ok(fogStart >= 0 && fogEnd > fogStart);
+    assert.match(fogBody,
+        /G_GENOD[\s\S]*is_vampshifter\(mtmp\)[\s\S]*!Protection_from_shape_changers[\s\S]*!stuff_prevents_passage\(mtmp\)/u);
     const { state } = makeState();
     const monster = newMonster({
         cham: PM_VAMPIRE_LEADER,
