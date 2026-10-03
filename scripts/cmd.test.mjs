@@ -159,6 +159,12 @@ const IACTIONS_C = readFileSync(
 const HACK_C = readFileSync(
     new URL('../nethack-c/upstream/src/hack.c', import.meta.url), 'utf8',
 );
+const READ_C = readFileSync(
+    new URL('../nethack-c/upstream/src/read.c', import.meta.url), 'utf8',
+);
+const WIZCMDS_C = readFileSync(
+    new URL('../nethack-c/upstream/src/wizcmds.c', import.meta.url), 'utf8',
+);
 const CMD_JS = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
 const HACK_JS = readFileSync(new URL('../js/hack.js', import.meta.url), 'utf8');
 
@@ -2969,9 +2975,10 @@ test('counted comma pickup reaches the handler that consumes its count', () => {
     assert.ok(cChecks < cSelect);
 
     // Preserve the refusals for other counted nonmovement commands while
-    // admitting comma to the existing, source-ordered pickup dispatch.
+    // admitting comma pickup and the `#` extended-command dispatch. The next
+    // test verifies that `#` passes its count to the selected handler.
     assert.match(CMD_JS,
-        /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
+        /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
     assert.match(CMD_JS,
         /if \(command === 'pickup'\)[\s\S]*?runPickupCommand\(key, state\)/u);
 
@@ -2986,6 +2993,91 @@ test('counted comma pickup reaches the handler that consumes its count', () => {
     assert.ok(jsCount >= 0 && jsCount < jsReset && jsReset < jsChecks);
     assert.ok(jsChecks < jsSelect);
 });
+
+test('counted #wizgenesis carries its quantity through doextcmd then resets ECMD_OK',
+    async () => {
+        const cParseStart = CMD_C.indexOf('\nparse(void)\n{');
+        const cParseEnd = CMD_C.indexOf('\n#ifdef HANGUPHANDLING', cParseStart);
+        assert.ok(cParseStart >= 0 && cParseEnd > cParseStart);
+        const cParse = CMD_C.slice(cParseStart, cParseEnd);
+        assert.match(cParse,
+            /gm\.multi = gc\.command_count;[\s\S]*?if \(gm\.multi\)\s*gm\.multi--;/u);
+
+        const cRhackStart = CMD_C.indexOf('rhack(int key)');
+        const cRhackEnd = CMD_C.indexOf(
+            '\n/* convert an x,y pair into a direction code */', cRhackStart,
+        );
+        assert.ok(cRhackStart >= 0 && cRhackEnd > cRhackStart);
+        const cRhack = CMD_C.slice(cRhackStart, cRhackEnd);
+        const cDispatch = cRhack.indexOf('func = ((struct ext_func_tab *) tlist)->ef_funct;');
+        const cCall = cRhack.indexOf('res = (*func)();', cDispatch);
+        const cOkReset = cRhack.indexOf(
+            'else if ((res & (ECMD_OK | ECMD_TIME)) == ECMD_OK)', cCall,
+        );
+        assert.ok(cDispatch >= 0 && cDispatch < cCall && cCall < cOkReset);
+
+        const cGenesisStart = WIZCMDS_C.indexOf('wiz_genesis(void)');
+        const cGenesisEnd = WIZCMDS_C.indexOf('/* #wizwhere command', cGenesisStart);
+        assert.ok(cGenesisStart >= 0 && cGenesisEnd > cGenesisStart);
+        const cGenesis = WIZCMDS_C.slice(cGenesisStart, cGenesisEnd);
+        assert.match(cGenesis, /create_particular\(\);[\s\S]*?return ECMD_OK;/u);
+
+        const cCreateStart = READ_C.indexOf('create_particular_parse(\n');
+        const cCreateEnd = READ_C.indexOf('\n}\n', cCreateStart);
+        assert.ok(cCreateStart >= 0 && cCreateEnd > cCreateStart);
+        const cCreate = READ_C.slice(cCreateStart, cCreateEnd);
+        assert.match(cCreate,
+            /d->quan = 1 \+ \(\(gm\.multi > 0\) \? \(int\) gm\.multi : 0\);/u);
+
+        // The generic repeat refusal remains active for unsupported rows;
+        // only '#' is a container dispatch whose selected handler consumes
+        // this already-decremented multi value.
+        assert.match(CMD_JS,
+            /state\.multi > 0 && command !== null && command !== 'pay'\s*&& command !== 'pickup'\s*&& command !== '#'\s*&& !Object\.hasOwn\(MOVEMENT_INTENTS, command\)/u);
+        const jsCountGuard = CMD_JS.indexOf('state.multi > 0 && command !== null');
+        const jsGenesisDispatch = CMD_JS.indexOf("if (command === '#')", jsCountGuard);
+        assert.ok(jsCountGuard >= 0 && jsGenesisDispatch > jsCountGuard);
+
+        const base = {
+            // Fixed seed keeps the two genesis runs comparable; only the
+            // command-count prefix changes between them.
+            seed: 840097,
+            datetime: COMMAND_DATETIME,
+            nethackrc: [
+                'OPTIONS=name:CountTest,role:Wizard,race:human,gender:female,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,playmode:debug',
+                '',
+            ].join('\n'),
+        };
+        const createWithCount = async (counted) => {
+            const boundaries = [];
+            await runSegment({
+                ...base,
+                moves: `.${counted ? '2' : ''}#wizgenesis\nnewt\n`,
+            }, { onBoundary: (error) => boundaries.push(error) });
+            let newts = 0;
+            for (let mon = game.level.monlist; mon; mon = mon.nmon)
+                if (mon.mnum === PM_NEWT) newts++;
+            return {
+                newts,
+                multi: game.multi,
+                dispatches: game._commandDispatchCount,
+                boundaries,
+            };
+        };
+
+        const single = await createWithCount(false);
+        const counted = await createWithCount(true);
+        assert.deepEqual(single.boundaries, []);
+        assert.deepEqual(counted.boundaries, []);
+        assert.equal(counted.newts, single.newts + 1,
+            '2# dispatch sends multi=1 through #wizgenesis as quantity 2');
+        assert.equal(counted.multi, 0,
+            'wiz_genesis returns ECMD_OK and rhack resets the command count');
+        assert.equal(counted.dispatches, 2,
+            'the initial wait and #wizgenesis dispatch once each; count does not repeat it');
+    });
 
 test('a committed count is retained as a parsed command after dispatch refusal',
     async () => {
