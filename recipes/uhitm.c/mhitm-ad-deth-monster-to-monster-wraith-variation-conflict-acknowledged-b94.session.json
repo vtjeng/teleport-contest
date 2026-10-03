@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked B94 undead-target variation. The C recording reaches Death’s touch of a wraith at step 120, including rnd(24)=19 in uhitm.c:mhitm_ad_deth, but the JS turn stops earlier when allmain.c:maybe_generate_rnd_mon calls makemon(NULL, 0, 0, NO_MM_FLAGS) and the random initial-level monster 114 is outside js/makemon_create.js’s admitted creation paths. Keep the recording in .cache/B94-c-recordings; it is not a passing regression or runtime evidence.",
+  "segments": [
+    {
+      "seed": 9409414,
+      "datetime": "20421219153000",
+      "nethackrc": "OPTIONS=name=DeathWraithB94,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!safe_wait\n",
+      "moves": "#levelchange\n30\n                             #wizintrinsic\n>>h\n #wizgenesis\nhostile wraith\n#wizgenesis\nhostile Death\ny.."
+    }
+  ]
+}

@@ -27,6 +27,7 @@ import {
     A_STR,
     A_WIS,
     ACID_RES,
+    ANTIMAGIC,
     ARTICLE_A,
     ARTICLE_THE,
     ARTICLE_YOUR,
@@ -185,6 +186,7 @@ import {
     map_location,
     mon_to_glyph,
     newsym,
+    shieldeff,
     tmp_at,
     tp_sensemon,
 } from './display.js';
@@ -5056,7 +5058,7 @@ export async function mhitm_ad_slow(
 // C ref: uhitm.c mhitm_ad_drli() (2445-2518). Level-draining attacks have
 // distinct hero-to-monster, monster-to-hero, and monster-to-monster arms.
 // Keep each arm's chance, resistance, negation, output, and HP/level order
-// separate; the direct Death caller remains the unported AD_DETH arm.
+// separate; the direct Death caller now enters through mhitm_ad_deth().
 export async function mhitm_ad_drli(
     magr,
     mattk,
@@ -5245,6 +5247,62 @@ export async function mhitm_ad_pest(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_deth() (3837-3893). Death's touch has a separate
+// hero-defender outcome; against another monster it reuses the original hit
+// through mhitm_ad_drli(). Snapshot the target form before the first awaited
+// message, as C does before entering either direction.
+export async function mhitm_ad_deth(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const defenderData = mdef.data;
+    const random = env.random ?? { rn2, rnd };
+    const message = requireAttackOperation(env, 'message');
+
+    if (magr !== state.youmonst && mdef === state.youmonst) {
+        const text = `${Monnam(magr, state, env)} reaches out with its deadly touch.`;
+        await message(messageAt(text, magr.mx, magr.my, state), state, env);
+
+        if (is_undead(defenderData)) {
+            mhm.damage = Math.trunc((mhm.damage + 1) / 2);
+            await message('Was that the touch of death?', state, env);
+            return;
+        }
+
+        const roll = random.rn2(20);
+        if (roll >= 17 && !propertyPresent(state.u, ANTIMAGIC)) {
+            // C discards touch_of_death()'s void result; retain only its
+            // source-named gap before applying C's explicit damage reset.
+            note_unported('mcastu.c touch_of_death');
+            mhm.damage = 0;
+            return;
+        }
+
+        if (roll <= 4) {
+            if (propertyPresent(state.u, ANTIMAGIC))
+                await shieldeff(state.u.ux, state.u.uy, state);
+            await message("Lucky for you, it didn't work!", state, env);
+            mhm.damage = 0;
+            return;
+        }
+
+        await message('You feel your life force draining away...', state, env);
+        mhm.permdmg = 1;
+        return;
+    }
+
+    // The hero-attacker AD_DETH form is excluded by the valid monsters, so C
+    // shares this monster-target arm. Preserve its damage division and the
+    // already-ported Death-specific AD_DRLI delegation.
+    if (is_undead(defenderData) && mhm.damage > 1)
+        mhm.damage = random.rnd(Math.trunc(mhm.damage / 2));
+    await mhitm_ad_drli(magr, mattk, mdef, mhm, state, env);
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
@@ -5335,7 +5393,9 @@ export async function mhitm_adtyping(
     case AD_POLY: unported('mhitm_ad_poly'); break;
     case AD_DISE: unported('mhitm_ad_dise'); break;
     case AD_SAMU: unported('mhitm_ad_samu'); break;
-    case AD_DETH: unported('mhitm_ad_deth'); break;
+    case AD_DETH:
+        await mhitm_ad_deth(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_PEST:
         await mhitm_ad_pest(magr, mattk, mdef, mhm, state, env);
         break;
