@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "capturedAt": "2026-10-03T02:13:28.670Z",
+  "capturedAt": "2026-10-03T03:27:54.645Z",
   "activity": {
     "runId": "loop-20260925",
     "events": [
@@ -16338,12 +16338,59 @@
         "type": "accepted",
         "at": "2026-10-03T02:13:08.458Z",
         "task": "C64"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-C64-published-94213941",
+        "type": "published",
+        "at": "2026-10-03T02:13:42.237Z",
+        "task": "C64",
+        "commit": "94213941a84325d064f68a868a7d70b47e8a3167"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "ready-6c011e23ac4eace2a01b1f676cb1794c2555ed6e",
+        "type": "ready",
+        "at": "2026-10-03T03:03:36.415Z",
+        "task": "B92",
+        "delivery": "6c011e23ac4eace2a01b1f676cb1794c2555ed6e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B92-received-6c011e23",
+        "type": "received",
+        "at": "2026-10-03T03:04:41.851Z",
+        "task": "B92",
+        "delivery": "6c011e23ac4eace2a01b1f676cb1794c2555ed6e"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B92-integrating-de27b6be",
+        "type": "integrating",
+        "at": "2026-10-03T03:08:20.895Z",
+        "task": "B92",
+        "integration": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3"
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B92-validated-de27b6be",
+        "type": "validated",
+        "at": "2026-10-03T03:27:20.905Z",
+        "task": "B92",
+        "passed": true
+      },
+      {
+        "runId": "loop-20260925",
+        "id": "root-B92-accepted-de27b6be",
+        "type": "accepted",
+        "at": "2026-10-03T03:27:21.387Z",
+        "task": "B92"
       }
     ]
   },
   "development": {
-    "executionCommit": "15be180dc8aec3010025eac5f8bbcd34571ad39c",
-    "measuredAt": "2026-10-03T02:07:37.543Z",
+    "executionCommit": "de27b6be5905f3aa2d1413c3882d135a1b50b5c3",
+    "measuredAt": "2026-10-03T03:21:56.868Z",
     "sessions": [
       {
         "session": "holdout/seed0002-healer-reflection-drummer",
