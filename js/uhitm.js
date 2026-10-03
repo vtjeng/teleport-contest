@@ -5106,6 +5106,18 @@ export async function mhitm_ad_drli(
             && !(await mhitm_mgc_atk_negated(
                 magr, mdef, true, state, effectEnv,
             ))) {
+            if (env.planning && state.u.ulevel <= 1) {
+                if (typeof env.planningDeath !== 'function') {
+                    throw new TypeError(
+                        'mhitm_ad_drli requires planningDeath for a fatal planned life drain',
+                    );
+                }
+                // exper.c losexp() reaches end.c done(DIED) for a fatal
+                // level-one drain. Planning runs against a clone, but done()
+                // still paints the live status and enters terminal recovery;
+                // hand the attacker to the live pass before that boundary.
+                throw env.planningDeath(magr);
+            }
             await losexp('life drainage', state, effectEnv);
         }
     } else {

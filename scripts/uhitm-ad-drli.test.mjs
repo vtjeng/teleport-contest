@@ -10,6 +10,8 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { AD_DETH, AD_DRLI, AT_BITE, AT_TUCH, PM_ORC, PM_WRAITH } from '../js/monsters.js';
+import { getRngLog } from '../js/rng.js';
+import { planningState } from '../js/unported_monster_actions.js';
 import { mhitm_ad_drli, mhitm_adtyping } from '../js/uhitm.js';
 
 const UHITM_C = readFileSync(
@@ -21,6 +23,12 @@ const MHITU_C = readFileSync(
 const MHITM_C = readFileSync(
     new URL('../nethack-c/upstream/src/mhitm.c', import.meta.url), 'utf8',
 );
+const EXPER_C = readFileSync(
+    new URL('../nethack-c/upstream/src/exper.c', import.meta.url), 'utf8',
+);
+const END_C = readFileSync(
+    new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',
+);
 const DATETIME = '20330112094500'; // Stable independent date for the fixture game.
 const RC = [
     'OPTIONS=name:DrainBranch,role:Wizard,race:human,gender:female,align:neutral',
@@ -28,9 +36,13 @@ const RC = [
     '',
 ].join('\n');
 
-async function startGame(seed) {
+const DEBUG_RC = RC.replace(
+    'OPTIONS=!legacy', 'OPTIONS=playmode:debug,!legacy',
+);
+
+async function startGame(seed, moves = '', nethackrc = RC) {
     // Each test uses a different fixed seed so accidental shared state is visible.
-    await runSegment({ seed, datetime: DATETIME, nethackrc: RC, moves: '' });
+    await runSegment({ seed, datetime: DATETIME, nethackrc, moves });
     game.program_state.in_moveloop = true;
     game.iflags.perm_invent = false;
     return game;
@@ -133,9 +145,15 @@ test('mhitm_ad_drli matches its whole C function and all production dispatch dir
         /mhitm_adtyping\(magr, mattk, mdef, &mhm\);/u);
     assert.match(UHITM_C,
         /mhitm_ad_drli\(magr, mattk, mdef, mhm\);/u);
+    assert.match(EXPER_C,
+        /void\s+losexp\([\s\S]*?if \(drainer\)\s*\{[\s\S]*?done\(DIED\);/u);
+    assert.match(END_C,
+        /done\(int how\)[\s\S]*?bot\(\);[\s\S]*?if \(Lifesaved/u);
     const js = readFileSync(new URL('../js/uhitm.js', import.meta.url), 'utf8');
     assert.match(js,
         /case AD_DRLI:\s*await mhitm_ad_drli\(magr, mattk, mdef, mhm, state, env\);\s*break;/u);
+    assert.match(js,
+        /if \(env\.planning && state\.u\.ulevel <= 1\)\s*\{\s*if \(typeof env\.planningDeath !== 'function'\)[\s\S]*?throw env\.planningDeath\(magr\);[\s\S]*?await losexp\('life drainage', state, effectEnv\);/u);
 });
 
 test('hero-to-monster drain applies damage once, clamps max HP, and lowers level', async () => {
@@ -192,6 +210,158 @@ test('monster-to-hero drain prints the hit first and honours Drain_resistance', 
     assert.equal(state.u.uprops[DRAIN_RES].intrinsic, 1);
     assert.equal(messages[0], 'The orc touches you!');
     assert.equal(messages.length, 1);
+});
+
+test('planned fatal monster-to-hero drain hands off before live death recovery', async () => {
+    const state = await startGame(910336);
+    const liveAttacker = addMonster(state, PM_ORC, 99209, [[1, 0]]);
+    state.nhDisplay.pushKey(13);
+    const planned = planningState(state);
+    const attacker = planned.level.monlist;
+    assert.equal(attacker.m_id, liveAttacker.m_id);
+    assert.strictEqual(planned.nhDisplay, state.nhDisplay,
+        'planningState shares the TTY display; done() must not run on the clone');
+
+    const liveDisplay = state.nhDisplay;
+    const displaySnapshot = () => ({
+        screen: liveDisplay.serialize(),
+        cursor: [liveDisplay.cursorCol, liveDisplay.cursorRow],
+        topMessage: liveDisplay.topMessage,
+        toplines: [...liveDisplay.toplines],
+        toplin: liveDisplay.toplin,
+        messages: [...liveDisplay.messages],
+        inputQueueLength: liveDisplay.inputQueueLength,
+        waitEpoch: liveDisplay.waitEpoch,
+        pending: state._pending_message,
+        status: { ...game.disp },
+    });
+    const beforeDisplay = displaySnapshot();
+    const beforeRng = [...getRngLog()];
+    const draws = scriptedRandom([
+        draw('rn2', [3], 0), // The source drain gate succeeds.
+        draw('rn2', [10], 9), // The source MC check permits life drain.
+    ]);
+    const messages = [];
+    const planningError = new Error('source DIED handoff');
+    let deathSubject = null;
+    const env = {
+        ...attackEnvironment(draws.random, messages),
+        planning: true,
+        planningDeath(subject) {
+            deathSubject = subject;
+            return planningError;
+        },
+    };
+
+    await assert.rejects(
+        () => mhitm_ad_drli(
+            attacker,
+            attackData(AD_DRLI, AT_TUCH),
+            planned.youmonst,
+            damageData(),
+            planned,
+            env,
+        ),
+        (error) => error === planningError,
+    );
+
+    draws.assertFinished();
+    assert.deepEqual(draws.calls, ['rn2(3)=0', 'rn2(10)=9']);
+    assert.strictEqual(deathSubject, attacker,
+        'the existing planningDeath marker carries the source attacker');
+    assert.deepEqual(messages, ['The orc touches you!']);
+    assert.equal(planned.u.ulevel, 1,
+        'the cloned level-one loss stops before losexp mutates the hero');
+    assert.equal(state.u.ulevel, 1);
+    assert.deepEqual(getRngLog(), beforeRng,
+        'the planned gate uses its supplied clone random source');
+    assert.deepEqual(displaySnapshot(), beforeDisplay,
+        'the fatal planning boundary does not paint or wait on the live display');
+});
+
+test('a fatal planned drain requires planningDeath instead of entering done', async () => {
+    const state = await startGame(910337);
+    const attacker = addMonster(state, PM_ORC, 99210, [[1, 0]]);
+    const planned = planningState(state);
+    const draws = scriptedRandom([
+        draw('rn2', [3], 0),
+        draw('rn2', [10], 9),
+    ]);
+
+    await assert.rejects(
+        () => mhitm_ad_drli(
+            planned.level.monlist,
+            attackData(AD_DRLI, AT_TUCH),
+            planned.youmonst,
+            damageData(),
+            planned,
+            {
+                ...attackEnvironment(draws.random, []),
+                planning: true,
+            },
+        ),
+        (error) => error instanceof TypeError
+            && /requires planningDeath/u.test(error.message),
+    );
+
+    draws.assertFinished();
+    assert.equal(attacker.m_id, planned.level.monlist.m_id);
+    assert.equal(planned.u.ulevel, 1);
+});
+
+test('nonfatal planned drain runs losexp, while a failed gate needs no handoff', async () => {
+    const leveled = await startGame(
+        910338, ' #levelchange\n2\n', DEBUG_RC,
+    );
+    assert.equal(leveled.u.ulevel, 2,
+        'the debug source command creates a valid level-two hero');
+    addMonster(leveled, PM_ORC, 99211, [[1, 0]]);
+    const plannedLeveled = planningState(leveled);
+    const nonfatalDraws = scriptedRandom([
+        draw('rn2', [3], 0),
+        draw('rn2', [10], 9),
+    ]);
+    const nonfatalMessages = [];
+    await mhitm_ad_drli(
+        plannedLeveled.level.monlist,
+        attackData(AD_DRLI, AT_TUCH),
+        plannedLeveled.youmonst,
+        damageData(),
+        plannedLeveled,
+        {
+            ...attackEnvironment(nonfatalDraws.random, nonfatalMessages),
+            planning: true,
+        },
+    );
+    nonfatalDraws.assertFinished();
+    assert.deepEqual(nonfatalDraws.calls, ['rn2(3)=0', 'rn2(10)=9']);
+    assert.equal(plannedLeveled.u.ulevel, 1,
+        'a level-two drain remains a normal cloned losexp operation');
+    assert.equal(leveled.u.ulevel, 2,
+        'the nonfatal planner mutation stays on the clone');
+    assert.deepEqual(nonfatalMessages,
+        ['The orc touches you!', 'Goodbye level 2.']);
+
+    const levelOne = await startGame(910339);
+    addMonster(levelOne, PM_ORC, 99212, [[1, 0]]);
+    const plannedLevelOne = planningState(levelOne);
+    const missDraws = scriptedRandom([draw('rn2', [3], 1)]);
+    const missMessages = [];
+    await mhitm_ad_drli(
+        plannedLevelOne.level.monlist,
+        attackData(AD_DRLI, AT_TUCH),
+        plannedLevelOne.youmonst,
+        damageData(),
+        plannedLevelOne,
+        {
+            ...attackEnvironment(missDraws.random, missMessages),
+            planning: true,
+        },
+    );
+    missDraws.assertFinished();
+    assert.deepEqual(missDraws.calls, ['rn2(3)=1']);
+    assert.equal(plannedLevelOne.u.ulevel, 1);
+    assert.deepEqual(missMessages, ['The orc touches you!']);
 });
 
 test('monster-to-monster drain preserves the gate, visible-message guard, and caller damage', async () => {
