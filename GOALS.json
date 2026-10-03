@@ -148536,6 +148536,1447 @@
           "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a"
         }
       }
+    },
+    {
+      "id": "port-hack-pooleffects-spoteffects-recursive-ice-v17-20261002",
+      "kind": "file-port",
+      "status": "open",
+      "summary": "Port liquid arrival and recursive ice effects with their required whole-function dependencies",
+      "cFile": "hack.c",
+      "sessions": [
+        "synthetic/v17/wizard-fire-ray-melts-wished-ice",
+        "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o"
+      ],
+      "selectionReason": "The accepted v17 evaluation still has two related ICE mismatches. wizard-fire-ray-melts-wished-ice reaches a normal move onto wished ICE, where C enters hack.c:spoteffects but the JS destination preflight rejects ICE. wizard-fire-ray-melts-wished-ice-slot-o reaches zap.c:zap_over_floor on wished ICE and C runs zap.c:melt_ice. Those paths recurse: melt_ice may run spoteffects under the hero, and spoteffects may trigger a fire trap which melts ice again. Implement the coherent recursive family and its consumed-return helpers together; A82 is accepted and merged, so there is no pending dependency.",
+      "detail": "",
+      "openedAt": "23dbedccdd7aedaca7c1f9323cff2bb519e7cf26",
+      "openStanding": {
+        "sha": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "closedAt": null,
+      "delivered": null,
+      "functions": [
+        {
+          "name": "pooleffects",
+          "line": 3233,
+          "endLine": 3311,
+          "declared": true,
+          "complete": false
+        },
+        {
+          "name": "spoteffects",
+          "line": 3312,
+          "endLine": 3465,
+          "declared": true,
+          "complete": false
+        }
+      ],
+      "range": {
+        "from": 3233,
+        "to": 3465
+      },
+      "requiredFunctions": [
+        {
+          "name": "number_leashed",
+          "line": 698,
+          "endLine": 710,
+          "declared": true,
+          "sourceFile": "apply.c",
+          "complete": false
+        },
+        {
+          "name": "artifact_name",
+          "line": 329,
+          "endLine": 355,
+          "declared": true,
+          "sourceFile": "artifact.c",
+          "complete": false
+        },
+        {
+          "name": "undiscovered_artifact",
+          "line": 1131,
+          "endLine": 1146,
+          "declared": true,
+          "sourceFile": "artifact.c",
+          "complete": false
+        },
+        {
+          "name": "is_ice",
+          "line": 86,
+          "endLine": 99,
+          "declared": true,
+          "sourceFile": "dbridge.c",
+          "complete": false
+        },
+        {
+          "name": "is_lava",
+          "line": 62,
+          "endLine": 76,
+          "declared": true,
+          "sourceFile": "dbridge.c",
+          "complete": false
+        },
+        {
+          "name": "is_pool_or_lava",
+          "line": 77,
+          "endLine": 85,
+          "declared": true,
+          "sourceFile": "dbridge.c",
+          "complete": false
+        },
+        {
+          "name": "is_waterwall",
+          "line": 38,
+          "endLine": 45,
+          "declared": false,
+          "sourceFile": "dbridge.c",
+          "complete": false
+        },
+        {
+          "name": "hard_helmet",
+          "line": 568,
+          "endLine": 575,
+          "declared": true,
+          "sourceFile": "do_wear.c",
+          "complete": false
+        },
+        {
+          "name": "boulder_hits_pool",
+          "line": 50,
+          "endLine": 161,
+          "declared": true,
+          "sourceFile": "do.c",
+          "complete": false
+        },
+        {
+          "name": "ceiling",
+          "line": 1714,
+          "endLine": 1749,
+          "declared": true,
+          "sourceFile": "dungeon.c",
+          "complete": false
+        },
+        {
+          "name": "has_ceiling",
+          "line": 1690,
+          "endLine": 1700,
+          "declared": true,
+          "sourceFile": "dungeon.c",
+          "complete": false
+        },
+        {
+          "name": "is_fainted",
+          "line": 3347,
+          "endLine": 3353,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "vomit",
+          "line": 3736,
+          "endLine": 3787,
+          "declared": true,
+          "sourceFile": "eat.c",
+          "complete": false
+        },
+        {
+          "name": "sengr_at",
+          "line": 251,
+          "endLine": 263,
+          "declared": true,
+          "sourceFile": "engrave.c",
+          "complete": false
+        },
+        {
+          "name": "bad_rock",
+          "line": 939,
+          "endLine": 952,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "calc_capacity",
+          "line": 4372,
+          "endLine": 4384,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "cant_squeeze_thru",
+          "line": 953,
+          "endLine": 981,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "crawl_destination",
+          "line": 4079,
+          "endLine": 4105,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "doorless_door",
+          "line": 4063,
+          "endLine": 4078,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "in_rooms",
+          "line": 3498,
+          "endLine": 3563,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "inv_cnt",
+          "line": 4496,
+          "endLine": 4513,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "inv_weight",
+          "line": 4351,
+          "endLine": 4371,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "near_capacity",
+          "line": 4385,
+          "endLine": 4390,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "weight_cap",
+          "line": 4295,
+          "endLine": 4350,
+          "declared": true,
+          "sourceFile": "hack.c",
+          "complete": false
+        },
+        {
+          "name": "dist2",
+          "line": 673,
+          "endLine": 681,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        },
+        {
+          "name": "eos",
+          "line": 194,
+          "endLine": 202,
+          "declared": false,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        },
+        {
+          "name": "fuzzymatch",
+          "line": 785,
+          "endLine": 831,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        },
+        {
+          "name": "highc",
+          "line": 76,
+          "endLine": 82,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        },
+        {
+          "name": "letter",
+          "line": 69,
+          "endLine": 75,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        },
+        {
+          "name": "lowc",
+          "line": 83,
+          "endLine": 89,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        },
+        {
+          "name": "strncmpi",
+          "line": 717,
+          "endLine": 739,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        },
+        {
+          "name": "strstri",
+          "line": 740,
+          "endLine": 784,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        },
+        {
+          "name": "upstart",
+          "line": 114,
+          "endLine": 122,
+          "declared": true,
+          "sourceFile": "hacklib.c",
+          "complete": false
+        },
+        {
+          "name": "sobj_at",
+          "line": 1466,
+          "endLine": 1478,
+          "declared": true,
+          "sourceFile": "invent.c",
+          "complete": false
+        },
+        {
+          "name": "is_exclusion_zone",
+          "line": 317,
+          "endLine": 340,
+          "declared": true,
+          "sourceFile": "mkmaze.c",
+          "complete": false
+        },
+        {
+          "name": "get_iter_mons",
+          "line": 4544,
+          "endLine": 4561,
+          "declared": true,
+          "sourceFile": "mon.c",
+          "complete": false
+        },
+        {
+          "name": "m_in_air",
+          "line": 2130,
+          "endLine": 2139,
+          "declared": true,
+          "sourceFile": "mon.c",
+          "complete": true
+        },
+        {
+          "name": "mnearto",
+          "line": 4031,
+          "endLine": 4088,
+          "declared": true,
+          "sourceFile": "mon.c",
+          "complete": false
+        },
+        {
+          "name": "attacktype",
+          "line": 54,
+          "endLine": 60,
+          "declared": true,
+          "sourceFile": "mondata.c",
+          "complete": false
+        },
+        {
+          "name": "attacktype_fordmg",
+          "line": 42,
+          "endLine": 53,
+          "declared": true,
+          "sourceFile": "mondata.c",
+          "complete": false
+        },
+        {
+          "name": "cantvomit",
+          "line": 663,
+          "endLine": 677,
+          "declared": true,
+          "sourceFile": "mondata.c",
+          "complete": false
+        },
+        {
+          "name": "accessible",
+          "line": 2188,
+          "endLine": 2197,
+          "declared": true,
+          "sourceFile": "monmove.c",
+          "complete": false
+        },
+        {
+          "name": "closed_door",
+          "line": 2181,
+          "endLine": 2187,
+          "declared": true,
+          "sourceFile": "monmove.c",
+          "complete": false
+        },
+        {
+          "name": "onscary",
+          "line": 241,
+          "endLine": 306,
+          "declared": true,
+          "sourceFile": "monmove.c",
+          "complete": false
+        },
+        {
+          "name": "an",
+          "line": 2145,
+          "endLine": 2157,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "An",
+          "line": 2158,
+          "endLine": 2170,
+          "declared": false,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "armor_simple_name",
+          "line": 5435,
+          "endLine": 5470,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "badman",
+          "line": 3194,
+          "endLine": 3242,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "boots_simple_name",
+          "line": 5551,
+          "endLine": 5569,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "ch_ksound",
+          "line": 3168,
+          "endLine": 3193,
+          "declared": false,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "cloak_simple_name",
+          "line": 5492,
+          "endLine": 5512,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "distant_name",
+          "line": 347,
+          "endLine": 413,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "fruit_from_indx",
+          "line": 431,
+          "endLine": 442,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "fruit_from_name",
+          "line": 443,
+          "endLine": 522,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "gloves_simple_name",
+          "line": 5532,
+          "endLine": 5550,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "helm_simple_name",
+          "line": 5513,
+          "endLine": 5531,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "Japanese_item_name",
+          "line": 5422,
+          "endLine": 5434,
+          "declared": false,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "just_an",
+          "line": 2109,
+          "endLine": 2144,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "makeplural",
+          "line": 2836,
+          "endLine": 3036,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "makesingular",
+          "line": 3037,
+          "endLine": 3167,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "minimal_xname",
+          "line": 1038,
+          "endLine": 1089,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "nextobuf",
+          "line": 142,
+          "endLine": 149,
+          "declared": false,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "not_fully_identified",
+          "line": 1787,
+          "endLine": 1823,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "obj_is_pname",
+          "line": 333,
+          "endLine": 346,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "shield_simple_name",
+          "line": 5570,
+          "endLine": 5599,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "shirt_simple_name",
+          "line": 5600,
+          "endLine": 5605,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "simpleonames",
+          "line": 2428,
+          "endLine": 2445,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "singplur_compound",
+          "line": 2783,
+          "endLine": 2835,
+          "declared": false,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "singplur_lookup",
+          "line": 2708,
+          "endLine": 2782,
+          "declared": false,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "suit_simple_name",
+          "line": 5471,
+          "endLine": 5491,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "the",
+          "line": 2171,
+          "endLine": 2233,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "the_unique_pm",
+          "line": 1121,
+          "endLine": 1142,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "vtense",
+          "line": 2563,
+          "endLine": 2707,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "xname",
+          "line": 575,
+          "endLine": 580,
+          "declared": false,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "xname_flags",
+          "line": 581,
+          "endLine": 1037,
+          "declared": false,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "waterbody_name",
+          "line": 561,
+          "endLine": 613,
+          "declared": true,
+          "sourceFile": "pager.c",
+          "complete": false
+        },
+        {
+          "name": "body_part",
+          "line": 2143,
+          "endLine": 2148,
+          "declared": true,
+          "sourceFile": "polyself.c",
+          "complete": false
+        },
+        {
+          "name": "mbodypart",
+          "line": 1972,
+          "endLine": 2142,
+          "declared": true,
+          "sourceFile": "polyself.c",
+          "complete": false
+        },
+        {
+          "name": "inhistemple",
+          "line": 161,
+          "endLine": 176,
+          "declared": true,
+          "sourceFile": "priest.c",
+          "complete": false
+        },
+        {
+          "name": "apron_text",
+          "line": 254,
+          "endLine": 295,
+          "declared": true,
+          "sourceFile": "read.c",
+          "complete": false
+        },
+        {
+          "name": "candy_wrapper_text",
+          "line": 296,
+          "endLine": 303,
+          "declared": true,
+          "sourceFile": "read.c",
+          "complete": false
+        },
+        {
+          "name": "erode_obj_text",
+          "line": 89,
+          "endLine": 99,
+          "declared": true,
+          "sourceFile": "read.c",
+          "complete": false
+        },
+        {
+          "name": "hawaiian_motif",
+          "line": 190,
+          "endLine": 223,
+          "declared": true,
+          "sourceFile": "read.c",
+          "complete": false
+        },
+        {
+          "name": "tshirt_text",
+          "line": 100,
+          "endLine": 189,
+          "declared": true,
+          "sourceFile": "read.c",
+          "complete": false
+        },
+        {
+          "name": "in_out_region",
+          "line": 480,
+          "endLine": 532,
+          "declared": true,
+          "sourceFile": "region.c",
+          "complete": false
+        },
+        {
+          "name": "inside_rect",
+          "line": 54,
+          "endLine": 62,
+          "declared": false,
+          "sourceFile": "region.c",
+          "complete": false
+        },
+        {
+          "name": "inside_region",
+          "line": 63,
+          "endLine": 78,
+          "declared": true,
+          "sourceFile": "region.c",
+          "complete": false
+        },
+        {
+          "name": "block_door",
+          "line": 5791,
+          "endLine": 5825,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": false
+        },
+        {
+          "name": "inhishop",
+          "line": 1039,
+          "endLine": 1051,
+          "declared": true,
+          "sourceFile": "shk.c",
+          "complete": false
+        },
+        {
+          "name": "Strlen_",
+          "line": 82,
+          "endLine": 104,
+          "declared": false,
+          "sourceFile": "strutil.c",
+          "complete": false
+        },
+        {
+          "name": "collect_coords",
+          "line": 578,
+          "endLine": 716,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "enexto",
+          "line": 196,
+          "endLine": 205,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "enexto_core",
+          "line": 219,
+          "endLine": 280,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "goodpos",
+          "line": 86,
+          "endLine": 195,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "goodpos_onscary",
+          "line": 53,
+          "endLine": 85,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "m_blocks_teleporting",
+          "line": 21,
+          "endLine": 29,
+          "declared": false,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "noteleport_level",
+          "line": 30,
+          "endLine": 52,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "safe_teleds",
+          "line": 717,
+          "endLine": 772,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "tele_jump_ok",
+          "line": 386,
+          "endLine": 419,
+          "declared": false,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "teleok",
+          "line": 420,
+          "endLine": 447,
+          "declared": true,
+          "sourceFile": "teleport.c",
+          "complete": false
+        },
+        {
+          "name": "spot_time_expires",
+          "line": 2445,
+          "endLine": 2458,
+          "declared": true,
+          "sourceFile": "timeout.c",
+          "complete": false
+        },
+        {
+          "name": "spot_time_left",
+          "line": 2459,
+          "endLine": 2466,
+          "declared": true,
+          "sourceFile": "timeout.c",
+          "complete": false
+        },
+        {
+          "name": "drown",
+          "line": 5059,
+          "endLine": 5201,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "emergency_disrobe",
+          "line": 4897,
+          "endLine": 4946,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "rnd_nextto_goodpos",
+          "line": 4947,
+          "endLine": 4975,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "t_at",
+          "line": 6502,
+          "endLine": 6515,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "welded",
+          "line": 1051,
+          "endLine": 1060,
+          "declared": true,
+          "sourceFile": "wield.c",
+          "complete": false
+        },
+        {
+          "name": "get_obj_location",
+          "line": 654,
+          "endLine": 691,
+          "declared": true,
+          "sourceFile": "zap.c",
+          "complete": false
+        },
+        {
+          "name": "melt_ice",
+          "line": 5040,
+          "endLine": 5087,
+          "declared": false,
+          "sourceFile": "zap.c",
+          "complete": false
+        },
+        {
+          "name": "melt_ice_away",
+          "line": 5119,
+          "endLine": 5140,
+          "declared": false,
+          "sourceFile": "zap.c",
+          "complete": false
+        },
+        {
+          "name": "start_melt_ice_timeout",
+          "line": 5088,
+          "endLine": 5118,
+          "declared": false,
+          "sourceFile": "zap.c",
+          "complete": false
+        },
+        {
+          "name": "rescued_from_terrain",
+          "line": 5014,
+          "endLine": 5058,
+          "declared": false,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "back_on_ground",
+          "line": 4976,
+          "endLine": 5013,
+          "declared": true,
+          "sourceFile": "trap.c",
+          "complete": false
+        },
+        {
+          "name": "surface",
+          "line": 1750,
+          "endLine": 1801,
+          "declared": true,
+          "sourceFile": "dungeon.c",
+          "complete": false
+        },
+        {
+          "name": "ice_descr",
+          "line": 614,
+          "endLine": 656,
+          "declared": true,
+          "sourceFile": "pager.c",
+          "complete": false
+        },
+        {
+          "name": "On_stairs",
+          "line": 148,
+          "endLine": 153,
+          "declared": true,
+          "sourceFile": "stairs.c",
+          "complete": false
+        },
+        {
+          "name": "stairway_at",
+          "line": 40,
+          "endLine": 49,
+          "declared": true,
+          "sourceFile": "stairs.c",
+          "complete": false
+        },
+        {
+          "name": "cxname_singular",
+          "line": 1933,
+          "endLine": 1941,
+          "declared": false,
+          "sourceFile": "objnam.c",
+          "complete": false
+        },
+        {
+          "name": "corpse_xname",
+          "line": 1824,
+          "endLine": 1923,
+          "declared": true,
+          "sourceFile": "objnam.c",
+          "complete": false
+        }
+      ],
+      "syntheticProvenance": {
+        "synthetic/v17/wizard-fire-ray-melts-wished-ice": {
+          "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wizard-fire-ray-melts-wished-ice",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+          "recordingSha256": "2b8fb0e509576809c5aaf2a36c0b5a7c9dca4a3d1580cbec491b957e29e0861e",
+          "evaluationPath": "challenges/evaluations/20261003220302-v17.json",
+          "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a"
+        },
+        "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o": {
+          "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o",
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wizard-fire-ray-melts-wished-ice-slot-o",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+          "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+          "evaluationPath": "challenges/evaluations/20261003220302-v17.json",
+          "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a"
+        }
+      },
+      "activeStanding": {
+        "sha": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+        "screens": 11405,
+        "rng": 792838
+      },
+      "openMismatches": [
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wizard-fire-ray-melts-wished-ice",
+          "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+          "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+          "recordingSha256": "2b8fb0e509576809c5aaf2a36c0b5a7c9dca4a3d1580cbec491b957e29e0861e",
+          "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.recipe.session.json",
+          "recipeSha256": "3782f41100eab2aed4da26bb169af15c337fe2ef0b13e96c9660b43120430c63",
+          "replayInputSha256": "bed0a77ca115685c99210f5428eba2807d20a03ee955e8b8d200e44d1aa91054",
+          "evaluationPath": "challenges/evaluations/20261003220302-v17.json",
+          "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+          "evaluationArtifact": "challenges/evaluations/20261003220302-v17.json",
+          "evaluationUtc": "2026-10-03T22:03:48.035Z",
+          "remainingScreens": 1,
+          "recordedSteps": 34,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 34
+            },
+            "rng": {
+              "matched": 2149,
+              "total": 2158
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "kind": "stop",
+            "message": "unsupported hero move: test_move() door or special terrain movement",
+            "step": 33
+          },
+          "step": 33,
+          "kind": "stop",
+          "sourceFile": "hack.c",
+          "function": "test_move",
+          "message": "unsupported hero move: test_move() door or special terrain movement",
+          "cFile": "hack.c",
+          "luaFile": null,
+          "line": null,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/wizard-fire-ray-melts-wished-ice.json",
+            "result": {
+              "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "wizard-fire-ray-melts-wished-ice",
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+              "recordingSha256": "2b8fb0e509576809c5aaf2a36c0b5a7c9dca4a3d1580cbec491b957e29e0861e",
+              "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.recipe.session.json",
+              "recipeSha256": "3782f41100eab2aed4da26bb169af15c337fe2ef0b13e96c9660b43120430c63",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "remainingScreens": 1,
+              "recordedSteps": 34,
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "wizard-fire-ray-melts-wished-ice",
+                "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+                "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json",
+                "recordingSha256": "2b8fb0e509576809c5aaf2a36c0b5a7c9dca4a3d1580cbec491b957e29e0861e",
+                "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice.recipe.session.json",
+                "recipeSha256": "3782f41100eab2aed4da26bb169af15c337fe2ef0b13e96c9660b43120430c63",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 1,
+                "recordedSteps": 34,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 2149,
+                    "total": 2158
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "kind": "stop",
+                  "message": "unsupported hero move: test_move() door or special terrain movement",
+                  "step": 33
+                },
+                "step": 33,
+                "kind": "stop",
+                "sourceFile": "hack.c",
+                "function": "test_move",
+                "message": "unsupported hero move: test_move() door or special terrain movement",
+                "cFile": "hack.c",
+                "luaFile": null,
+                "line": null
+              },
+              "summary": "The named fire-ray path is a valid target miss: after C offers zap slots c/o, the frozen recipe sends e and gets “That is a silly thing to zap.” No zap ray or melt_ice is reached. The one remaining mismatch is the later h move back onto the wished ICE tile. C test_move() accepts the ordinary orthogonal move; the JS command preflight rejects the tile because the whole hack.c:spoteffects() ICE-arrival path is still behind requireSimpleHeroDestination(). Scope the source work to the complete spoteffects() function and preserve the later zap.c ray/melt gap as separate, unproven work.",
+              "source": {
+                "file": "hack.c",
+                "branch": "In wizard debug mode, the earlier ^W ice wish changes the current ROOM square to ICE. After moving east, the recorded h command makes an ordinary orthogonal DO_MOVE back onto ICE. C test_move() falls through its obstacle and door checks and returns TRUE; domove_core() then moves and calls spoteffects(TRUE). The JS command preflight currently refuses ICE before setting movement intent because spoteffects() still omits its complete ice-arrival behavior.",
+                "functions": [
+                  "spoteffects"
+                ],
+                "callers": [
+                  "C: hack.c:domove_core() (2843-2856, 2873-2980) consumes test_move(..., DO_MOVE), moves onto the destination, then calls spoteffects(TRUE); this is the exact source path for the recorded h input.",
+                  "C: teleport.c:teleds() (551-568) also reaches spoteffects(TRUE) after a changed hero position. Its JavaScript caller in js/teleport.js uses the same destination admission helper.",
+                  "JS movement ingress: js/cmd.js:executeMovement() (2723-2733) calls preflightDomoveDestination() before set_move_cmd() and domove(); the ICE rejection happens here, so the recorded step never reaches the otherwise accepting test_move() implementation.",
+                  "Other production entry paths remain wired through spoteffects() in trap.c, do_wear.c, polyself.c, potion.c, artifacts.c, timeout.c, ball.c, apply.c, mhitu.c, mon.c, dbridge.c, and dig.c; preserve each caller’s source-order pick flag and state."
+                ],
+                "dependencies": [
+                  "pooleffects(TRUE) has a consumed boolean return that exits spoteffects() early; preserve that result and its source order.",
+                  "float_down(I_SPECIAL | TIMEOUT, 0L) has a consumed return that decides whether the later trap and pickup run; verify its trap.c implementation before treating the path as complete.",
+                  "ICE warnings use Warning, is_ice(), spot_time_left(..., MELT_ICE_AWAY), and the source thresholds at hack.c:3402-3415.",
+                  "The function owns static recursion state inspoteffects, spotloc, spotterrain, spottrap, and spottraptyp; retain the same-spot recursion rule and allow transformed terrain/trap re-entry.",
+                  "C discards results from switch_terrain(), check_special_room(), dosinkfall(), pickup(1), dotrap(), and mnexto(); preserve their effects or call note_unported() for an unported void dependency, never use a discarded result."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The immutable recording challenges/cases/v17/wizard-fire-ray-melts-wished-ice.session.json has step 6 (^W ice wish) screen “Solid ice.” Upstream objnam.c:3552 and 3666-3684 shows wizard terrain-wish handling: the ice arm changes an eligible ROOM square to ICE and describes the resulting ice. Step 7 moves east and leaves the cyan ICE glyph behind; its RNG includes slippery_ice_fumbling(hack.c:2407), confirming the tile is live ICE.",
+                "At recording step 30 the wand wish reports “o - an ebony wand.”; step 31 offers “What do you want to zap? [co or ?*]”; step 32 input e returns “That is a silly thing to zap.” The immutable input recipe ends `zeh`, so its selector misses slot o. These C screens and keys establish no fire ray, zap_over_floor, or melt_ice in this case; the matching retainedCases row in .cache/C56-accepted-preparation-evidence.json agrees, and its claim is verified against the recording.",
+                "At step 33, input h moves the hero onto the previous cyan ICE tile in the C screen. Upstream hack.c:test_move() lines 1011-1152 only rejects the destination’s physical obstacles and doors; rm.h:119 and 121 define IS_OBSTRUCTED as typ < POOL and IS_DOOR as typ == DOOR. This orthogonal ICE destination reaches the common checks and hack.c:1253-1254 returns TRUE. hack.c:2843-2856 and 2873-2980 then move the hero and call spoteffects(TRUE).",
+                "The evaluation challenges/evaluations/20261001190602-v17.json records 33/34 screens and its sole missing screen is step 33; the preserved v17 queue identity is 1 remaining screen and 34 recorded steps. The failure label “test_move() door or special terrain movement” is emitted by the JS boundary helper at js/hack.js:1458-1461, not by the source test_move() result.",
+                "The earliest JS stop is cmd.js:executeMovement() calling preflightDomoveDestination() before movement intent at js/cmd.js:2723-2733. For an unoccupied, non-obstructed ICE destination, js/hack.js:1758-1759 calls requireSimpleHeroDestination(); its ordinaryDestination list at 1452-1457 omits ICE and throws. The owner’s comment at js/hack.js:5000-5011 explicitly says the spoteffects() caller gate excludes the ice-warning arm; upstream hack.c:3312-3462 is the whole source unit and includes that branch at 3402-3415 plus recursion state at 3314-3339. This makes hack.c:spoteffects() the actionable whole-function file-port scope, with existing domove_core and teleds callers preserved.",
+                "The later intended ray behavior remains a separate gap: the recording never selects the wished wand, so it is not evidence for zap.c:weffects() -> zap_over_floor() -> melt_ice(). Current js/zap.js:5162-5212 records that melt_ice() has no ported owner; do not infer that behavior from this case’s title."
+              ]
+            }
+          }
+        },
+        {
+          "corpus": "synthetic",
+          "batch": "v17",
+          "caseId": "wizard-fire-ray-melts-wished-ice-slot-o",
+          "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o",
+          "manifestPath": "challenges/manifests/v17.json",
+          "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+          "recording": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+          "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+          "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+          "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.recipe.session.json",
+          "recipeSha256": "cb19a5c4399b58fa89155e3cd6932e5863cbec4682a43d0d6c4c411d77077e45",
+          "replayInputSha256": "bed0a77ca115685c99210f5428eba2807d20a03ee955e8b8d200e44d1aa91054",
+          "evaluationPath": "challenges/evaluations/20261003220302-v17.json",
+          "evaluationCommit": "feaa7dfc03eb5830327f077c97dade2dc161e61a",
+          "evaluationArtifact": "challenges/evaluations/20261003220302-v17.json",
+          "evaluationUtc": "2026-10-03T22:03:48.035Z",
+          "remainingScreens": 1,
+          "recordedSteps": 34,
+          "previousScreensMatched": 33,
+          "regression": false,
+          "passed": false,
+          "error": null,
+          "metrics": {
+            "screens": {
+              "matched": 33,
+              "total": 34
+            },
+            "rng": {
+              "matched": 2151,
+              "total": 2158
+            },
+            "cursors": {
+              "matched": 33,
+              "total": 34
+            }
+          },
+          "firstMismatch": {
+            "screen": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "h"
+              },
+              "kind": "ch",
+              "row": 0,
+              "column": 4,
+              "cCell": {
+                "ch": "i",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              },
+              "jsCell": {
+                "ch": "b",
+                "color": 8,
+                "attr": 0,
+                "decgfx": 0
+              }
+            },
+            "rng": {
+              "index": 2151,
+              "cEntry": "rnd(5)=2",
+              "cCaller": "zap_over_floor(zap.c:5186)",
+              "jsEntry": "rn2(20)=1",
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "h"
+              },
+              "stepIndex": 33
+            },
+            "cursor": {
+              "index": 33,
+              "location": {
+                "segmentIndex": 0,
+                "stepIndex": 33,
+                "key": "h"
+              },
+              "cCursor": [
+                59,
+                0,
+                1
+              ],
+              "jsCursor": [
+                57,
+                0,
+                1
+              ]
+            }
+          },
+          "step": 33,
+          "kind": "rng",
+          "sourceFile": "zap.c",
+          "function": "zap_over_floor",
+          "message": null,
+          "cFile": "zap.c",
+          "luaFile": null,
+          "line": 5186,
+          "investigation": {
+            "status": "complete",
+            "path": "investigations/synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o.json",
+            "result": {
+              "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o",
+              "corpus": "synthetic",
+              "batch": "v17",
+              "caseId": "wizard-fire-ray-melts-wished-ice-slot-o",
+              "remainingScreens": 1,
+              "recordedSteps": 34,
+              "manifestPath": "challenges/manifests/v17.json",
+              "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+              "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+              "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+              "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.recipe.session.json",
+              "recipeSha256": "cb19a5c4399b58fa89155e3cd6932e5863cbec4682a43d0d6c4c411d77077e45",
+              "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+              "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+              "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+              "evaluationUtc": "2026-10-01T19:06:03.082Z",
+              "status": "complete",
+              "commit": "45a483d2dd3320f9268aeb4477a785237e69df4e",
+              "mismatch": {
+                "corpus": "synthetic",
+                "batch": "v17",
+                "caseId": "wizard-fire-ray-melts-wished-ice-slot-o",
+                "session": "synthetic/v17/wizard-fire-ray-melts-wished-ice-slot-o",
+                "manifestPath": "challenges/manifests/v17.json",
+                "manifestSha256": "3b117af41e940caf724f6f5f5a65de625c20416854fadef002c0533aaaa57ada",
+                "recording": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+                "recordingPath": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json",
+                "recordingSha256": "5814f3d55851994b515161092bf831cce05fe3bf895cad31d59ac0245424f431",
+                "recipe": "challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.recipe.session.json",
+                "recipeSha256": "cb19a5c4399b58fa89155e3cd6932e5863cbec4682a43d0d6c4c411d77077e45",
+                "replayInputSha256": "232a5b31f2f0fff5eefa2525370750f9a45c032187b14230029a5cc1fec375d9",
+                "evaluationPath": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationCommit": "518d4526ccba82c89752a8babb892ba9bc48bc60",
+                "evaluationArtifact": "challenges/evaluations/20261001190602-v17.json",
+                "evaluationUtc": "2026-10-01T19:06:03.082Z",
+                "remainingScreens": 1,
+                "recordedSteps": 34,
+                "previousScreensMatched": null,
+                "regression": false,
+                "passed": false,
+                "error": null,
+                "metrics": {
+                  "screens": {
+                    "matched": 33,
+                    "total": 34
+                  },
+                  "rng": {
+                    "matched": 2151,
+                    "total": 2158
+                  },
+                  "cursors": {
+                    "matched": 33,
+                    "total": 34
+                  }
+                },
+                "firstMismatch": {
+                  "screen": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "h"
+                    },
+                    "kind": "ch",
+                    "row": 0,
+                    "column": 4,
+                    "cCell": {
+                      "ch": "i",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    },
+                    "jsCell": {
+                      "ch": "b",
+                      "color": 8,
+                      "attr": 0,
+                      "decgfx": 0
+                    }
+                  },
+                  "rng": {
+                    "index": 2151,
+                    "cEntry": "rnd(5)=2",
+                    "cCaller": "zap_over_floor(zap.c:5186)",
+                    "jsEntry": "rn2(20)=1",
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "h"
+                    },
+                    "stepIndex": 33
+                  },
+                  "cursor": {
+                    "index": 33,
+                    "location": {
+                      "segmentIndex": 0,
+                      "stepIndex": 33,
+                      "key": "h"
+                    },
+                    "cCursor": [
+                      59,
+                      0,
+                      1
+                    ],
+                    "jsCursor": [
+                      57,
+                      0,
+                      1
+                    ]
+                  }
+                },
+                "step": 33,
+                "kind": "rng",
+                "sourceFile": "zap.c",
+                "function": "zap_over_floor",
+                "message": null,
+                "cFile": "zap.c",
+                "luaFile": null,
+                "line": 5186
+              },
+              "summary": "The remaining fire-ray screen is caused by the unported zap.c:melt_ice() call in zap_over_floor’s ZT_FIRE branch. When the ray reaches ice, C changes the tile to its underlying pool or moat (or clears DB_ICE on a drawbridge), performs the ice side effects and redraw, then reports “The ice crackles and melts.” JavaScript currently calls note_unported() at this source site, leaving the terrain and message unchanged. The first RNG mismatch at zap_over_floor:5186 is a later pool-evaporation draw, not a random call in melt_ice().",
+              "source": {
+                "file": "zap.c",
+                "functions": [
+                  "melt_ice"
+                ],
+                "branch": "When zap_over_floor handles ZT_FIRE on a square for which is_ice(x,y) is true: ordinary ICE changes to POOL or MOAT according to icedpool, while an ice-covered drawbridge clears DB_ICE. The helper stops the melt timer, applies trap/object/vision effects, redraws, reports the message when visible or underfoot, handles boulders, and runs hero or monster floor effects.",
+                "callers": [
+                  "zap.c:zap_over_floor at 5173-5174; reached by zap.c:dobuzz for each visible ray square. JS js/zap.js:5211-5213 currently records note_unported(\"zap.c melt_ice\") instead of invoking the helper.",
+                  "trap.c:dofiretrap at 4313; the hero fire-trap path. JS js/trap_effects.js:2178-2179 has the corresponding melt_ice note.",
+                  "trap.c:trapeffect_fire_trap at 1812; the monster fire-trap path. JS js/trap_effects.js:2298-2299 has the corresponding melt_ice note.",
+                  "eat.c:vomit at 3781; the acidic-form branch. JS js/eat.js:2032-2033 currently refuses the acidic-form arm before this ice check, so that production path remains separately unsupported.",
+                  "zap.c:melt_ice_away at 5130; the timer callback. JS js/timeout.js:365 registers the callback without an implementation, and zap.c:start_melt_ice_timeout is also still an explicit JS gap in the cold-ray path."
+                ],
+                "dependencies": [
+                  "trap.c:trap_ice_effects(x,y,TRUE) is a void, state-changing callee and has no JS implementation. Its C body clears a trapped monster and converts or deletes eligible traps as ice melts (trap.c:7174-7193); retain a named note_unported(\"trap.c trap_ice_effects\") gap only when a trap is present until that separate source function is ported.",
+                  "boulder_hits_pool() returns a boolean consumed by melt_ice() to detect an impossible failed pool fill; js/do.js exports an async implementation at 677, so the caller must await and preserve that result.",
+                  "minliquid(mtmp) is explicitly cast to void in C; js/mon.js has the async helper at 2210, so run its side effects but do not use its return value.",
+                  "melt_ice() itself returns void. zap_over_floor() retains its separate rangemod return contract, consumed by dobuzz() to adjust ray range; do not use a melt_ice return as the range delta."
+                ]
+              },
+              "goalKind": "file-port",
+              "evidence": [
+                "The immutable v17 evaluation challenges/evaluations/20261001190602-v17.json records this case at 33/34 screens, 2151/2158 RNG calls and 33/34 cursors; the only remaining screen is segment 0, step 33, key h. Its earliest reported RNG difference is C rnd(5)=2 at zap_over_floor(zap.c:5186), while the screen and cursor also differ.",
+                "The C recording challenges/cases/v17/wizard-fire-ray-melts-wished-ice-slot-o.session.json ends step 33 with “The ice crackles and melts. Some water evaporates.” The recorded animation frames show the fire beam crossing the wished ice and the tile changing from ice to liquid before the final pool evaporation message.",
+                "Upstream zap.c:5040-5079 defines the complete void melt_ice() body: default message; clear DB_ICE or restore the underlying POOL/MOAT and clear icedpool; stop MELT_ICE_AWAY; call trap_ice_effects, obj_ice_effects and unearth_objs; recalculate underwater vision; newsym before Norep; process boulders; then call spoteffects underfoot or minliquid for a monster in the pool.",
+                "Upstream zap.c:5141-5187 puts melt_ice() in the ZT_FIRE ice arm at 5173-5174. rnd(5) at 5186 belongs only to the following is_pool() arm. melt_ice() contains no direct random-number call, so the saved first RNG difference identifies later pool evaporation, not the source owner.",
+                "Upstream zap.c:dobuzz (4780 onward) paints and delays the beam at each square before calling zap_over_floor(), then re-reads the monster because melting ice can change its floor effects (zap.c:4828-4861). JS js/zap.js:5888-5912 follows the same animation-before-floor-effect order; call melt_ice at the existing note site without moving the call ahead of the beam frame or delay.",
+                "A direct upstream source search, rg -n \"melt_ice\\(\" nethack-c/upstream/src/{zap.c,trap.c,eat.c}, finds zap.c:zap_over_floor and melt_ice_away, trap.c:dofiretrap and trapeffect_fire_trap, and eat.c:vomit, in addition to the definition. The paired rg search for melt_ice, zap_over_floor and trap_ice_effects in nethack-c/patches returns no matches; the owning behavior is the upstream C body.",
+                "The matching retainedCases context in .cache/C56-accepted-preparation-evidence.json attributes the C outcome to zap.c:weffects -> buzz -> zap_over_floor -> melt_ice, with ice becoming water. Direct inspection confirms that attribution: js/zap.js:5211-5213 still skips the C helper. The retained trace’s zap_over_floor:5186 RNG caller is downstream pool handling and must not be treated as melt_ice ownership."
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
