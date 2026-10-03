@@ -146908,6 +146908,36 @@
         "screens": 11405,
         "rng": 792838
       }
+    },
+    {
+      "id": "fix-dothrow-hurtle-invisible-planning-v21-20261003",
+      "kind": "divergence-fix",
+      "status": "queued",
+      "summary": "Preserve invisible-monster map memory during planned hero hurtling",
+      "cFile": "dothrow.c",
+      "sessions": [],
+      "selectionReason": "The complete v21 Archon investigation traces the replay exception through dothrow.c:hurtle_step to the live-only display helper. Fix its planning helper choice in the existing collision branch; A83 only rewires disjoint imports in the same file and owns no coupled planning contract.",
+      "detail": "The admitted v21 case throws without returning a localized input boundary. C dothrow.c:hurtle_step:867–868 calls display.c:map_invisible after collision with an unspotted monster. JS hurtle_step:981 passes a foreign planning clone to the live-only helper; use existing map_invisible_planning for that clone. Investigation investigations/synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.json records the fresh-process exception, caller chain and immutable case identity.",
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null,
+      "function": "hurtle_step",
+      "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+      "syntheticProvenance": {
+        "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst": {
+          "session": "synthetic/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "corpus": "synthetic",
+          "batch": "v21",
+          "caseId": "archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst",
+          "manifestPath": "challenges/manifests/v21.json",
+          "manifestSha256": "d21496df59b943bc811da8b1c1fd73c582b1ee4c6a8154eb9217ae5d539cf4ac",
+          "recordingPath": "challenges/cases/v21/archon-gazes-at-fire-giant-conflict-v21-combat-more-ack-followup-cfirst.session.json",
+          "recordingSha256": "dc6e172eefb9243739dfc9c52218e542c29dfef94d7e1952641ccf34c46abe2b",
+          "evaluationPath": "challenges/evaluations/20261003183000-v21.json",
+          "evaluationCommit": "b0fd76f6091376c07bf54e8d3061aa5a9c9957d0"
+        }
+      }
     }
   ]
 }
