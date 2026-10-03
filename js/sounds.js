@@ -202,7 +202,7 @@ import {
 } from './priest.js';
 import { demon_talk } from './minion.js';
 import { rn1, rn2 } from './rng.js';
-import { aggravate } from './wizard.js';
+import { aggravate, cuss } from './wizard.js';
 import { genders } from './roles.js';
 
 import { noisy_shop, shop_object, tended_shop } from './shk.js';
@@ -1337,7 +1337,7 @@ export async function domonnoise(mtmp, state = game) {
         }
         // FALLTHROUGH: the non-bribable arm is cuss().
     case MS_CUSS:
-        if (!mtmp.mpeaceful) note_unported('sounds.c cuss');
+        if (!mtmp.mpeaceful) await cuss(mtmp, state);
         else if (is_minion(ptr) && mon_aligntyp(mtmp) === A_LAWFUL)
             verbalMsg = "It's not too late.";
         else verbalMsg = "We're all doomed.";

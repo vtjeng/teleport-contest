@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap role/seed/monster-count variation of the C-source-observed forced-wait recipe. Acknowledge the intrinsic menu More, create four nearby hostile Imps, then use eight documented `m.` forced no-op turns to reach the Deaf MS_CUSS early return.",
+  "segments": [
+    {
+      "seed": 960106,
+      "datetime": "20360106120000",
+      "nethackrc": "OPTIONS=name:CussDeafImpTwo,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics\n",
+      "moves": " #wizintrinsic\naj\n \n#wizgenesis\nhostile imp\n#wizgenesis\nhostile imp\n#wizgenesis\nhostile imp\n#wizgenesis\nhostile imp\nm.m.m.m.m.m.m.m."
+    }
+  ]
+}

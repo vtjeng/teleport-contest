@@ -3287,7 +3287,7 @@ test('dochug gives Conflict monsters the source movement turn', async () => {
 
 // monmove.c:967.  The phase-four Conflict disjunct has no iswiz exception;
 // even a peaceful wizard rolls resist_conflict() before it attacks.
-test('dochug preserves the post-phase-four MS_CUSS gate', async () => {
+test('dochug enters wizard.c cuss only after its post-phase-four MS_CUSS gate', async () => {
     // The defaults make an awake, hostile, visible, adjacent Archon eligible
     // for C's final cuss test; each variation below disables one C predicate.
     async function run({
@@ -3380,20 +3380,20 @@ test('dochug preserves the post-phase-four MS_CUSS gate', async () => {
         // A visible minvis Archon consumes the preceding movement rn2(3);
         // the other disabled predicates stop before any random call.
         assert.deepEqual(result.draws, variation.minvis ? [3] : []);
-        assert.equal(result.unported.includes('wizard.c cuss'), false);
+        assert.equal(result.unported.includes('questpgr.c com_pager'), false);
     }
 
     // The C condition is !rn2(5): four misses the cuss branch; zero enters it.
     const gateMiss = await run({ cussDraw: 4 });
     // Bound 5 is the only draw: C's !rn2(5) gate fails at value 4.
     assert.deepEqual(gateMiss.draws, [5]);
-    assert.equal(gateMiss.unported.includes('wizard.c cuss'), false);
+    assert.equal(gateMiss.unported.includes('questpgr.c com_pager'), false);
 
     const gateHit = await run({ cussDraw: 0 });
     // The event order pins PHASE FOUR's attack callback before the cuss roll.
     assert.deepEqual(gateHit.draws, [5]);
     assert.deepEqual(gateHit.events, ['attackHero', 'rn2(5)']);
-    assert.deepEqual(gateHit.unported, ['wizard.c cuss']);
+    assert.deepEqual(gateHit.unported, ['questpgr.c com_pager']);
 });
 
 test('dochug applies the phase-four Conflict roll to peaceful wizards', async () => {

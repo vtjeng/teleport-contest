@@ -452,7 +452,7 @@ import {
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { note_unported } from './unported.js';
 import { gd_move } from './vault.js';
-import { tactics } from './wizard.js';
+import { cuss, tactics } from './wizard.js';
 import { block_point, cansee, clear_path, couldsee, m_canseeu, recalc_block_point, vision_recalc } from './vision.js';
 import {
     autoreturn_weapon,
@@ -2401,8 +2401,9 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //   mind_blast()                          wired for mind flayers
 //   killer bee jelly, gelcube_digests()   wired; the boundary rejects both species
 //   mon_offmap(), wormhitu()              unreachable on a fresh D:1 level
-//   cuss()                                the source gate is ported below;
-//                                         wizard.c:cuss remains a void gap
+//   cuss()                                the source gate and wizard.c:cuss
+//                                         are wired below; com_pager is a
+//                                         named discarded void gap there
 // A fleeing state is reachable for starting pets (after do_attack()'s
 // safe_pet refusal) and for hostile monsters (after monflee() calls).
 export async function dochug(monster, rawEnv = {}) {
@@ -2762,17 +2763,15 @@ export async function dochug(monster, rawEnv = {}) {
         await attackHero(monster, env);
     }
 
-    // C ref: monmove.c:983-985.  This source-ordered gate also runs after a
-    // monster moved and can attack.  The call to wizard.c:cuss is void; retain
-    // the gate's draw, and record the unported callee without inventing its
-    // messages or random calls.
+    // C ref: monmove.c:983-985. This source-ordered gate also runs after a
+    // monster moved and can attack. wizard.c:cuss() is void.
     if (range.inrange
         && monster.data?.msound === MS_CUSS
         && !monster.mpeaceful
         && couldsee(monster.mx, monster.my, state)
         && !monster.minvis
         && !random.rn2(5)) {
-        note_unported('wizard.c cuss');
+        await cuss(monster, state, rawEnv);
     }
     return 0;
 }
