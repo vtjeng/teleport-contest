@@ -1656,7 +1656,7 @@ const SUPPORTED_BOOTS_ON = new Set([
 // Every boots arm is represented here. ELVEN_BOOTS' source helper call is
 // awaited in its original branch; the other property and terrain effects
 // follow the source order.
-async function Boots_on(state) {
+export async function Boots_on(state) {
     const otyp = state.uarmf.otyp;
     const type = objectType(state.uarmf, state);
     const oldprop = state.u.uprops[type.oc_oprop].extrinsic & ~WORN_BOOTS;

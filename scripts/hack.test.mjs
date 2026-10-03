@@ -30,6 +30,8 @@ import {
     I_SPECIAL,
     LEVITATION,
     LAVAWALL,
+    LEFT_SIDE,
+    MAX_CARR_CAP,
     MAX_TYPE,
     MELT_ICE_AWAY,
     KILLED_BY_AN,
@@ -55,7 +57,13 @@ import {
     TRAVP_VALID,
     TRAVP_GUESS,
     TIMER_OBJECT,
+    TT_INFLOOR,
     WT_ELF,
+    WT_WEIGHTCAP_SPARE,
+    WT_WEIGHTCAP_STRCON,
+    WT_WOUNDEDLEG_REDUCT,
+    W_ARMF,
+    WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from '../js/const.js';
 import {
@@ -94,8 +102,10 @@ import {
     u_simple_floortyp,
     uint_to_any,
     unmul,
+    weight_cap,
 } from '../js/hack.js';
 import { game, resetGame } from '../js/gstate.js';
+import { Boots_on } from '../js/do_wear.js';
 import { GameMap } from '../js/game.js';
 import { initRng } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
@@ -306,6 +316,93 @@ function engraving(x, y, type, next = null) {
         nxt_engr: next,
     };
 }
+
+test('weight_cap defers Boots_on levitation and restores blocked masks', () => {
+    const cStart = HACK_SOURCE.indexOf('\nweight_cap(void)');
+    const cEnd = HACK_SOURCE.indexOf('\n/* returns how far beyond', cStart);
+    assert.ok(cStart >= 0 && cEnd > cStart);
+    const cWeightCap = HACK_SOURCE.slice(cStart, cEnd);
+    assert.match(cWeightCap,
+        /save_ELev = ELevitation, save_BLev = BLevitation[\s\S]*?ga\.afternmv == Boots_on[\s\S]*?ELevitation &= ~W_ARMF;\s*float_vs_flight\(\);[\s\S]*?BLevitation &= ~I_SPECIAL;[\s\S]*?if \(Levitation[\s\S]*?!Flying[\s\S]*?EWounded_legs & LEFT_SIDE[\s\S]*?EWounded_legs & RIGHT_SIDE[\s\S]*?ELevitation = save_ELev;\s*BLevitation = save_BLev;\s*float_vs_flight\(\);/u);
+
+    const jsStart = HACK_JS_SOURCE.indexOf('export function weight_cap(');
+    const jsEnd = HACK_JS_SOURCE.indexOf('\nfunction inventory_weight(', jsStart);
+    assert.ok(jsStart >= 0 && jsEnd > jsStart);
+    const jsWeightCap = HACK_JS_SOURCE.slice(jsStart, jsEnd);
+    assert.match(jsWeightCap,
+        /state\.afternmv === Boots_on[\s\S]*?levitation\.extrinsic &= ~W_ARMF;\s*float_vs_flight\(state\);[\s\S]*?levitation\.blocked &= ~I_SPECIAL;[\s\S]*?heroIsFlying\(state\)[\s\S]*?saveELevitation[\s\S]*?saveBLevitation[\s\S]*?float_vs_flight\(state\);/u);
+
+    function capacityState() {
+        const state = resetGame();
+        const uprops = [];
+        uprops[LEVITATION] = {
+            intrinsic: 0, extrinsic: W_ARMF, blocked: I_SPECIAL,
+        };
+        uprops[FLYING] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        uprops[WOUNDED_LEGS] = {
+            intrinsic: 0, extrinsic: LEFT_SIDE, blocked: 0,
+        };
+        uprops[STEALTH] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+        state.u = {
+            acurr: { a: [18, 10, 10, 10, 10, 10] },
+            abon: [0, 0, 0, 0, 0, 0],
+            atemp: [0, 0, 0, 0, 0, 0],
+            uprops,
+            umonnum: 0,
+            umonster: 0,
+            usteed: null,
+            utrap: 1,
+            utraptype: TT_INFLOOR,
+            uz: { dnum: 0, dlevel: 1 },
+        };
+        state.youmonst = { data: {} };
+        state.afternmv = Boots_on;
+        return state;
+    }
+
+    // Strength 18 and Constitution 10 give 25 * (18 + 10) + 50 = 750.
+    // The trapped-floor I_SPECIAL masks levitation and flight; one wounded
+    // leg then subtracts the source 100-unit reduction while Boots_on defers
+    // the levitation boots' carrying benefit.
+    const state = capacityState();
+    const levitation = state.u.uprops[LEVITATION];
+    const deferred = weight_cap(state);
+    assert.equal(deferred,
+        WT_WEIGHTCAP_STRCON * (18 + 10) + WT_WEIGHTCAP_SPARE
+            - WT_WOUNDEDLEG_REDUCT);
+    assert.equal(levitation.extrinsic, W_ARMF);
+    assert.equal(levitation.blocked, I_SPECIAL);
+    assert.equal(state.u.uprops[FLYING].blocked & I_SPECIAL, I_SPECIAL);
+
+    // Removing the single wounded-leg bit restores the full unpolymorphed
+    // formula while the same Boots_on callback still suppresses flight.
+    state.u.uprops[WOUNDED_LEGS].extrinsic = 0;
+    assert.equal(weight_cap(state),
+        WT_WEIGHTCAP_STRCON * (18 + 10) + WT_WEIGHTCAP_SPARE);
+
+    // After Boots_on is no longer pending, the same worn levitation boots
+    // provide the source full-capacity arm, even though floor trapping sets
+    // BLevitation's I_SPECIAL block again after the calculation.
+    state.afternmv = null;
+    assert.equal(weight_cap(state), MAX_CARR_CAP);
+    assert.equal(levitation.extrinsic, W_ARMF);
+    assert.equal(levitation.blocked, I_SPECIAL);
+
+    // C also clears only I_SPECIAL while calculating: intrinsic levitation
+    // blocked by a floor trap temporarily supplies full capacity, then both
+    // original property fields are restored before returning.
+    const intrinsic = capacityState();
+    intrinsic.afternmv = null;
+    intrinsic.u.uprops[LEVITATION] = {
+        intrinsic: 1, extrinsic: 0, blocked: I_SPECIAL,
+    };
+    const intrinsicLevitation = intrinsic.u.uprops[LEVITATION];
+    assert.equal(weight_cap(intrinsic), MAX_CARR_CAP);
+    assert.equal(intrinsicLevitation.intrinsic, 1);
+    assert.equal(intrinsicLevitation.extrinsic, 0);
+    assert.equal(intrinsicLevitation.blocked, I_SPECIAL);
+    resetGame();
+});
 
 test('hero tread uses the source weight and grounded-property gates', () => {
     const grounded = treadState();

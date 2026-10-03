@@ -144,6 +144,7 @@ import {
     WEB,
     WOUNDED_LEGS,
     W_ARTI,
+    W_ARMF,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WT_ELF,
@@ -386,7 +387,7 @@ import { Cold_resistance } from './zap.js';
 import { enexto, goodpos, mnexto, rloc, rloc_to } from './teleport.js';
 import { inside_room } from './room_coordinates.js';
 import { check_special_room, in_rooms } from './rooms.js';
-import { hard_helmet } from './do_wear.js';
+import { Boots_on, hard_helmet } from './do_wear.js';
 import { helm_simple_name } from './objnam.js';
 
 import {
@@ -566,13 +567,9 @@ export async function handle_tip(tip, state = game, env = {}) {
     return true;
 }
 
-// C ref: hack.c weight_cap() (4293-4351), for the live unpolymorphed,
-// non-levitating repeated-command boundary. Unlike the former startup-only
-// helper, this reads effective Strength on every call, so hunger weakness can
-// change carrying capacity before the next monster/allocation cycle.
-//
-// The Boots_on/ELevitation deferral and its restore at 4337-4341 are absent
-// because nothing reaches them.
+// C ref: hack.c weight_cap() (4293-4351). Read the live attributes and
+// property masks on every call, including the temporary levitation changes
+// around Boots_on and the I_SPECIAL floor-trap exception.
 //
 // The Upolyd adjustment at 4313-4323 scales carrying capacity by the
 // polymorphed form's corpse weight (cwt) relative to WT_HUMAN, matching
@@ -580,15 +577,32 @@ export async function handle_tip(tip, state = game, env = {}) {
 // by msize/MZ_HUMAN; a non-strong form (or a strong form heavier than human)
 // scales by cwt/WT_HUMAN.
 //
-// The steed arm at 4325-4327 is live, because riding a strong monster is one
-// of the three ways C reaches MAX_CARR_CAP -- the other two, Levitation and
-// the air level, remain out of reach.
+// The effective-Levitation and air-level arms at 4325-4327 provide full
+// capacity alongside riding a strong monster. Boots_on temporarily masks
+// footwear Levitation until the delayed wearing callback completes.
 //
 // The EWounded_legs reduction at 4331-4336 is live too, and it is what turns a
 // bear trap's set_wounded_legs() into the "Burdened" the status line shows: one
 // wounded leg costs WT_WOUNDEDLEG_REDUCT, and both cost twice that. C guards it
 // with !Flying, which is the only reader of Flying in this function.
 export function weight_cap(state = game) {
+    const levitation = state.u.uprops?.[LEVITATION]
+        ?? { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const saveELevitation = levitation.extrinsic;
+    const saveBLevitation = levitation.blocked;
+
+    // C compares ga.afternmv by function identity. Boots grant their
+    // properties when wearing begins, but C defers the levitation carrying
+    // benefit until the multi-turn Boots_on callback has finished.
+    if (state.afternmv === Boots_on && (levitation.extrinsic & W_ARMF) !== 0) {
+        levitation.extrinsic &= ~W_ARMF;
+        float_vs_flight(state);
+    }
+
+    // C ignores only the floor-trap I_SPECIAL block while calculating
+    // capacity, then restores the complete mask below.
+    levitation.blocked &= ~I_SPECIAL;
+
     let capacity = WT_WEIGHTCAP_STRCON * (
         acurrstr(state) + acurr(state, A_CON)
     ) + WT_WEIGHTCAP_SPARE;
@@ -618,6 +632,13 @@ export function weight_cap(state = game) {
             if (sides & LEFT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
             if (sides & RIGHT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
         }
+    }
+
+    if (levitation.extrinsic !== saveELevitation
+        || levitation.blocked !== saveBLevitation) {
+        levitation.extrinsic = saveELevitation;
+        levitation.blocked = saveBLevitation;
+        float_vs_flight(state);
     }
     return Math.max(Math.trunc(capacity), 1); /* never return 0 */
 }
