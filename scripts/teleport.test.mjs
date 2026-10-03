@@ -484,6 +484,10 @@ test('goodpos wires C-owned scary, air, and exclusion checks directly', () => {
     assert.match(jsGoodpos, /closed_door\(x, y, state\)/u);
     assert.match(cGoodpos, /is_exclusion_zone\(LR_MONGEN, x, y\)/u);
     assert.match(jsGoodpos, /is_exclusion_zone\(LR_MONGEN, x, y, state\)/u);
+    assert.match(cGoodpos,
+        /Fire_resistance && Wwalking && uarmf\s*&& uarmf->oerodeproof/u);
+    assert.match(jsGoodpos,
+        /propertyPresent\(state, FIRE_RES\) && waterWalking[\s\S]*?boots && boots\.oerodeproof/u);
     assert.doesNotMatch(jsGoodpos,
         /heroCanOccupy(?:Pool|Lava).*hook|isExclusionZone|normalized\.onscary/u);
 });
@@ -544,9 +548,15 @@ test('goodpos reads hero pool and lava properties directly from source state', (
         [FIRE_RES]: { intrinsic: 1 },
         [WWALKING]: { intrinsic: 1 },
     };
-    state.u.uarmf = { oerodeproof: 1 };
+    state.uarmf = { oerodeproof: 1 };
+    assert.equal(state.u.uarmf, undefined);
     state.level.at(x, y).typ = LAVAPOOL;
     assert.equal(goodpos(x, y, hero, 0, { state }), true);
+    delete state.uarmf;
+    assert.equal(goodpos(x, y, hero, 0, { state }), false);
+    state.uarmf = { oerodeproof: 0 };
+    assert.equal(goodpos(x, y, hero, 0, { state }), false);
+    state.uarmf = { oerodeproof: 1 };
     delete state.u.uprops[FIRE_RES];
     assert.equal(goodpos(x, y, hero, 0, { state }), false);
 

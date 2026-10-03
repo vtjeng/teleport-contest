@@ -1000,7 +1000,9 @@ function heroCanOccupyPool(x, y, state) {
 }
 
 function heroCanOccupyLava(state) {
-    const boots = state.u?.uarmf;
+    // C teleport.c reads global `uarmf` (worn.c's W_ARMF slot), which is
+    // stored at the game-state root alongside uarmh/uarms.
+    const boots = state.uarmf;
     const waterWalking = propertyPresent(state, WWALKING)
         && !inWaterLevel(state);
     const flying = state.u?.uprops?.[FLYING] ?? {};
