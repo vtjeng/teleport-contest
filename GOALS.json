@@ -145344,8 +145344,8 @@
           "name": "mhitm_ad_conf",
           "line": 3690,
           "endLine": 3728,
-          "declared": false,
-          "complete": false
+          "declared": true,
+          "complete": true
         }
       ],
       "range": {
@@ -145521,7 +145521,86 @@
             }
           }
         }
-      ]
+      ],
+      "evidence": {
+        "functions": [
+          {
+            "name": "mhitm_ad_conf",
+            "implementation": "js/uhitm.js",
+            "symbol": "mhitm_ad_conf",
+            "sourceReview": "Read and ported all of uhitm.c:mhitm_ad_conf (3690–3725). Hero-to-monster sets mconf only when not already confused and emits a message only when canseemon. Monster-to-hero calls hitmsg first, then evaluates !mcan, rn2(4), and mspec_used in C order; only on success it adds damage plus rn2(6) to mspec_used, chooses the output from HConfusion, calls make_confused(HConfusion + damage, FALSE), and always zeros mhm.damage. Monster-to-monster evaluates the uncancelled/unconfused/cooldown gate, conditionally calls the location-aware message under gv.vis && canseemon, sets mconf, clears only STRAT_WAITFORU, and retains mhm.damage without a helper RNG draw. Existing C-equivalent helpers hitmsg, Monnam/canseemon, message/pline_mon output, and potion.c:make_confused are wired; this helper has no unported call or fabricated return value.",
+            "callers": [
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "uhitm.c:damageum -> mhitm_adtyping(AD_CONF) -> mhitm_ad_conf (current species table has no reachable hero-attacker AD_CONF route; pinned below)"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "mhitu.c:hitmu -> mhitm_adtyping(AD_CONF) -> mhitm_ad_conf"
+              },
+              {
+                "path": "js/uhitm.js",
+                "symbol": "mhitm_adtyping",
+                "source": "mhitm.c:mdamagem -> mhitm_adtyping(AD_CONF) -> mhitm_ad_conf"
+              }
+            ],
+            "pure": false,
+            "tests": [
+              "scripts/uhitm-ad-conf.test.mjs"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-conf-yeenoghu-monster-hero-c64-seed-variation.session.json",
+              "recordings/uhitm.c/mhitm-ad-conf-yeenoghu-stone-pair-conflict-c64-minimal.session.json"
+            ],
+            "sourceFile": "uhitm.c",
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 39,
+                "source": "mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_CONF) -> mhitm_ad_conf; rn2(4)=1 skips confusion and the helper still zeros damage. Positive confusion is separately covered by the independent C64 seed variation."
+              }
+            ],
+            "checkedAt": "25876621e3edbdc4e752d1551a7178809ffc72df"
+          }
+        ],
+        "entryPointReview": "The two reachable production directions have complete matching independent recordings: Yeenoghu AT_WEAP/AD_CONF attacking the hero exercises mhitu.c:hitmu, and Conflict-driven Yeenoghu attacking a stone golem exercises mhitm.c:mdamagem. The selected C64 minimal M→M recipe is a source-observed two-stone-golem variation; its final space dismisses the preceding attack pager, C executes AD_CONF, and the segment ends on the confusion More, before later AD_PLYS/zhitu work. The hero-attacks-monster arm is source-pinned only: monsters.h has two AD_CONF attacks, Umber Hulk AT_GAZE (routed through polyself.c:dogaze) and Yeenoghu AT_WEAP (whose M2_NOPOLY plus mondata.h:polyok rejects hero polymorph). No valid current attack table route sends a hero AD_CONF weapon hit through damageum. Full stone-pair and capped-level attempts remain in blocked history and are not cited as passing recordings. Root adds the current selected v19 step39 as the no-proc variation, verified during evidence recording; current selection uses the B91 evaluation, superseding the stale tactics wording in the immutable context.",
+        "entryPoints": [
+          {
+            "name": "Monster-to-hero AD_CONF hit",
+            "functions": [
+              "mhitm_ad_conf"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-conf-yeenoghu-monster-hero-c64-seed-variation.session.json"
+            ],
+            "synthetic": [
+              {
+                "batch": "v19",
+                "caseId": "yeenoghu-confuses-with-weapon-c62-force-unique-pager-continued",
+                "segment": 0,
+                "fromStep": 39,
+                "throughStep": 39,
+                "source": "mattacku -> mhitu.c:hitmu -> uhitm.c:mhitm_adtyping(AD_CONF) -> mhitm_ad_conf; rn2(4)=1 skips confusion and the helper still zeros damage. Positive confusion is separately covered by the independent C64 seed variation."
+              }
+            ]
+          },
+          {
+            "name": "Monster-to-monster AD_CONF attack",
+            "functions": [
+              "mhitm_ad_conf"
+            ],
+            "recordings": [
+              "recordings/uhitm.c/mhitm-ad-conf-yeenoghu-stone-pair-conflict-c64-minimal.session.json"
+            ],
+            "synthetic": []
+          }
+        ]
+      }
     }
   ]
 }
